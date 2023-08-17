@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="netfox"
-config/description="Enter an interesting project description here!"
+config/description="Network addon with rollback"
 config/features=PackedStringArray("4.1")
 config/icon="res://icon.png"
 

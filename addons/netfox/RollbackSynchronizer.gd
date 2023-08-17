@@ -31,7 +31,6 @@ class PropertyEntry:
 		result._path = path
 		return result
 
-@export_group("Properties")
 @export var root: Node = get_parent()
 @export var enable_interpolation: bool = true
 @export var state_properties: Array[String]
@@ -55,8 +54,6 @@ var _lerp_from = {}
 var _lerp_to = {}
 
 var _pe_cache: Dictionary = {}
-
-var _netid: int
 
 func process_settings():
 	_pe_cache.clear()
