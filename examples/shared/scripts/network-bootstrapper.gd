@@ -43,6 +43,9 @@ func _host():
 	get_tree().get_multiplayer().server_relay = true
 	
 	connect_ui.queue_free()
+	
+	# TODO: Move to a dedicated component?
+	NetworkTime.start()
 
 func _join():
 	var host = _parse_input()
@@ -74,6 +77,9 @@ func _join():
 
 	print("Client started")
 	connect_ui.queue_free()
+	
+	# TODO: Move to a dedicated component?
+	NetworkTime.start()
 
 func _parse_input() -> Dictionary:
 	# Validate inputs

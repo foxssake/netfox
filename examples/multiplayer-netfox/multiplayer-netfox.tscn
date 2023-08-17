@@ -1,8 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://b2nbnsert06me"]
+[gd_scene load_steps=9 format=3 uid="uid://b2nbnsert06me"]
 
 [ext_resource type="Script" path="res://examples/multiplayer-netfox/scripts/player-spawner.gd" id="1_ngijx"]
+[ext_resource type="PackedScene" uid="uid://k3y73rql2u6e" path="res://examples/multiplayer-netfox/characters/player.tscn" id="2_qqlgi"]
 [ext_resource type="Script" path="res://examples/shared/scripts/network-bootstrapper.gd" id="3_bpx3m"]
 [ext_resource type="PackedScene" uid="uid://badtpsxn5lago" path="res://examples/shared/ui/network-popup.tscn" id="4_lq3lq"]
+[ext_resource type="Script" path="res://examples/multiplayer-netfox/scripts/time-display.gd" id="4_n66wk"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_rrbfu"]
 
@@ -71,18 +73,34 @@ spawn_path = NodePath("../../Players")
 
 [node name="Player Spawner" type="Node" parent="Network" node_paths=PackedStringArray("spawn_root")]
 script = ExtResource("1_ngijx")
+player_scene = ExtResource("2_qqlgi")
 spawn_root = NodePath("../../Players")
 
 [node name="LAN Bootstrapper" type="Node" parent="Network" node_paths=PackedStringArray("connect_ui", "address_input", "port_input", "host_button", "join_button")]
 script = ExtResource("3_bpx3m")
-connect_ui = NodePath("../Network Popup")
-address_input = NodePath("../Network Popup/PanelContainer/TabContainer/LAN/Address Row/Address LineEdit")
-port_input = NodePath("../Network Popup/PanelContainer/TabContainer/LAN/Address Row/Port LineEdit")
-host_button = NodePath("../Network Popup/PanelContainer/TabContainer/LAN/Actions Row/Host Button")
-join_button = NodePath("../Network Popup/PanelContainer/TabContainer/LAN/Actions Row/Join Button")
-
-[node name="Network Popup" parent="Network" instance=ExtResource("4_lq3lq")]
+connect_ui = NodePath("../../UI/Network Popup")
+address_input = NodePath("../../UI/Network Popup/PanelContainer/TabContainer/LAN/Address Row/Address LineEdit")
+port_input = NodePath("../../UI/Network Popup/PanelContainer/TabContainer/LAN/Address Row/Port LineEdit")
+host_button = NodePath("../../UI/Network Popup/PanelContainer/TabContainer/LAN/Actions Row/Host Button")
+join_button = NodePath("../../UI/Network Popup/PanelContainer/TabContainer/LAN/Actions Row/Join Button")
 
 [node name="Players" type="Node" parent="."]
 
-[editable path="Network/Network Popup"]
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Network Popup" parent="UI" instance=ExtResource("4_lq3lq")]
+layout_mode = 1
+
+[node name="Time Display" type="Label" parent="UI"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+script = ExtResource("4_n66wk")
+
+[editable path="UI/Network Popup"]

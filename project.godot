@@ -18,6 +18,8 @@ config/icon="res://icon.png"
 [autoload]
 
 Async="*res://examples/shared/scripts/async.gd"
+NetworkTime="*res://addons/netfox/NetworkTime.gd"
+NetworkTimeSynchronizer="*res://addons/netfox/NetworkTimeSynchronizer.gd"
 
 [display]
 
@@ -27,3 +29,8 @@ window/size/viewport_height=540
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/netfox/plugin.cfg")
+
+[netfox]
+
+time/tickrate=8
+general/clear_settings=false
