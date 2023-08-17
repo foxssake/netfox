@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://dlj5m010hpg2"]
 
-[ext_resource type="Script" path="res://example-game/scripts/player.gd" id="1_biuhe"]
+[ext_resource type="Script" path="res://examples/single-player/scripts/player.gd" id="1_biuhe"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_t2650"]
 

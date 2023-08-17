@@ -1,6 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://grxmiwysyb46"]
+[gd_scene load_steps=8 format=3 uid="uid://f41lldd1a1xg"]
 
-[ext_resource type="PackedScene" uid="uid://dlj5m010hpg2" path="res://example-game/characters/player.tscn" id="1_4wepk"]
+[ext_resource type="PackedScene" uid="uid://badtpsxn5lago" path="res://examples/shared/ui/network-popup.tscn" id="1_0btv1"]
+[ext_resource type="Script" path="res://examples/multiplayer-simple/scripts/player-spawner.gd" id="1_cru4a"]
+[ext_resource type="Script" path="res://examples/shared/scripts/network-bootstrapper.gd" id="1_innix"]
+[ext_resource type="PackedScene" uid="uid://duljyj8cj1vb6" path="res://examples/multiplayer-simple/characters/player.tscn" id="2_jb473"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_rrbfu"]
 
@@ -62,7 +65,27 @@ transform = Transform3D(1, 0, 0, 0, 0.5, 0.866025, 0, -0.866025, 0.5, 0, 14.3564
 [node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
 environment = SubResource("Environment_ef1wp")
 
+[node name="Network" type="Node" parent="."]
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Network"]
+spawn_path = NodePath("../../Players")
+
+[node name="Player Spawner" type="Node" parent="Network" node_paths=PackedStringArray("spawn_root")]
+script = ExtResource("1_cru4a")
+player_scene = ExtResource("2_jb473")
+spawn_root = NodePath("../../Players")
+spawn_point = Vector3(0, 1, 0)
+
+[node name="LAN Bootstrapper" type="Node" parent="Network" node_paths=PackedStringArray("connect_ui", "address_input", "port_input", "host_button", "join_button")]
+script = ExtResource("1_innix")
+connect_ui = NodePath("../Network Popup")
+address_input = NodePath("../Network Popup/PanelContainer/TabContainer/LAN/Address Row/Address LineEdit")
+port_input = NodePath("../Network Popup/PanelContainer/TabContainer/LAN/Address Row/Port LineEdit")
+host_button = NodePath("../Network Popup/PanelContainer/TabContainer/LAN/Actions Row/Host Button")
+join_button = NodePath("../Network Popup/PanelContainer/TabContainer/LAN/Actions Row/Join Button")
+
+[node name="Network Popup" parent="Network" instance=ExtResource("1_0btv1")]
+
 [node name="Players" type="Node" parent="."]
 
-[node name="Player" parent="Players" instance=ExtResource("1_4wepk")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+[editable path="Network/Network Popup"]
