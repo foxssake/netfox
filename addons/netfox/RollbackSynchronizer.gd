@@ -93,8 +93,6 @@ func process_settings():
 			continue
 
 		_nodes.push_back(node)
-	
-	var netid = multiplayer.get_unique_id()
 
 func _ready():
 	process_settings()
@@ -108,7 +106,6 @@ func _ready():
 
 func _process(delta):
 	_interpolate(_lerp_from, _lerp_to, _lerp_before_loop, NetworkTime.tick_factor, delta)
-	# _apply(_lerp_to)
 
 func _before_loop():
 	if _auth_input_props.is_empty():
@@ -186,16 +183,15 @@ func _record_tick(tick: int):
 func _after_loop():
 	_earliest_input = NetworkTime.tick
 	
+	var display_state = _get_history(_states, NetworkTime.tick - NetworkRollback.display_offset)
 	_lerp_from = _get_history(_states, NetworkTime.tick - NetworkRollback.display_offset - 1)
-	_lerp_to = _get_history(_states, NetworkTime.tick - NetworkRollback.display_offset)
+	_lerp_to = display_state
 	
-	if enable_interpolation:
+	if enable_interpolation and not interpolate_properties.is_empty():
 		_apply(_lerp_before_loop)
 	else:
-		# Apply latest state
-		if not _states.is_empty():
-			var state = _get_history(_states, NetworkTime.tick)
-			_apply(state)
+		# Apply display state
+		_apply(display_state)
 	
 	if NetworkTime.tick - _last_reliable_broadcast > 8:
 		if not _auth_state_props.is_empty():
@@ -217,7 +213,7 @@ func _after_tick(_delta, _tick):
 		_inputs.erase(_inputs.keys().min())
 
 func _interpolate(from: Dictionary, to: Dictionary, loop: Dictionary, f: float, delta: float):
-	if not enable_interpolation:
+	if not enable_interpolation or interpolate_properties.is_empty():
 		return
 
 	for property in from:

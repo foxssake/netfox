@@ -4,13 +4,13 @@ var enabled: bool = ProjectSettings.get_setting("netfox/rollback/enabled", true)
 
 var history_limit: int:
 	get:
-		return ProjectSettings.get_setting("netfox/time/history_limit", 64)
+		return ProjectSettings.get_setting("netfox/rollback/history_limit", 64)
 	set(v):
 		push_error("Trying to set read-only variable history_limit")
 
 var display_offset: int:
 	get:
-		return ProjectSettings.get_setting("netfox/time/display_offset", 0)
+		return ProjectSettings.get_setting("netfox/rollback/display_offset", 0)
 	set(v):
 		push_error("Trying to set read-only variable display_offset")
 
