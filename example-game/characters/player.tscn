@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3 uid="uid://dlj5m010hpg2"]
+
+[ext_resource type="Script" path="res://example-game/scripts/player.gd" id="1_biuhe"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_t2650"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_vogks"]
+
+[node name="Player" type="CharacterBody3D"]
+script = ExtResource("1_biuhe")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_t2650")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_vogks")

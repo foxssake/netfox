@@ -1,0 +1,68 @@
+[gd_scene load_steps=5 format=3 uid="uid://grxmiwysyb46"]
+
+[ext_resource type="PackedScene" uid="uid://dlj5m010hpg2" path="res://example-game/characters/player.tscn" id="1_4wepk"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_rrbfu"]
+
+[sub_resource type="Sky" id="Sky_g0uhm"]
+sky_material = SubResource("ProceduralSkyMaterial_rrbfu")
+
+[sub_resource type="Environment" id="Environment_ef1wp"]
+background_mode = 2
+sky = SubResource("Sky_g0uhm")
+
+[node name="Game Scene" type="Node3D"]
+
+[node name="Map" type="Node" parent="."]
+
+[node name="CSGCombiner3D" type="CSGCombiner3D" parent="Map"]
+use_collision = true
+
+[node name="CSGFloor" type="CSGBox3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+size = Vector3(16, 0.5, 16)
+
+[node name="CSGWall" type="CSGBox3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 8)
+size = Vector3(16, 2, 1)
+
+[node name="CSGWall2" type="CSGBox3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -8)
+size = Vector3(16, 2, 1)
+
+[node name="CSGWall3" type="CSGBox3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 1, 0)
+size = Vector3(1, 2, 16)
+
+[node name="CSGWall4" type="CSGBox3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1, 0)
+size = Vector3(1, 2, 16)
+
+[node name="CSGCorner" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 1, 8)
+
+[node name="CSGCorner2" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 1, -8)
+
+[node name="CSGCorner3" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1, -8)
+
+[node name="CSGCorner4" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1, 8)
+
+[node name="Environment" type="Node" parent="."]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
+transform = Transform3D(0.5, 0.612372, -0.612372, 0, 0.707107, 0.707107, 0.866025, -0.353553, 0.353553, -6.7361, 8.77817, 3.88909)
+shadow_enabled = true
+
+[node name="Camera3D" type="Camera3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 0.5, 0.866025, 0, -0.866025, 0.5, 0, 14.3564, 8.86602)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
+environment = SubResource("Environment_ef1wp")
+
+[node name="Players" type="Node" parent="."]
+
+[node name="Player" parent="Players" instance=ExtResource("1_4wepk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
