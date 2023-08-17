@@ -8,7 +8,7 @@
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_n7ria"]
 properties/0/path = NodePath(".:position")
-properties/0/spawn = true
+properties/0/spawn = false
 properties/0/sync = true
 
 [node name="Player" type="CharacterBody3D"]

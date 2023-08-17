@@ -43,6 +43,7 @@ var tickfactor: float:
 var last_remote_time: float = -1:
 	get:
 		return last_remote_time
+
 var last_remote_tick: int = -1:
 	get:
 		return last_remote_tick

@@ -5,7 +5,11 @@ extends CharacterBody3D
 # Get the gravity from the project settings to be synced with RigidBody nodes.
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 
-func _physics_process(delta):
+func _ready():
+	NetworkTime.on_tick.connect(_tick)
+	position = Vector3(0, 4, 0)
+
+func _tick(delta):
 	if not is_multiplayer_authority():
 		# If the player is not ours, do nothing
 		# The MultiplayerSynchronizer will sync data
@@ -26,4 +30,6 @@ func _physics_process(delta):
 		velocity.x = move_toward(velocity.x, 0, speed)
 		velocity.z = move_toward(velocity.z, 0, speed)
 
+	velocity *= Engine.physics_ticks_per_second * delta
 	move_and_slide()
+	velocity /= Engine.physics_ticks_per_second * delta
