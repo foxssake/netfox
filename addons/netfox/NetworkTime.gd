@@ -3,42 +3,62 @@ extends Node
 var tickrate: int:
 	get:
 		return ProjectSettings.get_setting("netfox/time/tickrate", 30)
+	set(v):
+		push_error("Trying to set read-only variable tickrate")
 
 var sync_to_physics: bool:
 	get:
 		return ProjectSettings.get_setting("netfox/time/sync_to_physics", false)
+	set(v):
+		push_error("Trying to set read-only variable sync_to_physics")
 
 var max_ticks_per_frame: int:
 	get:
 		return ProjectSettings.get_setting("netfox/time/max_ticks_per_frame", 8)
+	set(v):
+		push_error("Trying to set read-only variable max_ticks_per_frame")
 
 var sync_interval: float:
 	get:
 		return ProjectSettings.get_setting("netfox/time/sync_interval", 1.0)
+	set(v):
+		push_error("Trying to set read-only variable sync_interval")
 
 var sync_samples: int:
 	get:
 		return ProjectSettings.get_setting("netfox/time/sync_samples", 8)
+	set(v):
+		push_error("Trying to set read-only variable sync_samples")
 
 var sync_sample_interval: float:
 	get:
 		return ProjectSettings.get_setting("netfox/time/sync_sample_interval", 0.1)
+	set(v):
+		push_error("Trying to set read-only variable sync_sample_interval")
 
 var time: float:
 	get:
-		return time
+		return _time
+	set(v):
+		push_error("Trying to set read-only variable time")
 
 var tick: int:
 	get:
-		return tick
+		return _tick
+	set(v):
+		push_error("Trying to set read-only variable tick")
 
 var ticktime: float:
 	get:
 		return 1.0 / tickrate
+	set(v):
+		push_error("Trying to set read-only variable ticktime")
 
 var tickfactor: float:
 	get:
 		return 1.0 - clampf(_next_tick * tickrate, 0, 1)
+	set(v):
+		push_error("Trying to set read-only variable tickfactor")
 
 var last_remote_time: float = -1:
 	get:
@@ -56,11 +76,13 @@ signal on_sync
 
 signal on_ping(peer_id: int, peer_time: float, peer_tick: int)
 
+var _time: float = 0
+var _tick: int = 0
 var _next_tick: float = 0
 var _active: bool = false
 
 func start():
-	time = 0
+	_time = 0
 	
 	if not multiplayer.is_server():
 		_sync_time_loop(sync_interval)
@@ -119,8 +141,8 @@ func _process(delta):
 			on_tick.emit(ticktime)
 			after_tick.emit(ticktime)
 
-			tick += 1
-			time += ticktime
+			_tick += 1
+			_time += ticktime
 			ticks_in_loop += 1
 			_next_tick += ticktime
 		
@@ -141,8 +163,8 @@ func _sync_time_loop(interval: float):
 		var new_tick = floor(new_time * tickrate)
 		new_time = new_tick * ticktime # Sync to tick
 		print("Syncing time %s -> %s, #%s -> #%s" % [time, new_time, tick, new_tick])
-		time = new_time
-		tick = new_tick
+		_time = new_time
+		_tick = new_tick
 		on_sync.emit()
 		
 		if not _active:
