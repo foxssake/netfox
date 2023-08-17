@@ -30,6 +30,8 @@ func _tick(delta):
 		velocity.x = move_toward(velocity.x, 0, speed)
 		velocity.z = move_toward(velocity.z, 0, speed)
 
-	velocity *= Engine.physics_ticks_per_second * delta
+	# move_and_slide() assumes physics delta
+	# multiplying velocity by NetworkTime.physics_factor compensates for it
+	velocity *= NetworkTime.physics_factor
 	move_and_slide()
-	velocity /= Engine.physics_ticks_per_second * delta
+	velocity /= NetworkTime.physics_factor

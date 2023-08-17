@@ -33,3 +33,4 @@ enabled=PackedStringArray("res://addons/netfox/plugin.cfg")
 [netfox]
 
 time/tickrate=8
+general/clear_settings=false

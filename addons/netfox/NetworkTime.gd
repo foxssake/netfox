@@ -36,11 +36,17 @@ var ticktime: float:
 	set(v):
 		push_error("Trying to set read-only variable ticktime")
 
-var tickfactor: float:
+var tick_factor: float:
 	get:
 		return 1.0 - clampf(_next_tick * tickrate, 0, 1)
 	set(v):
-		push_error("Trying to set read-only variable tickfactor")
+		push_error("Trying to set read-only variable tick_factor")
+
+var physics_factor: float:
+	get:
+		return Engine.physics_ticks_per_second / tickrate
+	set(v):
+		push_error("Trying to set read-only variable physics_factor")
 
 signal before_tick_loop
 signal on_tick(delta: float)
@@ -98,6 +104,5 @@ func _physics_process(delta):
 		after_tick_loop.emit()
 
 func _handle_sync(server_time: float, server_tick: int):
-	print("Syncing time %s -> %s, #%s -> #%s" % [time, server_time, tick, server_tick])
 	_time = server_time
 	_tick = server_tick

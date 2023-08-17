@@ -16,7 +16,7 @@ func _handle_new_peer(id: int):
 	
 	if not spawned_for_host and multiplayer.is_server():
 		# Spawn own avatar on host machine
-		# This is a bit cumbersone, as there's no "server started"
+		# This is a bit cumbersome, as there's no "server started"
 		# event, only "connected to server" on the client side
 		_spawn(1)
 		spawned_for_host = true

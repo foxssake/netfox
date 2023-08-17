@@ -4,6 +4,13 @@ extends EditorPlugin
 const ROOT = "res://addons/netfox"
 const SETTINGS = [
 	{
+		# Setting this to true will make Netfox remove its settings when
+		# disabling the plugin. Useful for developing the plugin.
+		"name": "netfox/general/clear_settings",
+		"value": true,
+		"type": TYPE_BOOL
+	},
+	{
 		"name": "netfox/time/tickrate",
 		"value": 30,
 		"type": TYPE_INT
@@ -49,7 +56,6 @@ const AUTOLOADS = [
 ]
 
 func _enter_tree():
-	print("NetFox entering")
 	for setting in SETTINGS:
 		print("Adding setting %s", setting.name)
 		add_setting(setting)
@@ -58,9 +64,9 @@ func _enter_tree():
 		add_autoload_singleton(autoload.name, autoload.path)
 
 func _exit_tree():
-	print("NetFox leaving")
-	# for setting in SETTINGS:
-	# 	remove_setting(setting)
+	if ProjectSettings.get_setting("netfox/general/clear_settings", false):
+		for setting in SETTINGS:
+			remove_setting(setting)
 	
 	for autoload in AUTOLOADS:
 		remove_autoload_singleton(autoload.name)

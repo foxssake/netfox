@@ -84,6 +84,23 @@ func get_rtt(id: int, sample_id: int = -1) -> float:
 	_remote_tick[sample_id] = response[2]
 	return rtt
 
+func _sync_time_loop(interval: float):
+	while true:
+		var new_time = await sync_time(1)
+
+		if not _active:
+			# Make sure we don't emit any events if we've been stopped since
+			break
+		if new_time == NAN:
+			# Skip if sync has failed
+			continue
+
+		var new_tick = floor(new_time * NetworkTime.tickrate)
+		new_time = new_tick * NetworkTime.ticktime # Sync to tick
+
+		on_sync.emit(new_time, new_tick)
+		await get_tree().create_timer(interval).timeout
+
 @rpc("any_peer", "reliable", "call_remote")
 func _request_ping():
 	var sender = multiplayer.get_remote_sender_id()
@@ -93,16 +110,3 @@ func _request_ping():
 func _respond_ping(peer_time: float, peer_tick: int):
 	var sender = multiplayer.get_remote_sender_id()
 	on_ping.emit(sender, peer_time, peer_tick)
-
-func _sync_time_loop(interval: float):
-	while true:
-		var new_time = await sync_time(1)
-		var new_tick = floor(new_time * NetworkTime.tickrate)
-		new_time = new_tick * NetworkTime.ticktime # Sync to tick
-
-		if not _active:
-			# Make sure we don't emit any events if we've been stopped since
-			break
-
-		on_sync.emit(new_time, new_tick)
-		await get_tree().create_timer(interval).timeout
