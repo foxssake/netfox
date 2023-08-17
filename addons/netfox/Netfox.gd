@@ -85,7 +85,6 @@ const TYPES = [
 
 func _enter_tree():
 	for setting in SETTINGS:
-		print("Adding setting %s", setting.name)
 		add_setting(setting)
 	
 	for autoload in AUTOLOADS:

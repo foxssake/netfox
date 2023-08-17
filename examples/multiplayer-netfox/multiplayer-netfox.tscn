@@ -101,6 +101,9 @@ layout_mode = 1
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
+text = "Foooo
+Foooo
+Fuuuuuuuuuuuuuuuuuuu"
 script = ExtResource("4_n66wk")
 
 [editable path="UI/Network Popup"]

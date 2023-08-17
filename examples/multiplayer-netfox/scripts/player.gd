@@ -8,15 +8,22 @@ var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 func _ready():
 	# NetworkTime.on_tick.connect(_tick)
-	position = Vector3(0, 4, 0)
+	position = Vector3(0, 4 + 4 * randf(), 0)
+	
+	if input == null:
+		input = $Input
+	
+	# Wait a single frame, so player spawner has time to set input owner
+	await get_tree().process_frame
+	$RollbackSynchronizer.process_settings()
 
-func _tick(delta: float, tick: int):
+func _tick(delta: float, _tick: int):
 	# Add the gravity.
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 
 	var input_dir = input.movement
-	var direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+	var direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.z)).normalized()
 	if direction:
 		velocity.x = direction.x * speed
 		velocity.z = direction.z * speed

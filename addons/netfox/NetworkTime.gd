@@ -84,8 +84,8 @@ func _process(delta):
 			if ticks_in_loop == 0:
 				before_tick_loop.emit()
 
-			on_tick.emit(ticktime)
-			after_tick.emit(ticktime)
+			on_tick.emit(ticktime, tick)
+			after_tick.emit(ticktime, tick)
 
 			_tick += 1
 			_time += ticktime

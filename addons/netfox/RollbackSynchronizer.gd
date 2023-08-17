@@ -1,3 +1,4 @@
+@icon("./icons/RollbackSynchronizer.svg")
 extends Node
 
 class PropertyEntry:
@@ -134,7 +135,6 @@ func _prepare_tick(tick: int):
 
 func _process_tick(tick: int):
 	if _latest_state < 0 and _auth_state_props.is_empty():
-		NetworkTime.debug += "Missing initial state | "
 		return
 
 	var latest_input = _inputs.keys().max() if not _inputs.is_empty() else INF
@@ -204,7 +204,7 @@ func _after_loop():
 				rpc("_submit_state_reliable", _states[last_reliable], last_reliable)
 		_last_reliable_broadcast = NetworkTime.tick
 
-func _after_tick(_delta):
+func _after_tick(_delta, _tick):
 	if not _auth_input_props.is_empty():
 		var input = _extract(_auth_input_props)
 		_inputs[NetworkTime.tick] = input
@@ -215,12 +215,6 @@ func _after_tick(_delta):
 	
 	while _inputs.size() > NetworkRollback.history_limit:
 		_inputs.erase(_inputs.keys().min())
-
-func _bootstrap_peer(id: int):
-	# TODO: Does this actually work?
-	if not _states.is_empty() and not _auth_state_props.is_empty():
-		var state = _get_history(_states, NetworkTime.tick)
-		rpc_id(id, "_submit_state_reliable", state, NetworkTime.tick)
 
 func _interpolate(from: Dictionary, to: Dictionary, loop: Dictionary, f: float, delta: float):
 	if not enable_interpolation:
@@ -317,7 +311,7 @@ func _submit_input(input: Dictionary, tick: int):
 		_inputs[tick] = sanitized
 		_earliest_input = min(_earliest_input, tick)
 	else:
-		push_warning("Received invalid input from %s for tick %s" % [sender, tick])
+		push_warning("Received invalid input from %s for tick %s for %s" % [sender, tick, root.name])
 
 @rpc("any_peer", "reliable", "call_remote")
 func _submit_state_reliable(state: Dictionary, tick: int):
