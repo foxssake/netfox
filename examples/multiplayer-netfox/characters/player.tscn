@@ -1,15 +1,12 @@
-[gd_scene load_steps=5 format=3 uid="uid://k3y73rql2u6e"]
+[gd_scene load_steps=6 format=3 uid="uid://k3y73rql2u6e"]
 
 [ext_resource type="Script" path="res://examples/multiplayer-netfox/scripts/player.gd" id="1_tksy4"]
+[ext_resource type="Script" path="res://addons/netfox/RollbackSynchronizer.gd" id="2_qf1b4"]
+[ext_resource type="Script" path="res://examples/multiplayer-netfox/scripts/player-input.gd" id="3_g8e4n"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_t2650"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_vogks"]
-
-[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_n7ria"]
-properties/0/path = NodePath(".:position")
-properties/0/spawn = false
-properties/0/sync = true
 
 [node name="Player" type="CharacterBody3D"]
 script = ExtResource("1_tksy4")
@@ -20,5 +17,12 @@ shape = SubResource("CapsuleShape3D_t2650")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("CapsuleMesh_vogks")
 
-[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
-replication_config = SubResource("SceneReplicationConfig_n7ria")
+[node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("2_qf1b4")
+root = NodePath("..")
+state_properties = Array[String]([":position"])
+input_properties = Array[String](["Input:movement"])
+interpolate_properties = Array[String]([":position"])
+
+[node name="Input" type="Node" parent="."]
+script = ExtResource("3_g8e4n")

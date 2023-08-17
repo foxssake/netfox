@@ -13,7 +13,7 @@ func _ready():
 func _handle_new_peer(id: int):
 	# Spawn an avatar for new player
 	_spawn(id)
-	
+
 	if not spawned_for_host and multiplayer.is_server():
 		# Spawn own avatar on host machine
 		# This is a bit cumbersome, as there's no "server started"
@@ -30,6 +30,14 @@ func _spawn(id: int):
 	avatar.name += " #%d" % id
 	avatar.position = spawn_point
 	spawn_root.add_child(avatar)
-	avatar.set_multiplayer_authority(id)
+	
+	# Avatar is always owned by server
+	avatar.set_multiplayer_authority(1)
 
 	print("Spawned avatar %s at %s" % [avatar.name, multiplayer.get_unique_id()])
+	
+	# Avatar's input object is owned by player
+	var input = avatar.find_child("Input")
+	if input != null:
+		input.set_multiplayer_authority(id)
+		print("Set input(%s) ownership to %s" % [input.name, id])
