@@ -47,7 +47,6 @@ var _states = {}
 var _inputs = {}
 var _latest_state = -1
 var _earliest_input = INF
-var _last_reliable_broadcast = -1
 
 var _lerp_before_loop = {}
 var _lerp_from = {}
@@ -90,6 +89,9 @@ func process_settings():
 			continue
 
 		_nodes.push_back(node)
+
+func can_interpolate() -> bool:
+	return enable_interpolation and not interpolate_properties.is_empty()
 
 func _ready():
 	process_settings()
@@ -184,18 +186,11 @@ func _after_loop():
 	_lerp_from = _get_history(_states, NetworkTime.tick - NetworkRollback.display_offset - 1)
 	_lerp_to = display_state
 	
-	if enable_interpolation and not interpolate_properties.is_empty():
+	if can_interpolate():
 		_apply(_lerp_before_loop)
 	else:
 		# Apply display state
 		_apply(display_state)
-	
-	if NetworkTime.tick - _last_reliable_broadcast > 8:
-		if not _auth_state_props.is_empty():
-			var last_reliable = _inputs.keys().max()
-			if _states.has(last_reliable):
-				rpc("_submit_state_reliable", _states[last_reliable], last_reliable)
-		_last_reliable_broadcast = NetworkTime.tick
 
 func _after_tick(_delta, _tick):
 	if not _auth_input_props.is_empty():
@@ -210,7 +205,7 @@ func _after_tick(_delta, _tick):
 		_inputs.erase(_inputs.keys().min())
 
 func _interpolate(from: Dictionary, to: Dictionary, loop: Dictionary, f: float, delta: float):
-	if not enable_interpolation or interpolate_properties.is_empty():
+	if not can_interpolate():
 		return
 
 	for property in from:
@@ -222,6 +217,13 @@ func _interpolate(from: Dictionary, to: Dictionary, loop: Dictionary, f: float, 
 		var a = pe.get_value()
 		var b = to[property]
 		
+		# The idea is to - instead of simply lerping between two states - move 
+		# towards the target state, linearly. Thus, the factor for interpolation
+		# is calculated based on our "distance" from the target state and how 
+		# much time we have left to move towards it.
+		#
+		# This will always be linear, as the further we are into the current
+		# tick, the distance to the target state will decrease at the same rate.
 		var df = delta / ((1.0 - f) * NetworkTime.ticktime)
 		
 		if a is float:
