@@ -41,6 +41,21 @@ const SETTINGS = [
 		"name": "netfox/time/sync_to_physics",
 		"value": false,
 		"type": TYPE_BOOL
+	},
+	{
+		"name": "netfox/rollback/enabled",
+		"value": true,
+		"type": TYPE_BOOL
+	},
+	{
+		"name": "netfox/rollback/history_limit",
+		"value": 64,
+		"type": TYPE_INT
+	},
+	{
+		"name": "netfox/rollback/display_offset",
+		"value": 0,
+		"type": TYPE_INT
 	}
 ]
 
@@ -52,6 +67,19 @@ const AUTOLOADS = [
 	{
 		"name": "NetworkTimeSynchronizer",
 		"path": ROOT + "/NetworkTimeSynchronizer.gd"
+	},
+	{
+		"name": "NetworkRollback",
+		"path": ROOT + "/NetworkRollback.gd"
+	}
+]
+
+const TYPES = [
+	{
+		"name": "RollbackSynchronizer",
+		"base": "Node",
+		"script": ROOT + "/RollbackSynchronizer.gd",
+		"icon": ROOT + "/icons/RollbackSynchronizer.svg"
 	}
 ]
 
@@ -62,6 +90,9 @@ func _enter_tree():
 	
 	for autoload in AUTOLOADS:
 		add_autoload_singleton(autoload.name, autoload.path)
+	
+	for type in TYPES:
+		add_custom_type(type.name, type.base, load(type.script), load(type.icon))
 
 func _exit_tree():
 	if ProjectSettings.get_setting("netfox/general/clear_settings", false):
@@ -70,6 +101,9 @@ func _exit_tree():
 	
 	for autoload in AUTOLOADS:
 		remove_autoload_singleton(autoload.name)
+	
+	for type in TYPES:
+		remove_custom_type(type.name)
 
 func add_setting(setting: Dictionary):
 	if ProjectSettings.has_setting(setting.name):

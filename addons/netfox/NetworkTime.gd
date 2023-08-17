@@ -49,8 +49,8 @@ var physics_factor: float:
 		push_error("Trying to set read-only variable physics_factor")
 
 signal before_tick_loop
-signal on_tick(delta: float)
-signal after_tick(delta: float)
+signal on_tick(delta: float, tick: int)
+signal after_tick(delta: float, tick: int)
 signal after_tick_loop
 
 var _time: float = 0
