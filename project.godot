@@ -14,3 +14,7 @@ config/name="netfox"
 config/description="Network addon with rollback"
 config/features=PackedStringArray("4.0")
 config/icon="res://icon.png"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/netfox/plugin.cfg")
