@@ -41,6 +41,10 @@ const AUTOLOADS = [
 	{
 		"name": "NetworkTime",
 		"path": ROOT + "/NetworkTime.gd"
+	},
+	{
+		"name": "NetworkTimeSynchronizer",
+		"path": ROOT + "/NetworkTimeSynchronizer.gd"
 	}
 ]
 

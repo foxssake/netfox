@@ -18,24 +18,6 @@ var max_ticks_per_frame: int:
 	set(v):
 		push_error("Trying to set read-only variable max_ticks_per_frame")
 
-var sync_interval: float:
-	get:
-		return ProjectSettings.get_setting("netfox/time/sync_interval", 1.0)
-	set(v):
-		push_error("Trying to set read-only variable sync_interval")
-
-var sync_samples: int:
-	get:
-		return ProjectSettings.get_setting("netfox/time/sync_samples", 8)
-	set(v):
-		push_error("Trying to set read-only variable sync_samples")
-
-var sync_sample_interval: float:
-	get:
-		return ProjectSettings.get_setting("netfox/time/sync_sample_interval", 0.1)
-	set(v):
-		push_error("Trying to set read-only variable sync_sample_interval")
-
 var time: float:
 	get:
 		return _time
@@ -60,74 +42,32 @@ var tickfactor: float:
 	set(v):
 		push_error("Trying to set read-only variable tickfactor")
 
-var last_remote_time: float = -1:
-	get:
-		return last_remote_time
-
-var last_remote_tick: int = -1:
-	get:
-		return last_remote_tick
-
 signal before_tick_loop
 signal on_tick(delta: float)
 signal after_tick(delta: float)
 signal after_tick_loop
-signal on_sync
-
-signal on_ping(peer_id: int, peer_time: float, peer_tick: int)
 
 var _time: float = 0
 var _tick: int = 0
 var _next_tick: float = 0
 var _active: bool = false
 
+func _ready():
+	NetworkTimeSynchronizer.on_sync.connect(_handle_sync)
+
 func start():
 	_time = 0
 	
 	if not multiplayer.is_server():
-		_sync_time_loop(sync_interval)
-		await on_sync
+		NetworkTimeSynchronizer.start()
+		await NetworkTimeSynchronizer.on_sync
 		_active = true
 	else:
 		_active = true
 
 func stop():
+	NetworkTimeSynchronizer.stop()
 	_active = false
-
-func get_real_time():
-	return Time.get_ticks_msec() / 1000.0
-
-func sync_time(id: int) -> float:
-	# Source: https://daposto.medium.com/game-networking-2-time-tick-clock-synchronisation-9a0e76101fe5
-	var samples = []
-	for i in range(sync_samples - 1):
-		await get_tree().create_timer(sync_sample_interval).timeout
-		samples.push_back(await get_rtt(id))
-	
-	samples.sort()
-	var average = samples.reduce(func(a, b): return a + b) / samples.size()
-	
-	# Reject samples that are too far away from average
-	var deviation_threshold = 1
-	samples = samples.filter(func(s): return (s - average) / average < deviation_threshold)
-	average = samples.reduce(func(a, b): return a + b) / samples.size()
-	var latency = average / 2.0
-	print("Latency: %s <- %s" % [latency, samples])
-
-	return last_remote_time + latency
-
-func get_rtt(id: int) -> float:
-	if id == multiplayer.get_unique_id():
-		return 0
-	
-	var trip_start = get_real_time()
-	rpc_id(id, "_request_ping")
-	var response = await on_ping
-	var trip_end = get_real_time()
-	
-	last_remote_time = response[1]
-	last_remote_tick = response[2]
-	return trip_end - trip_start
 
 func _process(delta):
 	if _active and not sync_to_physics:
@@ -157,27 +97,7 @@ func _physics_process(delta):
 		after_tick.emit(delta)
 		after_tick_loop.emit()
 
-func _sync_time_loop(interval: float):
-	while true:
-		var new_time = await sync_time(1)
-		var new_tick = floor(new_time * tickrate)
-		new_time = new_tick * ticktime # Sync to tick
-		print("Syncing time %s -> %s, #%s -> #%s" % [time, new_time, tick, new_tick])
-		_time = new_time
-		_tick = new_tick
-		on_sync.emit()
-		
-		if not _active:
-			break
-		
-		await get_tree().create_timer(interval).timeout
-
-@rpc("any_peer", "reliable", "call_remote")
-func _request_ping():
-	var sender = multiplayer.get_remote_sender_id()
-	rpc_id(sender, "_respond_ping", time, tick)
-
-@rpc("any_peer", "reliable", "call_remote")
-func _respond_ping(peer_time: float, peer_tick: int):
-	var sender = multiplayer.get_remote_sender_id()
-	on_ping.emit(sender, peer_time, peer_tick)
+func _handle_sync(server_time: float, server_tick: int):
+	print("Syncing time %s -> %s, #%s -> #%s" % [time, server_time, tick, server_tick])
+	_time = server_time
+	_tick = server_tick
