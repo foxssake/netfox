@@ -67,19 +67,19 @@ const SETTINGS = [
 const AUTOLOADS = [
 	{
 		"name": "NetworkTime",
-		"path": ROOT + "/NetworkTime.gd"
+		"path": ROOT + "/network-time.gd"
 	},
 	{
 		"name": "NetworkTimeSynchronizer",
-		"path": ROOT + "/NetworkTimeSynchronizer.gd"
+		"path": ROOT + "/network-time-synchronizer.gd"
 	},
 	{
 		"name": "NetworkRollback",
-		"path": ROOT + "/NetworkRollback.gd"
+		"path": ROOT + "/network-rollback.gd"
 	},
 	{
 		"name": "NetworkEvents",
-		"path": ROOT + "/NetworkEvents.gd"
+		"path": ROOT + "/network-events.gd"
 	}
 ]
 
@@ -87,8 +87,8 @@ const TYPES = [
 	{
 		"name": "RollbackSynchronizer",
 		"base": "Node",
-		"script": ROOT + "/RollbackSynchronizer.gd",
-		"icon": ROOT + "/icons/RollbackSynchronizer.svg"
+		"script": ROOT + "/rollback-synchronizer.gd",
+		"icon": ROOT + "/icons/rollback-synchronizer.svg"
 	}
 ]
 

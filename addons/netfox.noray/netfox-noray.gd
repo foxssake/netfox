@@ -6,14 +6,13 @@ const ROOT = "res://addons/netfox.noray"
 const AUTOLOADS = [
 	{
 		"name": "Noray",
-		"path": ROOT + "/Noray.gd"
+		"path": ROOT + "/noray.gd"
 	},
 	{
 		"name": "PacketHandshake",
-		"path": ROOT + "/PacketHandshake.gd"
+		"path": ROOT + "/packet-handshake.gd"
 	}
 ]
-
 
 func _enter_tree():
 	for autoload in AUTOLOADS:
