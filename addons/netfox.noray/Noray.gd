@@ -3,14 +3,21 @@ extends Node
 var _peer: StreamPeerTCP = StreamPeerTCP.new()
 var _protocol: NorayProtocolHandler = NorayProtocolHandler.new()
 var _address: String = ""
+var _oid = ""
+var _pid = ""
 var _local_port: int = -1
 
-var oid = "":
-	get: return oid
-var pid = "":
-	get: return pid
+var oid: String:
+	get: return _oid
+	set(v): push_error("Trying to set read-only variable oid")
+
+var pid: String:
+	get: return _pid
+	set(v): push_error("Trying to set read-only variable pid")
+
 var local_port: int:
 	get: return _local_port
+	set(v): push_error("Trying to set read-only variable local_port")
 
 signal on_command(command: String, data: String)
 signal on_connect_to_host
@@ -133,11 +140,11 @@ func _put_command(command: String, data = null) -> Error:
 
 func _handle_commands(command: String, data: String):
 	if command == "set-oid":
-		oid = data
+		_oid = data
 		on_oid.emit(oid)
 		print("Saved OID: %s" % oid)
 	elif command == "set-pid":
-		pid = data
+		_pid = data
 		on_pid.emit(pid)
 		print("Saved PID: %s" % pid)
 	elif command == "connect":
