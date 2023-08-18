@@ -2,13 +2,32 @@ extends Node
 
 signal on_multiplayer_change(old: MultiplayerAPI, new: MultiplayerAPI)
 
+## Event emitted when the server starts
 signal on_server_start
+
+## Event emitted when the server stops for any reason
 signal on_server_stop
+
+## Event emitted when the client starts
 signal on_client_start(id: int)
+
+## Event emitted when the client stops.
+##
+## This can happen due to either the client itself or the server disconnecting
+## for whatever reason.
 signal on_client_stop
+
+## Event emitted when a new peer joins the game.
 signal on_peer_join(id: int)
+
+## Event emitted when a peer leaves the game.
 signal on_peer_leave(id: int)
 
+## Whether the events are enabled.
+##
+## Events are only emitted when it's enabled. Disabling this can free up some 
+## performance, as when enabled, the multiplayer API and the host are
+## continuously checked for changes.
 var enabled: bool:
 	get: return _enabled
 	set(v): _set_enabled(v)
@@ -17,6 +36,7 @@ var _is_server: bool = false
 var _multiplayer: MultiplayerAPI
 var _enabled = false
 
+## Check if we're running as server.
 func is_server() -> bool:
 	if multiplayer == null:
 		return false

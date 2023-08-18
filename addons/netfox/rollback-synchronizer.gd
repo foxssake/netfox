@@ -176,7 +176,6 @@ func _process_tick(tick: int):
 func _record_tick(tick: int):
 	# Record state for specified tick ( current + 1 )
 	if not _record_state_props.is_empty() and tick > _latest_state:
-		# _states[tick] = _merge(_states.get(tick, {}), _extract(_record_state_props))
 		_states[tick] = _extract(_record_state_props)
 
 func _after_loop():
