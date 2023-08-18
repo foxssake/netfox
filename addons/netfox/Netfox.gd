@@ -56,6 +56,11 @@ const SETTINGS = [
 		"name": "netfox/rollback/display_offset",
 		"value": 0,
 		"type": TYPE_INT
+	},
+	{
+		"name": "netfox/events/enabled",
+		"value": true,
+		"type": TYPE_BOOL
 	}
 ]
 
@@ -71,6 +76,10 @@ const AUTOLOADS = [
 	{
 		"name": "NetworkRollback",
 		"path": ROOT + "/NetworkRollback.gd"
+	},
+	{
+		"name": "NetworkEvents",
+		"path": ROOT + "/NetworkEvents.gd"
 	}
 ]
 

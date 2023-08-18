@@ -18,11 +18,12 @@ config/icon="res://icon.png"
 [autoload]
 
 Async="*res://examples/shared/scripts/async.gd"
+Noray="*res://addons/netfox.noray/Noray.gd"
+PacketHandshake="*res://addons/netfox.noray/PacketHandshake.gd"
 NetworkTime="*res://addons/netfox/NetworkTime.gd"
 NetworkTimeSynchronizer="*res://addons/netfox/NetworkTimeSynchronizer.gd"
 NetworkRollback="*res://addons/netfox/NetworkRollback.gd"
-Noray="*res://addons/netfox.noray/Noray.gd"
-PacketHandshake="*res://addons/netfox.noray/PacketHandshake.gd"
+NetworkEvents="*res://addons/netfox/NetworkEvents.gd"
 
 [display]
 

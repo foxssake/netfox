@@ -89,7 +89,9 @@ func _host():
 	
 	role = Role.HOST
 	connect_ui.hide()
-	# TODO: Dedicated component?
+	# NOTE: This is not needed when using NetworkEvents
+	# However, this script also runs in multiplayer-simple where NetworkEvents
+	# are assumed to be absent, hence starting NetworkTime manually
 	NetworkTime.start()
 
 func _join():
@@ -159,7 +161,9 @@ func _handle_connect(address: String, port: int) -> Error:
 			return ERR_CANT_CONNECT
 		
 		connect_ui.hide()
-		# TODO: Dedicated component?
+		# NOTE: This is not needed when using NetworkEvents
+		# However, this script also runs in multiplayer-simple where NetworkEvents
+		# are assumed to be absent, hence starting NetworkTime manually
 		NetworkTime.start()
 
 	if role == Role.HOST:
