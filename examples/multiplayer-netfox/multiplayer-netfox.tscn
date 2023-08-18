@@ -14,7 +14,7 @@ sky_material = SubResource("ProceduralSkyMaterial_rrbfu")
 background_mode = 2
 sky = SubResource("Sky_g0uhm")
 
-[node name="Game Scene" type="Node3D"]
+[node name="Game Scene2" type="Node3D"]
 
 [node name="Map" type="Node" parent="."]
 

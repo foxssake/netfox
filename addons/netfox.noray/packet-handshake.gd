@@ -1,4 +1,13 @@
 extends Node
+## This class implements a handshake protocol over for multiple classes.
+##
+## The point of the handshake itself is to confirm two-way connection between
+## two parties - i.e. both parties can receive message from the other and 
+## receive acknowledgement from the other that their messages have arrived.
+##
+## This is an important step before establishing connection for actual game 
+## play, as this lets both the client's and server's routers ( if any ) know 
+## that traffic is expected and should be let through.
 
 class HandshakeStatus:
 	var did_read: bool = false
@@ -18,6 +27,7 @@ class HandshakeStatus:
 		result.did_handshake = str.contains("x")
 		return result
 
+## Conduct handshake over a [PacketPeer] instance.
 func over_packet_peer(peer: PacketPeer, timeout: float = 8.0, frequency: float = 0.1) -> Error:
 	var result = ERR_TIMEOUT
 	var status = HandshakeStatus.new()
@@ -57,6 +67,11 @@ func over_packet_peer(peer: PacketPeer, timeout: float = 8.0, frequency: float =
 	
 	return result
 
+## Conduct handshake over an [ENetConnection].
+##
+## [i]Note[/i] that this is not a full-fledged handshake, since we can't receive
+## data over the connection. Instead, we just pretend that the handshake is 
+## successful on our end and blast that status for a given time.
 func over_enet(connection: ENetConnection, address: String, port: int, timeout: float = 8.0, frequency: float = 0.1) -> Error:
 	var result = OK
 	var status = HandshakeStatus.new()

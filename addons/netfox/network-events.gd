@@ -1,14 +1,49 @@
 extends Node
+## This class provides convenience signals for multiplayer games.
+##
+## While the client start/stop and peer join/leave events are trivial, the 
+## server side has no similar events. This means that if you'd like to add some
+## funcionality that should happen on server start, you either have to couple
+## the code ( i.e. call it wherever you start the server ) or introduce a custom
+## event to decouple your code from your network init code.
+##
+## By providing these convenience events, you can forego all that and instead 
+## just listen to a single signal that should work no matter what.
+##
+## [i]Note:[/i] This class also manages [NetworkTime] start/stop, so as long as
+## network events are enabled, you don't need to manually call start/stop.
 
+## Event emitted when the [MultiplayerAPI] is changed
 signal on_multiplayer_change(old: MultiplayerAPI, new: MultiplayerAPI)
 
-signal on_server_start
-signal on_server_stop
+## Event emitted when the server starts
+signal on_server_start()
+
+## Event emitted when the server stops for any reason
+signal on_server_stop()
+
+## Event emitted when the client starts
 signal on_client_start(id: int)
-signal on_client_stop
+
+## Event emitted when the client stops.
+##
+## This can happen due to either the client itself or the server disconnecting
+## for whatever reason.
+signal on_client_stop()
+
+## Event emitted when a new peer joins the game.
 signal on_peer_join(id: int)
+
+## Event emitted when a peer leaves the game.
 signal on_peer_leave(id: int)
 
+## Whether the events are enabled.
+##
+## Events are only emitted when it's enabled. Disabling this can free up some 
+## performance, as when enabled, the multiplayer API and the host are
+## continuously checked for changes.
+##
+## The initial value is taken from the Netfox project settings.
 var enabled: bool:
 	get: return _enabled
 	set(v): _set_enabled(v)
@@ -17,6 +52,7 @@ var _is_server: bool = false
 var _multiplayer: MultiplayerAPI
 var _enabled = false
 
+## Check if we're running as server.
 func is_server() -> bool:
 	if multiplayer == null:
 		return false
