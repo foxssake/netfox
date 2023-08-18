@@ -94,15 +94,12 @@ func _handle_peer_disconnected(id: int):
 	on_peer_leave.emit(id)
 
 func _set_enabled(enable: bool):
-	print("NE enable %s -> %s" % [_enabled, enable])
 	if _enabled and not enable:
 		_disconnect_handlers(_multiplayer)
 		_multiplayer = null
-		print("Disabled Network Events")
 	if not _enabled and enable:
 		_multiplayer = multiplayer
 		_connect_handlers(_multiplayer)
-		print("Enabled Network Events")
 
 	_enabled = enable
 	set_process(enable)

@@ -43,7 +43,9 @@ func _host():
 	
 	connect_ui.hide()
 	
-	# TODO: Move to a dedicated component?
+	# NOTE: This is not needed when using NetworkEvents
+	# However, this script also runs in multiplayer-simple where NetworkEvents
+	# are assumed to be absent, hence starting NetworkTime manually
 	NetworkTime.start()
 
 func _join():
@@ -77,7 +79,9 @@ func _join():
 	print("Client started")
 	connect_ui.hide()
 	
-	# TODO: Move to a dedicated component?
+	# NOTE: This is not needed when using NetworkEvents
+	# However, this script also runs in multiplayer-simple where NetworkEvents
+	# are assumed to be absent, hence starting NetworkTime manually
 	NetworkTime.start()
 
 func _parse_input() -> Dictionary:
