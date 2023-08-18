@@ -1,17 +1,47 @@
 extends Node
+## This class manages time synchronization from server to client, i.e. ensuring 
+## that the game time is the same, or at least very close to the server's, on 
+## every single client.
+##
+## This is achieved by periodically running a time sync process. This process
+## takes a few measurements, by sending a ping message to the server, and
+## measuring the time it takes to get a response. This in itself is only the
+## roundtrip, from which we [i]assume[/i] that the time it takes for data to
+## get to the server is half of the roundtrip.
+##
+## Each of the ping responses also contain the server's game time and index of
+## current tick. This way, we can take the last game time, add the estimated
+## latency, and have an estimate for the server's current game time. This should
+## work well with consistent latencies, or at least latencies with a somewhat
+## uniform jitter.
+##
+## For further info on how this works, here's an excellent article:
+## https://daposto.medium.com/game-networking-2-time-tick-clock-synchronisation-9a0e76101fe5
+##
+## Most of the time you shouldn't need to interface with this class directly,
+## instead you can use [NetworkTime].
 
+## Time between syncs, in seconds.
+##
+## [i]read-only[/i], you can change this in the Netfox project settings
 var sync_interval: float:
 	get:
 		return ProjectSettings.get_setting("netfox/time/sync_interval", 1.0)
 	set(v):
 		push_error("Trying to set read-only variable sync_interval")
 
+## Number of measurements ( samples ) to take to guess latency.
+##
+## [i]read-only[/i], you can change this in the Netfox project settings
 var sync_samples: int:
 	get:
 		return ProjectSettings.get_setting("netfox/time/sync_samples", 8)
 	set(v):
 		push_error("Trying to set read-only variable sync_samples")
 
+## Time between samples in a single sync process.
+##
+## [i]read-only[/i], you can change this in the Netfox project settings
 var sync_sample_interval: float:
 	get:
 		return ProjectSettings.get_setting("netfox/time/sync_sample_interval", 0.1)
@@ -23,21 +53,35 @@ var _remote_time: Dictionary = {}
 var _remote_tick: Dictionary = {}
 var _active: bool = false
 
+## Event emitted when a time sync process completes
 signal on_sync(server_time: float, server_tick: int)
+
+## Event emitted when a response to a ping request arrives.
 signal on_ping(peer_id: int, peer_time: float, peer_tick: int)
 
+## Start the time synchronization loop.
+##
+## Starting multiple times has no effect.
 func start():
+	if _active:
+		return
+
 	_active = true
 	_sync_time_loop(sync_interval)
 
+## Stop the time synchronization loop.
 func stop():
 	_active = false
 
+## Get the amount of time passed since Godot has started, in seconds.
 func get_real_time():
 	return Time.get_ticks_msec() / 1000.0
 
+## Estimate the time at the given peer, in seconds.
+##
+## While this is a coroutine, so it won't block your game, this can take multiple
+## seconds, depending on latency, number of samples and sample interval.
 func sync_time(id: int) -> float:
-	# Source: https://daposto.medium.com/game-networking-2-time-tick-clock-synchronisation-9a0e76101fe5
 	_remote_rtt.clear()
 	_remote_time.clear()
 	_remote_tick.clear()
@@ -69,6 +113,7 @@ func sync_time(id: int) -> float:
 
 	return last_remote_time + latency
 
+## Get roundtrip time to a given peer, in seconds.
 func get_rtt(id: int, sample_id: int = -1) -> float:
 	if id == multiplayer.get_unique_id():
 		return 0
