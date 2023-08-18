@@ -1,5 +1,19 @@
 extends Node
+## This class provides convenience signals for multiplayer games.
+##
+## While the client start/stop and peer join/leave events are trivial, the 
+## server side has no similar events. This means that if you'd like to add some
+## funcionality that should happen on server start, you either have to couple
+## the code ( i.e. call it wherever you start the server ) or introduce a custom
+## event to decouple your code from your network init code.
+##
+## By providing these convenience events, you can forego all that and instead 
+## just listen to a single signal that should work no matter what.
+##
+## [i]Note:[/i] This class also manages [NetworkTime] start/stop, so as long as
+## network events are enabled, you don't need to manually call start/stop.
 
+## Event emitted when the [MultiplayerAPI] is changed
 signal on_multiplayer_change(old: MultiplayerAPI, new: MultiplayerAPI)
 
 ## Event emitted when the server starts
@@ -28,6 +42,8 @@ signal on_peer_leave(id: int)
 ## Events are only emitted when it's enabled. Disabling this can free up some 
 ## performance, as when enabled, the multiplayer API and the host are
 ## continuously checked for changes.
+##
+## The initial value is taken from the Netfox project settings.
 var enabled: bool:
 	get: return _enabled
 	set(v): _set_enabled(v)
