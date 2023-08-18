@@ -21,6 +21,8 @@ Async="*res://examples/shared/scripts/async.gd"
 NetworkTime="*res://addons/netfox/NetworkTime.gd"
 NetworkTimeSynchronizer="*res://addons/netfox/NetworkTimeSynchronizer.gd"
 NetworkRollback="*res://addons/netfox/NetworkRollback.gd"
+Noray="*res://addons/netfox.noray/Noray.gd"
+PacketHandshake="*res://addons/netfox.noray/PacketHandshake.gd"
 
 [display]
 
@@ -29,7 +31,7 @@ window/size/viewport_height=540
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/netfox/plugin.cfg")
+enabled=PackedStringArray("res://addons/netfox.noray/plugin.cfg", "res://addons/netfox/plugin.cfg")
 
 [netfox]
 

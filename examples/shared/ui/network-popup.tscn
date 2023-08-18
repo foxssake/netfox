@@ -1,4 +1,7 @@
-[gd_scene format=3 uid="uid://badtpsxn5lago"]
+[gd_scene load_steps=3 format=3 uid="uid://badtpsxn5lago"]
+
+[ext_resource type="Script" path="res://examples/shared/scripts/lan-bootstrapper.gd" id="1_dy86e"]
+[ext_resource type="Script" path="res://examples/shared/scripts/noray-bootstrapper.gd" id="2_fgck5"]
 
 [node name="Network Popup" type="Control"]
 layout_mode = 3
@@ -136,3 +139,23 @@ text = "Join"
 [node name="Force Relay Checkbox" type="CheckBox" parent="PanelContainer/TabContainer/Noray/Connect Actions Row"]
 layout_mode = 2
 text = "Force Relay"
+
+[node name="LAN Bootstrapper" type="Node" parent="." node_paths=PackedStringArray("connect_ui", "address_input", "port_input", "host_button", "join_button")]
+script = ExtResource("1_dy86e")
+connect_ui = NodePath("..")
+address_input = NodePath("../PanelContainer/TabContainer/LAN/Address Row/Address LineEdit")
+port_input = NodePath("../PanelContainer/TabContainer/LAN/Address Row/Port LineEdit")
+host_button = NodePath("../PanelContainer/TabContainer/LAN/Actions Row/Host Button")
+join_button = NodePath("../PanelContainer/TabContainer/LAN/Actions Row/Join Button")
+
+[node name="Noray Bootstrapper" type="Node" parent="." node_paths=PackedStringArray("connect_ui", "noray_address_input", "noray_connect_button", "noray_disconnect_button", "oid_input", "host_oid_input", "host_button", "join_button", "force_relay_check")]
+script = ExtResource("2_fgck5")
+connect_ui = NodePath("..")
+noray_address_input = NodePath("../PanelContainer/TabContainer/Noray/Noray Address Row/Address LineEdit")
+noray_connect_button = NodePath("../PanelContainer/TabContainer/Noray/Noray Actions Row/Connect Button")
+noray_disconnect_button = NodePath("../PanelContainer/TabContainer/Noray/Noray Actions Row/Disconnect Button")
+oid_input = NodePath("../PanelContainer/TabContainer/Noray/OID Row/OID Value")
+host_oid_input = NodePath("../PanelContainer/TabContainer/Noray/Connect Host Row/Host LineEdit")
+host_button = NodePath("../PanelContainer/TabContainer/Noray/Connect Actions Row/Host Button")
+join_button = NodePath("../PanelContainer/TabContainer/Noray/Connect Actions Row/Join Button")
+force_relay_check = NodePath("../PanelContainer/TabContainer/Noray/Connect Actions Row/Force Relay Checkbox")

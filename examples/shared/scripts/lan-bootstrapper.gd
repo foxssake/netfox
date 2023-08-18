@@ -1,5 +1,4 @@
 extends Node
-class_name NetworkBootstrapper
 
 @export_category("UI")
 @export var connect_ui: Control
@@ -42,7 +41,7 @@ func _host():
 	print("Server started")
 	get_tree().get_multiplayer().server_relay = true
 	
-	connect_ui.queue_free()
+	connect_ui.hide()
 	
 	# TODO: Move to a dedicated component?
 	NetworkTime.start()
@@ -76,7 +75,7 @@ func _join():
 		return
 
 	print("Client started")
-	connect_ui.queue_free()
+	connect_ui.hide()
 	
 	# TODO: Move to a dedicated component?
 	NetworkTime.start()
