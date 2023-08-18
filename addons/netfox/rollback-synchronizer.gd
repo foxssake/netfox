@@ -1,5 +1,39 @@
 @icon("./icons/RollbackSynchronizer.svg")
 extends Node
+## Similar to [MultiplayerSynchronizer], this class is responsible for
+## synchronizing data between players, but with support for rollback and
+## interpolation.
+##
+## To do this, three types of properties need to be configured.
+##
+## The state properties describe the node's current game state. With regards to
+## state, the server should be the sole authority, and their values are only
+## predicted locally based on known inputs.
+##
+## The input properties are what drive the node's behaviour - for example, which
+## direction is the player moving or aiming, is the player jumping, etc. With 
+## this, always the controlling player is the one in control.
+##
+## Optionally, interpolated properties can also be configured, marking which
+## properties should be interpolated.
+##
+## These properties are configured as node paths, relative to the configured
+## root node.
+##
+## [i]Note[/i] that while most often we speak in terms of servers and clients,
+## Netfox only deals with multiplayer authority, same as Godot itself. So, state
+## is owned by whoever has the multiplayer authority over objects that contain
+## state, and input is owned by whoever has the multiplayer authority over
+## objects that contain inputs.
+##
+## [i]Note[/i] that while possible, it is currently not recommended to have
+## state and input properties on the same object, since authority is then
+## difficult to separate. Same for spreading state over multiple objects, each
+## having different authority. This may or may not change in the future.
+##
+## [i]Note[/i] that with interpolation enabled, it is recommended to add all
+## state properties as interpolation properties too, otherwise you might get
+## unexpected result. This may or may not change in the future.
 
 class PropertyEntry:
 	var _path: String
@@ -54,6 +88,9 @@ var _lerp_to = {}
 
 var _pe_cache: Dictionary = {}
 
+## Process settings.
+##
+## Call this after any change to configuration.
 func process_settings():
 	_pe_cache.clear()
 	_nodes.clear()
@@ -90,6 +127,10 @@ func process_settings():
 
 		_nodes.push_back(node)
 
+## Check if interpolation can be done.
+##
+## Even if it's enabled, no interpolation will be done if there are no
+## properties to interpolate.
 func can_interpolate() -> bool:
 	return enable_interpolation and not interpolate_properties.is_empty()
 
