@@ -2,33 +2,47 @@ extends Node
 
 @export var player_scene: PackedScene
 @export var spawn_root: Node
-@export var spawn_point: Vector3 = Vector3.ZERO
 
-var spawned_for_host: bool = false
+var avatars: Dictionary = {}
 
 func _ready():
-	multiplayer.peer_connected.connect(_handle_new_peer)
-	multiplayer.connected_to_server.connect(_handle_connected)
+	NetworkEvents.on_client_start.connect(_handle_connected)
+	NetworkEvents.on_server_start.connect(_handle_host)
+	NetworkEvents.on_peer_join.connect(_handle_new_peer)
+	NetworkEvents.on_peer_leave.connect(_handle_leave)
+	NetworkEvents.on_client_stop.connect(_handle_stop)
+	NetworkEvents.on_server_stop.connect(_handle_stop)
+
+func _handle_connected(id: int):
+	# Spawn an avatar for us
+	_spawn(id)
+
+func _handle_host():
+	# Spawn own avatar on host machine
+	_spawn(1)
 
 func _handle_new_peer(id: int):
 	# Spawn an avatar for new player
 	_spawn(id)
 
-	if not spawned_for_host and multiplayer.is_server():
-		# Spawn own avatar on host machine
-		# This is a bit cumbersome, as there's no "server started"
-		# event, only "connected to server" on the client side
-		_spawn(1)
-		spawned_for_host = true
+func _handle_leave(id: int):
+	if not avatars.has(id):
+		return
+	
+	var avatar = avatars[id] as Node
+	avatar.queue_free()
+	avatars.erase(id)
 
-func _handle_connected():
-	# Spawn an avatar for us
-	_spawn(multiplayer.get_unique_id())
+func _handle_stop():
+	# Remove all avatars on game end
+	for avatar in avatars.values():
+		avatar.queue_free()
+	avatars.clear()
 
 func _spawn(id: int):
-	var avatar = player_scene.instantiate() as Node3D
+	var avatar = player_scene.instantiate() as Node
+	avatars[id] = avatar
 	avatar.name += " #%d" % id
-	avatar.position = spawn_point
 	spawn_root.add_child(avatar)
 	
 	# Avatar is always owned by server

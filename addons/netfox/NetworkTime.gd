@@ -53,27 +53,40 @@ signal on_tick(delta: float, tick: int)
 signal after_tick(delta: float, tick: int)
 signal after_tick_loop
 
+signal after_sync
+
 var _time: float = 0
 var _tick: int = 0
 var _next_tick: float = 0
 var _active: bool = false
+var _initial_sync_done = false
 
 func _ready():
 	NetworkTimeSynchronizer.on_sync.connect(_handle_sync)
 
 func start():
+	if _active:
+		return
+
 	_time = 0
+	_initial_sync_done = false
 	
 	if not multiplayer.is_server():
 		NetworkTimeSynchronizer.start()
 		await NetworkTimeSynchronizer.on_sync
+		_initial_sync_done = true
 		_active = true
+		after_sync.emit()
 	else:
 		_active = true
+		_initial_sync_done = true
 
 func stop():
 	NetworkTimeSynchronizer.stop()
 	_active = false
+
+func is_initial_sync_done() -> bool:
+	return _initial_sync_done
 
 func _process(delta):
 	if _active and not sync_to_physics:
