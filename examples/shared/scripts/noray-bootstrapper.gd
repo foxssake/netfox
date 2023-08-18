@@ -57,7 +57,7 @@ func _connect_to_noray():
 
 func _disconnect_from_noray():
 	Noray.disconnect_from_host()
-	oid_input.text = ""
+	oid_input.clear()
 
 func _host():
 	if Noray.local_port <= 0:

@@ -28,10 +28,10 @@ func connect_to_host(address: String, port: int = 8890) -> Error:
 	if is_connected_to_host():
 		disconnect_from_host()
 
-	print("Trying to connect at %s:%s" % [address, port])
+	print("Trying to connect to noray at %s:%s" % [address, port])
 	
 	address = IP.resolve_hostname(address, IP.TYPE_IPV4)
-	print("Resolved host to %s" % address)
+	print("Resolved noray host to %s" % address)
 	
 	var err = _peer.connect_to_host(address, port)
 	if err != Error.OK:
@@ -62,8 +62,8 @@ func disconnect_from_host():
 		on_disconnect_from_host.emit()
 	_peer.disconnect_from_host()
 
-func register_host():
-	_peer.put_data("register-host\n".to_utf8_buffer())
+func register_host() -> Error:
+	return _put_command("register-host")
 
 func register_remote(registrar_port: int = 8809, timeout: float = 8, interval: float = 0.1) -> Error:
 	if not is_connected_to_host():
@@ -103,11 +103,11 @@ func register_remote(registrar_port: int = 8809, timeout: float = 8, interval: f
 	udp.close()
 	return result
 
-func connect_nat(host_oid: String):
-	_peer.put_data(("connect %s\n" % host_oid).to_utf8_buffer())
+func connect_nat(host_oid: String) -> Error:
+	return _put_command("connect", host_oid)
 
-func connect_relay(host_oid: String):
-	_peer.put_data(("connect-relay %s\n" % host_oid).to_utf8_buffer())
+func connect_relay(host_oid: String) -> Error:
+	return _put_command("connect-relay", host_oid)
 
 func _process(_delta):
 	if not is_connected_to_host():
@@ -119,6 +119,17 @@ func _process(_delta):
 		return
 	
 	_protocol.ingest(_peer.get_utf8_string(available))
+
+func _put_command(command: String, data = null) -> Error:
+	if not is_connected_to_host():
+		return ERR_CONNECTION_ERROR
+		
+	if data != null:
+		_peer.put_data(("%s %s\n" % [command, data]).to_utf8_buffer())
+	else:
+		_peer.put_data((command + "\n").to_utf8_buffer())
+
+	return OK
 
 func _handle_commands(command: String, data: String):
 	if command == "set-oid":
