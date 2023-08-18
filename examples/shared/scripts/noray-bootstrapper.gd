@@ -16,26 +16,16 @@ enum Role { NONE, HOST, CLIENT }
 var role = Role.NONE
 
 func _ready():
-	noray_connect_button.button_up.connect(_connect_to_host)
-	noray_disconnect_button.button_up.connect(Noray.disconnect_from_host)
+	noray_connect_button.button_up.connect(_connect_to_noray)
+	noray_disconnect_button.button_up.connect(_disconnect_from_noray)
 	host_button.button_up.connect(_host)
-	join_button.button_up.connect(func():
-		if force_relay_check.button_pressed:
-			Noray.connect_relay(host_oid_input.text)
-		else:
-			Noray.connect_nat(host_oid_input.text)
-	)
+	join_button.button_up.connect(_join)
 	
 	Noray.on_oid.connect(func(oid): oid_input.text = oid)
-	Noray.on_connect_nat.connect(func(address, port):
-		var err = await _handle_connect(address, port)
-		if err != OK and role != Role.HOST:
-			print("NAT connect failed with reason %s, retrying with relay" % error_string(err))
-			Noray.connect_relay(host_oid_input.text)
-	)
-	Noray.on_connect_relay.connect(_handle_connect)
+	Noray.on_connect_nat.connect(_handle_connect_nat)
+	Noray.on_connect_relay.connect(_handle_connect_relay)
 
-func _connect_to_host():
+func _connect_to_noray():
 	# Connect to noray
 	var err = OK
 	var address = noray_address_input.text
@@ -61,8 +51,13 @@ func _connect_to_host():
 		print("Failed to register remote address: %s" % error_string(err))
 		return err
 	
-	print("Registered remote port: %d" % Noray.local_port)
+	# Our local port is a remote port to Noray, hence the weird naming
+	print("Registered local port: %d" % Noray.local_port)
 	return OK
+
+func _disconnect_from_noray():
+	Noray.disconnect_from_host()
+	oid_input.text = ""
 
 func _host():
 	if Noray.local_port <= 0:
@@ -96,6 +91,26 @@ func _host():
 	connect_ui.hide()
 	# TODO: Dedicated component?
 	NetworkTime.start()
+
+func _join():
+	if force_relay_check.button_pressed:
+		Noray.connect_relay(host_oid_input.text)
+	else:
+		Noray.connect_nat(host_oid_input.text)
+
+func _handle_connect_nat(address: String, port: int) -> Error:
+	var err = await _handle_connect(address, port)
+
+	# If client failed to connect over NAT, try again over relay
+	if err != OK and role != Role.HOST:
+		print("NAT connect failed with reason %s, retrying with relay" % error_string(err))
+		Noray.connect_relay(host_oid_input.text)
+		err = OK
+
+	return err
+
+func _handle_connect_relay(address: String, port: int) -> Error:
+	return await _handle_connect(address, port)
 
 func _handle_connect(address: String, port: int) -> Error:
 	if not Noray.local_port:
@@ -133,11 +148,10 @@ func _handle_connect(address: String, port: int) -> Error:
 
 		get_tree().get_multiplayer().multiplayer_peer = peer
 		
-		var timeout = Time.get_ticks_msec() + 1000
-		while peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTING:
-			await get_tree().process_frame
-			if Time.get_ticks_msec() > timeout:
-				break
+		# Wait for connection to succeed
+		await Async.condition(
+			func(): return peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTING
+		)
 			
 		if peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
 			print("Failed to connect to %s:%s with status %s" % [address, port, peer.get_connection_status()])
