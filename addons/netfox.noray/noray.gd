@@ -1,4 +1,11 @@
 extends Node
+## A noray client for Godot.
+##
+## noray can be used - similarly to a STUN+TURN server - to orchestrate
+## connection between two devices on the internet, either via NAT punchthrough,
+## or if that's not possible, by acting as a relay.
+##
+## See: https://github.com/foxssake/noray
 
 var _peer: StreamPeerTCP = StreamPeerTCP.new()
 var _protocol: NorayProtocolHandler = NorayProtocolHandler.new()
@@ -7,30 +14,58 @@ var _oid = ""
 var _pid = ""
 var _local_port: int = -1
 
+## Open ID.
+##
+## [i]read-only[/i], this is set after registering as host.
 var oid: String:
 	get: return _oid
 	set(v): push_error("Trying to set read-only variable oid")
 
+## Private ID.
+##
+## [i]read-only[/i], this is set after registering as host.
 var pid: String:
 	get: return _pid
 	set(v): push_error("Trying to set read-only variable pid")
 
+## Registered local port.
+##
+## This is the port that servers should listen on and the port that clients 
+## should bind to ( i.e. use as local port ), since this port has been 
+## registered with noray as part of this machine's external address, and this
+## is the port over which any handshake happens.
+##
+## [i]read-only[/i], this is set after registering remote.
 var local_port: int:
 	get: return _local_port
 	set(v): push_error("Trying to set read-only variable local_port")
 
+## Emitted for any command received from noray.
 signal on_command(command: String, data: String)
-signal on_connect_to_host
-signal on_disconnect_from_host
+
+## Emitted when connected to noray.
+signal on_connect_to_host()
+
+## Emitted when disconnected from noray.
+signal on_disconnect_from_host()
+
+## Emitted when an OpenID is received from noray.
 signal on_oid(oid: String)
+
+## Emitted when a PrivateID is received from noray.
 signal on_pid(pid: String)
+
+## Emitted when a connect over NAT command is received from noray.
 signal on_connect_nat(address: String, port: int)
+
+## Emitted when a connect over relay command is received from noray.
 signal on_connect_relay(address: String, port: int)
 
 func _enter_tree():
 	_protocol.on_command.connect(func (cmd, data): on_command.emit(cmd, data))
 	on_command.connect(_handle_commands)
 
+## Connect to noray at host.
 func connect_to_host(address: String, port: int = 8890) -> Error:
 	if is_connected_to_host():
 		disconnect_from_host()
@@ -61,17 +96,23 @@ func connect_to_host(address: String, port: int = 8890) -> Error:
 		disconnect_from_host()
 		return ERR_CONNECTION_ERROR
 
+## Check if connected to any host.
 func is_connected_to_host() -> bool:
 	return _peer.get_status() == _peer.STATUS_CONNECTED
 
+## Disconnect from noray.
+##
+## Does nothing if already disconnected.
 func disconnect_from_host():
 	if is_connected_to_host():
 		on_disconnect_from_host.emit()
 	_peer.disconnect_from_host()
 
+## Register as host.
 func register_host() -> Error:
 	return _put_command("register-host")
 
+## Register remote address.
 func register_remote(registrar_port: int = 8809, timeout: float = 8, interval: float = 0.1) -> Error:
 	if not is_connected_to_host():
 		return ERR_CONNECTION_ERROR
@@ -110,9 +151,11 @@ func register_remote(registrar_port: int = 8809, timeout: float = 8, interval: f
 	udp.close()
 	return result
 
+## Connect to a given host by OID over NAT.
 func connect_nat(host_oid: String) -> Error:
 	return _put_command("connect", host_oid)
 
+## Connect to a given host by OID over relay.
 func connect_relay(host_oid: String) -> Error:
 	return _put_command("connect-relay", host_oid)
 

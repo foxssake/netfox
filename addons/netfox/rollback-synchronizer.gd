@@ -20,6 +20,11 @@ extends Node
 ## These properties are configured as node paths, relative to the configured
 ## root node.
 ##
+## Since the rollback synchronizer needs to control ticks on a per-node basis,
+## it did not make sense to provide a signal to which nodes can connect to.
+## Instead, all the nodes who have a state property are checked for a "_tick"
+## method, and if available, it will be called for tick (re)simulation.
+##
 ## [i]Note[/i] that while most often we speak in terms of servers and clients,
 ## Netfox only deals with multiplayer authority, same as Godot itself. So, state
 ## is owned by whoever has the multiplayer authority over objects that contain

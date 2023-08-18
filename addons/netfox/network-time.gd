@@ -120,7 +120,7 @@ var physics_factor: float:
 		push_error("Trying to set read-only variable physics_factor")
 
 ## Emitted before a tick loop is run.
-signal before_tick_loop
+signal before_tick_loop()
 
 ## Emitted for every network tick.
 signal on_tick(delta: float, tick: int)
@@ -129,13 +129,13 @@ signal on_tick(delta: float, tick: int)
 signal after_tick(delta: float, tick: int)
 
 ## Emitted after the tick loop is run.
-signal after_tick_loop
+signal after_tick_loop()
 
 ## Emitted after time is synchronized.
 ##
 ## This happens once the NetworkTime is started, and the first time sync process
 ## concludes. When running as server, this is emitted instantly after started.
-signal after_sync
+signal after_sync()
 
 var _time: float = 0
 var _tick: int = 0

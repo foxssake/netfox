@@ -17,10 +17,10 @@ extends Node
 signal on_multiplayer_change(old: MultiplayerAPI, new: MultiplayerAPI)
 
 ## Event emitted when the server starts
-signal on_server_start
+signal on_server_start()
 
 ## Event emitted when the server stops for any reason
-signal on_server_stop
+signal on_server_stop()
 
 ## Event emitted when the client starts
 signal on_client_start(id: int)
@@ -29,7 +29,7 @@ signal on_client_start(id: int)
 ##
 ## This can happen due to either the client itself or the server disconnecting
 ## for whatever reason.
-signal on_client_stop
+signal on_client_stop()
 
 ## Event emitted when a new peer joins the game.
 signal on_peer_join(id: int)
