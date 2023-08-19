@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://8sru5hge6spx"]
+[gd_scene load_steps=6 format=3 uid="uid://8sru5hge6spx"]
 
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/bomb-projectile.gd" id="1_eudhi"]
 [ext_resource type="PackedScene" uid="uid://cn6ypxuayfwfl" path="res://examples/forest-brawl/models/kenney-platformer-kit/bomb.glb" id="1_lr6uq"]
+[ext_resource type="PackedScene" uid="uid://6212jkmbikjq" path="res://examples/forest-brawl/scenes/explosion.tscn" id="2_r3c2e"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/tick-interpolator.gd" id="3_ndov4"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_pc5j5"]
@@ -11,6 +12,7 @@ radius = 0.25
 shape = SubResource("SphereShape3D_pc5j5")
 target_position = Vector3(0, 0, 0)
 script = ExtResource("1_eudhi")
+effect = ExtResource("2_r3c2e")
 
 [node name="bomb" parent="." instance=ExtResource("1_lr6uq")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.226921, 0)

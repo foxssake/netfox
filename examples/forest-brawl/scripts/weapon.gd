@@ -37,10 +37,10 @@ func _before_tick_loop():
 	# Apply all offsets
 	for id in _offsets.keys():
 		var offset = _offsets[id]
-		var projectile = _projectiles[id] as Node3D
+		var projectile = _projectiles[id]
 		
-		if projectile == null:
-			# Projectile vanished?
+		if not projectile:
+			push_warning("Projectile %s vanished by the time we tried to apply offset" % [id])
 			continue
 		
 		projectile.global_transform *= offset
