@@ -277,6 +277,11 @@ func _interpolate(from: Dictionary, to: Dictionary, loop: Dictionary, f: float, 
 			pe.set_value((a as Vector2).move_toward(b, (a as Vector2).distance_to(b) * df))
 		elif a is Vector3:
 			pe.set_value((a as Vector3).move_toward(b, (a as Vector3).distance_to(b) * df))
+		# TODO: Add as separate feature
+		elif a is Transform2D:
+			pe.set_value((a as Transform2D).interpolate_with(b, clamp(df, 0, 1)))
+		elif a is Transform3D:
+			pe.set_value((a as Transform3D).interpolate_with(b, clamp(df, 0, 1)))
 		else:
 			pe.set_value(a if f < 0.5 else b)
 

@@ -1,0 +1,40 @@
+[gd_scene load_steps=7 format=3 uid="uid://wi4owat0bml3"]
+
+[ext_resource type="Script" path="res://addons/netfox/rollback-synchronizer.gd" id="1_1u5q7"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/brawler-controller.gd" id="1_np8na"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/brawler-input.gd" id="2_m3v43"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_qgusj"]
+radius = 0.25
+height = 1.0
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_m7lox"]
+radius = 0.25
+height = 1.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_s7mrr"]
+radius = 0.125
+height = 0.25
+
+[node name="Brawler" type="CharacterBody3D"]
+script = ExtResource("1_np8na")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_qgusj")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_m7lox")
+
+[node name="Aim Marker" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.25)
+mesh = SubResource("SphereMesh_s7mrr")
+
+[node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("1_1u5q7")
+root = NodePath("..")
+state_properties = Array[String]([":transform"])
+input_properties = Array[String](["Input:movement", "Input:aim"])
+interpolate_properties = Array[String]([":transform"])
+
+[node name="Input" type="Node" parent="."]
+script = ExtResource("2_m3v43")
