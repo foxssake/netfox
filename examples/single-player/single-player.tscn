@@ -4,12 +4,12 @@
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_rrbfu"]
 
-[sub_resource type="Sky" id="Sky_g0uhm"]
+[sub_resource type="Sky" id="Sky_1tr2y"]
 sky_material = SubResource("ProceduralSkyMaterial_rrbfu")
 
 [sub_resource type="Environment" id="Environment_ef1wp"]
 background_mode = 2
-sky = SubResource("Sky_g0uhm")
+sky = SubResource("Sky_1tr2y")
 
 [node name="Game Scene" type="Node3D"]
 
