@@ -1,0 +1,25 @@
+	
+
+	Platformer Kit (2.2)
+
+	Created/distributed by Kenney (www.kenney.nl)
+	Creation date: 05-12-2022 12:11
+
+			------------------------------
+
+	License: Creative Commons Zero, CC0
+	http://creativecommons.org/publicdomain/zero/1.0/
+
+	The content in this package is free to use in personal, educational and commercial projects.
+	Support the creation of these game assets by crediting 'Kenney' or 'www.kenney.nl' (this is not mandatory)
+
+			------------------------------
+
+	• Donate:	donate.kenney.nl
+	• Patreon:	patreon.com/kenney
+
+	Follow on social media for updates:
+
+	• Twitter:	twitter.com/KenneyNL
+	• Instagram:	instagram.com/kenney_nl
+	• Mastodon:	mastodon.gamedev.place/@kenney
