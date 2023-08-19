@@ -122,6 +122,9 @@ var physics_factor: float:
 ## Emitted before a tick loop is run.
 signal before_tick_loop()
 
+# TODO: Add as feature
+signal before_tick(delta: float, tick: int)
+
 ## Emitted for every network tick.
 signal on_tick(delta: float, tick: int)
 
@@ -194,6 +197,7 @@ func _process(delta):
 			if ticks_in_loop == 0:
 				before_tick_loop.emit()
 
+			before_tick.emit(ticktime, tick)
 			on_tick.emit(ticktime, tick)
 			after_tick.emit(ticktime, tick)
 
@@ -209,8 +213,9 @@ func _physics_process(delta):
 	if _active and sync_to_physics:
 		# Run a single tick every physics frame
 		before_tick_loop.emit()
-		on_tick.emit(delta)
-		after_tick.emit(delta)
+		before_tick.emit(delta, tick)
+		on_tick.emit(delta, tick)
+		after_tick.emit(delta, tick)
 		after_tick_loop.emit()
 
 func _handle_sync(server_time: float, server_tick: int):

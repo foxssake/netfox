@@ -76,8 +76,17 @@ signal after_loop()
 
 var _earliest_input = INF
 
+var _is_rollback: bool = false
+
+# TODO: Document
+# TODO: Change to submit simulation range
 func notify_input_tick(tick: int):
 	_earliest_input = min(_earliest_input, tick)
+
+# TODO: Add as feature
+## Check if a network rollback is currently active.
+func is_rollback() -> bool:
+	return _is_rollback
 
 func _ready():
 	NetworkTime.after_tick_loop.connect(_rollback)
@@ -85,6 +94,8 @@ func _ready():
 func _rollback():
 	if not enabled:
 		return
+
+	_is_rollback = true
 
 	# Ask all rewindables to submit their earliest inputs
 	_earliest_input = NetworkTime.tick
@@ -116,6 +127,8 @@ func _rollback():
 	
 	# Restore display state
 	after_loop.emit()
+	
+	_is_rollback = false
 
 # Insight 1:
 #	state(x) = simulate(state(x - 1), input(x - 1))

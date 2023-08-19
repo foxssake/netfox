@@ -2,10 +2,12 @@ extends Node
 class_name BrawlerInput
 
 var camera: Camera3D
+@onready var _player: Node3D = get_parent()
+
 var movement: Vector3 = Vector3.ZERO
 var aim: Vector3 = Vector3.ZERO
+var is_firing: bool = false
 
-@onready var _player: Node3D = get_parent()
 var _aim_target: Vector3
 var _has_aim: bool = false
 
@@ -29,8 +31,8 @@ func _gather():
 	# Aim
 	if _has_aim:
 		aim = (_aim_target - _player.global_position).normalized()
-	else:
-		aim = Vector3.ZERO
+	
+	is_firing = Input.is_action_pressed("weapon_fire")
 
 func _physics_process(delta):
 	if not camera:
@@ -46,12 +48,10 @@ func _physics_process(delta):
 	var hit = space.intersect_ray(PhysicsRayQueryParameters3D.create(
 		ray_origin, ray_origin + ray_normal * ray_length
 	))
-	
-	# print("[ray] %s -> %s: %s" % [ray_origin, ray_normal, hit])
 
 	if not hit.is_empty():
 		_aim_target = hit.position
-		_aim_target.y = round(_aim_target.y - _player.position.y) + _player.position.y
+		_aim_target.y = round((_aim_target.y - _player.global_position.y) / 2) * 2 + _player.global_position.y
 		_has_aim = true
 	else:
 		_has_aim = false
