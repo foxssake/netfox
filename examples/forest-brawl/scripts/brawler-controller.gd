@@ -35,7 +35,6 @@ func _tick(delta, _t):
 		velocity.z = move_toward(velocity.z, 0, speed)
 	
 	# Aim
-	# print("Aiming at %s" % [input.aim])
 	if input.aim:
 		transform = transform.looking_at(position + Vector3(input.aim.x, 0, input.aim.z), Vector3.UP, true)
 

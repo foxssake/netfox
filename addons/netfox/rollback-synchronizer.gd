@@ -175,23 +175,18 @@ func _prepare_tick(tick: int):
 	_apply(state)
 	_apply(input)
 
+func _can_simulate(node: Node, tick: int) -> bool:
+	if node.is_multiplayer_authority():
+		# Simulate from earliest input
+		# Don't simulate frames we don't have input for
+		return tick >= _earliest_input and _inputs.has(tick)
+	else:
+		# Simulate ONLY if we have state from server
+		# Simulate from latest authorative state - anything the server confirmed we don't rerun
+		# Don't simulate frames we don't have input for
+		return tick >= _latest_state and _inputs.has(tick)
+
 func _process_tick(tick: int):
-	if _latest_state < 0 and _auth_state_props.is_empty():
-		return
-
-	var latest_input = _inputs.keys().max() if not _inputs.is_empty() else INF
-	var latest_state = _latest_state
-	var earliest_input = _earliest_input
-	var broadcast_state = {}
-	
-	# Skip simulation if we don't have input
-	if not _inputs.has(tick):
-		return
-	
-	# Skip simulation if we already have an authorative frame
-	if tick <= _latest_state:
-		return
-
 	# Simulate rollback tick
 	#	Method call on rewindables
 	#	Rollback synchronizers go through each node they manage
@@ -199,27 +194,27 @@ func _process_tick(tick: int):
 	#		If authority: Latest input >= tick >= Latest state
 	#		If not: Latest input >= tick >= Earliest input
 	for node in _nodes:
-		if node.is_multiplayer_authority():
-			if not (tick >= earliest_input and tick <= latest_input):
-				continue
-		else:
-			if tick <= latest_state:
-				continue
-		
-		# TODO: Notify whether this is a resimulated tick
+		if not _can_simulate(node, tick):
+			continue
+
 		node._tick(NetworkTime.ticktime, tick)
-		
-		# Add simulated properties to broadcast state
-		for property in _auth_state_props:
-			if property.node == node:
-				broadcast_state[property.to_string()] = property.get_value()
-	
-	if broadcast_state.size() > 0:
-		_latest_state = max(_latest_state, tick)
-		_states[tick] = _merge(_states.get(tick, {}), broadcast_state)
-		rpc("_submit_state", broadcast_state, tick)
 
 func _record_tick(tick: int):
+	# Broadcast state we own
+	if not _auth_state_props.is_empty():
+		var broadcast = {}
+
+		for property in _auth_state_props:
+			if _can_simulate(property.node, tick - 1):
+				# Only broadcast if we've simulated the node
+				broadcast[property.to_string()] = property.get_value()
+	
+		if broadcast.size() > 0:
+			# Broadcast as new state
+			_latest_state = max(_latest_state, tick)
+			_states[tick] = _merge(_states.get(tick, {}), broadcast)
+			rpc("_submit_state", broadcast, tick)
+	
 	# Record state for specified tick ( current + 1 )
 	if not _record_state_props.is_empty() and tick > _latest_state:
 		_states[tick] = _extract(_record_state_props)

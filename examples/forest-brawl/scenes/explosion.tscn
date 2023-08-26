@@ -26,6 +26,7 @@ offsets = PackedFloat32Array(0, 0.57561, 1)
 colors = PackedColorArray(1, 0.7, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0)
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_ddj8d"]
+radius = 2.0
 
 [node name="Explosion" type="Area3D"]
 gravity = 0.0
