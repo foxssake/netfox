@@ -76,4 +76,4 @@ weapon_fire={
 [netfox]
 
 general/clear_settings=false
-time/tickrate=24
+time/tickrate=8
