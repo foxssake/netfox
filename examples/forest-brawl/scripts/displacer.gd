@@ -21,8 +21,9 @@ func _tick(tick):
 			var displaceable = _find_displaceable(body)
 			if body.is_multiplayer_authority() and displaceable != null and NetworkRollback.is_simulated(body):
 				var diff: Vector3 = body.global_position - global_position
-				diff.y = 0
-				displaceable.displace(diff.normalized() * strength)
+				var f = clampf(1.0 / (1.0 + diff.length_squared()), 0.0, 1.0)
+				diff.y = max(0, diff.y)
+				displaceable.displace(diff.normalized() * strength * f)
 
 func _real_tick(delta, tick):
 	if tick >= death_tick:
