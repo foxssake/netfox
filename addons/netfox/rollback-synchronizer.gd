@@ -383,6 +383,7 @@ func _submit_state(state: Dictionary, tick: int):
 	
 	if sanitized.size() > 0:
 		_states[tick] = _merge(_states.get(tick, {}), sanitized)
-		_latest_state = max(_latest_state, tick)
+		# _latest_state = max(_latest_state, tick)
+		_latest_state = tick
 	else:
 		push_warning("Received invalid state from %s for tick %s" % [sender, tick])
