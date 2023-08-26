@@ -5,6 +5,7 @@ extends CharacterBody3D
 @export var input: BrawlerInput
 
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
+var is_simulated = false
 
 func _ready():
 	if not input:
@@ -15,8 +16,12 @@ func _ready():
 	# TODO: What if the RollbackSynchronizer had a flag for this?
 	await get_tree().process_frame
 	$RollbackSynchronizer.process_settings()
+	
+	NetworkRollback.on_prepare_tick.connect(func(_t): is_simulated = false)
 
 func _tick(delta, _t):
+	is_simulated = true
+
 	# Add the gravity.
 	if not is_on_floor():
 		velocity.y -= gravity * delta

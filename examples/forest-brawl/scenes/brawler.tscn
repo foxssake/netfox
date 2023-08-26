@@ -1,10 +1,11 @@
-[gd_scene load_steps=9 format=3 uid="uid://wi4owat0bml3"]
+[gd_scene load_steps=10 format=3 uid="uid://wi4owat0bml3"]
 
 [ext_resource type="Script" path="res://addons/netfox/rollback-synchronizer.gd" id="1_1u5q7"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/brawler-controller.gd" id="1_np8na"]
 [ext_resource type="PackedScene" uid="uid://8sru5hge6spx" path="res://examples/forest-brawl/scenes/bomb-projectile.tscn" id="2_cr3oe"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/brawler-input.gd" id="2_m3v43"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/weapon.gd" id="3_0p68y"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/displaceable.gd" id="6_ygmle"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_qgusj"]
 radius = 0.25
@@ -47,3 +48,6 @@ root = NodePath("..")
 state_properties = Array[String]([":transform"])
 input_properties = Array[String](["Input:movement", "Input:aim"])
 interpolate_properties = Array[String]([":transform"])
+
+[node name="Displaceable" type="Node3D" parent="."]
+script = ExtResource("6_ygmle")
