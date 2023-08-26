@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://6212jkmbikjq"]
+[gd_scene load_steps=10 format=3 uid="uid://6212jkmbikjq"]
 
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/displacer.gd" id="1_acukw"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/timed-life.gd" id="1_p0pcp"]
@@ -28,6 +28,15 @@ colors = PackedColorArray(1, 0.7, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0)
 [sub_resource type="SphereShape3D" id="SphereShape3D_ddj8d"]
 radius = 2.0
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6rsal"]
+transparency = 1
+albedo_color = Color(1, 0, 0, 0.25098)
+
+[sub_resource type="SphereMesh" id="SphereMesh_k5smf"]
+material = SubResource("StandardMaterial3D_6rsal")
+radius = 2.0
+height = 4.0
+
 [node name="Explosion" type="Area3D"]
 gravity = 0.0
 script = ExtResource("1_acukw")
@@ -50,3 +59,6 @@ script = ExtResource("1_p0pcp")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("SphereShape3D_ddj8d")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_k5smf")
