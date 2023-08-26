@@ -18,7 +18,9 @@ func _ready():
 func _tick(tick):
 	if birth_tick <= tick and tick < death_tick:
 		for body in get_overlapping_bodies():
-			if body.is_in_group("Brawlers") and body.is_multiplayer_authority() and body.is_simulated:
+			if body.is_in_group("Brawlers") and \
+				body.is_multiplayer_authority() and \
+				NetworkRollback.is_simulated(body):
 				var diff: Vector3 = body.global_position - global_position
 				diff.y = 0
 				body.global_position += diff.normalized() * strength * NetworkTime.ticktime

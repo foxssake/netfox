@@ -174,6 +174,10 @@ func _prepare_tick(tick: int):
 	
 	_apply(state)
 	_apply(input)
+	
+	for node in _nodes:
+		if _can_simulate(node, tick):
+			NetworkRollback.notify_simulated(node)
 
 func _can_simulate(node: Node, tick: int) -> bool:
 	if node.is_multiplayer_authority():
@@ -194,10 +198,8 @@ func _process_tick(tick: int):
 	#		If authority: Latest input >= tick >= Latest state
 	#		If not: Latest input >= tick >= Earliest input
 	for node in _nodes:
-		if not _can_simulate(node, tick):
-			continue
-
-		node._tick(NetworkTime.ticktime, tick)
+		if NetworkRollback.is_simulated(node):
+			node._tick(NetworkTime.ticktime, tick)
 
 func _record_tick(tick: int):
 	# Broadcast state we own

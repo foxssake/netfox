@@ -77,11 +77,20 @@ signal after_loop()
 var _earliest_input = INF
 
 var _is_rollback: bool = false
+var _simulated_nodes: Dictionary = {}
 
 # TODO: Document
 # TODO: Change to submit simulation range
 func notify_input_tick(tick: int):
 	_earliest_input = min(_earliest_input, tick)
+
+# TODO: Add as feature
+func notify_simulated(node: Node):
+	_simulated_nodes[node] = true
+
+# TODO: Add as feature
+func is_simulated(node: Node):
+	return _simulated_nodes.has(node)
 
 # TODO: Add as feature
 ## Check if a network rollback is currently active.
@@ -109,6 +118,8 @@ func _rollback():
 	
 	# for tick in from .. to:
 	for tick in range(from, to):
+		_simulated_nodes.clear()
+
 		# Prepare state
 		#	Done individually by Rewindables ( usually Rollback Synchronizers )
 		#	Restore input and state for tick
@@ -127,7 +138,6 @@ func _rollback():
 	
 	# Restore display state
 	after_loop.emit()
-	
 	_is_rollback = false
 
 # Insight 1:
