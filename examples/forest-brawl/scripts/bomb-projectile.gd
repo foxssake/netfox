@@ -29,7 +29,7 @@ func _tick(delta, _t):
 		# Jump to earliest point of collision
 		position = target_position
 		for hit in collision_result:
-			var point = hit.point as Vector3
+			var point = (hit.point + hit.normal * 0.05) as Vector3
 			if position.distance_to(target_position) < point.distance_to(target_position):
 				position = point
 

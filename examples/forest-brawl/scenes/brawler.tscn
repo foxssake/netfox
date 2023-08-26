@@ -42,12 +42,13 @@ script = ExtResource("3_0p68y")
 input = NodePath("../Input")
 projectile = ExtResource("2_cr3oe")
 
-[node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
+[node name="Displaceable" type="Node3D" parent="."]
+script = ExtResource("6_ygmle")
+
+[node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root", "simulate_nodes")]
 script = ExtResource("1_1u5q7")
 root = NodePath("..")
 state_properties = Array[String]([":transform"])
 input_properties = Array[String](["Input:movement", "Input:aim"])
 interpolate_properties = Array[String]([":transform"])
-
-[node name="Displaceable" type="Node3D" parent="."]
-script = ExtResource("6_ygmle")
+simulate_nodes = [NodePath("../Displaceable")]

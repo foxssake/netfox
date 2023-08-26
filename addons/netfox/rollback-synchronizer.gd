@@ -75,6 +75,7 @@ class PropertyEntry:
 @export var state_properties: Array[String]
 @export var input_properties: Array[String]
 @export var interpolate_properties: Array[String]
+@export var simulate_nodes: Array[Node]
 
 var _record_state_props: Array[PropertyEntry] = []
 var _record_input_props: Array[PropertyEntry] = []
@@ -121,16 +122,15 @@ func process_settings():
 			_record_input_props.push_back(pe)
 			_auth_input_props.push_back(pe)
 	
-	for pe in _pe_cache.values():
-		var node = pe.node as Node
-		
-		if not node.has_method("_tick"):
-			continue
-		
-		if _nodes.has(node):
-			continue
-
-		_nodes.push_back(node)
+	_nodes = []
+	var all_nodes = (_pe_cache.values()\
+		.map(func(it): return it.node) +\
+		simulate_nodes
+		)\
+		.filter(func(it): return it.has_method("_tick"))
+	for node in all_nodes:
+		if not _nodes.has(node):
+			_nodes.push_back(node)
 
 ## Check if interpolation can be done.
 ##
