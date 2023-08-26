@@ -4,7 +4,8 @@ class_name Displaceable
 var displace_buffer: Vector3 = Vector3.ZERO
 
 func _ready():
-	NetworkRollback.before_loop.connect(func(_t): displace_buffer = Vector3.ZERO)
+	# NetworkRollback.before_loop.connect(func(_t): displace_buffer = Vector3.ZERO)
+	pass
 
 func displace(speed: Vector3):
 	displace_buffer += speed
