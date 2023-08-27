@@ -50,6 +50,13 @@ var display_offset: int:
 	set(v):
 		push_error("Trying to set read-only variable display_offset")
 
+## TODO: Add as feature
+var tick: int:
+	get:
+		return _tick
+	set(v):
+		push_error("Trying to set read-only variable tick")
+
 ## Event emitted before running the network rollback loop
 signal before_loop()
 
@@ -74,6 +81,7 @@ signal on_record_tick(tick: int)
 ## Event emitted after running the network rollback loop
 signal after_loop()
 
+var _tick: int = 0
 var _earliest_input = INF
 
 var _is_rollback: bool = false
@@ -118,6 +126,7 @@ func _rollback():
 	
 	# for tick in from .. to:
 	for tick in range(from, to):
+		_tick = tick
 		_simulated_nodes.clear()
 
 		# Prepare state

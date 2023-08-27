@@ -1,0 +1,124 @@
+[gd_scene load_steps=14 format=3 uid="uid://ijqx6kjl3qf4"]
+
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/powerup.gd" id="1_6q3ei"]
+[ext_resource type="PackedScene" uid="uid://ch61st8ietkte" path="res://examples/forest-brawl/models/kenney-platformer-kit/crateItem.glb" id="1_gldsg"]
+[ext_resource type="PackedScene" uid="uid://bd38peoq8b5ae" path="res://examples/forest-brawl/scenes/effects/speed-effect.tscn" id="2_bissc"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/tick-interpolator.gd" id="3_8vkt5"]
+[ext_resource type="PackedScene" uid="uid://jskoprs7vkq0" path="res://examples/forest-brawl/scenes/effects/repulse-effect.tscn" id="3_lmj2s"]
+[ext_resource type="PackedScene" uid="uid://5cts743r7q3v" path="res://examples/forest-brawl/scenes/effects/mass-effect.tscn" id="4_6ftmp"]
+
+[sub_resource type="Gradient" id="Gradient_7fwde"]
+interpolation_mode = 2
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_6ftng"]
+gradient = SubResource("Gradient_7fwde")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jauig"]
+blend_mode = 1
+cull_mode = 1
+depth_draw_mode = 2
+shading_mode = 0
+albedo_color = Color(1, 0.733333, 0, 1)
+albedo_texture = SubResource("GradientTexture2D_6ftng")
+uv1_scale = Vector3(2, 1, 1)
+uv1_offset = Vector3(0.5, 0, 0)
+disable_receive_shadows = true
+billboard_mode = 1
+billboard_keep_scale = true
+proximity_fade_distance = 16.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_m0dgx"]
+lightmap_size_hint = Vector2i(33, 17)
+material = SubResource("StandardMaterial3D_jauig")
+radius = 1.0
+height = 2.0
+radial_segments = 16
+rings = 8
+
+[sub_resource type="Animation" id="Animation_07ouu"]
+resource_name = "powerup-float"
+length = 8.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("crateItem:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 8),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 1.74846e-07, 0), Vector3(0, 6.28319, 0)]
+}
+tracks/1/type = "bezier"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("crateItem:position:x")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"handle_modes": PackedInt32Array(),
+"points": PackedFloat32Array(),
+"times": PackedFloat32Array()
+}
+tracks/2/type = "bezier"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("crateItem:position:y")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0),
+"points": PackedFloat32Array(-0.5, -1, 0, 1, 0, 0, -1, 0, 1, 0, -0.5, -1, 0, 1, 0),
+"times": PackedFloat32Array(0, 4, 8)
+}
+tracks/3/type = "bezier"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("crateItem:position:z")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"handle_modes": PackedInt32Array(),
+"points": PackedFloat32Array(),
+"times": PackedFloat32Array()
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_ad1vt"]
+_data = {
+"powerup-float": SubResource("Animation_07ouu")
+}
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_3na7t"]
+radius = 1.0
+
+[node name="Powerup" type="Area3D"]
+script = ExtResource("1_6q3ei")
+effects = Array[PackedScene]([ExtResource("2_bissc"), ExtResource("3_lmj2s"), ExtResource("4_6ftmp")])
+
+[node name="crateItem" parent="." instance=ExtResource("1_gldsg")]
+transform = Transform3D(-0.285903, 0, 0.958259, 0, 1, 0, -0.958259, 0, -0.285903, 0, -0.188843, 0)
+
+[node name="Aura" type="MeshInstance3D" parent="crateItem"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+mesh = SubResource("SphereMesh_m0dgx")
+skeleton = NodePath("../..")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+autoplay = "powerup-float"
+libraries = {
+"": SubResource("AnimationLibrary_ad1vt")
+}
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_3na7t")
+
+[node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("3_8vkt5")
+root = NodePath("..")
+properties = Array[String]([":scale"])

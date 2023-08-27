@@ -1,0 +1,100 @@
+[gd_scene load_steps=14 format=3 uid="uid://jskoprs7vkq0"]
+
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/effects/repulse-effect.gd" id="1_47iru"]
+
+[sub_resource type="Gradient" id="Gradient_k0qrh"]
+interpolation_mode = 2
+offsets = PackedFloat32Array(0, 0.959184, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1, 0.0705882, 0.0705882, 0.0705882, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_lut6u"]
+gradient = SubResource("Gradient_k0qrh")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gyt54"]
+blend_mode = 1
+cull_mode = 1
+depth_draw_mode = 2
+no_depth_test = true
+shading_mode = 0
+albedo_color = Color(1, 0.4, 0, 1)
+albedo_texture = SubResource("GradientTexture2D_lut6u")
+uv1_scale = Vector3(2, 1, 1)
+uv1_offset = Vector3(0.5, 0, 0)
+disable_receive_shadows = true
+billboard_mode = 1
+billboard_keep_scale = true
+proximity_fade_distance = 16.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_mqde8"]
+material = SubResource("StandardMaterial3D_gyt54")
+radius = 2.0
+height = 4.0
+
+[sub_resource type="Gradient" id="Gradient_yy78k"]
+colors = PackedColorArray(1, 0.882667, 0.36, 1, 0.81, 0, 0, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_2haui"]
+gradient = SubResource("Gradient_yy78k")
+
+[sub_resource type="Curve" id="Curve_jkehe"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -3.03157, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_0kndu"]
+curve = SubResource("Curve_jkehe")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_la0c6"]
+emission_shape = 2
+emission_sphere_radius = 0.5
+direction = Vector3(0, 0, 0)
+spread = 180.0
+gravity = Vector3(0, 0, 0)
+radial_accel_min = 8.0
+radial_accel_max = 16.0
+scale_min = 0.05
+scale_max = 0.1
+scale_curve = SubResource("CurveTexture_0kndu")
+color_ramp = SubResource("GradientTexture1D_2haui")
+turbulence_noise_strength = 0.2
+attractor_interaction_enabled = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_y5edj"]
+blend_mode = 1
+depth_draw_mode = 2
+shading_mode = 0
+vertex_color_use_as_albedo = true
+billboard_keep_scale = true
+
+[sub_resource type="SphereMesh" id="SphereMesh_74i8l"]
+material = SubResource("StandardMaterial3D_y5edj")
+radial_segments = 8
+rings = 4
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_1qng7"]
+radius = 2.0
+
+[node name="Repulse Effect" type="Node3D" node_paths=PackedStringArray("area", "particles", "aura")]
+script = ExtResource("1_47iru")
+area = NodePath("Area3D")
+particles = NodePath("GPUParticles3D")
+aura = NodePath("Aura")
+
+[node name="Aura" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+mesh = SubResource("SphereMesh_mqde8")
+skeleton = NodePath("../..")
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="."]
+amount = 128
+lifetime = 0.5
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_la0c6")
+draw_pass_1 = SubResource("SphereMesh_74i8l")
+
+[node name="Area3D" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+shape = SubResource("SphereShape3D_1qng7")
