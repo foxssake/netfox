@@ -40,7 +40,7 @@ height = 4.0
 [node name="Explosion" type="Area3D"]
 gravity = 0.0
 script = ExtResource("1_acukw")
-duration = 1.0
+duration = 0.25
 strength = 16.0
 
 [node name="Explosion" type="CPUParticles3D" parent="."]
@@ -61,4 +61,5 @@ script = ExtResource("1_p0pcp")
 shape = SubResource("SphereShape3D_ddj8d")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+visible = false
 mesh = SubResource("SphereMesh_k5smf")
