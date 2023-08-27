@@ -23,7 +23,7 @@ func _tick(tick):
 				var diff: Vector3 = body.global_position - global_position
 				var f = clampf(1.0 / (1.0 + diff.length_squared()), 0.0, 1.0)
 				diff.y = max(0, diff.y)
-				displaceable.displace(diff.normalized() * strength * f)
+				displaceable.displace(diff.normalized() * strength * f * NetworkTime.ticktime)
 
 func _real_tick(delta, tick):
 	if tick >= death_tick:
