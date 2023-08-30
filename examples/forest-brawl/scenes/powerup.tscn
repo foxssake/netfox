@@ -1,10 +1,8 @@
-[gd_scene load_steps=14 format=3 uid="uid://ijqx6kjl3qf4"]
+[gd_scene load_steps=12 format=3 uid="uid://ijqx6kjl3qf4"]
 
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/powerup.gd" id="1_6q3ei"]
 [ext_resource type="PackedScene" uid="uid://ch61st8ietkte" path="res://examples/forest-brawl/models/kenney-platformer-kit/crateItem.glb" id="1_gldsg"]
-[ext_resource type="PackedScene" uid="uid://bd38peoq8b5ae" path="res://examples/forest-brawl/scenes/effects/speed-effect.tscn" id="2_bissc"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/tick-interpolator.gd" id="3_8vkt5"]
-[ext_resource type="PackedScene" uid="uid://jskoprs7vkq0" path="res://examples/forest-brawl/scenes/effects/repulse-effect.tscn" id="3_lmj2s"]
 [ext_resource type="PackedScene" uid="uid://5cts743r7q3v" path="res://examples/forest-brawl/scenes/effects/mass-effect.tscn" id="4_6ftmp"]
 
 [sub_resource type="Gradient" id="Gradient_7fwde"]
@@ -99,7 +97,7 @@ radius = 1.0
 
 [node name="Powerup" type="Area3D"]
 script = ExtResource("1_6q3ei")
-effects = Array[PackedScene]([ExtResource("2_bissc"), ExtResource("3_lmj2s"), ExtResource("4_6ftmp")])
+effects = Array[PackedScene]([ExtResource("4_6ftmp")])
 
 [node name="crateItem" parent="." instance=ExtResource("1_gldsg")]
 transform = Transform3D(-0.285903, 0, 0.958259, 0, 1, 0, -0.958259, 0, -0.285903, 0, -0.188843, 0)

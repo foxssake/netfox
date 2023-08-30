@@ -1,4 +1,5 @@
 extends CharacterBody3D
+class_name BrawlerController
 
 @export var speed = 5.0
 @export var jump_velocity = 4.5
@@ -52,7 +53,7 @@ func _tick(delta, tick):
 		
 		# Aim
 		if input.aim:
-			transform = transform.looking_at(position + Vector3(input.aim.x, 0, input.aim.z), Vector3.UP, true)
+			transform = transform.looking_at(position + Vector3(input.aim.x, 0, input.aim.z), Vector3.UP, true).scaled_local(scale)
 
 		# Apply movement
 		velocity *= NetworkTime.physics_factor
