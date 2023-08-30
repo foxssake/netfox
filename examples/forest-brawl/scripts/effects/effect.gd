@@ -1,4 +1,5 @@
 extends Node3D
+class_name Effect
 
 @export var duration: float = 8.0
 @export var winddown_time: float = 2.0

@@ -48,7 +48,7 @@ script = ExtResource("6_ygmle")
 [node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root", "simulate_nodes")]
 script = ExtResource("1_1u5q7")
 root = NodePath("..")
-state_properties = Array[String]([":transform"])
+state_properties = Array[String]([":transform", ":speed", "Displaceable:mass"])
 input_properties = Array[String](["Input:movement", "Input:aim"])
 interpolate_properties = Array[String]([":transform"])
 simulate_nodes = [NodePath("../Displaceable")]

@@ -1,6 +1,6 @@
 [gd_scene load_steps=13 format=3 uid="uid://bd38peoq8b5ae"]
 
-[ext_resource type="Script" path="res://examples/forest-brawl/scripts/timed-life.gd" id="1_y0sbu"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/effects/speed-effect.gd" id="1_r0k2e"]
 
 [sub_resource type="Gradient" id="Gradient_k0qrh"]
 interpolation_mode = 2
@@ -78,8 +78,11 @@ material = SubResource("StandardMaterial3D_y5edj")
 radial_segments = 8
 rings = 4
 
-[node name="Speed Effect" type="Node3D"]
-script = ExtResource("1_y0sbu")
+[node name="Speed Effect" type="Node3D" node_paths=PackedStringArray("particles", "aura")]
+script = ExtResource("1_r0k2e")
+bonus = 0.5
+particles = NodePath("GPUParticles3D")
+aura = NodePath("Aura")
 
 [node name="Aura" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)

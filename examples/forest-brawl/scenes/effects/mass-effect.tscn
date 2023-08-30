@@ -1,6 +1,6 @@
 [gd_scene load_steps=15 format=3 uid="uid://5cts743r7q3v"]
 
-[ext_resource type="Script" path="res://examples/forest-brawl/scripts/effects/effect.gd" id="1_e1c4p"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/effects/mass-effect.gd" id="1_1iicr"]
 
 [sub_resource type="Gradient" id="Gradient_k0qrh"]
 interpolation_mode = 2
@@ -83,7 +83,8 @@ material = SubResource("StandardMaterial3D_ehh2v")
 orientation = 1
 
 [node name="Mass Effect" type="Node3D" node_paths=PackedStringArray("particles", "aura")]
-script = ExtResource("1_e1c4p")
+script = ExtResource("1_1iicr")
+bonus_mass = 7.0
 particles = NodePath("GPUParticles3D")
 aura = NodePath("Aura")
 

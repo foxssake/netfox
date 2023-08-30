@@ -1,10 +1,11 @@
-[gd_scene load_steps=13 format=3 uid="uid://jskoprs7vkq0"]
+[gd_scene load_steps=14 format=3 uid="uid://jskoprs7vkq0"]
 
-[ext_resource type="Script" path="res://examples/forest-brawl/scripts/timed-life.gd" id="1_xhdcv"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/effects/repulse-effect.gd" id="1_47iru"]
 
 [sub_resource type="Gradient" id="Gradient_k0qrh"]
 interpolation_mode = 2
-colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+offsets = PackedFloat32Array(0, 0.959184, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1, 0.0705882, 0.0705882, 0.0705882, 1)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_lut6u"]
 gradient = SubResource("Gradient_k0qrh")
@@ -16,6 +17,7 @@ fill_to = Vector2(1, 0.5)
 blend_mode = 1
 cull_mode = 1
 depth_draw_mode = 2
+no_depth_test = true
 shading_mode = 0
 albedo_color = Color(1, 0.4, 0, 1)
 albedo_texture = SubResource("GradientTexture2D_lut6u")
@@ -27,12 +29,9 @@ billboard_keep_scale = true
 proximity_fade_distance = 16.0
 
 [sub_resource type="SphereMesh" id="SphereMesh_mqde8"]
-lightmap_size_hint = Vector2i(33, 17)
 material = SubResource("StandardMaterial3D_gyt54")
-radius = 1.0
-height = 2.0
-radial_segments = 16
-rings = 8
+radius = 2.0
+height = 4.0
 
 [sub_resource type="Gradient" id="Gradient_yy78k"]
 colors = PackedColorArray(1, 0.882667, 0.36, 1, 0.81, 0, 0, 1)
@@ -74,8 +73,14 @@ material = SubResource("StandardMaterial3D_y5edj")
 radial_segments = 8
 rings = 4
 
-[node name="Repulse Effect" type="Node3D"]
-script = ExtResource("1_xhdcv")
+[sub_resource type="SphereShape3D" id="SphereShape3D_1qng7"]
+radius = 2.0
+
+[node name="Repulse Effect" type="Node3D" node_paths=PackedStringArray("area", "particles", "aura")]
+script = ExtResource("1_47iru")
+area = NodePath("Area3D")
+particles = NodePath("GPUParticles3D")
+aura = NodePath("Aura")
 
 [node name="Aura" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
@@ -88,3 +93,8 @@ lifetime = 0.5
 local_coords = true
 process_material = SubResource("ParticleProcessMaterial_la0c6")
 draw_pass_1 = SubResource("SphereMesh_74i8l")
+
+[node name="Area3D" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+shape = SubResource("SphereShape3D_1qng7")

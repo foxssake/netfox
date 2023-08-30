@@ -33,6 +33,7 @@ func _tick(delta, tick):
 		if tick == respawn_tick:
 			position = spawn_point
 			velocity = Vector3.ZERO
+			print("Reset position and velocity to respawn at tick %s" % [tick])
 
 		# Add the gravity.
 		if not is_on_floor():
