@@ -1,0 +1,99 @@
+[gd_scene load_steps=15 format=3 uid="uid://5cts743r7q3v"]
+
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/timed-life.gd" id="1_8y4cw"]
+
+[sub_resource type="Gradient" id="Gradient_k0qrh"]
+interpolation_mode = 2
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_lut6u"]
+gradient = SubResource("Gradient_k0qrh")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gyt54"]
+blend_mode = 1
+cull_mode = 1
+depth_draw_mode = 2
+shading_mode = 0
+albedo_color = Color(1, 0, 0.301961, 1)
+albedo_texture = SubResource("GradientTexture2D_lut6u")
+uv1_scale = Vector3(2, 1, 1)
+uv1_offset = Vector3(0.5, 0, 0)
+disable_receive_shadows = true
+billboard_mode = 1
+billboard_keep_scale = true
+proximity_fade_distance = 16.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_mqde8"]
+lightmap_size_hint = Vector2i(33, 17)
+material = SubResource("StandardMaterial3D_gyt54")
+radius = 1.0
+height = 2.0
+radial_segments = 16
+rings = 8
+
+[sub_resource type="Gradient" id="Gradient_yy78k"]
+interpolation_mode = 2
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(0, 0, 0, 1, 0.257408, 0.0935, 0.85, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_2haui"]
+gradient = SubResource("Gradient_yy78k")
+
+[sub_resource type="Curve" id="Curve_jkehe"]
+_data = [Vector2(0, 0), 0.0, 5.47368, 0, 0, Vector2(0.495192, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -5.38946, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_0kndu"]
+curve = SubResource("Curve_jkehe")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_la0c6"]
+direction = Vector3(0, -1, 0)
+spread = 0.0
+gravity = Vector3(0, 0, 0)
+initial_velocity_min = 1.0
+initial_velocity_max = 1.0
+scale_max = 2.0
+scale_curve = SubResource("CurveTexture_0kndu")
+color = Color(0.48, 0.48, 0.48, 1)
+color_ramp = SubResource("GradientTexture1D_2haui")
+attractor_interaction_enabled = false
+
+[sub_resource type="Gradient" id="Gradient_5hsw6"]
+offsets = PackedFloat32Array(0.8, 0.85, 1)
+colors = PackedColorArray(0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_knj8r"]
+gradient = SubResource("Gradient_5hsw6")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ehh2v"]
+blend_mode = 1
+depth_draw_mode = 2
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_texture = SubResource("GradientTexture2D_knj8r")
+
+[sub_resource type="QuadMesh" id="QuadMesh_uexxv"]
+material = SubResource("StandardMaterial3D_ehh2v")
+orientation = 1
+
+[node name="Mass Effect" type="Node3D"]
+script = ExtResource("1_8y4cw")
+
+[node name="Aura" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+mesh = SubResource("SphereMesh_mqde8")
+skeleton = NodePath("../..")
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+amount = 128
+lifetime = 2.0
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_la0c6")
+draw_pass_1 = SubResource("QuadMesh_uexxv")
