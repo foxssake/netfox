@@ -3,159 +3,138 @@
 [ext_resource type="Script" path="res://examples/shared/scripts/lan-bootstrapper.gd" id="1_dy86e"]
 [ext_resource type="Script" path="res://examples/shared/scripts/noray-bootstrapper.gd" id="2_fgck5"]
 
-[node name="Network Popup" type="Control"]
-layout_mode = 3
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -160.0
-offset_top = -120.0
-offset_right = 160.0
-offset_bottom = 120.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="Network Popup" type="TabContainer"]
+offset_right = 540.0
+offset_bottom = 540.0
 
-[node name="PanelContainer" type="PanelContainer" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="TabContainer" type="TabContainer" parent="PanelContainer"]
+[node name="LAN" type="VBoxContainer" parent="."]
 layout_mode = 2
 
-[node name="LAN" type="VBoxContainer" parent="PanelContainer/TabContainer"]
-layout_mode = 2
-
-[node name="Address Row" type="HBoxContainer" parent="PanelContainer/TabContainer/LAN"]
+[node name="Address Row" type="HBoxContainer" parent="LAN"]
 layout_mode = 2
 size_flags_vertical = 2
 
-[node name="Address Label" type="Label" parent="PanelContainer/TabContainer/LAN/Address Row"]
+[node name="Address Label" type="Label" parent="LAN/Address Row"]
 layout_mode = 2
 text = "Address:"
 
-[node name="Address LineEdit" type="LineEdit" parent="PanelContainer/TabContainer/LAN/Address Row"]
+[node name="Address LineEdit" type="LineEdit" parent="LAN/Address Row"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 0
 text = "localhost"
 
-[node name="Port Label" type="Label" parent="PanelContainer/TabContainer/LAN/Address Row"]
+[node name="Port Label" type="Label" parent="LAN/Address Row"]
 layout_mode = 2
 text = "Port:"
 
-[node name="Port LineEdit" type="LineEdit" parent="PanelContainer/TabContainer/LAN/Address Row"]
+[node name="Port LineEdit" type="LineEdit" parent="LAN/Address Row"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 0
 text = "16384"
 
-[node name="Actions Row" type="HBoxContainer" parent="PanelContainer/TabContainer/LAN"]
+[node name="Actions Row" type="HBoxContainer" parent="LAN"]
 layout_mode = 2
 size_flags_horizontal = 4
 
-[node name="Host Button" type="Button" parent="PanelContainer/TabContainer/LAN/Actions Row"]
+[node name="Host Button" type="Button" parent="LAN/Actions Row"]
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Host"
 
-[node name="Join Button" type="Button" parent="PanelContainer/TabContainer/LAN/Actions Row"]
+[node name="Join Button" type="Button" parent="LAN/Actions Row"]
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Join"
 
-[node name="Noray" type="VBoxContainer" parent="PanelContainer/TabContainer"]
+[node name="Noray" type="VBoxContainer" parent="."]
 visible = false
 layout_mode = 2
 
-[node name="Noray Address Row" type="HBoxContainer" parent="PanelContainer/TabContainer/Noray"]
+[node name="Noray Address Row" type="HBoxContainer" parent="Noray"]
 layout_mode = 2
 
-[node name="Address Label" type="Label" parent="PanelContainer/TabContainer/Noray/Noray Address Row"]
+[node name="Address Label" type="Label" parent="Noray/Noray Address Row"]
 layout_mode = 2
 text = "noray host:"
 
-[node name="Address LineEdit" type="LineEdit" parent="PanelContainer/TabContainer/Noray/Noray Address Row"]
+[node name="Address LineEdit" type="LineEdit" parent="Noray/Noray Address Row"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "tomfol.io:8890"
 placeholder_text = "noray.example.com:8890"
 
-[node name="OID Row" type="HBoxContainer" parent="PanelContainer/TabContainer/Noray"]
+[node name="OID Row" type="HBoxContainer" parent="Noray"]
 layout_mode = 2
 
-[node name="OID Label" type="Label" parent="PanelContainer/TabContainer/Noray/OID Row"]
+[node name="OID Label" type="Label" parent="Noray/OID Row"]
 layout_mode = 2
 text = "Open ID: "
 
-[node name="OID Value" type="LineEdit" parent="PanelContainer/TabContainer/Noray/OID Row"]
+[node name="OID Value" type="LineEdit" parent="Noray/OID Row"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "123456789"
 editable = false
 
-[node name="Noray Actions Row" type="HBoxContainer" parent="PanelContainer/TabContainer/Noray"]
+[node name="Noray Actions Row" type="HBoxContainer" parent="Noray"]
 layout_mode = 2
 
-[node name="Connect Button" type="Button" parent="PanelContainer/TabContainer/Noray/Noray Actions Row"]
+[node name="Connect Button" type="Button" parent="Noray/Noray Actions Row"]
 layout_mode = 2
 text = "Connect"
 
-[node name="Disconnect Button" type="Button" parent="PanelContainer/TabContainer/Noray/Noray Actions Row"]
+[node name="Disconnect Button" type="Button" parent="Noray/Noray Actions Row"]
 layout_mode = 2
 text = "Disconnect"
 
-[node name="HSeparator" type="HSeparator" parent="PanelContainer/TabContainer/Noray"]
+[node name="HSeparator" type="HSeparator" parent="Noray"]
 layout_mode = 2
 
-[node name="Connect Host Row" type="HBoxContainer" parent="PanelContainer/TabContainer/Noray"]
+[node name="Connect Host Row" type="HBoxContainer" parent="Noray"]
 layout_mode = 2
 
-[node name="Host Label" type="Label" parent="PanelContainer/TabContainer/Noray/Connect Host Row"]
+[node name="Host Label" type="Label" parent="Noray/Connect Host Row"]
 layout_mode = 2
 text = "Target Host: "
 
-[node name="Host LineEdit" type="LineEdit" parent="PanelContainer/TabContainer/Noray/Connect Host Row"]
+[node name="Host LineEdit" type="LineEdit" parent="Noray/Connect Host Row"]
 layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "Host OID"
 
-[node name="Connect Actions Row" type="HBoxContainer" parent="PanelContainer/TabContainer/Noray"]
+[node name="Connect Actions Row" type="HBoxContainer" parent="Noray"]
 layout_mode = 2
 
-[node name="Host Button" type="Button" parent="PanelContainer/TabContainer/Noray/Connect Actions Row"]
+[node name="Host Button" type="Button" parent="Noray/Connect Actions Row"]
 layout_mode = 2
 text = "Host"
 
-[node name="Join Button" type="Button" parent="PanelContainer/TabContainer/Noray/Connect Actions Row"]
+[node name="Join Button" type="Button" parent="Noray/Connect Actions Row"]
 layout_mode = 2
 text = "Join"
 
-[node name="Force Relay Checkbox" type="CheckBox" parent="PanelContainer/TabContainer/Noray/Connect Actions Row"]
+[node name="Force Relay Checkbox" type="CheckBox" parent="Noray/Connect Actions Row"]
 layout_mode = 2
 text = "Force Relay"
 
 [node name="LAN Bootstrapper" type="Node" parent="." node_paths=PackedStringArray("connect_ui", "address_input", "port_input", "host_button", "join_button")]
 script = ExtResource("1_dy86e")
-connect_ui = NodePath("..")
-address_input = NodePath("../PanelContainer/TabContainer/LAN/Address Row/Address LineEdit")
-port_input = NodePath("../PanelContainer/TabContainer/LAN/Address Row/Port LineEdit")
-host_button = NodePath("../PanelContainer/TabContainer/LAN/Actions Row/Host Button")
-join_button = NodePath("../PanelContainer/TabContainer/LAN/Actions Row/Join Button")
+connect_ui = NodePath("")
+address_input = NodePath("../LAN/Address Row/Address LineEdit")
+port_input = NodePath("../LAN/Address Row/Port LineEdit")
+host_button = NodePath("../LAN/Actions Row/Host Button")
+join_button = NodePath("../LAN/Actions Row/Join Button")
 
 [node name="Noray Bootstrapper" type="Node" parent="." node_paths=PackedStringArray("connect_ui", "noray_address_input", "noray_connect_button", "noray_disconnect_button", "oid_input", "host_oid_input", "host_button", "join_button", "force_relay_check")]
 script = ExtResource("2_fgck5")
-connect_ui = NodePath("..")
-noray_address_input = NodePath("../PanelContainer/TabContainer/Noray/Noray Address Row/Address LineEdit")
-noray_connect_button = NodePath("../PanelContainer/TabContainer/Noray/Noray Actions Row/Connect Button")
-noray_disconnect_button = NodePath("../PanelContainer/TabContainer/Noray/Noray Actions Row/Disconnect Button")
-oid_input = NodePath("../PanelContainer/TabContainer/Noray/OID Row/OID Value")
-host_oid_input = NodePath("../PanelContainer/TabContainer/Noray/Connect Host Row/Host LineEdit")
-host_button = NodePath("../PanelContainer/TabContainer/Noray/Connect Actions Row/Host Button")
-join_button = NodePath("../PanelContainer/TabContainer/Noray/Connect Actions Row/Join Button")
-force_relay_check = NodePath("../PanelContainer/TabContainer/Noray/Connect Actions Row/Force Relay Checkbox")
+connect_ui = NodePath("")
+noray_address_input = NodePath("../Noray/Noray Address Row/Address LineEdit")
+noray_connect_button = NodePath("../Noray/Noray Actions Row/Connect Button")
+noray_disconnect_button = NodePath("../Noray/Noray Actions Row/Disconnect Button")
+oid_input = NodePath("../Noray/OID Row/OID Value")
+host_oid_input = NodePath("../Noray/Connect Host Row/Host LineEdit")
+host_button = NodePath("../Noray/Connect Actions Row/Host Button")
+join_button = NodePath("../Noray/Connect Actions Row/Join Button")
+force_relay_check = NodePath("../Noray/Connect Actions Row/Force Relay Checkbox")
