@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://cwh2p0qb5872o"]
+[gd_scene load_steps=19 format=3 uid="uid://cwh2p0qb5872o"]
 
 [ext_resource type="MeshLibrary" uid="uid://do0y7f0sy12jg" path="res://examples/forest-brawl/models/forest-blocks.meshlib" id="1_bifsy"]
 [ext_resource type="PackedScene" uid="uid://ble0j0npslm4j" path="res://examples/forest-brawl/models/kenney-platformer-kit/flowers.glb" id="2_q0d6t"]
@@ -10,6 +10,10 @@
 [ext_resource type="PackedScene" uid="uid://wi4owat0bml3" path="res://examples/forest-brawl/scenes/brawler.tscn" id="7_tcy3g"]
 [ext_resource type="PackedScene" uid="uid://ijqx6kjl3qf4" path="res://examples/forest-brawl/scenes/powerup.tscn" id="9_55gdr"]
 [ext_resource type="PackedScene" uid="uid://bpf1jdr255nr0" path="res://examples/shared/ui/time-display.tscn" id="9_d2tot"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/score-manager.gd" id="9_vxjwh"]
+[ext_resource type="LabelSettings" uid="uid://b4u1aluftkajy" path="res://examples/forest-brawl/ui-settings/player-stat-label.tres" id="10_0ix7v"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/player-stats-display.gd" id="12_5kocp"]
+[ext_resource type="PackedScene" uid="uid://ojh5xofoserg" path="res://examples/forest-brawl/scenes/score_screen.tscn" id="14_85lvt"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_b8qyu"]
 
@@ -20,6 +24,9 @@ sky_material = SubResource("ProceduralSkyMaterial_b8qyu")
 background_mode = 2
 sky = SubResource("Sky_g0uhm")
 tonemap_mode = 2
+
+[sub_resource type="LabelSettings" id="LabelSettings_l686d"]
+font_size = 64
 
 [node name="Forest Brawl" type="Node3D"]
 
@@ -67,6 +74,15 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.5256, 1, 10.0441)
 [node name="plant3" parent="Map/Foliage" instance=ExtResource("4_0jc3h")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.3956, -2.20899, 10.0441)
 
+[node name="Powerup" parent="Map" instance=ExtResource("9_55gdr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.00248, 3, 0.00557518)
+
+[node name="Powerup2" parent="Map" instance=ExtResource("9_55gdr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.99752, 3, -14.9944)
+
+[node name="Powerup3" parent="Map" instance=ExtResource("9_55gdr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.9975, 3, 9.00558)
+
 [node name="Environment" type="Node" parent="."]
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
@@ -85,40 +101,119 @@ approach_time = 0.25
 
 [node name="Network" type="Node" parent="."]
 
-[node name="Brawler Spawner" type="Node" parent="Network" node_paths=PackedStringArray("spawn_root", "camera")]
+[node name="Brawler Spawner" type="Node" parent="Network" node_paths=PackedStringArray("spawn_root", "camera", "joining_screen")]
 script = ExtResource("5_qv1fx")
 player_scene = ExtResource("7_tcy3g")
 spawn_root = NodePath("../../Players")
 camera = NodePath("../../Environment/Camera3D")
+joining_screen = NodePath("../../UI/Joining Screen")
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Network"]
 spawn_path = NodePath("../../Players")
 
 [node name="Players" type="Node" parent="."]
 
-[node name="Network Popup" parent="." instance=ExtResource("7_3cid8")]
+[node name="ScoreManager" type="Node" parent="." node_paths=PackedStringArray("scorescreen")]
+script = ExtResource("9_vxjwh")
+scorescreen = NodePath("../UI/Score Screen")
 
 [node name="UI" type="Control" parent="."]
 layout_mode = 3
-anchors_preset = 0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Time Display" parent="UI" instance=ExtResource("9_d2tot")]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_bottom = 0.0
+offset_left = -1.0
+offset_bottom = 23.0
+grow_horizontal = 0
+grow_vertical = 1
+horizontal_alignment = 2
+
+[node name="Network Popup" parent="UI" instance=ExtResource("7_3cid8")]
+layout_mode = 1
+
+[node name="Player stats" type="Control" parent="UI" node_paths=PackedStringArray("score_label", "effect_label", "score_manager")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("12_5kocp")
+score_label = NodePath("VBoxContainer/Score HBox/Score Value")
+effect_label = NodePath("VBoxContainer/Effect HBox/Effect Value")
+score_manager = NodePath("../../ScoreManager")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/Player stats"]
+layout_mode = 1
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="Time Display" parent="UI" instance=ExtResource("9_d2tot")]
-layout_mode = 0
-anchors_preset = 0
-anchor_right = 0.0
-anchor_bottom = 0.0
-offset_right = 1.0
-offset_bottom = 23.0
-grow_horizontal = 1
-grow_vertical = 1
+[node name="Score HBox" type="HBoxContainer" parent="UI/Player stats/VBoxContainer"]
+layout_mode = 2
 
-[node name="Powerup" parent="." instance=ExtResource("9_55gdr")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.00248, 3, 0.00557518)
+[node name="Score Label" type="Label" parent="UI/Player stats/VBoxContainer/Score HBox"]
+layout_mode = 2
+text = "Score:"
+label_settings = ExtResource("10_0ix7v")
 
-[node name="Powerup2" parent="." instance=ExtResource("9_55gdr")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.99752, 3, -14.9944)
+[node name="Score Value" type="Label" parent="UI/Player stats/VBoxContainer/Score HBox"]
+layout_mode = 2
+text = "8
+"
+label_settings = ExtResource("10_0ix7v")
 
-[node name="Powerup3" parent="." instance=ExtResource("9_55gdr")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.9975, 3, 9.00558)
+[node name="Effect HBox" type="HBoxContainer" parent="UI/Player stats/VBoxContainer"]
+layout_mode = 2
+
+[node name="Effect Label" type="Label" parent="UI/Player stats/VBoxContainer/Effect HBox"]
+layout_mode = 2
+text = "Effect:"
+label_settings = ExtResource("10_0ix7v")
+
+[node name="Effect Value" type="Label" parent="UI/Player stats/VBoxContainer/Effect HBox"]
+layout_mode = 2
+text = "None"
+label_settings = ExtResource("10_0ix7v")
+
+[node name="Joining Screen" type="Control" parent="UI"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="UI/Joining Screen"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="Label" type="Label" parent="UI/Joining Screen"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Joining"
+label_settings = SubResource("LabelSettings_l686d")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Score Screen" parent="UI" instance=ExtResource("14_85lvt")]
+visible = false
+layout_mode = 1

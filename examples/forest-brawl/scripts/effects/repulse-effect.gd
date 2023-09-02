@@ -5,14 +5,15 @@ extends Effect
 
 func _ready():
 	super._ready()
-	NetworkRollback.on_process_tick.connect(_tick)
 
-func _tick(_t):
+func _tick(tick):
+	super._tick(tick)
+
 	if not is_active():
 		return
 	
 	for body in area.get_overlapping_bodies():
-		if body is BrawlerController and body.is_multiplayer_authority():
+		if body is BrawlerController and body.is_multiplayer_authority() and body != get_parent_node_3d():
 			var displaceable = body.get_node("Displaceable") as Displaceable
 			if not displaceable:
 				continue
@@ -21,3 +22,7 @@ func _tick(_t):
 			var f = clampf(1.0 / (1.0 + diff.length_squared()), 0.0, 1.0)
 			diff.y = max(0, diff.y)
 			displaceable.displace(diff.normalized() * strength * f * NetworkTime.ticktime)
+			
+			if body is BrawlerController:
+				body.last_hit_tick = tick
+				body.last_hit_player = get_parent_node_3d()

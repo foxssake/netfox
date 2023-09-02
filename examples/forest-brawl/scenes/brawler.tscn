@@ -22,6 +22,8 @@ height = 0.25
 [node name="Brawler" type="CharacterBody3D" node_paths=PackedStringArray("input") groups=["Brawlers"]]
 script = ExtResource("1_np8na")
 input = NodePath("Input")
+death_depth = 16.0
+respawn_time = 8.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("CapsuleShape3D_qgusj")

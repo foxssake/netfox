@@ -5,6 +5,7 @@ extends ShapeCast3D
 @export var effect: PackedScene
 @export var distance: float = 128.0
 var distance_left: float
+var fired_by: Node
 
 func _ready():
 	NetworkTime.on_tick.connect(_tick)
@@ -42,6 +43,7 @@ func _destroy():
 		var spawn = effect.instantiate() as Node3D
 		get_tree().root.add_child(spawn)
 		spawn.global_position = global_position
+		spawn.fired_by = fired_by
 		spawn.set_multiplayer_authority(get_multiplayer_authority())
 		
 		if spawn is CPUParticles3D:

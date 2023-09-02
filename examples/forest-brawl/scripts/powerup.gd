@@ -1,9 +1,9 @@
 extends Area3D
 
 @export var effects: Array[PackedScene] = []
+@export var cooldown: float = 30.0
 
 var is_active: bool = true
-var cooldown: float = 4.0
 var fade_speed: float = 8.0
 
 var respawn_tick: int = 0
