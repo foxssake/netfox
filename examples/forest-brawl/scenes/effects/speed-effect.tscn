@@ -81,6 +81,7 @@ rings = 4
 [node name="Speed Effect" type="Node3D" node_paths=PackedStringArray("particles", "aura")]
 script = ExtResource("1_r0k2e")
 bonus = 0.5
+duration = 10.0
 particles = NodePath("GPUParticles3D")
 aura = NodePath("Aura")
 
