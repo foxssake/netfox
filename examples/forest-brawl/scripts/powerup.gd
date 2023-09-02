@@ -16,7 +16,7 @@ func _tick(delta, tick):
 	if is_active:
 		scale = scale.lerp(Vector3.ONE, fade_speed * delta)
 		for body in get_overlapping_bodies():
-			if body.is_in_group("Brawlers"):
+			if body.is_in_group("Brawlers") and not _has_powerup(body):
 				_take() # Predict
 				if is_multiplayer_authority():
 					# rpc("_spawn_effect", effects.pick_random(), body)
@@ -28,6 +28,11 @@ func _tick(delta, tick):
 			_respawn() # Predict
 			if is_multiplayer_authority():
 				rpc("_respawn")
+
+func _has_powerup(target: Node) -> bool:
+	return target.get_children()\
+		.filter(func(child): return child is Effect)\
+		.any(func(effect: Effect): return effect.is_active())
 
 @rpc("authority", "reliable", "call_local")
 func _spawn_effect(effect_idx: int, target_path: NodePath):

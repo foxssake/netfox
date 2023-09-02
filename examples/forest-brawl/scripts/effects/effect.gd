@@ -58,10 +58,10 @@ func _real_tick(_delta, _tick):
 		queue_free()
 
 func _apply():
-	get_target().scale *= 2.0
+	pass
 
 func _cease():
-	get_target().scale /= 2.0
+	pass
 
 func get_target() -> BrawlerController:
 	return get_parent_node_3d() as BrawlerController
