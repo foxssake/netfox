@@ -85,6 +85,7 @@ orientation = 1
 [node name="Mass Effect" type="Node3D" node_paths=PackedStringArray("particles", "aura")]
 script = ExtResource("1_1iicr")
 bonus_mass = 7.0
+duration = 10.0
 particles = NodePath("GPUParticles3D")
 aura = NodePath("Aura")
 
