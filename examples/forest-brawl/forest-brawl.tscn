@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://cwh2p0qb5872o"]
+[gd_scene load_steps=20 format=3 uid="uid://cwh2p0qb5872o"]
 
 [ext_resource type="MeshLibrary" uid="uid://do0y7f0sy12jg" path="res://examples/forest-brawl/models/forest-blocks.meshlib" id="1_bifsy"]
 [ext_resource type="PackedScene" uid="uid://ble0j0npslm4j" path="res://examples/forest-brawl/models/kenney-platformer-kit/flowers.glb" id="2_q0d6t"]
@@ -6,13 +6,14 @@
 [ext_resource type="PackedScene" uid="uid://dsk6x773uq4ej" path="res://examples/forest-brawl/models/kenney-platformer-kit/plant.glb" id="4_0jc3h"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/brawler-spawner.gd" id="5_qv1fx"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/following-camera.gd" id="5_yxhn7"]
-[ext_resource type="PackedScene" uid="uid://badtpsxn5lago" path="res://examples/shared/ui/network-popup.tscn" id="7_3cid8"]
 [ext_resource type="PackedScene" uid="uid://wi4owat0bml3" path="res://examples/forest-brawl/scenes/brawler.tscn" id="7_tcy3g"]
 [ext_resource type="PackedScene" uid="uid://ijqx6kjl3qf4" path="res://examples/forest-brawl/scenes/powerup.tscn" id="9_55gdr"]
 [ext_resource type="PackedScene" uid="uid://bpf1jdr255nr0" path="res://examples/shared/ui/time-display.tscn" id="9_d2tot"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/score-manager.gd" id="9_vxjwh"]
 [ext_resource type="LabelSettings" uid="uid://b4u1aluftkajy" path="res://examples/forest-brawl/ui-settings/player-stat-label.tres" id="10_0ix7v"]
+[ext_resource type="Script" path="res://examples/shared/scripts/noray-bootstrapper.gd" id="11_vpdh0"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/player-stats-display.gd" id="12_5kocp"]
+[ext_resource type="Script" path="res://examples/shared/scripts/lan-bootstrapper.gd" id="12_gjc7i"]
 [ext_resource type="PackedScene" uid="uid://ojh5xofoserg" path="res://examples/forest-brawl/scenes/score_screen.tscn" id="14_85lvt"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_b8qyu"]
@@ -101,12 +102,13 @@ approach_time = 0.25
 
 [node name="Network" type="Node" parent="."]
 
-[node name="Brawler Spawner" type="Node" parent="Network" node_paths=PackedStringArray("spawn_root", "camera", "joining_screen")]
+[node name="Brawler Spawner" type="Node" parent="Network" node_paths=PackedStringArray("spawn_root", "camera", "joining_screen", "name_input")]
 script = ExtResource("5_qv1fx")
 player_scene = ExtResource("7_tcy3g")
 spawn_root = NodePath("../../Players")
 camera = NodePath("../../Environment/Camera3D")
 joining_screen = NodePath("../../UI/Joining Screen")
+name_input = NodePath("../../UI/Network Popup/Settings/Player Name/Player Name Input")
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Network"]
 spawn_path = NodePath("../../Players")
@@ -136,10 +138,174 @@ grow_horizontal = 0
 grow_vertical = 1
 horizontal_alignment = 2
 
-[node name="Network Popup" parent="UI" instance=ExtResource("7_3cid8")]
+[node name="Network Popup" type="TabContainer" parent="UI"]
+custom_minimum_size = Vector2(320, 240)
 layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -125.5
+offset_top = -105.0
+offset_right = 125.5
+offset_bottom = 105.0
+grow_horizontal = 2
+grow_vertical = 2
+use_hidden_tabs_for_min_size = true
+
+[node name="Settings" type="VBoxContainer" parent="UI/Network Popup"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Player Name" type="HBoxContainer" parent="UI/Network Popup/Settings"]
+layout_mode = 2
+
+[node name="Player Name Label" type="Label" parent="UI/Network Popup/Settings/Player Name"]
+layout_mode = 2
+text = "Player Name:"
+
+[node name="Player Name Input" type="LineEdit" parent="UI/Network Popup/Settings/Player Name"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Nameless Brawler"
+clear_button_enabled = true
+
+[node name="LAN" type="VBoxContainer" parent="UI/Network Popup"]
+layout_mode = 2
+
+[node name="Address Row" type="HBoxContainer" parent="UI/Network Popup/LAN"]
+layout_mode = 2
+size_flags_vertical = 2
+
+[node name="Address Label" type="Label" parent="UI/Network Popup/LAN/Address Row"]
+layout_mode = 2
+text = "Address:"
+
+[node name="Address LineEdit" type="LineEdit" parent="UI/Network Popup/LAN/Address Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+text = "localhost"
+
+[node name="Port Label" type="Label" parent="UI/Network Popup/LAN/Address Row"]
+layout_mode = 2
+text = "Port:"
+
+[node name="Port LineEdit" type="LineEdit" parent="UI/Network Popup/LAN/Address Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+text = "16384"
+
+[node name="Actions Row" type="HBoxContainer" parent="UI/Network Popup/LAN"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Host Button" type="Button" parent="UI/Network Popup/LAN/Actions Row"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Host"
+
+[node name="Join Button" type="Button" parent="UI/Network Popup/LAN/Actions Row"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Join"
+
+[node name="Noray" type="VBoxContainer" parent="UI/Network Popup"]
+visible = false
+layout_mode = 2
+
+[node name="Noray Address Row" type="HBoxContainer" parent="UI/Network Popup/Noray"]
+layout_mode = 2
+
+[node name="Address Label" type="Label" parent="UI/Network Popup/Noray/Noray Address Row"]
+layout_mode = 2
+text = "noray host:"
+
+[node name="Address LineEdit" type="LineEdit" parent="UI/Network Popup/Noray/Noray Address Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "tomfol.io:8890"
+placeholder_text = "noray.example.com:8890"
+
+[node name="OID Row" type="HBoxContainer" parent="UI/Network Popup/Noray"]
+layout_mode = 2
+
+[node name="OID Label" type="Label" parent="UI/Network Popup/Noray/OID Row"]
+layout_mode = 2
+text = "Open ID: "
+
+[node name="OID Value" type="LineEdit" parent="UI/Network Popup/Noray/OID Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "123456789"
+editable = false
+
+[node name="Noray Actions Row" type="HBoxContainer" parent="UI/Network Popup/Noray"]
+layout_mode = 2
+
+[node name="Connect Button" type="Button" parent="UI/Network Popup/Noray/Noray Actions Row"]
+layout_mode = 2
+text = "Connect"
+
+[node name="Disconnect Button" type="Button" parent="UI/Network Popup/Noray/Noray Actions Row"]
+layout_mode = 2
+text = "Disconnect"
+
+[node name="HSeparator" type="HSeparator" parent="UI/Network Popup/Noray"]
+layout_mode = 2
+
+[node name="Connect Host Row" type="HBoxContainer" parent="UI/Network Popup/Noray"]
+layout_mode = 2
+
+[node name="Host Label" type="Label" parent="UI/Network Popup/Noray/Connect Host Row"]
+layout_mode = 2
+text = "Target Host: "
+
+[node name="Host LineEdit" type="LineEdit" parent="UI/Network Popup/Noray/Connect Host Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Host OID"
+
+[node name="Connect Actions Row" type="HBoxContainer" parent="UI/Network Popup/Noray"]
+layout_mode = 2
+
+[node name="Host Button" type="Button" parent="UI/Network Popup/Noray/Connect Actions Row"]
+layout_mode = 2
+text = "Host"
+
+[node name="Join Button" type="Button" parent="UI/Network Popup/Noray/Connect Actions Row"]
+layout_mode = 2
+text = "Join"
+
+[node name="Force Relay Checkbox" type="CheckBox" parent="UI/Network Popup/Noray/Connect Actions Row"]
+layout_mode = 2
+text = "Force Relay"
+
+[node name="Noray Bootstrapper" type="Node" parent="UI/Network Popup" node_paths=PackedStringArray("connect_ui", "noray_address_input", "noray_connect_button", "noray_disconnect_button", "oid_input", "host_oid_input", "host_button", "join_button", "force_relay_check")]
+script = ExtResource("11_vpdh0")
+connect_ui = NodePath("..")
+noray_address_input = NodePath("../Noray/Noray Address Row/Address LineEdit")
+noray_connect_button = NodePath("../Noray/Noray Actions Row/Connect Button")
+noray_disconnect_button = NodePath("../Noray/Noray Actions Row/Disconnect Button")
+oid_input = NodePath("../Noray/OID Row/OID Value")
+host_oid_input = NodePath("../Noray/Connect Host Row/Host LineEdit")
+host_button = NodePath("../Noray/Connect Actions Row/Host Button")
+join_button = NodePath("../Noray/Connect Actions Row/Join Button")
+force_relay_check = NodePath("../Noray/Connect Actions Row/Force Relay Checkbox")
+
+[node name="LAN Bootstrapper" type="Node" parent="UI/Network Popup" node_paths=PackedStringArray("connect_ui", "address_input", "port_input", "host_button", "join_button")]
+script = ExtResource("12_gjc7i")
+connect_ui = NodePath("..")
+address_input = NodePath("../LAN/Address Row/Address LineEdit")
+port_input = NodePath("../LAN/Address Row/Port LineEdit")
+host_button = NodePath("../LAN/Actions Row/Host Button")
+join_button = NodePath("../LAN/Actions Row/Join Button")
 
 [node name="Player stats" type="Control" parent="UI" node_paths=PackedStringArray("score_label", "effect_label", "score_manager")]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

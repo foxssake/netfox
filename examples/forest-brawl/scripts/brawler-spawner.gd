@@ -4,6 +4,7 @@ extends Node
 @export var spawn_root: Node
 @export var camera: FollowingCamera
 @export var joining_screen: Control
+@export var name_input: LineEdit
 
 var avatars: Dictionary = {}
 
@@ -66,7 +67,19 @@ func _spawn(id: int):
 		input.set_multiplayer_authority(id)
 		print("Set input(%s) ownership to %s" % [input.name, id])
 	
-	# If avatar is own, assign it as camera follow target and emit event
 	if id == multiplayer.get_unique_id():
+		# If avatar is own, assign it as camera follow target and emit event
 		camera.target = avatar
 		GameEvents.on_own_brawler_spawn.emit(avatar)
+		
+		# Submit name
+		var player_name = name_input.text
+		print("Submitting player name " + player_name)
+		rpc("_submit_name", player_name)
+
+@rpc("any_peer", "reliable", "call_local")
+func _submit_name(player_name: String):
+	var pid = multiplayer.get_remote_sender_id()
+	var avatar = avatars[pid]
+	avatar.player_name = player_name
+	print("Setting player name for #%s to %s" % [pid, player_name])

@@ -8,6 +8,7 @@ class_name BrawlerController
 @export var death_depth: float = 4.0
 @export var respawn_time: float = 4.0
 
+var player_name: String = ""
 var player_id: int = -1
 var last_hit_player: BrawlerController
 var last_hit_tick: int = -1
@@ -27,6 +28,9 @@ func _ready():
 	
 	GameEvents.on_brawler_spawn.emit(self)
 	NetworkTime.on_tick.connect(_tick)
+	
+	if not player_name:
+		player_name = "Nameless Brawler #%s" % [player_id]
 
 func _tick(delta, tick):
 	if not NetworkRollback.is_rollback():

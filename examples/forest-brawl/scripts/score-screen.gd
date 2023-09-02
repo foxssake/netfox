@@ -11,7 +11,9 @@ var active: bool = false
 
 func render(scores: Dictionary):
 	clear()
-	message_label.text = messages[randi() % messages.size()]
+	
+	if not visible:
+		message_label.text = messages[randi() % messages.size()]
 	
 	for name in scores:
 		var points = scores[name]
