@@ -6,6 +6,7 @@ extends Area3D
 var birth_tick: int
 var death_tick: int
 var despawn_tick: int
+var fired_by: Node
 
 func _ready():
 	birth_tick = NetworkTime.tick
@@ -24,6 +25,9 @@ func _tick(tick):
 				var f = clampf(1.0 / (1.0 + diff.length_squared()), 0.0, 1.0)
 				diff.y = max(0, diff.y)
 				displaceable.displace(diff.normalized() * strength * f * NetworkTime.ticktime)
+			if body is BrawlerController:
+				body.last_hit_tick = NetworkRollback.tick
+				body.last_hit_player = fired_by
 
 func _real_tick(delta, tick):
 	if tick >= death_tick:
