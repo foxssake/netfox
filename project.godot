@@ -19,12 +19,13 @@ config/icon="res://icon.png"
 [autoload]
 
 Async="*res://examples/shared/scripts/async.gd"
+Noray="*res://addons/netfox.noray/noray.gd"
+PacketHandshake="*res://addons/netfox.noray/packet-handshake.gd"
 NetworkTime="*res://addons/netfox/network-time.gd"
 NetworkTimeSynchronizer="*res://addons/netfox/network-time-synchronizer.gd"
 NetworkRollback="*res://addons/netfox/network-rollback.gd"
 NetworkEvents="*res://addons/netfox/network-events.gd"
-Noray="*res://addons/netfox.noray/noray.gd"
-PacketHandshake="*res://addons/netfox.noray/packet-handshake.gd"
+GameEvents="*res://examples/forest-brawl/scripts/game-events.gd"
 
 [display]
 

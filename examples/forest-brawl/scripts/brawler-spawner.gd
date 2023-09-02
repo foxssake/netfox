@@ -3,6 +3,7 @@ extends Node
 @export var player_scene: PackedScene
 @export var spawn_root: Node
 @export var camera: FollowingCamera
+@export var joining_screen: Control
 
 var avatars: Dictionary = {}
 
@@ -15,8 +16,15 @@ func _ready():
 	NetworkEvents.on_server_stop.connect(_handle_stop)
 
 func _handle_connected(id: int):
+	if joining_screen:
+		joining_screen.visible = true
+	
 	# Spawn an avatar for us
 	_spawn(id)
+	
+	if joining_screen:
+		await NetworkTime.after_sync
+		joining_screen.visible = false
 
 func _handle_host():
 	# Spawn own avatar on host machine
@@ -41,9 +49,10 @@ func _handle_stop():
 	avatars.clear()
 
 func _spawn(id: int):
-	var avatar = player_scene.instantiate() as Node
+	var avatar = player_scene.instantiate() as BrawlerController
 	avatars[id] = avatar
 	avatar.name += " #%d" % id
+	avatar.player_id = id
 	spawn_root.add_child(avatar)
 	
 	# Avatar is always owned by server
@@ -57,6 +66,7 @@ func _spawn(id: int):
 		input.set_multiplayer_authority(id)
 		print("Set input(%s) ownership to %s" % [input.name, id])
 	
-	# If avatar is own, assign it as camera follow target
+	# If avatar is own, assign it as camera follow target and emit event
 	if id == multiplayer.get_unique_id():
 		camera.target = avatar
+		GameEvents.on_own_brawler_spawn.emit(avatar)

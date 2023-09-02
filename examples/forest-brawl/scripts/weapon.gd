@@ -59,6 +59,7 @@ func _spawn_projectile(at: Transform3D, id: String):
 		get_tree().root.add_child(p, true)
 		p.transform = at
 		p.name += " " + id
+		p.fired_by = get_parent()
 		p.set_multiplayer_authority(get_multiplayer_authority())
 		
 		_projectiles[id] = p

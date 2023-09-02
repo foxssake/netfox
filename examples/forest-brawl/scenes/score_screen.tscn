@@ -1,0 +1,71 @@
+[gd_scene load_steps=4 format=3 uid="uid://ojh5xofoserg"]
+
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/score-screen.gd" id="1_q3k84"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_qjv80"]
+font_size = 32
+
+[sub_resource type="LabelSettings" id="LabelSettings_g3rp6"]
+font_size = 24
+
+[node name="Score Screen" type="Control" node_paths=PackedStringArray("message_label", "names_column", "scores_column")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_q3k84")
+messages = PackedStringArray("You\'ve joined the gravitationally challenged!", "Nom nom nom, those bombs must have been tasty!", "If you can\'t dodge \'em, collect \'em!", "Those aren\'t pokeballs, nobody\'s gotta catch \'em all!", "Next time you can try WASD to move", "Try falling, but like, up")
+message_label = NodePath("VBoxContainer/Message Label")
+names_column = NodePath("VBoxContainer/Scoreboard/Names VBox")
+scores_column = NodePath("VBoxContainer/Scoreboard/Scores VBox")
+fade_time = 1.0
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -96.0
+offset_bottom = 96.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Message Label" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "You've joined the gravitationally challenged"
+label_settings = SubResource("LabelSettings_qjv80")
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="Scores Label" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Scores:"
+label_settings = SubResource("LabelSettings_g3rp6")
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="Scoreboard" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Names VBox" type="VBoxContainer" parent="VBoxContainer/Scoreboard"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Scores VBox" type="VBoxContainer" parent="VBoxContainer/Scoreboard"]
+layout_mode = 2
+size_flags_horizontal = 3
