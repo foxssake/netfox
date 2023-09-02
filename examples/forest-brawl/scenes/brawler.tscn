@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://wi4owat0bml3"]
+[gd_scene load_steps=11 format=3 uid="uid://wi4owat0bml3"]
 
 [ext_resource type="Script" path="res://addons/netfox/rollback-synchronizer.gd" id="1_1u5q7"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/brawler-controller.gd" id="1_np8na"]
@@ -18,6 +18,12 @@ height = 1.0
 [sub_resource type="SphereMesh" id="SphereMesh_s7mrr"]
 radius = 0.125
 height = 0.25
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_4cjl8"]
+properties/0/path = NodePath(".:player_name")
+properties/0/spawn = true
+properties/0/sync = true
+properties/0/watch = false
 
 [node name="Brawler" type="CharacterBody3D" node_paths=PackedStringArray("input") groups=["Brawlers"]]
 script = ExtResource("1_np8na")
@@ -54,3 +60,6 @@ state_properties = Array[String]([":transform", ":speed", "Displaceable:mass"])
 input_properties = Array[String](["Input:movement", "Input:aim"])
 interpolate_properties = Array[String]([":transform"])
 simulate_nodes = [NodePath("../Displaceable")]
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_4cjl8")

@@ -4,6 +4,7 @@ class_name ScoreManager
 @export var scorescreen: ScoreScreen
 @export var hit_threshold_time: float = 8.0
 var _scores = {}
+var _brawlers = {}
 
 func get_score(player: int) -> int:
 	return _scores.get(player, 0)
@@ -18,6 +19,7 @@ func _ready():
 func _handle_spawn(brawler: BrawlerController):
 	var id = brawler.player_id
 	_scores[id] = _scores.get(id, 0)
+	_brawlers[id] = brawler
 
 func _handle_fall(brawler: BrawlerController):
 	var id = brawler.player_id
@@ -35,7 +37,7 @@ func _handle_fall(brawler: BrawlerController):
 	
 	# Display scoreboard
 	if id == multiplayer.get_unique_id():
-		scorescreen.render(_scores)
+		scorescreen.render(_render_scores())
 		scorescreen.active = true
 
 func _handle_respawn(brawler: BrawlerController):
@@ -45,6 +47,7 @@ func _handle_respawn(brawler: BrawlerController):
 
 func _handle_despawn(brawler: BrawlerController):
 	_scores.erase(brawler.player_id)
+	_brawlers.erase(brawler.player_id)
 
 @rpc("authority", "reliable", "call_remote")
 func _submit_scores(scores: Dictionary):
@@ -53,4 +56,12 @@ func _submit_scores(scores: Dictionary):
 	
 	# Re-render scoreboard if visible
 	if scorescreen.active:
-		scorescreen.render(_scores)
+		scorescreen.render(_render_scores())
+
+func _render_scores() -> Dictionary:
+	var render_scores = {}
+	for pid in _scores:
+		var brawler = _brawlers[pid]
+		var score = _scores[pid]
+		render_scores[brawler.player_name] = score
+	return render_scores
