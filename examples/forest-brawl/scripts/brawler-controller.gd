@@ -10,6 +10,7 @@ class_name BrawlerController
 
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 var respawn_tick: int = -1
+var last_respawn: int = -1
 
 func _ready():
 	if not input:
@@ -25,15 +26,17 @@ func _ready():
 
 func _tick(delta, tick):
 	if not NetworkRollback.is_rollback():
-		if position.y < -death_depth and respawn_tick < tick:
+		# Take a second between respawns at the very least
+		if position.y < -death_depth and tick > respawn_tick + 1 * NetworkTime.tickrate:
 			respawn_tick = tick + respawn_time * NetworkTime.tickrate
-			print("Detected fall! Respawning on tick %s + %s -> %s" % [tick, respawn_time * NetworkTime.tickrate, respawn_tick])
+			print("[%s] Detected fall! Respawning on tick %s + %s -> %s" % [multiplayer.get_unique_id(), tick, respawn_time * NetworkTime.tickrate, respawn_tick])
 	else:
 		# Process respawn
-		if tick == respawn_tick:
+		if tick >= respawn_tick and last_respawn < respawn_tick:
 			position = spawn_point
 			velocity = Vector3.ZERO
-			print("Reset position and velocity to respawn at tick %s" % [tick])
+			last_respawn = tick
+			print("[%s] Reset position and velocity to respawn at tick %s" % [multiplayer.get_unique_id(), tick])
 
 		# Add the gravity.
 		if not is_on_floor():
