@@ -19,7 +19,6 @@ func _tick(delta, tick):
 			if body.is_in_group("Brawlers") and not _has_powerup(body):
 				_take() # Predict
 				if is_multiplayer_authority():
-					# rpc("_spawn_effect", effects.pick_random(), body)
 					rpc("_spawn_effect", randi_range(0, effects.size() - 1), body.get_path())
 					rpc("_take")
 	else:
