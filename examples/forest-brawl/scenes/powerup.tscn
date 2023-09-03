@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://ijqx6kjl3qf4"]
+[gd_scene load_steps=15 format=3 uid="uid://ijqx6kjl3qf4"]
 
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/powerup.gd" id="1_6q3ei"]
 [ext_resource type="PackedScene" uid="uid://ch61st8ietkte" path="res://examples/forest-brawl/models/kenney-platformer-kit/crateItem.glb" id="1_gldsg"]
@@ -97,6 +97,12 @@ _data = {
 [sub_resource type="SphereShape3D" id="SphereShape3D_3na7t"]
 radius = 1.0
 
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_dkwet"]
+properties/0/path = NodePath(".:is_active")
+properties/0/spawn = true
+properties/0/sync = true
+properties/0/watch = false
+
 [node name="Powerup" type="Area3D"]
 script = ExtResource("1_6q3ei")
 effects = Array[PackedScene]([ExtResource("2_bissc"), ExtResource("3_lmj2s"), ExtResource("4_6ftmp")])
@@ -122,3 +128,6 @@ shape = SubResource("SphereShape3D_3na7t")
 script = ExtResource("3_8vkt5")
 root = NodePath("..")
 properties = Array[String]([":scale"])
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_dkwet")
