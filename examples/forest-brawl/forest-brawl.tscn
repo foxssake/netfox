@@ -155,7 +155,6 @@ grow_vertical = 2
 use_hidden_tabs_for_min_size = true
 
 [node name="Settings" type="VBoxContainer" parent="UI/Network Popup"]
-visible = false
 layout_mode = 2
 size_flags_vertical = 3
 
@@ -173,6 +172,7 @@ text = "Nameless Brawler"
 clear_button_enabled = true
 
 [node name="LAN" type="VBoxContainer" parent="UI/Network Popup"]
+visible = false
 layout_mode = 2
 
 [node name="Address Row" type="HBoxContainer" parent="UI/Network Popup/LAN"]
