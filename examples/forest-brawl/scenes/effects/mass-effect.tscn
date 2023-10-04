@@ -24,7 +24,8 @@ uv1_offset = Vector3(0.5, 0, 0)
 disable_receive_shadows = true
 billboard_mode = 1
 billboard_keep_scale = true
-proximity_fade_distance = 16.0
+proximity_fade_enabled = true
+proximity_fade_distance = 0.25
 
 [sub_resource type="SphereMesh" id="SphereMesh_mqde8"]
 lightmap_size_hint = Vector2i(33, 17)

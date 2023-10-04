@@ -1,4 +1,5 @@
 extends Node3D
+class_name Weapon3D
 # TODO: Provide as extras, with 2D and 3D implementation
 
 @export var input: BrawlerInput
