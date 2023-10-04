@@ -4,7 +4,7 @@
 
 [sub_resource type="Gradient" id="Gradient_k0qrh"]
 interpolation_mode = 2
-offsets = PackedFloat32Array(0, 0.959184, 1)
+offsets = PackedFloat32Array(0.5, 1, 1)
 colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1, 0.0705882, 0.0705882, 0.0705882, 1)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_lut6u"]
@@ -17,7 +17,6 @@ fill_to = Vector2(1, 0.5)
 blend_mode = 1
 cull_mode = 1
 depth_draw_mode = 2
-no_depth_test = true
 shading_mode = 0
 albedo_color = Color(1, 0.4, 0, 1)
 albedo_texture = SubResource("GradientTexture2D_lut6u")
@@ -26,7 +25,11 @@ uv1_offset = Vector3(0.5, 0, 0)
 disable_receive_shadows = true
 billboard_mode = 1
 billboard_keep_scale = true
-proximity_fade_distance = 16.0
+grow_amount = 7.529
+proximity_fade_enabled = true
+proximity_fade_distance = 0.25
+distance_fade_min_distance = 2.0
+distance_fade_max_distance = 16.0
 
 [sub_resource type="SphereMesh" id="SphereMesh_mqde8"]
 material = SubResource("StandardMaterial3D_gyt54")

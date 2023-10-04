@@ -7,6 +7,8 @@ class_name BrawlerController
 @export var spawn_point: Vector3 = Vector3(0, 4, 0)
 @export var death_depth: float = 4.0
 @export var respawn_time: float = 4.0
+@onready var animation_tree: AnimationTree = $AnimationTree
+@onready var weapon: Weapon3D = $Weapon as Weapon3D
 
 var player_name: String = ""
 var player_id: int = -1
@@ -32,6 +34,28 @@ func _ready():
 	if not player_name:
 		player_name = "Nameless Brawler #%s" % [player_id]
 
+func _process(delta):
+	# Update animation
+	# Running
+	var movement = Vector3(input.movement.x, 0, input.movement.z) * speed
+	var relative_velocity = quaternion.inverse() * movement
+	relative_velocity.y = 0
+	relative_velocity /= speed
+	relative_velocity = Vector2(relative_velocity.x, relative_velocity.z)
+	var animated_velocity = animation_tree.get("parameters/Move/blend_position") as Vector2
+
+	animation_tree.set("parameters/Move/blend_position", animated_velocity.move_toward(relative_velocity, delta / 0.2))
+	
+	# Float
+	_force_update_is_on_floor()
+	var animated_float = animation_tree.get("parameters/Float/blend_amount") as float
+	var actual_float = 1.0 if not is_on_floor() else 0.0
+	animation_tree.set("parameters/Float/blend_amount", move_toward(animated_float, actual_float, delta / 0.2))
+	
+	# Speed
+	animation_tree.set("parameters/MoveScale/scale", speed / 3.75)
+	animation_tree.set("parameters/ThrowScale/scale", min(weapon.fire_cooldown / (10 / 24), 1.0))
+
 func _tick(delta, tick):
 	if not NetworkRollback.is_rollback():
 		# Take a second between respawns at the very least
@@ -41,6 +65,10 @@ func _tick(delta, tick):
 			print("[%s] Detected fall! Respawning on tick %s + %s -> %s" % [multiplayer.get_unique_id(), tick, respawn_time * NetworkTime.tickrate, respawn_tick])
 		if tick == respawn_tick:
 			GameEvents.on_brawler_respawn.emit(self)
+		
+		# Run throw animation if firing
+		if weapon.last_fire == tick:
+			animation_tree.set("parameters/Throw/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
 	else:
 		# Process respawn
 		if tick >= respawn_tick and last_respawn < respawn_tick:
@@ -78,3 +106,9 @@ func _tick(delta, tick):
 
 func _exit_tree():
 	GameEvents.on_brawler_despawn.emit(self)
+
+func _force_update_is_on_floor():
+	var old_velocity = velocity
+	velocity *= 0
+	move_and_slide()
+	velocity = old_velocity

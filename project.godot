@@ -36,6 +36,10 @@ window/size/viewport_height=540
 
 enabled=PackedStringArray("res://addons/netfox.noray/plugin.cfg", "res://addons/netfox/plugin.cfg")
 
+[filesystem]
+
+import/fbx/enabled=false
+
 [input]
 
 move_west={
