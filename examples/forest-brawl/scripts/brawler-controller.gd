@@ -9,6 +9,7 @@ class_name BrawlerController
 @export var respawn_time: float = 4.0
 @onready var animation_tree: AnimationTree = $AnimationTree
 @onready var weapon: Weapon3D = $Weapon as Weapon3D
+@onready var mesh: MeshInstance3D = $"bomber-guy/rig/Skeleton3D/Cube_008"
 
 var player_name: String = ""
 var player_id: int = -1
@@ -33,6 +34,13 @@ func _ready():
 	
 	if not player_name:
 		player_name = "Nameless Brawler #%s" % [player_id]
+	
+	# Set player color
+	var color = Color.from_hsv((hash(player_id) % 256) / 256.0, 1.0, 1.0)
+	var material: StandardMaterial3D = mesh.get_active_material(0)
+	material = material.duplicate()
+	material.albedo_color = color
+	mesh.set_surface_override_material(0, material)
 
 func _process(delta):
 	# Update animation
