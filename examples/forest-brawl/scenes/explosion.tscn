@@ -1,7 +1,7 @@
 [gd_scene load_steps=12 format=3 uid="uid://6212jkmbikjq"]
 
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/displacer.gd" id="1_acukw"]
-[ext_resource type="Script" path="res://examples/forest-brawl/scripts/timed-life.gd" id="1_p0pcp"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/explosion.gd" id="2_g53bu"]
 
 [sub_resource type="Gradient" id="Gradient_32qlm"]
 interpolation_mode = 2
@@ -58,12 +58,11 @@ height = 4.0
 [node name="Explosion" type="Area3D"]
 gravity = 0.0
 script = ExtResource("1_acukw")
-duration = 0.25
+duration = 1.0
 strength = 128.0
 
 [node name="Explosion" type="CPUParticles3D" parent="."]
 amount = 32
-one_shot = true
 local_coords = true
 mesh = SubResource("SphereMesh_5d23i")
 emission_shape = 1
@@ -75,7 +74,7 @@ scale_amount_min = 0.5
 scale_amount_max = 2.0
 scale_amount_curve = SubResource("Curve_t4jmr")
 color_ramp = SubResource("Gradient_6w0nn")
-script = ExtResource("1_p0pcp")
+script = ExtResource("2_g53bu")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("SphereShape3D_ddj8d")
