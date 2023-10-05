@@ -1,7 +1,18 @@
-[gd_scene load_steps=10 format=3 uid="uid://6212jkmbikjq"]
+[gd_scene load_steps=12 format=3 uid="uid://6212jkmbikjq"]
 
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/displacer.gd" id="1_acukw"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/timed-life.gd" id="1_p0pcp"]
+
+[sub_resource type="Gradient" id="Gradient_32qlm"]
+interpolation_mode = 2
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_nqkbc"]
+gradient = SubResource("Gradient_32qlm")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+metadata/_snap_enabled = true
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kb3qh"]
 transparency = 1
@@ -10,6 +21,13 @@ depth_draw_mode = 2
 shading_mode = 0
 vertex_color_use_as_albedo = true
 vertex_color_is_srgb = true
+albedo_texture = SubResource("GradientTexture2D_nqkbc")
+uv1_scale = Vector3(2, 1, 1)
+uv1_offset = Vector3(0.5, 0, 0)
+billboard_mode = 1
+billboard_keep_scale = true
+proximity_fade_enabled = true
+proximity_fade_distance = 0.25
 
 [sub_resource type="SphereMesh" id="SphereMesh_5d23i"]
 material = SubResource("StandardMaterial3D_kb3qh")
@@ -17,8 +35,8 @@ radial_segments = 16
 rings = 8
 
 [sub_resource type="Curve" id="Curve_t4jmr"]
-_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -3.0072, 0.0, 0, 0]
-point_count = 2
+_data = [Vector2(0, 0), 0.0, 14.9413, 0, 0, Vector2(0.0942029, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -3.0072, 0.0, 0, 0]
+point_count = 3
 
 [sub_resource type="Gradient" id="Gradient_6w0nn"]
 interpolation_mode = 2
@@ -44,15 +62,17 @@ duration = 0.25
 strength = 128.0
 
 [node name="Explosion" type="CPUParticles3D" parent="."]
-lifetime = 0.25
+amount = 32
+one_shot = true
 local_coords = true
 mesh = SubResource("SphereMesh_5d23i")
 emission_shape = 1
-emission_sphere_radius = 0.25
+emission_sphere_radius = 0.5
 particle_flag_align_y = true
 particle_flag_rotate_y = true
 gravity = Vector3(0, 0, 0)
-scale_amount_min = 0.13
+scale_amount_min = 0.5
+scale_amount_max = 2.0
 scale_amount_curve = SubResource("Curve_t4jmr")
 color_ramp = SubResource("Gradient_6w0nn")
 script = ExtResource("1_p0pcp")

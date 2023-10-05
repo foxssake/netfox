@@ -10,8 +10,15 @@ class_name BrawlerController
 @onready var animation_tree: AnimationTree = $AnimationTree
 @onready var weapon: Weapon3D = $Weapon as Weapon3D
 @onready var mesh: MeshInstance3D = $"bomber-guy/rig/Skeleton3D/Cube_008"
+@onready var nametag: Label3D = $Nametag
 
-var player_name: String = ""
+var player_name: String = "":
+	set(name):
+		if name.length() > 24:
+			name = name.substr(0, 21) + "..."
+		player_name = name
+		nametag.text = name
+
 var player_id: int = -1
 var last_hit_player: BrawlerController
 var last_hit_tick: int = -1
