@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://cwh2p0qb5872o"]
+[gd_scene load_steps=21 format=3 uid="uid://cwh2p0qb5872o"]
 
 [ext_resource type="MeshLibrary" uid="uid://do0y7f0sy12jg" path="res://examples/forest-brawl/models/forest-blocks.meshlib" id="1_bifsy"]
 [ext_resource type="PackedScene" uid="uid://ble0j0npslm4j" path="res://examples/forest-brawl/models/kenney-platformer-kit/flowers.glb" id="2_q0d6t"]
@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://bpf1jdr255nr0" path="res://examples/shared/ui/time-display.tscn" id="9_d2tot"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/score-manager.gd" id="9_vxjwh"]
 [ext_resource type="LabelSettings" uid="uid://b4u1aluftkajy" path="res://examples/forest-brawl/ui-settings/player-stat-label.tres" id="10_0ix7v"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/random-name-input.gd" id="11_cf8pu"]
 [ext_resource type="Script" path="res://examples/shared/scripts/noray-bootstrapper.gd" id="11_vpdh0"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/player-stats-display.gd" id="12_5kocp"]
 [ext_resource type="Script" path="res://examples/shared/scripts/lan-bootstrapper.gd" id="12_gjc7i"]
@@ -170,6 +171,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Nameless Brawler"
 clear_button_enabled = true
+script = ExtResource("11_cf8pu")
 
 [node name="LAN" type="VBoxContainer" parent="UI/Network Popup"]
 visible = false
@@ -315,7 +317,7 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("12_5kocp")
 score_label = NodePath("VBoxContainer/Score HBox/Score Value")
-effect_label = NodePath("VBoxContainer/Effect HBox/Effect Value")
+effect_label = NodePath("")
 score_manager = NodePath("../../ScoreManager")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="UI/Player stats"]
@@ -335,19 +337,6 @@ label_settings = ExtResource("10_0ix7v")
 layout_mode = 2
 text = "8
 "
-label_settings = ExtResource("10_0ix7v")
-
-[node name="Effect HBox" type="HBoxContainer" parent="UI/Player stats/VBoxContainer"]
-layout_mode = 2
-
-[node name="Effect Label" type="Label" parent="UI/Player stats/VBoxContainer/Effect HBox"]
-layout_mode = 2
-text = "Effect:"
-label_settings = ExtResource("10_0ix7v")
-
-[node name="Effect Value" type="Label" parent="UI/Player stats/VBoxContainer/Effect HBox"]
-layout_mode = 2
-text = "None"
 label_settings = ExtResource("10_0ix7v")
 
 [node name="Joining Screen" type="Control" parent="UI"]
