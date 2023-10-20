@@ -306,7 +306,7 @@ port_input = NodePath("../LAN/Address Row/Port LineEdit")
 host_button = NodePath("../LAN/Actions Row/Host Button")
 join_button = NodePath("../LAN/Actions Row/Join Button")
 
-[node name="Player stats" type="Control" parent="UI" node_paths=PackedStringArray("score_label", "effect_label", "score_manager")]
+[node name="Player stats" type="Control" parent="UI" node_paths=PackedStringArray("score_label", "score_manager")]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -317,7 +317,6 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("12_5kocp")
 score_label = NodePath("VBoxContainer/Score HBox/Score Value")
-effect_label = NodePath("")
 score_manager = NodePath("../../ScoreManager")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="UI/Player stats"]

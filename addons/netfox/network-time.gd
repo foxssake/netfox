@@ -16,7 +16,10 @@ extends Node
 ## [i]read-only[/i], you can change this in the project settings
 var tickrate: int:
 	get:
-		return ProjectSettings.get_setting("netfox/time/tickrate", 30)
+		if sync_to_physics:
+			return Engine.physics_ticks_per_second
+		else:
+			return ProjectSettings.get_setting("netfox/time/tickrate", 30)
 	set(v):
 		push_error("Trying to set read-only variable tickrate")
 
@@ -99,23 +102,25 @@ var tick_factor: float:
 
 ## Multiplier to get from physics process speeds to tick speeds.
 ##
-## Some methods, like CharacterBody's move_and_slide always assume that we're
-## running a physics update, and it will also assume that the delta time is the
-## physics process' delta time. This means that if you we to call these methods
-## from a network tick, the speeds will be all wrong, because e.g. the network
-## ticks run at 30 fps, while the physics process is set to 60fps, thus 
+## Some methods, like CharacterBody's move_and_slide take velocity in units/sec
+## and figure out the time delta on their own. However, they are not aware of 
+## netfox's time, so motion is all wrong in a network tick. For example, the
+## network ticks run at 30 fps, while the game is running at 60fps, thus 
 ## move_and_slide will also assume that it's running on 60fps, resulting in
 ## slower than expected movement.
 ##
 ## To circument this, you can multiply any velocities with this variable, and 
 ## get the desired speed. Don't forget to then divide by this value if it's a
 ## persistent variable ( e.g. CharacterBody's velocity ).
+##
+## NOTE: This works correctly both in regular and in physics frames, but may
+## yield different values.
 var physics_factor: float:
 	get:
-		if not sync_to_physics:
+		if Engine.is_in_physics_frame():
 			return Engine.physics_ticks_per_second / tickrate
 		else:
-			return 1.0
+			return ticktime / _process_delta
 	set(v):
 		push_error("Trying to set read-only variable physics_factor")
 
@@ -145,6 +150,7 @@ var _tick: int = 0
 var _next_tick: float = 0
 var _active: bool = false
 var _initial_sync_done = false
+var _process_delta: float = 0
 
 func _ready():
 	NetworkTimeSynchronizer.on_sync.connect(_handle_sync)
@@ -189,6 +195,8 @@ func is_initial_sync_done() -> bool:
 	return _initial_sync_done
 
 func _process(delta):
+	_process_delta = delta
+
 	if _active and not sync_to_physics:
 		_next_tick -= delta
 		
