@@ -61,6 +61,7 @@ shadow_enabled = true
 
 [node name="Camera3D" type="Camera3D" parent="Environment"]
 transform = Transform3D(1, 0, 0, 0, 0.5, 0.866025, 0, -0.866025, 0.5, 0, 14.3564, 8.86602)
+current = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
 environment = SubResource("Environment_ef1wp")
