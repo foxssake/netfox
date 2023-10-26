@@ -4,7 +4,11 @@ func _ready():
 	NetworkTime.on_tick.connect(_tick)
 
 func _tick(_delta: float, _tick: int):
+	pass
+	
+func _process(delta):
 	text = "Time: %.2f at tick #%d" % [NetworkTime.time, NetworkTime.tick]
+	text += "\nFactor: %.2f" % [NetworkTime.tick_factor]
 
 	if not get_tree().get_multiplayer().is_server():
 		# Grab latency to server and display
