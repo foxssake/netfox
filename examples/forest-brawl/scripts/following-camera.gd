@@ -1,11 +1,14 @@
-extends Node3D
+extends Camera3D
 class_name FollowingCamera
 
 @export var distance: float = 4.0
 @export var approach_time: float = 0.125
 @export var target: Node3D
 
-func _physics_process(delta):
+func _ready():
+	NetworkTime.on_tick.connect(_tick)
+
+func _tick(delta: float, _t: int):
 	if not target:
 		return
 
@@ -16,4 +19,4 @@ func _physics_process(delta):
 	var dst = diff.length()
 	diff = diff.normalized()
 	
-	global_position = global_position.move_toward(desired_pos, dst / approach_time * delta)
+	global_position += diff * minf(dst / approach_time * delta, dst)

@@ -31,7 +31,7 @@ GameEvents="*res://examples/forest-brawl/scripts/game-events.gd"
 
 window/size/viewport_width=540
 window/size/viewport_height=540
-window/vsync/vsync_mode=0
+window/vsync/vsync_mode=2
 
 [editor_plugins]
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://cwh2p0qb5872o"]
+[gd_scene load_steps=22 format=3 uid="uid://cwh2p0qb5872o"]
 
 [ext_resource type="MeshLibrary" uid="uid://do0y7f0sy12jg" path="res://examples/forest-brawl/models/forest-blocks.meshlib" id="1_bifsy"]
 [ext_resource type="PackedScene" uid="uid://ble0j0npslm4j" path="res://examples/forest-brawl/models/kenney-platformer-kit/flowers.glb" id="2_q0d6t"]
@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://bpf1jdr255nr0" path="res://examples/shared/ui/time-display.tscn" id="9_d2tot"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/score-manager.gd" id="9_vxjwh"]
 [ext_resource type="LabelSettings" uid="uid://b4u1aluftkajy" path="res://examples/forest-brawl/ui-settings/player-stat-label.tres" id="10_0ix7v"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/tick-interpolator.gd" id="10_aylaa"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/random-name-input.gd" id="11_cf8pu"]
 [ext_resource type="Script" path="res://examples/shared/scripts/noray-bootstrapper.gd" id="11_vpdh0"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/player-stats-display.gd" id="12_5kocp"]
@@ -94,20 +95,13 @@ shadow_enabled = true
 [node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
 environment = SubResource("Environment_5cni7")
 
-[node name="Camera3D" type="Camera3D" parent="Environment"]
-transform = Transform3D(1, 0, 0, 0, 0.5, 0.866025, 0, -0.866025, 0.5, 0, 73.7461, 42)
-fov = 35.0
-script = ExtResource("5_yxhn7")
-distance = 16.0
-approach_time = 0.25
-
 [node name="Network" type="Node" parent="."]
 
 [node name="Brawler Spawner" type="Node" parent="Network" node_paths=PackedStringArray("spawn_root", "camera", "joining_screen", "name_input")]
 script = ExtResource("5_qv1fx")
 player_scene = ExtResource("7_tcy3g")
 spawn_root = NodePath("../../Players")
-camera = NodePath("../../Environment/Camera3D")
+camera = NodePath("../../Camera3D")
 joining_screen = NodePath("../../UI/Joining Screen")
 name_input = NodePath("../../UI/Network Popup/Settings/Player Name/Player Name Input")
 
@@ -119,6 +113,18 @@ spawn_path = NodePath("../../Players")
 [node name="ScoreManager" type="Node" parent="." node_paths=PackedStringArray("scorescreen")]
 script = ExtResource("9_vxjwh")
 scorescreen = NodePath("../UI/Score Screen")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.5, 0.866025, 0, -0.866025, 0.5, 0, 73.7461, 42)
+fov = 35.0
+script = ExtResource("5_yxhn7")
+distance = 16.0
+approach_time = 0.25
+
+[node name="TickInterpolator" type="Node" parent="Camera3D" node_paths=PackedStringArray("root")]
+script = ExtResource("10_aylaa")
+root = NodePath("..")
+properties = Array[String]([":global_position"])
 
 [node name="UI" type="Control" parent="."]
 layout_mode = 3
