@@ -256,29 +256,20 @@ func _interpolate(from: Dictionary, to: Dictionary, loop: Dictionary, f: float, 
 		if not loop.has(property): continue
 		
 		var pe = _get_pe(property)
-		var a = pe.get_value()
+		var a = from[property]
 		var b = to[property]
 		
-		# The idea is to - instead of simply lerping between two states - move 
-		# towards the target state, linearly. Thus, the factor for interpolation
-		# is calculated based on our "distance" from the target state and how 
-		# much time we have left to move towards it.
-		#
-		# This will always be linear, as the further we are into the current
-		# tick, the distance to the target state will decrease at the same rate.
-		var df = delta / ((1.0 - f) * NetworkTime.ticktime)
-		
 		if a is float:
-			pe.set_value(move_toward(a, b, abs(a - b) * df))
+			pe.set_value(lerpf(a, b, f))
 		elif a is Vector2:
-			pe.set_value((a as Vector2).move_toward(b, (a as Vector2).distance_to(b) * df))
+			pe.set_value((a as Vector2).lerp(b, f))
 		elif a is Vector3:
-			pe.set_value((a as Vector3).move_toward(b, (a as Vector3).distance_to(b) * df))
+			pe.set_value((a as Vector3).lerp(b, f))
 		# TODO: Add as separate feature
 		elif a is Transform2D:
-			pe.set_value((a as Transform2D).interpolate_with(b, clamp(df, 0, 1)))
+			pe.set_value((a as Transform2D).interpolate_with(b, f))
 		elif a is Transform3D:
-			pe.set_value((a as Transform3D).interpolate_with(b, clamp(df, 0, 1)))
+			pe.set_value((a as Transform3D).interpolate_with(b, f))
 		else:
 			pe.set_value(a if f < 0.5 else b)
 
