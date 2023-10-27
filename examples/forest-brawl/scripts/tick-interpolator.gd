@@ -6,6 +6,7 @@ class PropertyEntry:
 	var _path: String
 	var node: Node
 	var property: String
+	var interpolate: Callable
 	
 	func get_value() -> Variant:
 		return node.get(property)
@@ -30,6 +31,7 @@ class PropertyEntry:
 		result.node = root.get_node(NodePath(path))
 		result.property = path.erase(0, path.find(":") + 1)
 		result._path = path
+		result.interpolate = Interpolators.find_for(result.get_value())
 		return result
 
 @export var root: Node = get_parent()
@@ -98,19 +100,7 @@ func _interpolate(from: Dictionary, to: Dictionary, f: float, delta: float):
 		var a = from[property]
 		var b = to[property]
 		
-		if a is float:
-			pe.set_value(lerpf(a, b, f))
-		elif a is Vector2:
-			pe.set_value((a as Vector2).lerp(b, f))
-		elif a is Vector3:
-			pe.set_value((a as Vector3).lerp(b, f))
-		# TODO: Add as separate feature
-		elif a is Transform2D:
-			pe.set_value((a as Transform2D).interpolate_with(b, f))
-		elif a is Transform3D:
-			pe.set_value((a as Transform3D).interpolate_with(b, f))
-		else:
-			pe.set_value(a if f < 0.5 else b)
+		pe.set_value(pe.interpolate.call(a, b, f))
 
 func _extract(properties: Array[PropertyEntry]) -> Dictionary:
 	var result = {}

@@ -80,6 +80,10 @@ const AUTOLOADS = [
 	{
 		"name": "NetworkEvents",
 		"path": ROOT + "/network-events.gd"
+	},
+	{
+		"name": "Interpolators",
+		"path": ROOT + "/interpolators.gd"
 	}
 ]
 
