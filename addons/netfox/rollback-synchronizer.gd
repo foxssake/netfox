@@ -258,7 +258,7 @@ func _interpolate(from: Dictionary, to: Dictionary, loop: Dictionary, f: float, 
 		if not loop.has(property): continue
 		
 		var pe = _get_pe(property)
-		var a = from[property]
+		var a = loop[property]
 		var b = to[property]
 		
 		pe.set_value(pe.interpolate.call(a, b, f))
