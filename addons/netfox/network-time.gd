@@ -61,7 +61,7 @@ var max_ticks_per_frame: int:
 ## [i]read-only[/i]
 var time: float:
 	get:
-		return _time
+		return float(_tick) / tickrate
 	set(v):
 		push_error("Trying to set read-only variable time")
 
@@ -79,6 +79,18 @@ var tick: int:
 		return _tick
 	set(v):
 		push_error("Trying to set read-only variable tick")
+
+var remote_tick: int:
+	get:
+		return _remote_tick
+	set(v):
+		push_error("Trying to set read-only variable remote_tick")
+
+var remote_time: int:
+	get:
+		return float(_remote_tick) / tickrate
+	set(v):
+		push_error("Trying to set read-only variable remote_time")
 
 ## Amount of time a single tick takes, in seconds.
 ##
@@ -145,12 +157,13 @@ signal after_tick_loop()
 ## concludes. When running as server, this is emitted instantly after started.
 signal after_sync()
 
-var _time: float = 0
 var _tick: int = 0
 var _next_tick: float = 0
 var _active: bool = false
 var _initial_sync_done = false
 var _process_delta: float = 0
+
+var _remote_tick: int = 0
 
 func _ready():
 	NetworkTimeSynchronizer.on_sync.connect(_handle_sync)
@@ -168,12 +181,14 @@ func start():
 	if _active:
 		return
 
-	_time = 0
+	_tick = 0
+	_remote_tick = 0
 	_initial_sync_done = false
 	
 	if not multiplayer.is_server():
 		NetworkTimeSynchronizer.start()
 		await NetworkTimeSynchronizer.on_sync
+		_tick = _remote_tick
 		_initial_sync_done = true
 		_active = true
 		after_sync.emit()
@@ -205,12 +220,8 @@ func _process(delta):
 			if ticks_in_loop == 0:
 				before_tick_loop.emit()
 
-			before_tick.emit(ticktime, tick)
-			on_tick.emit(ticktime, tick)
-			after_tick.emit(ticktime, tick)
+			_run_tick()
 
-			_tick += 1
-			_time += ticktime
 			ticks_in_loop += 1
 			_next_tick += ticktime
 		
@@ -221,11 +232,20 @@ func _physics_process(delta):
 	if _active and sync_to_physics:
 		# Run a single tick every physics frame
 		before_tick_loop.emit()
-		before_tick.emit(delta, tick)
-		on_tick.emit(delta, tick)
-		after_tick.emit(delta, tick)
+		_run_tick()
 		after_tick_loop.emit()
 
+func _run_tick():
+	before_tick.emit(ticktime, tick)
+	on_tick.emit(ticktime, tick)
+	after_tick.emit(ticktime, tick)
+	
+	_tick += 1
+	_remote_tick +=1
+
 func _handle_sync(server_time: float, server_tick: int):
-	_time = server_time
-	_tick = server_tick
+	_remote_tick = server_tick
+	
+	if abs(remote_tick - tick) / float(tickrate) > 2.0:
+		push_error("Large difference between estimated remote time and local time!")
+		push_error("Local time: %s; Remote time: %s" % [remote_time, time])
