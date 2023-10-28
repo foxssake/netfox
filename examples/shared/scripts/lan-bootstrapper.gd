@@ -22,6 +22,7 @@ func _host():
 	print("Starting host on port %s" % port)
 	
 	var peer = ENetMultiplayerPeer.new()
+	peer = LatencyENetPeer.new(peer)
 	if peer.create_server(port) != OK:
 		print("Failed to listen on port %s" % port)
 
@@ -59,6 +60,7 @@ func _join():
 	# Connect
 	print("Connecting to %s:%s" % [address, port])
 	var peer = ENetMultiplayerPeer.new()
+	peer = LatencyENetPeer.new(peer)
 	var err = peer.create_client(address, port)
 	if err != OK:
 		OS.alert("Failed to create client, reason: %s" % error_string(err))
