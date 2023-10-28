@@ -91,6 +91,20 @@ var remote_time: int:
 		return float(_remote_tick) / tickrate
 	set(v):
 		push_error("Trying to set read-only variable remote_time")
+		
+
+var local_tick: int:
+	get:
+		return _local_tick
+	set(v):
+		push_error("Trying to set read-only variable local_tick")
+
+var local_time: int:
+	get:
+		return float(_local_tick) / tickrate
+	set(v):
+		push_error("Trying to set read-only variable local_time")
+		
 
 ## Amount of time a single tick takes, in seconds.
 ##
@@ -164,6 +178,7 @@ var _initial_sync_done = false
 var _process_delta: float = 0
 
 var _remote_tick: int = 0
+var _local_tick: int = 0
 
 func _ready():
 	NetworkTimeSynchronizer.on_sync.connect(_handle_sync)
@@ -183,12 +198,14 @@ func start():
 
 	_tick = 0
 	_remote_tick = 0
+	_local_tick = 0
 	_initial_sync_done = false
 	
 	if not multiplayer.is_server():
 		NetworkTimeSynchronizer.start()
 		await NetworkTimeSynchronizer.on_sync
 		_tick = _remote_tick
+		_local_tick = _remote_tick
 		_initial_sync_done = true
 		_active = true
 		after_sync.emit()
@@ -242,10 +259,13 @@ func _run_tick():
 	
 	_tick += 1
 	_remote_tick +=1
+	_local_tick += 1
 
 func _handle_sync(server_time: float, server_tick: int):
 	_remote_tick = server_tick
 	
-	if abs(remote_tick - tick) / float(tickrate) > 2.0:
+	# Adjust tick if it's too far away from remote
+	if abs(remote_tick - tick) / float(tickrate) > 2.0 and not _initial_sync_done:
 		push_error("Large difference between estimated remote time and local time!")
 		push_error("Local time: %s; Remote time: %s" % [remote_time, time])
+		_tick = _remote_tick
