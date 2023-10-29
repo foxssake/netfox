@@ -55,8 +55,14 @@ var max_ticks_per_frame: int:
 ## Time is measured from the start of NetworkTime, in practice this is often the
 ## time from the server's start.
 ##
-## [i]Note:[/i] This is continuously synchronized with the server, so its value
-## may jump a bit, both forwards and backwards. See [NetworkTimeSynchronizer].
+## Use this value in cases where timestamps need to be shared with the server.
+##
+## [i]Note:[/i] Time is continuously synced with the server. If the difference 
+## between local and server time is above a certain threshold, this value will
+## be adjusted.
+##
+## See [NetworkTimeSynchronizer].
+## See the setting [code]"netfox/time/recalibrate_threshold"[/code].
 ##
 ## [i]read-only[/i]
 var time: float:
@@ -70,8 +76,14 @@ var time: float:
 ## Time is measured from the start of NetworkTime, in practice this is often the
 ## time from the server's start.
 ##
-## [i]Note:[/i] This is continuously synchronized with the server, so its value
-## may jump a bit, both forwards and backwards. See [NetworkTimeSynchronizer].
+## Use this value in cases where timestamps need to be shared with the server.
+##
+## [i]Note:[/i] Time is continuously synced with the server. If the difference 
+## between local and server time is above a certain threshold, this value will
+## be adjusted.
+##
+## See [NetworkTimeSynchronizer].
+## See the setting [code]"netfox/time/recalibrate_threshold"[/code].
 ##
 ## [i]read-only[/i]
 var tick: int:
@@ -80,26 +92,91 @@ var tick: int:
 	set(v):
 		push_error("Trying to set read-only variable tick")
 
+## Threshold before recalibrating [code]tick[/code] and [code]time[/code].
+##
+## Time is continuously synced to the server. In case the time difference is 
+## excessive between local and the server, both [code]tick[/code] and
+## [code]time[/code] will be reset to the estimated server values.
+##
+## This property determines the difference threshold in seconds for
+## recalibration.
+##
+## [i]read-only[/i], you can change this in the project settings
+var recalibrate_threshold: float:
+	get:
+		return ProjectSettings.get_setting("netfox/time/recalibrate_threshold", 8.0)
+	set(v):
+		push_error("Trying to set read-only variable recalibrate_threshold")
+
+## Current network time in ticks on the server.
+##
+## This is value is only an estimate, and is regularly updated. This means that 
+## this value can and probably will change depending on network conditions.
+##
+## [i]read-only[/i]
 var remote_tick: int:
 	get:
 		return _remote_tick
 	set(v):
 		push_error("Trying to set read-only variable remote_tick")
 
-var remote_time: int:
+## Current network time in seconds on the server.
+##
+## This is value is only an estimate, and is regularly updated. This means that 
+## this value can and probably will change depending on network conditions.
+##
+## [i]read-only[/i]
+var remote_time: float:
 	get:
 		return float(_remote_tick) / tickrate
 	set(v):
 		push_error("Trying to set read-only variable remote_time")
-		
 
+## Estimated roundtrip time to server.
+##
+## This value is updated regularly, during server time sync. Latency can be 
+## estimated as half of the roundtrip time.
+##
+## Will always be 0 on servers.
+##
+## [i]read-only[/i]
+var remote_rtt: float:
+	get:
+		return _remote_rtt
+	set(v):
+		push_error("Trying to set read-only variable remote_rtt")
+
+## Current network time in ticks.
+##
+## On clients, this value is synced to the server [i]only once[/i] when joining
+## the game. After that, it will increase monotonically, incrementing every 
+## single tick.
+##
+## When hosting, this value is simply the number of ticks since game start.
+##
+## This property can be used for things that require a timer that is guaranteed
+## to be linear, i.e. no jumps in time.
+##
+## [i]read-only[/i]
 var local_tick: int:
 	get:
 		return _local_tick
 	set(v):
 		push_error("Trying to set read-only variable local_tick")
 
-var local_time: int:
+## Current network time in seconds.
+##
+## On clients, this value is synced to the server [i]only once[/i] when joining
+## the game. After that, it will increase monotonically, incrementing every 
+## single tick.
+##
+## When hosting, this value is simply the seconds elapsed since game start.
+##
+## This property can be used for things that require a timer that is guaranteed
+## to be linear, i.e. no jumps in time.
+##
+## [i]read-only[/i]
+var local_time: float:
 	get:
 		return float(_local_tick) / tickrate
 	set(v):
@@ -109,6 +186,8 @@ var local_time: int:
 ## Amount of time a single tick takes, in seconds.
 ##
 ## This is the reverse of tickrate
+##
+## [i]read-only[/i]
 var ticktime: float:
 	get:
 		return 1.0 / tickrate
@@ -120,6 +199,8 @@ var ticktime: float:
 ## 0.0 - the current tick just happened[br]
 ## 0.5 - we're halfway to the next tick[br]
 ## 1.0 - the next tick is right about to be simulated[br]
+##
+## [i]read-only[/i]
 var tick_factor: float:
 	get:
 		return 1.0 - clampf(_next_tick * tickrate, 0, 1)
@@ -141,6 +222,8 @@ var tick_factor: float:
 ##
 ## NOTE: This works correctly both in regular and in physics frames, but may
 ## yield different values.
+##
+## [i]read-only[/i]
 var physics_factor: float:
 	get:
 		if Engine.is_in_physics_frame():
@@ -153,7 +236,7 @@ var physics_factor: float:
 ## Emitted before a tick loop is run.
 signal before_tick_loop()
 
-# TODO: Add as feature
+## Emitted before a tick is run.
 signal before_tick(delta: float, tick: int)
 
 ## Emitted for every network tick.
@@ -177,6 +260,7 @@ var _active: bool = false
 var _initial_sync_done = false
 var _process_delta: float = 0
 
+var _remote_rtt: float = 0
 var _remote_tick: int = 0
 var _local_tick: int = 0
 
@@ -199,6 +283,7 @@ func start():
 	_tick = 0
 	_remote_tick = 0
 	_local_tick = 0
+	_remote_rtt = 0
 	_initial_sync_done = false
 	
 	if not multiplayer.is_server():
@@ -261,11 +346,12 @@ func _run_tick():
 	_remote_tick +=1
 	_local_tick += 1
 
-func _handle_sync(server_time: float, server_tick: int):
+func _handle_sync(server_time: float, server_tick: int, rtt: float):
 	_remote_tick = server_tick
+	_remote_rtt = rtt
 	
 	# Adjust tick if it's too far away from remote
-	if abs(remote_tick - tick) / float(tickrate) > 2.0 and not _initial_sync_done:
+	if abs(remote_tick - tick) / float(tickrate) > recalibrate_threshold and not _initial_sync_done:
 		push_error("Large difference between estimated remote time and local time!")
 		push_error("Local time: %s; Remote time: %s" % [remote_time, time])
 		_tick = _remote_tick

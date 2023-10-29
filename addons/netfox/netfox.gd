@@ -21,6 +21,11 @@ const SETTINGS = [
 		"type": TYPE_INT
 	},
 	{
+		"name": "netfox/time/recalibrate_threshold",
+		"value": 8.0,
+		"type": TYPE_FLOAT
+	},
+	{
 		# Time to wait between time syncs
 		"name": "netfox/time/sync_interval",
 		"value": 1.0,

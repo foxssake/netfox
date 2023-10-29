@@ -8,7 +8,7 @@ func _tick(_delta: float, _tick: int):
 	
 func _process(delta):
 	text = "Time: %.2f at tick #%d" % [NetworkTime.time, NetworkTime.tick]
-	text += "Remote time: %.2f at tick#%d" % [NetworkTime.remote_time, NetworkTime.remote_tick]
+	text += "\nRemote time: %.2f at tick#%d with %.2fms RTT" % [NetworkTime.remote_time, NetworkTime.remote_tick, NetworkTime.remote_rtt * 1000.0]
 	text += "\nFactor: %.2f" % [NetworkTime.tick_factor]
 	text += "\nFPS: %s" % [Engine.get_frames_per_second()]
 
