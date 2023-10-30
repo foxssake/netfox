@@ -1,11 +1,11 @@
 extends Node
-class_name OldTickInterpolator
-# TODO: Add as feature
+class_name TickInterpolator
 
-@export var root: Node = get_parent()
+@export var root: Node
 @export var enabled: bool = true
 @export var properties: Array[String]
 @export var record_first_state: bool = true
+@export var enable_recording: bool = true
 
 var _state_from: Dictionary = {}
 var _state_to: Dictionary = {}
@@ -18,6 +18,7 @@ var _property_cache: PropertyCache
 ## Call this after any change to configuration.
 func process_settings():
 	_property_cache = PropertyCache.new(root)
+	_props.clear()
 	
 	_state_from = {}
 	_state_to = {}
@@ -37,6 +38,10 @@ func push_state():
 	_state_from = _state_to
 	_state_to = PropertySnapshot.extract(_props)
 
+func teleport():
+	_state_from = PropertySnapshot.extract(_props)
+	_state_to = _state_from
+
 func _ready():
 	process_settings()
 	NetworkTime.before_tick_loop.connect(_before_tick_loop)
@@ -45,19 +50,19 @@ func _ready():
 	# Wait a frame for any initial setup before recording first state
 	if record_first_state:
 		await get_tree().process_frame
-		push_state()
-		push_state()
+		teleport()
 
-func _process(delta):
-	_interpolate(_state_from, _state_to, NetworkTime.tick_factor, delta)
+func _process(_delta):
+	_interpolate(_state_from, _state_to, NetworkTime.tick_factor)
 
 func _before_tick_loop():
 	PropertySnapshot.apply(_state_to, _property_cache)
 
 func _after_tick_loop():
-	push_state()
+	if enable_recording:
+		push_state()
 
-func _interpolate(from: Dictionary, to: Dictionary, f: float, delta: float):
+func _interpolate(from: Dictionary, to: Dictionary, f: float):
 	if not can_interpolate():
 		return
 

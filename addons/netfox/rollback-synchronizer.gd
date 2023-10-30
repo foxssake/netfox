@@ -1,4 +1,3 @@
-@icon("./icons/RollbackSynchronizer.svg")
 extends Node
 ## Similar to [MultiplayerSynchronizer], this class is responsible for
 ## synchronizing data between players, but with support for rollback and

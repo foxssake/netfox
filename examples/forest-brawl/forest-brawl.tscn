@@ -11,7 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://bpf1jdr255nr0" path="res://examples/shared/ui/time-display.tscn" id="9_d2tot"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/score-manager.gd" id="9_vxjwh"]
 [ext_resource type="LabelSettings" uid="uid://b4u1aluftkajy" path="res://examples/forest-brawl/ui-settings/player-stat-label.tres" id="10_0ix7v"]
-[ext_resource type="Script" path="res://examples/forest-brawl/scripts/tick-interpolator.gd" id="10_aylaa"]
+[ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="10_ld676"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/random-name-input.gd" id="11_cf8pu"]
 [ext_resource type="Script" path="res://examples/shared/scripts/noray-bootstrapper.gd" id="11_vpdh0"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/player-stats-display.gd" id="12_5kocp"]
@@ -122,7 +122,7 @@ distance = 16.0
 approach_time = 0.25
 
 [node name="TickInterpolator" type="Node" parent="Camera3D" node_paths=PackedStringArray("root")]
-script = ExtResource("10_aylaa")
+script = ExtResource("10_ld676")
 root = NodePath("..")
 properties = Array[String]([":global_position"])
 
