@@ -2,38 +2,6 @@ extends Node
 class_name TickInterpolator
 # TODO: Add as feature
 
-class PropertyEntry:
-	var _path: String
-	var node: Node
-	var property: String
-	var interpolate: Callable
-	
-	func get_value() -> Variant:
-		return node.get(property)
-	
-	func set_value(value):
-		node.set(property, value)
-	
-	func is_valid() -> bool:
-		if node == null:
-			return false
-			
-		if node.get(property) == null:
-			return false
-		
-		return true
-	
-	func _to_string() -> String:
-		return _path
-	
-	static func parse(root: Node, path: String) -> PropertyEntry:
-		var result = PropertyEntry.new()
-		result.node = root.get_node(NodePath(path))
-		result.property = path.erase(0, path.find(":") + 1)
-		result._path = path
-		result.interpolate = Interpolators.find_for(result.get_value())
-		return result
-
 @export var root: Node = get_parent()
 @export var enabled: bool = true
 @export var properties: Array[String]
