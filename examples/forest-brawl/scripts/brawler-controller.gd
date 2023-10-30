@@ -94,6 +94,7 @@ func _tick(delta, tick):
 			print("[%s] Reset position and velocity to respawn at tick %s" % [multiplayer.get_unique_id(), tick])
 
 		# Add the gravity.
+		_force_update_is_on_floor()
 		if not is_on_floor():
 			velocity.y -= gravity * delta
 
