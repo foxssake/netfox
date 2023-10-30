@@ -4,7 +4,6 @@ class_name PropertyEntry
 var _path: String
 var node: Node
 var property: String
-var interpolate: Callable
 
 func get_value() -> Variant:
 	return node.get(property)
@@ -29,5 +28,4 @@ static func parse(root: Node, path: String) -> PropertyEntry:
 	result.node = root.get_node(NodePath(path))
 	result.property = path.erase(0, path.find(":") + 1)
 	result._path = path
-	result.interpolate = Interpolators.find_for(result.get_value())
 	return result

@@ -98,7 +98,13 @@ const TYPES = [
 		"base": "Node",
 		"script": ROOT + "/rollback-synchronizer.gd",
 		"icon": ROOT + "/icons/rollback-synchronizer.svg"
-	}
+	},
+	{
+		"name": "TickInterpolator",
+		"base": "Node",
+		"script": ROOT + "/tick-interpolator.gd",
+		"icon": ROOT + "/icons/tick-interpolator.svg"
+	},
 ]
 
 func _enter_tree():
