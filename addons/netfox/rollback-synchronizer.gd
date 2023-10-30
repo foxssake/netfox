@@ -34,16 +34,12 @@ extends Node
 ## state and input properties on the same object, since authority is then
 ## difficult to separate. Same for spreading state over multiple objects, each
 ## having different authority. This may or may not change in the future.
-##
-## [i]Note[/i] that with interpolation enabled, it is recommended to add all
-## state properties as interpolation properties too, otherwise you might get
-## unexpected result. This may or may not change in the future.
+
+# TODO: Document interpolation
 
 @export var root: Node = get_parent()
-@export var enable_interpolation: bool = true
 @export var state_properties: Array[String]
 @export var input_properties: Array[String]
-@export var interpolate_properties: Array[String]
 @export var simulate_nodes: Array[Node]
 
 var _record_state_props: Array[PropertyEntry] = []
@@ -56,10 +52,6 @@ var _states = {}
 var _inputs = {}
 var _latest_state = -1
 var _earliest_input = INF
-
-var _lerp_before_loop = {}
-var _lerp_from = {}
-var _lerp_to = {}
 
 var _property_cache: PropertyCache
 
@@ -102,13 +94,6 @@ func process_settings():
 		if not _nodes.has(node):
 			_nodes.push_back(node)
 
-## Check if interpolation can be done.
-##
-## Even if it's enabled, no interpolation will be done if there are no
-## properties to interpolate.
-func can_interpolate() -> bool:
-	return enable_interpolation and not interpolate_properties.is_empty()
-
 func _ready():
 	process_settings()
 	
@@ -119,9 +104,6 @@ func _ready():
 	NetworkRollback.on_record_tick.connect(_record_tick)
 	NetworkRollback.after_loop.connect(_after_loop)
 
-func _process(delta):
-	_interpolate(_lerp_from, _lerp_to, _lerp_before_loop, NetworkTime.tick_factor, delta)
-
 func _before_loop():
 	if _auth_input_props.is_empty():
 		# We don't have any inputs we own, simulate from earliest we've received
@@ -129,7 +111,6 @@ func _before_loop():
 	else:
 		# We own inputs, simulate from latest authorative state
 		NetworkRollback.notify_input_tick(_latest_state)
-	_lerp_before_loop = PropertySnapshot.extract(_record_state_props)
 	
 	var latest_input = _inputs.keys().max() if not _inputs.is_empty() else -1
 	var latest_state = _latest_state
@@ -194,15 +175,9 @@ func _record_tick(tick: int):
 func _after_loop():
 	_earliest_input = NetworkTime.tick
 	
+	# Apply display state
 	var display_state = _get_history(_states, NetworkTime.tick - NetworkRollback.display_offset)
-	_lerp_from = _get_history(_states, NetworkTime.tick - NetworkRollback.display_offset - 1)
-	_lerp_to = display_state
-	
-	if can_interpolate():
-		PropertySnapshot.apply(_lerp_before_loop, _property_cache)
-	else:
-		# Apply display state
-		PropertySnapshot.apply(display_state, _property_cache)
+	PropertySnapshot.apply(display_state, _property_cache)
 
 func _after_tick(_delta, _tick):
 	if not _auth_input_props.is_empty():
@@ -215,21 +190,6 @@ func _after_tick(_delta, _tick):
 	
 	while _inputs.size() > NetworkRollback.history_limit:
 		_inputs.erase(_inputs.keys().min())
-
-func _interpolate(from: Dictionary, to: Dictionary, loop: Dictionary, f: float, delta: float):
-	if not can_interpolate():
-		return
-
-	for property in from:
-		if not interpolate_properties.has(property): continue
-		if not to.has(property): continue
-		if not loop.has(property): continue
-		
-		var pe = _property_cache.get_entry(property)
-		var a = loop[property]
-		var b = to[property]
-		
-		pe.set_value(pe.interpolate.call(a, b, f))
 
 func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 	if buffer.has(tick):
@@ -274,10 +234,6 @@ func _submit_input(input: Dictionary, tick: int):
 		_earliest_input = min(_earliest_input, tick)
 	else:
 		push_warning("Received invalid input from %s for tick %s for %s" % [sender, tick, root.name])
-
-@rpc("any_peer", "reliable", "call_remote")
-func _submit_state_reliable(state: Dictionary, tick: int):
-	_submit_state(state, tick)
 
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_state(state: Dictionary, tick: int):
