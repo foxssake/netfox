@@ -40,38 +40,6 @@ extends Node
 ## state properties as interpolation properties too, otherwise you might get
 ## unexpected result. This may or may not change in the future.
 
-class PropertyEntry:
-	var _path: String
-	var node: Node
-	var property: String
-	var interpolate: Callable
-	
-	func get_value() -> Variant:
-		return node.get(property)
-	
-	func set_value(value):
-		node.set(property, value)
-	
-	func is_valid() -> bool:
-		if node == null:
-			return false
-			
-		if node.get(property) == null:
-			return false
-		
-		return true
-	
-	func _to_string() -> String:
-		return _path
-	
-	static func parse(root: Node, path: String) -> PropertyEntry:
-		var result = PropertyEntry.new()
-		result.node = root.get_node(NodePath(path))
-		result.property = path.erase(0, path.find(":") + 1)
-		result._path = path
-		result.interpolate = Interpolators.find_for(result.get_value())
-		return result
-
 @export var root: Node = get_parent()
 @export var enable_interpolation: bool = true
 @export var state_properties: Array[String]
@@ -94,13 +62,13 @@ var _lerp_before_loop = {}
 var _lerp_from = {}
 var _lerp_to = {}
 
-var _pe_cache: Dictionary = {}
+var _property_cache: PropertyCache
 
 ## Process settings.
 ##
 ## Call this after any change to configuration.
 func process_settings():
-	_pe_cache.clear()
+	_property_cache = PropertyCache.new(root)
 	_nodes.clear()
 	_record_input_props.clear()
 	_record_state_props.clear()
@@ -113,23 +81,24 @@ func process_settings():
 	_earliest_input = NetworkTime.tick
 
 	for property in state_properties:
-		var pe = _get_pe(property)
+		var pe = _property_cache.get_entry(property)
 		_record_state_props.push_back(pe)
 		if pe.node.is_multiplayer_authority():
 			_auth_state_props.push_back(pe)
 
 	for property in input_properties:
-		var pe = _get_pe(property)
+		var pe = _property_cache.get_entry(property)
 		if pe.node.is_multiplayer_authority():
 			_record_input_props.push_back(pe)
 			_auth_input_props.push_back(pe)
 	
+	# Gather all nodes simulated ( unique )
 	_nodes = []
-	var all_nodes = (_pe_cache.values()\
-		.map(func(it): return it.node) +\
-		simulate_nodes
-		)\
-		.filter(func(it): return it.has_method("_tick"))
+	var all_nodes = _property_cache.properties()
+	all_nodes = all_nodes.map(func(it): return it.node)
+	all_nodes += simulate_nodes
+	all_nodes = all_nodes.filter(func(it): return it.has_method("_tick"))
+
 	for node in all_nodes:
 		if not _nodes.has(node):
 			_nodes.push_back(node)
@@ -161,7 +130,7 @@ func _before_loop():
 	else:
 		# We own inputs, simulate from latest authorative state
 		NetworkRollback.notify_input_tick(_latest_state)
-	_lerp_before_loop = _extract(_record_state_props)
+	_lerp_before_loop = PropertySnapshot.extract(_record_state_props)
 	
 	var latest_input = _inputs.keys().max() if not _inputs.is_empty() else -1
 	var latest_state = _latest_state
@@ -174,8 +143,8 @@ func _prepare_tick(tick: int):
 	var state = _get_history(_states, tick)
 	var input = _get_history(_inputs, tick)
 	
-	_apply(state)
-	_apply(input)
+	PropertySnapshot.apply(state, _property_cache)
+	PropertySnapshot.apply(input, _property_cache)
 	
 	for node in _nodes:
 		if _can_simulate(node, tick):
@@ -216,12 +185,12 @@ func _record_tick(tick: int):
 		if broadcast.size() > 0:
 			# Broadcast as new state
 			_latest_state = max(_latest_state, tick)
-			_states[tick] = _merge(_states.get(tick, {}), broadcast)
+			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), broadcast)
 			rpc("_submit_state", broadcast, tick)
 	
 	# Record state for specified tick ( current + 1 )
 	if not _record_state_props.is_empty() and tick > _latest_state:
-		_states[tick] = _extract(_record_state_props)
+		_states[tick] = PropertySnapshot.extract(_record_state_props)
 
 func _after_loop():
 	_earliest_input = NetworkTime.tick
@@ -231,14 +200,14 @@ func _after_loop():
 	_lerp_to = display_state
 	
 	if can_interpolate():
-		_apply(_lerp_before_loop)
+		PropertySnapshot.apply(_lerp_before_loop, _property_cache)
 	else:
 		# Apply display state
-		_apply(display_state)
+		PropertySnapshot.apply(display_state, _property_cache)
 
 func _after_tick(_delta, _tick):
 	if not _auth_input_props.is_empty():
-		var input = _extract(_auth_input_props)
+		var input = PropertySnapshot.extract(_auth_input_props)
 		_inputs[NetworkTime.tick] = input
 		rpc("_submit_input", input, NetworkTime.tick)
 	
@@ -257,40 +226,11 @@ func _interpolate(from: Dictionary, to: Dictionary, loop: Dictionary, f: float, 
 		if not to.has(property): continue
 		if not loop.has(property): continue
 		
-		var pe = _get_pe(property)
+		var pe = _property_cache.get_entry(property)
 		var a = loop[property]
 		var b = to[property]
 		
 		pe.set_value(pe.interpolate.call(a, b, f))
-
-func _extract(properties: Array[PropertyEntry]) -> Dictionary:
-	var result = {}
-	for property in properties:
-		result[property.to_string()] = property.get_value()
-	result.make_read_only()
-	return result
-
-func _apply(properties: Dictionary):
-	for property in properties:
-		var pe = _get_pe(property)
-		var value = properties[property]
-		pe.set_value(value)
-
-func _merge(a: Dictionary, b: Dictionary) -> Dictionary:
-	var result = {}
-	for key in a:
-		result[key] = a[key]
-	for key in b:
-		result[key] = b[key]
-	return result
-
-func _get_pe(path: String) -> PropertyEntry:
-	if not _pe_cache.has(path):
-		var parsed = PropertyEntry.parse(root, path)
-		if not parsed.is_valid():
-			push_warning("Invalid property path: %s" % path)
-		_pe_cache[path] = parsed
-	return _pe_cache[path]
 
 func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 	if buffer.has(tick):
@@ -319,7 +259,7 @@ func _submit_input(input: Dictionary, tick: int):
 	var sender = multiplayer.get_remote_sender_id()
 	var sanitized = {}
 	for property in input:
-		var pe = _get_pe(property)
+		var pe = _property_cache.get_entry(property)
 		var value = input[property]
 		var input_owner = pe.node.get_multiplayer_authority()
 		
@@ -353,7 +293,7 @@ func _submit_state(state: Dictionary, tick: int):
 	var sender = multiplayer.get_remote_sender_id()
 	var sanitized = {}
 	for property in state:
-		var pe = _get_pe(property)
+		var pe = _property_cache.get_entry(property)
 		var value = state[property]
 		var state_owner = pe.node.get_multiplayer_authority()
 		
@@ -365,7 +305,7 @@ func _submit_state(state: Dictionary, tick: int):
 		sanitized[property] = value
 	
 	if sanitized.size() > 0:
-		_states[tick] = _merge(_states.get(tick, {}), sanitized)
+		_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), sanitized)
 		# _latest_state = max(_latest_state, tick)
 		_latest_state = tick
 	else:

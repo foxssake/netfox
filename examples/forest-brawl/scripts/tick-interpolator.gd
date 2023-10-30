@@ -2,38 +2,6 @@ extends Node
 class_name TickInterpolator
 # TODO: Add as feature
 
-class PropertyEntry:
-	var _path: String
-	var node: Node
-	var property: String
-	var interpolate: Callable
-	
-	func get_value() -> Variant:
-		return node.get(property)
-	
-	func set_value(value):
-		node.set(property, value)
-	
-	func is_valid() -> bool:
-		if node == null:
-			return false
-			
-		if node.get(property) == null:
-			return false
-		
-		return true
-	
-	func _to_string() -> String:
-		return _path
-	
-	static func parse(root: Node, path: String) -> PropertyEntry:
-		var result = PropertyEntry.new()
-		result.node = root.get_node(NodePath(path))
-		result.property = path.erase(0, path.find(":") + 1)
-		result._path = path
-		result.interpolate = Interpolators.find_for(result.get_value())
-		return result
-
 @export var root: Node = get_parent()
 @export var enabled: bool = true
 @export var properties: Array[String]
@@ -43,19 +11,19 @@ var _state_from: Dictionary = {}
 var _state_to: Dictionary = {}
 var _props: Array[PropertyEntry] = []
 
-var _pe_cache: Dictionary = {}
+var _property_cache: PropertyCache
 
 ## Process settings.
 ##
 ## Call this after any change to configuration.
 func process_settings():
-	_pe_cache.clear()
+	_property_cache = PropertyCache.new(root)
 	
 	_state_from = {}
 	_state_to = {}
 
 	for property in properties:
-		var pe = _get_pe(property)
+		var pe = _property_cache.get_entry(property)
 		_props.push_back(pe)
 
 ## Check if interpolation can be done.
@@ -67,7 +35,7 @@ func can_interpolate() -> bool:
 
 func push_state():
 	_state_from = _state_to
-	_state_to = _extract(_props)
+	_state_to = PropertySnapshot.extract(_props)
 
 func _ready():
 	process_settings()
@@ -84,7 +52,7 @@ func _process(delta):
 	_interpolate(_state_from, _state_to, NetworkTime.tick_factor, delta)
 
 func _before_tick_loop():
-	_apply(_state_to)
+	PropertySnapshot.apply(_state_to, _property_cache)
 
 func _after_tick_loop():
 	push_state()
@@ -96,29 +64,8 @@ func _interpolate(from: Dictionary, to: Dictionary, f: float, delta: float):
 	for property in from:
 		if not to.has(property): continue
 		
-		var pe = _get_pe(property)
+		var pe = _property_cache.get_entry(property)
 		var a = from[property]
 		var b = to[property]
 		
 		pe.set_value(pe.interpolate.call(a, b, f))
-
-func _extract(properties: Array[PropertyEntry]) -> Dictionary:
-	var result = {}
-	for property in properties:
-		result[property.to_string()] = property.get_value()
-	result.make_read_only()
-	return result
-
-func _apply(properties: Dictionary):
-	for property in properties:
-		var pe = _get_pe(property)
-		var value = properties[property]
-		pe.set_value(value)
-
-func _get_pe(path: String) -> PropertyEntry:
-	if not _pe_cache.has(path):
-		var parsed = PropertyEntry.parse(root, path)
-		if not parsed.is_valid():
-			push_warning("Invalid property path: %s" % path)
-		_pe_cache[path] = parsed
-	return _pe_cache[path]
