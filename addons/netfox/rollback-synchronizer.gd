@@ -62,13 +62,13 @@ var _lerp_before_loop = {}
 var _lerp_from = {}
 var _lerp_to = {}
 
-var _pe_cache: Dictionary = {}
+var _property_cache: PropertyCache
 
 ## Process settings.
 ##
 ## Call this after any change to configuration.
 func process_settings():
-	_pe_cache.clear()
+	_property_cache = PropertyCache.new(root)
 	_nodes.clear()
 	_record_input_props.clear()
 	_record_state_props.clear()
@@ -81,23 +81,24 @@ func process_settings():
 	_earliest_input = NetworkTime.tick
 
 	for property in state_properties:
-		var pe = _get_pe(property)
+		var pe = _property_cache.get_entry(property)
 		_record_state_props.push_back(pe)
 		if pe.node.is_multiplayer_authority():
 			_auth_state_props.push_back(pe)
 
 	for property in input_properties:
-		var pe = _get_pe(property)
+		var pe = _property_cache.get_entry(property)
 		if pe.node.is_multiplayer_authority():
 			_record_input_props.push_back(pe)
 			_auth_input_props.push_back(pe)
 	
+	# Gather all nodes simulated ( unique )
 	_nodes = []
-	var all_nodes = (_pe_cache.values()\
-		.map(func(it): return it.node) +\
-		simulate_nodes
-		)\
-		.filter(func(it): return it.has_method("_tick"))
+	var all_nodes = _property_cache.properties()
+	all_nodes = all_nodes.map(func(it): return it.node)
+	all_nodes += simulate_nodes
+	all_nodes = all_nodes.filter(func(it): return it.has_method("_tick"))
+
 	for node in all_nodes:
 		if not _nodes.has(node):
 			_nodes.push_back(node)
@@ -225,7 +226,7 @@ func _interpolate(from: Dictionary, to: Dictionary, loop: Dictionary, f: float, 
 		if not to.has(property): continue
 		if not loop.has(property): continue
 		
-		var pe = _get_pe(property)
+		var pe = _property_cache.get_entry(property)
 		var a = loop[property]
 		var b = to[property]
 		
@@ -240,7 +241,7 @@ func _extract(properties: Array[PropertyEntry]) -> Dictionary:
 
 func _apply(properties: Dictionary):
 	for property in properties:
-		var pe = _get_pe(property)
+		var pe = _property_cache.get_entry(property)
 		var value = properties[property]
 		pe.set_value(value)
 
@@ -251,14 +252,6 @@ func _merge(a: Dictionary, b: Dictionary) -> Dictionary:
 	for key in b:
 		result[key] = b[key]
 	return result
-
-func _get_pe(path: String) -> PropertyEntry:
-	if not _pe_cache.has(path):
-		var parsed = PropertyEntry.parse(root, path)
-		if not parsed.is_valid():
-			push_warning("Invalid property path: %s" % path)
-		_pe_cache[path] = parsed
-	return _pe_cache[path]
 
 func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 	if buffer.has(tick):
@@ -287,7 +280,7 @@ func _submit_input(input: Dictionary, tick: int):
 	var sender = multiplayer.get_remote_sender_id()
 	var sanitized = {}
 	for property in input:
-		var pe = _get_pe(property)
+		var pe = _property_cache.get_entry(property)
 		var value = input[property]
 		var input_owner = pe.node.get_multiplayer_authority()
 		
@@ -321,7 +314,7 @@ func _submit_state(state: Dictionary, tick: int):
 	var sender = multiplayer.get_remote_sender_id()
 	var sanitized = {}
 	for property in state:
-		var pe = _get_pe(property)
+		var pe = _property_cache.get_entry(property)
 		var value = state[property]
 		var state_owner = pe.node.get_multiplayer_authority()
 		

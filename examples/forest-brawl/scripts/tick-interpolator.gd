@@ -11,19 +11,19 @@ var _state_from: Dictionary = {}
 var _state_to: Dictionary = {}
 var _props: Array[PropertyEntry] = []
 
-var _pe_cache: Dictionary = {}
+var _property_cache: PropertyCache
 
 ## Process settings.
 ##
 ## Call this after any change to configuration.
 func process_settings():
-	_pe_cache.clear()
+	_property_cache = PropertyCache.new(root)
 	
 	_state_from = {}
 	_state_to = {}
 
 	for property in properties:
-		var pe = _get_pe(property)
+		var pe = _property_cache.get_entry(property)
 		_props.push_back(pe)
 
 ## Check if interpolation can be done.
@@ -64,7 +64,7 @@ func _interpolate(from: Dictionary, to: Dictionary, f: float, delta: float):
 	for property in from:
 		if not to.has(property): continue
 		
-		var pe = _get_pe(property)
+		var pe = _property_cache.get_entry(property)
 		var a = from[property]
 		var b = to[property]
 		
@@ -79,14 +79,6 @@ func _extract(properties: Array[PropertyEntry]) -> Dictionary:
 
 func _apply(properties: Dictionary):
 	for property in properties:
-		var pe = _get_pe(property)
+		var pe = _property_cache.get_entry(property)
 		var value = properties[property]
 		pe.set_value(value)
-
-func _get_pe(path: String) -> PropertyEntry:
-	if not _pe_cache.has(path):
-		var parsed = PropertyEntry.parse(root, path)
-		if not parsed.is_valid():
-			push_warning("Invalid property path: %s" % path)
-		_pe_cache[path] = parsed
-	return _pe_cache[path]
