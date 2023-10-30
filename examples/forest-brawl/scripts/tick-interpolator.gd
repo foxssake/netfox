@@ -35,7 +35,7 @@ func can_interpolate() -> bool:
 
 func push_state():
 	_state_from = _state_to
-	_state_to = _extract(_props)
+	_state_to = PropertySnapshot.extract(_props)
 
 func _ready():
 	process_settings()
@@ -52,7 +52,7 @@ func _process(delta):
 	_interpolate(_state_from, _state_to, NetworkTime.tick_factor, delta)
 
 func _before_tick_loop():
-	_apply(_state_to)
+	PropertySnapshot.apply(_state_to, _property_cache)
 
 func _after_tick_loop():
 	push_state()
@@ -69,16 +69,3 @@ func _interpolate(from: Dictionary, to: Dictionary, f: float, delta: float):
 		var b = to[property]
 		
 		pe.set_value(pe.interpolate.call(a, b, f))
-
-func _extract(properties: Array[PropertyEntry]) -> Dictionary:
-	var result = {}
-	for property in properties:
-		result[property.to_string()] = property.get_value()
-	result.make_read_only()
-	return result
-
-func _apply(properties: Dictionary):
-	for property in properties:
-		var pe = _property_cache.get_entry(property)
-		var value = properties[property]
-		pe.set_value(value)
