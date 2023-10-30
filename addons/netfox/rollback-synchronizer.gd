@@ -35,8 +35,6 @@ extends Node
 ## difficult to separate. Same for spreading state over multiple objects, each
 ## having different authority. This may or may not change in the future.
 
-# TODO: Document interpolation
-
 @export var root: Node = get_parent()
 @export var state_properties: Array[String]
 @export var input_properties: Array[String]

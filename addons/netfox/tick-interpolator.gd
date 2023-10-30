@@ -37,10 +37,16 @@ func process_settings():
 func can_interpolate() -> bool:
 	return enabled and not properties.is_empty()
 
+## Record current state for interpolation.
+##
+## Note that this will rotate the states, so the previous target becomes the new
+## starting point for the interpolation. This is automatically called if 
+## [code]enable_recording[/code] is true.
 func push_state():
 	_state_from = _state_to
 	_state_to = PropertySnapshot.extract(_props)
 
+## Record current state and transition without interpolation.
 func teleport():
 	_state_from = PropertySnapshot.extract(_props)
 	_state_to = _state_from
