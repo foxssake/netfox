@@ -10,6 +10,7 @@ class_name TickInterpolator
 var _state_from: Dictionary = {}
 var _state_to: Dictionary = {}
 var _props: Array[PropertyEntry] = []
+var _interpolators: Dictionary = {}
 
 var _property_cache: PropertyCache
 
@@ -19,6 +20,7 @@ var _property_cache: PropertyCache
 func process_settings():
 	_property_cache = PropertyCache.new(root)
 	_props.clear()
+	_interpolators.clear()
 	
 	_state_from = {}
 	_state_to = {}
@@ -26,6 +28,7 @@ func process_settings():
 	for property in properties:
 		var pe = _property_cache.get_entry(property)
 		_props.push_back(pe)
+		_interpolators[property] = Interpolators.find_for(pe.get_value())
 
 ## Check if interpolation can be done.
 ##
@@ -72,5 +75,6 @@ func _interpolate(from: Dictionary, to: Dictionary, f: float):
 		var pe = _property_cache.get_entry(property)
 		var a = from[property]
 		var b = to[property]
+		var interpolate = _interpolators[property] as Callable
 		
-		pe.set_value(pe.interpolate.call(a, b, f))
+		pe.set_value(interpolate.call(a, b, f))
