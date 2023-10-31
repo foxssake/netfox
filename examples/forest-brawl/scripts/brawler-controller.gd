@@ -24,7 +24,6 @@ var last_hit_player: BrawlerController
 var last_hit_tick: int = -1
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 var respawn_tick: int = -1
-var last_respawn: int = -1
 
 func _ready():
 	if not input:
@@ -73,26 +72,20 @@ func _process(delta):
 	animation_tree.set("parameters/ThrowScale/scale", min(weapon.fire_cooldown / (10 / 24), 1.0))
 
 func _tick(delta, tick):
-	# Take a second between respawns at the very least
-	if position.y < -death_depth and tick > respawn_tick + 1 * NetworkTime.tickrate:
-		respawn_tick = tick + respawn_time * NetworkTime.tickrate
-		GameEvents.on_brawler_fall.emit(self)
-		print("[%s] Detected fall! Respawning on tick %s + %s -> %s" % [multiplayer.get_unique_id(), tick, respawn_time * NetworkTime.tickrate, respawn_tick])
-	if tick == respawn_tick:
-		GameEvents.on_brawler_respawn.emit(self)
-	
 	# Run throw animation if firing
 	if weapon.last_fire == tick:
 		animation_tree.set("parameters/Throw/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
 
 func _rollback_tick(delta, tick, is_fresh):
-	# Process respawn
-	if tick >= respawn_tick and last_respawn < respawn_tick:
+	# Respawn
+	if tick == respawn_tick:
 		position = spawn_point
 		velocity = Vector3.ZERO
-		last_respawn = tick
 		last_hit_tick = -1
 		print("[%s] Reset position and velocity to respawn at tick %s" % [multiplayer.get_unique_id(), tick])
+		
+		if is_fresh:
+			GameEvents.on_brawler_respawn.emit(self)
 
 	# Add the gravity.
 	_force_update_is_on_floor()
@@ -120,6 +113,13 @@ func _rollback_tick(delta, tick, is_fresh):
 	velocity *= NetworkTime.physics_factor
 	move_and_slide()
 	velocity /= NetworkTime.physics_factor
+	
+	# Death
+	if position.y < -death_depth and tick > respawn_tick and is_fresh:
+		var respawn_cooldown = respawn_time * NetworkTime.tickrate
+		respawn_tick = tick + respawn_cooldown
+		GameEvents.on_brawler_fall.emit(self)
+		print("[%s] Detected fall! Respawning on tick %s + %s -> %s" % [multiplayer.get_unique_id(), tick, respawn_cooldown, respawn_tick])
 
 func _exit_tree():
 	GameEvents.on_brawler_despawn.emit(self)
