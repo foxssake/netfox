@@ -5,7 +5,7 @@ static var _adjectives: PackedStringArray
 static var _animals: PackedStringArray
 
 static func _pick_random(from: PackedStringArray) -> String:
-	return from[randi_range(0, from.size())]
+	return from[randi_range(0, from.size()-1)]
 
 static func name():
 	return ("%s %s" % [
