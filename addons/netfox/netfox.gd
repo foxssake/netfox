@@ -10,6 +10,7 @@ const SETTINGS = [
 		"value": true,
 		"type": TYPE_BOOL
 	},
+	# Time settings
 	{
 		"name": "netfox/time/tickrate",
 		"value": 30,
@@ -47,6 +48,7 @@ const SETTINGS = [
 		"value": false,
 		"type": TYPE_BOOL
 	},
+	# Rollback settings
 	{
 		"name": "netfox/rollback/enabled",
 		"value": true,
@@ -62,6 +64,7 @@ const SETTINGS = [
 		"value": 0,
 		"type": TYPE_INT
 	},
+	# Events
 	{
 		"name": "netfox/events/enabled",
 		"value": true,

@@ -86,7 +86,7 @@ func process_settings():
 	var all_nodes = _property_cache.properties()
 	all_nodes = all_nodes.map(func(it): return it.node)
 	all_nodes += simulate_nodes
-	all_nodes = all_nodes.filter(func(it): return it.has_method("_tick"))
+	all_nodes = all_nodes.filter(func(it): return NetworkRollback.is_rollback_aware(it))
 
 	for node in all_nodes:
 		if not _nodes.has(node):
@@ -148,7 +148,7 @@ func _process_tick(tick: int):
 	#		If not: Latest input >= tick >= Earliest input
 	for node in _nodes:
 		if NetworkRollback.is_simulated(node):
-			node._tick(NetworkTime.ticktime, tick)
+			NetworkRollback.process_rollback(node, NetworkTime.ticktime, tick, false)
 
 func _record_tick(tick: int):
 	# Broadcast state we own

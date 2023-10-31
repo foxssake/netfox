@@ -50,7 +50,6 @@ var display_offset: int:
 	set(v):
 		push_error("Trying to set read-only variable display_offset")
 
-## TODO: Add as feature
 var tick: int:
 	get:
 		return _tick
@@ -104,6 +103,12 @@ func is_simulated(node: Node):
 ## Check if a network rollback is currently active.
 func is_rollback() -> bool:
 	return _is_rollback
+
+func is_rollback_aware(what: Object) -> bool:
+	return what.has_method("_rollback_tick")
+
+func process_rollback(target: Object, delta: float, p_tick: int, is_fresh: bool):
+	target._rollback_tick(delta, p_tick, is_fresh)
 
 func _ready():
 	NetworkTime.after_tick_loop.connect(_rollback)
