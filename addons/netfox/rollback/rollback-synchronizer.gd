@@ -52,12 +52,15 @@ var _latest_state = -1
 var _earliest_input = INF
 
 var _property_cache: PropertyCache
+var _freshness_store: RollbackFreshnessStore
 
 ## Process settings.
 ##
 ## Call this after any change to configuration.
 func process_settings():
 	_property_cache = PropertyCache.new(root)
+	_freshness_store = RollbackFreshnessStore.new()
+	
 	_nodes.clear()
 	_record_input_props.clear()
 	_record_state_props.clear()
@@ -148,7 +151,9 @@ func _process_tick(tick: int):
 	#		If not: Latest input >= tick >= Earliest input
 	for node in _nodes:
 		if NetworkRollback.is_simulated(node):
-			NetworkRollback.process_rollback(node, NetworkTime.ticktime, tick, false)
+			var is_fresh = _freshness_store.is_fresh(node, tick)
+			NetworkRollback.process_rollback(node, NetworkTime.ticktime, tick, is_fresh)
+			_freshness_store.notify_processed(node, tick)
 
 func _record_tick(tick: int):
 	# Broadcast state we own
@@ -188,6 +193,8 @@ func _after_tick(_delta, _tick):
 	
 	while _inputs.size() > NetworkRollback.history_limit:
 		_inputs.erase(_inputs.keys().min())
+		
+	_freshness_store.trim()
 
 func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 	if buffer.has(tick):

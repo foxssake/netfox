@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://k3y73rql2u6e"]
 
 [ext_resource type="Script" path="res://examples/multiplayer-netfox/scripts/player.gd" id="1_tksy4"]
-[ext_resource type="Script" path="res://addons/netfox/rollback-synchronizer.gd" id="2_qf1b4"]
+[ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="2_qf1b4"]
 [ext_resource type="Script" path="res://examples/multiplayer-netfox/scripts/player-input.gd" id="3_g8e4n"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_t2650"]
