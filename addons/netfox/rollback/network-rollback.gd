@@ -86,27 +86,52 @@ var _earliest_input = INF
 var _is_rollback: bool = false
 var _simulated_nodes: Dictionary = {}
 
-# TODO: Document
 # TODO: Change to submit simulation range
+## Submit received input tick.
+##
+## This is used to determine the resimulation range during each loop.
 func notify_input_tick(tick: int):
 	_earliest_input = min(_earliest_input, tick)
 
-# TODO: Add as feature
+## Submit node for simulation.
+##
+## This is used mostly internally by [RollbackSynchronizer]. The idea is to 
+## submit each affected node while preparing the tick, and then run only the
+## nodes that need to be resimulated.
 func notify_simulated(node: Node):
 	_simulated_nodes[node] = true
 
-# TODO: Add as feature
+
+## Check if node was submitted for simulation.
+##
+## This is used mostly internally by [RollbackSynchronizer]. The idea is to 
+## submit each affected node while preparing the tick, and then use
+## [code]is_simulated[/code] to run only the nodes that need to be resimulated.
 func is_simulated(node: Node):
 	return _simulated_nodes.has(node)
 
-# TODO: Add as feature
 ## Check if a network rollback is currently active.
 func is_rollback() -> bool:
 	return _is_rollback
 
+## Checks if a given object is rollback-aware, i.e. has the
+## [code]_rollback_tick[/code] method implemented.
+##
+## This is used by [RollbackSynchronizer] to see if it should simulate the 
+## given object during rollback.
 func is_rollback_aware(what: Object) -> bool:
 	return what.has_method("_rollback_tick")
 
+## Calls the [code]_rollback_tick[/code] method on the target, running its
+## simulation for the given rollback tick.
+##
+## This is used by [RollbackSynchronizer] to resimulate ticks during rollback.
+## While the _rollback_tick method could be called directly as well, this method
+## exists to future-proof the code a bit, so the method name is not repeated all
+## over the place.
+##
+## [i]Note:[/i] Make sure to check if the target is rollback-aware, because if
+## it's not, this method will run into an error.
 func process_rollback(target: Object, delta: float, p_tick: int, is_fresh: bool):
 	target._rollback_tick(delta, p_tick, is_fresh)
 
