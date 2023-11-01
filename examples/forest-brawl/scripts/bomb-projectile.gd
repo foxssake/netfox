@@ -40,7 +40,6 @@ func _tick(delta, _t):
 		var offset = (position - contact).normalized() * 0.25
 
 		position = contact + offset
-		print("Collision: %s" % [collision_result])
 		_destroy()
 	else:
 		position = target_position
