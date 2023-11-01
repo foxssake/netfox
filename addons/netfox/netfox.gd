@@ -83,7 +83,7 @@ const AUTOLOADS = [
 	},
 	{
 		"name": "NetworkRollback",
-		"path": ROOT + "/network-rollback.gd"
+		"path": ROOT + "/rollback/network-rollback.gd"
 	},
 	{
 		"name": "NetworkEvents",
@@ -99,7 +99,7 @@ const TYPES = [
 	{
 		"name": "RollbackSynchronizer",
 		"base": "Node",
-		"script": ROOT + "/rollback-synchronizer.gd",
+		"script": ROOT + "/rollback/rollback-synchronizer.gd",
 		"icon": ROOT + "/icons/rollback-synchronizer.svg"
 	},
 	{
