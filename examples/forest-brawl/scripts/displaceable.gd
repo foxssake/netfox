@@ -7,7 +7,7 @@ var displace_buffer: Vector3 = Vector3.ZERO
 func displace(speed: Vector3):
 	displace_buffer += speed
 
-func _tick(delta, _t):
+func _rollback_tick(delta, _t, _if):
 	var parent = get_parent_node_3d()
 	var offset = displace_buffer * delta / mass
 	if parent is CharacterBody3D:

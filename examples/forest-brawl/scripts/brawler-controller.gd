@@ -24,7 +24,6 @@ var last_hit_player: BrawlerController
 var last_hit_tick: int = -1
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 var respawn_tick: int = -1
-var last_respawn: int = -1
 
 func _ready():
 	if not input:
@@ -33,6 +32,7 @@ func _ready():
 	position = spawn_point
 
 	# TODO: What if the RollbackSynchronizer had a flag for this?
+	# Wait a frame so Input has time to get its authority set
 	await get_tree().process_frame
 	$RollbackSynchronizer.process_settings()
 	
@@ -72,53 +72,54 @@ func _process(delta):
 	animation_tree.set("parameters/ThrowScale/scale", min(weapon.fire_cooldown / (10 / 24), 1.0))
 
 func _tick(delta, tick):
-	if not NetworkRollback.is_rollback():
-		# Take a second between respawns at the very least
-		if position.y < -death_depth and tick > respawn_tick + 1 * NetworkTime.tickrate:
-			respawn_tick = tick + respawn_time * NetworkTime.tickrate
-			GameEvents.on_brawler_fall.emit(self)
-			print("[%s] Detected fall! Respawning on tick %s + %s -> %s" % [multiplayer.get_unique_id(), tick, respawn_time * NetworkTime.tickrate, respawn_tick])
-		if tick == respawn_tick:
+	# Run throw animation if firing
+	if weapon.last_fire == tick:
+		animation_tree.set("parameters/Throw/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
+
+func _rollback_tick(delta, tick, is_fresh):
+	# Respawn
+	if tick == respawn_tick:
+		position = spawn_point
+		velocity = Vector3.ZERO
+		last_hit_tick = -1
+		print("[%s] Reset position and velocity to respawn at tick %s" % [multiplayer.get_unique_id(), tick])
+		
+		if is_fresh:
 			GameEvents.on_brawler_respawn.emit(self)
-		
-		# Run throw animation if firing
-		if weapon.last_fire == tick:
-			animation_tree.set("parameters/Throw/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
+
+	# Add the gravity.
+	_force_update_is_on_floor()
+	if not is_on_floor():
+		velocity.y -= gravity * delta
+
+	# Jump
+	if input.movement.y > 0 and is_on_floor():
+		velocity.y = jump_velocity * input.movement.y
+
+	# Movement
+	var direction = Vector3(input.movement.x, 0, input.movement.z).normalized()
+	if direction:
+		velocity.x = direction.x * speed
+		velocity.z = direction.z * speed
 	else:
-		# Process respawn
-		if tick >= respawn_tick and last_respawn < respawn_tick:
-			position = spawn_point
-			velocity = Vector3.ZERO
-			last_respawn = tick
-			last_hit_tick = -1
-			print("[%s] Reset position and velocity to respawn at tick %s" % [multiplayer.get_unique_id(), tick])
+		velocity.x = move_toward(velocity.x, 0, speed)
+		velocity.z = move_toward(velocity.z, 0, speed)
+	
+	# Aim
+	if input.aim:
+		transform = transform.looking_at(position + Vector3(input.aim.x, 0, input.aim.z), Vector3.UP, true).scaled_local(scale)
 
-		# Add the gravity.
-		_force_update_is_on_floor()
-		if not is_on_floor():
-			velocity.y -= gravity * delta
-
-		# Jump
-		if input.movement.y > 0 and is_on_floor():
-			velocity.y = jump_velocity * input.movement.y
-
-		# Movement
-		var direction = Vector3(input.movement.x, 0, input.movement.z).normalized()
-		if direction:
-			velocity.x = direction.x * speed
-			velocity.z = direction.z * speed
-		else:
-			velocity.x = move_toward(velocity.x, 0, speed)
-			velocity.z = move_toward(velocity.z, 0, speed)
-		
-		# Aim
-		if input.aim:
-			transform = transform.looking_at(position + Vector3(input.aim.x, 0, input.aim.z), Vector3.UP, true).scaled_local(scale)
-
-		# Apply movement
-		velocity *= NetworkTime.physics_factor
-		move_and_slide()
-		velocity /= NetworkTime.physics_factor
+	# Apply movement
+	velocity *= NetworkTime.physics_factor
+	move_and_slide()
+	velocity /= NetworkTime.physics_factor
+	
+	# Death
+	if position.y < -death_depth and tick > respawn_tick and is_fresh:
+		var respawn_cooldown = respawn_time * NetworkTime.tickrate
+		respawn_tick = tick + respawn_cooldown
+		GameEvents.on_brawler_fall.emit(self)
+		print("[%s] Detected fall! Respawning on tick %s + %s -> %s" % [multiplayer.get_unique_id(), tick, respawn_cooldown, respawn_tick])
 
 func _exit_tree():
 	GameEvents.on_brawler_despawn.emit(self)
