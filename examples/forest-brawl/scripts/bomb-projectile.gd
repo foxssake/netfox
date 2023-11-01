@@ -6,6 +6,7 @@ extends ShapeCast3D
 @export var distance: float = 128.0
 var distance_left: float
 var fired_by: Node
+var is_first_tick: bool = true
 
 func _ready():
 	NetworkTime.on_tick.connect(_tick)
@@ -15,10 +16,10 @@ func _ready():
 	await get_tree().process_frame
 	_tick(NetworkTime.ticktime, NetworkTime.tick)
 	$TickInterpolator.push_state()
+	is_first_tick = true
 
 func _tick(delta, _t):
-	target_position = position
-	position += basis.z * speed * delta
+	target_position = position + basis.z * speed * delta
 	distance_left -= speed * delta
 
 	if distance_left < 0:
@@ -26,15 +27,26 @@ func _tick(delta, _t):
 	
 	# Check if we've hit anyone
 	force_shapecast_update()
-	if not collision_result.is_empty():
-		# Jump to earliest point of collision
-		position = target_position
-		for hit in collision_result:
-			var point = (hit.point + hit.normal * 0.05) as Vector3
-			if position.distance_to(target_position) < point.distance_to(target_position):
-				position = point
 
+	# Find the closest point of contact
+	var collision_points = collision_result\
+		.filter(func(it): return it.collider != fired_by)\
+		.map(func(it): return it.point)
+	collision_points.sort_custom(func(a, b): return position.distance_to(a) < position.distance_to(b))
+
+	if not collision_points.is_empty() and not is_first_tick:
+		# Jump to closest point of contact
+		var contact = collision_points[0]
+		var offset = (position - contact).normalized() * 0.25
+
+		position = contact + offset
+		print("Collision: %s" % [collision_result])
 		_destroy()
+	else:
+		position = target_position
+	
+	# Skip collisions for a single tick, no more
+	is_first_tick = false
 
 func _destroy():
 	queue_free()

@@ -98,6 +98,7 @@ func process_settings():
 func _ready():
 	process_settings()
 	
+	NetworkTime.before_tick.connect(_before_tick)
 	NetworkTime.after_tick.connect(_after_tick)
 	NetworkRollback.before_loop.connect(_before_loop)
 	NetworkRollback.on_prepare_tick.connect(_prepare_tick)
