@@ -29,7 +29,15 @@ func _gather():
 	)
 	
 	# Aim
-	if _has_aim:
+	# Prefer gamepad
+	aim = Vector3(
+		Input.get_axis("aim_west", "aim_east"),
+		0.0,
+		Input.get_axis("aim_north", "aim_south")
+	)
+	
+	# Use mouse as fallback
+	if aim.length() <= 0.1 and _has_aim:
 		aim = (_aim_target - _player.global_position).normalized()
 	
 	is_firing = Input.is_action_pressed("weapon_fire")
