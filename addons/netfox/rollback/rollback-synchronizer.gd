@@ -182,6 +182,11 @@ func _after_loop():
 	var display_state = _get_history(_states, NetworkTime.tick - NetworkRollback.display_offset)
 	PropertySnapshot.apply(display_state, _property_cache)
 
+func _before_tick(_delta, tick):
+	# Apply state for tick
+	var state = _get_history(_states, tick)
+	PropertySnapshot.apply(state, _property_cache)
+
 func _after_tick(_delta, _tick):
 	if not _auth_input_props.is_empty():
 		var input = PropertySnapshot.extract(_auth_input_props)
