@@ -82,6 +82,7 @@ radius = 2.0
 [node name="Repulse Effect" type="Node3D" node_paths=PackedStringArray("area", "particles", "aura")]
 script = ExtResource("1_47iru")
 area = NodePath("Area3D")
+strength = 64.0
 duration = 10.0
 particles = NodePath("GPUParticles3D")
 aura = NodePath("Aura")

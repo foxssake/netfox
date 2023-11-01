@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://cwh2p0qb5872o"]
+[gd_scene load_steps=23 format=3 uid="uid://cwh2p0qb5872o"]
 
 [ext_resource type="MeshLibrary" uid="uid://do0y7f0sy12jg" path="res://examples/forest-brawl/models/forest-blocks.meshlib" id="1_bifsy"]
 [ext_resource type="PackedScene" uid="uid://ble0j0npslm4j" path="res://examples/forest-brawl/models/kenney-platformer-kit/flowers.glb" id="2_q0d6t"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://dsk6x773uq4ej" path="res://examples/forest-brawl/models/kenney-platformer-kit/plant.glb" id="4_0jc3h"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/brawler-spawner.gd" id="5_qv1fx"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/following-camera.gd" id="5_yxhn7"]
+[ext_resource type="PackedScene" uid="uid://jskoprs7vkq0" path="res://examples/forest-brawl/scenes/effects/repulse-effect.tscn" id="6_au1ig"]
 [ext_resource type="PackedScene" uid="uid://wi4owat0bml3" path="res://examples/forest-brawl/scenes/brawler.tscn" id="7_tcy3g"]
 [ext_resource type="PackedScene" uid="uid://ijqx6kjl3qf4" path="res://examples/forest-brawl/scenes/powerup.tscn" id="9_55gdr"]
 [ext_resource type="PackedScene" uid="uid://bpf1jdr255nr0" path="res://examples/shared/ui/time-display.tscn" id="9_d2tot"]
@@ -79,6 +80,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.3956, -2.20899, 10.0441)
 
 [node name="Powerup" parent="Map" instance=ExtResource("9_55gdr")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.00248, 3, 0.00557518)
+effects = Array[PackedScene]([ExtResource("6_au1ig")])
 
 [node name="Powerup2" parent="Map" instance=ExtResource("9_55gdr")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.99752, 3, -14.9944)
