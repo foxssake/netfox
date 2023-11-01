@@ -33,8 +33,8 @@ distance_fade_max_distance = 16.0
 
 [sub_resource type="SphereMesh" id="SphereMesh_mqde8"]
 material = SubResource("StandardMaterial3D_gyt54")
-radius = 2.0
-height = 4.0
+radius = 4.0
+height = 8.0
 
 [sub_resource type="Gradient" id="Gradient_yy78k"]
 colors = PackedColorArray(1, 0.882667, 0.36, 1, 0.81, 0, 0, 1)
@@ -77,12 +77,12 @@ radial_segments = 8
 rings = 4
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_1qng7"]
-radius = 2.0
+radius = 4.0
 
 [node name="Repulse Effect" type="Node3D" node_paths=PackedStringArray("area", "particles", "aura")]
 script = ExtResource("1_47iru")
 area = NodePath("Area3D")
-strength = 64.0
+strength = 512.0
 duration = 10.0
 particles = NodePath("GPUParticles3D")
 aura = NodePath("Aura")
