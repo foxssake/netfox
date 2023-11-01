@@ -21,8 +21,8 @@ func _ready():
 	
 	set_multiplayer_authority(1)
 	NetworkRollback.before_loop.connect(func(): NetworkRollback.notify_input_tick(_apply_tick))
-	NetworkRollback.on_process_tick.connect(_tick)
-	NetworkTime.on_tick.connect(_real_tick)
+	NetworkRollback.on_process_tick.connect(_rollback_tick)
+	NetworkTime.on_tick.connect(_tick)
 	
 	_apply_tick = NetworkTime.tick + 1
 	_cease_tick = _apply_tick + duration * NetworkTime.tickrate
@@ -41,14 +41,14 @@ func _process(delta):
 	if aura:
 		aura.scale = aura.scale.move_toward(Vector3.ONE if is_active() else Vector3.ONE * 0.005, delta * 4)
 
-func _tick(tick):
+func _rollback_tick(tick):
 	if is_multiplayer_authority() and NetworkRollback.is_simulated(get_target()):
 		if tick == _apply_tick:
 			_apply()
 		if tick == _cease_tick:
 			_cease()
 
-func _real_tick(_delta, _tick):
+func _tick(_delta, _tick):
 	if particles != null:
 		if _tick == _apply_tick:
 			particles.emitting = true

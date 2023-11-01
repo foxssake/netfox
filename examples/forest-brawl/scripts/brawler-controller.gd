@@ -1,12 +1,17 @@
 extends CharacterBody3D
 class_name BrawlerController
 
+# Stats
 @export var speed = 5.0
 @export var jump_velocity = 4.5
-@export var input: BrawlerInput
+
+# Spawn
 @export var spawn_point: Vector3 = Vector3(0, 4, 0)
 @export var death_depth: float = 4.0
 @export var respawn_time: float = 4.0
+
+# Dependencies
+@onready var input: BrawlerInput = $Input
 @onready var animation_tree: AnimationTree = $AnimationTree
 @onready var weapon: Weapon3D = $Weapon as Weapon3D
 @onready var mesh: MeshInstance3D = $"bomber-guy/rig/Skeleton3D/Cube_008"

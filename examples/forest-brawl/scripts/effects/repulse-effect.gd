@@ -6,8 +6,8 @@ extends Effect
 func _ready():
 	super._ready()
 
-func _tick(tick):
-	super._tick(tick)
+func _rollback_tick(tick):
+	super._rollback_tick(tick)
 
 	if not is_active():
 		return
