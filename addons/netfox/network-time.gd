@@ -345,10 +345,14 @@ func seconds_to_ticks(seconds: float) -> int:
 	return int(seconds * tickrate)
 
 ## Calculate the duration between two ticks in seconds
+##
+## [i]Note:[/i] Returns negative values if tick_to is smaller than tick_from
 func seconds_between(tick_from: int, tick_to: int) -> float:
 	return ticks_to_seconds(tick_to - tick_from)
 
 ## Calculate the duration between two points in time as ticks
+##
+## [i]Note:[/i] Returns negative values if seconds_to is smaller than seconds_from
 func ticks_between(seconds_from: float, seconds_to: float) -> int:
 	return seconds_to_ticks(seconds_to - seconds_from)
 
