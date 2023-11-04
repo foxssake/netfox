@@ -329,6 +329,16 @@ func stop():
 func is_initial_sync_done() -> bool:
 	return _initial_sync_done
 
+## Check if client's time sync is complete.
+##
+## Using this from a client is considered an error.
+func is_client_synced(peer_id: int) -> bool:
+	if not multiplayer.is_server():
+		push_error("Trying to check if client is synced from another client!")
+		return false
+	else:
+		return _synced_clients.has(peer_id)
+
 func _process(delta):
 	_process_delta = delta
 
