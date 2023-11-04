@@ -179,6 +179,16 @@ text = "Nameless Brawler"
 clear_button_enabled = true
 script = ExtResource("11_cf8pu")
 
+[node name="Confine mouse" type="HBoxContainer" parent="UI/Network Popup/Settings"]
+layout_mode = 2
+
+[node name="Confine Mouse Label" type="Label" parent="UI/Network Popup/Settings/Confine mouse"]
+layout_mode = 2
+text = "Confine mouse:"
+
+[node name="Confine Mouse CheckButton" type="CheckButton" parent="UI/Network Popup/Settings/Confine mouse"]
+layout_mode = 2
+
 [node name="LAN" type="VBoxContainer" parent="UI/Network Popup"]
 visible = false
 layout_mode = 2
