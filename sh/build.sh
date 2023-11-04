@@ -1,7 +1,7 @@
 #!/bin/bash
 
-version="$(grep "version=" addons/netfox/plugin.cfg | cut -d"\"" -f2)"
-addons=("netfox" "netfox.noray" "netfox.extras")
+# Assume we're running from project root
+source sh/shared.sh
 
 echo "Building netfox v${version}"
 mkdir -p build
