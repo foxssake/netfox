@@ -33,7 +33,13 @@ func _handle_host():
 
 func _handle_new_peer(id: int):
 	# Spawn an avatar for new player
-	_spawn(id)
+	var avatar = _spawn(id)
+	
+	# Hide avatar until player syncs time
+	avatar.visible = false
+	while not NetworkTime.is_client_synced(id):
+		await NetworkTime.after_client_sync
+	avatar.visible = true
 
 func _handle_leave(id: int):
 	if not avatars.has(id):
@@ -49,7 +55,7 @@ func _handle_stop():
 		avatar.queue_free()
 	avatars.clear()
 
-func _spawn(id: int):
+func _spawn(id: int) -> BrawlerController:
 	var avatar = player_scene.instantiate() as BrawlerController
 	avatars[id] = avatar
 	avatar.name += " #%d" % id
@@ -76,6 +82,8 @@ func _spawn(id: int):
 		var player_name = name_input.text
 		print("Submitting player name " + player_name)
 		rpc("_submit_name", player_name)
+	
+	return avatar
 
 @rpc("any_peer", "reliable", "call_local")
 func _submit_name(player_name: String):

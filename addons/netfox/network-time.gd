@@ -254,6 +254,13 @@ signal after_tick_loop()
 ## concludes. When running as server, this is emitted instantly after started.
 signal after_sync()
 
+## Emitted after a client synchronizes their time.
+##
+## This is only emitted on the server, and is emitted when the client concludes
+## their time sync process. This is useful as this event means that the client
+## is ticking and gameplay has started on their end.
+signal after_client_sync(peer_id: int)
+
 var _tick: int = 0
 var _next_tick: float = 0
 var _active: bool = false
@@ -263,6 +270,10 @@ var _process_delta: float = 0
 var _remote_rtt: float = 0
 var _remote_tick: int = 0
 var _local_tick: int = 0
+
+# Cache the synced clients, as the rpc call itself may arrive multiple times
+# ( for some reason? )
+var _synced_clients = {}
 
 func _ready():
 	NetworkTimeSynchronizer.on_sync.connect(_handle_sync)
@@ -286,6 +297,8 @@ func start():
 	_remote_rtt = 0
 	_initial_sync_done = false
 	
+	after_client_sync.connect(func(pid): print("Client #%s is now on time!" % [pid]))
+	
 	if not multiplayer.is_server():
 		NetworkTimeSynchronizer.start()
 		await NetworkTimeSynchronizer.on_sync
@@ -294,10 +307,15 @@ func start():
 		_initial_sync_done = true
 		_active = true
 		after_sync.emit()
+		
+		rpc_id(1, "_submit_sync_success")
 	else:
 		_active = true
 		_initial_sync_done = true
 		after_sync.emit()
+		
+		# Remove clients from the synced cache when disconnected
+		multiplayer.peer_disconnected.connect(func(peer): _synced_clients.erase(peer))
 
 ## Stop NetworkTime.
 ##
@@ -310,6 +328,16 @@ func stop():
 ## Check if the initial time sync is done.
 func is_initial_sync_done() -> bool:
 	return _initial_sync_done
+
+## Check if client's time sync is complete.
+##
+## Using this from a client is considered an error.
+func is_client_synced(peer_id: int) -> bool:
+	if not multiplayer.is_server():
+		push_error("Trying to check if client is synced from another client!")
+		return false
+	else:
+		return _synced_clients.has(peer_id)
 
 func _process(delta):
 	_process_delta = delta
@@ -351,7 +379,15 @@ func _handle_sync(server_time: float, server_tick: int, rtt: float):
 	_remote_rtt = rtt
 	
 	# Adjust tick if it's too far away from remote
-	if abs(remote_tick - tick) / float(tickrate) > recalibrate_threshold and not _initial_sync_done:
+	if abs(remote_tick - tick) / float(tickrate) > recalibrate_threshold and _initial_sync_done:
 		push_error("Large difference between estimated remote time and local time!")
-		push_error("Local time: %s; Remote time: %s" % [remote_time, time])
+		push_error("Local time: %s; Remote time: %s" % [time, remote_time])
 		_tick = _remote_tick
+
+@rpc("any_peer", "reliable", "call_remote")
+func _submit_sync_success():
+	var peer_id = multiplayer.get_remote_sender_id()
+	
+	if not _synced_clients.has(peer_id):
+		_synced_clients[peer_id] = true
+		after_client_sync.emit(multiplayer.get_remote_sender_id())
