@@ -351,7 +351,7 @@ func _handle_sync(server_time: float, server_tick: int, rtt: float):
 	_remote_rtt = rtt
 	
 	# Adjust tick if it's too far away from remote
-	if abs(remote_tick - tick) / float(tickrate) > recalibrate_threshold and not _initial_sync_done:
+	if abs(remote_tick - tick) / float(tickrate) > recalibrate_threshold and _initial_sync_done:
 		push_error("Large difference between estimated remote time and local time!")
-		push_error("Local time: %s; Remote time: %s" % [remote_time, time])
+		push_error("Local time: %s; Remote time: %s" % [time, remote_time])
 		_tick = _remote_tick
