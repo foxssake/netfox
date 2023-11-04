@@ -18,11 +18,11 @@ mkdir -p build/linux
 mkdir -p build/win64
 
 echo "Building with Linux/X11 preset"
-godot --headless --export-release "Linux/X11" "build/linux/forest-brawlers"
+godot --headless --export-release "Linux/X11" "build/linux/forest-brawlers.x86_64"
 zip -j "build/forest-brawlers.v${version}.linux.zip" build/linux/*
 
 echo "Building with Windows preset"
-godot --headless --export-release "Windows Desktop" "build/win64/forest-brawlers"
+godot --headless --export-release "Windows Desktop" "build/win64/forest-brawlers.exe"
 zip -j "build/forest-brawlers.v${version}.win64.zip" build/win64/*
 
 # Cleanup
