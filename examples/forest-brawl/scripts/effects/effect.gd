@@ -25,9 +25,9 @@ func _ready():
 	NetworkTime.on_tick.connect(_tick)
 	
 	_apply_tick = NetworkTime.tick + 1
-	_cease_tick = _apply_tick + duration * NetworkTime.tickrate
+	_cease_tick = _apply_tick + NetworkTime.seconds_to_ticks(duration)
 	_destroy_tick = max(
-		_cease_tick + winddown_time * NetworkTime.tickrate,
+		_cease_tick + NetworkTime.seconds_to_ticks(winddown_time),
 		_cease_tick + NetworkRollback.history_limit
 	)
 	

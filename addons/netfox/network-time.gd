@@ -275,9 +275,6 @@ var _local_tick: int = 0
 # ( for some reason? )
 var _synced_clients = {}
 
-func _ready():
-	NetworkTimeSynchronizer.on_sync.connect(_handle_sync)
-
 ## Start NetworkTime.
 ##
 ## Once this is called, time will be synchronized and ticks will be consistently
@@ -339,6 +336,29 @@ func is_client_synced(peer_id: int) -> bool:
 	else:
 		return _synced_clients.has(peer_id)
 
+## Convert a duration of ticks to seconds.
+func ticks_to_seconds(ticks: int) -> float:
+	return ticks * ticktime
+
+## Convert a duration of seconds to ticks.
+func seconds_to_ticks(seconds: float) -> int:
+	return int(seconds * tickrate)
+
+## Calculate the duration between two ticks in seconds
+##
+## [i]Note:[/i] Returns negative values if tick_to is smaller than tick_from
+func seconds_between(tick_from: int, tick_to: int) -> float:
+	return ticks_to_seconds(tick_to - tick_from)
+
+## Calculate the duration between two points in time as ticks
+##
+## [i]Note:[/i] Returns negative values if seconds_to is smaller than seconds_from
+func ticks_between(seconds_from: float, seconds_to: float) -> int:
+	return seconds_to_ticks(seconds_to - seconds_from)
+
+func _ready():
+	NetworkTimeSynchronizer.on_sync.connect(_handle_sync)
+
 func _process(delta):
 	_process_delta = delta
 
@@ -379,7 +399,7 @@ func _handle_sync(server_time: float, server_tick: int, rtt: float):
 	_remote_rtt = rtt
 	
 	# Adjust tick if it's too far away from remote
-	if abs(remote_tick - tick) / float(tickrate) > recalibrate_threshold and _initial_sync_done:
+	if absf(seconds_between(tick, remote_tick)) > recalibrate_threshold and _initial_sync_done:
 		push_error("Large difference between estimated remote time and local time!")
 		push_error("Local time: %s; Remote time: %s" % [time, remote_time])
 		_tick = _remote_tick

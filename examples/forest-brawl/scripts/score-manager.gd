@@ -26,7 +26,7 @@ func _handle_fall(brawler: BrawlerController):
 	
 	# Update scores
 	if is_multiplayer_authority():
-		if NetworkTime.tick - brawler.last_hit_tick < hit_threshold_time * NetworkTime.tickrate \
+		if NetworkTime.seconds_between(brawler.last_hit_tick, NetworkTime.tick) < hit_threshold_time \
 			and brawler.last_hit_player:
 			var hit_id = brawler.last_hit_player.player_id
 			_scores[hit_id] = _scores.get(hit_id, 0) + 1
