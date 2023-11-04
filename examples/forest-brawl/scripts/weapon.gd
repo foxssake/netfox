@@ -22,7 +22,6 @@ func _ready():
 	NetworkTime.before_tick_loop.connect(_before_tick_loop)
 
 func _tick(delta, tick):
-	# TODO: NetworkTime utilities like time between two ticks, time since tick, tick to time
 	if input.is_firing and NetworkTime.seconds_between(last_fire, tick) > fire_cooldown:
 		var id = _generate_id()
 		var from = global_transform
