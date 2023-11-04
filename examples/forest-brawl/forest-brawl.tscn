@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://cwh2p0qb5872o"]
+[gd_scene load_steps=25 format=3 uid="uid://cwh2p0qb5872o"]
 
 [ext_resource type="MeshLibrary" uid="uid://do0y7f0sy12jg" path="res://examples/forest-brawl/models/forest-blocks.meshlib" id="1_bifsy"]
 [ext_resource type="PackedScene" uid="uid://ble0j0npslm4j" path="res://examples/forest-brawl/models/kenney-platformer-kit/flowers.glb" id="2_q0d6t"]
@@ -13,6 +13,7 @@
 [ext_resource type="LabelSettings" uid="uid://b4u1aluftkajy" path="res://examples/forest-brawl/ui-settings/player-stat-label.tres" id="10_0ix7v"]
 [ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="10_ld676"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/random-name-input.gd" id="11_cf8pu"]
+[ext_resource type="PackedScene" uid="uid://b1vadi3ma8uiq" path="res://examples/forest-brawl/scenes/brawler-crown.tscn" id="11_eeeag"]
 [ext_resource type="Script" path="res://examples/shared/scripts/noray-bootstrapper.gd" id="11_vpdh0"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/player-stats-display.gd" id="12_5kocp"]
 [ext_resource type="Script" path="res://examples/shared/scripts/lan-bootstrapper.gd" id="12_gjc7i"]
@@ -127,6 +128,9 @@ approach_time = 0.25
 script = ExtResource("10_ld676")
 root = NodePath("..")
 properties = Array[String]([":global_position"])
+
+[node name="Brawler Crown" parent="." instance=ExtResource("11_eeeag")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 
 [node name="UI" type="Control" parent="."]
 layout_mode = 3

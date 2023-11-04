@@ -33,6 +33,7 @@ func _handle_fall(brawler: BrawlerController):
 		else:
 			_scores[id] = _scores.get(id, 0) - 1
 			
+		GameEvents.on_scores_updated.emit(_scores)
 		rpc("_submit_scores", _scores)
 	
 	# Display scoreboard
@@ -53,6 +54,7 @@ func _handle_despawn(brawler: BrawlerController):
 func _submit_scores(scores: Dictionary):
 	print("Received new scores, updating %s -> %s" % [_scores, scores])
 	_scores = scores
+	GameEvents.on_scores_updated.emit(_scores)
 	
 	# Re-render scoreboard if visible
 	if scorescreen.active:
