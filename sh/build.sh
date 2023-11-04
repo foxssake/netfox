@@ -1,16 +1,15 @@
 #!/bin/bash
 
 version="$(grep "version=" addons/netfox/plugin.cfg | cut -d"\"" -f2)"
+addons=("netfox" "netfox.noray" "netfox.extras")
 
 echo "Building netfox v${version}"
 mkdir -p build
 
-# Pack addons
-echo "Packing netfox"
-zip -r "build/netfox.v${version}.zip" "addons/netfox"
-
-echo "Packing netfox.noray"
-zip -r "build/netfox.noray.v${version}.zip" "addons/netfox.noray"
+for addon in ${addons[@]}; do
+    echo "Packing addon ${addon}"
+    zip -r "build/${addon}.v${version}.zip" "addons/${addon}"
+done
 
 # Build example game
 echo "Building Forest Brawlers"
