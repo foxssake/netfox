@@ -103,10 +103,10 @@ func _ready():
 func _before_loop():
 	if _auth_input_props.is_empty():
 		# We don't have any inputs we own, simulate from earliest we've received
-		NetworkRollback.notify_input_tick(_earliest_input)
+		NetworkRollback.notify_resimulation_start(_earliest_input)
 	else:
 		# We own inputs, simulate from latest authorative state
-		NetworkRollback.notify_input_tick(_latest_state)
+		NetworkRollback.notify_resimulation_start(_latest_state)
 	
 	var latest_input = _inputs.keys().max() if not _inputs.is_empty() else -1
 	var latest_state = _latest_state
