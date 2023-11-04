@@ -20,7 +20,7 @@ func _ready():
 		return
 	
 	set_multiplayer_authority(1)
-	NetworkRollback.before_loop.connect(func(): NetworkRollback.notify_input_tick(_apply_tick))
+	NetworkRollback.before_loop.connect(func(): NetworkRollback.notify_resimulation_start(_apply_tick))
 	NetworkRollback.on_process_tick.connect(_rollback_tick)
 	NetworkTime.on_tick.connect(_tick)
 	
