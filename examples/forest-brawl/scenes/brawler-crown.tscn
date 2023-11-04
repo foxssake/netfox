@@ -101,7 +101,7 @@ offset = Vector3(0, 1, 0)
 tween_time = 0.1
 
 [node name="brawler-crown" parent="." instance=ExtResource("1_pqi5f")]
-transform = Transform3D(0.347083, -0.0140404, -0.141284, -0.000145384, 0.373127, -0.0374375, 0.14198, 0.0347053, 0.345344, 0, -0.0133909, 0)
+transform = Transform3D(-0.130488, 0.0350476, 0.349814, -0.000145384, 0.373127, -0.0374375, -0.351565, -0.0131627, -0.129822, 0, -0.170775, 0)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="brawler-crown"]
 libraries = {

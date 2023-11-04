@@ -59,7 +59,7 @@ height = 4.0
 gravity = 0.0
 script = ExtResource("1_acukw")
 duration = 1.0
-strength = 128.0
+strength = 512.0
 
 [node name="Explosion" type="CPUParticles3D" parent="."]
 amount = 32
