@@ -23,6 +23,5 @@ func _rollback_tick(tick):
 			diff.y = max(0, diff.y)
 			displaceable.displace(diff.normalized() * strength * f * NetworkTime.ticktime)
 			
-			if body is BrawlerController:
-				body.last_hit_tick = tick
-				body.last_hit_player = get_parent_node_3d()
+			if body is BrawlerController and body != get_parent_node_3d():
+				body.register_hit(get_parent_node_3d())

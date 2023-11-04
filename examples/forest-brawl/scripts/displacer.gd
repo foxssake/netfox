@@ -25,9 +25,8 @@ func _tick(tick):
 				var f = clampf(1.0 / (1.0 + diff.length_squared()), 0.0, 1.0)
 				diff.y = max(0, diff.y)
 				displaceable.displace(diff.normalized() * strength * f * NetworkTime.ticktime)
-			if body is BrawlerController:
-				body.last_hit_tick = NetworkRollback.tick
-				body.last_hit_player = fired_by
+			if body is BrawlerController and body != fired_by:
+				body.register_hit(fired_by)
 
 func _real_tick(delta, tick):
 	if tick >= death_tick:

@@ -30,6 +30,14 @@ var last_hit_tick: int = -1
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 var respawn_tick: int = -1
 
+func register_hit(from: BrawlerController):
+	if from == self:
+		push_error("Player %s (#%s) trying to register hit on themselves!" % [player_name, player_id])
+		return
+
+	last_hit_player = from
+	last_hit_tick = NetworkRollback.tick if NetworkRollback.is_rollback() else NetworkTime.tick
+
 func _ready():
 	if not input:
 		input = $Input
