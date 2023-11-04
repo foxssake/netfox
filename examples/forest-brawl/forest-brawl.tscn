@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://cwh2p0qb5872o"]
+[gd_scene load_steps=23 format=3 uid="uid://cwh2p0qb5872o"]
 
 [ext_resource type="MeshLibrary" uid="uid://do0y7f0sy12jg" path="res://examples/forest-brawl/models/forest-blocks.meshlib" id="1_bifsy"]
 [ext_resource type="PackedScene" uid="uid://ble0j0npslm4j" path="res://examples/forest-brawl/models/kenney-platformer-kit/flowers.glb" id="2_q0d6t"]
@@ -16,6 +16,7 @@
 [ext_resource type="Script" path="res://examples/shared/scripts/noray-bootstrapper.gd" id="11_vpdh0"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/player-stats-display.gd" id="12_5kocp"]
 [ext_resource type="Script" path="res://examples/shared/scripts/lan-bootstrapper.gd" id="12_gjc7i"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/confine-mouse-checkbutton.gd" id="13_4lkur"]
 [ext_resource type="PackedScene" uid="uid://ojh5xofoserg" path="res://examples/forest-brawl/scenes/score_screen.tscn" id="14_85lvt"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_b8qyu"]
@@ -188,6 +189,7 @@ text = "Confine mouse:"
 
 [node name="Confine Mouse CheckButton" type="CheckButton" parent="UI/Network Popup/Settings/Confine mouse"]
 layout_mode = 2
+script = ExtResource("13_4lkur")
 
 [node name="LAN" type="VBoxContainer" parent="UI/Network Popup"]
 visible = false
