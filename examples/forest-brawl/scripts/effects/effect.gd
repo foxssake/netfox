@@ -16,7 +16,7 @@ var _did_cease: bool = false
 func _ready():
 	if not get_parent() is BrawlerController:
 		push_error("Powerup effect added to non-player!")
-		free()
+		queue_free()
 		return
 	
 	set_multiplayer_authority(1)
