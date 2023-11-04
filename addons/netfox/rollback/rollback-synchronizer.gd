@@ -249,7 +249,9 @@ func _submit_input(input: Dictionary, tick: int):
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_state(state: Dictionary, tick: int):
 	if tick > NetworkTime.tick:
-		push_warning("Received state from the future %s / %s - adding nonetheless" % [tick, NetworkTime.tick])
+		# This used to be weird, but is now expected due to estimating remote time
+		# push_warning("Received state from the future %s / %s - adding nonetheless" % [tick, NetworkTime.tick])
+		pass
 	
 	if tick < NetworkTime.tick - NetworkRollback.history_limit and _latest_state >= 0:
 		# State too old!
