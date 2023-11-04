@@ -23,7 +23,7 @@ func _ready():
 
 func _tick(delta, tick):
 	# TODO: NetworkTime utilities like time between two ticks, time since tick, tick to time
-	if input.is_firing and tick - last_fire > fire_cooldown / delta:
+	if input.is_firing and NetworkTime.seconds_between(last_fire, tick) > fire_cooldown:
 		var id = _generate_id()
 		var from = global_transform
 		
@@ -79,7 +79,7 @@ func _request_projectile(id: String, from: Transform3D, tick: int):
 		return
 	
 	# Check if there was enough time since the last shot
-	if tick - last_fire <= fire_cooldown * NetworkTime.tickrate:
+	if NetworkTime.seconds_between(last_fire, tick) <= fire_cooldown: 
 		rpc_id(sender, "_decline_projectile", id)
 		return
 	
@@ -121,9 +121,3 @@ func _decline_projectile(id: String):
 	_projectiles.erase(id)
 	_origins.erase(id)
 	_offsets.erase(id)
-
-# [l] Create projectile
-# [l] Submit request for projectile at tick with starting transform
-# [s] Validate spawn and create projectile
-# [s] Broadcast projectile
-# [c] Create projectile

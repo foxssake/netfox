@@ -43,7 +43,7 @@ func _spawn_effect(effect_idx: int, target_path: NodePath):
 
 @rpc("authority", "reliable")
 func _take():
-	respawn_tick = NetworkTime.tick + cooldown * NetworkTime.tickrate
+	respawn_tick = NetworkTime.tick + NetworkTime.seconds_to_ticks(cooldown)
 	is_active = false
 
 @rpc("authority", "reliable")

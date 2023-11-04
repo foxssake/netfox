@@ -151,7 +151,7 @@ func _sync_time_loop(interval: float):
 			continue
 
 		var new_tick = floor(new_time * NetworkTime.tickrate)
-		new_time = new_tick * NetworkTime.ticktime # Sync to tick
+		new_time = NetworkTime.ticks_to_seconds(new_tick) # Sync to tick
 
 		on_sync.emit(new_time, new_tick, rtt)
 		await get_tree().create_timer(interval).timeout

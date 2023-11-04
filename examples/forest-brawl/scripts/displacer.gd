@@ -10,7 +10,7 @@ var fired_by: Node
 
 func _ready():
 	birth_tick = NetworkTime.tick
-	death_tick = birth_tick + round(duration * NetworkTime.tickrate)
+	death_tick = birth_tick + NetworkTime.seconds_to_ticks(duration)
 	despawn_tick = death_tick + NetworkRollback.history_limit
 
 	NetworkRollback.on_process_tick.connect(_tick)
