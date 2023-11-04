@@ -38,7 +38,6 @@ extends Node
 @export var root: Node = get_parent()
 @export var state_properties: Array[String]
 @export var input_properties: Array[String]
-@export var simulate_nodes: Array[Node]
 
 var _record_state_props: Array[PropertyEntry] = []
 var _record_input_props: Array[PropertyEntry] = []
@@ -84,16 +83,11 @@ func process_settings():
 			_record_input_props.push_back(pe)
 			_auth_input_props.push_back(pe)
 	
-	# Gather all nodes simulated ( unique )
-	_nodes = []
-	var all_nodes = _property_cache.properties()
-	all_nodes = all_nodes.map(func(it): return it.node)
-	all_nodes += simulate_nodes
-	all_nodes = all_nodes.filter(func(it): return NetworkRollback.is_rollback_aware(it))
-
-	for node in all_nodes:
-		if not _nodes.has(node):
-			_nodes.push_back(node)
+	# Gather all rollback-aware nodes to simulate during rollbacks
+	_nodes = root.find_children("*")
+	_nodes.push_front(root)
+	_nodes = _nodes.filter(func(it): return NetworkRollback.is_rollback_aware(it))
+	_nodes.erase(self)
 
 func _ready():
 	process_settings()
