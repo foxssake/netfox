@@ -1,4 +1,4 @@
-extends Node
+extends BaseNetInput
 class_name BrawlerInput
 
 var camera: Camera3D
@@ -11,16 +11,7 @@ var is_firing: bool = false
 var _aim_target: Vector3
 var _has_aim: bool = false
 
-func _ready():
-	# Gather input before sim loop
-	# TODO: Doc how this is important, NetworkRollback events don't work here
-	# TODO: Base class for input scripts?
-	NetworkTime.before_tick_loop.connect(_gather)
-
 func _gather():
-	if not is_multiplayer_authority():
-		return
-	
 	# Movement
 	movement = Vector3(
 		Input.get_axis("move_west", "move_east"),
