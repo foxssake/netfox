@@ -275,9 +275,6 @@ var _local_tick: int = 0
 # ( for some reason? )
 var _synced_clients = {}
 
-func _ready():
-	NetworkTimeSynchronizer.on_sync.connect(_handle_sync)
-
 ## Start NetworkTime.
 ##
 ## Once this is called, time will be synchronized and ticks will be consistently
@@ -338,6 +335,25 @@ func is_client_synced(peer_id: int) -> bool:
 		return false
 	else:
 		return _synced_clients.has(peer_id)
+
+## Convert a duration of ticks to seconds.
+func ticks_to_seconds(ticks: int) -> float:
+	return ticks * ticktime
+
+## Convert a duration of seconds to ticks.
+func seconds_to_ticks(seconds: float) -> int:
+	return int(seconds * tickrate)
+
+## Calculate the duration between two ticks in seconds
+func seconds_between(tick_from: int, tick_to: int) -> float:
+	return ticks_to_seconds(tick_to - tick_from)
+
+## Calculate the duration between two points in time as ticks
+func ticks_between(seconds_from: float, seconds_to: float) -> int:
+	return seconds_to_ticks(seconds_to - seconds_from)
+
+func _ready():
+	NetworkTimeSynchronizer.on_sync.connect(_handle_sync)
 
 func _process(delta):
 	_process_delta = delta
