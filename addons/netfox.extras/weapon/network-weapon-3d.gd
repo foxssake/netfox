@@ -75,6 +75,6 @@ func _reconcile(projectile: Node3D, local_data: Dictionary, remote_data: Diction
 	var remote_transform = remote_data["global_transform"] as Transform3D
 
 	var relative_transform = projectile.global_transform * local_transform.inverse()
-	var final_transform = remote_data * relative_transform
+	var final_transform = remote_transform * relative_transform
 	
 	projectile.global_transform = final_transform

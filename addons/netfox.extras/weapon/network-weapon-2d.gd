@@ -1,4 +1,4 @@
-extends Node3D
+extends Node2D
 class_name NetworkWeapon2D
 
 ## A 2D-specific implementation of [NetworkWeapon].
@@ -75,6 +75,6 @@ func _reconcile(projectile: Node2D, local_data: Dictionary, remote_data: Diction
 	var remote_transform = remote_data["global_transform"] as Transform2D
 
 	var relative_transform = projectile.global_transform * local_transform.inverse()
-	var final_transform = remote_data * relative_transform
-	
+	var final_transform = remote_transform * relative_transform
+
 	projectile.global_transform = final_transform

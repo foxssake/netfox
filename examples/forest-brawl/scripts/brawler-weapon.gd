@@ -31,33 +31,6 @@ func _spawn() -> Node3D:
 	
 	return p
 
-func _get_data(projectile: Node3D) -> Dictionary:
-	return {
-		"global_transform": (projectile as BombProjectile).global_transform
-	}
-
-func _apply_data(projectile: Node3D, data: Dictionary):
-	(projectile as BombProjectile).global_transform = data["global_transform"]
-
-func _is_reconcilable(projectile: Node3D, request_data: Dictionary, local_data: Dictionary) -> bool:
-	var req_transform = request_data["global_transform"] as Transform3D
-	var loc_transform = local_data["global_transform"] as Transform3D
-	
-	var request_pos = req_transform.origin
-	var local_pos = loc_transform.origin
-	
-	return request_pos.distance_to(local_pos) < distance_threshold
-
-func _reconcile(projectile: Node3D, local_data: Dictionary, remote_data: Dictionary):
-	var bomb = projectile as BombProjectile
-	var local_transform = local_data["global_transform"] as Transform3D
-	var remote_transform = remote_data["global_transform"] as Transform3D
-
-	var relative_transform = bomb.global_transform * local_transform.inverse()
-	var final_transform = remote_data * relative_transform
-	
-	bomb.global_transform = final_transform
-
 func _tick(delta, tick):
 	if input.is_firing:
 		fire()

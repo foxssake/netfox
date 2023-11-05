@@ -196,8 +196,9 @@ func _decline_projectile(id: String):
 	if not _projectiles.has(id):
 		return
 	
-	var p = _projectiles[id] as Node
-	p.queue_free()
+	var p = _projectiles[id]
+	if is_instance_valid(p):
+		p.queue_free()
 	
 	_projectiles.erase(id)
 	_projectile_data.erase(id)
