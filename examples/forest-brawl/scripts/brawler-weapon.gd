@@ -17,19 +17,15 @@ func _ready():
 	NetworkTime.on_tick.connect(_tick)
 
 func _can_fire() -> bool:
-	# print("Time since last fire: %s <?> %s" % [NetworkTime.seconds_between(last_fire, NetworkTime.tick), fire_cooldown])
 	return NetworkTime.seconds_between(last_fire, NetworkTime.tick) >= fire_cooldown
 
-# virtual
 func _can_peer_use(peer_id: int) -> bool:
 	return peer_id == input.get_multiplayer_authority()
 
-# virtual
 func _after_fire(projectile: Node):
 	print("Resetting last fired for %s" % [projectile.name])
 	last_fire = NetworkTime.tick
 
-# virtual
 func _spawn() -> Node:
 	var p = projectile.instantiate() as BombProjectile
 	get_tree().root.add_child(p, true)
@@ -38,17 +34,14 @@ func _spawn() -> Node:
 	
 	return p
 
-# virtual
 func _get_data(projectile: Node) -> Dictionary:
 	return {
 		"global_transform": (projectile as BombProjectile).global_transform
 	}
 
-# virtual
 func _apply_data(projectile: Node, data: Dictionary):
 	(projectile as BombProjectile).global_transform = data["global_transform"]
 
-# virtual
 func _is_reconcilable(projectile: Node, request_data: Dictionary, local_data: Dictionary) -> bool:
 	var req_transform = request_data["global_transform"] as Transform3D
 	var loc_transform = local_data["global_transform"] as Transform3D
@@ -58,15 +51,13 @@ func _is_reconcilable(projectile: Node, request_data: Dictionary, local_data: Di
 	
 	return request_pos.distance_to(local_pos) < distance_threshold
 
-# virtual
-func _reconcile(projectile: Node, request_data: Dictionary, response_data: Dictionary):
+func _reconcile(projectile: Node, local_data: Dictionary, remote_data: Dictionary):
 	var bomb = projectile as BombProjectile
-	var request_transform = request_data["global_transform"] as Transform3D
-	var response_transform = response_data["global_transform"] as Transform3D
+	var local_transform = local_data["global_transform"] as Transform3D
+	var remote_transform = remote_data["global_transform"] as Transform3D
 
-	# Damn bro hope this works
-	var relative_transform = bomb.global_transform * request_transform.inverse()
-	var final_transform = response_transform * relative_transform
+	var relative_transform = bomb.global_transform * local_transform.inverse()
+	var final_transform = remote_data * relative_transform
 	
 	bomb.global_transform = final_transform
 

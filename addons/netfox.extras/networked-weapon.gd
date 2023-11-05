@@ -1,6 +1,23 @@
 extends Node
 class_name NetworkedWeapon
 
+## This class lets you create responsive weapons by creating the projectiles 
+## as soon as the weapon is fired, but keeping all the control on the server.
+##
+## To achieve this, both the server and the clients create projectiles which are
+## free to implement their behaviour, but should only affect game state on the
+## server.
+##
+## To avoid situations where the server and clients are not on the same page, 
+## clients spawn their projectiles but also notify the server. From there, the
+## server can either reject the projectile ( maybe the weapon was still on 
+## cooldown ) or accept it. Upon acceptance, the host will broadcast the 
+## projectile's state. On the firing client, the state will be reconciled with 
+## the one the client produced and the one from the server - maybe the player 
+## was in a slightly different position on the server when firing. The other 
+## clients will simply create the projectile with the state received from the
+## server.
+
 var _projectiles: Dictionary = {}
 var _projectile_data: Dictionary = {}
 var _reconcile_buffer: Array = []
@@ -8,9 +25,13 @@ var _reconcile_buffer: Array = []
 func _ready():
 	NetworkTime.before_tick_loop.connect(_before_tick_loop)
 
+## Check whether this weapon can be fired.
 func can_fire() -> bool:
 	return _can_fire()
 
+## Try to fire the weapon and return the projectile.
+##
+## Returns null if the weapon can't be fired.
 func fire() -> Node:
 	if not can_fire():
 		return null
@@ -32,36 +53,70 @@ func fire() -> Node:
 
 	return projectile
 
-# virtual
+## Override this method with your own can fire logic.
+##
+## This can be used to implement e.g. firing cooldowns and ammo checks.
 func _can_fire() -> bool:
 	return false
 
-# virtual
+## Override this method to check if a given peer can use this weapon.
+##
+## Usually this should check if the weapon's owner is trying to fire it, but 
+## for some special cases this can be some different logic, e.g. weapons that 
+## can be used by any player on a given team.
 func _can_peer_use(peer_id: int) -> bool:
 	return true
 
-# virtual
+## Override this method to run any logic needed after successfully firing the 
+## weapon.
+##
+## This can be used to e.g. reset the firing cooldown or deduct ammo.
 func _after_fire(projectile: Node):
 	pass
 
-# virtual
+## Override this method to spawn and initialize a projectile.
+##
+## Make sure to return the projectile spawned!
 func _spawn() -> Node:
 	return null
 
-# virtual
+## Override this method to extract projectile data that should be synchronized
+## over the network.
+##
+## This will be captured both locally and on the server, and will be used for 
+## reconciliation.
 func _get_data(projectile: Node) -> Dictionary:
 	return {}
 
-# virtual
+## Override this method to apply projectile data that should be synchronized 
+## over the network.
+##
+## This is used in cases where some other client fires a weapon and the server 
+## instructs us to spawn a projectile for it.
 func _apply_data(projectile: Node, data: Dictionary):
 	pass
 
-# virtual
+## Override this method to check if two projectile states can be reconciled.
+##
+## This can be used to prevent cheating, for example by not allowing the client 
+## to say it's firing from the other side of the map compared to its actual 
+## position.
+##
+## When this method returns false, the server will decline the projectile
+## request.
 func _is_reconcilable(projectile: Node, request_data: Dictionary, local_data: Dictionary) -> bool:
 	return true
 
-# virtual
-func _reconcile(projectile: Node, request_data: Dictionary, response_data: Dictionary):
+## Override this method to reconcile the initial local and remote projectile
+## state.
+##
+## Let's say the projectile travels in a straight line from its origin, but we
+## receive a different origin from the server. In this reconciliation step, 
+## the projectile's position can be adjusted to account for the different origin.
+##
+## Unless the use case is niche, the best practice is to consider the server's
+## state as authorative.
+func _reconcile(projectile: Node, local_data: Dictionary, remote_data: Dictionary):
 	pass
 
 func _save_projectile(projectile: Node, id: String, data: Dictionary = {}):
