@@ -1,7 +1,11 @@
-[gd_scene load_steps=12 format=3 uid="uid://6212jkmbikjq"]
+[gd_scene load_steps=16 format=3 uid="uid://6212jkmbikjq"]
 
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/displacer.gd" id="1_acukw"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/explosion.gd" id="2_g53bu"]
+[ext_resource type="AudioStream" uid="uid://cuu7355mjw0qm" path="res://examples/forest-brawl/sounds/boom1.wav" id="3_kw7x7"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/play-random-3d.gd" id="4_vsx6y"]
+[ext_resource type="AudioStream" uid="uid://dk44nxlwr3m1o" path="res://examples/forest-brawl/sounds/boom2.wav" id="5_yr2wj"]
+[ext_resource type="AudioStream" uid="uid://yyc2x2137nqa" path="res://examples/forest-brawl/sounds/boom3.wav" id="6_fihgd"]
 
 [sub_resource type="Gradient" id="Gradient_32qlm"]
 interpolation_mode = 2
@@ -82,3 +86,7 @@ shape = SubResource("SphereShape3D_ddj8d")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 visible = false
 mesh = SubResource("SphereMesh_k5smf")
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="."]
+script = ExtResource("4_vsx6y")
+sounds = Array[AudioStream]([ExtResource("3_kw7x7"), ExtResource("5_yr2wj"), ExtResource("6_fihgd")])
