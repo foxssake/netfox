@@ -1,4 +1,5 @@
 extends ShapeCast3D
+class_name BombProjectile
 
 @export var speed: float = 12.0
 @export var strength: float = 2.0

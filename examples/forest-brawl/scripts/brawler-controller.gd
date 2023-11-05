@@ -13,7 +13,7 @@ class_name BrawlerController
 # Dependencies
 @onready var input: BrawlerInput = $Input
 @onready var animation_tree: AnimationTree = $AnimationTree
-@onready var weapon: Weapon3D = $Weapon as Weapon3D
+@onready var weapon: BrawlerWeapon = $Weapon as BrawlerWeapon
 @onready var mesh: MeshInstance3D = $"bomber-guy/rig/Skeleton3D/Cube_008"
 @onready var nametag: Label3D = $Nametag
 
