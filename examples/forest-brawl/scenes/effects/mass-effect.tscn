@@ -1,7 +1,10 @@
-[gd_scene load_steps=16 format=3 uid="uid://5cts743r7q3v"]
+[gd_scene load_steps=19 format=3 uid="uid://5cts743r7q3v"]
 
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/effects/mass-effect.gd" id="1_1iicr"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/aura-sphere-mesh.gd" id="2_mt3ku"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/play-random-3d.gd" id="3_rqiuv"]
+[ext_resource type="AudioStream" uid="uid://cajfyvodmjy8i" path="res://examples/forest-brawl/sounds/glitch1.wav" id="4_6nsiq"]
+[ext_resource type="AudioStream" uid="uid://c708geohjw7ci" path="res://examples/forest-brawl/sounds/glitch2.wav" id="5_ogrob"]
 
 [sub_resource type="Gradient" id="Gradient_k0qrh"]
 interpolation_mode = 2
@@ -112,3 +115,8 @@ lifetime = 2.0
 local_coords = true
 process_material = SubResource("ParticleProcessMaterial_la0c6")
 draw_pass_1 = SubResource("QuadMesh_uexxv")
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="."]
+autoplay = true
+script = ExtResource("3_rqiuv")
+sounds = Array[AudioStream]([ExtResource("4_6nsiq"), ExtResource("5_ogrob")])

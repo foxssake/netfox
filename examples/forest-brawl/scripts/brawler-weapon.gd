@@ -4,14 +4,12 @@ class_name BrawlerWeapon
 @export var projectile: PackedScene
 @export var fire_cooldown: float = 0.15
 
-@export var input: BrawlerInput
+@onready var input: BrawlerInput = $"../Input"
+@onready var sound: AudioStreamPlayer3D = $AudioStreamPlayer3D
 
 var last_fire: int = -1
 
 func _ready():
-	if not input:
-		input = $"../Input"
-	
 	NetworkTime.on_tick.connect(_tick)
 
 func _can_fire() -> bool:
@@ -22,6 +20,7 @@ func _can_peer_use(peer_id: int) -> bool:
 
 func _after_fire(projectile: Node3D):
 	last_fire = NetworkTime.tick
+	sound.play()
 
 func _spawn() -> Node3D:
 	var p = projectile.instantiate() as BombProjectile

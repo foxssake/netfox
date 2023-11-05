@@ -1,7 +1,11 @@
-[gd_scene load_steps=15 format=3 uid="uid://jskoprs7vkq0"]
+[gd_scene load_steps=19 format=3 uid="uid://jskoprs7vkq0"]
 
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/effects/repulse-effect.gd" id="1_47iru"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/aura-sphere-mesh.gd" id="2_7rgpm"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/play-random-3d.gd" id="3_pwfeh"]
+[ext_resource type="AudioStream" uid="uid://cpqwch1ruf417" path="res://examples/forest-brawl/sounds/repulse1.wav" id="4_rqncr"]
+[ext_resource type="AudioStream" uid="uid://djx8bf0n5hpjd" path="res://examples/forest-brawl/sounds/repulse2.wav" id="5_4vybw"]
+[ext_resource type="AudioStream" uid="uid://b1l44piqung8p" path="res://examples/forest-brawl/sounds/repulse3.wav" id="6_6gndw"]
 
 [sub_resource type="Gradient" id="Gradient_k0qrh"]
 interpolation_mode = 2
@@ -115,3 +119,8 @@ draw_pass_1 = SubResource("SphereMesh_74i8l")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
 shape = SubResource("SphereShape3D_1qng7")
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="."]
+autoplay = true
+script = ExtResource("3_pwfeh")
+sounds = Array[AudioStream]([ExtResource("4_rqncr"), ExtResource("5_4vybw"), ExtResource("6_6gndw")])
