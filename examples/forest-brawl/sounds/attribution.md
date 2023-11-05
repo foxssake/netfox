@@ -81,5 +81,50 @@ license.
 
 [Johnnyfarmer](https://freesound.org/people/Johnnyfarmer/)
 
+## Falling
+
+[Source](https://freesound.org/people/oganesson/sounds/555015/)
+
+Played whenever a player falls down into the abyss.
+
+Files:
+
+* fall1.wav
+
+*"Falling"* by [oganesson], under the [Creative Commons 0] license.
+
+[oganesson](https://freesound.org/people/oganesson/)
+
+## fall.ogg
+
+[Source](https://freesound.org/people/silversatyr/sounds/113365/)
+
+Played whenever a player falls down into the abyss.
+
+Files:
+
+* fall2.wav
+
+*"fall.ogg"* by [silversatyr], under the [Attribution 3.0] license. The file was
+trimmed on both ends.
+
+[silversatyr](https://freesound.org/people/silversatyr/)
+
+## Slide Whistle, Descending, A.wav
+
+[Source](https://freesound.org/people/InspectorJ/sounds/402581/)
+
+Played whenever a player falls down into the abyss.
+
+Files:
+
+* fall3.wav
+
+*"Slide Whistle, Descending, A.wav"* by [InspectorJ], under the [Attribution
+4.0] license. No changes were made to the original sound effect.
+
+[InspectorJ]: https://freesound.org/people/InspectorJ/
+
 [Creative Commons 0]: https://creativecommons.org/publicdomain/zero/1.0/
 [Attribution 3.0]: https://creativecommons.org/licenses/by/3.0/
+[Attribution 4.0]: https://creativecommons.org/licenses/by/4.0/

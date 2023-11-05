@@ -121,5 +121,6 @@ draw_pass_1 = SubResource("SphereMesh_74i8l")
 shape = SubResource("SphereShape3D_1qng7")
 
 [node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="."]
+autoplay = true
 script = ExtResource("3_pwfeh")
 sounds = Array[AudioStream]([ExtResource("4_rqncr"), ExtResource("5_4vybw"), ExtResource("6_6gndw")])

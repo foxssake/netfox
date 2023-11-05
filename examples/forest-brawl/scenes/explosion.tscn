@@ -88,5 +88,6 @@ visible = false
 mesh = SubResource("SphereMesh_k5smf")
 
 [node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="."]
+autoplay = true
 script = ExtResource("4_vsx6y")
 sounds = Array[AudioStream]([ExtResource("3_kw7x7"), ExtResource("5_yr2wj"), ExtResource("6_fihgd")])

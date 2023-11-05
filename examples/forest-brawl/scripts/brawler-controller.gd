@@ -16,6 +16,7 @@ class_name BrawlerController
 @onready var weapon: BrawlerWeapon = $Weapon as BrawlerWeapon
 @onready var mesh: MeshInstance3D = $"bomber-guy/rig/Skeleton3D/Cube_008"
 @onready var nametag: Label3D = $Nametag
+@onready var fall_sound: PlayRandomStream3D = $"Fall Sound"
 
 var player_name: String = "":
 	set(name):
@@ -131,6 +132,7 @@ func _rollback_tick(delta, tick, is_fresh):
 	if position.y < -death_depth and tick > respawn_tick and is_fresh:
 		var respawn_cooldown = respawn_time * NetworkTime.tickrate
 		respawn_tick = tick + respawn_cooldown
+		fall_sound.play_random()
 		GameEvents.on_brawler_fall.emit(self)
 		print("[%s] Detected fall! Respawning on tick %s + %s -> %s" % [multiplayer.get_unique_id(), tick, respawn_cooldown, respawn_tick])
 

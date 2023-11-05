@@ -117,5 +117,6 @@ process_material = SubResource("ParticleProcessMaterial_la0c6")
 draw_pass_1 = SubResource("QuadMesh_uexxv")
 
 [node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="."]
+autoplay = true
 script = ExtResource("3_rqiuv")
 sounds = Array[AudioStream]([ExtResource("4_6nsiq"), ExtResource("5_ogrob")])
