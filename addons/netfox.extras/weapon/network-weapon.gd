@@ -1,5 +1,5 @@
 extends Node
-class_name NetworkedWeapon
+class_name NetworkWeapon
 
 ## This class lets you create responsive weapons by creating the projectiles 
 ## as soon as the weapon is fired, but keeping all the control on the server.

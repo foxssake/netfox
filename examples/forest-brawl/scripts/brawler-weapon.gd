@@ -1,10 +1,8 @@
-extends NetworkedWeapon
+extends NetworkWeapon3D
 class_name BrawlerWeapon
 
 @export var projectile: PackedScene
-@export var spawn_at: Node3D
 @export var fire_cooldown: float = 0.15
-@export var distance_threshold: float = 0.1
 
 @export var input: BrawlerInput
 
@@ -22,27 +20,26 @@ func _can_fire() -> bool:
 func _can_peer_use(peer_id: int) -> bool:
 	return peer_id == input.get_multiplayer_authority()
 
-func _after_fire(projectile: Node):
-	print("Resetting last fired for %s" % [projectile.name])
+func _after_fire(projectile: Node3D):
 	last_fire = NetworkTime.tick
 
-func _spawn() -> Node:
+func _spawn() -> Node3D:
 	var p = projectile.instantiate() as BombProjectile
 	get_tree().root.add_child(p, true)
-	p.global_transform = spawn_at.global_transform
+	p.global_transform = global_transform
 	p.fired_by = get_parent()
 	
 	return p
 
-func _get_data(projectile: Node) -> Dictionary:
+func _get_data(projectile: Node3D) -> Dictionary:
 	return {
 		"global_transform": (projectile as BombProjectile).global_transform
 	}
 
-func _apply_data(projectile: Node, data: Dictionary):
+func _apply_data(projectile: Node3D, data: Dictionary):
 	(projectile as BombProjectile).global_transform = data["global_transform"]
 
-func _is_reconcilable(projectile: Node, request_data: Dictionary, local_data: Dictionary) -> bool:
+func _is_reconcilable(projectile: Node3D, request_data: Dictionary, local_data: Dictionary) -> bool:
 	var req_transform = request_data["global_transform"] as Transform3D
 	var loc_transform = local_data["global_transform"] as Transform3D
 	
@@ -51,7 +48,7 @@ func _is_reconcilable(projectile: Node, request_data: Dictionary, local_data: Di
 	
 	return request_pos.distance_to(local_pos) < distance_threshold
 
-func _reconcile(projectile: Node, local_data: Dictionary, remote_data: Dictionary):
+func _reconcile(projectile: Node3D, local_data: Dictionary, remote_data: Dictionary):
 	var bomb = projectile as BombProjectile
 	var local_transform = local_data["global_transform"] as Transform3D
 	var remote_transform = remote_data["global_transform"] as Transform3D
