@@ -130,7 +130,7 @@ root = NodePath("..")
 properties = Array[String]([":global_position"])
 
 [node name="Brawler Crown" parent="." instance=ExtResource("11_eeeag")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
 
 [node name="UI" type="Control" parent="."]
 layout_mode = 3

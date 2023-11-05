@@ -1,7 +1,8 @@
-[gd_scene load_steps=14 format=3 uid="uid://bd38peoq8b5ae"]
+[gd_scene load_steps=15 format=3 uid="uid://bd38peoq8b5ae"]
 
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/effects/speed-effect.gd" id="1_r0k2e"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/aura-sphere-mesh.gd" id="2_ot0pi"]
+[ext_resource type="AudioStream" uid="uid://baytcuptor78h" path="res://examples/forest-brawl/sounds/blipwave.wav" id="3_hmarj"]
 
 [sub_resource type="Gradient" id="Gradient_k0qrh"]
 interpolation_mode = 2
@@ -107,3 +108,7 @@ lifetime = 0.13
 local_coords = true
 process_material = SubResource("ParticleProcessMaterial_la0c6")
 draw_pass_1 = SubResource("SphereMesh_74i8l")
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("3_hmarj")
+autoplay = true
