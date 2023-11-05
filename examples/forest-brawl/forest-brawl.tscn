@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://cwh2p0qb5872o"]
+[gd_scene load_steps=26 format=3 uid="uid://cwh2p0qb5872o"]
 
 [ext_resource type="MeshLibrary" uid="uid://do0y7f0sy12jg" path="res://examples/forest-brawl/models/forest-blocks.meshlib" id="1_bifsy"]
 [ext_resource type="PackedScene" uid="uid://ble0j0npslm4j" path="res://examples/forest-brawl/models/kenney-platformer-kit/flowers.glb" id="2_q0d6t"]
@@ -20,6 +20,7 @@
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/settings/confine-mouse-checkbutton.gd" id="13_ujuuj"]
 [ext_resource type="PackedScene" uid="uid://ojh5xofoserg" path="res://examples/forest-brawl/scenes/score_screen.tscn" id="14_85lvt"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/settings/fullscreen-checkbutton.gd" id="14_h1iqv"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/settings/volume-slider.gd" id="16_6pky3"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_b8qyu"]
 
@@ -206,6 +207,20 @@ text = "Fullscreen:"
 [node name="Fullscreen CheckButton" type="CheckButton" parent="UI/Network Popup/Settings/Fullscreen"]
 layout_mode = 2
 script = ExtResource("14_h1iqv")
+
+[node name="Volume" type="HBoxContainer" parent="UI/Network Popup/Settings"]
+layout_mode = 2
+
+[node name="Volume Label" type="Label" parent="UI/Network Popup/Settings/Volume"]
+layout_mode = 2
+text = "Volume:"
+
+[node name="Volume Slider" type="HSlider" parent="UI/Network Popup/Settings/Volume"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+value = 100.0
+script = ExtResource("16_6pky3")
 
 [node name="LAN" type="VBoxContainer" parent="UI/Network Popup"]
 visible = false
