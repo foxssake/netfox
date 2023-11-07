@@ -14,6 +14,5 @@ A set of addons for responsive online games with the [Godot engine].
 * 🧈 Smooth motion with easy-to-use interpolation
 * 🛜 Bullet-proof connectivity with [noray] integration
 
-
 [Godot engine]: https://godotengine.org/
 [noray]: https://github.com/foxssake/noray
