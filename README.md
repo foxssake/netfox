@@ -49,11 +49,10 @@ See the docs ( TBA ).
 * [Simple example](examples/multiplayer-simple)
 * [Example with netfox](examples/multiplayer-netfox)
 
-In order to demonstrate the challenges that multiplayer games introduce, and
-the ones netfox solves, a simple demo was implemented as a single-player game.
-This was ported to multiplayer using both a naive server-authorative model and
-netfox. Running them both under different latencies reveals the benefits of
-netfox's rollback logic.
+To provide a short intro on how to get started with netfox, and how it fares
+compared to built-in multiplayer tools, a simple demo was implemented as a
+single-player game, which was ported to multiplayer using both a naive
+server-authorative model and netfox.
 
 #### Example game
 

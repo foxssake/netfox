@@ -17,6 +17,8 @@ Bulletproof your connectivity with [netfox]'s [noray] integration!
 
 Download the [source] and copy the netfox.noray addon to your Godot project.
 
+> Note: this addon depends on netfox, make sure to include it as well in your project.
+
 ### Asset Library
 
 TBA

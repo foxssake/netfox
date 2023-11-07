@@ -10,3 +10,5 @@ scene in this directory.
 Compare it with:
 * [Single player example](../single-player)
 * [Simple example](../multiplayer-simple)
+
+[netfox]: addons/netfox
