@@ -45,12 +45,15 @@ See the docs ( TBA ).
 
 #### Comparison sample
 
+* [Single player](examples/single-player)
 * [Simple example](examples/multiplayer-simple)
 * [Example with netfox](examples/multiplayer-netfox)
 
-To have a handy comparison, the same simple game was implemented with both a
-naive server-authorative model and netfox. Running them both under different
-latencies reveals the benefits of netfox's rollback logic.
+In order to demonstrate the challenges that multiplayer games introduce, and
+the ones netfox solves, a simple demo was implemented as a single-player game.
+This was ported to multiplayer using both a naive server-authorative model and
+netfox. Running them both under different latencies reveals the benefits of
+netfox's rollback logic.
 
 #### Example game
 
