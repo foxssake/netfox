@@ -82,7 +82,7 @@ try, you may check *Force Relay* to skip the NAT punchthrough.
 
 ## License
 
-Forest Brawl is under the [MIT license](../LICENSE).
+Forest Brawl is under the [MIT license](../../LICENSE).
 
 Sound effects belong to various authors who made their work available through permissive licenses. See [Attribution](sounds/attribution.md).
 
@@ -91,6 +91,10 @@ The game uses [Kenney]'s [Platformer Kit]. See [license](models/kenney-platforme
 ## Issues
 
 In case of any issues, comments, or questions, please feel free to [open an issue]!
+
+[Godot engine]: https://godotengine.org/
+[netfox]: https://github.com/foxssake/netfox
+[noray]: https://github.com/foxssake/noray
 
 [Kenney]: https://www.kenney.nl/
 [Platformer Kit]: https://www.kenney.nl/assets/platformer-kit
