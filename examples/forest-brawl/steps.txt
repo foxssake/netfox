@@ -1,9 +1,0 @@
-1 - Setup scene
-2 - Create player scene
-3 - Create Input node + script on player
-4 - Create player controller script
-5 - Add RollbackSynchronizer to Player
-6 - Add player spawner script
-7 - Add connect UI
-8 - Add follow camera
-9 - Add aiming
