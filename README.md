@@ -10,8 +10,8 @@ A set of addons for responsive online games with the [Godot engine].
 
 * ⏲️  Consistent timing across multiple machines
 * 🖥️ Works well with, but not limited to client-server architecture
-* 💨 Lag compensation with Client-side Prediction and Server-side Reconciliation
 * 🧈 Smooth motion with easy-to-use interpolation
+* 💨 Lag compensation with Client-side Prediction and Server-side Reconciliation
 * 🛜 Bullet-proof connectivity with [noray] integration
 
 ## Overview
@@ -39,11 +39,7 @@ TBA
 
 ## Usage
 
-Please refer to the individual addons:
-
-* [netfox]
-* [netfox.noray]
-* [netfox.extras]
+See the docs ( TBA ).
 
 ### Examples
 
