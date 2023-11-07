@@ -14,41 +14,76 @@ A set of addons for responsive online games with the [Godot engine].
 * 🧈 Smooth motion with easy-to-use interpolation
 * 🛜 Bullet-proof connectivity with [noray] integration
 
-## Addons
+## Overview
 
-### netfox
+The package consists of multiple addons, each with different features:
 
-Building multiplayer games always have an inherent complexity to them. This is
-where [netfox], the core addon comes in to simplify life, by providing both
-architecture-specific and just generally useful features.
+* [netfox]
+  * The core package, implements timing, rollback and other multiplayer
+    features
+* [netfox.noray]
+  * Implements [noray] integration to establish connection between players
+* [netfox.extras]
+  * Provides high-level, game-specific, convenience features built on top of
+    netfox, like base classes for input management or weapons
 
-#### Shared time
+## Install
 
-The basis of most multiplayer games is making sure the game state is the same
-across clients, and that it's updated at the same rate. By providing
-synchronized time, [netfox] ensures that all clients tick at the same rate, and
-have a shared notion of time that they can use to communicate.
+### Source
 
-#### Lag compensation
+Download the [source] and copy the addons of your choice to your Godot project.
 
-Synchronizing state is the other important aspect - usually, the illusion of a
-shared world is desired. However, blindly sending inputs to the server and
-waiting for its response can sometimes take too much time - e.g. for player
-motion. On the other hand, simply accepting each client's word on their state
-opens up the game to cheating.
+### Asset Library
 
+TBA
 
+## Usage
 
-### netfox.noray
+Please refer to the individual addons:
 
-When building online games, it is difficult to guarantee connectivity between
-peers, unless a dedicated server is in place to host the game.
+* [netfox]
+* [netfox.noray]
+* [netfox.extras]
 
-To simplify the process of building player-hosted games, [netfox.noray]
-bullet-proofs connectivity by integrating with [noray].
+### Examples
 
-Supports NAT punchthrough, but [noray] can also act as a UDP proxy when a
-punchthrough is not possible, guaranteeing connectivity between players.
+#### Comparison sample
 
+* [Simple example](examples/multiplayer-simple)
+* [Example with netfox](examples/multiplayer-netfox)
+
+To have a handy comparison, the same simple game was implemented with both a
+naive server-authorative model and netfox. Running them both under different
+latencies reveals the benefits of netfox's rollback logic.
+
+#### Example game
+
+* [Forest Brawl]
+
+To provide examples of netfox usage in an actual game, [Forest Brawl] was
+made and included specifically for this package.
+
+It's a party game where an arbitrary amount of players compete by trying to
+knock eachother off of the map.
+
+## License
+
+netfox is under the [MIT license](LICENSE).
+
+Note that the repository contains assets made by other people as well. For
+these cases, the relevant licenses can be found in the assets' directories.
+
+## Issues
+
+In case of any issues, comments, or questions, please feel free to [open an issue]!
+
+[source]: https://github.com/foxssake/netfox/archive/refs/heads/main.zip
 [Godot engine]: https://godotengine.org/
 [noray]: https://github.com/foxssake/noray
+
+[netfox]: addons/netfox
+[netfox.noray]: addons/netfox.noray
+[netfox.extras]: addons/netfox.extras
+[Forest Brawl]: examples/forest-brawl
+
+[open an issue]: https://github.com/foxssake/netfox/issues
