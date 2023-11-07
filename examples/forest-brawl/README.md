@@ -42,7 +42,7 @@ After launching the game, the following screen greets you:
 Among others, you may specify your player name ( defaults to a random animal ).
 
 Once done, move on to either the LAN or Noray tab, depending on whether you
-want to player over LAN or over the internet.
+want to play over LAN or over the internet.
 
 ### LAN
 
