@@ -18,8 +18,6 @@ Files:
 All taken from *"Booms.wav"* by [studiomandragore], under the [Creative Commons
 0] license.
 
-[studiomandragore]: https://freesound.org/people/studiomandragore/
-
 ## Whoosh
 
 [Source](https://freesound.org/people/qubodup/sounds/60013/)
@@ -32,8 +30,6 @@ Files:
 
 *"Whoosh"* by [qubodup], under the [Creative Commons 0] license.
 
-[qubodup]: https://freesound.org/people/qubodup/
-
 ## Blip Wave
 
 [Source](https://freesound.org/people/Breviceps/sounds/452998/)
@@ -45,8 +41,6 @@ Files:
 * blipwave.wav
 
 *"Blip Wave"* by [Breviceps], under the [Creative Commons 0] license.
-
-[Breviceps](https://freesound.org/people/Breviceps/sounds/452998/)
 
 ## Glitch SFX
 
@@ -61,8 +55,6 @@ Files:
 
 All taken from *"glitch SFX_065.wav"* by [Dymewiz], under the [Attribution 3.0]
 license. A fade-out effect was applied on the sound bits.
-
-[Dymewiz](https://freesound.org/people/Dymewiz/)
 
 ## Bomb fall
 
@@ -79,8 +71,6 @@ Files:
 All taken from *"Bomb Fall"* by [Johnnyfarmer], under the [Creative Commons 0] 
 license.
 
-[Johnnyfarmer](https://freesound.org/people/Johnnyfarmer/)
-
 ## Falling
 
 [Source](https://freesound.org/people/oganesson/sounds/555015/)
@@ -92,8 +82,6 @@ Files:
 * fall1.wav
 
 *"Falling"* by [oganesson], under the [Creative Commons 0] license.
-
-[oganesson](https://freesound.org/people/oganesson/)
 
 ## fall.ogg
 
@@ -108,8 +96,6 @@ Files:
 *"fall.ogg"* by [silversatyr], under the [Attribution 3.0] license. The file was
 trimmed on both ends.
 
-[silversatyr](https://freesound.org/people/silversatyr/)
-
 ## Slide Whistle, Descending, A.wav
 
 [Source](https://freesound.org/people/InspectorJ/sounds/402581/)
@@ -123,7 +109,15 @@ Files:
 *"Slide Whistle, Descending, A.wav"* by [InspectorJ], under the [Attribution
 4.0] license. No changes were made to the original sound effect.
 
+[studiomandragore]: https://freesound.org/people/studiomandragore/
+[qubodup]: https://freesound.org/people/qubodup/
+[Breviceps]: https://freesound.org/people/Breviceps/sounds/452998/
+[Dymewiz]: https://freesound.org/people/Dymewiz/
+[Johnnyfarmer]: https://freesound.org/people/Johnnyfarmer/
+[oganesson]: https://freesound.org/people/oganesson/
+[silversatyr]: https://freesound.org/people/silversatyr/
 [InspectorJ]: https://freesound.org/people/InspectorJ/
+
 
 [Creative Commons 0]: https://creativecommons.org/publicdomain/zero/1.0/
 [Attribution 3.0]: https://creativecommons.org/licenses/by/3.0/
