@@ -9,9 +9,9 @@ A set of addons for responsive online games with the [Godot engine].
 ## Features
 
 * ⏲️  Consistent timing across multiple machines
-* 🖥️ Works well with, but not limited to client-server architecture
-* 💨 Lag compensation with Client-side Prediction and Server-side Reconciliation
+* 🖥️ Supports client-server architecture
 * 🧈 Smooth motion with easy-to-use interpolation
+* 💨 Lag compensation with Client-side Prediction and Server-side Reconciliation
 * 🛜 Bullet-proof connectivity with [noray] integration
 
 [Godot engine]: https://godotengine.org/

@@ -7,7 +7,7 @@ Bulletproof your connectivity with [netfox]'s [noray] integration!
 * 🤝 Establish connectivity using NAT punchthrough
   * Uses [noray] for orchestration
   * Implements a full UDP handshake
-* 🛜 Use noray as a relay
+* 🛜 Use [noray] as a relay
   * Useful in cases where NAT punchthrough fails
   * If you can see this repo, you probably can connect through [noray]
 

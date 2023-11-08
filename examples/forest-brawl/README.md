@@ -5,7 +5,7 @@ An example game made with the [Godot Engine] to take [netfox] for a spin.
 ## Features
 
 * 👥 Play with as many friends as you'd like ( and the network permits )
-* 🌐 Player over LAN or over the internet, anywhere, courtesy of [noray]
+* 🌐 Play over LAN or over the internet, anywhere, courtesy of [noray]
 * 👑 Knock your friends out and hold on to the crown as long as you can
 * 🎁 Stay on top of the powerup meta
 
@@ -78,7 +78,7 @@ try, you may check *Force Relay* to skip the NAT punchthrough.
 | Space             | Jump     |
 | Left Mouse / Ctrl | Fire     |
 
-*Note:* Gamepad controls are supported, although it lacks aim assist.
+> *Note:* Gamepad controls are supported, although it lacks aim assist.
 
 ## License
 

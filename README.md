@@ -21,11 +21,14 @@ The package consists of multiple addons, each with different features:
 * [netfox]
   * The core package, implements timing, rollback and other multiplayer
     features
+  * *Start here*
 * [netfox.noray]
   * Implements [noray] integration to establish connection between players
+  * *Useful for online games*
 * [netfox.extras]
   * Provides high-level, game-specific, convenience features built on top of
     netfox, like base classes for input management or weapons
+  * *Check for reusable components for your game*
 
 ## Install
 
@@ -51,15 +54,15 @@ See the docs ( TBA ).
 
 To provide a short intro on how to get started with netfox, and how it fares
 compared to built-in multiplayer tools, a simple demo was implemented as a
-single-player game, which was ported to multiplayer using both a naive
-server-authorative model and netfox.
+single-player game, which was ported to multiplayer using both a naive approach
+and netfox.
 
 #### Example game
 
 * [Forest Brawl]
 
 To provide examples of netfox usage in an actual game, [Forest Brawl] was
-made and included specifically for this package.
+created and included specifically for this purpose.
 
 It's a party game where an arbitrary amount of players compete by trying to
 knock eachother off of the map.
