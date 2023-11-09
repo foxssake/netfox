@@ -36,6 +36,18 @@ Download the addons needed from the latest release ( TBA ), or grab the
 With netfox added to your project, you're ready to take advantage of its
 features, as outlined in the tutorials.
 
+## About this documentation
+
+These pages assume that you are familiar with both Godot, its mutliplayer
+capabilities, and building multiplayer games in general. Missing any of these
+might make your reading experience more difficult than preferred.
+
+Some links to get you up to speed:
+
+* [Godot Engine docs](https://docs.godotengine.org/en/stable/index.html)
+* [Godot Engine High-level multiplayer](https://docs.godotengine.org/en/stable/tutorials/networking/high_level_multiplayer.html)
+* [Networking for Physics Programmers](https://www.gdcvault.com/play/1022195/Physics-for-Game-Programmers-Networking)
+
 ## About the tutorials
 
 Each tutorial describes a specific feature of netfox. Feel free to pick any of

@@ -1,5 +1,14 @@
 # Ticking in Sync
 
+## tl;dr
+
+* Call `NetworkTime.start()` when gameplay starts and `NetworkTime.stop()` when
+  it ends
+* Subscribe to `NetworkTime.on_tick` signal for your game logic, instead of
+  `_process` or `_physics_process`
+* Use `NetworkTime.time` or `NetworkTime.tick` for current game time in seconds
+  or ticks respectively
+
 ## The challenge
 
 ### Ticks
@@ -18,7 +27,8 @@ It would sound logical to run games at as high as a tickrate as the PC can
 handle to make everything smoother, but that can be actually counter-intuitive.
 Some kinds of simulations can be sensitive to varying tickrates, and often the
 actual tickrate doesn't even need to be that high. For slower games, you may be
-able to get away with 30 ticks per second.
+able to get away with 30 ticks per second, instead of trying to push through
+1200 updates per second over the Atlantic.
 
 Note that this tickrate can differ from the game's render rate or *frames per
 second* you see on the screen. For rendering, games generally either try to
@@ -104,7 +114,8 @@ Note that network conditions may change, thus the remote time is regularly
 updated by the newest estimate. This also means that the remote time may jump
 forwards or even backwards, as it's updated.
 
-Can be used as a base for comparisons ( e.g. latency ), but *not recommended* for tying game logic to it.
+Can be used as a base for comparisons ( e.g. latency ), but *not recommended*
+for tying game logic to it.
 
 * `NetworkTime.remote_ticks` - Estimated time on the host, in ticks
 * `NetwokrTime.remote_time` - Estimated time on the host, in seconds
