@@ -30,6 +30,7 @@ var last_hit_player: BrawlerController
 var last_hit_tick: int = -1
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 var respawn_tick: int = -1
+var respawn_count: int = 0
 
 func register_hit(from: BrawlerController):
 	if from == self:
@@ -42,14 +43,13 @@ func register_hit(from: BrawlerController):
 func _ready():
 	if not input:
 		input = $Input
-
-	position = spawn_point
+	
+	_snap_to_spawn()
 
 	# TODO: What if the RollbackSynchronizer had a flag for this?
 	# Wait a frame so Input has time to get its authority set
 	await get_tree().process_frame
 	$RollbackSynchronizer.process_settings()
-	
 	GameEvents.on_brawler_spawn.emit(self)
 	NetworkTime.on_tick.connect(_tick)
 	
@@ -93,10 +93,9 @@ func _tick(delta, tick):
 func _rollback_tick(delta, tick, is_fresh):
 	# Respawn
 	if tick == respawn_tick:
-		position = spawn_point
+		_snap_to_spawn()
 		velocity = Vector3.ZERO
 		last_hit_tick = -1
-		print("[%s] Reset position and velocity to respawn at tick %s" % [multiplayer.get_unique_id(), tick])
 		
 		if is_fresh:
 			GameEvents.on_brawler_respawn.emit(self)
@@ -132,12 +131,21 @@ func _rollback_tick(delta, tick, is_fresh):
 	if position.y < -death_depth and tick > respawn_tick and is_fresh:
 		var respawn_cooldown = respawn_time * NetworkTime.tickrate
 		respawn_tick = tick + respawn_cooldown
+		respawn_count += 1
+
 		fall_sound.play_random()
+
 		GameEvents.on_brawler_fall.emit(self)
-		print("[%s] Detected fall! Respawning on tick %s + %s -> %s" % [multiplayer.get_unique_id(), tick, respawn_cooldown, respawn_tick])
 
 func _exit_tree():
 	GameEvents.on_brawler_despawn.emit(self)
+
+func _snap_to_spawn():
+	var spawns = get_tree().get_nodes_in_group("Spawn Points")
+	var idx = hash(player_id + respawn_count * 39) % spawns.size()
+	var spawn = spawns[idx] as Node3D
+	
+	global_transform = spawn.global_transform
 
 func _force_update_is_on_floor():
 	var old_velocity = velocity
