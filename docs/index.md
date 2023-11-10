@@ -50,12 +50,8 @@ Some links to get you up to speed:
 
 ## About the tutorials
 
-Each tutorial describes a specific feature of netfox. Feel free to pick any of
-them as needed - while you do not need to read them in a specific order, you
-may follow the cross-links in case you encounter unfamiliar concepts.
-
-Tutorials start with a *challenge* section - this part is to describe the
-actual difficulty the feature sovles. In case you are experienced with building
+Tutorials contain a *challenge* section - this part is to describe the actual
+difficulty the feature sovles. In case you are experienced with building
 multiplayer games, feel free to skip these sections.
 
 [Godot engine]: https://godotengine.org/
