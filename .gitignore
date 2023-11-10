@@ -8,7 +8,7 @@
 # Godot-specific ignores
 .import/
 export.cfg
-export_presets.cfg
+# export_presets.cfg # - needed for CI
 
 # Imported translations (automatically generated from CSV files)
 *.translation
