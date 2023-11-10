@@ -15,7 +15,7 @@ jobs:
       - name: Checkout 
         uses: actions/checkout@v2
       - uses: chickensoft-games/setup-godot@v1
-        name: 🤖 Setup Godot
+        name: Setup Godot
         with:
           version: 4.1.1
           use-dotnet: false
