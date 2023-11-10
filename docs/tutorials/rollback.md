@@ -6,6 +6,17 @@ compensation* and even *CSP* ( client-side prediction and server reconciliation
 
 The docs refer to CSP as rollback. They are a way to do lag compensation.
 
+## tl;dr
+
+* Setup a `RollbackSynchronizer` for sync and a `TickInterpolator` for smooth
+  motion
+* Create an input node with your own script, inherit `BaseNetInput` from
+  netfox.extras
+* Put your player logic in the `_rollback_tick(tick, delta, is_fresh)` method
+* See Forest Brawl examples:
+    * [brawler-input.gd](https://github.com/foxssake/netfox/blob/main/examples/forest-brawl/scripts/brawler-input.gd)
+    * [brawler-controller.gd](https://github.com/foxssake/netfox/blob/main/examples/forest-brawl/scripts/brawler-controller.gd)
+
 ## The Challenge
 
 You don't want your players to cheat. Nobody does. However, you publish your
