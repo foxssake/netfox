@@ -7,6 +7,7 @@ NC="$(tput sgr0)"
 source sh/shared.sh
 
 echo $BOLD"Building netfox v${version}" $NC
+rm -rf build
 mkdir -p build
 
 for addon in ${addons[@]}; do
