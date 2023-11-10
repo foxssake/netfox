@@ -1,6 +1,6 @@
 [gd_scene load_steps=19 format=3 uid="uid://cwh2p0qb5872o"]
 
-[ext_resource type="PackedScene" uid="uid://c5dweds7vxp6r" path="res://examples/forest-brawl/maps/legacy-islands.tscn" id="1_t50lj"]
+[ext_resource type="PackedScene" uid="uid://d1544gxqaoptc" path="res://examples/forest-brawl/maps/three-peaks.tscn" id="1_xksrt"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/brawler-spawner.gd" id="5_qv1fx"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/following-camera.gd" id="5_yxhn7"]
 [ext_resource type="PackedScene" uid="uid://wi4owat0bml3" path="res://examples/forest-brawl/scenes/brawler.tscn" id="7_tcy3g"]
@@ -23,7 +23,7 @@ font_size = 64
 
 [node name="Forest Brawl" type="Node3D"]
 
-[node name="Legacy Islands Map" parent="." instance=ExtResource("1_t50lj")]
+[node name="Three Peaks Map" parent="." instance=ExtResource("1_xksrt")]
 
 [node name="Network" type="Node" parent="."]
 

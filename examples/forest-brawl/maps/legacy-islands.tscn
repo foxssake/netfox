@@ -15,6 +15,7 @@ sky_material = SubResource("ProceduralSkyMaterial_xjsj7")
 background_mode = 2
 sky = SubResource("Sky_g0uhm")
 tonemap_mode = 2
+glow_enabled = true
 
 [node name="Legacy Islands Map" type="Node3D"]
 
