@@ -46,6 +46,7 @@ zip -j "build/forest-brawlers.v${version}.win64.zip" build/win64/*
 if [ "$make_tag" = true ]; then
   echo $BOLD"Tagging as v$version"$NC
   git tag -a "v$version" -m "v$version"
+  git push --tags
 fi
 
 # Cleanup
