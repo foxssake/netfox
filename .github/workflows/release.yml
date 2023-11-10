@@ -26,7 +26,7 @@ jobs:
       - name: Verify setup
         run: godot --version
       - name: Build
-        run: sh/build.sh
+        run: sh/build.sh --tag
       - name: Release
         uses: softprops/action-gh-release@v1
         with:

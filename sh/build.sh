@@ -1,10 +1,21 @@
 #!/bin/bash
 
-# Assume we're running from project root
-source sh/shared.sh
-
 BOLD="$(tput bold)"
 NC="$(tput sgr0)"
+
+make_tag=false
+
+while (( "$#" )); do
+  if [[ "$1" == "--tag" ]]; then
+    echo "Will create tag"
+    make_tag=true
+  fi
+
+  shift
+done
+
+# Assume we're running from project root
+source sh/shared.sh
 
 echo $BOLD"Building netfox v${version}" $NC
 mkdir -p build
@@ -30,6 +41,12 @@ zip -j "build/forest-brawlers.v${version}.linux.zip" build/linux/*
 echo "Building with Windows preset"
 godot --headless --export-release "Windows Desktop" "build/win64/forest-brawlers.exe"
 zip -j "build/forest-brawlers.v${version}.win64.zip" build/win64/*
+
+# Tag release
+if [ "$make_tag" = true ]; then
+  echo $BOLD"Tagging as v$version"$NC
+  git tag -a "v$version" -m "v$version"
+fi
 
 # Cleanup
 echo $BOLD"Cleaning up" $NC
