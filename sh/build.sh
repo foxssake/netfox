@@ -3,7 +3,10 @@
 # Assume we're running from project root
 source sh/shared.sh
 
-echo "Building netfox v${version}"
+BOLD="$(tput bold)"
+NC="$(tput sgr0)"
+
+echo $BOLD"Building netfox v${version}" $NC
 mkdir -p build
 
 for addon in ${addons[@]}; do
@@ -16,7 +19,7 @@ for addon in ${addons[@]}; do
 done
 
 # Build example game
-echo "Building Forest Brawlers"
+echo $BOLD"Building Forest Brawlers" $NC
 mkdir -p build/linux
 mkdir -p build/win64
 
@@ -29,5 +32,5 @@ godot --headless --export-release "Windows Desktop" "build/win64/forest-brawlers
 zip -j "build/forest-brawlers.v${version}.win64.zip" build/win64/*
 
 # Cleanup
-echo "Cleaning up"
+echo $BOLD"Cleaning up" $NC
 rm -rf build/win64 build/linux

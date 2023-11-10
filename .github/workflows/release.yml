@@ -1,5 +1,9 @@
 name: Release
 
+permissions:
+  contents: write
+  discussions: write
+
 on:
   push:
     branches: [ "main" ]
@@ -14,8 +18,8 @@ jobs:
     steps:
       - name: Checkout 
         uses: actions/checkout@v2
-      - uses: chickensoft-games/setup-godot@v1
-        name: Setup Godot
+      - name: Setup Godot
+        uses: chickensoft-games/setup-godot@v1
         with:
           version: 4.1.1
           use-dotnet: false
@@ -23,3 +27,9 @@ jobs:
         run: godot --version
       - name: Build
         run: sh/build.sh
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: latest
+          files: build/*
+          draft: true
