@@ -9,6 +9,10 @@ mkdir -p build
 for addon in ${addons[@]}; do
     echo "Packing addon ${addon}"
     zip -r "build/${addon}.v${version}.zip" "addons/${addon}"
+
+    if [ "$addon" != "netfox" ]; then
+      zip -r "build/${addon}.with-deps.v${version}.zip" "addons/${addon}" "addons/netfox"
+    fi
 done
 
 # Build example game

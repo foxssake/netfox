@@ -1,0 +1,25 @@
+name: Release
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  release:
+    name: Create pre-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v2
+      - uses: chickensoft-games/setup-godot@v1
+        name: 🤖 Setup Godot
+        with:
+          version: 4.1.1
+          use-dotnet: false
+      - name: Verify setup
+        run: godot --version
+      - name: Build
+        run: sh/build.sh
