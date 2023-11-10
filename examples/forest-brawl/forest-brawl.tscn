@@ -49,6 +49,15 @@ data = {
 }
 metadata/_editor_floor_ = Vector3(0, 0, 0)
 
+[node name="Powerup" parent="Map" instance=ExtResource("9_55gdr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.00248, 3, 0.00557518)
+
+[node name="Powerup2" parent="Map" instance=ExtResource("9_55gdr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.99752, 3, -14.9944)
+
+[node name="Powerup3" parent="Map" instance=ExtResource("9_55gdr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.9975, 3, 9.00558)
+
 [node name="Foliage" type="Node" parent="Map"]
 
 [node name="flowers" parent="Map/Foliage" instance=ExtResource("2_q0d6t")]
@@ -81,14 +90,19 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.5256, 1, 10.0441)
 [node name="plant3" parent="Map/Foliage" instance=ExtResource("4_0jc3h")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.3956, -2.20899, 10.0441)
 
-[node name="Powerup" parent="Map" instance=ExtResource("9_55gdr")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.00248, 3, 0.00557518)
+[node name="Spawn Points" type="Node" parent="Map"]
 
-[node name="Powerup2" parent="Map" instance=ExtResource("9_55gdr")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.99752, 3, -14.9944)
+[node name="Spawn" type="Node3D" parent="Map/Spawn Points" groups=["Spawn Points"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0)
 
-[node name="Powerup3" parent="Map" instance=ExtResource("9_55gdr")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.9975, 3, 9.00558)
+[node name="Spawn2" type="Node3D" parent="Map/Spawn Points" groups=["Spawn Points"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17, 4, 11)
+
+[node name="Spawn3" type="Node3D" parent="Map/Spawn Points" groups=["Spawn Points"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 4, -2)
+
+[node name="Spawn4" type="Node3D" parent="Map/Spawn Points" groups=["Spawn Points"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 4, -18)
 
 [node name="Environment" type="Node" parent="."]
 
