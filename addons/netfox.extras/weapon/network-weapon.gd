@@ -172,6 +172,7 @@ func _request_projectile(id: String, tick: int, request_data: Dictionary):
 	
 	_save_projectile(projectile, id, local_data)
 	rpc("_accept_projectile", id, tick, local_data)
+	_after_fire(projectile)
 
 @rpc("authority", "reliable", "call_local")
 func _accept_projectile(id: String, tick: int, response_data: Dictionary):
