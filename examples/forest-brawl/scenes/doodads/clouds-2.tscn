@@ -1,0 +1,33 @@
+[gd_scene load_steps=2 format=3 uid="uid://c5l8x303sjqhs"]
+
+[ext_resource type="PackedScene" uid="uid://bsbr5iwwmvkni" path="res://examples/forest-brawl/scenes/doodads/cloud-puff.tscn" id="1_inhlv"]
+
+[node name="Clouds 2" type="Node3D"]
+
+[node name="Cloud Puff" parent="." instance=ExtResource("1_inhlv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.87052, 1.17294, 1.65643)
+skeleton = NodePath("")
+
+[node name="Cloud Puff2" parent="." instance=ExtResource("1_inhlv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.82601, 0.801252, 2.57458)
+skeleton = NodePath("")
+
+[node name="Cloud Puff3" parent="." instance=ExtResource("1_inhlv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.89437, 0.801252, -2.56131)
+skeleton = NodePath("")
+
+[node name="Cloud Puff4" parent="." instance=ExtResource("1_inhlv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.24966, 1.12834, -0.138732)
+skeleton = NodePath("")
+
+[node name="Cloud Puff5" parent="." instance=ExtResource("1_inhlv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.18009, 0.756649, -0.0275192)
+skeleton = NodePath("")
+
+[node name="Cloud Puff6" parent="." instance=ExtResource("1_inhlv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.212608, 2.86806, -0.8603)
+skeleton = NodePath("")
+
+[node name="Cloud Puff7" parent="." instance=ExtResource("1_inhlv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.20852, 0.416291, -2.78978)
+skeleton = NodePath("")

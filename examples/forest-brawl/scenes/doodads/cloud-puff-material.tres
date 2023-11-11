@@ -1,0 +1,25 @@
+[gd_resource type="StandardMaterial3D" load_steps=3 format=3 uid="uid://joecqmf51gl0"]
+
+[sub_resource type="Gradient" id="Gradient_t3ujw"]
+interpolation_mode = 2
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_6a55y"]
+gradient = SubResource("Gradient_t3ujw")
+width = 256
+height = 256
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.75, 0.5)
+
+[resource]
+transparency = 1
+shading_mode = 2
+specular_mode = 2
+albedo_color = Color(0.701961, 0.901961, 1, 1)
+albedo_texture = SubResource("GradientTexture2D_6a55y")
+rim_tint = 1.0
+texture_repeat = false
+billboard_mode = 1
+billboard_keep_scale = true
+proximity_fade_enabled = true
