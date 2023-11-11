@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://cwh2p0qb5872o"]
+[gd_scene load_steps=20 format=3 uid="uid://cwh2p0qb5872o"]
 
 [ext_resource type="PackedScene" uid="uid://d1544gxqaoptc" path="res://examples/forest-brawl/maps/three-peaks.tscn" id="1_xksrt"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/brawler-spawner.gd" id="5_qv1fx"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/score-manager.gd" id="9_vxjwh"]
 [ext_resource type="LabelSettings" uid="uid://b4u1aluftkajy" path="res://examples/forest-brawl/ui-settings/player-stat-label.tres" id="10_0ix7v"]
 [ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="10_ld676"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/settings/vsync-checkbutton.gd" id="11_4x74a"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/random-name-input.gd" id="11_cf8pu"]
 [ext_resource type="PackedScene" uid="uid://b1vadi3ma8uiq" path="res://examples/forest-brawl/scenes/brawler-crown.tscn" id="11_eeeag"]
 [ext_resource type="Script" path="res://examples/shared/scripts/noray-bootstrapper.gd" id="11_vpdh0"]
@@ -112,27 +113,42 @@ text = "Nameless Brawler"
 clear_button_enabled = true
 script = ExtResource("11_cf8pu")
 
-[node name="Confine mouse" type="HBoxContainer" parent="UI/Network Popup/Settings"]
+[node name="GridContainer" type="GridContainer" parent="UI/Network Popup/Settings"]
+layout_mode = 2
+columns = 2
+
+[node name="Fullscreen" type="HBoxContainer" parent="UI/Network Popup/Settings/GridContainer"]
 layout_mode = 2
 
-[node name="Confine Mouse Label" type="Label" parent="UI/Network Popup/Settings/Confine mouse"]
-layout_mode = 2
-text = "Confine mouse:"
-
-[node name="Confine Mouse CheckButton" type="CheckButton" parent="UI/Network Popup/Settings/Confine mouse"]
-layout_mode = 2
-script = ExtResource("13_ujuuj")
-
-[node name="Fullscreen" type="HBoxContainer" parent="UI/Network Popup/Settings"]
-layout_mode = 2
-
-[node name="Fullscreen Label" type="Label" parent="UI/Network Popup/Settings/Fullscreen"]
+[node name="Fullscreen Label" type="Label" parent="UI/Network Popup/Settings/GridContainer/Fullscreen"]
 layout_mode = 2
 text = "Fullscreen:"
 
-[node name="Fullscreen CheckButton" type="CheckButton" parent="UI/Network Popup/Settings/Fullscreen"]
+[node name="Fullscreen CheckButton" type="CheckButton" parent="UI/Network Popup/Settings/GridContainer/Fullscreen"]
 layout_mode = 2
 script = ExtResource("14_h1iqv")
+
+[node name="V-Sync" type="HBoxContainer" parent="UI/Network Popup/Settings/GridContainer"]
+layout_mode = 2
+
+[node name="V-Sync Label" type="Label" parent="UI/Network Popup/Settings/GridContainer/V-Sync"]
+layout_mode = 2
+text = "V-Sync:"
+
+[node name="V-Sync CheckButton" type="CheckButton" parent="UI/Network Popup/Settings/GridContainer/V-Sync"]
+layout_mode = 2
+script = ExtResource("11_4x74a")
+
+[node name="Confine mouse" type="HBoxContainer" parent="UI/Network Popup/Settings/GridContainer"]
+layout_mode = 2
+
+[node name="Confine Mouse Label" type="Label" parent="UI/Network Popup/Settings/GridContainer/Confine mouse"]
+layout_mode = 2
+text = "Confine mouse:"
+
+[node name="Confine Mouse CheckButton" type="CheckButton" parent="UI/Network Popup/Settings/GridContainer/Confine mouse"]
+layout_mode = 2
+script = ExtResource("13_ujuuj")
 
 [node name="Volume" type="HBoxContainer" parent="UI/Network Popup/Settings"]
 layout_mode = 2
