@@ -1,0 +1,45 @@
+[gd_scene load_steps=2 format=3 uid="uid://dq14vitb32x5p"]
+
+[ext_resource type="ArrayMesh" uid="uid://6emuffbfmc1f" path="res://examples/forest-brawl/scenes/doodads/cloud-puff-mesh.tres" id="1_konp6"]
+
+[node name="Clouds 3" type="Node3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.99559, 0)
+mesh = ExtResource("1_konp6")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.49789, 0, 4.6289)
+mesh = ExtResource("1_konp6")
+
+[node name="MeshInstance3D10" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.54156, 3.06295, 1.44107)
+mesh = ExtResource("1_konp6")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.02192, 0, -2.40179)
+mesh = ExtResource("1_konp6")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.30146, 0, 2.75114)
+mesh = ExtResource("1_konp6")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.2622, 0, -1.44107)
+mesh = ExtResource("1_konp6")
+
+[node name="MeshInstance3D6" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.57647, 0, -2.62013)
+mesh = ExtResource("1_konp6")
+
+[node name="MeshInstance3D7" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.54595, 0, 1.48474)
+mesh = ExtResource("1_konp6")
+
+[node name="MeshInstance3D8" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.829708, 0, 2.79481)
+mesh = ExtResource("1_konp6")
+
+[node name="MeshInstance3D9" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.57207, 0, -3.31883)
+mesh = ExtResource("1_konp6")
