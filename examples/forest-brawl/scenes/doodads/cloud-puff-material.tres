@@ -19,6 +19,7 @@ specular_mode = 2
 albedo_color = Color(0.701961, 0.901961, 1, 1)
 albedo_texture = SubResource("GradientTexture2D_6a55y")
 rim_tint = 1.0
+texture_repeat = false
 billboard_mode = 1
 billboard_keep_scale = true
 proximity_fade_enabled = true
