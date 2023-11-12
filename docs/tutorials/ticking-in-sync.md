@@ -8,6 +8,7 @@
   `_process` or `_physics_process`
 * Use `NetworkTime.time` or `NetworkTime.tick` for current game time in seconds
   or ticks respectively
+* For more in-depth explanations, see [NetworkTime]
 
 ## The challenge
 
@@ -154,3 +155,5 @@ NetworkTime also provides various methods and properties regarding time:
 
 Actual tickrate is controlled by project settings, and cannot be changed at
 runtime. The settings themselves are under *Netfox/Time*.
+
+[NetworkTime]: ../guides/network-time.md

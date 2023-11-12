@@ -1,8 +1,7 @@
 site_name: netfox
 theme: readthedocs
 nav:
-  - Home:
-    - netfox: 'index.md'
+  - 'index.md'
   - Tutorials:
     - 'tutorials/ticking-in-sync.md'
     - 'tutorials/rollback.md'
