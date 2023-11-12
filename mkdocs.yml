@@ -10,3 +10,6 @@ nav:
     - 'guides/network-time-synchronizer.md'
     - 'guides/network-events.md'
     - 'guides/interpolators.md'
+    - 'guides/property-paths.md'
+  - Nodes:
+    - 'nodes/tick-interpolator.md'
