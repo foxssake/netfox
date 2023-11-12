@@ -9,3 +9,4 @@ nav:
     - 'guides/network-time.md'
     - 'guides/network-time-synchronizer.md'
     - 'guides/network-events.md'
+    - 'guides/interpolators.md'
