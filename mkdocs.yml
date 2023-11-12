@@ -7,3 +7,4 @@ nav:
     - 'tutorials/rollback.md'
   - Guides:
     - 'guides/network-time.md'
+    - 'guides/network-time-synchronizer.md'
