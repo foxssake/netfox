@@ -8,3 +8,4 @@ nav:
   - Guides:
     - 'guides/network-time.md'
     - 'guides/network-time-synchronizer.md'
+    - 'guides/network-events.md'
