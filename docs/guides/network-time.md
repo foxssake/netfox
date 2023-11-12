@@ -1,7 +1,7 @@
 # NetworkTime
 
 Tracks shared network time between players, and provides an event loop for
-synchronized game updates.
+synchronized game updates. Provided as an autoload.
 
 A separate timer is provided for network ticks, making the network game 
 update rate independent from rendering or physics frames.
@@ -149,4 +149,4 @@ time.
 *Sync to Physics* ties the network tick loop to the physics process when
 enabled.
 
-[NetworkTimeSynchronizer]: guides/network-time-synchronizer
+[NetworkTimeSynchronizer]: ./network-time-synchronizer.md

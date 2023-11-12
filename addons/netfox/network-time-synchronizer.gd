@@ -1,25 +1,4 @@
 extends Node
-## This class manages time synchronization from server to client, i.e. ensuring 
-## that the game time is the same, or at least very close to the server's, on 
-## every single client.
-##
-## This is achieved by periodically running a time sync process. This process
-## takes a few measurements, by sending a ping message to the server, and
-## measuring the time it takes to get a response. This in itself is only the
-## roundtrip, from which we [i]assume[/i] that the time it takes for data to
-## get to the server is half of the roundtrip.
-##
-## Each of the ping responses also contain the server's game time and index of
-## current tick. This way, we can take the last game time, add the estimated
-## latency, and have an estimate for the server's current game time. This should
-## work well with consistent latencies, or at least latencies with a somewhat
-## uniform jitter.
-##
-## For further info on how this works, here's an excellent article:
-## https://daposto.medium.com/game-networking-2-time-tick-clock-synchronisation-9a0e76101fe5
-##
-## Most of the time you shouldn't need to interface with this class directly,
-## instead you can use [NetworkTime].
 
 ## Time between syncs, in seconds.
 ##
