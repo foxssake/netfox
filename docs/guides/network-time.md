@@ -1,0 +1,152 @@
+# NetworkTime
+
+Tracks shared network time between players, and provides an event loop for
+synchronized game updates.
+
+A separate timer is provided for network ticks, making the network game 
+update rate independent from rendering or physics frames.
+
+## Network tick loop
+
+*NetworkTime* provides its own independent event loop by exposing signals. This
+makes networked game logic independent of current FPS, and makes it run at a
+consistent rate. Connect handlers to *NetworkTime*'s signals to implement
+networked game logic.
+
+During each frame, *NetworkTime* checks how much time has elapsed since the
+last tick loop. When more time has elapsed than a single tick's duration, the
+*network tick loop* will run:
+
+![Network tick loop](../assets/network-tick-loop.svg)
+
+The tick loop will run as long as it catches up on ticks to run. Every loop is
+limited to run at most `max_ticks_per_frame` ticks to avoid overwhelming the
+CPU.
+
+To tie the network tick loop to Godot's physics process, enable
+`sync_to_physics`. This will result in the tick loop running a single tick in
+every physics update.
+
+To move your game logic to the network tick loop, use the *on_tick* event:
+
+```gdscript
+extends Node3D
+
+@export var speed = 4.0
+
+func _ready():
+  NetworkTime.on_tick.connect(_tick)
+
+func _tick(delta, tick):
+  # Move forward
+  position += basis.z * delta * speed
+```
+
+> By convention, *on_tick* handlers are named *_tick*.
+
+## Starting and stopping
+
+By default, *NetworkTime* does not run the tick loop at all. This lets you
+control when the network tick loop, and thus the game starts and stops.
+
+To start the tick loop, call the `NetworkTime.start()` coroutine. On servers,
+this will start the tick loop and return immediately. On clients, it will first
+synchronize the time to the server, start the network tick loop, and only then
+return. Use this when starting the game.
+
+> Starting the tick loop before starting multiplayer is not supported.
+
+To stop the tick loop, call `NetworkTime.stop()`. This will immediately stop
+the tick loop and return. Use this when the player leaves a game.
+
+To get notified when a client successfully syncs their time and starts the tick
+loop, use the `NetworkTime.after_client_sync(peer_id)` signal. This is fired
+once per client, and only on the server.
+
+## Time synchronization
+
+*NetworkTime* runs a time synchronization loop on clients, in the background.
+Synchronizing time makes sure that all players have a shared idea of time and
+can exchange timing-related data.
+
+The synchronization itself is handled by [NetworkTimeSynchronizer].
+
+*NetworkTime* provides different kinds of time, each for different use cases.
+Each time can be accessed as ticks or seconds. Both advance after every network
+tick.
+
+### Local time
+
+* `NetworkTime.local_time`
+* `NetworkTime.local_ticks`
+
+Marks the current time in reference to the local machine. Starts at zero when
+the network tick loop starts.
+
+Useful for logic that is tied to the tick loop, but is not synchronized over
+the network. A good example is visual effects.
+
+Not suitable for synchronizing data, as the local time is different at each
+player.
+
+### Remote time
+
+* `NetworkTime.remote_ticks`
+* `NetwokrTime.remote_time`
+* `NetworkTime.remote_rtt`
+
+Marks the current *estimated* time of the server. This is a regularly updated
+estimate.
+
+Note that on each update, the remote time may jump forwards or even backwards.
+
+The estimate is based on the measured roundtrip time ( *remote_rtt* ) and the
+assumption that the latency is exactly half of that.
+
+Can be used as a base for comparisons ( e.g. latency ), but *not recommended*
+for tying game logic to it.
+
+To get notified when a time synchronization happens and the remote time is
+updated, use the `NetworkTime.after_sync` signal.
+
+### Time
+
+* `NetworkTime.time`
+* `NetworkTime.ticks`
+
+Marks the current network game time. On start, this time is set to the
+estimated remote time.
+
+The game time is only adjusted if it is too far off from the remote time,
+making it a good, consistent source of time.
+
+Can be used when timing data needs to be shared between players, and for game
+logic that is synchronized over the network.
+
+## Settings
+
+Settings are found in the Project Settings, under Netfox > Time:
+
+![NetworkTime Settings](../assets/network-time-settings.png)
+
+*Tickrate* specifies the number of ticks every second in the network tick loop.
+
+*Max Ticks Per Frame* sets the maximum number of frames to simulate per tick loop. Used to avoid freezing the game under load.
+
+*Recalibrate Threshold* is the largest allowed time discrepancy in seconds. If
+the difference between the remote time and game time is larger than this
+setting, the game time will be reset to the remote time.
+
+*Sync Interval* is the resting time between time synchronizations. Note that
+the synchronization itself may take multiple seconds, so overall there will be
+more time between two synchronization runs than just the interval.
+
+*Sync Samples* is the number of measurements to take for estimating roundtrip
+time.
+
+*Sync Sample Interval* is the resting time between roundtrip measurements.
+
+*Sync to Physics* ties the network tick loop to the physics process when
+enabled.
+
+[NetworkTimeSynchronizer]: guides/network-time-synchronizer

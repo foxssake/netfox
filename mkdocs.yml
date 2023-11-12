@@ -6,3 +6,5 @@ nav:
   - Tutorials:
     - 'tutorials/ticking-in-sync.md'
     - 'tutorials/rollback.md'
+  - Guides:
+    - 'guides/network-time.md'

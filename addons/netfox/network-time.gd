@@ -1,15 +1,8 @@
 extends Node
 ## This class handles timing.
 ##
-## Timing in a multiplayer game has two important jobs - to make sure everyone
-## moves to the next tick at the same rate, and that the game time is approximately
-## the same at everyone.
-##
-## The former is handled by this class and its signals, and the latter is done 
-## by [NetworkTimeSynchronizer] in the background.
-##
-## A separate timer is provided for network ticks, making the network game 
-## update rate independent from rendering or physics frames.
+## @tutorial(Ticking in sync): https://foxssake.github.io/netfox/tutorials/ticking-in-sync/
+## @tutorial(NetworkTime Guide): http://foxssake.github.io/netfox/guides/network-time/
 
 ## Number of ticks per second.
 ##
