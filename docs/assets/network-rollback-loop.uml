@@ -1,0 +1,15 @@
+@startuml
+
+start
+
+:before_loop;
+while(Rollback)
+  :on_prepare_tick;
+  :on_process_tick;
+  :on_record_tick;
+endwhile
+:after_loop;
+
+stop
+
+@enduml

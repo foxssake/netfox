@@ -11,5 +11,6 @@ nav:
     - 'guides/network-events.md'
     - 'guides/interpolators.md'
     - 'guides/property-paths.md'
+    - 'guides/network-rollback.md'
   - Nodes:
     - 'nodes/tick-interpolator.md'
