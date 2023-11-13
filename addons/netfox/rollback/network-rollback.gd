@@ -1,25 +1,4 @@
 extends Node
-## This class manages the network rollback code.
-##
-## In practice, this is done by emitting several events in the right order, and
-## counting on the event handlers to behave as expected.
-##
-## Note that generally you won't need to use this class directly, using
-## [RollbackSynchronizer] should be enough.
-##
-## This is done by running the following loop after every tick loop as managed
-## by [NetworkTime]:
-##
-## 1. Determine simulation range[br]
-##   a. On clients, this is the latest state received from server[br]
-##   b. On servers, this is the earliest input received from any client[br]
-##   c. In practice, this is done by emitting [signal before_loop]
-## 2. Resimulate the given range by[br]
-##   a. Preparing the frame by applying the corresponding state and input ( see [signal on_prepare_tick] )[br]
-##   b. Running the simulation ( see [signal on_process_tick] )[br]
-##   c. Recording the resulting state ( see [signal on_record_tick] )[br]
-## 3. Conclude the loop[br]
-##   a. This includes restoring the appropriate display state ( see [signal after_loop] )[br]
 
 ## Whether rollback is enabled.
 var enabled: bool = ProjectSettings.get_setting("netfox/rollback/enabled", true)
