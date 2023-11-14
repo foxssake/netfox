@@ -9,7 +9,9 @@
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xjsj7"]
 sky_top_color = Color(0.384314, 0.454902, 0.54902, 1)
-ground_bottom_color = Color(0.3136, 0.420373, 0.56, 1)
+ground_bottom_color = Color(0.313726, 0.419608, 0.560784, 1)
+ground_horizon_color = Color(0.4896, 0.58944, 0.72, 1)
+ground_curve = 0.32
 
 [sub_resource type="Sky" id="Sky_g0uhm"]
 sky_material = SubResource("ProceduralSkyMaterial_xjsj7")
@@ -76,6 +78,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 8, 12)
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
 transform = Transform3D(0.5, 0.612372, -0.612372, 0, 0.707107, 0.707107, 0.866025, -0.353553, 0.353553, -6.7361, 8.77817, 3.88909)
 shadow_enabled = true
+directional_shadow_split_2 = 0.15
+directional_shadow_blend_splits = true
+directional_shadow_max_distance = 256.0
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
 environment = SubResource("Environment_c7ydc")
