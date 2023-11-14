@@ -31,14 +31,14 @@ func _tick(delta, _t):
 	
 	# Check if we've hit anyone
 	force_shapecast_update()
+	
+	# Find the closest point of contact
+	var collision_points = collision_result\
+		.filter(func(it): return it.collider != fired_by)\
+		.map(func(it): return it.point)
+	collision_points.sort_custom(func(a, b): return position.distance_to(a) < position.distance_to(b))
 
-	if not collision_result.is_empty() and not is_first_tick:
-		# Find the closest point of contact
-		var collision_points = collision_result\
-			.filter(func(it): return it.collider != fired_by)\
-			.map(func(it): return it.point)
-		collision_points.sort_custom(func(a, b): return position.distance_to(a) < position.distance_to(b))
-
+	if not collision_points.is_empty() and not is_first_tick:
 		# Jump to closest point of contact
 		var contact = collision_points[0]
 		position = contact
