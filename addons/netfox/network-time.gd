@@ -196,7 +196,10 @@ var ticktime: float:
 ## [i]read-only[/i]
 var tick_factor: float:
 	get:
-		return 1.0 - clampf(_next_tick * tickrate, 0, 1)
+		if not sync_to_physics:
+			return 1.0 - clampf(_next_tick * tickrate, 0, 1)
+		else:
+			return Engine.get_physics_interpolation_fraction()
 	set(v):
 		push_error("Trying to set read-only variable tick_factor")
 
