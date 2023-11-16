@@ -32,10 +32,12 @@ jobs:
         run: |
           sh/version.sh envvar >> "$GITHUB_OUTPUT"
           sh/version.sh
+      - name: Delete draft release(s)
+        uses: hugo19941994/delete-draft-releases@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Release
         uses: softprops/action-gh-release@v1
-        env:
-          VERSION: ${{ steps.version.outputs.VERSION }}
         with:
           name: ${{ steps.version.outputs.VERSION }}
           files: build/*
