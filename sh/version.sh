@@ -6,6 +6,7 @@ source sh/shared.sh
 version_major="$(echo ${version} | cut -f1 -d.)"
 version_minor="$(echo ${version} | cut -f2 -d.)"
 version_patch="$(echo ${version} | cut -f3 -d.)"
+version="$version_major.$version_minor.$version_patch"
 
 persist="false"
 
@@ -31,6 +32,9 @@ if [ $1 == "bump" ]; then
 
     version="$version_major.$version_minor.$version_patch"
     persist="true"
+elif [ $1 == "envvar" ]; then
+  echo "VERSION=v$version"
+  exit 0
 fi
 
 if [ "$persist" = "true" ]; then
