@@ -7,6 +7,8 @@ permissions:
 on:
   push:
     branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
@@ -25,10 +27,17 @@ jobs:
         run: godot --version
       - name: Build
         run: sh/build.sh
+      - name: Parse version
+        id: version
+        run: |
+          sh/version.sh envvar >> "$GITHUB_OUTPUT"
+          sh/version.sh
       - name: Release
         uses: softprops/action-gh-release@v1
+        env:
+          VERSION: ${{ steps.version.outputs.VERSION }}
         with:
-          name: latest
+          name: ${{ steps.version.outputs.VERSION }}
           files: build/*
           draft: true
           prerelease: true
