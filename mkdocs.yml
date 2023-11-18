@@ -2,16 +2,17 @@ site_name: netfox
 theme: readthedocs
 nav:
   - 'index.md'
-  - Tutorials:
-    - 'tutorials/ticking-in-sync.md'
-    - 'tutorials/rollback.md'
-  - Guides:
-    - 'guides/network-time.md'
-    - 'guides/network-time-synchronizer.md'
-    - 'guides/network-events.md'
-    - 'guides/interpolators.md'
-    - 'guides/property-paths.md'
-    - 'guides/network-rollback.md'
-  - Nodes:
-    - 'nodes/tick-interpolator.md'
-    - 'nodes/rollback-synchronizer.md'
+  - netfox:
+    - Tutorials:
+      - 'netfox/tutorials/ticking-in-sync.md'
+      - 'netfox/tutorials/rollback.md'
+    - Guides:
+      - 'netfox/guides/network-time.md'
+      - 'netfox/guides/network-time-synchronizer.md'
+      - 'netfox/guides/network-events.md'
+      - 'netfox/guides/interpolators.md'
+      - 'netfox/guides/property-paths.md'
+      - 'netfox/guides/network-rollback.md'
+    - Nodes:
+      - 'netfox/nodes/tick-interpolator.md'
+      - 'netfox/nodes/rollback-synchronizer.md'
