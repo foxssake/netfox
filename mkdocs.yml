@@ -14,3 +14,4 @@ nav:
     - 'guides/network-rollback.md'
   - Nodes:
     - 'nodes/tick-interpolator.md'
+    - 'nodes/rollback-synchronizer.md'
