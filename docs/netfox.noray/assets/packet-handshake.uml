@@ -1,0 +1,15 @@
+@startuml
+
+actor "Player A" as A
+boundary Internet as Net
+actor "Player B" as B
+
+A -> Net : "$-w-"
+B -> Net: "$-w-"
+A -> B : "$-w-"
+B -> A : "$rw-"
+A -> B : "$rw-"
+B -> A : "$rwx"
+A -> B : "$rwx"
+
+@enduml

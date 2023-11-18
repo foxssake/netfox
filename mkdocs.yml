@@ -19,4 +19,5 @@ nav:
   - netfox.noray:
     - Guides:
       - 'netfox.noray/guides/noray.md'
+      - 'netfox.noray/guides/packet-handshake.md'
 
