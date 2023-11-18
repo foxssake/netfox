@@ -1,13 +1,5 @@
 extends Node
-## This class implements a handshake protocol over for multiple classes.
-##
-## The point of the handshake itself is to confirm two-way connection between
-## two parties - i.e. both parties can receive message from the other and 
-## receive acknowledgement from the other that their messages have arrived.
-##
-## This is an important step before establishing connection for actual game 
-## play, as this lets both the client's and server's routers ( if any ) know 
-## that traffic is expected and should be let through.
+## This class implements a handshake protocol over UDP for multiple classes.
 
 class HandshakeStatus:
 	var did_read: bool = false
