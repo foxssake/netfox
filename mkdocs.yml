@@ -16,3 +16,7 @@ nav:
     - Nodes:
       - 'netfox/nodes/tick-interpolator.md'
       - 'netfox/nodes/rollback-synchronizer.md'
+  - netfox.noray:
+    - Guides:
+      - 'netfox.noray/guides/noray.md'
+

@@ -1,10 +1,6 @@
 extends Node
 ## A noray client for Godot.
 ##
-## noray can be used - similarly to a STUN+TURN server - to orchestrate
-## connection between two devices on the internet, either via NAT punchthrough,
-## or if that's not possible, by acting as a relay.
-##
 ## See: https://github.com/foxssake/noray
 
 var _peer: StreamPeerTCP = StreamPeerTCP.new()
