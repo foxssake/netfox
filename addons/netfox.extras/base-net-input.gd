@@ -2,18 +2,6 @@ extends Node
 class_name BaseNetInput
 
 ## Base class for Input nodes used with rollback.
-##
-## During rollback, multiple logical ticks are simulated in the span of a single
-## actual tick. Since these are just logical ticks, no actual input arrives
-## during them from the input devices.
-##
-## The solution is to gather input before the tick loop, and use that input for
-## any new ticks simulated during the rollback.
-##
-## This class provides a layer of convenience, since the only thing to do here
-## is to implement the [code]_gather[/code] method. This method is responsible
-## for setting all the properties that you have specified in [RollbackSynchronizer]
-## as input.
 
 func _ready():
 	NetworkTime.before_tick_loop.connect(func():
