@@ -1,22 +1,8 @@
 extends Node
 class_name NetworkWeapon
 
-## This class lets you create responsive weapons by creating the projectiles 
-## as soon as the weapon is fired, but keeping all the control on the server.
-##
-## To achieve this, both the server and the clients create projectiles which are
-## free to implement their behaviour, but should only affect game state on the
-## server.
-##
-## To avoid situations where the server and clients are not on the same page, 
-## clients spawn their projectiles but also notify the server. From there, the
-## server can either reject the projectile ( maybe the weapon was still on 
-## cooldown ) or accept it. Upon acceptance, the host will broadcast the 
-## projectile's state. On the firing client, the state will be reconciled with 
-## the one the client produced and the one from the server - maybe the player 
-## was in a slightly different position on the server when firing. The other 
-## clients will simply create the projectile with the state received from the
-## server.
+## Base class for creating responsive weapons, by spawning projectiles locally,
+## but keeping control on the server.
 
 var _projectiles: Dictionary = {}
 var _projectile_data: Dictionary = {}
