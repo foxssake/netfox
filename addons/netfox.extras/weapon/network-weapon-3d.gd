@@ -2,13 +2,6 @@ extends Node3D
 class_name NetworkWeapon3D
 
 ## A 3D-specific implementation of [NetworkWeapon].
-##
-## Manages reconciliation of projectiles, so the only thing required by you is 
-## to spawn projectiles.
-##
-## [i]Note:[/i] Since a single Godot class can't extend two classes, under the 
-## hood a special [NetworkWeapon] instance is created and added as internal 
-## child, with calls being proxied to and from it.
 
 ## Distance to consider too large during reconciliation checks.
 @export var distance_threshold: float = 0.1
@@ -22,7 +15,6 @@ func fire() -> Node3D:
 	return _weapon.fire()
 
 func _init():
-	print("Ready!")
 	_weapon = _NetworkWeaponProxy.new()
 	add_child(_weapon, true, INTERNAL_MODE_BACK)
 	_weapon.owner = self
