@@ -15,10 +15,12 @@ practice dictates to add *RollbackSynchronizer* under its target, so *Root*
 will most often be the *RollbackSynchronizer*'s parent node.
 
 *State properties* are recorded for each tick and restored during rollback. For
-state, the server is the ultimate authority.
+state, the server is the ultimate authority. Make sure that nodes containing
+state properties are owned by the server.
 
 *Input properties* are gathered for each player and sent to the server to use
-for simulation.
+for simulation. Make sure that nodes containing input properties are owned by
+their respective players.
 
 See [Property paths] on how to specify properties.
 
