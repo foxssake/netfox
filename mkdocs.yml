@@ -7,6 +7,7 @@ nav:
       - 'netfox/tutorials/ticking-in-sync.md'
       - 'netfox/tutorials/rollback.md'
     - Concepts:
+      - 'netfox/concepts/servers-clients-ownership.md'
       - 'netfox/concepts/authoritative-servers.md'
     - Guides:
       - 'netfox/guides/network-time.md'
