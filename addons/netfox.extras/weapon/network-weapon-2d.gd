@@ -4,7 +4,7 @@ class_name NetworkWeapon2D
 ## A 2D-specific implementation of [NetworkWeapon].
 
 ## Distance to consider too large during reconciliation checks.
-@export var distance_threshold: float = 0.1
+@export var distance_threshold: float = 1.0
 
 var _weapon: _NetworkWeaponProxy
 
