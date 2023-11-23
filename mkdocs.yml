@@ -4,8 +4,8 @@ nav:
   - 'index.md'
   - netfox:
     - Tutorials:
-      - 'netfox/tutorials/ticking-in-sync.md'
-      - 'netfox/tutorials/rollback.md'
+      - 'netfox/tutorials/responsive-player-movement.md'
+      - 'netfox/tutorials/rollback-caveats.md'
     - Concepts:
       - 'netfox/concepts/servers-clients-ownership.md'
       - 'netfox/concepts/authoritative-servers.md'

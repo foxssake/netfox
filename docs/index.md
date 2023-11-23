@@ -50,9 +50,8 @@ Some links to get you up to speed:
 
 ## About the tutorials
 
-Tutorials contain a *challenge* section - this part is to describe the actual
-difficulty the feature solves. In case you are experienced with building
-multiplayer games, feel free to skip these sections.
+The tutorials are intended to get you started fast, but don't explain much of
+how things work. For that, refer to the guides.
 
 [Godot engine]: https://godotengine.org/
 [noray]: https://github.com/foxssake/noray
