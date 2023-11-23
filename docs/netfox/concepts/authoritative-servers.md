@@ -60,3 +60,5 @@ For more approaches, see: [Networking for Physics Programmers]
 [1500 Archers on a 28.8: Network Programming in Age of Empires and Beyond]: https://www.gamedeveloper.com/programming/1500-archers-on-a-28-8-network-programming-in-age-of-empires-and-beyond
 
 [Networking for Physics Programmers]: https://www.gdcvault.com/play/1022195/Physics-for-Game-Programmers-Networking
+
+[Client-side prediction and Server reconciliation]: https://www.gabrielgambetta.com/client-side-prediction-server-reconciliation.html
