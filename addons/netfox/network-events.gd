@@ -74,7 +74,6 @@ func is_server() -> bool:
 
 func _ready():
 	enabled = ProjectSettings.get_setting("netfox/events/enabled", true)
-	print("Network Events is %s" % [enabled])
 
 	# Automatically start ticking when entering multiplayer and stop when 
 	# leaving multiplayer
