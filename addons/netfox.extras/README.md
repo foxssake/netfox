@@ -14,17 +14,11 @@ are not core to netfox.
 
 ## Install
 
-### Source
-
-Download the [source] and copy the netfox.extras addon to your Godot project.
-
-### Asset Library
-
-TBA
+See the root [README](../../README.md).
 
 ## Usage
 
-See the docs ( TBA ).
+See the [docs](https://foxssake.github.io/netfox/).
 
 ## License
 

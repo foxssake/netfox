@@ -17,17 +17,11 @@ The core addon of [netfox], providing responsive multiplayer features for the
 
 ## Install
 
-### Source
-
-Download the [source] and copy the netfox addon to your Godot project.
-
-### Asset Library
-
-TBA
+See the root [README](../../README.md).
 
 ## Usage
 
-See the docs ( TBA ).
+See the [docs](https://foxssake.github.io/netfox/).
 
 ## License
 

@@ -32,13 +32,25 @@ The package consists of multiple addons, each with different features:
 
 ## Install
 
-### Source
+### Releases
 
-Download the [source] and copy the addons of your choice to your Godot project.
+Find the latest netfox under
+[Releases](https://github.com/foxssake/netfox/releases)
+
+Each release contains the addons both with- and without dependencies, and a
+build of [Forest Brawl] for Windows and Linux.
 
 ### Asset Library
 
-TBA
+Search for the addon name in Godot's AssetLib or download from the site:
+
+* [netfox](https://godotengine.org/asset-library/asset/9816)
+* [netfox.noray](https://godotengine.org/asset-library/asset/9817)
+* [netfox.extras](https://godotengine.org/asset-library/asset/9818)
+
+### Source
+
+Download the [source] and copy the addons of your choice to your Godot project.
 
 ## Usage
 
