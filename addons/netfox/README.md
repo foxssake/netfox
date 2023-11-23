@@ -34,3 +34,4 @@ In case of any issues, comments, or questions, please feel free to [open an issu
 [netfox]: https://github.com/foxssake/netfox
 [source]: https://github.com/foxssake/netfox/archive/refs/heads/main.zip
 [Godot engine]: https://godotengine.org/
+[open an issue]: https://github.com/foxssake/netfox/issues

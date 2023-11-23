@@ -54,7 +54,7 @@ Download the [source] and copy the addons of your choice to your Godot project.
 
 ## Usage
 
-See the docs ( TBA ).
+See the [docs](https://foxssake.github.io/netfox/).
 
 ### Examples
 

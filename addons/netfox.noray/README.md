@@ -33,3 +33,4 @@ In case of any issues, comments, or questions, please feel free to [open an issu
 [source]: https://github.com/foxssake/netfox/archive/refs/heads/main.zip
 [noray]: https://github.com/foxssake/noray
 [noray-bootstrapper.gd]: ../../examples/shared/scripts/noray-bootstrapper.gd
+[open an issue]: https://github.com/foxssake/netfox/issues
