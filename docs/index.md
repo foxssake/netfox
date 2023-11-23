@@ -14,27 +14,43 @@ A set of addons for responsive online games with the [Godot engine].
 * 💨 Lag compensation with Client-side Prediction and Server-side Reconciliation
 * 🛜 Bullet-proof connectivity with [noray] integration
 
-## Getting started
+## Overview
 
-Netfox consists of three addons:
+The package consists of multiple addons, each with different features:
 
-* netfox
+* [netfox]
     * The core package, implements timing, rollback and other multiplayer
       features
     * *Start here*
-* netfox.noray
+* [netfox.noray]
     * Implements [noray] integration to establish connection between players
     * *Useful for online games*
-* netfox.extras
+* [netfox.extras]
     * Provides high-level, game-specific, convenience features built on top of
       netfox, like base classes for input management or weapons
     * *Check for reusable components for your game*
 
-Download the addons needed from the latest release ( TBA ), or grab the
-[source] and copy the addons folder to your project.
+## Install
 
-With netfox added to your project, you're ready to take advantage of its
-features, as outlined in the tutorials.
+### Releases
+
+Find the latest netfox under
+[Releases](https://github.com/foxssake/netfox/releases)
+
+Each release contains the addons both with- and without dependencies, and a
+build of [Forest Brawl] for Windows and Linux.
+
+### Asset Library
+
+Search for the addon name in Godot's AssetLib or download from the site:
+
+* [netfox](https://godotengine.org/asset-library/asset/9816)
+* [netfox.noray](https://godotengine.org/asset-library/asset/9817)
+* [netfox.extras](https://godotengine.org/asset-library/asset/9818)
+
+### Source
+
+Download the [source] and copy the addons of your choice to your Godot project.
 
 ## About this documentation
 
@@ -52,6 +68,11 @@ Some links to get you up to speed:
 
 The tutorials are intended to get you started fast, but don't explain much of
 how things work. For that, refer to the guides.
+
+[netfox]: https://github.com/foxssake/netfox/tree/main/addons/netfox
+[netfox.noray]: https://github.com/foxssake/netfox/tree/main/addons/netfox.noray
+[netfox.extras]: https://github.com/foxssake/netfox/tree/main/addons/netfox.extras
+[Forest Brawl]: https://github.com/foxssake/netfox/tree/main/examples/forest-brawl
 
 [Godot engine]: https://godotengine.org/
 [noray]: https://github.com/foxssake/noray

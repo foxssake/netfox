@@ -13,19 +13,11 @@ Bulletproof your connectivity with [netfox]'s [noray] integration!
 
 ## Install
 
-### Source
-
-Download the [source] and copy the netfox.noray addon to your Godot project.
-
-> Note: this addon depends on netfox, make sure to include it as well in your project.
-
-### Asset Library
-
-TBA
+See the root [README](../../README.md).
 
 ## Usage
 
-See the [docs].
+See the [docs](https://foxssake.github.io/netfox/).
 
 For a full example, see [noray-bootstrapper.gd].
 
@@ -40,5 +32,5 @@ In case of any issues, comments, or questions, please feel free to [open an issu
 [netfox]: https://github.com/foxssake/netfox
 [source]: https://github.com/foxssake/netfox/archive/refs/heads/main.zip
 [noray]: https://github.com/foxssake/noray
-[docs]: https://foxssake.github.io/netfox/netfox.noray/guides/noray/
 [noray-bootstrapper.gd]: ../../examples/shared/scripts/noray-bootstrapper.gd
+[open an issue]: https://github.com/foxssake/netfox/issues
