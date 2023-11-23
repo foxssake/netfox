@@ -32,7 +32,6 @@ func _handle_scores(scores: Dictionary):
 
 	# No crown in single player
 	if scores.size() == 1:
-		print("Only one player!")
 		return
 
 	var max_score = scores.values().max()
@@ -40,17 +39,12 @@ func _handle_scores(scores: Dictionary):
 	
 	# Multiple players share the crown
 	if max_players.size() > 1:
-		print("Multiple players with crown!")
 		return
 	
 	var player_id = max_players[0]
 	var player = get_tree().get_nodes_in_group("Brawlers")\
 		.filter(func(it): return it.player_id == player_id)\
 		.pop_back()
-	
-	print("All players: %s" % [get_tree().get_nodes_in_group("Brawlers")])
-	print("Player by id %s: %s" % [player_id, get_tree().get_nodes_in_group("Brawlers")\
-		.filter(func(it): return it.player_id == player_id)])
 	
 	target = player
 	is_enabled = true

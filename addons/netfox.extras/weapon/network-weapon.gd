@@ -28,10 +28,8 @@ func fire() -> Node:
 	var data = _projectile_data[id]
 	
 	if not is_multiplayer_authority():
-		print("Requesting projectile %s" % [id])
 		rpc_id(get_multiplayer_authority(), "_request_projectile", id, NetworkTime.tick, data)
 	else:
-		print("Weapon is local, accepting projectile %s" % [id])
 		rpc("_accept_projectile", id, NetworkTime.tick, data)
 
 	print("Calling after fire hook for %s" % [projectile.name])
@@ -164,7 +162,7 @@ func _request_projectile(id: String, tick: int, request_data: Dictionary):
 func _accept_projectile(id: String, tick: int, response_data: Dictionary):
 	print("[%s] Accepting projectile %s from %s" % [multiplayer.get_unique_id(), id, multiplayer.get_remote_sender_id()])
 	if multiplayer.get_unique_id() == multiplayer.get_remote_sender_id():
-		print("Projectile %s is local, nothing to do" % [id])
+		# Projectile is local, nothing to do
 		return
 	
 	if _projectiles.has(id):
@@ -172,7 +170,6 @@ func _accept_projectile(id: String, tick: int, response_data: Dictionary):
 		var local_data = _projectile_data[id]
 		_reconcile_buffer.push_back([projectile, local_data, response_data])
 	else:
-		print("[%s] Spawning brand new projectile %s" % [multiplayer.get_unique_id(), id])
 		var projectile = _spawn()
 		_apply_data(projectile, response_data)
 		_projectile_data.erase(id)
