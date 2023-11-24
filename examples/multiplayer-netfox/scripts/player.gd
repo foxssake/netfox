@@ -7,6 +7,7 @@ extends CharacterBody3D
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 func _ready():
+	NetworkTime.on_tick.connect(_tick)
 	position = Vector3(0, 4, 0)
 	
 	if input == null:
