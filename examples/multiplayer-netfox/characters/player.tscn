@@ -22,7 +22,6 @@ script = ExtResource("2_qf1b4")
 root = NodePath("..")
 state_properties = Array[String]([":position"])
 input_properties = Array[String](["Input:movement"])
-interpolate_properties = Array[String]([":position"])
 
 [node name="Input" type="Node" parent="."]
 script = ExtResource("3_g8e4n")
