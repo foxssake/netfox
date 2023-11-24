@@ -44,9 +44,9 @@ build of [Forest Brawl] for Windows and Linux.
 
 Search for the addon name in Godot's AssetLib or download from the site:
 
-* [netfox](https://godotengine.org/asset-library/asset/9816)
-* [netfox.noray](https://godotengine.org/asset-library/asset/9817)
-* [netfox.extras](https://godotengine.org/asset-library/asset/9818)
+* [netfox](https://godotengine.org/asset-library/asset/2375)
+* [netfox.noray](https://godotengine.org/asset-library/asset/2376)
+* [netfox.extras](https://godotengine.org/asset-library/asset/2377)
 
 ### Source
 
