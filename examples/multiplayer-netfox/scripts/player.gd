@@ -16,7 +16,7 @@ func _ready():
 	await get_tree().process_frame
 	$RollbackSynchronizer.process_settings()
 
-func _tick(delta: float, _tick: int):
+func _rollback_tick(delta, _tick, _is_fresh):
 	# Add the gravity.
 	if not is_on_floor():
 		velocity.y -= gravity * delta
