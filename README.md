@@ -90,6 +90,26 @@ these cases, the relevant licenses can be found in the assets' directories.
 
 In case of any issues, comments, or questions, please feel free to [open an issue]!
 
+## Contribution
+
+Contributions are welcome! Please feel free to fork the repository and open a
+PR. Ideally, your PR implements a single thing, optionally refers to an
+existing issue, and follows the [GDScript style guide].
+
+Please note that depending on the feature/fix you implement, the PR may need to
+undergo changes, or in some cases, get rejected if it doesn't fit netfox's
+intended feature set or vision.
+
+If you feel like it, grant the netfox author(s) write permission to your fork,
+so we can update the PR if needed.
+
+If you're not sure if the PR would fit netfox or not, [open an issue] first,
+mentioning that you'd be willing to contribute a PR.
+
+Author(s) at the time of writing:
+
+* @elementbound
+
 [source]: https://github.com/foxssake/netfox/archive/refs/heads/main.zip
 [Godot engine]: https://godotengine.org/
 [noray]: https://github.com/foxssake/noray
@@ -100,3 +120,4 @@ In case of any issues, comments, or questions, please feel free to [open an issu
 [Forest Brawl]: examples/forest-brawl
 
 [open an issue]: https://github.com/foxssake/netfox/issues
+[GDScript style guide]: https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_styleguide.html
