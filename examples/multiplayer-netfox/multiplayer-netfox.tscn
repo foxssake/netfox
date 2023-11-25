@@ -89,6 +89,12 @@ grow_vertical = 2
 [node name="Network Popup" parent="UI" instance=ExtResource("4_lq3lq")]
 layout_mode = 1
 
+[node name="LAN Bootstrapper" parent="UI/Network Popup" index="3" node_paths=PackedStringArray("connect_ui")]
+connect_ui = NodePath("..")
+
+[node name="Noray Bootstrapper" parent="UI/Network Popup" index="4" node_paths=PackedStringArray("connect_ui")]
+connect_ui = NodePath("..")
+
 [node name="Time Display" type="Label" parent="UI"]
 layout_mode = 0
 offset_right = 40.0
