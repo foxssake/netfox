@@ -3,20 +3,44 @@
 BOLD="$(tput bold)"
 NC="$(tput sgr0)"
 
+ROOT="$(pwd)"
+BUILD="$ROOT/build"
+TMP="$ROOT/buildtmp"
+
 # Assume we're running from project root
 source sh/shared.sh
 
 echo $BOLD"Building netfox v${version}" $NC
-rm -rf build
-mkdir -p build
+
+echo "Directories"
+echo "Root: $ROOT"
+echo "Build: $BUILD"
+echo "Temp: $TMP"
+
+rm -rf "$BUILD"
+mkdir -p "$BUILD"
+rm -rf "$TMP"
 
 for addon in ${addons[@]}; do
     echo "Packing addon ${addon}"
-    zip -r "build/${addon}.v${version}.zip" "addons/${addon}"
+
+    addon_tmp="$TMP/${addon}.v${version}/addons"
+    addon_src="$ROOT/addons/${addon}"
+    addon_dst="$BUILD/${addon}.v${version}"
+
+    mkdir -p "${addon_tmp}"
+    cp -r "${addon_src}" "${addon_tmp}"
+
+    cd "$TMP"
+    zip -r "${addon_dst}.zip" "${addon}.v${version}"
 
     if [ "$addon" != "netfox" ]; then
-      zip -r "build/${addon}.with-deps.v${version}.zip" "addons/${addon}" "addons/netfox"
+      cp -r "$ROOT/addons/netfox" "${addon_tmp}"
+      zip -r "${addon_dst}.with-deps.zip" "${addon}.v${version}"
     fi
+    rm -rf "tmp"
+
+    cd "$ROOT"
 done
 
 # Build example game
