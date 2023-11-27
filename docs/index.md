@@ -43,7 +43,7 @@ Linux.
 In cases of dependencies, a *".with-deps.zip"* version is included as well,
 which contains all the dependencies of the addon. For example, *netfox.noray*
 depends on *netfox*, so *"netfox.noray.v1.x.y.with-deps.zip"* includes both
-*netfox.noray* and *netfox.
+*netfox.noray* and *netfox*.
 
 ### Asset Library
 
