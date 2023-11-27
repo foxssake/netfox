@@ -7,6 +7,10 @@ ROOT="$(pwd)"
 BUILD="$ROOT/build"
 TMP="$ROOT/buildtmp"
 
+declare -A DEPS=(\
+  ["netfox.extras"]="netfox"
+)
+
 # Assume we're running from project root
 source sh/shared.sh
 
@@ -29,18 +33,24 @@ for addon in ${addons[@]}; do
     addon_dst="$BUILD/${addon}.v${version}"
 
     mkdir -p "${addon_tmp}"
-    cp -r "${addon_src}" "${addon_tmp}"
-
     cd "$TMP"
+
+    cp -r "${addon_src}" "${addon_tmp}"
     zip -r "${addon_dst}.zip" "${addon}.v${version}"
 
-    if [ "$addon" != "netfox" ]; then
-      cp -r "$ROOT/addons/netfox" "${addon_tmp}"
+    has_deps="false"
+    for dep in ${DEPS[$addon]}; do
+      echo "Adding dependency $dep"
+      cp -r "$ROOT/addons/${dep}" "${addon_tmp}"
+      has_deps="true"
+    done
+
+    if [ $has_deps = "true" ]; then
       zip -r "${addon_dst}.with-deps.zip" "${addon}.v${version}"
     fi
-    rm -rf "tmp"
 
     cd "$ROOT"
+    rm -rf "$TMP"
 done
 
 # Build example game
