@@ -15,6 +15,9 @@ Bulletproof your connectivity with [netfox]'s [noray] integration!
 
 See the root [README](../../README.md).
 
+> *Note*, that while *netfox.noray* is part of the *netfox* suite, it can be
+> used alone, without installing *netfox* itself.
+
 ## Usage
 
 See the [docs](https://foxssake.github.io/netfox/).
