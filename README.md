@@ -61,6 +61,15 @@ Download the [source] and copy the addons of your choice to your Godot project.
 
 See the [docs](https://foxssake.github.io/netfox/).
 
+### Prototyping
+
+To try your game online with [noray], a free to use instance is hosted at
+`tomfol.io:8890`, the same instance used by [Forest Brawl].
+
+You can use this [noray] instance to quickly test your games online, but is not
+recommended for shipping games. The instance has configured limits, and no
+uptime guarantees are made.
+
 ### Examples
 
 #### Comparison sample
