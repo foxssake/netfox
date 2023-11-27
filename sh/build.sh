@@ -52,7 +52,6 @@ for addon in ${addons[@]}; do
     cd "$ROOT"
     rm -rf "$TMP"
 done
-exit
 
 # Build example game
 echo $BOLD"Building Forest Brawl" $NC
