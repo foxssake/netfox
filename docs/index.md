@@ -57,6 +57,12 @@ Search for the addon name in Godot's AssetLib or download from the site:
 
 Download the [source] and copy the addons of your choice to your Godot project.
 
+### Enable the addons
+
+After adding *netfox* to your project, make sure to enable the addons in your
+project settings. Otherwise, Godot will present you with errors about
+undeclared identifiers.
+
 ## Prototyping
 
 To try your game online with [noray], a free to use instance is hosted at
