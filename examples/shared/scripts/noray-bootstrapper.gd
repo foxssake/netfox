@@ -95,6 +95,8 @@ func _host():
 	NetworkTime.start()
 
 func _join():
+	role = Role.CLIENT
+
 	if force_relay_check.button_pressed:
 		Noray.connect_relay(host_oid_input.text)
 	else:
@@ -119,9 +121,10 @@ func _handle_connect(address: String, port: int) -> Error:
 		return ERR_UNCONFIGURED
 
 	var err = OK
+	
 	if role == Role.NONE:
-		# We didn't start host, so probably client
-		role = Role.CLIENT
+		push_warning("Refusing connection, not running as client nor host")
+		err = ERR_UNAVAILABLE
 	
 	if role == Role.CLIENT:
 		var udp = PacketPeerUDP.new()
