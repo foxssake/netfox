@@ -1,4 +1,5 @@
-extends Node
+extends Object
+class_name Interpolators
 
 class Interpolator:
 	var is_applicable: Callable
@@ -10,26 +11,26 @@ class Interpolator:
 		result.apply = apply
 		return result
 
-var DEFAULT_INTERPOLATOR = Interpolator.make(
+static var DEFAULT_INTERPOLATOR = Interpolator.make(
 	func (v): return true,
 	func (a, b, f): return a if f < 0.5 else b
 )
 
-var interpolators: Array[Interpolator]
-var default_apply: Callable = func(a, b, f): a if f < 0.5 else b
+static var interpolators: Array[Interpolator]
+static var default_apply: Callable = func(a, b, f): a if f < 0.5 else b
 
 ## Register an interpolator.
 ##
 ## New interpolators are pushed to the front of the list, making them have 
 ## precedence over existing ones. This can be useful in case you want to override
 ## the built-in interpolators.
-func register(is_applicable: Callable, apply: Callable):
+static func register(is_applicable: Callable, apply: Callable):
 	interpolators.push_front(Interpolator.make(is_applicable, apply))
 
 ## Find the appropriate interpolator for the given value.
 ##
 ## If none was found, the default interpolator is returned.
-func find_for(value) -> Callable:
+static func find_for(value) -> Callable:
 	for interpolator in interpolators:
 		if interpolator.is_applicable.call(value):
 			return interpolator.apply
@@ -41,10 +42,10 @@ func find_for(value) -> Callable:
 ## Note, that it is usually faster to just cache the Callable returned by find_for
 ## and call that, instead of calling interpolate repeatedly. The latter will have 
 ## to lookup the appropriate interpolator on every call.
-func interpolate(a, b, f: float):
+static func interpolate(a, b, f: float):
 	return find_for(a).call(a, b, f)
 
-func _init():
+static func _static_init():
 	# Register built-in interpolators
 	# Float
 	register(
