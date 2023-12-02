@@ -1,4 +1,6 @@
 extends Node
+class_name RollbackSynchronizer
+
 ## Similar to [MultiplayerSynchronizer], this class is responsible for
 ## synchronizing data between players, but with support for rollback.
 
