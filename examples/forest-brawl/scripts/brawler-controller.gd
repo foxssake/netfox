@@ -12,6 +12,7 @@ class_name BrawlerController
 
 # Dependencies
 @onready var input: BrawlerInput = $Input
+@onready var rollback_synchronizer: RollbackSynchronizer = $RollbackSynchronizer
 @onready var animation_tree: AnimationTree = $AnimationTree
 @onready var weapon: BrawlerWeapon = $Weapon as BrawlerWeapon
 @onready var mesh: MeshInstance3D = $"bomber-guy/rig/Skeleton3D/Cube_008"
@@ -49,7 +50,7 @@ func _ready():
 	# TODO: What if the RollbackSynchronizer had a flag for this?
 	# Wait a frame so Input has time to get its authority set
 	await get_tree().process_frame
-	$RollbackSynchronizer.process_settings()
+	rollback_synchronizer.process_settings()
 	GameEvents.on_brawler_spawn.emit(self)
 	NetworkTime.on_tick.connect(_tick)
 	
