@@ -17,7 +17,7 @@ func _host():
 		return ERR_CANT_RESOLVE
 
 	var port = host.port
-	
+
 	# Start host
 	print("Starting host on port %s" % port)
 	

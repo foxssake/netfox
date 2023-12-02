@@ -22,6 +22,8 @@ var _earliest_input = INF
 var _property_cache: PropertyCache
 var _freshness_store: RollbackFreshnessStore
 
+static var _logger: _NetfoxLogger = _NetfoxLogger.new("RollbackSynchronizer")
+
 ## Process settings.
 ##
 ## Call this after any change to configuration.
@@ -197,7 +199,7 @@ func _submit_input(input: Dictionary, tick: int):
 		var input_owner = pe.node.get_multiplayer_authority()
 		
 		if input_owner != sender:
-			push_warning("Received input for node owned by %s from %s, sender has no authority!" \
+			_logger.warning("Received input for node owned by %s from %s, sender has no authority!" \
 				% [input_owner, sender])
 			continue
 		
@@ -207,7 +209,7 @@ func _submit_input(input: Dictionary, tick: int):
 		_inputs[tick] = sanitized
 		_earliest_input = min(_earliest_input, tick)
 	else:
-		push_warning("Received invalid input from %s for tick %s for %s" % [sender, tick, root.name])
+		_logger.warning("Received invalid input from %s for tick %s for %s" % [sender, tick, root.name])
 
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_state(state: Dictionary, tick: int):
@@ -218,7 +220,7 @@ func _submit_state(state: Dictionary, tick: int):
 	
 	if tick < NetworkTime.tick - NetworkRollback.history_limit and _latest_state >= 0:
 		# State too old!
-		push_error("Received state for %s, rejecting because older than %s frames" % [tick, NetworkRollback.history_limit])
+		_logger.error("Received state for %s, rejecting because older than %s frames" % [tick, NetworkRollback.history_limit])
 		return
 
 	var sender = multiplayer.get_remote_sender_id()
@@ -229,7 +231,7 @@ func _submit_state(state: Dictionary, tick: int):
 		var state_owner = pe.node.get_multiplayer_authority()
 		
 		if state_owner != sender:
-			push_warning("Received state for node owned by %s from %s, sender has no authority!" \
+			_logger.warning("Received state for node owned by %s from %s, sender has no authority!" \
 				% [state_owner, sender])
 			continue
 		
@@ -240,4 +242,4 @@ func _submit_state(state: Dictionary, tick: int):
 		# _latest_state = max(_latest_state, tick)
 		_latest_state = tick
 	else:
-		push_warning("Received invalid state from %s for tick %s" % [sender, tick])
+		_logger.warning("Received invalid state from %s for tick %s" % [sender, tick])
