@@ -8,6 +8,8 @@ var _projectiles: Dictionary = {}
 var _projectile_data: Dictionary = {}
 var _reconcile_buffer: Array = []
 
+static var _logger: _NetfoxLogger = _NetfoxLogger.for_extras("NetworkWeapon")
+
 func _ready():
 	NetworkTime.before_tick_loop.connect(_before_tick_loop)
 
@@ -32,7 +34,7 @@ func fire() -> Node:
 	else:
 		rpc("_accept_projectile", id, NetworkTime.tick, data)
 
-	print("Calling after fire hook for %s" % [projectile.name])
+	_logger.debug("Calling after fire hook for %s" % [projectile.name])
 	_after_fire(projectile)
 
 	return projectile
@@ -119,11 +121,12 @@ func _before_tick_loop():
 		var projectile = recon[0]
 		var local_data = recon[1]
 		var response_data = recon[2]
+		var projectile_id = recon[3]
 		
 		if is_instance_valid(projectile):
 			_reconcile(projectile, local_data, response_data)
 		else:
-			push_warning("Projectile vanished by the time of reconciliation!")
+			_logger.warning("Projectile %s vanished by the time of reconciliation!" % [projectile_id])
 
 	_reconcile_buffer.clear()
 
@@ -141,7 +144,7 @@ func _request_projectile(id: String, tick: int, request_data: Dictionary):
 	# Reject if sender can't use this input
 	if not _can_peer_use(sender) or not _can_fire():
 		rpc_id(sender, "_decline_projectile", id)
-		push_error("Projectile %s rejected! Peer %s can't use this weapon now" % [id, sender])
+		_logger.error("Projectile %s rejected! Peer %s can't use this weapon now" % [id, sender])
 		return
 	
 	# Validate incoming data
@@ -151,7 +154,7 @@ func _request_projectile(id: String, tick: int, request_data: Dictionary):
 	if not _is_reconcilable(projectile, request_data, local_data):
 		projectile.queue_free()
 		rpc_id(sender, "_decline_projectile", id)
-		push_error("Projectile %s rejected! Can't reconcile states: [%s, %s]" % [id, request_data, local_data])
+		_logger.error("Projectile %s rejected! Can't reconcile states: [%s, %s]" % [id, request_data, local_data])
 		return
 	
 	_save_projectile(projectile, id, local_data)
@@ -160,7 +163,7 @@ func _request_projectile(id: String, tick: int, request_data: Dictionary):
 
 @rpc("authority", "reliable", "call_local")
 func _accept_projectile(id: String, tick: int, response_data: Dictionary):
-	print("[%s] Accepting projectile %s from %s" % [multiplayer.get_unique_id(), id, multiplayer.get_remote_sender_id()])
+	_logger.info("[%s] Accepting projectile %s from %s" % [multiplayer.get_unique_id(), id, multiplayer.get_remote_sender_id()])
 	if multiplayer.get_unique_id() == multiplayer.get_remote_sender_id():
 		# Projectile is local, nothing to do
 		return
@@ -168,7 +171,7 @@ func _accept_projectile(id: String, tick: int, response_data: Dictionary):
 	if _projectiles.has(id):
 		var projectile = _projectiles[id]
 		var local_data = _projectile_data[id]
-		_reconcile_buffer.push_back([projectile, local_data, response_data])
+		_reconcile_buffer.push_back([projectile, local_data, response_data, id])
 	else:
 		var projectile = _spawn()
 		_apply_data(projectile, response_data)
