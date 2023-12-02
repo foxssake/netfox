@@ -22,7 +22,7 @@ var _earliest_input = INF
 var _property_cache: PropertyCache
 var _freshness_store: RollbackFreshnessStore
 
-static var _logger: _NetfoxLogger = _NetfoxLogger.new("RollbackSynchronizer")
+static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("RollbackSynchronizer")
 
 ## Process settings.
 ##

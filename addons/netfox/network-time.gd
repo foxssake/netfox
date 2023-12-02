@@ -271,7 +271,7 @@ var _local_tick: int = 0
 # ( for some reason? )
 var _synced_clients = {}
 
-static var _logger = _NetfoxLogger.new("NetworkTime")
+static var _logger = _NetfoxLogger.for_netfox("NetworkTime")
 
 ## Start NetworkTime.
 ##

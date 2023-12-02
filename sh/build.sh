@@ -8,7 +8,9 @@ BUILD="$ROOT/build"
 TMP="$ROOT/buildtmp"
 
 declare -A DEPS=(\
-  ["netfox.extras"]="netfox"
+  ["netfox"]="netfox.internal"
+  ["netfox.noray"]="netfox.internal"
+  ["netfox.extras"]="netfox.internal netfox"
 )
 
 # Assume we're running from project root
