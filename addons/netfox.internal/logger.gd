@@ -17,6 +17,16 @@ static var module_log_level: Dictionary
 var module: String
 var name: String
 
+const level_prefixes: Array[String] = [
+	"",
+	"TRC",
+	"DBG",
+	"INF",
+	"WRN",
+	"ERR",
+	""
+]
+
 static func _static_init():
 	log_level = ProjectSettings.get_setting("netfox/logging/log_level", LOG_MIN)
 	module_log_level = {
@@ -65,12 +75,13 @@ func _check_log_level(level: int) -> bool:
 	
 	return true
 
-func _format_text(text: String) -> String:
-	return "[%s::%s] %s" % [module,name, text]
+func _format_text(text: String, level: int) -> String:
+	level = clampi(level, LOG_MIN, LOG_MAX)
+	return "[%s][%s::%s] %s" % [level_prefixes[level], module,name, text]
 
 func _log_text(text: String, level: int):
 	if _check_log_level(level):
-		print(_format_text(text))
+		print(_format_text(text, level))
 
 func trace(text: String):
 	_log_text(text, LOG_TRACE)
@@ -83,14 +94,14 @@ func info(text: String):
 
 func warning(text: String):
 	if _check_log_level(LOG_WARN):
-		var formatted_text = _format_text(text)
+		var formatted_text = _format_text(text, LOG_WARN)
 		push_warning(formatted_text)
 		# Print so it shows up in the Output panel too
 		print(formatted_text)
 
 func error(text: String):
 	if _check_log_level(LOG_ERROR):
-		var formatted_text = _format_text(text)
+		var formatted_text = _format_text(text, LOG_ERROR)
 		push_error(formatted_text)
 		# Print so it shows up in the Output panel too
 		print(formatted_text)
