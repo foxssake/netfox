@@ -7,12 +7,6 @@ ROOT="$(pwd)"
 BUILD="$ROOT/build"
 TMP="$ROOT/buildtmp"
 
-declare -A DEPS=(\
-  ["netfox"]="netfox.internal"
-  ["netfox.noray"]="netfox.internal"
-  ["netfox.extras"]="netfox.internal netfox"
-)
-
 # Assume we're running from project root
 source sh/shared.sh
 
@@ -41,7 +35,7 @@ for addon in ${addons[@]}; do
     zip -r "${addon_dst}.zip" "${addon}.v${version}"
 
     has_deps="false"
-    for dep in ${DEPS[$addon]}; do
+    for dep in ${addon_deps[$addon]}; do
       echo "Adding dependency $dep"
       cp -r "$ROOT/addons/${dep}" "${addon_tmp}"
       has_deps="true"
