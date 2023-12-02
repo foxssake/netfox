@@ -10,6 +10,13 @@ const SETTINGS = [
 		"value": true,
 		"type": TYPE_BOOL
 	},
+	{
+		"name": "netfox/general/log_level",
+		"value": _NetfoxLogger.LOG_MAX,
+		"type": TYPE_INT,
+		"hint": PROPERTY_HINT_ENUM,
+		"hint_string": "None,Trace,Debug,Info,Warning,Error,All"
+	},
 	# Time settings
 	{
 		"name": "netfox/time/tickrate",
