@@ -2,7 +2,7 @@ extends RefCounted
 class_name _NetfoxLogger
 
 enum {
-	LOG_NONE,
+	LOG_MIN,
 	LOG_TRACE,
 	LOG_DEBUG,
 	LOG_INFO,
@@ -18,12 +18,19 @@ var module: String
 var name: String
 
 static func _static_init():
-	log_level = ProjectSettings.get_setting("netfox/logging/log_level", LOG_MAX)
+	log_level = ProjectSettings.get_setting("netfox/logging/log_level", LOG_MIN)
 	module_log_level = {
-		"netfox": ProjectSettings.get_setting("netfox/logging/netfox_log_level", LOG_MAX),
-		"netfox.noray": ProjectSettings.get_setting("netfox/logging/netfox_noray_log_level", LOG_MAX),
-		"netfox.extras": ProjectSettings.get_setting("netfox/logging/netfox_extras_log_level", LOG_MAX)
+		"netfox": ProjectSettings.get_setting("netfox/logging/netfox_log_level", LOG_MIN),
+		"netfox.noray": ProjectSettings.get_setting("netfox/logging/netfox_noray_log_level", LOG_MIN),
+		"netfox.extras": ProjectSettings.get_setting("netfox/logging/netfox_extras_log_level", LOG_MIN)
 	}
+	
+	var test_logger = _NetfoxLogger.for_netfox("test")
+	test_logger.trace("Trace")
+	test_logger.debug("Debug")
+	test_logger.info("Info")
+	test_logger.warning("Warning")
+	test_logger.error("Error")
 
 static func for_netfox(p_name: String) -> _NetfoxLogger:
 	return _NetfoxLogger.new("netfox", p_name)
@@ -37,10 +44,10 @@ static func for_extras(p_name: String) -> _NetfoxLogger:
 static func make_setting(name: String) -> Dictionary:
 	return {
 		"name": name,
-		"value": _NetfoxLogger.LOG_MAX,
+		"value": LOG_MIN,
 		"type": TYPE_INT,
 		"hint": PROPERTY_HINT_ENUM,
-		"hint_string": "None,Trace,Debug,Info,Warning,Error,All"
+		"hint_string": "All,Trace,Debug,Info,Warning,Error,None"
 	}
 
 func _init(p_module: String, p_name: String):
@@ -48,11 +55,13 @@ func _init(p_module: String, p_name: String):
 	name = p_name
 
 func _check_log_level(level: int) -> bool:
-	if log_level < level:
+	var cmp_level = log_level
+	if level < cmp_level:
 		return false
 	
 	if module_log_level.has(module):
-		return module_log_level.get(module) >= level
+		var module_level = module_log_level.get(module)
+		return level >= module_level
 	
 	return true
 
@@ -67,15 +76,21 @@ func trace(text: String):
 	_log_text(text, LOG_TRACE)
 
 func debug(text: String):
-	_log_text(text, LOG_TRACE)
+	_log_text(text, LOG_DEBUG)
 
 func info(text: String):
-	_log_text(text, LOG_TRACE)
+	_log_text(text, LOG_INFO)
 
 func warning(text: String):
 	if _check_log_level(LOG_WARN):
-		push_warning(_format_text(text))
+		var formatted_text = _format_text(text)
+		push_warning(formatted_text)
+		# Print so it shows up in the Output panel too
+		print(formatted_text)
 
 func error(text: String):
 	if _check_log_level(LOG_ERROR):
-		push_warning(_format_text(text))
+		var formatted_text = _format_text(text)
+		push_error(formatted_text)
+		# Print so it shows up in the Output panel too
+		print(formatted_text)
