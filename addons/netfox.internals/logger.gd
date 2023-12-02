@@ -34,13 +34,6 @@ static func _static_init():
 		"netfox.noray": ProjectSettings.get_setting("netfox/logging/netfox_noray_log_level", LOG_MIN),
 		"netfox.extras": ProjectSettings.get_setting("netfox/logging/netfox_extras_log_level", LOG_MIN)
 	}
-	
-	var test_logger = _NetfoxLogger.for_netfox("test")
-	test_logger.trace("Trace")
-	test_logger.debug("Debug")
-	test_logger.info("Info")
-	test_logger.warning("Warning")
-	test_logger.error("Error")
 
 static func for_netfox(p_name: String) -> _NetfoxLogger:
 	return _NetfoxLogger.new("netfox", p_name)
