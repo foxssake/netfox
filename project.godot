@@ -36,7 +36,7 @@ window/vsync/vsync_mode=0
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/netfox.extras/plugin.cfg", "res://addons/netfox.noray/plugin.cfg", "res://addons/netfox/plugin.cfg")
+enabled=PackedStringArray("res://addons/netfox.extras/plugin.cfg", "res://addons/netfox.internal/plugin.cfg", "res://addons/netfox.noray/plugin.cfg", "res://addons/netfox/plugin.cfg")
 
 [filesystem]
 
@@ -111,7 +111,6 @@ aim_south={
 
 general/clear_settings=false
 time/tickrate=24
-general/log_level=0
 
 [rendering]
 

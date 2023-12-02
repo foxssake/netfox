@@ -10,6 +10,8 @@ var _oid = ""
 var _pid = ""
 var _local_port: int = -1
 
+static var _logger: _NetfoxLogger = _NetfoxLogger.for_noray("Noray")
+
 ## Open ID.
 ##
 ## [i]read-only[/i], this is set after registering as host.
@@ -66,10 +68,10 @@ func connect_to_host(address: String, port: int = 8890) -> Error:
 	if is_connected_to_host():
 		disconnect_from_host()
 
-	print("Trying to connect to noray at %s:%s" % [address, port])
+	_logger.info("Trying to connect to noray at %s:%s" % [address, port])
 	
 	address = IP.resolve_hostname(address, IP.TYPE_IPV4)
-	print("Resolved noray host to %s" % address)
+	_logger.debug("Resolved noray host to %s" % address)
 	
 	var err = _peer.connect_to_host(address, port)
 	if err != Error.OK:
@@ -84,11 +86,11 @@ func connect_to_host(address: String, port: int = 8890) -> Error:
 	
 	if _peer.get_status() == _peer.STATUS_CONNECTED:
 		_address = address
-		print("Connected to noray at %s:%s" % [address, port])
+		_logger.info("Connected to noray at %s:%s" % [address, port])
 		on_connect_to_host.emit()
 		return OK
 	else:
-		print("Connection failed to noray at %s:%s, connection status %s" % [address, port, _peer.get_status()])
+		_logger.error("Connection failed to noray at %s:%s, connection status %s" % [address, port, _peer.get_status()])
 		disconnect_from_host()
 		return ERR_CONNECTION_ERROR
 
@@ -121,7 +123,7 @@ func register_remote(registrar_port: int = 8809, timeout: float = 8, interval: f
 	udp.bind(0)
 	udp.set_dest_address(_address, registrar_port)
 	
-	print("Bound UDP to port %s" % [udp.get_local_port()])
+	_logger.debug("Bound UDP to port %s" % [udp.get_local_port()])
 	
 	var packet = pid.to_utf8_buffer()
 	
@@ -132,11 +134,12 @@ func register_remote(registrar_port: int = 8809, timeout: float = 8, interval: f
 			var recv = udp.get_packet().get_string_from_utf8()
 			if recv == "OK":
 				_local_port = udp.get_local_port()
-				print("Registered local port %s to remote" % [_local_port])
+				_logger.info("Registered local port %s to remote" % [_local_port])
 				result = OK
 				timeout = 0 # Break outer loop
 				break
 			else:
+				_logger.error("Failed to register local port!")
 				result = FAILED
 				timeout = 0 # Break outer loop
 				break
@@ -181,21 +184,21 @@ func _handle_commands(command: String, data: String):
 	if command == "set-oid":
 		_oid = data
 		on_oid.emit(oid)
-		print("Saved OID: %s" % oid)
+		_logger.debug("Saved OID: %s" % oid)
 	elif command == "set-pid":
 		_pid = data
 		on_pid.emit(pid)
-		print("Saved PID: %s" % pid)
+		_logger.debug("Saved PID: %s" % pid)
 	elif command == "connect":
 		var parts = data.split(":")
 		var host = parts[0]
 		var port = parts[1].to_int()
-		print("Received connect command to %s:%s" % [host, port])
+		_logger.debug("Received connect command to %s:%s" % [host, port])
 		on_connect_nat.emit(host, port)
 	elif command == "connect-relay":
 		var host = _address
 		var port = data.to_int()
-		print("Received connect relay command to %s:%s" % [host, port])
+		_logger.debug("Received connect relay command to %s:%s" % [host, port])
 		on_connect_relay.emit(host, port)
 	else:
-		print("Received command %s %s" % [command, data])
+		_logger.trace("Received command %s %s" % [command, data])

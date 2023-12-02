@@ -22,7 +22,11 @@ static func _static_init():
 static func for_netfox(p_name: String) -> _NetfoxLogger:
 	return _NetfoxLogger.new("netfox", p_name)
 
+static func for_noray(p_name: String) -> _NetfoxLogger:
+	return _NetfoxLogger.new("netfox.noray", p_name)
+
 func _init(p_module: String, p_name: String):
+	module = p_module
 	name = p_name
 
 func _format_text(text: String) -> String:
