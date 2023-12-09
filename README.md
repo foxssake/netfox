@@ -29,6 +29,9 @@ The package consists of multiple addons, each with different features:
   * Provides high-level, game-specific, convenience features built on top of
     netfox, like base classes for input management or weapons
   * *Check for reusable components for your game*
+* [netfox.internals]
+  * Shared utilities for the other addons
+  * Included as dependency, no need to install separately
 
 ## Install
 
@@ -137,6 +140,7 @@ Author(s) at the time of writing:
 [netfox]: addons/netfox
 [netfox.noray]: addons/netfox.noray
 [netfox.extras]: addons/netfox.extras
+[netfox.internals]: addons/netfox.internals
 [Forest Brawl]: examples/forest-brawl
 
 [open an issue]: https://github.com/foxssake/netfox/issues

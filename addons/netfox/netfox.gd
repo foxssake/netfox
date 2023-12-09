@@ -2,7 +2,7 @@
 extends EditorPlugin
 
 const ROOT = "res://addons/netfox"
-const SETTINGS = [
+var SETTINGS = [
 	{
 		# Setting this to false will make Netfox keep its settings even when
 		# disabling the plugin. Useful for developing the plugin.
@@ -10,6 +10,8 @@ const SETTINGS = [
 		"value": true,
 		"type": TYPE_BOOL
 	},
+	# Logging
+	_NetfoxLogger.make_setting("netfox/logging/netfox_log_level"),
 	# Time settings
 	{
 		"name": "netfox/time/tickrate",

@@ -29,6 +29,9 @@ The package consists of multiple addons, each with different features:
     * Provides high-level, game-specific, convenience features built on top of
       netfox, like base classes for input management or weapons
     * *Check for reusable components for your game*
+* [netfox.internals]
+    * Shared utilities for the other addons
+    * Included as dependency, no need to install separately
 
 ## Install
 
@@ -92,6 +95,7 @@ how things work. For that, refer to the guides.
 [netfox]: https://github.com/foxssake/netfox/tree/main/addons/netfox
 [netfox.noray]: https://github.com/foxssake/netfox/tree/main/addons/netfox.noray
 [netfox.extras]: https://github.com/foxssake/netfox/tree/main/addons/netfox.extras
+[netfox.internals]: https://github.com/foxssake/netfox/tree/main/addons/netfox.internals
 [Forest Brawl]: https://github.com/foxssake/netfox/tree/main/examples/forest-brawl
 
 [Godot engine]: https://godotengine.org/

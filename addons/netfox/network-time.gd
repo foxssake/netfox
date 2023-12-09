@@ -271,6 +271,8 @@ var _local_tick: int = 0
 # ( for some reason? )
 var _synced_clients = {}
 
+static var _logger = _NetfoxLogger.for_netfox("NetworkTime")
+
 ## Start NetworkTime.
 ##
 ## Once this is called, time will be synchronized and ticks will be consistently
@@ -290,7 +292,9 @@ func start():
 	_remote_rtt = 0
 	_initial_sync_done = false
 	
-	after_client_sync.connect(func(pid): print("Client #%s is now on time!" % [pid]))
+	after_client_sync.connect(func(pid):
+		_logger.debug("Client #%s is now on time!" % [pid])
+	)
 	
 	if not multiplayer.is_server():
 		NetworkTimeSynchronizer.start()
@@ -327,7 +331,7 @@ func is_initial_sync_done() -> bool:
 ## Using this from a client is considered an error.
 func is_client_synced(peer_id: int) -> bool:
 	if not multiplayer.is_server():
-		push_error("Trying to check if client is synced from another client!")
+		_logger.error("Trying to check if client is synced from another client!")
 		return false
 	else:
 		return _synced_clients.has(peer_id)
@@ -396,8 +400,8 @@ func _handle_sync(server_time: float, server_tick: int, rtt: float):
 	
 	# Adjust tick if it's too far away from remote
 	if absf(seconds_between(tick, remote_tick)) > recalibrate_threshold and _initial_sync_done:
-		push_error("Large difference between estimated remote time and local time!")
-		push_error("Local time: %s; Remote time: %s" % [time, remote_time])
+		_logger.error("Large difference between estimated remote time and local time!")
+		_logger.error("Local time: %s; Remote time: %s" % [time, remote_time])
 		_tick = _remote_tick
 
 @rpc("any_peer", "reliable", "call_remote")
