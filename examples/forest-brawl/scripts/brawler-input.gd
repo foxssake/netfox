@@ -65,7 +65,7 @@ func _gather():
 	
 	is_firing = Input.is_action_pressed("weapon_fire")
 
-func _physics_process(delta):
+func _physics_process(_delta):
 	if not camera:
 		camera = get_viewport().get_camera_3d()
 

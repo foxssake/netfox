@@ -10,9 +10,6 @@ var _apply_tick: int = 0
 var _cease_tick: int = 0
 var _destroy_tick: int = 0
 
-var _did_apply: bool = false
-var _did_cease: bool = false
-
 func _ready():
 	if not get_parent() is BrawlerController:
 		push_error("Powerup effect added to non-player!")
@@ -48,13 +45,13 @@ func _rollback_tick(tick):
 		if tick == _cease_tick:
 			_cease()
 
-func _tick(_delta, _tick):
+func _tick(_delta, tick):
 	if particles != null:
-		if _tick == _apply_tick:
+		if tick == _apply_tick:
 			particles.emitting = true
-		if _tick == _cease_tick:
+		if tick == _cease_tick:
 			particles.emitting = false
-	if _tick >= _destroy_tick:
+	if tick >= _destroy_tick:
 		queue_free()
 
 func _apply():

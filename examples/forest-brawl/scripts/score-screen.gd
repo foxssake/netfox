@@ -15,9 +15,9 @@ func render(scores: Dictionary):
 	if not visible:
 		message_label.text = messages[randi() % messages.size()]
 	
-	for name in _sort_scores(scores):
-		var points = scores[name]
-		names_column.add_child(_make_label(str(name)))
+	for player_name in _sort_scores(scores):
+		var points = scores[player_name]
+		names_column.add_child(_make_label(str(player_name)))
 		scores_column.add_child(_make_label(str(points)))
 
 func clear():
@@ -49,8 +49,8 @@ func _sort_scores(scores: Dictionary) -> Array[String]:
 	points.reverse()
 	
 	for score in points:
-		for name in scores:
-			if not result.has(name) and scores[name] == score:
-				result.push_back(name)
+		for player_name in scores:
+			if not result.has(player_name) and scores[player_name] == score:
+				result.push_back(player_name)
 	
 	return result

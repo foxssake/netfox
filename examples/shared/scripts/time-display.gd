@@ -3,10 +3,10 @@ extends Label
 func _ready():
 	NetworkTime.on_tick.connect(_tick)
 
-func _tick(_delta: float, _tick: int):
+func _tick(_delta: float, _t: int):
 	pass
 	
-func _process(delta):
+func _process(_delta):
 	text = "Time: %.2f at tick #%d" % [NetworkTime.time, NetworkTime.tick]
 	text += "\nRemote time: %.2f at tick#%d with %.2fms RTT" % [NetworkTime.remote_time, NetworkTime.remote_tick, NetworkTime.remote_rtt * 1000.0]
 	text += "\nFactor: %.2f" % [NetworkTime.tick_factor]

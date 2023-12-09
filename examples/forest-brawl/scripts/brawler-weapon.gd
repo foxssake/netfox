@@ -18,7 +18,7 @@ func _can_fire() -> bool:
 func _can_peer_use(peer_id: int) -> bool:
 	return peer_id == input.get_multiplayer_authority()
 
-func _after_fire(projectile: Node3D):
+func _after_fire(_projectile: Node3D):
 	last_fire = NetworkTime.tick
 	sound.play()
 
@@ -30,6 +30,6 @@ func _spawn() -> Node3D:
 	
 	return p
 
-func _tick(delta, tick):
+func _tick(_delta, _t):
 	if input.is_firing:
 		fire()

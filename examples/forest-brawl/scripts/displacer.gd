@@ -28,7 +28,7 @@ func _tick(tick):
 			if body is BrawlerController and body != fired_by:
 				body.register_hit(fired_by)
 
-func _real_tick(delta, tick):
+func _real_tick(_delta, tick):
 	if tick >= death_tick:
 		visible = false
 

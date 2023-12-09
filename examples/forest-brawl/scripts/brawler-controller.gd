@@ -20,11 +20,11 @@ class_name BrawlerController
 @onready var fall_sound: PlayRandomStream3D = $"Fall Sound"
 
 var player_name: String = "":
-	set(name):
-		if name.length() > 24:
-			name = name.substr(0, 21) + "..."
-		player_name = name
-		nametag.text = name
+	set(p_name):
+		if p_name.length() > 24:
+			p_name = p_name.substr(0, 21) + "..."
+		player_name = p_name
+		nametag.text = p_name
 
 var player_id: int = -1
 var last_hit_player: BrawlerController
@@ -84,9 +84,9 @@ func _process(delta):
 	
 	# Speed
 	animation_tree.set("parameters/MoveScale/scale", speed / 3.75)
-	animation_tree.set("parameters/ThrowScale/scale", min(weapon.fire_cooldown / (10 / 24), 1.0))
+	animation_tree.set("parameters/ThrowScale/scale", min(weapon.fire_cooldown / (10. / 24.), 1.0))
 
-func _tick(delta, tick):
+func _tick(_delta, tick):
 	# Run throw animation if firing
 	if weapon.last_fire == tick:
 		animation_tree.set("parameters/Throw/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
