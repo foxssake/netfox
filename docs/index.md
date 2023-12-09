@@ -30,8 +30,8 @@ The package consists of multiple addons, each with different features:
       netfox, like base classes for input management or weapons
     * *Check for reusable components for your game*
 * [netfox.internals]
-  * Shared utilities for the other addons
-  * Included as dependency, no need to install separately
+    * Shared utilities for the other addons
+    * Included as dependency, no need to install separately
 
 ## Install
 
