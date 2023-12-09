@@ -32,7 +32,6 @@ for addon in ${addons[@]}; do
     cd "$TMP"
 
     cp -r "${addon_src}" "${addon_tmp}"
-    zip -r "${addon_dst}.zip" "${addon}.v${version}"
 
     has_deps="false"
     for dep in ${addon_deps[$addon]}; do
@@ -42,7 +41,7 @@ for addon in ${addons[@]}; do
     done
 
     if [ $has_deps = "true" ]; then
-      zip -r "${addon_dst}.with-deps.zip" "${addon}.v${version}"
+      zip -r "${addon_dst}.zip" "${addon}.v${version}"
     fi
 
     cd "$ROOT"
