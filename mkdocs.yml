@@ -10,6 +10,7 @@ nav:
       - 'netfox/concepts/servers-clients-ownership.md'
       - 'netfox/concepts/authoritative-servers.md'
     - Guides:
+      - 'netfox/guides/logging.md'
       - 'netfox/guides/network-time.md'
       - 'netfox/guides/network-time-synchronizer.md'
       - 'netfox/guides/network-events.md'
