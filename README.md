@@ -41,12 +41,13 @@ Find the latest netfox under
 [Releases](https://github.com/foxssake/netfox/releases)
 
 Each release contains the addons, and a build of [Forest Brawl] for Windows and
-Linux.
+Linux. Each addon has its dependencies packed with it - e.g.
+*"netfox.extras.vx.y.z.zip"* also contains both *netfox* and
+*netfox.internals*.
 
-In cases of dependencies, a *".with-deps.zip"* version is included as well,
-which contains all the dependencies of the addon. For example, *netfox.noray*
-depends on *netfox*, so *"netfox.noray.v1.x.y.with-deps.zip"* includes both
-*netfox.noray* and *netfox*.
+> Note: For releases before v1.1.1, a separate *".with-deps.zip"* version
+> contains the addon and its dependencies, while the regular zips contain only
+> the addon itself.
 
 ### Asset Library
 
