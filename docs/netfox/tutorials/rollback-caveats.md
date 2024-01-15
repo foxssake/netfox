@@ -59,7 +59,8 @@ Godot's physics system is updated only during `_physics_process`, while
 rollback updates the game state multiple times during a single frame.
 
 Unfortunately, Godot does not support manually updating or stepping the physics
-system, at least at the time of writing. This means that:
+system, [at least at the time of writing](https://github.com/godotengine/godot/pull/76462).
+This means that:
 
 * Rollback and physics-based games don't work at the moment
 * Collision detection can work, but with workarounds
