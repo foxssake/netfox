@@ -1,7 +1,6 @@
 extends Node
 ## This class handles timing.
 ##
-## @tutorial(Ticking in sync): https://foxssake.github.io/netfox/tutorials/ticking-in-sync/
 ## @tutorial(NetworkTime Guide): https://foxssake.github.io/netfox/netfox/guides/network-time/
 
 ## Number of ticks per second.
