@@ -8,7 +8,7 @@ class_name NorayProtocolHandler
 ## Emitted for every command parsed during a [method ingest] call.
 signal on_command(command: String, data: String)
 
-var _strbuf = ""
+var _strbuf: String = ""
 
 ## Resets the parser.
 func reset():
