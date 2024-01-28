@@ -106,6 +106,29 @@ Make sure that all of the player nodes are owned by the server. The exception
 is the *Input* node, which must be owned by the player who the avatar belongs
 to.
 
+After setting ownerships, **make sure** to call `process_settings` on
+*RollbackSynchronizer*. This call is necessary after every ownership change.
+*RollbackSynchronizer* sorts properties based on ownership, but this sorting is
+only done in `process_settings`.
+
+For example:
+
+```gdscript
+@onready var rollback_synchronizer = $RollbackSynchronizer
+var peer_id = 0
+
+func _ready():
+  # Wait a frame so peer_id is set
+  await get_tree().process_frame
+
+  # Set owner
+  set_multiplayer_authority(1)
+  input.set_multiplayer_authority(peer_id)
+  rollback_synchronizer.process_settings()
+```
+
+Note that `peer_id` needs to be set from the outside during spawn.
+
 ## Smooth motion
 
 Currently, state is only updated on network ticks. If the tickrate is less than
