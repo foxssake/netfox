@@ -60,7 +60,7 @@ signal on_record_tick(tick: int)
 signal after_loop()
 
 var _tick: int = 0
-var _resim_from = INF
+var _resim_from: int
 
 var _is_rollback: bool = false
 var _simulated_nodes: Dictionary = {}

@@ -14,10 +14,10 @@ var _auth_state_props: Array[PropertyEntry] = []
 var _auth_input_props: Array[PropertyEntry] = []
 var _nodes: Array[Node] = []
 
-var _states = {}
-var _inputs = {}
-var _latest_state = -1
-var _earliest_input = INF
+var _states: Dictionary = {}
+var _inputs: Dictionary = {}
+var _latest_state: int = -1
+var _earliest_input: int
 
 var _property_cache: PropertyCache
 var _freshness_store: RollbackFreshnessStore

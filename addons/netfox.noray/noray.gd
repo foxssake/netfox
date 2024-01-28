@@ -6,8 +6,8 @@ extends Node
 var _peer: StreamPeerTCP = StreamPeerTCP.new()
 var _protocol: NorayProtocolHandler = NorayProtocolHandler.new()
 var _address: String = ""
-var _oid = ""
-var _pid = ""
+var _oid: String = ""
+var _pid: String = ""
 var _local_port: int = -1
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_noray("Noray")
