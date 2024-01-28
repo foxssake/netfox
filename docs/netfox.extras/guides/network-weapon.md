@@ -55,7 +55,7 @@ does not need to be captured if it's the same for every projectile.
 
 *_apply_data* must apply the captured properties to a projectile.
 
-*_is_reconcilable* checks if the different between two projectile states ( as
+*_is_reconcilable* checks if the difference between two projectile states ( as
 captured by *_get_data* ) is close enough to be allowed. Can be used to reject
 cheating.
 
