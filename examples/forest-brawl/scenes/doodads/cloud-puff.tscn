@@ -1,8 +1,12 @@
-[gd_scene load_steps=2 format=3 uid="uid://bsbr5iwwmvkni"]
+[gd_scene load_steps=3 format=3 uid="uid://bsbr5iwwmvkni"]
 
-[ext_resource type="ArrayMesh" uid="uid://6emuffbfmc1f" path="res://examples/forest-brawl/scenes/doodads/cloud-puff-mesh.tres" id="1_wmll3"]
+[ext_resource type="Material" uid="uid://joecqmf51gl0" path="res://examples/forest-brawl/scenes/doodads/cloud-puff-material.tres" id="1_poiuj"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_o76l3"]
+material = ExtResource("1_poiuj")
+size = Vector2(16, 16)
 
 [node name="Cloud Puff" type="MeshInstance3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.17294, 0)
 cast_shadow = 0
-mesh = ExtResource("1_wmll3")
+mesh = SubResource("QuadMesh_o76l3")

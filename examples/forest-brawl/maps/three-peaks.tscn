@@ -37,7 +37,7 @@ data = {
 metadata/_editor_floor_ = Vector3(0, 0, 0)
 
 [node name="Mountain Clouds" parent="." instance=ExtResource("3_ucvrj")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.8236, -4.03231, 11.082)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.824, 2.5, 12.082)
 
 [node name="Powerups" type="Node" parent="."]
 
