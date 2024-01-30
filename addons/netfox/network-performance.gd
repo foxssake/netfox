@@ -27,6 +27,7 @@ func is_enabled():
 	if OS.has_feature("netfox_perf"):
 		return true
 
+	# This returns true in the editor too
 	return OS.is_debug_build()
 
 ## Get time spent in the last network tick loop, in millisec.
