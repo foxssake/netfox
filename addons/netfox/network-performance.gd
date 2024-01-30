@@ -29,17 +29,40 @@ func is_enabled():
 
 	return OS.is_debug_build()
 
+## Get time spent in the last network tick loop, in millisec.
+## [br]
+## Note that this also includes time spent in the rollback tick loop.
+func get_network_loop_duration_ms() -> float:
+	return _network_loop_duration * 1000
+
+## Get the number of ticks simulated in the last network tick loop.
+func get_network_ticks() -> int:
+	return _network_ticks
+
+## Get time spent in the last rollback tick loop, in millisec.
+func get_rollback_loop_duration_ms() -> float:
+	return _rollback_loop_duration * 1000
+
+## Get the number of ticks resimulated in the last rollback tick loop.
+func get_rollback_ticks() -> int:
+	return _rollback_ticks
+
+## Get the average amount of time spent in a rollback tick during the last
+## rollback loop, in millisec.
+func get_rollback_tick_duration_ms() -> float:
+	return _rollback_loop_duration * 1000 / maxi(_rollback_ticks, 1)
+
 func _ready():
 	if not is_enabled():
 		_logger.debug("Network performance disabled")
 		return
 
 	_logger.debug("Network performance enabled, registering performance monitors")
-	Performance.add_custom_monitor(NETWORK_LOOP_DURATION_MONITOR, func(): return _network_loop_duration * 1000)
-	Performance.add_custom_monitor(ROLLBACK_LOOP_DURATION_MONITOR, func(): return _rollback_loop_duration * 1000)
-	Performance.add_custom_monitor(NETWORK_TICKS_MONITOR, func(): return _network_ticks)
-	Performance.add_custom_monitor(ROLLBACK_TICKS_MONITOR, func(): return _rollback_ticks)
-	Performance.add_custom_monitor(ROLLBACK_TICK_DURATION_MONITOR, func(): return _rollback_loop_duration * 1000 / maxi(_rollback_ticks, 1))
+	Performance.add_custom_monitor(NETWORK_LOOP_DURATION_MONITOR, get_network_loop_duration_ms)
+	Performance.add_custom_monitor(ROLLBACK_LOOP_DURATION_MONITOR, get_rollback_loop_duration_ms)
+	Performance.add_custom_monitor(NETWORK_TICKS_MONITOR, get_network_ticks)
+	Performance.add_custom_monitor(ROLLBACK_TICKS_MONITOR, get_rollback_ticks)
+	Performance.add_custom_monitor(ROLLBACK_TICK_DURATION_MONITOR, get_rollback_tick_duration_ms)
 	
 	NetworkTime.before_tick_loop.connect(_before_tick_loop)
 	NetworkTime.on_tick.connect(_on_network_tick)
