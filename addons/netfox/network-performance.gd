@@ -1,9 +1,10 @@
 extends Node
 
-const NETWORK_TICK_LOOP_DURATION_MONITOR: StringName = "netfox/Network loop duration (ms)"
-const ROLLBACK_TICK_LOOP_DURATION_MONITOR: StringName = "netfox/Rollback loop duration (ms)"
+const NETWORK_LOOP_DURATION_MONITOR: StringName = "netfox/Network loop duration (ms)"
+const ROLLBACK_LOOP_DURATION_MONITOR: StringName = "netfox/Rollback loop duration (ms)"
 const NETWORK_TICKS_MONITOR: StringName = "netfox/Network ticks simulated"
 const ROLLBACK_TICKS_MONITOR: StringName = "netfox/Rollback ticks simulated"
+const ROLLBACK_TICK_DURATION_MONITOR: StringName = "netfox/Rollback tick duration (ms)"
 
 var _network_loop_start: float = 0
 var _network_loop_duration: float = 0
@@ -34,10 +35,11 @@ func _ready():
 		return
 
 	_logger.debug("Network performance enabled, registering performance monitors")
-	Performance.add_custom_monitor(NETWORK_TICK_LOOP_DURATION_MONITOR, func(): return _network_loop_duration * 1000)
-	Performance.add_custom_monitor(ROLLBACK_TICK_LOOP_DURATION_MONITOR, func(): return _rollback_loop_duration * 1000)
+	Performance.add_custom_monitor(NETWORK_LOOP_DURATION_MONITOR, func(): return _network_loop_duration * 1000)
+	Performance.add_custom_monitor(ROLLBACK_LOOP_DURATION_MONITOR, func(): return _rollback_loop_duration * 1000)
 	Performance.add_custom_monitor(NETWORK_TICKS_MONITOR, func(): return _network_ticks)
 	Performance.add_custom_monitor(ROLLBACK_TICKS_MONITOR, func(): return _rollback_ticks)
+	Performance.add_custom_monitor(ROLLBACK_TICK_DURATION_MONITOR, func(): return _rollback_loop_duration * 1000 / maxi(_rollback_ticks, 1))
 	
 	NetworkTime.before_tick_loop.connect(_before_tick_loop)
 	NetworkTime.on_tick.connect(_on_network_tick)
