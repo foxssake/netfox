@@ -20,6 +20,12 @@ var _rollback_ticks_accum: int = 0
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkPerformance")
 
 func is_enabled():
+	if OS.has_feature("netfox_noperf"):
+		return false
+	
+	if OS.has_feature("netfox_perf"):
+		return true
+
 	return OS.is_debug_build()
 
 func _ready():
