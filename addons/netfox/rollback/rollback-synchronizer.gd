@@ -39,7 +39,7 @@ func process_settings():
 	
 	_states.clear()
 	_inputs.clear()
-	_latest_state = -1
+	_latest_state = NetworkTime.tick - 1
 	_earliest_input = NetworkTime.tick
 
 	for property in state_properties:
@@ -63,6 +63,10 @@ func process_settings():
 func _ready():
 	process_settings()
 	
+	if not NetworkTime._initial_sync_done:
+		await NetworkTime.after_sync
+	_latest_state = NetworkTime.tick - 1
+	
 	NetworkTime.before_tick.connect(_before_tick)
 	NetworkTime.after_tick.connect(_after_tick)
 	NetworkRollback.before_loop.connect(_before_loop)
@@ -78,10 +82,7 @@ func _before_loop():
 	else:
 		# We own inputs, simulate from latest authorative state
 		NetworkRollback.notify_resimulation_start(_latest_state)
-	
-	var latest_input = _inputs.keys().max() if not _inputs.is_empty() else -1
-	var latest_state = _latest_state
-	var earliest_input = _earliest_input
+		assert(_latest_state >= 0)
 
 func _prepare_tick(tick: int):
 	# Prepare state
