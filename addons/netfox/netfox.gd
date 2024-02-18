@@ -105,6 +105,12 @@ const TYPES = [
 		"icon": ROOT + "/icons/rollback-synchronizer.svg"
 	},
 	{
+		"name": "StateSynchronizer",
+		"base": "Node",
+		"script": ROOT + "/state-synchronizer.gd",
+		"icon": ROOT + "/icons/state-synchronizer.svg"
+	},
+	{
 		"name": "TickInterpolator",
 		"base": "Node",
 		"script": ROOT + "/tick-interpolator.gd",
