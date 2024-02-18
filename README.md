@@ -67,6 +67,11 @@ After adding *netfox* to your project, make sure to enable the addons in your
 project settings. Otherwise, Godot will present you with errors about
 undeclared identifiers.
 
+## Upgrading
+
+If you're upgrading from an older version of netfox, refer to the [upgrade
+guide](docs/upgrading.md).
+
 ## Usage
 
 See the [docs](https://foxssake.github.io/netfox/).

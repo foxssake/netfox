@@ -2,6 +2,7 @@ site_name: netfox
 theme: readthedocs
 nav:
   - 'index.md'
+  - 'upgrading.md'
   - netfox:
     - Tutorials:
       - 'netfox/tutorials/responsive-player-movement.md'
