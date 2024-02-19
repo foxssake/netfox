@@ -39,7 +39,7 @@ func process_settings():
 	
 	_states.clear()
 	_inputs.clear()
-	_latest_state = -1
+	_latest_state = NetworkTime.tick - 1
 	_earliest_input = NetworkTime.tick
 
 	for property in state_properties:
