@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="160"
+   height="80"
+   viewBox="0 0 42.333332 21.166667"
+   version="1.1"
+   id="svg1"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1">
+    <linearGradient
+       id="linearGradient1">
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1;"
+         offset="0"
+         id="stop1" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:0;"
+         offset="1"
+         id="stop2" />
+    </linearGradient>
+    <linearGradient
+       xlink:href="#linearGradient1"
+       id="linearGradient2"
+       x1="3.8333066"
+       y1="10.583334"
+       x2="38.500026"
+       y2="10.583334"
+       gradientUnits="userSpaceOnUse" />
+    <filter
+       style="color-interpolation-filters:sRGB"
+       id="filter2"
+       x="-0.039708575"
+       y="-0.26654529"
+       width="1.0794171"
+       height="1.5330906">
+      <feGaussianBlur
+         stdDeviation="0.56481397"
+         id="feGaussianBlur2" />
+    </filter>
+  </defs>
+  <g
+     id="layer1">
+    <text
+       xml:space="preserve"
+       style="font-size:5.64444px;font-family:FreeSerif;-inkscape-font-specification:FreeSerif;text-align:center;text-anchor:middle;fill:#000000;stroke:none;stroke-width:0.529;stroke-linecap:round;fill-opacity:1;stroke-dasharray:none;filter:url(#filter2)"
+       x="21.209"
+       y="11.895666"
+       id="text2"><tspan
+         id="tspan2"
+         style="font-size:5.64444px;stroke-width:0.529;fill:#000000;fill-opacity:1;stroke:none;stroke-dasharray:none"
+         x="21.209"
+         y="11.895666">your game here</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:5.64444px;font-family:FreeSerif;-inkscape-font-specification:FreeSerif;text-align:center;text-anchor:middle;fill:#000000;stroke:none;stroke-width:0.529;stroke-linecap:round;fill-opacity:1;stroke-dasharray:none"
+       x="21.209"
+       y="11.895666"
+       id="text1"><tspan
+         id="tspan1"
+         style="font-size:5.64444px;stroke-width:0.529;fill:#000000;fill-opacity:1;stroke:none;stroke-dasharray:none"
+         x="21.209"
+         y="11.895666">your game here</tspan></text>
+  </g>
+</svg>

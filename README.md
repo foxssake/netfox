@@ -14,6 +14,13 @@ A set of addons for responsive online games with the [Godot engine].
 * 💨 Lag compensation with Client-side Prediction and Server-side Reconciliation
 * 🛜 Bullet-proof connectivity with [noray] integration
 
+## Built with netfox
+
+![Placeholder](docs/assets/showcase/placeholder.svg)
+
+Building something cool with netfox? Whether it's released or in progress, feel
+free to open a PR!
+
 ## Overview
 
 The package consists of multiple addons, each with different features:
