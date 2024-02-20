@@ -14,13 +14,6 @@ A set of addons for responsive online games with the [Godot engine].
 * 💨 Lag compensation with Client-side Prediction and Server-side Reconciliation
 * 🛜 Bullet-proof connectivity with [noray] integration
 
-## Built with netfox
-
-![Placeholder](docs/assets/showcase/placeholder.svg)
-
-Building something cool with netfox? Whether it's released or in progress, feel
-free to open a PR!
-
 ## Overview
 
 The package consists of multiple addons, each with different features:
@@ -114,6 +107,26 @@ created and included specifically for this purpose.
 
 It's a party game where an arbitrary amount of players compete by trying to
 knock eachother off of the map.
+
+## Built with netfox
+
+<table>
+  <thead>
+    <tr>
+      <th>Logo</th>
+      <th>Name</th>
+      <th>Links</th>
+    </tr>
+  </thead>
+  <tr>
+    <td><img src="docs/assets/showcase/placeholder.svg"/></td>
+    <td></td>
+    <td></td>
+  </tr>
+</table>
+
+Building something cool with netfox? Whether it's released or in progress, feel
+free to open a PR!
 
 ## License
 
