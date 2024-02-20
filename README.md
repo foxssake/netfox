@@ -108,6 +108,26 @@ created and included specifically for this purpose.
 It's a party game where an arbitrary amount of players compete by trying to
 knock eachother off of the map.
 
+## Built with netfox
+
+<table>
+  <thead>
+    <tr>
+      <th>Logo</th>
+      <th>Name</th>
+      <th>Links</th>
+    </tr>
+  </thead>
+  <tr>
+    <td><img src="docs/assets/showcase/placeholder.svg"/></td>
+    <td></td>
+    <td></td>
+  </tr>
+</table>
+
+Building something cool with netfox? Whether it's released or in progress, feel
+free to open a PR!
+
 ## License
 
 netfox is under the [MIT license](LICENSE).
