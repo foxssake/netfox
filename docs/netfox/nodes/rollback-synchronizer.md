@@ -65,5 +65,23 @@ While changing configuration after instantiation is possible, it is not
 recommended. You may get away with it if the configuration change happens in a
 few ticks after instantiation. For longer periods, experiment at your own risk.
 
+## Changing ownership
+
+The setup work above is also needed whenever the multiplayer authority changes
+of any of the nodes that have a state- or input property.
+
+Changing authority during gameplay is supported. Make sure to call
+`process_authority()` on all peers at the same time, to ensure they're on sync
+about ownership.
+
+This method is called automatically during instantiation and whenever
+`process_settings()` is called.
+
+---
+
+When *only* multiplayer authority changes, call `process_authority()`. When the
+configured state- or input properties change ( i.e. different properties need
+to be synced ), call `process_settings()`.
+
 [NetworkRollback]: ../guides/network-rollback.md
 [Property paths]: ../guides/property-paths.md
