@@ -26,39 +26,57 @@ static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("RollbackSynchroniz
 
 ## Process settings.
 ##
-## Call this after any change to configuration.
+## Call this after any change to configuration. Updates based on authority too
+## ( calls process_authority ).
 func process_settings():
 	_property_cache = PropertyCache.new(root)
 	_freshness_store = RollbackFreshnessStore.new()
 	
 	_nodes.clear()
-	_record_input_props.clear()
 	_record_state_props.clear()
-	_auth_input_props.clear()
-	_auth_state_props.clear()
 	
 	_states.clear()
 	_inputs.clear()
 	_latest_state = -1
 	_earliest_input = NetworkTime.tick
 
+	# Gather state props - all state props are recorded
 	for property in state_properties:
 		var pe = _property_cache.get_entry(property)
 		_record_state_props.push_back(pe)
-		if pe.node.is_multiplayer_authority():
-			_auth_state_props.push_back(pe)
-
-	for property in input_properties:
-		var pe = _property_cache.get_entry(property)
-		if pe.node.is_multiplayer_authority():
-			_record_input_props.push_back(pe)
-			_auth_input_props.push_back(pe)
+	
+	process_authority()
 	
 	# Gather all rollback-aware nodes to simulate during rollbacks
 	_nodes = root.find_children("*")
 	_nodes.push_front(root)
 	_nodes = _nodes.filter(func(it): return NetworkRollback.is_rollback_aware(it))
 	_nodes.erase(self)
+
+## Process settings based on authority.
+##
+## Call this whenever the authority of any of the nodes managed by
+## RollbackSynchronizer changes. Make sure to do this at the same time on all 
+## peers.
+func process_authority():
+	_record_input_props.clear()
+	_auth_input_props.clear()
+	_auth_state_props.clear()
+	
+	# Gather state properties that we own
+	# i.e. it's the state of a node that belongs to the local peer
+	for property in state_properties:
+		var pe = _property_cache.get_entry(property)
+		if pe.node.is_multiplayer_authority():
+			_auth_state_props.push_back(pe)
+
+	# Gather input properties that we own
+	# Only record input that is our own
+	for property in input_properties:
+		var pe = _property_cache.get_entry(property)
+		if pe.node.is_multiplayer_authority():
+			_record_input_props.push_back(pe)
+			_auth_input_props.push_back(pe)
 
 func _ready():
 	process_settings()
