@@ -2,13 +2,14 @@
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 64 64" style="enable-background:new 0 0 64 64;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill:none;stroke:#E0E1E0;stroke-width:6.875;stroke-linecap:round;stroke-linejoin:round;}
-	.st1{fill:#86C985;}
-	.st2{fill:#F16062;}
+	.st0{fill:none;stroke:#E0E0E0;stroke-width:6.875;stroke-linecap:round;stroke-linejoin:round;}
+	.st1{fill:#5FFF97;}
+	.st2{fill:#FF5F5F;}
 	.st3{opacity:0.8;}
 </style>
 <circle id="path4_00000145755642355381971890000012750770255243041471_" class="st0" cx="32" cy="32" r="20.5"/>
-<path id="path1_00000101101429107098172700000017609064003007162547_" class="st1" d="M32,40.2l-8.2,16.4l-8.2-16.4H32z"/>
+<path id="path1_00000101101429107098172700000017609064003007162547_" class="st1" d="M32,40.2l-8.2,16.4l-8.2-16.4
+	C15.6,40.2,32,40.2,32,40.2z"/>
 <path id="path2_00000126280959979031010980000006949781421479937947_" class="st2" d="M48.4,56.7l-8.2-16.4L32,56.7H48.4z"/>
 <g id="g3" transform="translate(0.1760495)" class="st3">
 	<g>
