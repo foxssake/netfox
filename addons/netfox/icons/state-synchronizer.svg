@@ -1,61 +1,20 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg
-   height="16"
-   width="16"
-   version="1.1"
-   id="svg3"
-   sodipodi:docname="state-synchronizer.svg"
-   inkscape:version="1.3.2 (091e20ef0f, 2023-11-25)"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
-  <defs
-     id="defs3" />
-  <sodipodi:namedview
-     id="namedview3"
-     pagecolor="#ffffff"
-     bordercolor="#000000"
-     borderopacity="0.25"
-     inkscape:showpageshadow="2"
-     inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#d1d1d1"
-     inkscape:zoom="1"
-     inkscape:cx="-164"
-     inkscape:cy="-94.5"
-     inkscape:window-width="2560"
-     inkscape:window-height="1048"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="svg3" />
-  <circle
-     style="fill:none;stroke:#e0e0e0;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
-     id="path4"
-     cx="8"
-     cy="8"
-     r="6" />
-  <path
-     d="m8 10-2 4-2-4Z"
-     fill="#5fff97"
-     id="path1" />
-  <path
-     d="m12 14-2-4-2 4Z"
-     fill="#ff5f5f"
-     id="path2" />
-  <g
-     id="g3"
-     transform="translate(0.1760495)">
-    <path
-       style="fill:none;stroke:#e0e0e0;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
-       d="M 5,8.0000002 7.8239505,5.1760494"
-       id="path6"
-       sodipodi:nodetypes="cc" />
-    <path
-       style="fill:none;stroke:#e0e0e0;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
-       d="M 10.647901,8.0000002 7.8239505,5.1760494"
-       id="path3"
-       sodipodi:nodetypes="cc" />
-  </g>
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 64 64" style="enable-background:new 0 0 64 64;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:none;stroke:#E0E0E0;stroke-width:6.875;stroke-linecap:round;stroke-linejoin:round;}
+	.st1{fill:#5FFF97;}
+	.st2{fill:#FF5F5F;}
+	.st3{opacity:0.8;}
+</style>
+<circle id="path4_00000145755642355381971890000012750770255243041471_" class="st0" cx="32" cy="32" r="20.5"/>
+<path id="path1_00000101101429107098172700000017609064003007162547_" class="st1" d="M32,40.2l-8.2,16.4l-8.2-16.4
+	C15.6,40.2,32,40.2,32,40.2z"/>
+<path id="path2_00000126280959979031010980000006949781421479937947_" class="st2" d="M48.4,56.7l-8.2-16.4L32,56.7H48.4z"/>
+<g id="g3" transform="translate(0.1760495)" class="st3">
+	<g>
+		<path id="path6_00000155856079621265361740000011086747546737189515_" class="st0" d="M22.2,32l9.7-9.7"/>
+		<path id="path3_00000068640062030745169160000008672866801517693375_" class="st0" d="M41.5,32l-9.7-9.7"/>
+	</g>
+</g>
 </svg>
