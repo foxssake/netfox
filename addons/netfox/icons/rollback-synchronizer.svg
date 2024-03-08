@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
+	 viewBox="0 0 64 64" style="enable-background:new 0 0 64 64;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill:none;stroke:#E0E0E0;stroke-width:55;stroke-linecap:round;stroke-linejoin:round;}
-	.st1{fill:none;stroke:#E0E0E0;stroke-width:55;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.66;}
-	.st2{fill:none;stroke:#E0E0E0;stroke-width:55;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.33;}
-	.st3{fill:#5FFF97;}
-	.st4{fill:#FF5F5F;}
+	.st0{fill:none;stroke:#E0E1E0;stroke-width:6.875;stroke-linecap:round;stroke-linejoin:round;}
+	.st1{fill:none;stroke:#E0E1E0;stroke-width:6.875;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.66;}
+	.st2{fill:none;stroke:#E0E1E0;stroke-width:6.875;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.33;}
+	.st3{fill:#86C985;}
+	.st4{fill:#F16062;}
 </style>
-<path id="path6" class="st0" d="M259.6,259.6l77.3-77.3"/>
-<path id="path7" class="st1" d="M259.6,259.6V150.2"/>
-<path id="path8" class="st2" d="M259.6,259.6l-77.3-77.3"/>
-<circle id="path4" class="st0" cx="259.6" cy="259.6" r="164.4"/>
-<path id="path1" class="st3" d="M259.6,325.4l-65.8,131.5L128,325.4H259.6z"/>
-<path id="path2" class="st4" d="M391.2,456.9l-65.8-131.5l-65.8,131.5H391.2z"/>
+<path id="path6" class="st0" d="M32,32l9.7-9.7"/>
+<path id="path7" class="st1" d="M32,32V18.3"/>
+<path id="path8" class="st2" d="M32,32l-9.7-9.7"/>
+<circle id="path4" class="st0" cx="32" cy="32" r="20.5"/>
+<path id="path1" class="st3" d="M32,38.2l-8.2,16.4l-8.2-16.4H32z"/>
+<path id="path2" class="st4" d="M48.5,54.6l-8.2-16.4L32,54.6H48.5z"/>
 </svg>
