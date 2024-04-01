@@ -6,7 +6,7 @@ var node: Node
 var property: String
 
 func get_value() -> Variant:
-	return node.get(property)
+	return node.get_indexed(property)
 
 func set_value(value):
 	node.set(property, value)
@@ -15,7 +15,7 @@ func is_valid() -> bool:
 	if node == null:
 		return false
 		
-	if node.get(property) == null:
+	if get_value() == null:
 		return false
 	
 	return true
