@@ -87,7 +87,7 @@ These methods are called by [RollbackSynchronizer] under the hood.
 enable further rewinds and thus larger latencies, but consume more memory for
 each node that is recorded.
 
-*input redundency* This is the number of previous input ticks to send along with 
+*Input redundancy* This is the number of previous input ticks to send along with 
 the current. We send data unreliably over UDP for speed. In the event a packet is
  lost or arrives out of order we add some redundancy.
 

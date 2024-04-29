@@ -36,11 +36,11 @@ var display_offset: int:
 ## To mitigate this, we can send the current and previous n ticks of input data.
 ##
 ## [i]read-only[/i], you can change this in the project settings
-var input_redundency: int:
+var input_redundancy: int:
 	get:
-		return ProjectSettings.get_setting("netfox/rollback/input_redundency", 5)
+		return ProjectSettings.get_setting("netfox/rollback/input_redundancy", 3)
 	set(v):
-		push_error("Trying to set read-only variable input_redundency")
+		push_error("Trying to set read-only variable input_redundancy")
 
 var tick: int:
 	get:
