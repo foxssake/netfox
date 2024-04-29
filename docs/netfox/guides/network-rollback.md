@@ -88,8 +88,10 @@ enable further rewinds and thus larger latencies, but consume more memory for
 each node that is recorded.
 
 *Input redundancy* This is the number of previous input ticks to send along with 
-the current. We send data unreliably over UDP for speed. In the event a packet is
- lost or arrives out of order we add some redundancy.
+the current tick. We send data unreliably over UDP for speed. In the event a packet is
+ lost or arrives out of order we add some redundancy. You can calculate your target
+ reliability % packet success chance by using the formula 
+ `1 - (1 - packet_success_rate) ^ input_redundancy`.
 
 *Display offset* specifies the age of the tick to display. By displaying an
 older state instead of the latest one, games can mask adjustments if a state
