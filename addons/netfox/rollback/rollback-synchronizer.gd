@@ -237,10 +237,15 @@ func _submit_input(input: Dictionary, tick: int):
 	if sanitized.size() > 0:
 		for property in sanitized:
 			for i in range(0, sanitized[property].size()):
-				# We received an array of current and previous inputs, merge them into our history.
-				_inputs[tick -i] = PropertySnapshot.merge(_inputs.get(tick - i, {}), {property: sanitized[property][i]})
-
-		_earliest_input = min(_earliest_input, tick)
+				var t = tick - i
+				var old_input = _inputs.get(t, {}).get(property)
+				var new_input = sanitized[property][i]
+				
+				if old_input != new_input:
+					# We received an array of current and previous inputs, merge them into our history.
+					_inputs[t] = _inputs.get(t, {})
+					_inputs[t][property] = new_input
+					_earliest_input = min(_earliest_input, t)
 	else:
 		_logger.warning("Received invalid input from %s for tick %s for %s" % [sender, tick, root.name])
 
