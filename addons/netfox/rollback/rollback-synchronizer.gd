@@ -241,7 +241,7 @@ func _submit_input(input: Dictionary, tick: int):
 				var old_input = _inputs.get(t, {}).get(property)
 				var new_input = sanitized[property][i]
 				
-				if old_input != new_input:
+				if old_input == null:
 					# We received an array of current and previous inputs, merge them into our history.
 					_inputs[t] = _inputs.get(t, {})
 					_inputs[t][property] = new_input
