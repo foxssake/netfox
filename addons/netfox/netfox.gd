@@ -62,6 +62,11 @@ var SETTINGS = [
 		"type": TYPE_INT
 	},
 	{
+		"name": "netfox/rollback/input_redundancy",
+		"value": 3,
+		"type": TYPE_INT
+	},
+	{
 		"name": "netfox/rollback/display_offset",
 		"value": 0,
 		"type": TYPE_INT

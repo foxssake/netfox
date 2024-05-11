@@ -29,6 +29,19 @@ var display_offset: int:
 	set(v):
 		push_error("Trying to set read-only variable display_offset")
 
+## How many previous input frames to send along with the current one.
+##
+## Input data is sent unreliably over UDP for speed. 
+## Some packets may be lost, some arrive late or out of order.
+## To mitigate this, we can send the current and previous n ticks of input data.
+##
+## [i]read-only[/i], you can change this in the project settings
+var input_redundancy: int:
+	get:
+		return ProjectSettings.get_setting("netfox/rollback/input_redundancy", 3)
+	set(v):
+		push_error("Trying to set read-only variable input_redundancy")
+
 var tick: int:
 	get:
 		return _tick

@@ -176,7 +176,17 @@ func _after_tick(_delta, _tick):
 	if not _auth_input_props.is_empty():
 		var input = PropertySnapshot.extract(_auth_input_props)
 		_inputs[NetworkTime.tick] = input
-		rpc("_submit_input", input, NetworkTime.tick)
+
+		#Send the last n inputs for each property 
+		var inputs = {}
+		for i in range(0, NetworkRollback.input_redundancy):
+			var tick_input = _inputs.get(NetworkTime.tick - i, {})
+			for property in tick_input:
+				if not inputs.has(property):
+					inputs[property] = []
+				inputs[property].push_back(tick_input[property])
+
+		rpc("_submit_input", inputs, NetworkTime.tick)
 	
 	while _states.size() > NetworkRollback.history_limit:
 		_states.erase(_states.keys().min())
@@ -208,7 +218,7 @@ func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 	
 	return buffer[before]
 
-@rpc("any_peer", "reliable", "call_remote")
+@rpc("any_peer", "unreliable", "call_remote")
 func _submit_input(input: Dictionary, tick: int):
 	var sender = multiplayer.get_remote_sender_id()
 	var sanitized = {}
@@ -225,8 +235,17 @@ func _submit_input(input: Dictionary, tick: int):
 		sanitized[property] = value
 	
 	if sanitized.size() > 0:
-		_inputs[tick] = sanitized
-		_earliest_input = min(_earliest_input, tick)
+		for property in sanitized:
+			for i in range(0, sanitized[property].size()):
+				var t = tick - i
+				var old_input = _inputs.get(t, {}).get(property)
+				var new_input = sanitized[property][i]
+				
+				if old_input == null:
+					# We received an array of current and previous inputs, merge them into our history.
+					_inputs[t] = _inputs.get(t, {})
+					_inputs[t][property] = new_input
+					_earliest_input = min(_earliest_input, t)
 	else:
 		_logger.warning("Received invalid input from %s for tick %s for %s" % [sender, tick, root.name])
 
