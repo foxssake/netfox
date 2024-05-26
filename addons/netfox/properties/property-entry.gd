@@ -9,7 +9,7 @@ func get_value() -> Variant:
 	return node.get_indexed(property)
 
 func set_value(value):
-	node.set(property, value)
+	node.set_indexed(property, value)
 
 func is_valid() -> bool:
 	if node == null:
