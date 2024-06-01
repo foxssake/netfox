@@ -196,7 +196,7 @@ var ticktime: float:
 var tick_factor: float:
 	get:
 		if not sync_to_physics:
-			return 1.0 - clampf((_next_tick - _get_os_time()) * tickrate, 0, 1)
+			return 1.0 - clampf((_next_tick_time - _last_process_time) * tickrate, 0, 1)
 		else:
 			return Engine.get_physics_interpolation_fraction()
 	set(v):
@@ -257,10 +257,12 @@ signal after_sync()
 signal after_client_sync(peer_id: int)
 
 var _tick: int = 0
-var _next_tick: float = 0
 var _active: bool = false
 var _initial_sync_done = false
 var _process_delta: float = 0
+
+var _next_tick_time: float = 0
+var _last_process_time: float = 0.
 
 var _remote_rtt: float = 0
 var _remote_tick: int = 0
@@ -302,14 +304,14 @@ func start():
 		_local_tick = _remote_tick
 		_initial_sync_done = true
 		_active = true
-		_next_tick = _get_os_time()
+		_next_tick_time = _get_os_time()
 		after_sync.emit()
 		
 		rpc_id(1, "_submit_sync_success")
 	else:
 		_active = true
 		_initial_sync_done = true
-		_next_tick = _get_os_time()
+		_next_tick_time = _get_os_time()
 		after_sync.emit()
 		
 		# Remove clients from the synced cache when disconnected
@@ -362,17 +364,18 @@ func _ready():
 
 func _process(delta):
 	_process_delta = delta
+	_last_process_time = _get_os_time()
 
 	if _active and not sync_to_physics:
 		var ticks_in_loop = 0
-		while _next_tick < _get_os_time() and ticks_in_loop < max_ticks_per_frame:
+		while _next_tick_time < _get_os_time() and ticks_in_loop < max_ticks_per_frame:
 			if ticks_in_loop == 0:
 				before_tick_loop.emit()
 
 			_run_tick()
 
 			ticks_in_loop += 1
-			_next_tick += ticktime
+			_next_tick_time += ticktime
 		
 		if ticks_in_loop > 0:
 			after_tick_loop.emit()
