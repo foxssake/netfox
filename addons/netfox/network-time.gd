@@ -363,12 +363,21 @@ func _ready():
 	NetworkTimeSynchronizer.on_sync.connect(_handle_sync)
 
 func _process(delta):
-	_process_delta = delta
-	_last_process_time = _get_os_time()
+	# Use OS delta to determine if the game's paused from editor, or through the SceneTree
+	var os_delta = _get_os_time() - _last_process_time
+	var is_delta_mismatch = os_delta / delta > 4. and os_delta > .5
+	
+	# Adjust next tick time if the game is paused, so we don't try to "catch up" after unpausing
+	if (is_delta_mismatch and Engine.is_editor_hint()) or get_tree().paused:
+		_next_tick_time += os_delta
 
+	_process_delta = delta
+	_last_process_time += os_delta
+
+	# Run tick loop if needed
 	if _active and not sync_to_physics:
 		var ticks_in_loop = 0
-		while _next_tick_time < _get_os_time() and ticks_in_loop < max_ticks_per_frame:
+		while _next_tick_time < _last_process_time and ticks_in_loop < max_ticks_per_frame:
 			if ticks_in_loop == 0:
 				before_tick_loop.emit()
 
@@ -381,7 +390,7 @@ func _process(delta):
 			after_tick_loop.emit()
 
 func _physics_process(delta):
-	if _active and sync_to_physics:
+	if _active and sync_to_physics and not get_tree().paused:
 		# Run a single tick every physics frame
 		before_tick_loop.emit()
 		_run_tick()
