@@ -63,6 +63,29 @@ To get notified when a client successfully syncs their time and starts the tick
 loop, use the `NetworkTime.after_client_sync(peer_id)` signal. This is fired
 once per client, and only on the server.
 
+## Pausing
+
+*NetworkTime* also supports pausing the game, if needed. There's two cases
+where pauses are considered.
+
+When running ( and pausing ) the game from the editor, the network tick loop
+is automatically paused. As there's currently no API to detect the editor
+pausing the game, *NetworkTime* checks if Godot's `_process` delta and actual
+delta is mismatching, and if so, considers the game paused. In some cases, this
+can result in false positives when the game simply hangs for a bit, e.g. when
+loading resources.
+
+This pause detection only happens when the game is run from the editor, to
+avoid false positives in production builds.
+
+The other supported case is pausing the game from the engine itself. Whenever
+`SceneTree.paused` is set to true, *NetworkTime* won't run the tick loop.
+
+> *Note* that pausing the tick loop can cause desynchronization between peers,
+and could lead to clients fast-forwarding ticks to catch up, or time
+recalibrations. If the game is paused via SceneTree, make sure it is paused and
+unpaused at the same time on all peers.
+
 ## Time synchronization
 
 *NetworkTime* runs a time synchronization loop on clients, in the background.
