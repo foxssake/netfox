@@ -12,7 +12,7 @@ class_name RollbackSynchronizer
 
 ## This will broadcast input to all peers, turning this off will limit to sending it to the server only.
 ## Turning this off is recommended to save bandwith and reduce cheating risks.
-@export var input_broadcasted := true
+@export var enable_input_broadcast: bool = true
 
 var _record_state_props: Array[PropertyEntry] = []
 var _record_input_props: Array[PropertyEntry] = []
@@ -203,7 +203,8 @@ func _after_tick(_delta, _tick):
 	_freshness_store.trim()
 
 func _attempt_submit_input(input: Dictionary):
-	if input_broadcasted:
+	# TODO: Default to input broadcast in mesh network setups
+	if enable_input_broadcast:
 		rpc("_submit_input", input, NetworkTime.tick)
 	elif not multiplayer.is_server():
 		rpc_id(1, "_submit_input", input, NetworkTime.tick)
