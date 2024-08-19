@@ -22,12 +22,12 @@ state properties are owned by the server.
 for simulation. Make sure that nodes containing input properties are owned by
 their respective players.
 
+See [Property paths] on how to specify properties.
+
 *enable_input_broadcast* toggles whether input properties are broadcast to all
 peers, or only to the server. The default is *true* to support legacy
 behaviour. It is recommended to turn this off to lower bandwidth and lessen the
 attack surface for cheating.
-
-See [Property paths] on how to specify properties.
 
 > *Note* that it is not recommended to have both state and input properties on
 > the same node. Since nodes with state belong to the server, and nodes with
