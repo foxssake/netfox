@@ -6,7 +6,13 @@ class_name RollbackSynchronizer
 
 @export var root: Node = get_parent()
 @export var state_properties: Array[String]
+
+@export_subgroup("Inputs")
 @export var input_properties: Array[String]
+
+## This will broadcast input to all peers, turning this off will limit to sending it to the server only.
+## Turning this off is recommended to save bandwith and reduce cheating risks.
+@export var enable_input_broadcast: bool = true
 
 var _record_state_props: Array[PropertyEntry] = []
 var _record_input_props: Array[PropertyEntry] = []
@@ -186,7 +192,7 @@ func _after_tick(_delta, _tick):
 					inputs[property] = []
 				inputs[property].push_back(tick_input[property])
 
-		rpc("_submit_input", inputs, NetworkTime.tick)
+		_attempt_submit_input(inputs)
 	
 	while _states.size() > NetworkRollback.history_limit:
 		_states.erase(_states.keys().min())
@@ -195,6 +201,13 @@ func _after_tick(_delta, _tick):
 		_inputs.erase(_inputs.keys().min())
 		
 	_freshness_store.trim()
+
+func _attempt_submit_input(input: Dictionary):
+	# TODO: Default to input broadcast in mesh network setups
+	if enable_input_broadcast:
+		rpc("_submit_input", input, NetworkTime.tick)
+	elif not multiplayer.is_server():
+		rpc_id(1, "_submit_input", input, NetworkTime.tick)
 
 func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 	if buffer.has(tick):

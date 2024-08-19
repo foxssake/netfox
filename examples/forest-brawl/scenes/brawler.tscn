@@ -218,6 +218,7 @@ script = ExtResource("7_cmfmx")
 root = NodePath("..")
 state_properties = Array[String]([":transform", ":velocity", ":speed", "Displaceable:mass", "Displaceable:impulse"])
 input_properties = Array[String](["Input:movement", "Input:aim"])
+enable_input_broadcast = false
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_4cjl8")

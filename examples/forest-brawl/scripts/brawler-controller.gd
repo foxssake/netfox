@@ -67,7 +67,7 @@ func _ready():
 func _process(delta):
 	# Update animation
 	# Running
-	var movement = Vector3(input.movement.x, 0, input.movement.z) * speed
+	var movement = Vector3(velocity.x, 0, velocity.z) * speed
 	var relative_velocity = quaternion.inverse() * movement
 	relative_velocity.y = 0
 	relative_velocity /= speed
