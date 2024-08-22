@@ -5,14 +5,16 @@
 
 [node name="Network Popup" type="TabContainer"]
 offset_right = 540.0
-offset_bottom = 540.0
+offset_bottom = 223.0
+current_tab = 0
 
 [node name="LAN" type="VBoxContainer" parent="."]
 layout_mode = 2
+metadata/_tab_index = 0
 
 [node name="Address Row" type="HBoxContainer" parent="LAN"]
 layout_mode = 2
-size_flags_vertical = 2
+size_flags_vertical = 0
 
 [node name="Address Label" type="Label" parent="LAN/Address Row"]
 layout_mode = 2
@@ -51,6 +53,7 @@ text = "Join"
 [node name="Noray" type="VBoxContainer" parent="."]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 1
 
 [node name="Noray Address Row" type="HBoxContainer" parent="Noray"]
 layout_mode = 2

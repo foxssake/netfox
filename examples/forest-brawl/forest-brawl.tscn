@@ -93,11 +93,13 @@ offset_right = 125.5
 offset_bottom = 105.0
 grow_horizontal = 2
 grow_vertical = 2
+current_tab = 0
 use_hidden_tabs_for_min_size = true
 
 [node name="Settings" type="VBoxContainer" parent="UI/Network Popup"]
 layout_mode = 2
 size_flags_vertical = 3
+metadata/_tab_index = 0
 
 [node name="Player Name" type="HBoxContainer" parent="UI/Network Popup/Settings"]
 layout_mode = 2
@@ -167,6 +169,7 @@ script = ExtResource("16_6pky3")
 [node name="LAN" type="VBoxContainer" parent="UI/Network Popup"]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 1
 
 [node name="Address Row" type="HBoxContainer" parent="UI/Network Popup/LAN"]
 layout_mode = 2
@@ -209,6 +212,7 @@ text = "Join"
 [node name="Noray" type="VBoxContainer" parent="UI/Network Popup"]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 2
 
 [node name="Noray Address Row" type="HBoxContainer" parent="UI/Network Popup/Noray"]
 layout_mode = 2
