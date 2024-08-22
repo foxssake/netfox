@@ -34,7 +34,7 @@ func _handle_fall(brawler: BrawlerController):
 			_scores[id] = _scores.get(id, 0) - 1
 			
 		GameEvents.on_scores_updated.emit(_scores)
-		rpc("_submit_scores", _scores)
+		_submit_scores.rpc(_scores)
 	
 	# Display scoreboard
 	if id == multiplayer.get_unique_id():

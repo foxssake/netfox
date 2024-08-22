@@ -30,9 +30,9 @@ func fire() -> Node:
 	var data = _projectile_data[id]
 	
 	if not is_multiplayer_authority():
-		rpc_id(get_multiplayer_authority(), "_request_projectile", id, NetworkTime.tick, data)
+		_request_projectile.rpc_id(get_multiplayer_authority(), id, NetworkTime.tick, data)
 	else:
-		rpc("_accept_projectile", id, NetworkTime.tick, data)
+		_accept_projectile.rpc(id, NetworkTime.tick, data)
 
 	_logger.debug("Calling after fire hook for %s" % [projectile.name])
 	_after_fire(projectile)
@@ -143,7 +143,7 @@ func _request_projectile(id: String, tick: int, request_data: Dictionary):
 
 	# Reject if sender can't use this input
 	if not _can_peer_use(sender) or not _can_fire():
-		rpc_id(sender, "_decline_projectile", id)
+		_decline_projectile.rpc_id(sender, id)
 		_logger.error("Projectile %s rejected! Peer %s can't use this weapon now" % [id, sender])
 		return
 	
@@ -153,12 +153,12 @@ func _request_projectile(id: String, tick: int, request_data: Dictionary):
 	
 	if not _is_reconcilable(projectile, request_data, local_data):
 		projectile.queue_free()
-		rpc_id(sender, "_decline_projectile", id)
+		_decline_projectile.rpc_id(sender, id)
 		_logger.error("Projectile %s rejected! Can't reconcile states: [%s, %s]" % [id, request_data, local_data])
 		return
 	
 	_save_projectile(projectile, id, local_data)
-	rpc("_accept_projectile", id, tick, local_data)
+	_accept_projectile.rpc(id, tick, local_data)
 	_after_fire(projectile)
 
 @rpc("authority", "reliable", "call_local")

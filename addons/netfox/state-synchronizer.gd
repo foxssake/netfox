@@ -31,7 +31,7 @@ func _after_tick(_dt, tick):
 	if is_multiplayer_authority():
 		# Submit snapshot
 		var state = PropertySnapshot.extract(_props)
-		rpc("_submit_state", state, tick)
+		_submit_state.rpc(state, tick)
 	else:
 		# Apply last received state
 		PropertySnapshot.apply(_last_received_state, _property_cache)
