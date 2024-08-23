@@ -10,8 +10,6 @@ var _reconcile_buffer: Array = []
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_extras("NetworkWeapon")
 
-var latest_projectile_id: int = -1
-
 func _ready():
 	NetworkTime.before_tick_loop.connect(_before_tick_loop)
 
@@ -26,7 +24,7 @@ func fire() -> Node:
 	if not can_fire():
 		return null
 	
-	var id: int = _generate_id()
+	var id: String = _generate_id()
 	var projectile = _spawn()
 	_save_projectile(projectile, id)
 	var data = _projectile_data[id]
@@ -107,9 +105,9 @@ func _is_reconcilable(projectile: Node, request_data: Dictionary, local_data: Di
 func _reconcile(projectile: Node, local_data: Dictionary, remote_data: Dictionary):
 	pass
 
-func _save_projectile(projectile: Node, id: int, data: Dictionary = {}):
+func _save_projectile(projectile: Node, id: String, data: Dictionary = {}):
 	_projectiles[id] = projectile
-	projectile.name += " " + str(id)
+	projectile.name += " " + id
 	projectile.set_multiplayer_authority(get_multiplayer_authority())
 	
 	if data.is_empty():
@@ -132,13 +130,12 @@ func _before_tick_loop():
 
 	_reconcile_buffer.clear()
 
-func _generate_id() -> int:
-	#First projectile
-	if (latest_projectile_id == -1):
-		latest_projectile_id = get_player_id() * 10000
-	else:
-		latest_projectile_id += 1
-	return latest_projectile_id
+func _generate_id(length: int = 12, charset: String = "abcdefghijklmnopqrstuvwxyz0123456789") -> String:
+	var result = ""
+	for i in range(length):
+		var idx = randi_range(0, charset.length() - 1)
+		result += charset[idx]
+	return result
 
 ## @experimental
 ## Normally, there would be a singleton which stores all players' peer_ids and player_ids, and the local peer id and player_id
@@ -155,7 +152,7 @@ func get_player_id() -> int:
 	return -1
 
 @rpc("any_peer", "reliable", "call_remote")
-func _request_projectile(id: int, tick: int, request_data: Dictionary):
+func _request_projectile(id: String, tick: int, request_data: Dictionary):
 	var sender = multiplayer.get_remote_sender_id()
 
 	# Reject if sender can't use this input
@@ -179,7 +176,7 @@ func _request_projectile(id: int, tick: int, request_data: Dictionary):
 	_after_fire(projectile)
 
 @rpc("authority", "reliable", "call_local")
-func _accept_projectile(id: int, tick: int, response_data: Dictionary):
+func _accept_projectile(id: String, tick: int, response_data: Dictionary):
 	_logger.info("[%s] Accepting projectile %s from %s" % [multiplayer.get_unique_id(), id, multiplayer.get_remote_sender_id()])
 	if multiplayer.get_unique_id() == multiplayer.get_remote_sender_id():
 		# Projectile is local, nothing to do
@@ -196,7 +193,7 @@ func _accept_projectile(id: int, tick: int, response_data: Dictionary):
 		_after_fire(projectile)
 
 @rpc("authority", "reliable", "call_remote")
-func _decline_projectile(id: int):
+func _decline_projectile(id: String):
 	if not _projectiles.has(id):
 		return
 	
