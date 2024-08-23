@@ -137,20 +137,6 @@ func _generate_id(length: int = 12, charset: String = "abcdefghijklmnopqrstuvwxy
 		result += charset[idx]
 	return result
 
-## @experimental
-## Normally, there would be a singleton which stores all players' peer_ids and player_ids, and the local peer id and player_id
-## Since there isn't, the player_id is calculated realtime by counting how many brawlers until our own...
-func get_player_id() -> int:
-	var brawlers: Array[Node] = get_tree().get_nodes_in_group("Brawlers")
-	var picked_brawler_index: int = 0
-	for picked_brawler in brawlers:
-		if (picked_brawler is BrawlerController):
-			if ((picked_brawler as BrawlerController).player_id == multiplayer.get_unique_id()):
-				return picked_brawler_index
-		picked_brawler_index += 1
-	
-	return -1
-
 @rpc("any_peer", "reliable", "call_remote")
 func _request_projectile(id: String, tick: int, request_data: Dictionary):
 	var sender = multiplayer.get_remote_sender_id()
