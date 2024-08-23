@@ -14,6 +14,10 @@ class_name RollbackSynchronizer
 ## Turning this off is recommended to save bandwith and reduce cheating risks.
 @export var enable_input_broadcast: bool = true
 
+## This will serialize input before sending it, instead of sending a dictionary of string properties and its values
+## Turning this on is recommended to save bandwidth, at the slight cost of CPU.
+@export var enable_input_serialization: bool = true
+
 var _record_state_props: Array[PropertyEntry] = []
 var _record_input_props: Array[PropertyEntry] = []
 var _auth_state_props: Array[PropertyEntry] = []
@@ -22,6 +26,7 @@ var _nodes: Array[Node] = []
 
 var _states: Dictionary = {}
 var _inputs: Dictionary = {}
+var _serialized_inputs: Dictionary = {} #<tick, PackedByteArray>
 var _latest_state: int = -1
 var _earliest_input: int
 
@@ -167,8 +172,6 @@ func _record_tick(tick: int):
 		_states[tick] = PropertySnapshot.extract(_record_state_props)
 
 func _after_loop():
-	_earliest_input = NetworkTime.tick
-	
 	# Apply display state
 	var display_state = _get_history(_states, NetworkTime.tick - NetworkRollback.display_offset)
 	PropertySnapshot.apply(display_state, _property_cache)
@@ -178,21 +181,34 @@ func _before_tick(_delta, tick):
 	var state = _get_history(_states, tick)
 	PropertySnapshot.apply(state, _property_cache)
 
-func _after_tick(_delta, _tick):
+func _after_tick(_delta: float, _tick: int):
 	if not _auth_input_props.is_empty():
+		_earliest_input = _tick
 		var input = PropertySnapshot.extract(_auth_input_props)
-		_inputs[NetworkTime.tick] = input
+		_inputs[_tick] = input
+		
+		if (enable_input_serialization):
+			var serialized_current_input: PackedByteArray = PropertySnapshot.extract_serialized(_auth_input_props, _tick)
+			_serialized_inputs[_tick] = serialized_current_input
+			
+			var serialized_inputs_to_send: Array[PackedByteArray] = []
+			var first_of_previous_inputs_index: int = max(_serialized_inputs.size() - NetworkRollback.input_redundancy, _earliest_input)
+			
+			for picked_tick_index in range(first_of_previous_inputs_index, _serialized_inputs.size()):
+				serialized_inputs_to_send.append(_serialized_inputs[picked_tick_index])
 
-		#Send the last n inputs for each property 
-		var inputs = {}
-		for i in range(0, NetworkRollback.input_redundancy):
-			var tick_input = _inputs.get(NetworkTime.tick - i, {})
-			for property in tick_input:
-				if not inputs.has(property):
-					inputs[property] = []
-				inputs[property].push_back(tick_input[property])
+			_attempt_submit_serialized_input(serialized_inputs_to_send)
+		else:
+			#Send the last n inputs for each property 
+			var inputs = {}
+			for i in range(0, NetworkRollback.input_redundancy):
+				var tick_input = _inputs.get(NetworkTime.tick - i, {})
+				for property in tick_input:
+					if not inputs.has(property):
+						inputs[property] = []
+					inputs[property].push_back(tick_input[property])
 
-		_attempt_submit_input(inputs)
+			_attempt_submit_raw_input(inputs)
 	
 	while _states.size() > NetworkRollback.history_limit:
 		_states.erase(_states.keys().min())
@@ -200,14 +216,25 @@ func _after_tick(_delta, _tick):
 	while _inputs.size() > NetworkRollback.history_limit:
 		_inputs.erase(_inputs.keys().min())
 		
+	if (enable_input_serialization):
+		while _serialized_inputs.size() > NetworkRollback.history_limit:
+			_serialized_inputs.erase(_serialized_inputs.keys().min())
+		
 	_freshness_store.trim()
 
-func _attempt_submit_input(input: Dictionary):
+func _attempt_submit_raw_input(inputs: Dictionary):
 	# TODO: Default to input broadcast in mesh network setups
 	if enable_input_broadcast:
-		rpc("_submit_input", input, NetworkTime.tick)
+		_submit_raw_input.rpc( inputs, NetworkTime.tick)
 	elif not multiplayer.is_server():
-		rpc_id(1, "_submit_input", input, NetworkTime.tick)
+		_submit_raw_input.rpc_id(1, inputs, NetworkTime.tick)
+
+func _attempt_submit_serialized_input(serialized_inputs: Array[PackedByteArray]):
+	# TODO: Default to input broadcast in mesh network setups
+	if enable_input_broadcast:
+		_submit_serialized_input.rpc(serialized_inputs)
+	elif not multiplayer.is_server():
+		_submit_serialized_input.rpc_id(1, serialized_inputs)
 
 func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 	if buffer.has(tick):
@@ -232,13 +259,50 @@ func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 	return buffer[before]
 
 @rpc("any_peer", "unreliable", "call_remote")
-func _submit_input(input: Dictionary, tick: int):
-	var sender = multiplayer.get_remote_sender_id()
+func _submit_serialized_input(serialized_inputs: Array[PackedByteArray]):
+	var sender: int = multiplayer.get_remote_sender_id()
+	
+	#If clients send input exclusively to server, yet we are a client and received an input
+	#this is either a serious bug or a hacker sending RPCs.
+	if (enable_input_broadcast == false && not multiplayer.is_server() && sender != 1):
+		_logger.error("Received input from %s for %s from a client!" % [sender, root.name])
+	
+	var picked_tick: int
+	for picked_serialized_input in serialized_inputs:
+		picked_tick = picked_serialized_input.decode_u32(0)
+		if (_inputs.has(picked_tick) == false): #New input tick!
+			_earliest_input = min(_earliest_input, picked_tick)
+			_inputs[picked_tick] = _inputs.get(picked_tick, {})
+			
+			var reconstructed_property: Dictionary = {}
+			var picked_type: Variant.Type
+			var picked_type_byte_size: int
+			var picked_serialized_property: PackedByteArray
+			var picked_byte_index: int = 4 #not 0 because above^ we already decoded tick (u_32)
+			for picked_property_entry in _auth_input_props:
+				picked_type = picked_property_entry.type
+				picked_type_byte_size = ValueToBytes.get_byte_size(picked_type)
+				picked_serialized_property = picked_serialized_input.slice(picked_byte_index, picked_byte_index + picked_type_byte_size + 1) # +1 because end is exclusive
+				
+				var picked_value = ValueToBytes.deserialize(picked_serialized_property, picked_type)
+				picked_byte_index += picked_type_byte_size
+				
+				_inputs[picked_tick][picked_property_entry._path] = picked_value
+	
+@rpc("any_peer", "unreliable", "call_remote")
+func _submit_raw_input(input: Dictionary, tick: int):
+	var sender: int = multiplayer.get_remote_sender_id()
+	
+	#If clients send input exclusively to server, yet we are a client and received an input
+	#this is either a serious bug or a hacker sending RPCs.
+	if (enable_input_broadcast == false && not multiplayer.is_server() && sender != 1):
+		_logger.error("Received input from %s for tick %s for %s from a client!" % [sender, tick, root.name])
+	
 	var sanitized = {}
 	for property in input:
-		var pe = _property_cache.get_entry(property)
+		var pe: PropertyEntry = _property_cache.get_entry(property)
 		var value = input[property]
-		var input_owner = pe.node.get_multiplayer_authority()
+		var input_owner: int = pe.node.get_multiplayer_authority()
 		
 		if input_owner != sender:
 			_logger.warning("Received input for node owned by %s from %s, sender has no authority!" \
@@ -246,6 +310,7 @@ func _submit_input(input: Dictionary, tick: int):
 			continue
 		
 		sanitized[property] = value
+		print("Sanitized[property] %s is: %s" % [property, sanitized[property]])
 	
 	if sanitized.size() > 0:
 		for property in sanitized:
@@ -253,12 +318,14 @@ func _submit_input(input: Dictionary, tick: int):
 				var t = tick - i
 				var old_input = _inputs.get(t, {}).get(property)
 				var new_input = sanitized[property][i]
+				print("property is %s and new_input is %s" % [property, new_input])
 				
 				if old_input == null:
 					# We received an array of current and previous inputs, merge them into our history.
 					_inputs[t] = _inputs.get(t, {})
 					_inputs[t][property] = new_input
 					_earliest_input = min(_earliest_input, t)
+					
 	else:
 		_logger.warning("Received invalid input from %s for tick %s for %s" % [sender, tick, root.name])
 
