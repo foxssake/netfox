@@ -14,9 +14,6 @@ class_name RollbackSynchronizer
 ## Turning this off is recommended to save bandwith and reduce cheating risks.
 @export var enable_input_broadcast: bool = true
 
-## This will serialize input before sending it, instead of sending a dictionary of string properties and its values
-## Turning this on is recommended to save bandwidth, at the slight cost of CPU.
-@export var enable_input_serialization: bool = true
 
 var _record_state_props: Array[PropertyEntry] = []
 var _record_input_props: Array[PropertyEntry] = []
@@ -27,6 +24,7 @@ var _nodes: Array[Node] = []
 var _states: Dictionary = {}
 var _inputs: Dictionary = {}
 var _serialized_inputs: Dictionary = {} #<tick, PackedByteArray>
+var serialized_inputs_to_send: Array[PackedByteArray] = []
 var _latest_state: int = -1
 var _earliest_input: int
 
@@ -77,7 +75,7 @@ func process_authority():
 	# Gather state properties that we own
 	# i.e. it's the state of a node that belongs to the local peer
 	for property in state_properties:
-		var pe = _property_cache.get_entry(property)
+		var pe: PropertyEntry = _property_cache.get_entry(property)
 		if pe.node.is_multiplayer_authority():
 			_auth_state_props.push_back(pe)
 
@@ -86,8 +84,9 @@ func process_authority():
 	for property in input_properties:
 		var pe = _property_cache.get_entry(property)
 		if pe.node.is_multiplayer_authority():
-			_record_input_props.push_back(pe)
 			_auth_input_props.push_back(pe)
+		else:
+			_record_input_props.push_back(pe)
 
 func _ready():
 	process_settings()
@@ -172,6 +171,7 @@ func _record_tick(tick: int):
 		_states[tick] = PropertySnapshot.extract(_record_state_props)
 
 func _after_loop():
+	_earliest_input = NetworkTime.tick
 	# Apply display state
 	var display_state = _get_history(_states, NetworkTime.tick - NetworkRollback.display_offset)
 	PropertySnapshot.apply(display_state, _property_cache)
@@ -183,40 +183,43 @@ func _before_tick(_delta, tick):
 
 func _after_tick(_delta: float, _tick: int):
 	if not _auth_input_props.is_empty():
-		_earliest_input = _tick
 		var input = PropertySnapshot.extract(_auth_input_props)
 		_inputs[_tick] = input
-		
-		if (enable_input_serialization):
-			var serialized_current_input: PackedByteArray = PropertySnapshot.extract_serialized(_auth_input_props, _tick)
+			
+		if (NetworkRollback.enable_input_serialization):
+			var serialized_current_input: PackedByteArray = PropertiesSerializer.serialize_multiple_properties(_auth_input_props, _tick)
 			_serialized_inputs[_tick] = serialized_current_input
 			
-			var serialized_inputs_to_send: Array[PackedByteArray] = []
-			var first_of_previous_inputs_index: int = max(_serialized_inputs.size() - NetworkRollback.input_redundancy, _earliest_input)
+			if (serialized_inputs_to_send.size() == NetworkRollback.input_redundancy):
+				serialized_inputs_to_send.remove_at(0)
+			serialized_inputs_to_send.append(serialized_current_input)
 			
-			for picked_tick_index in range(first_of_previous_inputs_index, _serialized_inputs.size()):
-				serialized_inputs_to_send.append(_serialized_inputs[picked_tick_index])
+			if (serialized_inputs_to_send.is_empty() == false):
+				var merged_serialized_inputs: PackedByteArray
+				merged_serialized_inputs.resize(0)
+				for picked_serialized_input in serialized_inputs_to_send:
+					merged_serialized_inputs.append_array(picked_serialized_input)
 
-			_attempt_submit_serialized_input(serialized_inputs_to_send)
+				_attempt_submit_serialized_inputs(merged_serialized_inputs)
 		else:
 			#Send the last n inputs for each property 
 			var inputs = {}
 			for i in range(0, NetworkRollback.input_redundancy):
-				var tick_input = _inputs.get(NetworkTime.tick - i, {})
+				var tick_input: Dictionary = _inputs.get(NetworkTime.tick - i, {})
 				for property in tick_input:
 					if not inputs.has(property):
 						inputs[property] = []
 					inputs[property].push_back(tick_input[property])
 
 			_attempt_submit_raw_input(inputs)
-	
+		
 	while _states.size() > NetworkRollback.history_limit:
 		_states.erase(_states.keys().min())
 	
 	while _inputs.size() > NetworkRollback.history_limit:
 		_inputs.erase(_inputs.keys().min())
 		
-	if (enable_input_serialization):
+	if (NetworkRollback.enable_input_serialization):
 		while _serialized_inputs.size() > NetworkRollback.history_limit:
 			_serialized_inputs.erase(_serialized_inputs.keys().min())
 		
@@ -229,12 +232,12 @@ func _attempt_submit_raw_input(inputs: Dictionary):
 	elif not multiplayer.is_server():
 		_submit_raw_input.rpc_id(1, inputs, NetworkTime.tick)
 
-func _attempt_submit_serialized_input(serialized_inputs: Array[PackedByteArray]):
+func _attempt_submit_serialized_inputs(serialized_inputs: PackedByteArray):
 	# TODO: Default to input broadcast in mesh network setups
 	if enable_input_broadcast:
-		_submit_serialized_input.rpc(serialized_inputs)
+		_submit_serialized_inputs.rpc(serialized_inputs)
 	elif not multiplayer.is_server():
-		_submit_serialized_input.rpc_id(1, serialized_inputs)
+		_submit_serialized_inputs.rpc_id(1, serialized_inputs)
 
 func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 	if buffer.has(tick):
@@ -259,35 +262,42 @@ func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 	return buffer[before]
 
 @rpc("any_peer", "unreliable", "call_remote")
-func _submit_serialized_input(serialized_inputs: Array[PackedByteArray]):
+func _submit_serialized_inputs(serialized_inputs: PackedByteArray):
 	var sender: int = multiplayer.get_remote_sender_id()
 	
 	#If clients send input exclusively to server, yet we are a client and received an input
-	#this is either a serious bug or a hacker sending RPCs.
+	#This is a hacker sending RPCs (or someone called this RPC without adding the enable_input_broadcast boolean check)
 	if (enable_input_broadcast == false && not multiplayer.is_server() && sender != 1):
 		_logger.error("Received input from %s for %s from a client!" % [sender, root.name])
 	
 	var picked_tick: int
-	for picked_serialized_input in serialized_inputs:
-		picked_tick = picked_serialized_input.decode_u32(0)
-		if (_inputs.has(picked_tick) == false): #New input tick!
-			_earliest_input = min(_earliest_input, picked_tick)
-			_inputs[picked_tick] = _inputs.get(picked_tick, {})
+	var picked_input_values_size: int #The size of the serialized input containing all properties (excluding tick timestamp[0,1,2,3] and the size itself on byte[4])
+	var picked_single_input: PackedByteArray
+	var picked_byte_index: int = 0
+	while (picked_byte_index < serialized_inputs.size()):
+		picked_tick = serialized_inputs.decode_u32(picked_byte_index)
+		picked_byte_index += 4
+		picked_input_values_size = serialized_inputs.decode_u8(picked_byte_index)
+		picked_byte_index += 1
+
+		if (_inputs.has(picked_tick) == false): #New input!
+			picked_single_input = serialized_inputs.slice(picked_byte_index, picked_byte_index + picked_input_values_size)
+			var received_properties: Dictionary
+			if (_auth_input_props.is_empty()):
+				received_properties = PropertiesSerializer.deserialize_multiple_properties(picked_single_input, _record_input_props)
+			else:
+				received_properties = PropertiesSerializer.deserialize_multiple_properties(picked_single_input, _auth_input_props)
 			
-			var reconstructed_property: Dictionary = {}
-			var picked_type: Variant.Type
-			var picked_type_byte_size: int
-			var picked_serialized_property: PackedByteArray
-			var picked_byte_index: int = 4 #not 0 because above^ we already decoded tick (u_32)
-			for picked_property_entry in _auth_input_props:
-				picked_type = picked_property_entry.type
-				picked_type_byte_size = ValueToBytes.get_byte_size(picked_type)
-				picked_serialized_property = picked_serialized_input.slice(picked_byte_index, picked_byte_index + picked_type_byte_size + 1) # +1 because end is exclusive
-				
-				var picked_value = ValueToBytes.deserialize(picked_serialized_property, picked_type)
-				picked_byte_index += picked_type_byte_size
-				
-				_inputs[picked_tick][picked_property_entry._path] = picked_value
+			_earliest_input = min(_earliest_input, picked_tick)
+			
+			if (_inputs.has(picked_tick) == false):
+				_inputs[picked_tick] = received_properties
+			else:
+				for picked_property_path in received_properties:
+					_inputs[picked_tick][picked_property_path] = received_properties[picked_property_path]
+
+
+		picked_byte_index += picked_input_values_size
 	
 @rpc("any_peer", "unreliable", "call_remote")
 func _submit_raw_input(input: Dictionary, tick: int):
@@ -310,7 +320,7 @@ func _submit_raw_input(input: Dictionary, tick: int):
 			continue
 		
 		sanitized[property] = value
-		print("Sanitized[property] %s is: %s" % [property, sanitized[property]])
+		#print("Sanitized[property] %s is: %s" % [property, sanitized[property]])
 	
 	if sanitized.size() > 0:
 		for property in sanitized:
@@ -318,7 +328,7 @@ func _submit_raw_input(input: Dictionary, tick: int):
 				var t = tick - i
 				var old_input = _inputs.get(t, {}).get(property)
 				var new_input = sanitized[property][i]
-				print("property is %s and new_input is %s" % [property, new_input])
+				#print("property is %s and new_input is %s" % [property, new_input])
 				
 				if old_input == null:
 					# We received an array of current and previous inputs, merge them into our history.

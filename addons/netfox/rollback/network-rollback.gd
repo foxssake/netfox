@@ -48,6 +48,8 @@ var tick: int:
 	set(v):
 		push_error("Trying to set read-only variable tick")
 
+var enable_input_serialization: bool = ProjectSettings.get_setting("netfox/serialization/enable_input_serialization", true)
+
 ## Event emitted before running the network rollback loop
 signal before_loop()
 

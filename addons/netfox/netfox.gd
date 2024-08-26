@@ -64,7 +64,8 @@ var SETTINGS = [
 	{
 		"name": "netfox/rollback/input_redundancy",
 		"value": 3,
-		"type": TYPE_INT
+		"type": TYPE_INT,
+		"hint_string": "When an input is sent, which previous tick inputs should we send with it? By having this above 1, inputs are batched together so if a packet is lost which contains an input, the next packets will provide it"
 	},
 	{
 		"name": "netfox/rollback/display_offset",
@@ -76,6 +77,13 @@ var SETTINGS = [
 		"name": "netfox/events/enabled",
 		"value": true,
 		"type": TYPE_BOOL
+	},
+	# Serialization
+	{
+		"name": "netfox/serialization/enable_input_serialization",
+		"value": true,
+		"type": TYPE_BOOL,
+		"hint_string": "Enabling this, the input is serialized before sending it, instead of sending a dictionary of string properties and its values. Enabling this is recommended to save bandwidth, at the slight cost of CPU."
 	}
 ]
 
