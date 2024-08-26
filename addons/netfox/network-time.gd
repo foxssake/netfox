@@ -307,7 +307,7 @@ func start():
 		_next_tick_time = _get_os_time()
 		after_sync.emit()
 		
-		rpc_id(1, "_submit_sync_success")
+		_submit_sync_success.rpc_id(1)
 	else:
 		_active = true
 		_initial_sync_done = true

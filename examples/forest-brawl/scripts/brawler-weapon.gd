@@ -23,13 +23,13 @@ func _after_fire(_projectile: Node3D):
 	sound.play()
 
 func _spawn() -> Node3D:
-	var p = projectile.instantiate() as BombProjectile
-	get_tree().root.add_child(p, true)
-	p.global_transform = global_transform
-	p.fired_by = get_parent()
+	var bomb_projectile: BombProjectile = projectile.instantiate() as BombProjectile
+	get_tree().root.add_child(bomb_projectile, true)
+	bomb_projectile.global_transform = global_transform
+	bomb_projectile.fired_by = get_parent()
 	
-	return p
+	return bomb_projectile
 
-func _tick(_delta, _t):
+func _tick(_delta: float, _t: int):
 	if input.is_firing:
 		fire()

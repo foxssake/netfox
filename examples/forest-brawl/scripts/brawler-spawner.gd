@@ -81,7 +81,7 @@ func _spawn(id: int) -> BrawlerController:
 		# Submit name
 		var player_name = name_input.text
 		print("Submitting player name " + player_name)
-		rpc("_submit_name", player_name)
+		_submit_name.rpc(player_name)
 	
 	return avatar
 
