@@ -19,14 +19,14 @@ func _tick(delta, tick):
 			if body.is_in_group("Brawlers") and not _has_powerup(body):
 				_take() # Predict
 				if is_multiplayer_authority():
-					rpc("_spawn_effect", randi_range(0, effects.size() - 1), body.get_path())
-					rpc("_take")
+					_spawn_effect.rpc(randi_range(0, effects.size() - 1), body.get_path())
+					_take.rpc()
 	else:
 		scale = scale.lerp(Vector3.ONE * 0.0005, fade_speed * delta)
 		if tick == respawn_tick:
 			_respawn() # Predict
 			if is_multiplayer_authority():
-				rpc("_respawn")
+				_respawn.rpc()
 
 func _has_powerup(target: Node) -> bool:
 	return target.get_children()\
