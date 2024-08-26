@@ -24,7 +24,7 @@ func fire() -> Node:
 	if not can_fire():
 		return null
 	
-	var id = _generate_id()
+	var id: String = _generate_id()
 	var projectile = _spawn()
 	_save_projectile(projectile, id)
 	var data = _projectile_data[id]
@@ -149,7 +149,7 @@ func _request_projectile(id: String, tick: int, request_data: Dictionary):
 	
 	# Validate incoming data
 	var projectile = _spawn()
-	var local_data = _get_data(projectile)
+	var local_data: Dictionary = _get_data(projectile)
 	
 	if not _is_reconcilable(projectile, request_data, local_data):
 		projectile.queue_free()
