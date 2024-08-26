@@ -21,7 +21,7 @@ static func deserialize_multiple_properties(serialized_input: PackedByteArray, a
 		reconstructed_dictionary[picked_property_entry._path] = picked_value
 	return reconstructed_dictionary
 
-## Extract but in serialized format!
+## PropertySnapshot.extract() but in serialized format!
 static func serialize_multiple_properties(properties: Array[PropertyEntry], tick_timestamp: int) -> PackedByteArray:
 	var value_bytes: PackedByteArray
 	value_bytes.resize(0)

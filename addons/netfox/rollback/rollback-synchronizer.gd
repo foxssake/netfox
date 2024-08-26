@@ -11,7 +11,7 @@ class_name RollbackSynchronizer
 @export var input_properties: Array[String]
 
 ## This will broadcast input to all peers, turning this off will limit to sending it to the server only.
-## Turning this off is recommended to save bandwith and reduce cheating risks.
+## Turning this off is recommended to save bandwidth and reduce cheating risks.
 @export var enable_input_broadcast: bool = true
 
 
@@ -269,6 +269,7 @@ func _submit_serialized_inputs(serialized_inputs: PackedByteArray):
 	#This is a hacker sending RPCs (or someone called this RPC without adding the enable_input_broadcast boolean check)
 	if (enable_input_broadcast == false && not multiplayer.is_server() && sender != 1):
 		_logger.error("Received input from %s for %s from a client!" % [sender, root.name])
+		return
 	
 	var picked_tick: int
 	var picked_input_values_size: int #The size of the serialized input containing all properties (excluding tick timestamp[0,1,2,3] and the size itself on byte[4])
@@ -307,6 +308,7 @@ func _submit_raw_input(input: Dictionary, tick: int):
 	#this is either a serious bug or a hacker sending RPCs.
 	if (enable_input_broadcast == false && not multiplayer.is_server() && sender != 1):
 		_logger.error("Received input from %s for tick %s for %s from a client!" % [sender, tick, root.name])
+		return
 	
 	var sanitized = {}
 	for property in input:
@@ -320,7 +322,6 @@ func _submit_raw_input(input: Dictionary, tick: int):
 			continue
 		
 		sanitized[property] = value
-		#print("Sanitized[property] %s is: %s" % [property, sanitized[property]])
 	
 	if sanitized.size() > 0:
 		for property in sanitized:
@@ -328,14 +329,12 @@ func _submit_raw_input(input: Dictionary, tick: int):
 				var t = tick - i
 				var old_input = _inputs.get(t, {}).get(property)
 				var new_input = sanitized[property][i]
-				#print("property is %s and new_input is %s" % [property, new_input])
 				
 				if old_input == null:
 					# We received an array of current and previous inputs, merge them into our history.
 					_inputs[t] = _inputs.get(t, {})
 					_inputs[t][property] = new_input
 					_earliest_input = min(_earliest_input, t)
-					
 	else:
 		_logger.warning("Received invalid input from %s for tick %s for %s" % [sender, tick, root.name])
 
