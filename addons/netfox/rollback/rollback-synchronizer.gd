@@ -183,8 +183,8 @@ func _before_tick(_delta, tick):
 
 func _after_tick(_delta: float, _tick: int):
 	if not _auth_input_props.is_empty():
-		var input = PropertySnapshot.extract(_auth_input_props)
-		_inputs[_tick] = input
+		var local_input: Dictionary = PropertySnapshot.extract(_auth_input_props)
+		_inputs[_tick] = local_input
 			
 		if (NetworkRollback.enable_input_serialization):
 			var serialized_current_input: PackedByteArray = PropertiesSerializer.serialize_multiple_properties(_auth_input_props, _tick)
@@ -202,10 +202,10 @@ func _after_tick(_delta: float, _tick: int):
 
 				_attempt_submit_serialized_inputs(merged_serialized_inputs)
 		else:
-			#Send the last n inputs for each property 
+			#Send the last n inputs for each property
 			var inputs = {}
 			for i in range(0, NetworkRollback.input_redundancy):
-				var tick_input: Dictionary = _inputs.get(NetworkTime.tick - i, {})
+				var tick_input: Dictionary = _inputs.get(_tick - i, {})
 				for property in tick_input:
 					if not inputs.has(property):
 						inputs[property] = []
@@ -213,6 +213,8 @@ func _after_tick(_delta: float, _tick: int):
 
 			_attempt_submit_raw_input(inputs)
 		
+	history_cleanup()
+func history_cleanup() -> void:
 	while _states.size() > NetworkRollback.history_limit:
 		_states.erase(_states.keys().min())
 	
@@ -225,17 +227,21 @@ func _after_tick(_delta: float, _tick: int):
 		
 	_freshness_store.trim()
 
-func _attempt_submit_raw_input(inputs: Dictionary):
+## Sends batched inputs to all other players (not local!)
+func _attempt_submit_raw_input(batched_inputs: Dictionary):
 	# TODO: Default to input broadcast in mesh network setups
 	if enable_input_broadcast:
-		_submit_raw_input.rpc( inputs, NetworkTime.tick)
+		for picked_peer_id in multiplayer.get_peers():
+			_submit_raw_input.rpc_id(picked_peer_id, batched_inputs, NetworkTime.tick)
 	elif not multiplayer.is_server():
-		_submit_raw_input.rpc_id(1, inputs, NetworkTime.tick)
+		_submit_raw_input.rpc_id(1, batched_inputs, NetworkTime.tick)
 
+## Sends serialized batched inputs to all other players (not local!)
 func _attempt_submit_serialized_inputs(serialized_inputs: PackedByteArray):
 	# TODO: Default to input broadcast in mesh network setups
 	if enable_input_broadcast:
-		_submit_serialized_inputs.rpc(serialized_inputs)
+		for picked_peer_id in multiplayer.get_peers():
+			_submit_serialized_inputs.rpc_id(picked_peer_id, serialized_inputs)
 	elif not multiplayer.is_server():
 		_submit_serialized_inputs.rpc_id(1, serialized_inputs)
 
@@ -265,11 +271,7 @@ func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 func _submit_serialized_inputs(serialized_inputs: PackedByteArray):
 	var sender: int = multiplayer.get_remote_sender_id()
 	
-	#If clients send input exclusively to server, yet we are a client and received an input
-	#This is a hacker sending RPCs (or someone called this RPC without adding the enable_input_broadcast boolean check)
-	if (enable_input_broadcast == false && not multiplayer.is_server() && sender != 1):
-		_logger.error("Received input from %s for %s from a client!" % [sender, root.name])
-		return
+	#TODO: Security check to ensure no other client sent this (when enable_input_broadcast == false), see sanitization in submit_raw_inputs
 	
 	var picked_tick: int
 	var picked_input_values_size: int #The size of the serialized input containing all properties (excluding tick timestamp[0,1,2,3] and the size itself on byte[4])
@@ -303,12 +305,6 @@ func _submit_serialized_inputs(serialized_inputs: PackedByteArray):
 @rpc("any_peer", "unreliable", "call_remote")
 func _submit_raw_input(input: Dictionary, tick: int):
 	var sender: int = multiplayer.get_remote_sender_id()
-	
-	#If clients send input exclusively to server, yet we are a client and received an input
-	#this is either a serious bug or a hacker sending RPCs.
-	if (enable_input_broadcast == false && not multiplayer.is_server() && sender != 1):
-		_logger.error("Received input from %s for tick %s for %s from a client!" % [sender, tick, root.name])
-		return
 	
 	var sanitized = {}
 	for property in input:

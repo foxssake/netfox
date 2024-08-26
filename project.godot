@@ -112,7 +112,7 @@ aim_south={
 
 general/clear_settings=false
 time/tickrate=24
-serialization/enable_input_serialization=false
+serialization/enable_input_serialization=true
 
 [rendering]
 
