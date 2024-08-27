@@ -62,6 +62,16 @@ var SETTINGS = [
 		"type": TYPE_INT
 	},
 	{
+		"name": "netfox/rollback/serialized_inputs_history_limit",
+		"value": 64,
+		"type": TYPE_INT
+	},
+	{
+		"name": "netfox/rollback/serialized_states_history_limit",
+		"value": 64,
+		"type": TYPE_INT
+	},
+	{
 		"name": "netfox/rollback/input_redundancy",
 		"value": 3,
 		"type": TYPE_INT,
@@ -84,6 +94,12 @@ var SETTINGS = [
 		"value": true,
 		"type": TYPE_BOOL,
 		"hint_string": "Enabling this, the input is serialized before sending it, instead of sending a dictionary of string properties and its values. Enabling this is recommended to save bandwidth, at the slight cost of CPU."
+	},
+	{
+		"name": "netfox/serialization/enable_state_serialization",
+		"value": true,
+		"type": TYPE_BOOL,
+		"hint_string": "Enabling this, the state is serialized before sending it, instead of sending a dictionary of string properties and its values. Enabling this is recommended to save bandwidth, at the slight cost of CPU. Note that this serialization isn't diff state, but the state itself just in binary format."
 	}
 ]
 

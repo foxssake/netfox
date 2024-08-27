@@ -15,6 +15,17 @@ var history_limit: int:
 	set(v):
 		push_error("Trying to set read-only variable history_limit")
 
+var serialized_states_history_limit: int:
+	get:
+		return ProjectSettings.get_setting("netfox/rollback/serialized_states_history_limit", 24)
+	set(v):
+		push_error("Trying to set read-only variable serialized_states_history_limit")
+		
+var serialized_inputs_history_limit: int:
+	get:
+		return ProjectSettings.get_setting("netfox/rollback/serialized_inputs_history_limit", 24)
+	set(v):
+		push_error("Trying to set read-only variable serialized_inputs_history_limit")
 ## Offset into the past for display.
 ##
 ## After the rollback, we have the option to not display the absolute latest
@@ -49,6 +60,7 @@ var tick: int:
 		push_error("Trying to set read-only variable tick")
 
 var enable_input_serialization: bool = ProjectSettings.get_setting("netfox/serialization/enable_input_serialization", true)
+var enable_state_serialization: bool = ProjectSettings.get_setting("netfox/serialization/enable_state_serialization", true)
 
 ## Event emitted before running the network rollback loop
 signal before_loop()

@@ -30,7 +30,7 @@ func _ready():
 func _after_tick(_dt, tick):
 	if is_multiplayer_authority():
 		# Submit snapshot
-		var state = PropertySnapshot.extract(_props)
+		var state: Dictionary = PropertySnapshot.extract(_props)
 		_submit_state.rpc(state, tick)
 	else:
 		# Apply last received state

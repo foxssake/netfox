@@ -21,9 +21,10 @@ var _auth_state_props: Array[PropertyEntry] = []
 var _auth_input_props: Array[PropertyEntry] = []
 var _nodes: Array[Node] = []
 
-var _states: Dictionary = {}
-var _inputs: Dictionary = {}
+var _states: Dictionary = {} #<tick, Dictionary<String, Variant>>
+var _inputs: Dictionary = {} #<tick, Dictionary<String, Variant>>
 var _serialized_inputs: Dictionary = {} #<tick, PackedByteArray>
+var _serialized_states: Dictionary = {} #<tick, PackedByteArray>
 var serialized_inputs_to_send: Array[PackedByteArray] = []
 var _latest_state: int = -1
 var _earliest_input: int
@@ -51,7 +52,7 @@ func process_settings():
 
 	# Gather state props - all state props are recorded
 	for property in state_properties:
-		var pe = _property_cache.get_entry(property)
+		var pe: PropertyEntry = _property_cache.get_entry(property)
 		_record_state_props.push_back(pe)
 	
 	process_authority()
@@ -83,10 +84,9 @@ func process_authority():
 	# Only record input that is our own
 	for property in input_properties:
 		var pe = _property_cache.get_entry(property)
+		_record_input_props.push_back(pe)
 		if pe.node.is_multiplayer_authority():
 			_auth_input_props.push_back(pe)
-		else:
-			_record_input_props.push_back(pe)
 
 func _ready():
 	process_settings()
@@ -150,21 +150,35 @@ func _process_tick(tick: int):
 			NetworkRollback.process_rollback(node, NetworkTime.ticktime, tick, is_fresh)
 			_freshness_store.notify_processed(node, tick)
 
+
+
 func _record_tick(tick: int):
 	# Broadcast state we own
 	if not _auth_state_props.is_empty():
-		var broadcast = {}
-
+		var state_to_broadcast = {}
+		
+		#if (multiplayer.get_unique_id() > 1):
+			#print("Record tick state sending, peer id is: %s" % multiplayer.get_unique_id())
 		for property in _auth_state_props:
 			if _can_simulate(property.node, tick - 1):
 				# Only broadcast if we've simulated the node
-				broadcast[property.to_string()] = property.get_value()
+				state_to_broadcast[property.to_string()] = property.get_value()
 	
-		if broadcast.size() > 0:
-			# Broadcast as new state
+		if state_to_broadcast.size() > 0:
 			_latest_state = max(_latest_state, tick)
-			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), broadcast)
-			_submit_state.rpc(broadcast, tick)
+			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), state_to_broadcast)
+			
+			if (NetworkRollback.enable_state_serialization):
+				var serialized_current_state: PackedByteArray = PropertiesSerializer.serialize_multiple_properties(_auth_state_props, tick)
+				_serialized_states[tick] = serialized_current_state
+				
+				# Broadcast as new state
+				for picked_peer_id in multiplayer.get_peers():
+					_submit_serialized_state.rpc_id(picked_peer_id, serialized_current_state)
+			else:
+				# Broadcast as new state
+				for picked_peer_id in multiplayer.get_peers():
+					_submit_state.rpc_id(picked_peer_id, state_to_broadcast, tick)
 	
 	# Record state for specified tick ( current + 1 )
 	if not _record_state_props.is_empty() and tick > _latest_state:
@@ -222,8 +236,16 @@ func history_cleanup() -> void:
 		_inputs.erase(_inputs.keys().min())
 		
 	if (NetworkRollback.enable_input_serialization):
-		while _serialized_inputs.size() > NetworkRollback.history_limit:
-			_serialized_inputs.erase(_serialized_inputs.keys().min())
+		if (NetworkRollback.serialized_inputs_history_limit > 0):
+			while _serialized_inputs.size() > NetworkRollback.serialized_inputs_history_limit:
+				#Would be faster if we cached the earliest key in an integer instead of searching min() each tick!
+				_serialized_inputs.erase(_serialized_inputs.keys().min())
+		
+	if (NetworkRollback.enable_state_serialization):
+		if (NetworkRollback.serialized_states_history_limit > 0):
+			while _serialized_states.size() > NetworkRollback.serialized_states_history_limit:
+				#Would be faster if we cached the earliest key in an integer instead of searching min() each tick!
+				_serialized_states.erase(_serialized_states.keys().min())
 		
 	_freshness_store.trim()
 
@@ -333,6 +355,18 @@ func _submit_raw_input(input: Dictionary, tick: int):
 					_earliest_input = min(_earliest_input, t)
 	else:
 		_logger.warning("Received invalid input from %s for tick %s for %s" % [sender, tick, root.name])
+
+@rpc("any_peer", "unreliable_ordered", "call_remote")
+func _submit_serialized_state(serialized_state: PackedByteArray):
+	var received_tick: int = serialized_state.decode_u32(0)
+	var state_values_size: int = serialized_state.decode_u8(4)
+	var serialized_state_values: PackedByteArray = serialized_state.slice(5, 5 + state_values_size)
+	var byte_index: int = 5
+	var deserialized_state_of_this_tick: Dictionary
+	
+	deserialized_state_of_this_tick = PropertiesSerializer.deserialize_multiple_properties(serialized_state_values, _record_state_props)
+	
+	_submit_state(deserialized_state_of_this_tick, received_tick)
 
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_state(state: Dictionary, tick: int):

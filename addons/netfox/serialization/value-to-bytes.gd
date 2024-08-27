@@ -77,7 +77,7 @@ static func deserialize(serialized_value: PackedByteArray, type: Variant.Type) -
 			
 	return null
 
-
+static var cache_transform3d: PackedByteArray #So a PackedByteArray of 48 bytes isn't made per frame!
 
 #This should be a godot native function imo
 static func serialize(value: Variant) -> PackedByteArray:
@@ -162,10 +162,29 @@ static func serialize(value: Variant) -> PackedByteArray:
 			serialized_value.encode_float(16, (value as Transform2D).origin.x)
 			serialized_value.encode_float(20, (value as Transform2D).origin.y)
 		TYPE_BASIS:
-			serialized_value = encode_basis(value)
+			serialized_value.resize(36)
+			serialized_value.encode_float(0, (value as Basis).x.x)
+			serialized_value.encode_float(4, (value as Basis).x.y)
+			serialized_value.encode_float(8, (value as Basis).x.z)
+			serialized_value.encode_float(12, (value as Basis).y.x)
+			serialized_value.encode_float(16, (value as Basis).y.y)
+			serialized_value.encode_float(20, (value as Basis).y.z)
+			serialized_value.encode_float(24, (value as Basis).z.x)
+			serialized_value.encode_float(28, (value as Basis).z.y)
+			serialized_value.encode_float(32, (value as Basis).z.z)
 		TYPE_TRANSFORM3D:
-			serialized_value = encode_basis(value)
-			serialized_value.resize(48)
+			if (cache_transform3d.is_empty()): #I doubt this is faster than a malloc(48), but probably it is...
+				cache_transform3d.resize(48)
+			serialized_value = cache_transform3d
+			serialized_value.encode_float(0, (value as Transform3D).basis.x.x)
+			serialized_value.encode_float(4, (value as Transform3D).basis.x.y)
+			serialized_value.encode_float(8, (value as Transform3D).basis.x.z)
+			serialized_value.encode_float(12, (value as Transform3D).basis.y.x)
+			serialized_value.encode_float(16, (value as Transform3D).basis.y.y)
+			serialized_value.encode_float(20, (value as Transform3D).basis.y.z)
+			serialized_value.encode_float(24, (value as Transform3D).basis.z.x)
+			serialized_value.encode_float(28, (value as Transform3D).basis.z.y)
+			serialized_value.encode_float(32, (value as Transform3D).basis.z.z)
 			serialized_value.encode_float(36, (value as Transform3D).origin.x)
 			serialized_value.encode_float(40, (value as Transform3D).origin.y)
 			serialized_value.encode_float(44, (value as Transform3D).origin.z)
@@ -184,19 +203,3 @@ static func serialize(value: Variant) -> PackedByteArray:
 	
 	return serialized_value
 	
-static func encode_basis(value: Basis) -> PackedByteArray:
-	var serialized_value: PackedByteArray
-	serialized_value.resize(36)
-	serialized_value.encode_float(0, (value as Basis).x.x)
-	serialized_value.encode_float(4, (value as Basis).x.y)
-	serialized_value.encode_float(8, (value as Basis).x.z)
-	serialized_value.encode_float(12, (value as Basis).y.x)
-	serialized_value.encode_float(16, (value as Basis).y.y)
-	serialized_value.encode_float(20, (value as Basis).y.z)
-	serialized_value.encode_float(24, (value as Basis).z.x)
-	serialized_value.encode_float(28, (value as Basis).z.y)
-	serialized_value.encode_float(32, (value as Basis).z.z)
-	
-	return serialized_value
-	
-#func deserialize(serialized_properties: PackedByteArray, properties_template: PropertyEntry) -> Variant:
