@@ -1,74 +1,35 @@
 extends Object
 class_name Interpolators
 
-class Interpolator:
-	var is_applicable: Callable
-	var apply: Callable
+static func interpolate_generic(a, b, f: float, type: Variant.Type):
+	match(type):
+		TYPE_FLOAT:
+			return interpolate_float(a as float, b as float, f)
+		TYPE_VECTOR2:
+			return interpolate_vector2(a as Vector2, b as Vector2, f)
+		TYPE_VECTOR3:
+			return interpolate_vector3(a as Vector3, b as Vector3, f)
+		TYPE_TRANSFORM2D:
+			return interpolate_transform2d(a as Transform2D, b as Transform2D, f)
+		TYPE_TRANSFORM3D:
+			return interpolate_transform3d(a as Transform3D, b as Transform3D, f)
+		TYPE_NIL:
+			push_error("interpolating null value! a,b are %s" % [a,b])
+			return a
+		_:
+			return lerp(a, b, f)
+
+static func interpolate_float(a: float, b: float, f: float) -> float:
+	return lerpf(a, b, f)
+
+static func interpolate_vector2(a: Vector2, b: Vector2, f: float) -> Vector2:
+	return a.lerp(b,f)
 	
-	static func make(is_applicable: Callable, apply: Callable) -> Interpolator:
-		var result = Interpolator.new()
-		result.is_applicable = is_applicable
-		result.apply = apply
-		return result
+static func interpolate_vector3(a: Vector3, b: Vector3, f: float) -> Vector3:
+	return a.lerp(b, f)
 
-static var DEFAULT_INTERPOLATOR = Interpolator.make(
-	func (v): return true,
-	func (a, b, f): return a if f < 0.5 else b
-)
+static func interpolate_transform2d(a: Transform2D, b: Transform2D, f: float) -> Transform2D:
+	return a.interpolate_with(b, f)
 
-static var interpolators: Array[Interpolator]
-static var default_apply: Callable = func(a, b, f): a if f < 0.5 else b
-
-## Register an interpolator.
-##
-## New interpolators are pushed to the front of the list, making them have 
-## precedence over existing ones. This can be useful in case you want to override
-## the built-in interpolators.
-static func register(is_applicable: Callable, apply: Callable):
-	interpolators.push_front(Interpolator.make(is_applicable, apply))
-
-## Find the appropriate interpolator for the given value.
-##
-## If none was found, the default interpolator is returned.
-static func find_for(value) -> Callable:
-	for interpolator in interpolators:
-		if interpolator.is_applicable.call(value):
-			return interpolator.apply
-	
-	return DEFAULT_INTERPOLATOR.apply
-
-## Interpolate between two values.
-##
-## Note, that it is usually faster to just cache the Callable returned by find_for
-## and call that, instead of calling interpolate repeatedly. The latter will have 
-## to lookup the appropriate interpolator on every call.
-static func interpolate(a, b, f: float):
-	return find_for(a).call(a, b, f)
-
-static func _static_init():
-	# Register built-in interpolators
-	# Float
-	register(
-		func(a): return a is float,
-		func(a: float, b: float, f: float): return lerpf(a, b, f)
-	)
-	
-	# Vector
-	register(
-		func(a): return a is Vector2,
-		func(a: Vector2, b: Vector2, f: float): return a.lerp(b, f)
-	)
-	register(
-		func(a): return a is Vector3,
-		func(a: Vector3, b: Vector3, f: float): return a.lerp(b, f)
-	)
-	
-	# Transform
-	register(
-		func(a): return a is Transform2D,
-		func(a: Transform2D, b: Transform2D, f: float): return a.interpolate_with(b, f)
-	)
-	register(
-		func(a): return a is Transform3D,
-		func(a: Transform3D, b: Transform3D, f: float): return a.interpolate_with(b, f)
-	)
+static func interpolate_transform3d(a: Transform3D, b: Transform3D, f: float) -> Transform3D:
+	return a.interpolate_with(b, f)
