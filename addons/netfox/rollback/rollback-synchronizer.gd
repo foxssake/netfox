@@ -154,11 +154,9 @@ func _process_tick(tick: int):
 
 func _record_tick(tick: int):
 	# Broadcast state we own
-	if not _auth_state_props.is_empty():
+	if not _auth_state_props.is_empty(): #This is always the server, as the server owns all avatars
 		var state_to_broadcast = {}
 		
-		#if (multiplayer.get_unique_id() > 1):
-			#print("Record tick state sending, peer id is: %s" % multiplayer.get_unique_id())
 		for property in _auth_state_props:
 			if _can_simulate(property.node, tick - 1):
 				# Only broadcast if we've simulated the node
@@ -361,7 +359,6 @@ func _submit_serialized_state(serialized_state: PackedByteArray):
 	var received_tick: int = serialized_state.decode_u32(0)
 	var state_values_size: int = serialized_state.decode_u8(4)
 	var serialized_state_values: PackedByteArray = serialized_state.slice(5, 5 + state_values_size)
-	var byte_index: int = 5
 	var deserialized_state_of_this_tick: Dictionary
 	
 	deserialized_state_of_this_tick = PropertiesSerializer.deserialize_multiple_properties(serialized_state_values, _record_state_props)
