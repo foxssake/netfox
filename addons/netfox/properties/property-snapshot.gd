@@ -10,7 +10,7 @@ static func extract(properties: Array[PropertyEntry]) -> Dictionary:
 
 static func apply(properties: Dictionary, cache: PropertyCache):
 	for property in properties:
-		var pe = cache.get_entry(property)
+		var pe: PropertyEntry = cache.get_entry(property)
 		var value = properties[property]
 		pe.set_value(value)
 

@@ -14,6 +14,11 @@ class_name RollbackSynchronizer
 ## Turning this off is recommended to save bandwidth and reduce cheating risks.
 @export var enable_input_broadcast: bool = true
 
+## This is measured in ticks. So if your game's tickrate (project settings > Time) is 60 ticks, 4 ticks are 68 ms (bad but acceptable)
+## If your game's tickrate is 30 ticks, 4 ticks are 134 ms (laggy)
+## The lesser the value, the tighter the controls feel locally, but the less time for other players to catch up to this node's input
+@export var input_delay: int = 0
+
 
 var _record_state_props: Array[PropertyEntry] = []
 var _record_input_props: Array[PropertyEntry] = []
@@ -48,10 +53,10 @@ func process_settings():
 	_inputs.clear()
 	_latest_state = NetworkTime.tick - 1
 	_earliest_input = NetworkTime.tick
-
+	
 	# Gather state props - all state props are recorded
 	for property in state_properties:
-		var pe = _property_cache.get_entry(property)
+		var pe: PropertyEntry = _property_cache.get_entry(property)
 		_record_state_props.push_back(pe)
 	
 	process_authority()
@@ -74,19 +79,20 @@ func process_authority():
 	
 	# Gather state properties that we own
 	# i.e. it's the state of a node that belongs to the local peer
-	for property in state_properties:
-		var pe: PropertyEntry = _property_cache.get_entry(property)
-		if pe.node.is_multiplayer_authority():
-			_auth_state_props.push_back(pe)
+	var picked_property_entry: PropertyEntry
+	for picked_property in state_properties:
+		picked_property_entry = _property_cache.get_entry(picked_property)
+		if picked_property_entry.node.is_multiplayer_authority():
+			_auth_state_props.push_back(picked_property_entry)
 
 	# Gather input properties that we own
 	# Only record input that is our own
-	for property in input_properties:
-		var pe = _property_cache.get_entry(property)
-		if pe.node.is_multiplayer_authority():
-			_auth_input_props.push_back(pe)
-		else:
-			_record_input_props.push_back(pe)
+	for picked_property in input_properties:
+		picked_property_entry = _property_cache.get_entry(picked_property)
+		_record_input_props.push_back(picked_property_entry)
+		if picked_property_entry.node.is_multiplayer_authority():
+			_auth_input_props.push_back(picked_property_entry)
+			
 
 func _ready():
 	process_settings()
@@ -96,8 +102,15 @@ func _ready():
 		await NetworkTime.after_sync
 	_latest_state = NetworkTime.tick - 1
 	
+	#dummy states to parse for first inputs before our first real input
+	#The code: PropertySnapshot.apply(input, _property_cache) -> does literally nothing if input == {}
+	#So the default input stays in its default values for the first input delay ticks.
+	for i in input_delay:
+		_inputs[NetworkTime.tick + i] = {}
+	
 	NetworkTime.before_tick.connect(_before_tick)
 	NetworkTime.after_tick.connect(_after_tick)
+	
 	NetworkRollback.before_loop.connect(_before_loop)
 	NetworkRollback.on_prepare_tick.connect(_prepare_tick)
 	NetworkRollback.on_process_tick.connect(_process_tick)
@@ -116,8 +129,8 @@ func _prepare_tick(tick: int):
 	# Prepare state
 	#	Done individually by Rewindables ( usually Rollback Synchronizers )
 	#	Restore input and state for tick
-	var state = _get_history(_states, tick)
-	var input = _get_history(_inputs, tick)
+	var state: Dictionary = _get_history(_states, tick)
+	var input: Dictionary = _get_history(_inputs, tick)
 	
 	PropertySnapshot.apply(state, _property_cache)
 	PropertySnapshot.apply(input, _property_cache)
@@ -146,7 +159,7 @@ func _process_tick(tick: int):
 	#		If not: Latest input >= tick >= Earliest input
 	for node in _nodes:
 		if NetworkRollback.is_simulated(node):
-			var is_fresh = _freshness_store.is_fresh(node, tick)
+			var is_fresh: bool = _freshness_store.is_fresh(node, tick)
 			NetworkRollback.process_rollback(node, NetworkTime.ticktime, tick, is_fresh)
 			_freshness_store.notify_processed(node, tick)
 
@@ -173,22 +186,23 @@ func _record_tick(tick: int):
 func _after_loop():
 	_earliest_input = NetworkTime.tick
 	# Apply display state
-	var display_state = _get_history(_states, NetworkTime.tick - NetworkRollback.display_offset)
+	var display_state: Dictionary = _get_history(_states, NetworkTime.tick - NetworkRollback.display_offset)
 	PropertySnapshot.apply(display_state, _property_cache)
 
-func _before_tick(_delta, tick):
+func _before_tick(_delta: float, tick: int):
 	# Apply state for tick
-	var state = _get_history(_states, tick)
+	var state: Dictionary = _get_history(_states, tick)
 	PropertySnapshot.apply(state, _property_cache)
 
 func _after_tick(_delta: float, _tick: int):
 	if not _auth_input_props.is_empty():
 		var local_input: Dictionary = PropertySnapshot.extract(_auth_input_props)
-		_inputs[_tick] = local_input
+		var delayed_input_tick: int = _tick + input_delay
+		_inputs[delayed_input_tick] = local_input
 			
 		if (NetworkRollback.enable_input_serialization):
-			var serialized_current_input: PackedByteArray = PropertiesSerializer.serialize_multiple_properties(_auth_input_props, _tick)
-			_serialized_inputs[_tick] = serialized_current_input
+			var serialized_current_input: PackedByteArray = PropertiesSerializer.serialize_multiple_properties(_auth_input_props, delayed_input_tick)
+			_serialized_inputs[delayed_input_tick] = serialized_current_input
 			
 			if (serialized_inputs_to_send.size() == NetworkRollback.input_redundancy):
 				serialized_inputs_to_send.remove_at(0)
@@ -205,7 +219,7 @@ func _after_tick(_delta: float, _tick: int):
 			#Send the last n inputs for each property
 			var inputs = {}
 			for i in range(0, NetworkRollback.input_redundancy):
-				var tick_input: Dictionary = _inputs.get(_tick - i, {})
+				var tick_input: Dictionary = _inputs.get(delayed_input_tick - i, {})
 				for property in tick_input:
 					if not inputs.has(property):
 						inputs[property] = []
@@ -255,13 +269,17 @@ func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 	var earliest = buffer.keys().min()
 	var latest = buffer.keys().max()
 
+	
 	if tick < earliest:
 		return buffer[earliest]
 	
+	#For inputs, this is extrapolation aka prediction
+	#For example, if you move to the right (at latest)
+	#at tick, you will still be moving to the right ;)
 	if tick > latest:
 		return buffer[latest]
 	
-	var before = buffer.keys() \
+	var before: int = buffer.keys() \
 		.filter(func (key): return key < tick) \
 		.max()
 	

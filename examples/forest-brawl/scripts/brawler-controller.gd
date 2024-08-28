@@ -67,19 +67,19 @@ func _ready():
 func _process(delta):
 	# Update animation
 	# Running
-	var movement = Vector3(velocity.x, 0, velocity.z) * speed
+	var movement: Vector3 = Vector3(velocity.x, 0, velocity.z) * speed
 	var relative_velocity = quaternion.inverse() * movement
 	relative_velocity.y = 0
 	relative_velocity /= speed
 	relative_velocity = Vector2(relative_velocity.x, relative_velocity.z)
-	var animated_velocity = animation_tree.get("parameters/Move/blend_position") as Vector2
+	var animated_velocity: Vector2 = animation_tree.get("parameters/Move/blend_position") as Vector2
 
 	animation_tree.set("parameters/Move/blend_position", animated_velocity.move_toward(relative_velocity, delta / 0.2))
 	
 	# Float
 	_force_update_is_on_floor()
-	var animated_float = animation_tree.get("parameters/Float/blend_amount") as float
-	var actual_float = 1.0 if not is_on_floor() else 0.0
+	var animated_float: float = animation_tree.get("parameters/Float/blend_amount") as float
+	var actual_float: float = 1.0 if not is_on_floor() else 0.0
 	animation_tree.set("parameters/Float/blend_amount", move_toward(animated_float, actual_float, delta / 0.2))
 	
 	# Speed
@@ -91,7 +91,7 @@ func _tick(_delta, tick):
 	if weapon.last_fire == tick:
 		animation_tree.set("parameters/Throw/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
 
-func _rollback_tick(delta, tick, is_fresh):
+func _rollback_tick(delta: float, tick: int, is_fresh: bool):
 	# Respawn
 	if tick == respawn_tick:
 		_snap_to_spawn()

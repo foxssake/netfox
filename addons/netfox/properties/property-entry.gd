@@ -31,3 +31,11 @@ static func parse(root: Node, path: String) -> PropertyEntry:
 	result._path = path
 	result.type = typeof(result.get_value())
 	return result
+
+## This is the only property which doesnt have a node.
+#static func get_tick_entry() -> PropertyEntry:
+	#var tick_property_entry: PropertyEntry = PropertyEntry.new()
+	#tick_property_entry.property = "tick"
+	#tick_property_entry._path = "tick"
+	#tick_property_entry.type = TYPE_INT
+	#return tick_property_entry
