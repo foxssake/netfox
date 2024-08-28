@@ -225,7 +225,7 @@ func _after_tick(_delta: float, _tick: int):
 						inputs[property] = []
 					inputs[property].push_back(tick_input[property])
 
-			_attempt_submit_raw_input(inputs)
+			_attempt_submit_raw_input(inputs, delayed_input_tick)
 		
 	history_cleanup()
 func history_cleanup() -> void:
@@ -242,13 +242,13 @@ func history_cleanup() -> void:
 	_freshness_store.trim()
 
 ## Sends batched inputs to all other players (not local!)
-func _attempt_submit_raw_input(batched_inputs: Dictionary):
+func _attempt_submit_raw_input(batched_inputs: Dictionary, tick: int):
 	# TODO: Default to input broadcast in mesh network setups
 	if enable_input_broadcast:
 		for picked_peer_id in multiplayer.get_peers():
-			_submit_raw_input.rpc_id(picked_peer_id, batched_inputs, NetworkTime.tick)
+			_submit_raw_input.rpc_id(picked_peer_id, batched_inputs, tick)
 	elif not multiplayer.is_server():
-		_submit_raw_input.rpc_id(1, batched_inputs, NetworkTime.tick)
+		_submit_raw_input.rpc_id(1, batched_inputs, tick)
 
 ## Sends serialized batched inputs to all other players (not local!)
 func _attempt_submit_serialized_inputs(serialized_inputs: PackedByteArray):
