@@ -59,7 +59,7 @@ func _rollback_tick(delta, tick, is_fresh):
 
 ## Single fire events
 
-The first time a tick is processed, the `is_fresh` parameter is set to `true`.
+The first time a rollback tick is processed, the `is_fresh` parameter is set to `true`.
 This can be used to trigger animations or sounds without them being repeated each rollback event.
 
 For example to improve the client side experience a spell or weapon can play its activating sounds and animation immediately and then proceed to complete the action once server confirmation is received.
