@@ -185,7 +185,7 @@ func _after_tick(_delta, _tick):
 
 		#Send the last n inputs for each property 
 		var inputs = {}
-		for i in range(0, NetworkRollback.input_redundancy):
+		for i in range(0, NetworkRollback.input_batch_count):
 			var tick_input = _inputs.get(NetworkTime.tick - i, {})
 			for property in tick_input:
 				if not inputs.has(property):

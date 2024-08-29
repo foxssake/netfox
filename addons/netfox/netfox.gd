@@ -62,7 +62,7 @@ var SETTINGS = [
 		"type": TYPE_INT
 	},
 	{
-		"name": "netfox/rollback/input_redundancy",
+		"name": "netfox/rollback/input_batch_count",
 		"value": 3,
 		"type": TYPE_INT
 	},

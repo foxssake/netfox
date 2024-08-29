@@ -31,16 +31,16 @@ var display_offset: int:
 
 ## How many previous input frames to send along with the current one.
 ##
-## Input data is sent unreliably over UDP for speed. 
-## Some packets may be lost, some arrive late or out of order.
-## To mitigate this, we can send the current and previous n ticks of input data.
+## With UDP - packets may be lost, arrive late or out of order.
+## To mitigate this, we send the current and previous n ticks of input data.
 ##
 ## [i]read-only[/i], you can change this in the project settings
-var input_redundancy: int:
+var input_batch_count: int:
 	get:
-		return ProjectSettings.get_setting("netfox/rollback/input_redundancy", 3)
+		var value = ProjectSettings.get_setting("netfox/rollback/input_batch_count", 3)
+		return max(1, value)
 	set(v):
-		push_error("Trying to set read-only variable input_redundancy")
+		push_error("Trying to set read-only variable input_batch_count")
 
 var tick: int:
 	get:
