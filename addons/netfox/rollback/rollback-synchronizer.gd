@@ -14,6 +14,8 @@ class_name RollbackSynchronizer
 ## Turning this off is recommended to save bandwidth and reduce cheating risks.
 @export var enable_input_broadcast: bool = true
 
+@export var enable_state_diff: bool = true
+
 
 var _record_state_props: Array[PropertyEntry] = []
 var _record_input_props: Array[PropertyEntry] = []
@@ -25,7 +27,7 @@ var _states: Dictionary = {} #<tick, Dictionary<String, Variant>>
 var _inputs: Dictionary = {} #<tick, Dictionary<String, Variant>>
 var _serialized_inputs: Dictionary = {} #<tick, PackedByteArray>
 var _serialized_states: Dictionary = {} #<tick, PackedByteArray>
-var serialized_inputs_to_send: Array[PackedByteArray] = []
+var _serialized_inputs_to_send: Array[PackedByteArray] = []
 var _latest_state: int = -1
 var _earliest_input: int
 
@@ -47,6 +49,9 @@ func process_settings():
 	
 	_states.clear()
 	_inputs.clear()
+	_serialized_inputs.clear()
+	_serialized_states.clear()
+	
 	_latest_state = NetworkTime.tick - 1
 	_earliest_input = NetworkTime.tick
 
@@ -98,6 +103,7 @@ func _ready():
 	
 	NetworkTime.before_tick.connect(_before_tick)
 	NetworkTime.after_tick.connect(_after_tick)
+	
 	NetworkRollback.before_loop.connect(_before_loop)
 	NetworkRollback.on_prepare_tick.connect(_prepare_tick)
 	NetworkRollback.on_process_tick.connect(_process_tick)
@@ -116,8 +122,8 @@ func _prepare_tick(tick: int):
 	# Prepare state
 	#	Done individually by Rewindables ( usually Rollback Synchronizers )
 	#	Restore input and state for tick
-	var state = _get_history(_states, tick)
-	var input = _get_history(_inputs, tick)
+	var state: Dictionary = _get_history(_states, tick)
+	var input: Dictionary = _get_history(_inputs, tick)
 	
 	PropertySnapshot.apply(state, _property_cache)
 	PropertySnapshot.apply(input, _property_cache)
@@ -166,17 +172,40 @@ func _record_tick(tick: int):
 			_latest_state = max(_latest_state, tick)
 			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), state_to_broadcast)
 			
-			if (NetworkRollback.enable_state_serialization):
-				var serialized_current_state: PackedByteArray = PropertiesSerializer.serialize_multiple_properties(_auth_state_props, tick)
-				_serialized_states[tick] = serialized_current_state
-				
-				# Broadcast as new state
-				for picked_peer_id in multiplayer.get_peers():
-					_submit_serialized_state.rpc_id(picked_peer_id, serialized_current_state)
-			else:
-				# Broadcast as new state
-				for picked_peer_id in multiplayer.get_peers():
-					_submit_state.rpc_id(picked_peer_id, state_to_broadcast, tick)
+			if (enable_state_diff):
+				if (_states.has(tick - 1)):
+					var properties_to_ignore: Array[String] = []
+					for picked_property in state_to_broadcast:
+						if (_states[tick - 1].has(picked_property) == false):
+							continue
+							
+						#If same value, don't include it in broadcasting state
+						if (_states[tick - 1][picked_property] == state_to_broadcast[picked_property]):
+							properties_to_ignore.append(picked_property)
+
+					#Remove property values which didn't change from previous state sent
+					for picked_property in properties_to_ignore:
+						print("At tick %s erasing property %s" % [tick, picked_property])
+						state_to_broadcast.erase(picked_property)
+			if (tick == 134):
+				var nametag: String = get_parent().get_node("Nametag").text
+				_logger.warning("%s States at real tick %s [134]  is %s" % [nametag, NetworkTime.tick, _states[134][":transform"]])
+				_logger.warning("%s States at real tick %s [133]  is %s" % [nametag, NetworkTime.tick, _states[133][":transform"]])
+				_logger.warning("%s States at real tick %s [132]  is %s" % [nametag, NetworkTime.tick, _states[132][":transform"]])
+			print("At tick %s ======" % tick)
+			
+			if state_to_broadcast.size() > 0:
+				if (NetworkRollback.enable_state_serialization):
+					var serialized_current_state: PackedByteArray = PropertiesSerializer.serialize_multiple_properties(_auth_state_props, tick)
+					_serialized_states[tick] = serialized_current_state
+					
+					# Broadcast as new state
+					for picked_peer_id in multiplayer.get_peers():
+						_submit_serialized_state.rpc_id(picked_peer_id, serialized_current_state)
+				else:
+					# Broadcast as new state
+					for picked_peer_id in multiplayer.get_peers():
+						_submit_state.rpc_id(picked_peer_id, state_to_broadcast, tick)
 	
 	# Record state for specified tick ( current + 1 )
 	if not _record_state_props.is_empty() and tick > _latest_state:
@@ -202,14 +231,14 @@ func _after_tick(_delta: float, _tick: int):
 			var serialized_current_input: PackedByteArray = PropertiesSerializer.serialize_multiple_properties(_auth_input_props, _tick)
 			_serialized_inputs[_tick] = serialized_current_input
 			
-			if (serialized_inputs_to_send.size() == NetworkRollback.input_redundancy):
-				serialized_inputs_to_send.remove_at(0)
-			serialized_inputs_to_send.append(serialized_current_input)
+			if (_serialized_inputs_to_send.size() == NetworkRollback.input_redundancy):
+				_serialized_inputs_to_send.remove_at(0)
+			_serialized_inputs_to_send.append(serialized_current_input)
 			
-			if (serialized_inputs_to_send.is_empty() == false):
+			if (_serialized_inputs_to_send.is_empty() == false):
 				var merged_serialized_inputs: PackedByteArray
 				merged_serialized_inputs.resize(0)
-				for picked_serialized_input in serialized_inputs_to_send:
+				for picked_serialized_input in _serialized_inputs_to_send:
 					merged_serialized_inputs.append_array(picked_serialized_input)
 
 				_attempt_submit_serialized_inputs(merged_serialized_inputs)
@@ -272,8 +301,8 @@ func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 	if buffer.is_empty():
 		return {}
 	
-	var earliest = buffer.keys().min()
-	var latest = buffer.keys().max()
+	var earliest: int = buffer.keys().min()
+	var latest: int = buffer.keys().max()
 
 	if tick < earliest:
 		return buffer[earliest]
@@ -377,18 +406,19 @@ func _submit_state(state: Dictionary, tick: int):
 		_logger.error("Received state for %s, rejecting because older than %s frames" % [tick, NetworkRollback.history_limit])
 		return
 
-	var sender = multiplayer.get_remote_sender_id()
+	var sender: int = multiplayer.get_remote_sender_id()
 	var sanitized = {}
 	for property in state:
-		var pe = _property_cache.get_entry(property)
+		var pe: PropertyEntry = _property_cache.get_entry(property)
 		var value = state[property]
-		var state_owner = pe.node.get_multiplayer_authority()
+		var state_owner: int = pe.node.get_multiplayer_authority()
 		
 		if state_owner != sender:
 			_logger.warning("Received state for node owned by %s from %s, sender has no authority!" \
 				% [state_owner, sender])
 			continue
-		
+		if (multiplayer.is_server() == false):
+			print("Received state tick %s, property %s " % [tick,property])
 		sanitized[property] = value
 	
 	if sanitized.size() > 0:
