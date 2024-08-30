@@ -14,8 +14,6 @@ class_name RollbackSynchronizer
 ## Turning this off is recommended to save bandwidth and reduce cheating risks.
 @export var enable_input_broadcast: bool = true
 
-@export var enable_state_diff: bool = true
-
 
 var _record_state_props: Array[PropertyEntry] = []
 var _record_input_props: Array[PropertyEntry] = []
@@ -172,31 +170,24 @@ func _record_tick(tick: int):
 			_latest_state = max(_latest_state, tick)
 			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), state_to_broadcast)
 			
-			if (enable_state_diff):
+			var properties_to_ignore: Array[String] = []
+			if (NetworkRollback.enable_state_diffs):
 				if (_states.has(tick - 1)):
-					var properties_to_ignore: Array[String] = []
-					for picked_property in state_to_broadcast:
-						if (_states[tick - 1].has(picked_property) == false):
+					for picked_property_path in state_to_broadcast:
+						if (_states[tick - 1].has(picked_property_path) == false):
 							continue
 							
 						#If same value, don't include it in broadcasting state
-						if (_states[tick - 1][picked_property] == state_to_broadcast[picked_property]):
-							properties_to_ignore.append(picked_property)
+						if (_states[tick - 1][picked_property_path] == state_to_broadcast[picked_property_path]):
+							properties_to_ignore.append(picked_property_path)
 
 					#Remove property values which didn't change from previous state sent
 					for picked_property in properties_to_ignore:
-						print("At tick %s erasing property %s" % [tick, picked_property])
 						state_to_broadcast.erase(picked_property)
-			if (tick == 134):
-				var nametag: String = get_parent().get_node("Nametag").text
-				_logger.warning("%s States at real tick %s [134]  is %s" % [nametag, NetworkTime.tick, _states[134][":transform"]])
-				_logger.warning("%s States at real tick %s [133]  is %s" % [nametag, NetworkTime.tick, _states[133][":transform"]])
-				_logger.warning("%s States at real tick %s [132]  is %s" % [nametag, NetworkTime.tick, _states[132][":transform"]])
-			print("At tick %s ======" % tick)
 			
 			if state_to_broadcast.size() > 0:
 				if (NetworkRollback.enable_state_serialization):
-					var serialized_current_state: PackedByteArray = PropertiesSerializer.serialize_multiple_properties(_auth_state_props, tick)
+					var serialized_current_state: PackedByteArray = PropertiesSerializer.serialize_state_properties(tick, state_to_broadcast, properties_to_ignore, _auth_state_props)
 					_serialized_states[tick] = serialized_current_state
 					
 					# Broadcast as new state
@@ -228,7 +219,7 @@ func _after_tick(_delta: float, _tick: int):
 		_inputs[_tick] = local_input
 			
 		if (NetworkRollback.enable_input_serialization):
-			var serialized_current_input: PackedByteArray = PropertiesSerializer.serialize_multiple_properties(_auth_input_props, _tick)
+			var serialized_current_input: PackedByteArray = PropertiesSerializer.serialize_input_properties(_auth_input_props, _tick)
 			_serialized_inputs[_tick] = serialized_current_input
 			
 			if (_serialized_inputs_to_send.size() == NetworkRollback.input_redundancy):
@@ -336,9 +327,9 @@ func _submit_serialized_inputs(serialized_inputs: PackedByteArray):
 			picked_single_input = serialized_inputs.slice(picked_byte_index, picked_byte_index + picked_input_values_size)
 			var received_properties: Dictionary
 			if (_auth_input_props.is_empty()):
-				received_properties = PropertiesSerializer.deserialize_multiple_properties(picked_single_input, _record_input_props)
+				received_properties = PropertiesSerializer.deserialize_input_properties(picked_single_input, _record_input_props)
 			else:
-				received_properties = PropertiesSerializer.deserialize_multiple_properties(picked_single_input, _auth_input_props)
+				received_properties = PropertiesSerializer.deserialize_input_properties(picked_single_input, _auth_input_props)
 			
 			_earliest_input = min(_earliest_input, picked_tick)
 			
@@ -386,16 +377,17 @@ func _submit_raw_input(input: Dictionary, tick: int):
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_serialized_state(serialized_state: PackedByteArray):
 	var received_tick: int = serialized_state.decode_u32(0)
-	var state_values_size: int = serialized_state.decode_u8(4)
-	var serialized_state_values: PackedByteArray = serialized_state.slice(5, 5 + state_values_size)
+	var state_values_size: int = serialized_state.decode_u16(4)
+	var header_property_indexes_contained: int = serialized_state.decode_u16(6)
+	var serialized_state_values: PackedByteArray = serialized_state.slice(10, 10 + state_values_size)
 	var deserialized_state_of_this_tick: Dictionary
 	
-	deserialized_state_of_this_tick = PropertiesSerializer.deserialize_multiple_properties(serialized_state_values, _record_state_props)
+	deserialized_state_of_this_tick = PropertiesSerializer.deserialize_state_properties(serialized_state_values, _record_state_props, header_property_indexes_contained)
 	
 	_submit_state(deserialized_state_of_this_tick, received_tick)
 
 @rpc("any_peer", "unreliable_ordered", "call_remote")
-func _submit_state(state: Dictionary, tick: int):
+func _submit_state(received_state: Dictionary, tick: int):
 	if tick > NetworkTime.tick:
 		# This used to be weird, but is now expected due to estimating remote time
 		# push_warning("Received state from the future %s / %s - adding nonetheless" % [tick, NetworkTime.tick])
@@ -408,22 +400,32 @@ func _submit_state(state: Dictionary, tick: int):
 
 	var sender: int = multiplayer.get_remote_sender_id()
 	var sanitized = {}
-	for property in state:
+	for property in received_state:
 		var pe: PropertyEntry = _property_cache.get_entry(property)
-		var value = state[property]
+		var value = received_state[property]
 		var state_owner: int = pe.node.get_multiplayer_authority()
 		
 		if state_owner != sender:
 			_logger.warning("Received state for node owned by %s from %s, sender has no authority!" \
 				% [state_owner, sender])
 			continue
-		if (multiplayer.is_server() == false):
-			print("Received state tick %s, property %s " % [tick,property])
+			
 		sanitized[property] = value
+		
+	#Missing properties means they didn't change from previous tick
+	#so, set it as the previous one (extrapolation)
+	for picked_property_path in state_properties:
+		if (sanitized.has(picked_property_path) == false):
+			if (_states.has(tick - 1)):
+				if (_states[tick-1].has(picked_property_path)):
+					sanitized[picked_property_path] = _states[tick - 1][picked_property_path]
+				else:
+					_logger.error("Diff states error, _states of previous tick %s, doesn't have property %s" % [tick -1, picked_property_path])
+			else:
+				_logger.error("Diff states error, current tick is %s and _states doesn't have previous tick %s" % [tick, tick - 1])
 	
 	if sanitized.size() > 0:
 		_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), sanitized)
-		# _latest_state = max(_latest_state, tick)
 		_latest_state = tick
 	else:
 		_logger.warning("Received invalid state from %s for tick %s" % [sender, tick])

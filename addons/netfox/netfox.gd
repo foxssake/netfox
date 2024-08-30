@@ -100,6 +100,11 @@ var SETTINGS = [
 		"value": true,
 		"type": TYPE_BOOL,
 		"hint_string": "Enabling this, the state is serialized before sending it, instead of sending a dictionary of string properties and its values. Enabling this is recommended to save bandwidth, at the slight cost of CPU. Note that this serialization isn't diff state, but the state itself just in binary format."
+	},
+	{
+		"name": "netfox/serialization/enable_state_diffs",
+		"value": true,
+		"type": TYPE_BOOL,
 	}
 ]
 

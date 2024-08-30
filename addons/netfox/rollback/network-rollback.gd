@@ -61,6 +61,7 @@ var tick: int:
 
 var enable_input_serialization: bool = ProjectSettings.get_setting("netfox/serialization/enable_input_serialization", true)
 var enable_state_serialization: bool = ProjectSettings.get_setting("netfox/serialization/enable_state_serialization", true)
+var enable_state_diffs: bool = ProjectSettings.get_setting("netfox/serialization/enable_state_diffs", true)
 
 ## Event emitted before running the network rollback loop
 signal before_loop()

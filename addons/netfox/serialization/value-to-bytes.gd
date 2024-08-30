@@ -81,9 +81,12 @@ static var cache_transform3d: PackedByteArray #So a PackedByteArray of 48 bytes 
 
 #This should be a godot native function imo
 static func serialize(value: Variant) -> PackedByteArray:
+	return serialize_type(value, typeof(value))
+	
+static func serialize_type(value: Variant, type: Variant.Type) -> PackedByteArray:
 	var serialized_value: PackedByteArray
 	
-	match(typeof(value)):
+	match(type):
 		TYPE_BOOL:
 			serialized_value.resize(1)
 			serialized_value.encode_u8(0, value) #In the future to expand as bitfield
