@@ -79,7 +79,7 @@ func _spawn(id: int) -> BrawlerController:
 		GameEvents.on_own_brawler_spawn.emit(avatar)
 		
 		# Submit name
-		var player_name = name_input.text
+		var player_name: String = name_input.text
 		print("Submitting player name " + player_name)
 		_submit_name.rpc(player_name)
 	
@@ -87,7 +87,7 @@ func _spawn(id: int) -> BrawlerController:
 
 @rpc("any_peer", "reliable", "call_local")
 func _submit_name(player_name: String):
-	var pid = multiplayer.get_remote_sender_id()
-	var avatar = avatars[pid]
+	var pid: int = multiplayer.get_remote_sender_id()
+	var avatar: BrawlerController = avatars[pid]
 	avatar.player_name = player_name
 	print("Setting player name for #%s to %s" % [pid, player_name])

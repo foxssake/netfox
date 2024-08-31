@@ -41,7 +41,7 @@ static func serialize_input_properties(properties: Array[PropertyEntry], tick_ti
 	return result
 
 ## PropertySnapshot.extract() but in serialized format!
-static func serialize_state_properties(tick: int, properties: Dictionary, properties_to_ignore: Array[String], property_entries: Array[PropertyEntry]) -> PackedByteArray:
+static func serialize_state_properties(tick: int, properties: Dictionary, properties_to_include: Array[String], property_entries: Array[PropertyEntry]) -> PackedByteArray:
 	var value_bytes: PackedByteArray
 	value_bytes.resize(0)
 	
@@ -55,12 +55,12 @@ static func serialize_state_properties(tick: int, properties: Dictionary, proper
 	var header_property_indexes_contained: int = 0
 	for picked_property_entry in property_entries:
 		#If included, put it into the 2-byte bitfield
-		if (properties_to_ignore.has(picked_property_entry.to_string()) == false):
+		if (properties_to_include.has(picked_property_entry.to_string())):
 			header_property_indexes_contained += property_index
 		property_index = property_index * 2
 		
 	var result: PackedByteArray
-	result.resize(8)
+	result.resize(10)
 	result.encode_u32(0, tick)
 	result.encode_u16(4, value_bytes.size())
 	result.encode_u32(6, header_property_indexes_contained)

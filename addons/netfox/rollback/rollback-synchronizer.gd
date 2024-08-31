@@ -28,6 +28,7 @@ var _serialized_states: Dictionary = {} #<tick, PackedByteArray>
 var _serialized_inputs_to_send: Array[PackedByteArray] = []
 var _latest_state: int = -1
 var _earliest_input: int
+var _sent_full_state_to_peer_ids: Array[int] = []
 
 var _property_cache: PropertyCache
 var _freshness_store: RollbackFreshnessStore
@@ -159,44 +160,34 @@ func _process_tick(tick: int):
 func _record_tick(tick: int):
 	# Broadcast state we own
 	if not _auth_state_props.is_empty(): #This is always the server, as the server owns all avatars
-		var state_to_broadcast = {}
+		var full_state_to_broadcast = {}
 		
 		for property in _auth_state_props:
 			if _can_simulate(property.node, tick - 1):
 				# Only broadcast if we've simulated the node
-				state_to_broadcast[property.to_string()] = property.get_value()
+				full_state_to_broadcast[property.to_string()] = property.get_value()
 	
-		if state_to_broadcast.size() > 0:
+		if full_state_to_broadcast.size() > 0:
 			_latest_state = max(_latest_state, tick)
-			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), state_to_broadcast)
+			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), full_state_to_broadcast)
 			
-			var properties_to_ignore: Array[String] = []
+			var properties_to_include: Array[String] = []
+			var diff_state_to_broadcast = {}
 			if (NetworkRollback.enable_state_diffs):
 				if (_states.has(tick - 1)):
-					for picked_property_path in state_to_broadcast:
+					for picked_property_path in full_state_to_broadcast:
 						if (_states[tick - 1].has(picked_property_path) == false):
 							continue
 							
-						#If same value, don't include it in broadcasting state
-						if (_states[tick - 1][picked_property_path] == state_to_broadcast[picked_property_path]):
-							properties_to_ignore.append(picked_property_path)
+						#If different value, include it in broadcasting state
+						if (_states[tick - 1][picked_property_path] != full_state_to_broadcast[picked_property_path]):
+							properties_to_include.append(picked_property_path)
 
-					#Remove property values which didn't change from previous state sent
-					for picked_property in properties_to_ignore:
-						state_to_broadcast.erase(picked_property)
+					#Set property values which are different from previous state sent
+					for picked_property in properties_to_include:
+						diff_state_to_broadcast[picked_property] = full_state_to_broadcast[picked_property]
 			
-			if state_to_broadcast.size() > 0:
-				if (NetworkRollback.enable_state_serialization):
-					var serialized_current_state: PackedByteArray = PropertiesSerializer.serialize_state_properties(tick, state_to_broadcast, properties_to_ignore, _auth_state_props)
-					_serialized_states[tick] = serialized_current_state
-					
-					# Broadcast as new state
-					for picked_peer_id in multiplayer.get_peers():
-						_submit_serialized_state.rpc_id(picked_peer_id, serialized_current_state)
-				else:
-					# Broadcast as new state
-					for picked_peer_id in multiplayer.get_peers():
-						_submit_state.rpc_id(picked_peer_id, state_to_broadcast, tick)
+			_attempt_submit_serialized_states(tick, full_state_to_broadcast, diff_state_to_broadcast, properties_to_include)
 	
 	# Record state for specified tick ( current + 1 )
 	if not _record_state_props.is_empty() and tick > _latest_state:
@@ -284,6 +275,32 @@ func _attempt_submit_serialized_inputs(serialized_inputs: PackedByteArray):
 			_submit_serialized_inputs.rpc_id(picked_peer_id, serialized_inputs)
 	elif not multiplayer.is_server():
 		_submit_serialized_inputs.rpc_id(1, serialized_inputs)
+
+func _attempt_submit_serialized_states(tick: int, full_state_to_broadcast: Dictionary, diff_state_to_broadcast: Dictionary, properties_to_include: Array[String]):
+	if (NetworkRollback.enable_state_serialization):
+		var serialized_current_state: PackedByteArray = PropertiesSerializer.serialize_state_properties(tick, diff_state_to_broadcast, properties_to_include, _auth_state_props)
+		_serialized_states[tick] = serialized_current_state
+		
+		# Broadcast as new state
+		for picked_peer_id in multiplayer.get_peers():
+			if (_sent_full_state_to_peer_ids.has(picked_peer_id) && diff_state_to_broadcast.is_empty() == false):
+				_submit_serialized_state.rpc_id(picked_peer_id, serialized_current_state)
+			else: #First state must be the full state
+				var all_properties: Array[String] = []
+				for picked_property_path in full_state_to_broadcast:
+					all_properties.append(picked_property_path)
+				
+				var serialized_full_state: PackedByteArray = PropertiesSerializer.serialize_state_properties(tick, full_state_to_broadcast, all_properties, _auth_state_props)
+				_submit_serialized_state.rpc_id(picked_peer_id, serialized_full_state)
+				_sent_full_state_to_peer_ids.append(picked_peer_id)
+	else:
+		# Broadcast as new state
+		for picked_peer_id in multiplayer.get_peers():
+			if (_sent_full_state_to_peer_ids.has(picked_peer_id) && diff_state_to_broadcast.is_empty() == false):
+				_submit_state.rpc_id(picked_peer_id, diff_state_to_broadcast, tick)
+			else: #First state must be full
+				_submit_state.rpc_id(picked_peer_id, full_state_to_broadcast, tick)
+				_sent_full_state_to_peer_ids.append(picked_peer_id)
 
 func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 	if buffer.has(tick):
