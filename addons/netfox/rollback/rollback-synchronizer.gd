@@ -171,9 +171,11 @@ func _record_tick(tick: int):
 			_latest_state = max(_latest_state, tick)
 			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), full_state_to_broadcast)
 			
-			var properties_to_include: Array[String] = []
-			var diff_state_to_broadcast = {}
+			
 			if (NetworkRollback.enable_state_diffs):
+				var properties_to_include: Array[String] = []
+				var diff_state_to_broadcast = {}
+			
 				if (_states.has(tick - 1)):
 					for picked_property_path in full_state_to_broadcast:
 						if (_states[tick - 1].has(picked_property_path) == false):
@@ -187,7 +189,9 @@ func _record_tick(tick: int):
 					for picked_property in properties_to_include:
 						diff_state_to_broadcast[picked_property] = full_state_to_broadcast[picked_property]
 			
-			_attempt_submit_serialized_states(tick, full_state_to_broadcast, diff_state_to_broadcast, properties_to_include)
+				_attempt_submit_diff_states(tick, full_state_to_broadcast, diff_state_to_broadcast, properties_to_include)
+			else:
+				_attempt_submit_full_states(tick, full_state_to_broadcast)
 	
 	# Record state for specified tick ( current + 1 )
 	if not _record_state_props.is_empty() and tick > _latest_state:
@@ -276,31 +280,37 @@ func _attempt_submit_serialized_inputs(serialized_inputs: PackedByteArray):
 	elif not multiplayer.is_server():
 		_submit_serialized_inputs.rpc_id(1, serialized_inputs)
 
-func _attempt_submit_serialized_states(tick: int, full_state_to_broadcast: Dictionary, diff_state_to_broadcast: Dictionary, properties_to_include: Array[String]):
+func _attempt_submit_diff_states(tick: int, full_state_to_broadcast: Dictionary, diff_state_to_broadcast: Dictionary, properties_to_include: Array[String]):
 	if (NetworkRollback.enable_state_serialization):
 		var serialized_current_state: PackedByteArray = PropertiesSerializer.serialize_state_properties(tick, diff_state_to_broadcast, properties_to_include, _auth_state_props)
 		_serialized_states[tick] = serialized_current_state
 		
 		# Broadcast as new state
 		for picked_peer_id in multiplayer.get_peers():
-			if (_sent_full_state_to_peer_ids.has(picked_peer_id) && diff_state_to_broadcast.is_empty() == false):
+			if (_sent_full_state_to_peer_ids.has(picked_peer_id)):
 				_submit_serialized_state.rpc_id(picked_peer_id, serialized_current_state)
 			else: #First state must be the full state
-				var all_properties: Array[String] = []
-				for picked_property_path in full_state_to_broadcast:
-					all_properties.append(picked_property_path)
-				
-				var serialized_full_state: PackedByteArray = PropertiesSerializer.serialize_state_properties(tick, full_state_to_broadcast, all_properties, _auth_state_props)
-				_submit_serialized_state.rpc_id(picked_peer_id, serialized_full_state)
+				var serialized_full_state: PackedByteArray = PropertiesSerializer.serialize_state_properties(tick, full_state_to_broadcast, state_properties, _auth_state_props)
+				_submit_serialized_reliable_state.rpc_id(picked_peer_id, serialized_full_state)
 				_sent_full_state_to_peer_ids.append(picked_peer_id)
 	else:
+		#print("At tick %s properties to include for %s are %s" % [tick, root.name ,properties_to_include])
 		# Broadcast as new state
 		for picked_peer_id in multiplayer.get_peers():
-			if (_sent_full_state_to_peer_ids.has(picked_peer_id) && diff_state_to_broadcast.is_empty() == false):
-				_submit_state.rpc_id(picked_peer_id, diff_state_to_broadcast, tick)
-			else: #First state must be full
-				_submit_state.rpc_id(picked_peer_id, full_state_to_broadcast, tick)
+			if (_sent_full_state_to_peer_ids.has(picked_peer_id)):
+				_submit_raw_state.rpc_id(picked_peer_id, diff_state_to_broadcast, tick)
+			else:#Send the very first state
+				_submit_reliable_state.rpc_id(picked_peer_id, full_state_to_broadcast, tick)
 				_sent_full_state_to_peer_ids.append(picked_peer_id)
+
+func _attempt_submit_full_states(tick: int, full_state_to_broadcast: Dictionary):
+	if (NetworkRollback.enable_state_serialization):
+		var serialized_full_state: PackedByteArray = PropertiesSerializer.serialize_state_properties(tick, full_state_to_broadcast, state_properties, _auth_state_props)
+		for picked_peer_id in multiplayer.get_peers():
+			_submit_serialized_state.rpc_id(picked_peer_id, serialized_full_state)
+	else:
+		for picked_peer_id in multiplayer.get_peers():
+			_submit_raw_state.rpc_id(picked_peer_id, full_state_to_broadcast, tick)
 
 func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 	if buffer.has(tick):
@@ -391,36 +401,48 @@ func _submit_raw_input(input: Dictionary, tick: int):
 	else:
 		_logger.warning("Received invalid input from %s for tick %s for %s" % [sender, tick, root.name])
 
+@rpc("any_peer", "reliable", "call_remote")
+func _submit_serialized_reliable_state(serialized_state: PackedByteArray):
+	_submit_serialized_state(serialized_state)
+	apply_cached_states()
+
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_serialized_state(serialized_state: PackedByteArray):
 	var received_tick: int = serialized_state.decode_u32(0)
 	var state_values_size: int = serialized_state.decode_u16(4)
 	var header_property_indexes_contained: int = serialized_state.decode_u16(6)
 	var serialized_state_values: PackedByteArray = serialized_state.slice(10, 10 + state_values_size)
-	var deserialized_state_of_this_tick: Dictionary
+	var deserialized_state_of_this_tick: Dictionary = PropertiesSerializer.deserialize_state_properties(\
+		serialized_state_values, _record_state_props, header_property_indexes_contained)
 	
-	deserialized_state_of_this_tick = PropertiesSerializer.deserialize_state_properties(serialized_state_values, _record_state_props, header_property_indexes_contained)
-	
-	_submit_state(deserialized_state_of_this_tick, received_tick)
+	_submit_state(deserialized_state_of_this_tick, received_tick, multiplayer.get_remote_sender_id())
+
+var initial_state: Dictionary = {}
+var cached_diff_states: Dictionary = {}
+
+@rpc("any_peer", "reliable", "call_remote")
+func _submit_reliable_state(received_state: Dictionary, tick: int):
+	_submit_state(received_state, tick, multiplayer.get_remote_sender_id())
+	apply_cached_states()
 
 @rpc("any_peer", "unreliable_ordered", "call_remote")
-func _submit_state(received_state: Dictionary, tick: int):
-	if tick > NetworkTime.tick:
-		# This used to be weird, but is now expected due to estimating remote time
-		# push_warning("Received state from the future %s / %s - adding nonetheless" % [tick, NetworkTime.tick])
-		pass
-	
+func _submit_raw_state(received_state: Dictionary, tick: int):
+	_submit_state(received_state, tick, multiplayer.get_remote_sender_id())
+
+@rpc("any_peer", "unreliable_ordered", "call_remote")
+func _submit_state(received_state: Dictionary, tick: int, sender: int):
 	if tick < NetworkTime.tick - NetworkRollback.history_limit and _latest_state >= 0:
 		# State too old!
 		_logger.error("Received state for %s, rejecting because older than %s frames" % [tick, NetworkRollback.history_limit])
 		return
 
-	var sender: int = multiplayer.get_remote_sender_id()
 	var sanitized = {}
+	var properties_included: int = 0
 	for property in received_state:
 		var pe: PropertyEntry = _property_cache.get_entry(property)
 		var value = received_state[property]
 		var state_owner: int = pe.node.get_multiplayer_authority()
+		properties_included += 1
 		
 		if state_owner != sender:
 			_logger.warning("Received state for node owned by %s from %s, sender has no authority!" \
@@ -429,20 +451,51 @@ func _submit_state(received_state: Dictionary, tick: int):
 			
 		sanitized[property] = value
 		
-	#Missing properties means they didn't change from previous tick
-	#so, set it as the previous one (extrapolation)
-	for picked_property_path in state_properties:
-		if (sanitized.has(picked_property_path) == false):
-			if (_states.has(tick - 1)):
-				if (_states[tick-1].has(picked_property_path)):
-					sanitized[picked_property_path] = _states[tick - 1][picked_property_path]
+	if (NetworkRollback.enable_state_diffs):
+		var full_properties_count: int = state_properties.size()
+		#print("At tick %s for %s properties included are: %s and total size is %s" % [tick, root.name, properties_included, full_properties_count])
+		if (initial_state.is_empty()):
+			if (properties_included < full_properties_count):
+				if (sanitized.is_empty() == false):
+					cached_diff_states[tick] = sanitized
+					_logger.warning("Cached at tick %s " % tick)
+					return
 				else:
-					_logger.error("Diff states error, _states of previous tick %s, doesn't have property %s" % [tick -1, picked_property_path])
+					_logger.error("When initial state doesn't exist, received invalid state from %s for tick %s" % [sender, tick])
 			else:
-				_logger.error("Diff states error, current tick is %s and _states doesn't have previous tick %s" % [tick, tick - 1])
-	
+				initial_state = sanitized
+			
+		if (properties_included < full_properties_count):
+			sanitized = reconstruct_state_from_missing_state(sanitized, tick)
+
+	#if (root.name != "Brawler #1"):
+		#print("[%s]At tick %s for %s properties are: %s" % [multiplayer.get_unique_id(), tick, root.name, sanitized])
 	if sanitized.size() > 0:
 		_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), sanitized)
 		_latest_state = tick
-	else:
+	elif (not NetworkRollback.enable_state_diffs):
 		_logger.warning("Received invalid state from %s for tick %s" % [sender, tick])
+
+## In the case we have received diff states, but not the full state (yet), this function applies the diff states atop the full state
+func apply_cached_states():
+	var picked_full_state: Dictionary
+	for picked_tick in cached_diff_states:
+		picked_full_state = reconstruct_state_from_missing_state(cached_diff_states[picked_tick], picked_tick)
+		
+		_states[picked_tick] = PropertySnapshot.merge(_states.get(picked_tick, {}), picked_full_state)
+		_latest_state = max(picked_tick, _latest_state)
+
+func reconstruct_state_from_missing_state(diff_state: Dictionary, diff_state_tick: int) -> Dictionary:
+	#Missing properties means they didn't change from previous tick
+	#so, set it as the previous one (accurate extrapolation)
+	for picked_property_path in state_properties:
+		if (diff_state.has(picked_property_path) == false):
+			if (_states.has(diff_state_tick - 1)):
+				if (_states[diff_state_tick-1].has(picked_property_path)):
+					diff_state[picked_property_path] = _states[diff_state_tick - 1][picked_property_path]
+				else:
+					_logger.error("Diff states error, _states of previous tick %s, doesn't have property %s" % [diff_state_tick -1, picked_property_path])
+			else:
+				_logger.error("Diff states error, current tick is %s and _states doesn't have previous tick %s" % [diff_state_tick, diff_state_tick - 1])
+	
+	return diff_state
