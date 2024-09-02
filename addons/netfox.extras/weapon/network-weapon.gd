@@ -25,7 +25,7 @@ func can_fire() -> bool:
 func fire() -> Node:
 	if not can_fire():
 		return null
-	
+
 	var id: int = _generate_unique_entity_id()
 	var projectile = _spawn()
 	_save_projectile(projectile, id)
