@@ -7,10 +7,12 @@ class_name NetworkWeapon
 var _projectiles: Dictionary = {}
 var _projectile_data: Dictionary = {}
 var _reconcile_buffer: Array = []
+var _rng = RandomNumberGenerator.new()
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_extras("NetworkWeapon")
 
 func _ready():
+	_rng.randomize()
 	NetworkTime.before_tick_loop.connect(_before_tick_loop)
 
 ## Check whether this weapon can be fired.
@@ -132,9 +134,20 @@ func _before_tick_loop():
 
 func _generate_id(length: int = 12, charset: String = "abcdefghijklmnopqrstuvwxyz0123456789") -> String:
 	var result = ""
-	for i in range(length):
-		var idx = randi_range(0, charset.length() - 1)
-		result += charset[idx]
+
+	# Abandon ID gen after a while
+	# Ideally this shouldn't happen, but unbounded while loops are not really safe
+	for __ in range(32):
+		# Generate a random ID
+		result = ""
+		for i in range(length):
+			var idx = _rng.randi_range(0, charset.length() - 1)
+			result += charset[idx]
+		
+		# If it's not already used, return
+		if not _projectiles.has(result):
+			break
+
 	return result
 
 @rpc("any_peer", "reliable", "call_remote")
