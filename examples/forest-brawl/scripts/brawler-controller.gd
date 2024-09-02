@@ -146,11 +146,6 @@ func _snap_to_spawn():
 	var idx = hash(peer_id + respawn_count * 39) % spawns.size()
 	var spawn = spawns[idx] as Node3D
 	
-	if (not multiplayer.is_server()):
-		print("CLIENT RESPAWN SET: %s" % idx)
-	else:
-		print("SERVER RESPAWN SET: %s" % idx)
-	
 	global_transform = spawn.global_transform
 
 func _force_update_is_on_floor():
