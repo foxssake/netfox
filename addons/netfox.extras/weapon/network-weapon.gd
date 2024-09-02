@@ -134,7 +134,7 @@ func _before_tick_loop():
 
 func _generate_unique_entity_id() -> int:
 	if (latest_projectile_id == -1):
-		latest_projectile_id = NetworkCommonData.local_player_id * 100000
+		latest_projectile_id = SessionData.local_player_id * 100000
 	else:
 		latest_projectile_id += 1
 

@@ -28,7 +28,7 @@ NetworkEvents="*res://addons/netfox/network-events.gd"
 Noray="*res://addons/netfox.noray/noray.gd"
 PacketHandshake="*res://addons/netfox.noray/packet-handshake.gd"
 NetworkPerformance="*res://addons/netfox/network-performance.gd"
-NetworkCommonData="*res://examples/forest-brawl/scripts/network-common-data.gd"
+SessionData="*res://examples/forest-brawl/scripts/session-data.gd"
 
 [display]
 
