@@ -135,18 +135,10 @@ func _before_tick_loop():
 func _generate_id(length: int = 12, charset: String = "abcdefghijklmnopqrstuvwxyz0123456789") -> String:
 	var result = ""
 
-	# Abandon ID gen after a while
-	# Ideally this shouldn't happen, but unbounded while loops are not really safe
-	for __ in range(32):
-		# Generate a random ID
-		result = ""
-		for i in range(length):
-			var idx = _rng.randi_range(0, charset.length() - 1)
-			result += charset[idx]
-		
-		# If it's not already used, return
-		if not _projectiles.has(result):
-			break
+	# Generate a random ID
+	for i in range(length):
+		var idx = _rng.randi_range(0, charset.length() - 1)
+		result += charset[idx]
 
 	return result
 
