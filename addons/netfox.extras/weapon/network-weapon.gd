@@ -181,6 +181,7 @@ func _accept_projectile(id: String, tick: int, response_data: Dictionary):
 		var projectile = _spawn()
 		_apply_data(projectile, response_data)
 		_projectile_data.erase(id)
+		_save_projectile(projectile, id, response_data)
 		_after_fire(projectile)
 
 @rpc("authority", "reliable", "call_remote")
