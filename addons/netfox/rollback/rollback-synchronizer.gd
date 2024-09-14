@@ -200,6 +200,7 @@ func _record_tick(tick: int):
 						_submit_state.rpc_id(picked_peer_id, diff_state_to_broadcast, tick)
 					else: #send full state containing all properties
 						_submit_state.rpc_id(picked_peer_id, full_state_to_broadcast, tick)
+
 	
 	# Record state for specified tick ( current + 1 )
 	if not _record_state_props.is_empty() and tick > _latest_state:
