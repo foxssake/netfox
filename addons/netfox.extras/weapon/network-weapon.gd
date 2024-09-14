@@ -7,12 +7,14 @@ class_name NetworkWeapon
 var _projectiles: Dictionary = {}
 var _projectile_data: Dictionary = {}
 var _reconcile_buffer: Array = []
+var _rng = RandomNumberGenerator.new()
 
 static var latest_projectile_id: int = -1
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_extras("NetworkWeapon")
 
 func _ready():
+	_rng.randomize()
 	NetworkTime.before_tick_loop.connect(_before_tick_loop)
 
 ## Check whether this weapon can be fired.
@@ -179,6 +181,7 @@ func _accept_projectile(id: int, tick: int, response_data: Dictionary):
 		var projectile = _spawn()
 		_apply_data(projectile, response_data)
 		_projectile_data.erase(id)
+		_save_projectile(projectile, id, response_data)
 		_after_fire(projectile)
 
 @rpc("authority", "reliable", "call_remote")
