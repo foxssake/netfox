@@ -73,7 +73,7 @@ signal on_record_tick(tick: int)
 signal after_loop()
 
 var _tick: int = 0
-var _resim_from: int
+var _resimulate_from_tick: int
 
 var _is_rollback: bool = false
 var _simulated_nodes: Dictionary = {}
@@ -82,7 +82,7 @@ var _simulated_nodes: Dictionary = {}
 ##
 ## This is used to determine the resimulation range during each loop.
 func notify_resimulation_start(tick: int):
-	_resim_from = min(_resim_from, tick)
+	_resimulate_from_tick = min(_resimulate_from_tick, tick)
 
 ## Submit node for simulation.
 ##
@@ -136,14 +136,14 @@ func _rollback():
 	_is_rollback = true
 
 	# Ask all rewindables to submit their earliest inputs
-	_resim_from = NetworkTime.tick
+	_resimulate_from_tick = NetworkTime.tick
 	before_loop.emit()
 	
 	# from = Earliest input amongst all rewindables
-	var from = _resim_from
+	var from: int = _resimulate_from_tick
 
 	# to = Current tick
-	var to = NetworkTime.tick
+	var to: int = NetworkTime.tick
 	
 	# for tick in from .. to:
 	for tick in range(from, to):

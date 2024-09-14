@@ -2,8 +2,8 @@ extends CharacterBody3D
 class_name BrawlerController
 
 # Stats
-@export var speed = 5.0
-@export var jump_velocity = 4.5
+@export var speed: float = 5.0
+@export var jump_velocity: float = 4.5
 
 # Spawn
 @export var spawn_point: Vector3 = Vector3(0, 4, 0)
@@ -67,31 +67,31 @@ func _ready():
 func _process(delta):
 	# Update animation
 	# Running
-	var movement = Vector3(velocity.x, 0, velocity.z) * speed
+	var movement: Vector3 = Vector3(velocity.x, 0, velocity.z) * speed
 	var relative_velocity = quaternion.inverse() * movement
 	relative_velocity.y = 0
 	relative_velocity /= speed
 	relative_velocity = Vector2(relative_velocity.x, relative_velocity.z)
-	var animated_velocity = animation_tree.get("parameters/Move/blend_position") as Vector2
+	var animated_velocity: Vector2 = animation_tree.get("parameters/Move/blend_position") as Vector2
 
 	animation_tree.set("parameters/Move/blend_position", animated_velocity.move_toward(relative_velocity, delta / 0.2))
 	
 	# Float
 	_force_update_is_on_floor()
-	var animated_float = animation_tree.get("parameters/Float/blend_amount") as float
-	var actual_float = 1.0 if not is_on_floor() else 0.0
+	var animated_float: float = animation_tree.get("parameters/Float/blend_amount") as float
+	var actual_float: float = 1.0 if not is_on_floor() else 0.0
 	animation_tree.set("parameters/Float/blend_amount", move_toward(animated_float, actual_float, delta / 0.2))
 	
 	# Speed
 	animation_tree.set("parameters/MoveScale/scale", speed / 3.75)
 	animation_tree.set("parameters/ThrowScale/scale", min(weapon.fire_cooldown / (10. / 24.), 1.0))
 
-func _tick(_delta, tick):
+func _tick(_delta: float, tick: int):
 	# Run throw animation if firing
 	if weapon.last_fire == tick:
 		animation_tree.set("parameters/Throw/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
 
-func _rollback_tick(delta, tick, is_fresh):
+func _rollback_tick(delta: float, tick: int, is_fresh: bool):
 	# Respawn
 	if tick == respawn_tick:
 		_snap_to_spawn()
@@ -142,14 +142,14 @@ func _exit_tree():
 	GameEvents.on_brawler_despawn.emit(self)
 
 func _snap_to_spawn():
-	var spawns = get_tree().get_nodes_in_group("Spawn Points")
-	var idx = hash(player_id + respawn_count * 39) % spawns.size()
-	var spawn = spawns[idx] as Node3D
+	var spawns: Array[Node] = get_tree().get_nodes_in_group("Spawn Points")
+	var idx: int = hash(player_id + respawn_count * 39) % spawns.size()
+	var spawn: Node3D = spawns[idx] as Node3D
 	
 	global_transform = spawn.global_transform
 
 func _force_update_is_on_floor():
-	var old_velocity = velocity
+	var old_velocity: Vector3 = velocity
 	velocity *= 0
 	move_and_slide()
 	velocity = old_velocity

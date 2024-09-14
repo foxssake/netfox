@@ -3,8 +3,8 @@ class_name ScoreManager
 
 @export var scorescreen: ScoreScreen
 @export var hit_threshold_time: float = 8.0
-var _scores = {}
-var _brawlers = {}
+var _scores: Dictionary = {}
+var _brawlers: Dictionary = {}
 
 func get_score(player: int) -> int:
 	return _scores.get(player, 0)
@@ -17,12 +17,12 @@ func _ready():
 	set_multiplayer_authority(1)
 
 func _handle_spawn(brawler: BrawlerController):
-	var id = brawler.player_id
+	var id: int = brawler.player_id
 	_scores[id] = _scores.get(id, 0)
 	_brawlers[id] = brawler
 
 func _handle_fall(brawler: BrawlerController):
-	var id = brawler.player_id
+	var id: int = brawler.player_id
 	
 	# Update scores
 	if is_multiplayer_authority():
@@ -61,7 +61,7 @@ func _submit_scores(scores: Dictionary):
 		scorescreen.render(_render_scores())
 
 func _render_scores() -> Dictionary:
-	var render_scores = {}
+	var render_scores: Dictionary = {}
 	for pid in _scores:
 		var brawler = _brawlers[pid]
 		var score = _scores[pid]

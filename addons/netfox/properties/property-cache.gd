@@ -11,7 +11,7 @@ func _init(p_root: Node):
 
 func get_entry(path: String) -> PropertyEntry:
 	if not _cache.has(path):
-		var parsed = PropertyEntry.parse(root, path)
+		var parsed: PropertyEntry = PropertyEntry.parse(root, path)
 		if not parsed.is_valid():
 			_logger.warning("Invalid property path: %s" % path)
 		_cache[path] = parsed

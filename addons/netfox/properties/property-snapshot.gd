@@ -2,7 +2,7 @@ extends Object
 class_name PropertySnapshot
 
 static func extract(properties: Array[PropertyEntry]) -> Dictionary:
-	var result = {}
+	var result: Dictionary = {}
 	for property in properties:
 		result[property.to_string()] = property.get_value()
 	result.make_read_only()
@@ -10,7 +10,7 @@ static func extract(properties: Array[PropertyEntry]) -> Dictionary:
 
 static func apply(properties: Dictionary, cache: PropertyCache):
 	for property in properties:
-		var pe = cache.get_entry(property)
+		var pe: PropertyEntry = cache.get_entry(property)
 		var value = properties[property]
 		pe.set_value(value)
 
