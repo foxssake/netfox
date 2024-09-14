@@ -17,18 +17,18 @@ func _ready():
 	set_multiplayer_authority(1)
 
 func _handle_spawn(brawler: BrawlerController):
-	var id = brawler.player_id
+	var id = brawler.peer_id
 	_scores[id] = _scores.get(id, 0)
 	_brawlers[id] = brawler
 
 func _handle_fall(brawler: BrawlerController):
-	var id = brawler.player_id
+	var id = brawler.peer_id
 	
 	# Update scores
 	if is_multiplayer_authority():
 		if NetworkTime.seconds_between(brawler.last_hit_tick, NetworkTime.tick) < hit_threshold_time \
 			and brawler.last_hit_player:
-			var hit_id = brawler.last_hit_player.player_id
+			var hit_id = brawler.last_hit_player.peer_id
 			_scores[hit_id] = _scores.get(hit_id, 0) + 1
 		else:
 			_scores[id] = _scores.get(id, 0) - 1
@@ -43,12 +43,12 @@ func _handle_fall(brawler: BrawlerController):
 
 func _handle_respawn(brawler: BrawlerController):
 	# Hide scoreboard
-	if brawler.player_id == multiplayer.get_unique_id():
+	if brawler.peer_id == multiplayer.get_unique_id():
 		scorescreen.active = false
 
 func _handle_despawn(brawler: BrawlerController):
-	_scores.erase(brawler.player_id)
-	_brawlers.erase(brawler.player_id)
+	_scores.erase(brawler.peer_id)
+	_brawlers.erase(brawler.peer_id)
 
 @rpc("authority", "reliable", "call_remote")
 func _submit_scores(scores: Dictionary):

@@ -26,7 +26,7 @@ var player_name: String = "":
 		player_name = p_name
 		nametag.text = p_name
 
-var player_id: int = -1
+var peer_id: int = -1
 var last_hit_player: BrawlerController
 var last_hit_tick: int = -1
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
@@ -35,7 +35,7 @@ var respawn_count: int = 0
 
 func register_hit(from: BrawlerController):
 	if from == self:
-		push_error("Player %s (#%s) trying to register hit on themselves!" % [player_name, player_id])
+		push_error("Player %s (#%s) trying to register hit on themselves!" % [player_name, peer_id])
 		return
 
 	last_hit_player = from
@@ -55,10 +55,10 @@ func _ready():
 	NetworkTime.on_tick.connect(_tick)
 	
 	if not player_name:
-		player_name = "Nameless Brawler #%s" % [player_id]
+		player_name = "Nameless Brawler #%s" % [peer_id]
 	
 	# Set player color
-	var color = Color.from_hsv((hash(player_id) % 256) / 256.0, 1.0, 1.0)
+	var color = Color.from_hsv((hash(peer_id) % 256) / 256.0, 1.0, 1.0)
 	var material: StandardMaterial3D = mesh.get_active_material(0)
 	material = material.duplicate()
 	material.albedo_color = color
@@ -143,7 +143,7 @@ func _exit_tree():
 
 func _snap_to_spawn():
 	var spawns = get_tree().get_nodes_in_group("Spawn Points")
-	var idx = hash(player_id + respawn_count * 39) % spawns.size()
+	var idx = hash(peer_id + respawn_count * 39) % spawns.size()
 	var spawn = spawns[idx] as Node3D
 	
 	global_transform = spawn.global_transform

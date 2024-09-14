@@ -59,7 +59,7 @@ func _spawn(id: int) -> BrawlerController:
 	var avatar = player_scene.instantiate() as BrawlerController
 	avatars[id] = avatar
 	avatar.name += " #%d" % id
-	avatar.player_id = id
+	avatar.peer_id = id
 	spawn_root.add_child(avatar)
 	
 	# Avatar is always owned by server
