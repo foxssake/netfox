@@ -24,6 +24,7 @@ var _states: Dictionary = {}
 var _inputs: Dictionary = {}
 var _latest_state: int = -1
 var _earliest_input: int
+var _batched_inputs_to_broadcast: Dictionary = {}
 
 var _property_cache: PropertyCache
 var _freshness_store: RollbackFreshnessStore
@@ -182,20 +183,16 @@ func _before_tick(_delta: float, tick: int):
 
 func _after_tick(_delta: float, _tick: int):
 	if not _auth_input_props.is_empty():
-		var input = PropertySnapshot.extract(_auth_input_props)
-		_inputs[NetworkTime.tick] = input
+		var local_input = PropertySnapshot.extract(_auth_input_props)
+		_inputs[NetworkTime.tick] = local_input
 
-		#Send the last n inputs for each property 
-		var inputs: Dictionary = {}
-		for i in range(0, NetworkRollback.input_redundancy):
-			var tick_input = _inputs.get(NetworkTime.tick - i, {})
-			for property in tick_input:
-				if not inputs.has(property):
-					inputs[property] = []
-				inputs[property].push_back(tick_input[property])
+		if (_batched_inputs_to_broadcast.size() == NetworkRollback.input_redundancy):
+			_batched_inputs_to_broadcast.erase(_batched_inputs_to_broadcast.keys().min())
+		_batched_inputs_to_broadcast[_tick] = local_input
 
-		_attempt_submit_input(inputs)
+		_attempt_submit_input(_batched_inputs_to_broadcast)
 	
+
 	while _states.size() > NetworkRollback.history_limit:
 		_states.erase(_states.keys().min())
 	
@@ -241,6 +238,7 @@ func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 func _submit_input(input: Dictionary, tick: int):
 	var sender_id: int = multiplayer.get_remote_sender_id()
 	var sanitized: Dictionary = {}
+
 	for property in input:
 		var pe: PropertyEntry = _property_cache.get_entry(property)
 		var value = input[property]
