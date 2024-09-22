@@ -170,9 +170,7 @@ func _record_tick(tick: int):
 			# Broadcast as new state
 			_latest_state = max(_latest_state, tick)
 			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), broadcast)
-			for picked_peer_id in multiplayer.get_peers():
-				if (NetworkTime.is_client_synced(picked_peer_id)): #This assumes the server is the authority -_-
-					_submit_state.rpc_id(picked_peer_id, broadcast, tick)
+			_submit_state.rpc(broadcast, tick)
 	
 	# Record state for specified tick ( current + 1 )
 	if not _record_state_props.is_empty() and tick > _latest_state:
