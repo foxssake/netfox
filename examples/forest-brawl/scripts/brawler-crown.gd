@@ -43,7 +43,7 @@ func _handle_scores(scores: Dictionary):
 	
 	var player_id = max_players[0]
 	var player = get_tree().get_nodes_in_group("Brawlers")\
-		.filter(func(it): return it.player_id == player_id)\
+		.filter(func(it): return it.peer_id == player_id)\
 		.pop_back()
 	
 	target = player
