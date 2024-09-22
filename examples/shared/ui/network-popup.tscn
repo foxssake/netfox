@@ -5,14 +5,14 @@
 
 [node name="Network Popup" type="TabContainer"]
 offset_right = 540.0
-offset_bottom = 540.0
+offset_bottom = 210.0
 
 [node name="LAN" type="VBoxContainer" parent="."]
 layout_mode = 2
 
 [node name="Address Row" type="HBoxContainer" parent="LAN"]
 layout_mode = 2
-size_flags_vertical = 2
+size_flags_vertical = 0
 
 [node name="Address Label" type="Label" parent="LAN/Address Row"]
 layout_mode = 2
