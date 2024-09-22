@@ -5,6 +5,8 @@ class_name RollbackSynchronizer
 ## synchronizing data between players, but with support for rollback.
 
 @export var root: Node = get_parent()
+## This is to give time for Input authority to be set.
+@export var await_first_frame: bool = true
 @export var state_properties: Array[String]
 
 @export_subgroup("Inputs")
@@ -24,6 +26,7 @@ var _states: Dictionary = {}
 var _inputs: Dictionary = {}
 var _latest_state: int = -1
 var _earliest_input: int
+var _started_at_tick: int = -1
 
 var _property_cache: PropertyCache
 var _freshness_store: RollbackFreshnessStore
@@ -43,15 +46,11 @@ func process_settings():
 	
 	_states.clear()
 	_inputs.clear()
-	_latest_state = NetworkTime.tick - 1
-	_earliest_input = NetworkTime.tick
 
 	# Gather state props - all state props are recorded
 	for property in state_properties:
 		var pe = _property_cache.get_entry(property)
 		_record_state_props.push_back(pe)
-	
-	process_authority()
 	
 	# Gather all rollback-aware nodes to simulate during rollbacks
 	_nodes = root.find_children("*")
@@ -84,13 +83,24 @@ func process_authority():
 			_record_input_props.push_back(pe)
 			_auth_input_props.push_back(pe)
 
+func process_time_flags():
+	_latest_state = NetworkTime.tick - 1
+	_earliest_input = NetworkTime.tick
+	if (_started_at_tick == -1):
+		_started_at_tick = NetworkTime.tick
+
 func _ready():
 	process_settings()
+
+	if (await_first_frame):
+		await get_tree().process_frame
+	process_authority()
 	
 	if not NetworkTime.is_initial_sync_done():
 		# Wait for time sync to complete
 		await NetworkTime.after_sync
-	_latest_state = NetworkTime.tick - 1
+	process_time_flags()
+	
 	
 	NetworkTime.before_tick.connect(_before_tick)
 	NetworkTime.after_tick.connect(_after_tick)
@@ -160,7 +170,9 @@ func _record_tick(tick: int):
 			# Broadcast as new state
 			_latest_state = max(_latest_state, tick)
 			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), broadcast)
-			_submit_state.rpc(broadcast, tick)
+			for picked_peer_id in multiplayer.get_peers():
+				if (NetworkTime.is_client_synced(picked_peer_id)):
+					_submit_state.rpc_id(picked_peer_id, broadcast, tick)
 	
 	# Record state for specified tick ( current + 1 )
 	if not _record_state_props.is_empty() and tick > _latest_state:
@@ -220,6 +232,8 @@ func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 	var latest = buffer.keys().max()
 
 	if tick < earliest:
+		_logger.warning("Tried to load tick %s which is earlier than the earliest we have recorded (%s)
+		Try increasing the history limit." % [tick, earliest])
 		return buffer[earliest]
 	
 	if tick > latest:
