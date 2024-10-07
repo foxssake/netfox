@@ -76,6 +76,14 @@ guide](docs/upgrading.md).
 
 See the [docs](https://foxssake.github.io/netfox/).
 
+### Supported versions
+
+Godot 4.x is supported by netfox. If you find any issue using any supported
+version, please [open an issue].
+
+Forest Brawl and the other examples are written against Godot 4.1. They may or
+may not work when opened with any other version.
+
 ### Prototyping
 
 To try your game online with [noray], a free to use instance is hosted at
