@@ -70,7 +70,10 @@ func _check_log_level(level: int) -> bool:
 
 func _format_text(text: String, level: int) -> String:
 	level = clampi(level, LOG_MIN, LOG_MAX)
-	return "[%s][%s::%s] %s" % [level_prefixes[level], module,name, text]
+	var peer_id = NetworkEvents.multiplayer.get_unique_id()
+	var tick = NetworkTime.tick
+	
+	return "[%s][@%s][#%s][%s::%s] %s" % [level_prefixes[level], tick, peer_id, module, name, text]
 
 func _log_text(text: String, level: int):
 	if _check_log_level(level):
