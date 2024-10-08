@@ -67,6 +67,14 @@ After adding *netfox* to your project, make sure to enable the addons in your
 project settings. Otherwise, Godot will present you with errors about
 undeclared identifiers.
 
+## Supported versions
+
+Godot 4.x is supported by netfox. If you find any issue using any supported
+version, please [open an issue].
+
+Forest Brawl and the other examples are written against Godot 4.1. They may or
+may not work when opened with any other version.
+
 ## Prototyping
 
 To try your game online with [noray], a free to use instance is hosted at
@@ -98,6 +106,8 @@ how things work. For that, refer to the guides.
 [netfox.extras]: https://github.com/foxssake/netfox/tree/main/addons/netfox.extras
 [netfox.internals]: https://github.com/foxssake/netfox/tree/main/addons/netfox.internals
 [Forest Brawl]: https://github.com/foxssake/netfox/tree/main/examples/forest-brawl
+
+[open an issue]: https://github.com/foxssake/netfox/issues
 
 [Godot engine]: https://godotengine.org/
 [noray]: https://github.com/foxssake/noray
