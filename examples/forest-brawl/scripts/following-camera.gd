@@ -1,7 +1,7 @@
 extends Camera3D
 class_name FollowingCamera
 
-@export var distance: float = 4.0
+@export var distance: float = 16
 @export var approach_time: float = 0.125
 @export var target: Node3D
 
@@ -12,11 +12,11 @@ func _tick(delta: float, _t: int):
 	if not target:
 		return
 
-	var desired_pos = target.global_position
+	var desired_pos: Vector3 = target.global_position
 	desired_pos += transform.basis.z * distance
 	
-	var diff = desired_pos - global_position
-	var dst = diff.length()
+	var diff: Vector3 = desired_pos - global_position
+	var dst: float = diff.length()
 	diff = diff.normalized()
 	
 	global_position += diff * minf(dst / approach_time * delta, dst)

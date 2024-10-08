@@ -28,11 +28,11 @@ func _ready():
 func _connect_to_noray():
 	# Connect to noray
 	var err = OK
-	var address = noray_address_input.text
+	var address: String = noray_address_input.text
 	if address.contains(":"):
-		var parts = address.split(":")
-		var host = parts[0]
-		var port = (parts[1] as String).to_int()
+		var parts: PackedStringArray = address.split(":")
+		var host: String = parts[0]
+		var port: int = (parts[1] as String).to_int()
 		err = await Noray.connect_to_host(host, port)
 	else:
 		err = await Noray.connect_to_host(address)
@@ -65,10 +65,10 @@ func _host():
 	
 	# Start host
 	var err = OK
-	var port = Noray.local_port
+	var port: int = Noray.local_port
 	print("Starting host on port %s" % port)
 	
-	var peer = ENetMultiplayerPeer.new()
+	var peer := ENetMultiplayerPeer.new()
 	err = peer.create_server(port)
 	if err != OK:
 		print("Failed to listen on port %s: %s" % [port, error_string(err)])
@@ -127,7 +127,7 @@ func _handle_connect(address: String, port: int) -> Error:
 		err = ERR_UNAVAILABLE
 	
 	if role == Role.CLIENT:
-		var udp = PacketPeerUDP.new()
+		var udp := PacketPeerUDP.new()
 		udp.bind(Noray.local_port)
 		udp.set_dest_address(address, port)
 		
@@ -145,7 +145,7 @@ func _handle_connect(address: String, port: int) -> Error:
 			print("Handshake to %s:%s succeeded" % [address, port])
 
 		# Connect
-		var peer = ENetMultiplayerPeer.new()
+		var peer := ENetMultiplayerPeer.new()
 		err = peer.create_client(address, port, 0, 0, 0, Noray.local_port)
 		if err != OK:
 			print("Failed to create client: %s" % error_string(err))
@@ -171,7 +171,7 @@ func _handle_connect(address: String, port: int) -> Error:
 
 	if role == Role.HOST:
 		# We should already have the connection configured, only thing to do is a handshake
-		var peer = get_tree().get_multiplayer().multiplayer_peer as ENetMultiplayerPeer
+		var peer: ENetMultiplayerPeer = get_tree().get_multiplayer().multiplayer_peer as ENetMultiplayerPeer
 		
 		err = await PacketHandshake.over_enet(peer.host, address, port)
 		

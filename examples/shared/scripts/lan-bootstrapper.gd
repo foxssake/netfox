@@ -12,16 +12,16 @@ func _ready():
 	host_button.button_up.connect(_host)
 
 func _host():
-	var host = _parse_input()
+	var host: Dictionary = _parse_input()
 	if host.size() == 0:
 		return ERR_CANT_RESOLVE
 
-	var port = host.port
+	var port: int = host.port
 
 	# Start host
 	print("Starting host on port %s" % port)
 	
-	var peer = ENetMultiplayerPeer.new()
+	var peer := ENetMultiplayerPeer.new()
 	if peer.create_server(port) != OK:
 		print("Failed to listen on port %s" % port)
 
@@ -53,12 +53,12 @@ func _join():
 	if host.size() == 0:
 		return ERR_CANT_RESOLVE
 		
-	var address = host.address
-	var port = host.port
+	var address: String = host.address
+	var port: int = host.port
 
 	# Connect
 	print("Connecting to %s:%s" % [address, port])
-	var peer = ENetMultiplayerPeer.new()
+	var peer := ENetMultiplayerPeer.new()
 	var err = peer.create_client(address, port)
 	if err != OK:
 		OS.alert("Failed to create client, reason: %s" % error_string(err))
@@ -86,18 +86,18 @@ func _join():
 
 func _parse_input() -> Dictionary:
 	# Validate inputs
-	var address = address_input.text
-	var port = port_input.text
+	var address: String = address_input.text
+	var port_raw: String = port_input.text
 	
 	if address == "":
 		OS.alert("No host specified!")
 		return {}
 		
-	if not port.is_valid_int():
+	if not port_raw.is_valid_int():
 		OS.alert("Invalid port!")
 		return {}
-	port = port.to_int()
-
+		
+	var port: int = port_raw.to_int()
 	return {
 		"address": address,
 		"port": port

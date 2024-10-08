@@ -29,14 +29,14 @@ func _ready():
 	visible = false
 
 func _process(delta):
-	var current = modulate.a
-	var target = 1.0 if active else 0.0
-	modulate.a = move_toward(current, target, delta / fade_time)
+	var current_transparency: float = modulate.a
+	var target: float = 1.0 if active else 0.0
+	modulate.a = move_toward(current_transparency, target, delta / fade_time)
 	
 	visible = false if modulate.a < 0.05 else true
 
 func _make_label(text: String) -> Label:
-	var label = Label.new()
+	var label := Label.new()
 	label.text = text
 	label.size_flags_horizontal = SIZE_FILL
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

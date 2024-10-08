@@ -41,8 +41,8 @@ func _handle_scores(scores: Dictionary):
 	if max_players.size() > 1:
 		return
 	
-	var player_id = max_players[0]
-	var player = get_tree().get_nodes_in_group("Brawlers")\
+	var player_id: int = max_players[0]
+	var player: BrawlerController = get_tree().get_nodes_in_group("Brawlers")\
 		.filter(func(it): return it.player_id == player_id)\
 		.pop_back()
 	
