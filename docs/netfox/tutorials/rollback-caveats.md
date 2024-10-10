@@ -81,6 +81,6 @@ State machines don't usually expect to be updated multiple times in a single fra
 - Transitions that enforce a specific order to state changes.
 - Transitions that trigger on any state change.
 
-The key concept to keep in mind is that Netfox stores the configured states for each 
+The key concept to keep in mind is that netfox stores the configured states for each 
 processed tick. When it rolls back everything is snapped back to that point in time and then
 played forward to the present in a single frame.
