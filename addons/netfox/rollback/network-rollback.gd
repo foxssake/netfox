@@ -146,10 +146,10 @@ func _rollback():
 	before_loop.emit()
 	
 	# from = Earliest input amongst all rewindables
-	var from: int = _resim_from
+	var from = _resim_from
 
 	# to = Current tick
-	var to: int = NetworkTime.tick
+	var to = NetworkTime.tick
 	
 	# for tick in from .. to:
 	for tick in range(from, to):

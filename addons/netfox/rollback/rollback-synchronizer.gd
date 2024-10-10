@@ -95,7 +95,6 @@ func process_authority():
 		if pe.node.is_multiplayer_authority():
 			_record_input_props.push_back(pe)
 			_auth_input_props.push_back(pe)
-	
 
 func _ready():
 	process_settings()
@@ -209,7 +208,7 @@ func _after_loop():
 	_earliest_input = NetworkTime.tick
 	
 	# Apply display state
-	var display_state: = _get_history(_states, NetworkTime.tick - NetworkRollback.display_offset)
+	var display_state = _get_history(_states, NetworkTime.tick - NetworkRollback.display_offset)
 	PropertySnapshot.apply(display_state, _property_cache)
 
 func _before_tick(_delta, tick):
