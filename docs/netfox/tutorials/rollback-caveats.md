@@ -73,4 +73,14 @@ If there's a way to force an update for your given node type, it should work. ie
 
 ### State Machines
 
-Many state machine addons don't expect to be updated multiple times in a frame. Beware of safeguards that prevent state backtracking quickly or basing the state on a value that is not updated in `_rollback_tick`.
+State machines don't usually expect to be updated multiple times in a single frame
+ or be snapped back to a previous point in time. Be cautious of:
+
+- Safeguards that implement a cooldown to changes.
+- States based on values not updated in `_rollback_tick`.
+- Transitions that enforce a specific order to state changes.
+- Transitions that trigger on any state change.
+
+The key concept to keep in mind is that Netfox stores the configured states for each 
+processed tick. When it rolls back everything is snapped back to that point in time and then
+played forward to the present in a single frame.
