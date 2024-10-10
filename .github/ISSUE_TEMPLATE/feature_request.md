@@ -1,20 +1,37 @@
 ---
 name: Feature request
-about: Suggest an idea for this project
+about: Suggest a feature or improvement for netfox
 title: ''
-labels: ''
+labels: 'feature'
 assignees: ''
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+### :sparkles: Description
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+Please describe the feature you'd like to see, in a clear and concise way.
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+If that explains your request better, feel free to use screenshots, mockups or
+videos.
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+### Use case
+
+When would this feature be used? How is it useful to the user?
+
+Is this feature something that can be useful for most games, is it specific to
+a genre, or is it specific to a few games?
+
+### Distribution
+
+Where would this feature live?
+
+* In netfox core ( i.e. the `netfox` addon )
+* In a netfox addon ( e.g. `netfox.noray` or `netfox.extras` )
+* In an example project
+* Somewhere else
+* Not sure
+
+### Notes
+
+Feel free to add any other notes you may have.
+
