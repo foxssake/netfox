@@ -72,7 +72,6 @@ i.e.
 * ChacacterBody (2D and 3D) - [`move_and_collide()`] ( which has a test only
   mode )
 
-
 ### State Machines
 
 State machines don't usually expect to be updated multiple times in a single
