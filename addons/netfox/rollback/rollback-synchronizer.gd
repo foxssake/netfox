@@ -60,7 +60,7 @@ func process_settings():
 
 	# Gather state props - all state props are recorded
 	for property in state_properties:
-		var pe: PropertyEntry = _property_cache.get_entry(property)
+		var pe = _property_cache.get_entry(property)
 		_record_state_props.push_back(pe)
 	
 	process_authority()
@@ -83,19 +83,18 @@ func process_authority():
 	
 	# Gather state properties that we own
 	# i.e. it's the state of a node that belongs to the local peer
-	var picked_property_entry: PropertyEntry
-	for picked_property in state_properties:
-		picked_property_entry = _property_cache.get_entry(picked_property)
-		if picked_property_entry.node.is_multiplayer_authority():
-			_auth_state_props.push_back(picked_property_entry)
+	for property in state_properties:
+		var pe = _property_cache.get_entry(property)
+		if pe.node.is_multiplayer_authority():
+			_auth_state_props.push_back(pe)
 
 	# Gather input properties that we own
 	# Only record input that is our own
-	for picked_property in input_properties:
-		picked_property_entry = _property_cache.get_entry(picked_property)
-		_record_input_props.push_back(picked_property_entry)
-		if picked_property_entry.node.is_multiplayer_authority():
-			_auth_input_props.push_back(picked_property_entry)
+	for property in input_properties:
+		var pe = _property_cache.get_entry(property)
+		if pe.node.is_multiplayer_authority():
+			_record_input_props.push_back(pe)
+			_auth_input_props.push_back(pe)
 	
 
 func _ready():
@@ -126,8 +125,8 @@ func _prepare_tick(tick: int):
 	# Prepare state
 	#	Done individually by Rewindables ( usually Rollback Synchronizers )
 	#	Restore input and state for tick
-	var state: Dictionary = _get_history(_states, tick)
-	var input: Dictionary = _get_history(_inputs, tick)
+	var state = _get_history(_states, tick)
+	var input = _get_history(_inputs, tick)
 	
 	PropertySnapshot.apply(state, _property_cache)
 	PropertySnapshot.apply(input, _property_cache)
@@ -156,7 +155,7 @@ func _process_tick(tick: int):
 	#		If not: Latest input >= tick >= Earliest input
 	for node in _nodes:
 		if NetworkRollback.is_simulated(node):
-			var is_fresh: bool = _freshness_store.is_fresh(node, tick)
+			var is_fresh = _freshness_store.is_fresh(node, tick)
 			NetworkRollback.process_rollback(node, NetworkTime.ticktime, tick, is_fresh)
 			_freshness_store.notify_processed(node, tick)
 
@@ -210,15 +209,15 @@ func _after_loop():
 	_earliest_input = NetworkTime.tick
 	
 	# Apply display state
-	var display_state: Dictionary = _get_history(_states, NetworkTime.tick - NetworkRollback.display_offset)
+	var display_state: = _get_history(_states, NetworkTime.tick - NetworkRollback.display_offset)
 	PropertySnapshot.apply(display_state, _property_cache)
 
-func _before_tick(_delta: float, tick: int):
+func _before_tick(_delta, tick):
 	# Apply state for tick
-	var state: Dictionary = _get_history(_states, tick)
+	var state = _get_history(_states, tick)
 	PropertySnapshot.apply(state, _property_cache)
 
-func _after_tick(_delta: float, _tick: int):
+func _after_tick(_delta, _tick):
 	if not _auth_input_props.is_empty():
 		var local_input = PropertySnapshot.extract(_auth_input_props)
 		_inputs[NetworkTime.tick] = local_input
@@ -229,7 +228,6 @@ func _after_tick(_delta: float, _tick: int):
 
 		_attempt_submit_inputs(_batched_inputs_to_broadcast)
 	
-
 	while _states.size() > NetworkRollback.history_limit:
 		_states.erase(_states.keys().min())
 	
@@ -253,8 +251,8 @@ func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 	if buffer.is_empty():
 		return {}
 	
-	var earliest: int = buffer.keys().min()
-	var latest: int = buffer.keys().max()
+	var earliest = buffer.keys().min()
+	var latest = buffer.keys().max()
 
 	if tick < earliest:
 		return buffer[earliest]
@@ -265,7 +263,7 @@ func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 	if tick > latest:
 		return buffer[latest]
 	
-	var before: int = buffer.keys() \
+	var before = buffer.keys() \
 		.filter(func (key): return key < tick) \
 		.max()
 	

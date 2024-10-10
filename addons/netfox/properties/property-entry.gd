@@ -4,7 +4,6 @@ class_name PropertyEntry
 var _path: String
 var node: Node
 var property: String
-var type: Variant.Type ##see typeof()
 
 func get_value() -> Variant:
 	return node.get_indexed(property)
@@ -28,6 +27,5 @@ static func parse(root: Node, path: String) -> PropertyEntry:
 	var result = PropertyEntry.new()
 	result.node = root.get_node(NodePath(path))
 	result.property = path.erase(0, path.find(":") + 1)
-	result.type = typeof(result.get_value())
 	result._path = path
 	return result
