@@ -14,13 +14,6 @@ class_name RollbackSynchronizer
 ## Turning this off is recommended to save bandwidth and reduce cheating risks.
 @export var enable_input_broadcast: bool = true
 
-## Unlike state diffs which apply project-wide, input-diffs are often undesired because they have a performance cost
-## because at each receival, there is a forloop to check against every property. And this forloop is for every player input received!
-## This is often needless for inputs, because in most games, inputs are different (movement + aim/mouse position)
-## Set to true if you have many input properties which are not updated often.
-## Set to false if your input properties are few and often update (see forest-brawl example, being movement and mouse position)
-#@export var enable_input_diffs: bool = false
-
 var _record_state_props: Array[PropertyEntry] = []
 var _record_input_props: Array[PropertyEntry] = []
 var _auth_state_props: Array[PropertyEntry] = []
