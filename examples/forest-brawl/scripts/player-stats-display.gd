@@ -13,4 +13,4 @@ func _process(_delta):
 		visible = false
 	else:
 		visible = true
-		score_label.text = str(score_manager.get_score(brawler.player_id))
+		score_label.text = str(score_manager.get_score(brawler.peer_id))
