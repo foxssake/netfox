@@ -80,9 +80,9 @@ func process_authority():
 	# Only record input that is our own
 	for property in input_properties:
 		var pe = _property_cache.get_entry(property)
-		_record_input_property_entries.push_back(pe)
 		if pe.node.is_multiplayer_authority():
 			_auth_input_property_entries.push_back(pe)
+			_record_input_property_entries.push_back(pe)
 
 func _ready():
 	process_settings()
