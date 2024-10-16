@@ -70,6 +70,7 @@ func _before_tick_loop():
 func _after_tick_loop():
 	if enable_recording:
 		push_state()
+		PropertySnapshot.apply(_state_from, _property_cache)
 
 func _interpolate(from: Dictionary, to: Dictionary, f: float):
 	if not can_interpolate():
