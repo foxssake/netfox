@@ -345,18 +345,18 @@ func set_received_state(received_state: Dictionary, received_tick: int, sender_i
 				% [state_owner_id, sender_id])
 			continue
 
-		if (received_state.has(property_entry._path) == false):
+		if (received_state.has(property_entry.to_string()) == false):
 			missing_property = true
 			continue
 
-		var value = received_state[property_entry._path]
-		sanitized[property_entry._path] = value
+		var value = received_state[property_entry.to_string()]
+		sanitized[property_entry.to_string()] = value
 
 	## Detect if new property is added on runtime and sent
 	var new_property: bool = false
 	for property in received_state:
 		for property_entry in _record_state_props:
-			if (property_entry._path == property):
+			if (property_entry.to_string() == property):
 				continue
 		new_property = true
 		break
@@ -364,7 +364,9 @@ func set_received_state(received_state: Dictionary, received_tick: int, sender_i
 	# Duplicates the previous state(s), including the current one
 	# Also fixes packet loss (e.g. a state missing)
 	for picked_tick in range(_latest_state_tick, received_tick):
-		_states[picked_tick + 1] = _states[picked_tick]
+		#Check for the very first latest_state_tick which doesn't have a corresponding state
+		if (_states.has(picked_tick)):
+			_states[picked_tick + 1] = _states[picked_tick].duplicate(true)
 
 	if (NetworkRollback.enable_state_diffs && missing_property):
 		#Missing properties means they didn't change from previous tick
