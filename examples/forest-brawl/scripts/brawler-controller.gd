@@ -47,10 +47,6 @@ func _ready():
 	
 	_snap_to_spawn()
 
-	# TODO: What if the RollbackSynchronizer had a flag for this?
-	# Wait a frame so Input has time to get its authority set
-	await get_tree().process_frame
-	rollback_synchronizer.process_settings()
 	GameEvents.on_brawler_spawn.emit(self)
 	NetworkTime.on_tick.connect(_tick)
 	
