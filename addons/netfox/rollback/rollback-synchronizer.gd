@@ -226,7 +226,7 @@ func _after_tick(_delta, _tick):
 					inputs[property] = []
 				inputs[property].push_back(tick_input[property])
 
-		_attempt_submit_inputs(inputs)
+		_attempt_submit_input(inputs)
 
 	while _states.size() > NetworkRollback.history_limit:
 		_states.erase(_states.keys().min())
@@ -236,13 +236,12 @@ func _after_tick(_delta, _tick):
 
 	_freshness_store.trim()
 
-## Sends batched inputs to all other players (not local!)
-func _attempt_submit_inputs(batched_inputs: Dictionary):
+func _attempt_submit_input(input: Dictionary):
 	# TODO: Default to input broadcast in mesh network setups
 	if enable_input_broadcast:
-		_submit_inputs.rpc(batched_inputs, NetworkTime.tick)
+		_submit_input.rpc(input, NetworkTime.tick)
 	elif not multiplayer.is_server():
-		_submit_inputs.rpc_id(1, batched_inputs, NetworkTime.tick)
+		_submit_input.rpc_id(1, input, NetworkTime.tick)
 
 func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 	if buffer.has(tick):
@@ -267,18 +266,18 @@ func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 	return buffer[before]
 
 @rpc("any_peer", "unreliable", "call_remote")
-func _submit_inputs(input: Dictionary, tick: int):
-	var sender_id: int = multiplayer.get_remote_sender_id()
-	var sanitized: Dictionary = {}
+func _submit_input(input: Dictionary, tick: int):
+	var sender = multiplayer.get_remote_sender_id()
+	var sanitized = {}
 
 	for property in input:
 		var pe = _property_cache.get_entry(property)
 		var value = input[property]
-		var input_owner_id = pe.node.get_multiplayer_authority()
-
-		if input_owner_id != sender_id:
+		var input_owner = pe.node.get_multiplayer_authority()
+		
+		if input_owner != sender:
 			_logger.warning("Received input for node owned by %s from %s, sender has no authority!" \
-				% [input_owner_id, sender_id])
+				% [input_owner, sender])
 			continue
 
 		sanitized[property] = value
@@ -296,7 +295,7 @@ func _submit_inputs(input: Dictionary, tick: int):
 					_inputs[t][property] = new_input
 					_earliest_input = min(_earliest_input, t)
 	else:
-		_logger.warning("Received invalid input from %s for tick %s for %s" % [sender_id, tick, root.name])
+		_logger.warning("Received invalid input from %s for tick %s for %s" % [sender, tick, root.name])
 
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_state(received_state: Dictionary, received_tick: int):
