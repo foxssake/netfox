@@ -9,7 +9,7 @@ class_name TickInterpolator
 
 var _state_from: Dictionary = {}
 var _state_to: Dictionary = {}
-var _props: Array[PropertyEntry] = []
+var _property_entries: Array[PropertyEntry] = []
 var _interpolators: Dictionary = {}
 
 var _property_cache: PropertyCache
@@ -19,7 +19,7 @@ var _property_cache: PropertyCache
 ## Call this after any change to configuration.
 func process_settings():
 	_property_cache = PropertyCache.new(root)
-	_props.clear()
+	_property_entries.clear()
 	_interpolators.clear()
 	
 	_state_from = {}
@@ -27,7 +27,7 @@ func process_settings():
 
 	for property in properties:
 		var pe = _property_cache.get_entry(property)
-		_props.push_back(pe)
+		_property_entries.push_back(pe)
 		_interpolators[property] = Interpolators.find_for(pe.get_value())
 
 ## Check if interpolation can be done.
@@ -44,11 +44,11 @@ func can_interpolate() -> bool:
 ## [code]enable_recording[/code] is true.
 func push_state():
 	_state_from = _state_to
-	_state_to = PropertySnapshot.extract(_props)
+	_state_to = PropertySnapshot.extract(_property_entries)
 
 ## Record current state and transition without interpolation.
 func teleport():
-	_state_from = PropertySnapshot.extract(_props)
+	_state_from = PropertySnapshot.extract(_property_entries)
 	_state_to = _state_from
 
 func _ready():
