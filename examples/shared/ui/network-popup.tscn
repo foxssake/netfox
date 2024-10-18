@@ -119,8 +119,9 @@ text = "Join"
 layout_mode = 2
 text = "Force Relay"
 
-[node name="LAN Bootstrapper" type="Node" parent="." node_paths=PackedStringArray("address_input", "port_input", "host_button", "join_button")]
+[node name="LAN Bootstrapper" type="Node" parent="." node_paths=PackedStringArray("connect_ui", "address_input", "port_input", "host_button", "join_button")]
 script = ExtResource("1_dy86e")
+connect_ui = NodePath("..")
 address_input = NodePath("../LAN/Address Row/Address LineEdit")
 port_input = NodePath("../LAN/Address Row/Port LineEdit")
 host_button = NodePath("../LAN/Actions Row/Host Button")
