@@ -37,8 +37,9 @@ func _handle_new_peer(id: int):
 	
 	# Hide avatar until player syncs time
 	avatar.visible = false
-	while not NetworkTime.is_client_synced(id):
-		await NetworkTime.after_client_sync
+	if (multiplayer.is_server()):
+		while not NetworkTime.is_client_synced(id):
+			await NetworkTime.after_client_sync
 	avatar.visible = true
 
 func _handle_leave(id: int):
