@@ -58,7 +58,6 @@ func process_settings():
 
 	_states.clear()
 	_inputs.clear()
-	_latest_state_tick = NetworkTime.tick - 1
 	_earliest_input = NetworkTime.tick
 
 	# Gather state props - all state props are recorded
@@ -105,7 +104,6 @@ func _ready():
 	if not NetworkTime.is_initial_sync_done():
 		# Wait for time sync to complete
 		await NetworkTime.after_sync
-	_latest_state_tick = NetworkTime.tick
 
 	NetworkTime.before_tick.connect(_before_tick)
 	NetworkTime.after_tick.connect(_after_tick)
@@ -121,7 +119,10 @@ func _before_loop():
 		NetworkRollback.notify_resimulation_start(_earliest_input)
 	else:
 		# We own inputs, simulate from latest authorative state
-		NetworkRollback.notify_resimulation_start(_latest_state_tick)
+		if (_latest_state_tick != -1):
+			NetworkRollback.notify_resimulation_start(_latest_state_tick)
+		else:
+			NetworkRollback.notify_resimulation_start(NetworkTime.tick - 1)
 
 func _prepare_tick(tick: int):
 	# Prepare state
@@ -166,8 +167,8 @@ func _record_tick(tick: int):
 	if not _auth_state_props.is_empty():
 		var full_state_to_broadcast: Dictionary = {}
 		# DEBUG
-		if (multiplayer.is_server() && root.player_id == 1 && tick < 500):
-			_logger.info("recorded tick %s for brawler 1" % [tick])
+		#if (multiplayer.is_server() && root.player_id == 1 && tick < 500):
+			#_logger.info("recorded tick %s for brawler 1" % [tick])
 
 		for property in _auth_state_props:
 			if _can_simulate(property.node, tick - 1):
@@ -200,14 +201,14 @@ func _record_tick(tick: int):
 
 				for picked_peer_id in multiplayer.get_peers():
 					if (NetworkTime._synced_clients.has(picked_peer_id) == false):
-						_logger.warning("At tick %s skipped peer id %s" % [tick, picked_peer_id])
+						#_logger.warning("At tick %s skipped peer id %s" % [tick, picked_peer_id])
 						continue
 					
 					#If the client has received the full state, we can start sending diff states
 					if (_sent_full_state_to_peer_ids.has(picked_peer_id)):
 						# DEBUG
-						if (tick < 500 && root.player_id == 1):
-							_logger.info("Sent diff state to client for brawler 1 for tick %s which is: %s " % [tick, diff_state_to_broadcast])
+						#if (tick < 500 && root.player_id == 1):
+							#_logger.info("Sent diff state to client for brawler 1 for tick %s which is: %s " % [tick, diff_state_to_broadcast])
 						_submit_state.rpc_id(picked_peer_id, diff_state_to_broadcast, tick)
 					else: #send full state containing all properties
 						_submit_state.rpc_id(picked_peer_id, full_state_to_broadcast, tick)
@@ -322,14 +323,14 @@ func _submit_state(received_state: Dictionary, received_tick: int):
 		return
 
 	# DEBUG
-	if (root.player_id == 1):
-		_logger.info("Client received tick %s for brawler 1" % received_tick)
-		if (_states.has(received_tick - 1) == false):
-			_logger.warning("non-linear states for brawler 1. Received tick %s while latest tick is %s" % [received_tick, _latest_state_tick])
+	#if (root.player_id == 1):
+		#_logger.info("Client received tick %s for brawler 1" % received_tick)
+		#if (_states.has(received_tick - 1) == false && _latest_state_tick != -1):
+			#_logger.warning("non-linear states for brawler 1. Received tick %s while latest tick is %s" % [received_tick, _latest_state_tick])
 
 	# It is guaranteed that the first states are full, until the client sends acks to the server
 	# which enables the server to start sending diffs
-	if (not _has_received_full_state):
+	if (not _has_received_full_state && NetworkTime._initial_sync_done):
 		_has_received_full_state = true
 		_receive_full_state_ack.rpc_id(1, received_tick)
 
@@ -379,9 +380,8 @@ func set_received_state(received_state: Dictionary, received_tick: int, sender_i
 	
 	# Duplicates the previous state(s), including the current one
 	# Also fixes packet loss (e.g. a state missing)
-	for picked_tick in range(_latest_state_tick, received_tick):
-		#Check for the very first latest_state_tick which doesn't have a corresponding state
-		if (_states.has(picked_tick)):
+	if (_latest_state_tick != -1 && NetworkRollback.enable_state_diffs):
+		for picked_tick in range(_latest_state_tick, received_tick):
 			_states[picked_tick + 1] = _states[picked_tick].duplicate(true)
 
 	if (NetworkRollback.enable_state_diffs && missing_property):
@@ -412,4 +412,4 @@ func _receive_full_state_ack(tick: int):
 	if (_sent_full_state_to_peer_ids.has(multiplayer.get_remote_sender_id())):
 		return
 	_sent_full_state_to_peer_ids[multiplayer.get_remote_sender_id()] = true
-	print("Server received ack for tick %s" % tick)
+	print("Server received ack for brawler %s at tick %s" % [root.player_id, tick])
