@@ -268,8 +268,6 @@ var _remote_rtt: float = 0
 var _remote_tick: int = 0
 var _local_tick: int = 0
 
-# Cache the synced clients, as the rpc call itself may arrive multiple times
-# ( for some reason? )
 var _synced_clients: Dictionary = {}
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkTime")
