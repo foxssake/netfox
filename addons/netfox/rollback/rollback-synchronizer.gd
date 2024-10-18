@@ -14,6 +14,18 @@ class_name RollbackSynchronizer
 ## Turning this off is recommended to save bandwidth and reduce cheating risks.
 @export var enable_input_broadcast: bool = true
 
+## This is evaluated only if ProjectSettings/enable_state_diffs is enabled.
+## If -1 it is disabled.
+## Instead of sending diff states every tick, every ticks equal to this value
+## a full state is sent to synchronize in case of packet losses.
+##
+## For example in forest-brawl via powerup "Displaceable:mass" property
+## changes once and returns to default after 10 seconds.
+## If the diff state of this property drops (packet loss), sending a full state
+## rectifies the problem.
+@export var ticks_to_send_full_state: int = -1
+var current_tick_to_send_full_state: int = 0
+
 var _record_state_props: Array[PropertyEntry] = []
 var _record_input_props: Array[PropertyEntry] = []
 var _auth_state_props: Array[PropertyEntry] = []
@@ -93,7 +105,7 @@ func _ready():
 	if not NetworkTime.is_initial_sync_done():
 		# Wait for time sync to complete
 		await NetworkTime.after_sync
-	_latest_state_tick = NetworkTime.tick - 1
+	_latest_state_tick = NetworkTime.tick
 
 	NetworkTime.before_tick.connect(_before_tick)
 	NetworkTime.after_tick.connect(_after_tick)
@@ -169,7 +181,12 @@ func _record_tick(tick: int):
 
 			if (NetworkRollback.enable_state_diffs == false || _states.has(tick - 1) == false):
 				_submit_state.rpc(full_state_to_broadcast, tick)
+			elif (ticks_to_send_full_state > -1 && current_tick_to_send_full_state >= ticks_to_send_full_state):
+				current_tick_to_send_full_state = 0
+				_submit_state.rpc(full_state_to_broadcast, tick)
 			else:
+				current_tick_to_send_full_state += 1
+				
 				var previous_state: Dictionary = _states[tick - 1]
 				var diff_state_to_broadcast: Dictionary = {}
 
