@@ -42,6 +42,12 @@ var input_redundancy: int:
 	set(v):
 		push_error("Trying to set read-only variable input_redundancy")
 
+var enable_state_diffs: bool:
+	get:
+		return ProjectSettings.get_setting("netfox/rollback/enable_state_diffs", true)
+	set(v):
+		push_error("Trying to set read-only variable enable_state_diffs at runtime")
+
 var tick: int:
 	get:
 		return _tick

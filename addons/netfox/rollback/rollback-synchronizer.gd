@@ -11,8 +11,20 @@ class_name RollbackSynchronizer
 @export var input_properties: Array[String]
 
 ## This will broadcast input to all peers, turning this off will limit to sending it to the server only.
-## Turning this off is recommended to save bandwith and reduce cheating risks.
+## Turning this off is recommended to save bandwidth and reduce cheating risks.
 @export var enable_input_broadcast: bool = true
+
+## This is evaluated only if ProjectSettings/enable_state_diffs is enabled.
+## Instead of sending diff states every tick, a full state is sent to synchronize every X ticks
+## in case of packet losses. X = this value.
+## If -1 it is disabled.
+##
+## For example in forest-brawl via powerup "Displaceable:mass" property
+## changes once and returns to default after 10 seconds.
+## If the diff state of this property drops (packet loss), sending a full state
+## rectifies the problem.
+@export var ticks_to_send_full_state: int = -1
+var current_tick_to_send_full_state: int = 0
 
 var _record_state_props: Array[PropertyEntry] = []
 var _record_input_props: Array[PropertyEntry] = []
@@ -20,10 +32,13 @@ var _auth_state_props: Array[PropertyEntry] = []
 var _auth_input_props: Array[PropertyEntry] = []
 var _nodes: Array[Node] = []
 
-var _states: Dictionary = {}
-var _inputs: Dictionary = {}
-var _latest_state: int = -1
+var _states: Dictionary = {} #<tick, Dictionary<String, Variant>>
+var _inputs: Dictionary = {} #<tick, Dictionary<String, Variant>>
+var _latest_state_tick: int = -1
 var _earliest_input: int
+
+var _sent_full_state_to_peer_ids: Dictionary = {}
+var _has_received_full_state: bool = false
 
 var _property_cache: PropertyCache
 var _freshness_store: RollbackFreshnessStore
@@ -37,22 +52,21 @@ static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("RollbackSynchroniz
 func process_settings():
 	_property_cache = PropertyCache.new(root)
 	_freshness_store = RollbackFreshnessStore.new()
-	
+
 	_nodes.clear()
 	_record_state_props.clear()
-	
+
 	_states.clear()
 	_inputs.clear()
-	_latest_state = NetworkTime.tick - 1
 	_earliest_input = NetworkTime.tick
 
 	# Gather state props - all state props are recorded
 	for property in state_properties:
 		var pe = _property_cache.get_entry(property)
 		_record_state_props.push_back(pe)
-	
+
 	process_authority()
-	
+
 	# Gather all rollback-aware nodes to simulate during rollbacks
 	_nodes = root.find_children("*")
 	_nodes.push_front(root)
@@ -62,13 +76,13 @@ func process_settings():
 ## Process settings based on authority.
 ##
 ## Call this whenever the authority of any of the nodes managed by
-## RollbackSynchronizer changes. Make sure to do this at the same time on all 
+## RollbackSynchronizer changes. Make sure to do this at the same time on all
 ## peers.
 func process_authority():
 	_record_input_props.clear()
 	_auth_input_props.clear()
 	_auth_state_props.clear()
-	
+
 	# Gather state properties that we own
 	# i.e. it's the state of a node that belongs to the local peer
 	for property in state_properties:
@@ -86,12 +100,11 @@ func process_authority():
 
 func _ready():
 	process_settings()
-	
+
 	if not NetworkTime.is_initial_sync_done():
 		# Wait for time sync to complete
 		await NetworkTime.after_sync
-	_latest_state = NetworkTime.tick - 1
-	
+
 	NetworkTime.before_tick.connect(_before_tick)
 	NetworkTime.after_tick.connect(_after_tick)
 	NetworkRollback.before_loop.connect(_before_loop)
@@ -106,7 +119,10 @@ func _before_loop():
 		NetworkRollback.notify_resimulation_start(_earliest_input)
 	else:
 		# We own inputs, simulate from latest authorative state
-		NetworkRollback.notify_resimulation_start(_latest_state)
+		if (_latest_state_tick != -1):
+			NetworkRollback.notify_resimulation_start(_latest_state_tick)
+		else:
+			NetworkRollback.notify_resimulation_start(NetworkTime.tick - 1)
 
 func _prepare_tick(tick: int):
 	# Prepare state
@@ -114,10 +130,10 @@ func _prepare_tick(tick: int):
 	#	Restore input and state for tick
 	var state = _get_history(_states, tick)
 	var input = _get_history(_inputs, tick)
-	
+
 	PropertySnapshot.apply(state, _property_cache)
 	PropertySnapshot.apply(input, _property_cache)
-	
+
 	for node in _nodes:
 		if _can_simulate(node, tick):
 			NetworkRollback.notify_simulated(node)
@@ -131,7 +147,7 @@ func _can_simulate(node: Node, tick: int) -> bool:
 		# Simulate ONLY if we have state from server
 		# Simulate from latest authorative state - anything the server confirmed we don't rerun
 		# Don't simulate frames we don't have input for
-		return tick >= _latest_state and _inputs.has(tick)
+		return tick >= _latest_state_tick and _inputs.has(tick)
 
 func _process_tick(tick: int):
 	# Simulate rollback tick
@@ -149,26 +165,65 @@ func _process_tick(tick: int):
 func _record_tick(tick: int):
 	# Broadcast state we own
 	if not _auth_state_props.is_empty():
-		var broadcast = {}
+		var full_state_to_broadcast: Dictionary = {}
+		# DEBUG
+		#if (multiplayer.is_server() && root.player_id == 1 && tick < 500):
+			#_logger.info("recorded tick %s for brawler 1" % [tick])
 
 		for property in _auth_state_props:
 			if _can_simulate(property.node, tick - 1):
 				# Only broadcast if we've simulated the node
-				broadcast[property.to_string()] = property.get_value()
-	
-		if broadcast.size() > 0:
+				full_state_to_broadcast[property.to_string()] = property.get_value()
+
+		if full_state_to_broadcast.size() > 0:
 			# Broadcast as new state
-			_latest_state = max(_latest_state, tick)
-			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), broadcast)
-			_submit_state.rpc(broadcast, tick)
-	
+			_latest_state_tick = max(_latest_state_tick, tick)
+			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), full_state_to_broadcast)
+
+			if (NetworkRollback.enable_state_diffs == false || _states.has(tick - 1) == false):
+				_submit_full_state.rpc(full_state_to_broadcast, tick)
+			elif (ticks_to_send_full_state > -1 && current_tick_to_send_full_state >= ticks_to_send_full_state):
+				current_tick_to_send_full_state = 0
+				_submit_full_state.rpc(full_state_to_broadcast, tick)
+			else:
+				current_tick_to_send_full_state += 1
+				
+				var previous_state: Dictionary = _states[tick - 1]
+				var diff_state_to_broadcast: Dictionary = {}
+
+				for picked_property_path in full_state_to_broadcast:
+					#If previous tick doesnt have a property, this means its a new property added in runtime, so we must add it.
+					if (previous_state.has(picked_property_path) == false):
+						diff_state_to_broadcast[picked_property_path] = full_state_to_broadcast[picked_property_path]
+					#If different value, include it in broadcasting state
+					elif (previous_state[picked_property_path] != full_state_to_broadcast[picked_property_path]):
+						diff_state_to_broadcast[picked_property_path] = full_state_to_broadcast[picked_property_path]
+
+				if (diff_state_to_broadcast.size() == full_state_to_broadcast.size()):
+					_submit_full_state.rpc(full_state_to_broadcast, tick)
+				else:
+					for picked_peer_id in multiplayer.get_peers():
+						if (NetworkTime._synced_clients.has(picked_peer_id) == false):
+							#_logger.warning("At tick %s skipped peer id %s" % [tick, picked_peer_id])
+							continue
+						
+						#If the client has received the full state, we can start sending diff states
+						if (_sent_full_state_to_peer_ids.has(picked_peer_id)):
+							# DEBUG
+							#if (tick < 500 && root.player_id == 1):
+								#_logger.info("Sent diff state to client for brawler 1 for tick %s which is: %s " % [tick, diff_state_to_broadcast])
+							_submit_diff_state.rpc_id(picked_peer_id, diff_state_to_broadcast, tick)
+						else: #send full state containing all properties
+							_submit_full_state.rpc_id(picked_peer_id, full_state_to_broadcast, tick)
+
+
 	# Record state for specified tick ( current + 1 )
-	if not _record_state_props.is_empty() and tick > _latest_state:
+	if not _record_state_props.is_empty() and tick > _latest_state_tick:
 		_states[tick] = PropertySnapshot.extract(_record_state_props)
 
 func _after_loop():
 	_earliest_input = NetworkTime.tick
-	
+
 	# Apply display state
 	var display_state = _get_history(_states, NetworkTime.tick - NetworkRollback.display_offset)
 	PropertySnapshot.apply(display_state, _property_cache)
@@ -183,7 +238,7 @@ func _after_tick(_delta, _tick):
 		var input = PropertySnapshot.extract(_auth_input_props)
 		_inputs[NetworkTime.tick] = input
 
-		#Send the last n inputs for each property 
+		#Send the last n inputs for each property
 		var inputs = {}
 		for i in range(0, NetworkRollback.input_redundancy):
 			var tick_input = _inputs.get(NetworkTime.tick - i, {})
@@ -193,13 +248,13 @@ func _after_tick(_delta, _tick):
 				inputs[property].push_back(tick_input[property])
 
 		_attempt_submit_input(inputs)
-	
+
 	while _states.size() > NetworkRollback.history_limit:
 		_states.erase(_states.keys().min())
-	
+
 	while _inputs.size() > NetworkRollback.history_limit:
 		_inputs.erase(_inputs.keys().min())
-		
+
 	_freshness_store.trim()
 
 func _attempt_submit_input(input: Dictionary):
@@ -215,26 +270,27 @@ func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 
 	if buffer.is_empty():
 		return {}
-	
+
 	var earliest = buffer.keys().min()
 	var latest = buffer.keys().max()
 
 	if tick < earliest:
 		return buffer[earliest]
-	
+
 	if tick > latest:
 		return buffer[latest]
-	
+
 	var before = buffer.keys() \
 		.filter(func (key): return key < tick) \
 		.max()
-	
+
 	return buffer[before]
 
 @rpc("any_peer", "unreliable", "call_remote")
 func _submit_input(input: Dictionary, tick: int):
 	var sender = multiplayer.get_remote_sender_id()
 	var sanitized = {}
+
 	for property in input:
 		var pe = _property_cache.get_entry(property)
 		var value = input[property]
@@ -244,16 +300,16 @@ func _submit_input(input: Dictionary, tick: int):
 			_logger.warning("Received input for node owned by %s from %s, sender has no authority!" \
 				% [input_owner, sender])
 			continue
-		
+
 		sanitized[property] = value
-	
+
 	if sanitized.size() > 0:
 		for property in sanitized:
 			for i in range(0, sanitized[property].size()):
 				var t = tick - i
 				var old_input = _inputs.get(t, {}).get(property)
 				var new_input = sanitized[property][i]
-				
+
 				if old_input == null:
 					# We received an array of current and previous inputs, merge them into our history.
 					_inputs[t] = _inputs.get(t, {})
@@ -263,34 +319,101 @@ func _submit_input(input: Dictionary, tick: int):
 		_logger.warning("Received invalid input from %s for tick %s for %s" % [sender, tick, root.name])
 
 @rpc("any_peer", "unreliable_ordered", "call_remote")
-func _submit_state(state: Dictionary, tick: int):
-	if tick > NetworkTime.tick:
-		# This used to be weird, but is now expected due to estimating remote time
-		# push_warning("Received state from the future %s / %s - adding nonetheless" % [tick, NetworkTime.tick])
-		pass
-	
-	if tick < NetworkTime.tick - NetworkRollback.history_limit and _latest_state >= 0:
+func _submit_full_state(received_state: Dictionary, received_tick: int):
+	if received_tick < NetworkTime.tick - NetworkRollback.history_limit and _latest_state_tick >= 0:
 		# State too old!
-		_logger.error("Received state for %s, rejecting because older than %s frames" % [tick, NetworkRollback.history_limit])
+		_logger.error("Received state for %s, rejecting because older than %s frames" % [received_tick, NetworkRollback.history_limit])
 		return
 
-	var sender = multiplayer.get_remote_sender_id()
+	var sender_id = multiplayer.get_remote_sender_id()
 	var sanitized = {}
-	for property in state:
-		var pe = _property_cache.get_entry(property)
-		var value = state[property]
-		var state_owner = pe.node.get_multiplayer_authority()
+	for property_name in received_state:
+		var pe = _property_cache.get_entry(property_name)
+		var value = received_state[property_name]
+		var state_owner_id = pe.node.get_multiplayer_authority()
 		
-		if state_owner != sender:
+		if state_owner_id != sender_id:
 			_logger.warning("Received state for node owned by %s from %s, sender has no authority!" \
-				% [state_owner, sender])
+				% [state_owner_id, sender_id])
 			continue
 		
-		sanitized[property] = value
+		sanitized[property_name] = value
+	
+	# Duplicates the previous state(s), including the current one
+	# Also fixes packet loss (e.g. a state missing)
+	if (NetworkRollback.enable_state_diffs && _latest_state_tick != -1):
+		for picked_tick in range(_latest_state_tick, received_tick):
+			_states[picked_tick + 1] = _states[picked_tick].duplicate(true)
 	
 	if sanitized.size() > 0:
-		_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), sanitized)
-		# _latest_state = max(_latest_state, tick)
-		_latest_state = tick
+		_states[received_tick] = PropertySnapshot.merge(_states.get(received_tick, {}), sanitized)
+		# _latest_state = max(_latest_state, received_tick)
+		_latest_state_tick = received_tick
+		
+		if (NetworkRollback.enable_state_diffs and not _has_received_full_state):
+			_has_received_full_state = true
+			_receive_full_state_ack.rpc_id(1, received_tick)
 	else:
-		_logger.warning("Received invalid state from %s for tick %s" % [sender, tick])
+		_logger.warning("Received invalid state from %s for tick %s" % [sender_id, received_tick])
+
+## The received state ALWAYS has missing properties.
+@rpc("any_peer", "unreliable_ordered", "call_remote")
+func _submit_diff_state(received_state: Dictionary, received_tick: int):
+	if received_tick < NetworkTime.tick - NetworkRollback.history_limit and _latest_state_tick >= 0:
+		# State too old!
+		_logger.error("Received state for %s, rejecting because older than %s frames" % [received_tick, NetworkRollback.history_limit])
+		return
+
+	if (_states.is_empty() || _latest_state_tick == -1):
+		_logger.error("Received a state without any properties from %s, but missing previous states!" % multiplayer.get_remote_sender_id())
+		return
+
+	if (_states.has(received_tick - 1) == false):
+		_logger.info("non-linear diff states. Received tick %s while latest tick is %s" % [received_tick, _latest_state_tick])
+	
+	# Duplicates the previous state(s), including the current one
+	# Also fixes packet loss (e.g. a state missing)
+	for picked_tick in range(_latest_state_tick, received_tick):
+		_states[picked_tick + 1] = _states[picked_tick].duplicate(true)
+
+	if (received_state.is_empty()):
+		_latest_state_tick = received_tick
+	else:
+		var sender_id = multiplayer.get_remote_sender_id()
+		var sanitized = {}
+		for property_name in received_state:
+			var pe = _property_cache.get_entry(property_name)
+			var value = received_state[property_name]
+			var state_owner_id = pe.node.get_multiplayer_authority()
+			
+			if state_owner_id != sender_id:
+				_logger.warning("Received state for node owned by %s from %s, sender has no authority!" \
+					% [state_owner_id, sender_id])
+				continue
+			
+			sanitized[property_name] = value
+
+		## Detect if new property is added on runtime and sent
+		var new_property: bool = false
+		for property in received_state:
+			for property_entry in _record_state_props:
+				if (property_entry.to_string() == property):
+					continue
+			new_property = true
+			break
+
+		if sanitized.size() > 0:
+			_states[received_tick] = PropertySnapshot.merge(_states.get(received_tick, {}), sanitized)
+			_latest_state_tick = received_tick
+		else:
+			_logger.warning("Received invalid state from %s for tick %s" % [sender_id, received_tick])
+
+## Once the server receives acknowledgement from the client that it has received a full state
+## (hence its possible to get the values of future properties whose values are the same, without the server sending them)
+## then it starts sending diff states.
+@rpc("any_peer", "reliable", "call_remote")
+func _receive_full_state_ack(tick: int):
+	if (_sent_full_state_to_peer_ids.has(multiplayer.get_remote_sender_id())):
+		return
+	_sent_full_state_to_peer_ids[multiplayer.get_remote_sender_id()] = true
+	print("Server received ack for brawler %s at tick %s" % [root.player_id, tick])
