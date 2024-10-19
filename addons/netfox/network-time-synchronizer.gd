@@ -30,6 +30,16 @@ var panic_threshold: float:
 	get:
 		return 2.
 
+# TODO: Doc
+var rtt: float:
+	get:
+		return _rtt
+
+# TODO: Doc
+var rtt_jitter: float:
+	get:
+		return _rtt_jitter
+
 var _active: bool = false
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NTP")
 
@@ -39,6 +49,8 @@ var _sample_idx: int = 0
 var _awaiting_samples: Dictionary = {}
 
 var _clock := NetworkClocks.SystemClock.new()
+var _rtt := 0.
+var _rtt_jitter := 0.
 
 # TODO: Doc
 signal on_initial_sync()
@@ -95,6 +107,11 @@ func _discipline_clock():
 		func(a: NetworkClockSample, b: NetworkClockSample):
 			return a.get_rtt() < b.get_rtt()
 	)
+	
+	var rtt_min = sorted_samples.front().get_rtt()
+	var rtt_max = sorted_samples.back().get_rtt()
+	_rtt = (rtt_max + rtt_min) / 2.
+	_rtt_jitter = (rtt_max - rtt_min) / 2.
 	
 	var offset = 0.
 	var offset_weight = 0.
