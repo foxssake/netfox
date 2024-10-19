@@ -18,28 +18,54 @@ class TimeSample:
 		# See: https://support.huawei.com/enterprise/en/doc/EDOC1100278232/729da750/ntp-fundamentals
 		return ((ping_received - ping_sent) + (pong_sent - pong_received)) / 2.
 
+class SystemClock:
+	var offset: float = 0.
+	
+	func get_raw_time() -> float:
+		return Time.get_unix_time_from_system()
+	
+	func get_time() -> float:
+		return get_raw_time() + offset
+	
+	func adjust(p_offset: float):
+		offset += p_offset
+	
+	func set_time(p_time: float):
+		offset = p_time - get_raw_time()
+
+class SteppingClock:
+	var time: float = 0.
+	
+	func get_raw_time() -> float:
+		return time
+		
+	func get_time() -> float:
+		return time
+	
+	func adjust(p_offset: float):
+		time += p_offset
+	
+	func set_time(p_time: float):
+		time = p_time
+
 @export var sample_interval_seconds = .2
 
 var logger = _NetfoxLogger.new("ntp", "ntp")
 var samples = {}
 var sample_buffer = [] # TODO: Ring buffer
-var clock_offset = 0.
+var clock = SystemClock.new()
 var first_approach = true
 
-func get_real_time() -> float:
-	return Time.get_unix_time_from_system() - clock_offset
-
 func _ready():
-	clock_offset += get_real_time()
+	clock.set_time(0.)
 	
 	NetworkEvents.on_peer_join.connect(func(id):
 		if multiplayer.is_server():
-			_send_initial_timestamp.rpc_id(id, get_real_time())
+			_send_initial_timestamp.rpc_id(id, clock.get_time())
 	)
 
 func _loop():
-	logger.info("NTP loop started! Initial timestamp: %s" % [get_real_time()])
-	logger.warning("Local clock offset: %ss" % [clock_offset])
+	logger.info("NTP loop started! Initial timestamp: %s" % [clock.get_time()])
 
 	var sample_idx = 0
 	
@@ -47,7 +73,7 @@ func _loop():
 		var sample = TimeSample.new()
 		samples[sample_idx] = sample
 		
-		sample.ping_sent = get_real_time()
+		sample.ping_sent = clock.get_time()
 		_send_ping.rpc_id(1, sample_idx)
 		
 		sample_idx += 1
@@ -71,28 +97,28 @@ func _discipline_clock():
 	
 	if abs(offset) > PANIC_THRESHOLD_SECONDS:
 		logger.error("Offset %ss is above panic threshold %s!" % [offset, PANIC_THRESHOLD_SECONDS])
-		clock_offset -= offset
+		clock.adjust(offset)
 		sample_buffer.clear()
 	else:
-		clock_offset -= offset / APPROACH_STEPS
-		logger.info("Adjusted clock, offset: %sms, new time: %ss" % [offset * 1000., get_real_time()])
+		clock.adjust(offset / APPROACH_STEPS)
+		logger.info("Adjusted clock, offset: %sms, new time: %ss" % [offset * 1000., clock.get_time()])
 
 @rpc("any_peer", "call_remote", "reliable")
 func _send_initial_timestamp(timestamp: float):
-	clock_offset += get_real_time() - timestamp
+	clock.set_time(timestamp)
 	logger.info("Received initial timestamp: %s" % [timestamp])
 	_loop()
 
 @rpc("any_peer", "call_remote", "unreliable")
 func _send_ping(idx: int):
-	var ping_received = get_real_time()
+	var ping_received = clock.get_time()
 	var sender = multiplayer.get_remote_sender_id()
 	
-	_send_pong.rpc_id(sender, idx, ping_received, get_real_time())
+	_send_pong.rpc_id(sender, idx, ping_received, clock.get_time())
 
 @rpc("any_peer", "call_remote", "unreliable")
 func _send_pong(idx: int, ping_received: float, pong_sent: float):
-	var pong_received = get_real_time()
+	var pong_received = clock.get_time()
 	
 	var sample = samples[idx] as TimeSample
 	sample.ping_received = ping_received
