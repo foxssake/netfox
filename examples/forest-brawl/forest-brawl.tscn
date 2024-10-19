@@ -168,6 +168,10 @@ script = ExtResource("16_6pky3")
 visible = false
 layout_mode = 2
 
+[node name="No Host Brawler" type="CheckBox" parent="UI/Network Popup/LAN"]
+layout_mode = 2
+text = "No Host Brawler"
+
 [node name="Address Row" type="HBoxContainer" parent="UI/Network Popup/LAN"]
 layout_mode = 2
 size_flags_vertical = 2
@@ -277,7 +281,20 @@ text = "Join"
 layout_mode = 2
 text = "Force Relay"
 
-[node name="Noray Bootstrapper" type="Node" parent="UI/Network Popup" node_paths=PackedStringArray("connect_ui", "noray_address_input", "noray_connect_button", "noray_disconnect_button", "oid_input", "host_oid_input", "host_button", "join_button", "force_relay_check")]
+[node name="No Host Brawler" type="CheckBox" parent="UI/Network Popup/Noray"]
+layout_mode = 2
+text = "No Host Brawler"
+
+[node name="LAN Bootstrapper" type="Node" parent="UI/Network Popup" node_paths=PackedStringArray("connect_ui", "address_input", "port_input", "host_button", "join_button", "spawn_host_avatar_checkbox")]
+script = ExtResource("12_gjc7i")
+connect_ui = NodePath("..")
+address_input = NodePath("../LAN/Address Row/Address LineEdit")
+port_input = NodePath("../LAN/Address Row/Port LineEdit")
+host_button = NodePath("../LAN/Actions Row/Host Button")
+join_button = NodePath("../LAN/Actions Row/Join Button")
+spawn_host_avatar_checkbox = NodePath("../LAN/No Host Brawler")
+
+[node name="Noray Bootstrapper" type="Node" parent="UI/Network Popup" node_paths=PackedStringArray("connect_ui", "noray_address_input", "noray_connect_button", "noray_disconnect_button", "oid_input", "host_oid_input", "host_button", "join_button", "force_relay_check", "spawn_host_avatar_checkbox")]
 script = ExtResource("11_vpdh0")
 connect_ui = NodePath("..")
 noray_address_input = NodePath("../Noray/Noray Address Row/Address LineEdit")
@@ -288,14 +305,7 @@ host_oid_input = NodePath("../Noray/Connect Host Row/Host LineEdit")
 host_button = NodePath("../Noray/Connect Actions Row/Host Button")
 join_button = NodePath("../Noray/Connect Actions Row/Join Button")
 force_relay_check = NodePath("../Noray/Connect Actions Row/Force Relay Checkbox")
-
-[node name="LAN Bootstrapper" type="Node" parent="UI/Network Popup" node_paths=PackedStringArray("connect_ui", "address_input", "port_input", "host_button", "join_button")]
-script = ExtResource("12_gjc7i")
-connect_ui = NodePath("..")
-address_input = NodePath("../LAN/Address Row/Address LineEdit")
-port_input = NodePath("../LAN/Address Row/Port LineEdit")
-host_button = NodePath("../LAN/Actions Row/Host Button")
-join_button = NodePath("../LAN/Actions Row/Join Button")
+spawn_host_avatar_checkbox = NodePath("../Noray/No Host Brawler")
 
 [node name="Player stats" type="Control" parent="UI" node_paths=PackedStringArray("score_label", "score_manager")]
 visible = false
@@ -362,3 +372,6 @@ vertical_alignment = 1
 [node name="Score Screen" parent="UI" instance=ExtResource("14_85lvt")]
 visible = false
 layout_mode = 1
+
+[connection signal="spawn_host_avatar" from="UI/Network Popup/LAN Bootstrapper" to="Network/Brawler Spawner" method="_set_host_spawn_avatar"]
+[connection signal="spawn_host_avatar" from="UI/Network Popup/Noray Bootstrapper" to="Network/Brawler Spawner" method="_set_host_spawn_avatar"]

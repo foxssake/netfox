@@ -6,6 +6,7 @@ extends Node
 @export var joining_screen: Control
 @export var name_input: LineEdit
 
+var spawn_host: bool = true
 var avatars: Dictionary = {}
 
 func _ready():
@@ -28,8 +29,9 @@ func _handle_connected(id: int):
 		joining_screen.visible = false
 
 func _handle_host():
-	# Spawn own avatar on host machine
-	_spawn(1)
+	if (spawn_host):
+		# Spawn own avatar on host machine
+		_spawn(1)
 
 func _handle_new_peer(id: int):
 	# Spawn an avatar for new player
@@ -54,6 +56,9 @@ func _handle_stop():
 	for avatar in avatars.values():
 		avatar.queue_free()
 	avatars.clear()
+	
+func _set_host_spawn_avatar(value: bool):
+	spawn_host = value
 
 func _spawn(id: int) -> BrawlerController:
 	var avatar = player_scene.instantiate() as BrawlerController
