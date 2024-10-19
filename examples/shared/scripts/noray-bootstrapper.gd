@@ -1,6 +1,7 @@
 extends Node
 
 enum Role { NONE, HOST, CLIENT }
+var role = Role.NONE
 
 @export_category("UI")
 @export var connect_ui: Control
@@ -12,8 +13,9 @@ enum Role { NONE, HOST, CLIENT }
 @export var host_button: Button
 @export var join_button: Button
 @export var force_relay_check: CheckBox
+@export var spawn_host_avatar_checkbox: CheckBox
 
-var role = Role.NONE
+signal spawn_host_avatar(value: bool)
 
 func _ready():
 	noray_connect_button.button_up.connect(_connect_to_noray)
@@ -86,6 +88,8 @@ func _host():
 		return FAILED
 	
 	get_tree().get_multiplayer().server_relay = true
+	
+	spawn_host_avatar.emit(not spawn_host_avatar_checkbox.button_pressed)
 	
 	role = Role.HOST
 	connect_ui.hide()

@@ -6,6 +6,9 @@ extends Node
 @export var port_input: LineEdit
 @export var host_button: Button
 @export var join_button: Button
+@export var spawn_host_avatar_checkbox: CheckBox
+
+signal spawn_host_avatar(value: bool)
 
 func _ready():
 	join_button.button_up.connect(_join)
@@ -42,6 +45,8 @@ func _host():
 	get_tree().get_multiplayer().server_relay = true
 	
 	connect_ui.hide()
+	
+	spawn_host_avatar.emit(not spawn_host_avatar_checkbox.button_pressed)
 	
 	# NOTE: This is not needed when using NetworkEvents
 	# However, this script also runs in multiplayer-simple where NetworkEvents
