@@ -268,6 +268,9 @@ var _remote_rtt: float = 0
 var _remote_tick: int = 0
 var _local_tick: int = 0
 
+var _clock := NetworkClocks.SteppingClock.new()
+var _clock_multiplier := 1.
+
 # Cache the synced clients, as the rpc call itself may arrive multiple times
 # ( for some reason? )
 var _synced_clients: Dictionary = {}
@@ -297,25 +300,28 @@ func start():
 		_logger.debug("Client #%s is now on time!" % [pid])
 	)
 	
+	NetworkTimeSynchronizer.start()
+	
 	if not multiplayer.is_server():
-		NetworkTimeSynchronizer.start()
-		await NetworkTimeSynchronizer.on_sync
+		await NetworkTimeSynchronizer.on_initial_sync
+
+		_remote_tick = seconds_to_ticks(NetworkTimeSynchronizer.get_time())
 		_tick = _remote_tick
 		_local_tick = _remote_tick
 		_initial_sync_done = true
 		_active = true
-		_next_tick_time = _get_os_time()
-		after_sync.emit()
 		
 		_submit_sync_success.rpc_id(1)
 	else:
 		_active = true
 		_initial_sync_done = true
-		_next_tick_time = _get_os_time()
-		after_sync.emit()
 		
 		# Remove clients from the synced cache when disconnected
 		multiplayer.peer_disconnected.connect(func(peer): _synced_clients.erase(peer))
+
+	_clock.set_time(NetworkTimeSynchronizer.get_time())
+	_next_tick_time = _clock.get_time()
+	after_sync.emit()
 
 ## Stop NetworkTime.
 ##
@@ -359,20 +365,26 @@ func seconds_between(tick_from: int, tick_to: int) -> float:
 func ticks_between(seconds_from: float, seconds_to: float) -> int:
 	return seconds_to_ticks(seconds_to - seconds_from)
 
-func _ready():
-	NetworkTimeSynchronizer.on_sync.connect(_handle_sync)
-
 func _process(delta):
-	# Use OS delta to determine if the game's paused from editor, or through the SceneTree
-	var os_delta = _get_os_time() - _last_process_time
-	var is_delta_mismatch = os_delta / delta > 4. and os_delta > .5
-	
-	# Adjust next tick time if the game is paused, so we don't try to "catch up" after unpausing
-	if (is_delta_mismatch and Engine.is_editor_hint()) or get_tree().paused:
-		_next_tick_time += os_delta
+	if _active:
+		_clock.step(_clock_multiplier)
+		var clock_diff = NetworkTimeSynchronizer.get_time() - _clock.get_time()
+		
+		# Ignore diffs under 1ms
+		clock_diff = sign(clock_diff) * max(abs(clock_diff) - 0.001, 0.)
+		
+		var multiplier_min = .75
+		var multiplier_max = 1. / multiplier_min
+		var multiplier_f = (1. + clock_diff / ticktime) / 2.
+		multiplier_f = clampf(multiplier_f, 0., 1.)
 
+		_clock_multiplier = lerpf(multiplier_min, multiplier_max, multiplier_f)
+		
+		if not multiplayer.is_server():
+			_logger.trace("Clock difference: %sms, multiplier: %s%%" % [clock_diff * 1000., _clock_multiplier * 100.])
+	
 	_process_delta = delta
-	_last_process_time += os_delta
+	_last_process_time = _clock.get_time()
 
 	# Run tick loop if needed
 	if _active and not sync_to_physics:
@@ -404,19 +416,6 @@ func _run_tick():
 	_tick += 1
 	_remote_tick +=1
 	_local_tick += 1
-
-func _get_os_time() -> float:
-	return Time.get_ticks_msec() / 1000.
-
-func _handle_sync(server_time: float, server_tick: int, rtt: float):
-	_remote_tick = server_tick
-	_remote_rtt = rtt
-	
-	# Adjust tick if it's too far away from remote
-	if absf(seconds_between(tick, remote_tick)) > recalibrate_threshold and _initial_sync_done:
-		_logger.error("Large difference between estimated remote time and local time!")
-		_logger.error("Local time: %s; Remote time: %s" % [time, remote_time])
-		_tick = _remote_tick
 
 @rpc("any_peer", "reliable", "call_remote")
 func _submit_sync_success():

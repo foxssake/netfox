@@ -5,7 +5,8 @@ extends Node
 ## [i]read-only[/i], you can change this in the Netfox project settings
 var sync_interval: float:
 	get:
-		return ProjectSettings.get_setting("netfox/time/sync_interval", 1.0)
+		# return ProjectSettings.get_setting("netfox/time/sync_interval", 0.25)
+		return 0.25
 	set(v):
 		push_error("Trying to set read-only variable sync_interval")
 
@@ -14,29 +15,33 @@ var sync_interval: float:
 ## [i]read-only[/i], you can change this in the Netfox project settings
 var sync_samples: int:
 	get:
-		return ProjectSettings.get_setting("netfox/time/sync_samples", 8)
+		# return ProjectSettings.get_setting("netfox/time/sync_samples", 8)
+		return 8
 	set(v):
 		push_error("Trying to set read-only variable sync_samples")
 
-## Time between samples in a single sync process.
-##
-## [i]read-only[/i], you can change this in the Netfox project settings
-var sync_sample_interval: float:
+# TODO: Doc
+var adjust_steps: int:
 	get:
-		return ProjectSettings.get_setting("netfox/time/sync_sample_interval", 0.1)
-	set(v):
-		push_error("Trying to set read-only variable sync_sample_interval")
+		return 8
 
-var _remote_rtt: Dictionary = {}
-var _remote_time: Dictionary = {}
-var _remote_tick: Dictionary = {}
+# TODO: Doc
+var panic_threshold: float:
+	get:
+		return 2.
+
 var _active: bool = false
+static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NTP")
 
-## Event emitted when a time sync process completes
-signal on_sync(server_time: float, server_tick: int, rtt: float)
+var _sample_buffer: Array[NetworkClockSample] = []
+var _sample_buf_size: int = 0
+var _sample_idx: int = 0
+var _awaiting_samples: Dictionary = {}
 
-## Event emitted when a response to a ping request arrives.
-signal on_ping(peer_id: int, peer_time: float, peer_tick: int)
+var _clock := NetworkClocks.SystemClock.new()
+
+# TODO: Doc
+signal on_initial_sync()
 
 ## Start the time synchronization loop.
 ##
@@ -45,102 +50,107 @@ func start():
 	if _active:
 		return
 
-	_active = true
-	_sync_time_loop(sync_interval)
+	if multiplayer.is_server():
+		_clock.set_time(0.)
+	else:
+		_active = true
+		
+		_sample_buffer.clear()
+		_sample_buffer.resize(sync_samples)
+		_sample_buf_size = 0
+		_sample_idx = 0
+		
+		_clock.set_time(0.)
+		
+		_request_timestamp.rpc_id(1)
 
 ## Stop the time synchronization loop.
 func stop():
 	_active = false
 
-## Get the amount of time passed since Godot has started, in seconds.
-func get_real_time():
-	return Time.get_ticks_msec() / 1000.0
+# TODO: Doc
+func get_time() -> float:
+	return _clock.get_time()
 
-## Estimate the time at the given peer, in seconds.
-##
-## While this is a coroutine, so it won't block your game, this can take multiple
-## seconds, depending on latency, number of samples and sample interval.
-##
-## Returns a triplet of the following:
-## [ol]
-## last_remote_time - Latest timestamp received from target
-## rtt - Estimated roundtrip time to target
-## synced_time - Estimated time at target
-## [/ol]
-func sync_time(id: int) -> Array[float]:
-	_remote_rtt.clear()
-	_remote_time.clear()
-	_remote_tick.clear()
-	
-	for i in range(sync_samples):
-		get_rtt(id, i)
-		await get_tree().create_timer(sync_sample_interval).timeout
-	
-	# Wait for all samples to run through
-	while _remote_rtt.size() != sync_samples:
-		await get_tree().process_frame
-	
-	var samples = _remote_rtt.values().duplicate()
-	var last_remote_time = _remote_time.values().max()
-	samples.sort()
-	var average = samples.reduce(func(a, b): return a + b) / samples.size()
-	
-	# Reject samples that are too far away from average
-	var deviation_threshold = 1
-	samples = samples.filter(func(s): return (s - average) / average < deviation_threshold)
-	
-	# Return NAN if none of the samples fit within threshold
-	# Should be rare, but technically possible
-	if samples.is_empty():
-		return [NAN, NAN, NAN]
-	
-	average = samples.reduce(func(a, b): return a + b) / samples.size()
-	var rtt = average
-	var latency = rtt / 2.0
+func _loop():
+	_logger.info("Time sync loop started! Initial timestamp: %ss" % [_clock.get_time()])
+	on_initial_sync.emit()
 
-	return [last_remote_time, rtt, last_remote_time + latency]
+	while _active:
+		var sample = NetworkClockSample.new()
+		_awaiting_samples[_sample_idx] = sample
+		
+		sample.ping_sent = _clock.get_time()
+		_send_ping.rpc_id(1, _sample_idx)
+		
+		_sample_idx += 1
+		
+		await get_tree().create_timer(sync_interval).timeout
 
-## Get roundtrip time to a given peer, in seconds.
-func get_rtt(id: int, sample_id: int = -1) -> float:
-	if id == multiplayer.get_unique_id():
-		return 0
+func _discipline_clock():
+	# https://datatracker.ietf.org/doc/html/rfc5905#section-10
+	# Sort samples by latency
+	var sorted_samples := _sample_buffer.slice(0, _sample_buf_size) as Array[NetworkClockSample]
+	sorted_samples.sort_custom(
+		func(a: NetworkClockSample, b: NetworkClockSample):
+			return a.get_rtt() < b.get_rtt()
+	)
 	
-	var trip_start = get_real_time()
-	_request_ping.rpc_id(id)
-	var response = await on_ping
-	var trip_end = get_real_time()
-	var rtt = trip_end - trip_start
+	var offset = 0.
+	var offset_weight = 0.
+	for i in range(sorted_samples.size()):
+		var w = pow(2, -i)
+		offset += sorted_samples[i].get_offset() * w
+		offset_weight += w
+	offset /= offset_weight
 	
-	_remote_rtt[sample_id] = rtt
-	_remote_time[sample_id] = response[1]
-	_remote_tick[sample_id] = response[2]
-	return rtt
+	if abs(offset) > panic_threshold:
+		# Reset clock, throw away all samples
+		_clock.adjust(offset)
+		_sample_buffer.fill(null)
+		_sample_buf_size = 0
+		
+		_logger.warning("Offset %ss is above panic threshold %ss! Resetting clock" % [offset, panic_threshold])
+	else:
+		# Nudge clock towards estimated time
+		_clock.adjust(offset / adjust_steps)
+		_logger.trace("Adjusted clock, offset: %sms, new time: %ss" % [offset * 1000., _clock.get_time()])
 
-func _sync_time_loop(interval: float):
-	while true:
-		var sync_result = await sync_time(1)
-		var rtt = sync_result[1]
-		var new_time = sync_result[2]
-
-		if not _active:
-			# Make sure we don't emit any events if we've been stopped since
-			break
-		if new_time == NAN:
-			# Skip if sync has failed
-			continue
-
-		var new_tick = floor(new_time * NetworkTime.tickrate)
-		new_time = NetworkTime.ticks_to_seconds(new_tick) # Sync to tick
-
-		on_sync.emit(new_time, new_tick, rtt)
-		await get_tree().create_timer(interval).timeout
-
-@rpc("any_peer", "reliable", "call_remote")
-func _request_ping():
+@rpc("any_peer", "call_remote", "unreliable")
+func _send_ping(idx: int):
+	var ping_received = _clock.get_time()
 	var sender = multiplayer.get_remote_sender_id()
-	_respond_ping.rpc_id(sender, NetworkTime.time, NetworkTime.tick)
+	
+	_send_pong.rpc_id(sender, idx, ping_received, _clock.get_time())
 
-@rpc("any_peer", "reliable", "call_remote")
-func _respond_ping(peer_time: float, peer_tick: int):
-	var sender = multiplayer.get_remote_sender_id()
-	on_ping.emit(sender, peer_time, peer_tick)
+@rpc("any_peer", "call_remote", "unreliable")
+func _send_pong(idx: int, ping_received: float, pong_sent: float):
+	var pong_received = _clock.get_time()
+	
+	var sample = _awaiting_samples[idx] as NetworkClockSample
+	sample.ping_received = ping_received
+	sample.pong_sent = pong_sent
+	sample.pong_received = pong_received
+	
+	_logger.trace("Received sample: t1=%s; t2=%s; t3=%s; t4=%s; theta=%sms; delta=%sms" % [
+		sample.ping_sent, sample.ping_received, sample.pong_sent, sample.pong_received,
+		sample.get_offset() * 1000., sample.get_rtt() * 1000.
+	])
+	
+	# Once a sample is done, remove from in-flight samples and move to sample buffer
+	_awaiting_samples.erase(idx)
+	
+	_sample_buffer[_sample_buf_size % _sample_buffer.size()] = sample
+	_sample_buf_size += 1
+	
+	# Discipline clock based on new sample
+	_discipline_clock()
+
+@rpc("any_peer", "call_remote", "reliable")
+func _request_timestamp():
+	_set_timestamp.rpc_id(multiplayer.get_remote_sender_id(), _clock.get_time())
+
+@rpc("any_peer", "call_remote", "reliable")
+func _set_timestamp(timestamp: float):
+	_clock.set_time(timestamp)
+	_loop()
