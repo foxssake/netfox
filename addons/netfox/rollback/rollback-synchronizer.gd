@@ -342,7 +342,7 @@ func _submit_full_state(received_state: Dictionary, received_tick: int):
 	# Duplicates the previous state(s), including the current one
 	# Also fixes packet loss (e.g. a state missing)
 	if (NetworkRollback.enable_state_diffs && _latest_state_tick != -1):
-		for picked_tick in range(_latest_state_tick, received_tick):
+		for picked_tick in range(_latest_state_tick, received_tick - 1):
 			_states[picked_tick + 1] = _states[picked_tick].duplicate(true)
 	
 	if sanitized.size() > 0:
