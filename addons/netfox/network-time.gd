@@ -106,9 +106,10 @@ var recalibrate_threshold: float:
 ## this value can and probably will change depending on network conditions.
 ##
 ## [i]read-only[/i]
+# TODO: Deprecate
 var remote_tick: int:
 	get:
-		return _remote_tick
+		return tick
 	set(v):
 		push_error("Trying to set read-only variable remote_tick")
 
@@ -118,9 +119,10 @@ var remote_tick: int:
 ## this value can and probably will change depending on network conditions.
 ##
 ## [i]read-only[/i]
+# TODO: Deprecate
 var remote_time: float:
 	get:
-		return float(_remote_tick) / tickrate
+		return time
 	set(v):
 		push_error("Trying to set read-only variable remote_time")
 
@@ -132,9 +134,10 @@ var remote_time: float:
 ## Will always be 0 on servers.
 ##
 ## [i]read-only[/i]
+# TODO: Deprecate?
 var remote_rtt: float:
 	get:
-		return _remote_rtt
+		return NetworkTimeSynchronizer.rtt
 	set(v):
 		push_error("Trying to set read-only variable remote_rtt")
 
@@ -150,9 +153,10 @@ var remote_rtt: float:
 ## to be linear, i.e. no jumps in time.
 ##
 ## [i]read-only[/i]
+# TODO: Deprecate
 var local_tick: int:
 	get:
-		return _local_tick
+		return tick
 	set(v):
 		push_error("Trying to set read-only variable local_tick")
 
@@ -168,9 +172,10 @@ var local_tick: int:
 ## to be linear, i.e. no jumps in time.
 ##
 ## [i]read-only[/i]
+# TODO: Deprecate
 var local_time: float:
 	get:
-		return float(_local_tick) / tickrate
+		return time
 	set(v):
 		push_error("Trying to set read-only variable local_time")
 		
@@ -228,6 +233,10 @@ var physics_factor: float:
 	set(v):
 		push_error("Trying to set read-only variable physics_factor")
 
+var clock_multiplier: float:
+	get:
+		return _clock_multiplier
+
 ## Emitted before a tick loop is run.
 signal before_tick_loop()
 
@@ -264,10 +273,6 @@ var _process_delta: float = 0
 var _next_tick_time: float = 0
 var _last_process_time: float = 0.
 
-var _remote_rtt: float = 0
-var _remote_tick: int = 0
-var _local_tick: int = 0
-
 var _clock := NetworkClocks.SteppingClock.new()
 var _clock_multiplier := 1.
 
@@ -291,9 +296,6 @@ func start():
 		return
 
 	_tick = 0
-	_remote_tick = 0
-	_local_tick = 0
-	_remote_rtt = 0
 	_initial_sync_done = false
 	
 	after_client_sync.connect(func(pid):
@@ -305,9 +307,7 @@ func start():
 	if not multiplayer.is_server():
 		await NetworkTimeSynchronizer.on_initial_sync
 
-		_remote_tick = seconds_to_ticks(NetworkTimeSynchronizer.get_time())
-		_tick = _remote_tick
-		_local_tick = _remote_tick
+		_tick = seconds_to_ticks(NetworkTimeSynchronizer.get_time())
 		_initial_sync_done = true
 		_active = true
 		
@@ -402,6 +402,7 @@ func _process(delta):
 			after_tick_loop.emit()
 
 func _physics_process(delta):
+	# TODO: Use time-stretch
 	if _active and sync_to_physics and not get_tree().paused:
 		# Run a single tick every physics frame
 		before_tick_loop.emit()
@@ -414,8 +415,6 @@ func _run_tick():
 	after_tick.emit(ticktime, tick)
 	
 	_tick += 1
-	_remote_tick +=1
-	_local_tick += 1
 
 @rpc("any_peer", "reliable", "call_remote")
 func _submit_sync_success():
