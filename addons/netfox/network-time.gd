@@ -233,9 +233,22 @@ var physics_factor: float:
 	set(v):
 		push_error("Trying to set read-only variable physics_factor")
 
+# TODO: Doc
 var clock_multiplier: float:
 	get:
 		return _clock_multiplier
+
+# TODO: Doc
+var clock_offset: float:
+	get:
+		var sync_time = NetworkTimeSynchronizer.get_time()
+		var game_time = _clock.get_time()
+		return sync_time - game_time
+
+# TODO: Doc
+var remote_clock_offset: float:
+	get:
+		return NetworkTimeSynchronizer.remote_offset
 
 ## Emitted before a tick loop is run.
 signal before_tick_loop()
@@ -366,6 +379,15 @@ func ticks_between(seconds_from: float, seconds_to: float) -> int:
 	return seconds_to_ticks(seconds_to - seconds_from)
 
 func _process(delta):
+	# TODO: Remove
+	if Input.is_key_pressed(KEY_F5):
+		if Input.is_key_pressed(KEY_SHIFT):
+			_clock.adjust(delta * 8.)
+			NetworkTimeSynchronizer._clock.adjust(delta * 8.)
+		else:
+			_clock.adjust(-delta * 8.)
+			NetworkTimeSynchronizer._clock.adjust(-delta * 8.)
+	
 	if _active:
 		_clock.step(_clock_multiplier)
 		var clock_diff = NetworkTimeSynchronizer.get_time() - _clock.get_time()
@@ -375,7 +397,7 @@ func _process(delta):
 		
 		var multiplier_min = .75
 		var multiplier_max = 1. / multiplier_min
-		var multiplier_f = (1. + clock_diff / ticktime) / 2.
+		var multiplier_f = (1. + clock_diff / (1. * ticktime)) / 2.
 		multiplier_f = clampf(multiplier_f, 0., 1.)
 
 		_clock_multiplier = lerpf(multiplier_min, multiplier_max, multiplier_f)
