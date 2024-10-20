@@ -24,21 +24,36 @@ var sync_samples: int:
 var adjust_steps: int:
 	get:
 		return 8
+	set(v):
+		push_error("Trying to set read-only variable adjust_steps")
 
 # TODO: Doc
 var panic_threshold: float:
 	get:
 		return 2.
+	set(v):
+		push_error("Trying to set read-only variable panic_threshold")
 
 # TODO: Doc
 var rtt: float:
 	get:
 		return _rtt
+	set(v):
+		push_error("Trying to set read-only variable rtt")
 
 # TODO: Doc
 var rtt_jitter: float:
 	get:
 		return _rtt_jitter
+	set(v):
+		push_error("Trying to set read-only variable rtt_jitter")
+
+# TODO: Doc
+var remote_offset: float:
+	get:
+		return _offset
+	set(v):
+		push_error("Trying to set read-only variable remote_offset")
 
 var _active: bool = false
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NTP")
@@ -49,11 +64,15 @@ var _sample_idx: int = 0
 var _awaiting_samples: Dictionary = {}
 
 var _clock := NetworkClocks.SystemClock.new()
+var _offset := 0.
 var _rtt := 0.
 var _rtt_jitter := 0.
 
 # TODO: Doc
 signal on_initial_sync()
+
+# TODO: Doc
+signal on_panic(offset: float)
 
 ## Start the time synchronization loop.
 ##
@@ -126,12 +145,16 @@ func _discipline_clock():
 		_clock.adjust(offset)
 		_sample_buffer.fill(null)
 		_sample_buf_size = 0
+		_offset = 0.
 		
 		_logger.warning("Offset %ss is above panic threshold %ss! Resetting clock" % [offset, panic_threshold])
+		on_panic.emit(offset)
 	else:
 		# Nudge clock towards estimated time
 		_clock.adjust(offset / adjust_steps)
 		_logger.trace("Adjusted clock, offset: %sms, new time: %ss" % [offset * 1000., _clock.get_time()])
+		
+		_offset = offset * (1. - 1. / adjust_steps)
 
 @rpc("any_peer", "call_remote", "unreliable")
 func _send_ping(idx: int):
