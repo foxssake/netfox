@@ -11,6 +11,7 @@ points = PackedVector3Array(-0.557, 0.890101, -0.299866, 0.648933, 0.781605, 0.2
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, -6)
 sync_to_physics = false
 script = ExtResource("1_q5d25")
+speed = 1.0
 
 [node name="blockHexagon" parent="." instance=ExtResource("2_h7k7v")]
 

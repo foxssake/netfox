@@ -17,8 +17,7 @@ func _apply_tick(tick: int):
 	var previous_position = _get_position_for_tick(tick - 1)
 	global_position = _get_position_for_tick(tick)
 	
-	# TODO: Figure out drifting
-	_velocity = (global_position - previous_position) / NetworkTime.ticktime * .71875
+	_velocity = (global_position - previous_position) / NetworkTime.ticktime
 
 func _get_position_for_tick(tick: int):
 	var distance_moved = NetworkTime.ticks_to_seconds(tick) * speed
