@@ -347,7 +347,6 @@ func _submit_full_state(received_state: Dictionary, received_tick: int):
 	
 	if sanitized.size() > 0:
 		_states[received_tick] = PropertySnapshot.merge(_states.get(received_tick, {}), sanitized)
-		# _latest_state = max(_latest_state, received_tick)
 		_latest_state_tick = received_tick
 		
 		if (NetworkRollback.enable_state_diffs and not _has_received_full_state):
@@ -392,15 +391,6 @@ func _submit_diff_state(received_state: Dictionary, received_tick: int):
 				continue
 			
 			sanitized[property_name] = value
-
-		## Detect if new property is added on runtime and sent
-		var new_property: bool = false
-		for property in received_state:
-			for property_entry in _record_state_props:
-				if (property_entry.to_string() == property):
-					continue
-			new_property = true
-			break
 
 		if sanitized.size() > 0:
 			_states[received_tick] = PropertySnapshot.merge(_states.get(received_tick, {}), sanitized)
