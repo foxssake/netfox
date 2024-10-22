@@ -5,8 +5,7 @@ extends Node
 ## [i]read-only[/i], you can change this in the Netfox project settings
 var sync_interval: float:
 	get:
-		# return ProjectSettings.get_setting("netfox/time/sync_interval", 0.25)
-		return 0.25
+		return ProjectSettings.get_setting("netfox/time/sync_interval", 0.25)
 	set(v):
 		push_error("Trying to set read-only variable sync_interval")
 
@@ -15,22 +14,21 @@ var sync_interval: float:
 ## [i]read-only[/i], you can change this in the Netfox project settings
 var sync_samples: int:
 	get:
-		# return ProjectSettings.get_setting("netfox/time/sync_samples", 8)
-		return 8
+		return ProjectSettings.get_setting("netfox/time/sync_samples", 8)
 	set(v):
 		push_error("Trying to set read-only variable sync_samples")
 
 # TODO: Doc
 var adjust_steps: int:
 	get:
-		return 8
+		return ProjectSettings.get_setting("netfox/time/sync_adjust_steps", 8)
 	set(v):
 		push_error("Trying to set read-only variable adjust_steps")
 
 # TODO: Doc
 var panic_threshold: float:
 	get:
-		return 2.
+		return ProjectSettings.get_setting("netfox/time/recalibrate_threshold", 2.)
 	set(v):
 		push_error("Trying to set read-only variable panic_threshold")
 
