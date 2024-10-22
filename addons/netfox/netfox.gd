@@ -45,7 +45,7 @@ var SETTINGS = [
 		"type": TYPE_INT
 	},
 	{
-		# TODO: Deprecate
+		# !! Deprecated
 		# Time to wait between time sync samples
 		"name": "netfox/time/sync_sample_interval",
 		"value": 0.1,
