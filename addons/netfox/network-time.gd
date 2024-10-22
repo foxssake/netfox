@@ -94,6 +94,7 @@ var tick: int:
 ## recalibration.
 ##
 ## [i]read-only[/i], you can change this in the project settings
+# TODO: Deprecate
 var recalibrate_threshold: float:
 	get:
 		return ProjectSettings.get_setting("netfox/time/recalibrate_threshold", 8.0)

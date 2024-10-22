@@ -31,7 +31,7 @@ var SETTINGS = [
 	{
 		# Time to wait between time syncs
 		"name": "netfox/time/sync_interval",
-		"value": 1.0,
+		"value": 0.25,
 		"type": TYPE_FLOAT
 	},
 	{
@@ -40,6 +40,12 @@ var SETTINGS = [
 		"type": TYPE_INT
 	},
 	{
+		"name": "netfox/time/sync_adjust_steps",
+		"value": 8,
+		"type": TYPE_INT
+	},
+	{
+		# TODO: Deprecate
 		# Time to wait between time sync samples
 		"name": "netfox/time/sync_sample_interval",
 		"value": 0.1,
