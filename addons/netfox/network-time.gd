@@ -17,8 +17,8 @@ var tickrate: int:
 
 ## Whether to sync the network ticks to physics updates.
 ##
-## When set to true, tickrate and the custom timer is ignored, and a network 
-## tick will be done on every physics frame.
+## When set to true, tickrate will be the same as the physics ticks per second, 
+## and the network tick loop will be run inside the physics update process.
 ##
 ## [i]read-only[/i], you can change this in the project settings
 var sync_to_physics: bool:
@@ -378,67 +378,51 @@ func seconds_between(tick_from: int, tick_to: int) -> float:
 func ticks_between(seconds_from: float, seconds_to: float) -> int:
 	return seconds_to_ticks(seconds_to - seconds_from)
 
-func _process(delta):
-	# TODO: Remove
-	if Input.is_key_pressed(KEY_F5):
-		if Input.is_key_pressed(KEY_SHIFT):
-			_clock.adjust(delta * 8.)
-			NetworkTimeSynchronizer._clock.adjust(delta * 8.)
-		else:
-			_clock.adjust(-delta * 8.)
-			NetworkTimeSynchronizer._clock.adjust(-delta * 8.)
+func _loop():
+	# Adjust local clock
+	_clock.step(_clock_multiplier)
+	var clock_diff = NetworkTimeSynchronizer.get_time() - _clock.get_time()
 	
-	if _active:
-		_clock.step(_clock_multiplier)
-		var clock_diff = NetworkTimeSynchronizer.get_time() - _clock.get_time()
-		
-		# Ignore diffs under 1ms
-		clock_diff = sign(clock_diff) * max(abs(clock_diff) - 0.001, 0.)
-		
-		# TODO: Configurable bounds
-		var multiplier_min = .75
-		var multiplier_max = 1. / multiplier_min
-		var multiplier_f = (1. + clock_diff / (1. * ticktime)) / 2.
-		multiplier_f = clampf(multiplier_f, 0., 1.)
-
-		_clock_multiplier = lerpf(multiplier_min, multiplier_max, multiplier_f)
-		
-		if not multiplayer.is_server():
-			_logger.trace("Clock difference: %sms, multiplier: %s%%" % [clock_diff * 1000., _clock_multiplier * 100.])
+	# Ignore diffs under 1ms
+	clock_diff = sign(clock_diff) * max(abs(clock_diff) - 0.001, 0.)
 	
-	# TODO: Handle editor pauses
-	_process_delta = delta
-	_last_process_time = _clock.get_time()
+	# TODO: Configurable bounds
+	var multiplier_min = .75
+	var multiplier_max = 1. / multiplier_min
+	var multiplier_f = (1. + clock_diff / (1. * ticktime)) / 2.
+	multiplier_f = clampf(multiplier_f, 0., 1.)
 
+	_clock_multiplier = lerpf(multiplier_min, multiplier_max, multiplier_f)
+	
 	# Run tick loop if needed
-	if _active and not sync_to_physics:
-		var ticks_in_loop = 0
-		while _next_tick_time < _last_process_time and ticks_in_loop < max_ticks_per_frame:
-			if ticks_in_loop == 0:
-				before_tick_loop.emit()
+	# TODO: Handle editor pauses
+	_last_process_time = _clock.get_time()
+	
+	var ticks_in_loop = 0
+	while _next_tick_time < _last_process_time and ticks_in_loop < max_ticks_per_frame:
+		if ticks_in_loop == 0:
+			before_tick_loop.emit()
 
-			_run_tick()
-
-			ticks_in_loop += 1
-			_next_tick_time += ticktime
+		before_tick.emit(ticktime, tick)
+		on_tick.emit(ticktime, tick)
+		after_tick.emit(ticktime, tick)
 		
-		if ticks_in_loop > 0:
-			after_tick_loop.emit()
-
-func _physics_process(delta):
-	# TODO: Use time-stretch
-	if _active and sync_to_physics and not get_tree().paused:
-		# Run a single tick every physics frame
-		before_tick_loop.emit()
-		_run_tick()
+		_tick += 1
+		ticks_in_loop += 1
+		_next_tick_time += ticktime
+	
+	if ticks_in_loop > 0:
 		after_tick_loop.emit()
 
-func _run_tick():
-	before_tick.emit(ticktime, tick)
-	on_tick.emit(ticktime, tick)
-	after_tick.emit(ticktime, tick)
+func _process(delta):
+	_process_delta = delta
 	
-	_tick += 1
+	if _active and not sync_to_physics:
+		_loop()
+
+func _physics_process(delta):
+	if _active and sync_to_physics:
+		_loop()
 
 @rpc("any_peer", "reliable", "call_remote")
 func _submit_sync_success():
