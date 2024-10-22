@@ -1,4 +1,6 @@
 extends Node
+class_name _NetworkTime
+
 ## This class handles timing.
 ##
 ## @tutorial(NetworkTime Guide): https://foxssake.github.io/netfox/netfox/guides/network-time/
@@ -84,17 +86,18 @@ var tick: int:
 	set(v):
 		push_error("Trying to set read-only variable tick")
 
-## Threshold before recalibrating [code]tick[/code] and [code]time[/code].
+## Threshold before recalibrating [member tick] and [member time].
 ##
 ## Time is continuously synced to the server. In case the time difference is 
 ## excessive between local and the server, both [code]tick[/code] and
 ## [code]time[/code] will be reset to the estimated server values.
-##
+## [br]
 ## This property determines the difference threshold in seconds for
 ## recalibration.
-##
+## [br]
 ## [i]read-only[/i], you can change this in the project settings
-# TODO: Deprecate
+## [br]
+## @deprecated: Use [member _NetworkTimeSynchronizer.panic_threshold] instead.
 var recalibrate_threshold: float:
 	get:
 		return ProjectSettings.get_setting("netfox/time/recalibrate_threshold", 8.0)
@@ -105,9 +108,10 @@ var recalibrate_threshold: float:
 ##
 ## This is value is only an estimate, and is regularly updated. This means that 
 ## this value can and probably will change depending on network conditions.
-##
+## [br]
 ## [i]read-only[/i]
-# TODO: Deprecate
+## [br]
+## @deprecated: Will return the same as [member tick].
 var remote_tick: int:
 	get:
 		return tick
@@ -118,9 +122,10 @@ var remote_tick: int:
 ##
 ## This is value is only an estimate, and is regularly updated. This means that 
 ## this value can and probably will change depending on network conditions.
-##
+## [br]
 ## [i]read-only[/i]
-# TODO: Deprecate
+## [br]
+## @deprecated: Will return the same as [member time].
 var remote_time: float:
 	get:
 		return time
@@ -130,12 +135,12 @@ var remote_time: float:
 ## Estimated roundtrip time to server.
 ##
 ## This value is updated regularly, during server time sync. Latency can be 
-## estimated as half of the roundtrip time.
-##
+## estimated as half of the roundtrip time. Returns the same as [member 
+## _NetworkTimeSynchronizer.rtt].
+## [br]
 ## Will always be 0 on servers.
-##
+## [br]
 ## [i]read-only[/i]
-# TODO: Deprecate?
 var remote_rtt: float:
 	get:
 		return NetworkTimeSynchronizer.rtt
@@ -147,14 +152,15 @@ var remote_rtt: float:
 ## On clients, this value is synced to the server [i]only once[/i] when joining
 ## the game. After that, it will increase monotonically, incrementing every 
 ## single tick.
-##
+## [br]
 ## When hosting, this value is simply the number of ticks since game start.
-##
+## [br]
 ## This property can be used for things that require a timer that is guaranteed
 ## to be linear, i.e. no jumps in time.
-##
+## [br]
 ## [i]read-only[/i]
-# TODO: Deprecate
+## [br]
+## @deprecated: Will return the same as [member tick].
 var local_tick: int:
 	get:
 		return tick
@@ -166,14 +172,15 @@ var local_tick: int:
 ## On clients, this value is synced to the server [i]only once[/i] when joining
 ## the game. After that, it will increase monotonically, incrementing every 
 ## single tick.
-##
+## [br]
 ## When hosting, this value is simply the seconds elapsed since game start.
-##
+## [br]
 ## This property can be used for things that require a timer that is guaranteed
 ## to be linear, i.e. no jumps in time.
-##
+## [br]
 ## [i]read-only[/i]
-# TODO: Deprecate
+## [br]
+## @deprecated: Will return the same as [member time].
 var local_time: float:
 	get:
 		return time
@@ -234,25 +241,63 @@ var physics_factor: float:
 	set(v):
 		push_error("Trying to set read-only variable physics_factor")
 
-# TODO: Doc
+## The maximum clock stretch factor allowed.
+##
+## For more context on clock stretch, see [member clock_stretch_factor]. The 
+## minimum allowed clock stretch factor is derived as 1.0 / clock_stretch_max. 
+## Setting this to larger values will allow for quicker clock adjustment at the 
+## cost of bigger deviations in game speed.
+## [br]
+## Make sure to adjust this value based on the game's needs.
+## [br]
+## [i]read-only[/i], you can change this in the project settings
 var clock_stretch_max: float:
 	get:
 		return ProjectSettings.get_setting("netfox/time/max_time_stretch", 1.25)
 	set(v):
 		push_error("Trying to set read-only variable stretch_max")
 
-# TODO: Doc
+## The currently used clock stretch factor.
+##
+## As the game progresses, the game clock may be ahead of, or behind the host's 
+## clock. To compensate, whenever the game clock is ahead of the host's clock, 
+## the game will slightly slow down, to allow the host's clock to catch up. When
+## the host's clock is ahead of the game clock, the game will run slightly 
+## faster to catch up with the host's clock.
+## [br]
+## This value indicates the current clock speed multiplier. Values over 1.0 
+## indicate speeding up, under 1.0 indicate slowing down.
+## [br]
+## See [member clock_stretch_max] for clock stretch bounds.
+## [br]
+## [i]read-only[/i]
 var clock_stretch_factor: float:
 	get:
 		return _clock_stretch_factor
 
-# TODO: Doc
+## The current estimated offset between the reference clock and the game clock.
+## 
+## Positive values mean the game clock is behind, and needs to run slightly 
+## faster to catch up. Negative values mean the game clock is ahead, and needs
+## to slow down slightly.
+## [br]
+## See [member clock_stretch] for more clock speed adjustment.
+## [br]
+## [i]read-only[/i]
 var clock_offset: float:
 	get:
 		# Offset is synced time - local time
 		return NetworkTimeSynchronizer.get_time() - _clock.get_time()
 
-# TODO: Doc
+## The current estimated offset between the reference clock and the remote
+## clock.
+##
+## Positive values mean the reference clock is behind the remote clock. 
+## Negative values mean the reference clock is ahead of the remote clock.
+## [br]
+## Returns the same as [member _NetworkTimeSynchronizer.remote_offset].
+## [br]
+## [i]read-only[/i]
 var remote_clock_offset: float:
 	get:
 		return NetworkTimeSynchronizer.remote_offset
@@ -306,9 +351,9 @@ static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkTime")
 ##
 ## Once this is called, time will be synchronized and ticks will be consistently
 ## emitted.
-##
+## [br]
 ## On clients, the initial time sync must complete before any ticks are emitted.
-##
+## [br]
 ## To check if this initial sync is done, see [method is_initial_sync_done]. If
 ## you need a signal, see [signal after_sync].
 func start():
