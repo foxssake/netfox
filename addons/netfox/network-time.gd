@@ -235,9 +235,16 @@ var physics_factor: float:
 		push_error("Trying to set read-only variable physics_factor")
 
 # TODO: Doc
-var clock_multiplier: float:
+var clock_stretch_max: float:
 	get:
-		return _clock_multiplier
+		return ProjectSettings.get_setting("netfox/time/max_time_stretch", 1.25)
+	set(v):
+		push_error("Trying to set read-only variable stretch_max")
+
+# TODO: Doc
+var clock_stretch_factor: float:
+	get:
+		return _clock_stretch_factor
 
 # TODO: Doc
 var clock_offset: float:
@@ -287,7 +294,7 @@ var _next_tick_time: float = 0
 var _last_process_time: float = 0.
 
 var _clock: NetworkClocks.SteppingClock = NetworkClocks.SteppingClock.new()
-var _clock_multiplier: float = 1.
+var _clock_stretch_factor: float = 1.
 
 # Cache the synced clients, as the rpc call itself may arrive multiple times
 # ( for some reason? )
@@ -380,19 +387,18 @@ func ticks_between(seconds_from: float, seconds_to: float) -> int:
 
 func _loop():
 	# Adjust local clock
-	_clock.step(_clock_multiplier)
+	_clock.step(_clock_stretch_factor)
 	var clock_diff = NetworkTimeSynchronizer.get_time() - _clock.get_time()
 	
 	# Ignore diffs under 1ms
 	clock_diff = sign(clock_diff) * max(abs(clock_diff) - 0.001, 0.)
 	
-	# TODO: Configurable bounds
-	var multiplier_min = .75
-	var multiplier_max = 1. / multiplier_min
+	var multiplier_max = clock_stretch_max
+	var multiplier_min = 1. / clock_stretch_max
 	var multiplier_f = (1. + clock_diff / (1. * ticktime)) / 2.
 	multiplier_f = clampf(multiplier_f, 0., 1.)
 
-	_clock_multiplier = lerpf(multiplier_min, multiplier_max, multiplier_f)
+	_clock_stretch_factor = lerpf(multiplier_min, multiplier_max, multiplier_f)
 	
 	# Run tick loop if needed
 	# TODO: Handle editor pauses

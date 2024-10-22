@@ -56,6 +56,13 @@ var SETTINGS = [
 		"value": false,
 		"type": TYPE_BOOL
 	},
+	{
+		"name": "netfox/time/max_time_stretch",
+		"value": 1.25,
+		"type": TYPE_FLOAT,
+		"hint": PROPERTY_HINT_RANGE,
+		"hint_string": "1,2,0.05,or_greater"
+	},
 	# Rollback settings
 	{
 		"name": "netfox/rollback/enabled",
