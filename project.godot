@@ -112,7 +112,6 @@ aim_south={
 
 general/clear_settings=false
 time/tickrate=24
-logging/log_level=3
 
 [rendering]
 

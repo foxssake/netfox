@@ -393,17 +393,28 @@ func _loop():
 	# Ignore diffs under 1ms
 	clock_diff = sign(clock_diff) * max(abs(clock_diff) - 0.001, 0.)
 	
-	var multiplier_max = clock_stretch_max
-	var multiplier_min = 1. / clock_stretch_max
-	var multiplier_f = (1. + clock_diff / (1. * ticktime)) / 2.
-	multiplier_f = clampf(multiplier_f, 0., 1.)
+	var clock_stretch_min = 1. / clock_stretch_max
+	var clock_stretch_f = (1. + clock_diff / (1. * ticktime)) / 2.
+	clock_stretch_f = clampf(clock_stretch_f, 0., 1.)
 
-	_clock_stretch_factor = lerpf(multiplier_min, multiplier_max, multiplier_f)
+	var previous_stretch_factor = _clock_stretch_factor
+	_clock_stretch_factor = lerpf(clock_stretch_min, clock_stretch_max, clock_stretch_f)
+	
+	# Detect game pause ( editor only )
+	if OS.has_feature("editor"):
+		var clock_step = _clock.get_time() - _last_process_time
+		var clock_step_raw = clock_step / previous_stretch_factor
+		_last_process_time += clock_step
+		
+		if clock_step_raw > 1.:
+			# Game stalled for a while, probably paused, don't run extra ticks
+			# to catch up
+			_next_tick_time += clock_step
+			_logger.debug("Game stalled for %.2fs, assuming it was a pause" % [clock_step_raw])
+	else:
+		_last_process_time = _clock.get_time()
 	
 	# Run tick loop if needed
-	# TODO: Handle editor pauses
-	_last_process_time = _clock.get_time()
-	
 	var ticks_in_loop = 0
 	while _next_tick_time < _last_process_time and ticks_in_loop < max_ticks_per_frame:
 		if ticks_in_loop == 0:
