@@ -1,4 +1,5 @@
 extends Node
+class_name _NetworkTimeSynchronizer
 
 # TODO: Doc algo
 
@@ -20,35 +21,61 @@ var sync_samples: int:
 	set(v):
 		push_error("Trying to set read-only variable sync_samples")
 
-# TODO: Doc
+## Number of iterations to nudge towards the host clock.
+##
+## Lower values result in more aggressive changes in clock and may be more 
+## sensitive to jitter. Larger values may end up approaching the host clock too
+## slowly.
+##
+## [i]read-only[/i], you can change this in the Netfox project settings
 var adjust_steps: int:
 	get:
 		return ProjectSettings.get_setting("netfox/time/sync_adjust_steps", 8)
 	set(v):
 		push_error("Trying to set read-only variable adjust_steps")
 
-# TODO: Doc
+## Largest tolerated offset from host clock before panicking.
+##
+## Once this threshold is reached, the clock will be reset to the host clock's 
+## value, and the nudge process will start from scratch.
+##
+## [i]read-only[/i], you can change this in the Netfox project settings
 var panic_threshold: float:
 	get:
 		return ProjectSettings.get_setting("netfox/time/recalibrate_threshold", 2.)
 	set(v):
 		push_error("Trying to set read-only variable panic_threshold")
 
-# TODO: Doc
+## Measured roundtrip time measured to the host.
+##
+## This value is calculated from multiple samples. The actual roundtrip times 
+## can be anywhere in the rtt +/- rtt_jitter range.
+##
+## [i]read-only[/i]
 var rtt: float:
 	get:
 		return _rtt
 	set(v):
 		push_error("Trying to set read-only variable rtt")
 
-# TODO: Doc
+## Measured jitter in the roundtrip time to the host.
+##
+## This value is calculated from multiple samples. The actual roundtrip times 
+## can be anywhere in the rtt +/- rtt_jitter range.
+##
+## [i]read-only[/i]
 var rtt_jitter: float:
 	get:
 		return _rtt_jitter
 	set(v):
 		push_error("Trying to set read-only variable rtt_jitter")
 
-# TODO: Doc
+## Estimated offset from the host's clock.
+##
+## Positive values mean that the host's clock is ahead of ours, while negative
+## values mean that our clock is behind the host's.
+##
+## [i]read-only[/i]
 var remote_offset: float:
 	get:
 		return _offset
