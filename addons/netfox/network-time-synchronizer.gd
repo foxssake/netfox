@@ -1,5 +1,7 @@
 extends Node
 
+# TODO: Doc algo
+
 ## Time between syncs, in seconds.
 ##
 ## [i]read-only[/i], you can change this in the Netfox project settings
@@ -56,15 +58,17 @@ var remote_offset: float:
 var _active: bool = false
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NTP")
 
+# Samples are stored in a ring buffer
 var _sample_buffer: Array[NetworkClockSample] = []
 var _sample_buf_size: int = 0
 var _sample_idx: int = 0
+
 var _awaiting_samples: Dictionary = {}
 
-var _clock := NetworkClocks.SystemClock.new()
-var _offset := 0.
-var _rtt := 0.
-var _rtt_jitter := 0.
+var _clock: NetworkClocks.SystemClock = NetworkClocks.SystemClock.new()
+var _offset: float = 0.
+var _rtt: float = 0.
+var _rtt_jitter: float = 0.
 
 # TODO: Doc
 signal on_initial_sync()
@@ -78,18 +82,16 @@ signal on_panic(offset: float)
 func start():
 	if _active:
 		return
+		
+	_clock.set_time(0.)
 
-	if multiplayer.is_server():
-		_clock.set_time(0.)
-	else:
+	if not multiplayer.is_server():
 		_active = true
 		
 		_sample_buffer.clear()
 		_sample_buffer.resize(sync_samples)
 		_sample_buf_size = 0
 		_sample_idx = 0
-		
-		_clock.set_time(0.)
 		
 		_request_timestamp.rpc_id(1)
 
@@ -117,7 +119,6 @@ func _loop():
 		await get_tree().create_timer(sync_interval).timeout
 
 func _discipline_clock():
-	# https://datatracker.ietf.org/doc/html/rfc5905#section-10
 	# Sort samples by latency
 	var sorted_samples := _sample_buffer.slice(0, _sample_buf_size) as Array[NetworkClockSample]
 	sorted_samples.sort_custom(
@@ -125,11 +126,13 @@ func _discipline_clock():
 			return a.get_rtt() < b.get_rtt()
 	)
 	
+	# Calculate rtt bounds
 	var rtt_min = sorted_samples.front().get_rtt()
 	var rtt_max = sorted_samples.back().get_rtt()
 	_rtt = (rtt_max + rtt_min) / 2.
 	_rtt_jitter = (rtt_max - rtt_min) / 2.
 	
+	# Calculate offset
 	var offset = 0.
 	var offset_weight = 0.
 	for i in range(sorted_samples.size()):
@@ -138,6 +141,7 @@ func _discipline_clock():
 		offset_weight += w
 	offset /= offset_weight
 	
+	# Panic / Adjust
 	if abs(offset) > panic_threshold:
 		# Reset clock, throw away all samples
 		_clock.adjust(offset)
@@ -179,7 +183,7 @@ func _send_pong(idx: int, ping_received: float, pong_sent: float):
 	_awaiting_samples.erase(idx)
 	
 	_sample_buffer[_sample_buf_size % _sample_buffer.size()] = sample
-	_sample_buf_size += 1
+	_sample_buf_size = mini(_sample_buf_size + 1, _sample_buffer.size())
 	
 	# Discipline clock based on new sample
 	_discipline_clock()
