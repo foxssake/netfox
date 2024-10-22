@@ -242,9 +242,8 @@ var clock_multiplier: float:
 # TODO: Doc
 var clock_offset: float:
 	get:
-		var sync_time = NetworkTimeSynchronizer.get_time()
-		var game_time = _clock.get_time()
-		return sync_time - game_time
+		# Offset is synced time - local time
+		return NetworkTimeSynchronizer.get_time() - _clock.get_time()
 
 # TODO: Doc
 var remote_clock_offset: float:
@@ -287,8 +286,8 @@ var _process_delta: float = 0
 var _next_tick_time: float = 0
 var _last_process_time: float = 0.
 
-var _clock := NetworkClocks.SteppingClock.new()
-var _clock_multiplier := 1.
+var _clock: NetworkClocks.SteppingClock = NetworkClocks.SteppingClock.new()
+var _clock_multiplier: float = 1.
 
 # Cache the synced clients, as the rpc call itself may arrive multiple times
 # ( for some reason? )
@@ -396,6 +395,7 @@ func _process(delta):
 		# Ignore diffs under 1ms
 		clock_diff = sign(clock_diff) * max(abs(clock_diff) - 0.001, 0.)
 		
+		# TODO: Configurable bounds
 		var multiplier_min = .75
 		var multiplier_max = 1. / multiplier_min
 		var multiplier_f = (1. + clock_diff / (1. * ticktime)) / 2.
@@ -406,6 +406,7 @@ func _process(delta):
 		if not multiplayer.is_server():
 			_logger.trace("Clock difference: %sms, multiplier: %s%%" % [clock_diff * 1000., _clock_multiplier * 100.])
 	
+	# TODO: Handle editor pauses
 	_process_delta = delta
 	_last_process_time = _clock.get_time()
 
