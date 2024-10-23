@@ -7,8 +7,9 @@ func _tick(_delta: float, _t: int):
 	pass
 	
 func _process(_delta):
-	text = "Time: %.2f at tick #%d" % [NetworkTime.time, NetworkTime.tick]
-	text += "\nRemote time: %.2f at tick#%d with %.2fms RTT" % [NetworkTime.remote_time, NetworkTime.remote_tick, NetworkTime.remote_rtt * 1000.0]
+	text = "Time: %.2f at tick #%d, clock at %.2f%%" % [NetworkTime.time, NetworkTime.tick, NetworkTime.clock_stretch_factor * 100.]
+	text += "\nClock offset: %.2fms, Remote offset: %.2fms" % [NetworkTime.clock_offset * 1000., NetworkTime.remote_clock_offset * 1000.]
+	text += "\nRemote RTT: %.2fms +/- %.2fms" % [NetworkTimeSynchronizer.rtt * 1000., NetworkTimeSynchronizer.rtt_jitter * 1000.]
 	text += "\nFactor: %.2f" % [NetworkTime.tick_factor]
 	text += "\nFPS: %s" % [Engine.get_frames_per_second()]
 

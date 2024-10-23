@@ -47,7 +47,7 @@ static func for_extras(p_name: String) -> _NetfoxLogger:
 static func make_setting(name: String) -> Dictionary:
 	return {
 		"name": name,
-		"value": LOG_MIN,
+		"value": LOG_DEBUG,
 		"type": TYPE_INT,
 		"hint": PROPERTY_HINT_ENUM,
 		"hint_string": "All,Trace,Debug,Info,Warning,Error,None"
