@@ -385,6 +385,7 @@ func start():
 		multiplayer.peer_disconnected.connect(func(peer): _synced_clients.erase(peer))
 
 	_clock.set_time(NetworkTimeSynchronizer.get_time())
+	_last_process_time = _clock.get_time()
 	_next_tick_time = _clock.get_time()
 	after_sync.emit()
 
@@ -455,7 +456,7 @@ func _loop():
 			# Game stalled for a while, probably paused, don't run extra ticks
 			# to catch up
 			_next_tick_time += clock_step
-			_logger.debug("Game stalled for %.2fs, assuming it was a pause" % [clock_step_raw])
+			_logger.debug("Game stalled for %.4fs, assuming it was a pause" % [clock_step_raw])
 	else:
 		_last_process_time = _clock.get_time()
 	
