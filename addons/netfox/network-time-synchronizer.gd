@@ -1,7 +1,10 @@
 extends Node
 class_name _NetworkTimeSynchronizer
 
-## Continuously synchronizes time to the host remote's clock.
+## Continuously synchronizes time to the host's remote clock.
+##
+## Make sure to read the [i]NetworkTimeSynchronizer Guide[/i] to understand the
+## different clocks that the class docs refer to.
 ##
 ## @tutorial(NetworkTimeSynchronizer Guide): https://foxssake.github.io/netfox/netfox/guides/network-time-synchronizer/
 
@@ -23,11 +26,11 @@ var sync_samples: int:
 	set(v):
 		push_error("Trying to set read-only variable sync_samples")
 
-## Number of iterations to nudge towards the host remote's clock.
+## Number of iterations to nudge towards the host's remote clock.
 ##
 ## Lower values result in more aggressive changes in clock and may be more 
-## sensitive to jitter. Larger values may end up approaching the host clock too
-## slowly.
+## sensitive to jitter. Larger values may end up approaching the remote clock
+## too slowly.
 ## [br]
 ## [i]read-only[/i], you can change this in the Netfox project settings
 var adjust_steps: int:
@@ -36,9 +39,9 @@ var adjust_steps: int:
 	set(v):
 		push_error("Trying to set read-only variable adjust_steps")
 
-## Largest tolerated offset from the host remote's clock before panicking.
+## Largest tolerated offset from the host's remote clock before panicking.
 ##
-## Once this threshold is reached, the clock will be reset to the host clock's 
+## Once this threshold is reached, the clock will be reset to the remote clock's 
 ## value, and the nudge process will start from scratch.
 ## [br]
 ## [i]read-only[/i], you can change this in the Netfox project settings
@@ -72,10 +75,10 @@ var rtt_jitter: float:
 	set(v):
 		push_error("Trying to set read-only variable rtt_jitter")
 
-## Estimated offset from the host remote's clock.
+## Estimated offset from the host's remote clock.
 ##
-## Positive values mean that the host remote's clock is ahead of ours, while
-## negative values mean that our clock is behind the host remote's.
+## Positive values mean that the host's remote clock is ahead of ours, while
+## negative values mean that our clock is behind the host's remote.
 ## [br]
 ## [i]read-only[/i]
 var remote_offset: float:
@@ -109,7 +112,7 @@ signal on_initial_sync()
 ## Emitted when clocks get overly out of sync and a time sync panic occurs.
 ##
 ## Panic means that the difference between clocks is too large. The time sync 
-## will reset the clock to the remote's time and restart the time sync loop 
+## will reset the clock to the remote clock's time and restart the time sync loop 
 ## from there. 
 ## [br]
 ## Use this event in case you need to react to clock changes in your game.
