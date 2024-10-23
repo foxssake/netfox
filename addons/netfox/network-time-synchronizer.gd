@@ -3,33 +3,9 @@ class_name _NetworkTimeSynchronizer
 
 ## Continuously synchronizes time to the host remote's clock.
 ##
-## Synchronization is done by regularly taking samples of the remote clock, and
-## deriving roundtrip time and clock offset from each sample. These samples are 
-## then combined into a single set of stats - offset, roundtrip time and jitter.
-## [br][br]
-## [i]Offset[/i] is the difference to the remote clock. Positive values mean 
-## the remote clock is ahead of the reference clock. Negative values mean that 
-## the remote clock is behind the reference clock. May also be called theta.
-## [br][br]
-## [i]Roundtrip time[/i] is the time it takes for data to travel to the remote 
-## and then back over the network. Smaller roundtrip times usually mean faster 
-## network connections. May also be called delay or delta.
-## [br][br]
-## [i]Jitter[/i] is the amount of variation in measured roundtrip times. The 
-## less jitter, the more stable the network connection usually.
-## [br][br]
-## These stats are then used to get a good estimate of the current time on the 
-## remote clock. The remote clock estimate is then used to slowly adjust
-## ( nudge ) the reference clock towards the remote clock's value.
-## [br][br]
-## This is done iteratively, to avoid large jumps in time, and to - when
-## possible - only go forward in time, not backwards.
-## [br][br]
-## When the offset gets too significant, it means that the clocks are 
-## excessively out of sync. In these cases, a panic occurs and the reference 
-## clock is reset.
+## @tutorial(NetworkTimeSynchronizer Guide): https://foxssake.github.io/netfox/netfox/guides/network-time-synchronizer/
 
-## Time between syncs, in seconds.
+## Time between sync samples, in seconds.
 ## [br]
 ## [i]read-only[/i], you can change this in the Netfox project settings
 var sync_interval: float:
