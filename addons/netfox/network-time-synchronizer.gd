@@ -109,7 +109,7 @@ var remote_offset: float:
 		push_error("Trying to set read-only variable remote_offset")
 
 var _active: bool = false
-static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NTP")
+static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkTimeSynchronizer")
 
 # Samples are stored in a ring buffer
 var _sample_buffer: Array[NetworkClockSample] = []
@@ -219,7 +219,7 @@ func _discipline_clock():
 	else:
 		# Nudge clock towards estimated time
 		_clock.adjust(offset / adjust_steps)
-		_logger.trace("Adjusted clock, offset: %sms, new time: %ss" % [offset * 1000., _clock.get_time()])
+#		_logger.trace("Adjusted clock, offset: %sms, new time: %ss" % [offset * 1000., _clock.get_time()])
 		
 		_offset = offset * (1. - 1. / adjust_steps)
 
@@ -239,10 +239,10 @@ func _send_pong(idx: int, ping_received: float, pong_sent: float):
 	sample.pong_sent = pong_sent
 	sample.pong_received = pong_received
 	
-	_logger.trace("Received sample: t1=%s; t2=%s; t3=%s; t4=%s; theta=%sms; delta=%sms" % [
-		sample.ping_sent, sample.ping_received, sample.pong_sent, sample.pong_received,
-		sample.get_offset() * 1000., sample.get_rtt() * 1000.
-	])
+#	_logger.trace("Received sample: t1=%s; t2=%s; t3=%s; t4=%s; theta=%sms; delta=%sms" % [
+#		sample.ping_sent, sample.ping_received, sample.pong_sent, sample.pong_received,
+#		sample.get_offset() * 1000., sample.get_rtt() * 1000.
+#	])
 	
 	# Once a sample is done, remove from in-flight samples and move to sample buffer
 	_awaiting_samples.erase(idx)
