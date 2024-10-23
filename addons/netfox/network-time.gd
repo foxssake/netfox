@@ -277,14 +277,15 @@ var clock_stretch_factor: float:
 	get:
 		return _clock_stretch_factor
 
-## The current estimated offset between the reference clock and the game clock.
+## The current estimated offset between the reference clock and the simulation
+## clock.
 ## 
-## Positive values mean the game clock is behind, and needs to run slightly 
-## faster to catch up. Negative values mean the game clock is ahead, and needs
-## to slow down slightly.
-## [br]
+## Positive values mean the simulation clock is behind, and needs to run
+## slightly faster to catch up. Negative values mean the simulation clock is
+## ahead, and needs to slow down slightly.
+## [br][br]
 ## See [member clock_stretch] for more clock speed adjustment.
-## [br]
+## [br][br]
 ## [i]read-only[/i]
 var clock_offset: float:
 	get:
