@@ -111,6 +111,7 @@ aim_south={
 [netfox]
 
 general/clear_settings=false
+logging/log_level=2
 time/tickrate=24
 
 [rendering]
