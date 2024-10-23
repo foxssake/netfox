@@ -17,7 +17,7 @@ var sync_interval: float:
 	set(v):
 		push_error("Trying to set read-only variable sync_interval")
 
-## Number of measurements ( samples ) to take to guess latency.
+## Number of measurements ( samples ) to use for time synchronization.
 ## [br]
 ## [i]read-only[/i], you can change this in the Netfox project settings
 var sync_samples: int:

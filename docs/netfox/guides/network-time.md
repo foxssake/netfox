@@ -157,19 +157,25 @@ Settings are found in the Project Settings, under Netfox > Time:
 *Max Ticks Per Frame* sets the maximum number of frames to simulate per tick loop. Used to avoid freezing the game under load.
 
 *Recalibrate Threshold* is the largest allowed time discrepancy in seconds. If
-the difference between the remote time and game time is larger than this
-setting, the game time will be reset to the remote time.
+the difference between the remote clock and reference clock is larger than this
+setting, the reference clock will be reset to the remote clock. See
+[NetworkTimeSynchronizer] for more details.
 
-*Sync Interval* is the resting time between time synchronizations. Note that
-the synchronization itself may take multiple seconds, so overall there will be
-more time between two synchronization runs than just the interval.
+*Sync Interval* is the resting time in seconds between sampling the remote
+clock.
 
-*Sync Samples* is the number of measurements to take for estimating roundtrip
-time.
+*Sync Samples* is the number of measurements to use for time synchronization.
+This includes measuring roundtrip time and estimating clock offsets.
 
-*Sync Sample Interval* is the resting time between roundtrip measurements.
+*Sync Adjust Steps* is the number of iterations to use when adjusting the
+reference clock. Larger values result in more stable clocks but slower
+convergence, while smaller values synchronize more aggressively.
 
-*Sync to Physics* ties the network tick loop to the physics process when
-enabled.
+*Sync Sample Interval* *deprecated in netfox v1.9.0*. Originally used as the
+resting time between roundtrip measurements.
+
+*Sync to Physics* ensures that the network tick loop runs in Godot's physics
+process when enabled. This can be useful in cases where a lot of physics
+operations need to be done as part of the tick- or the rollback loop.
 
 [NetworkTimeSynchronizer]: ./network-time-synchronizer.md
