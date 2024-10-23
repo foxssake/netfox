@@ -206,7 +206,7 @@ func _discipline_clock():
 func _send_ping(idx: int):
 	var ping_received = _clock.get_time()
 	var sender = multiplayer.get_remote_sender_id()
-	
+
 	_send_pong.rpc_id(sender, idx, ping_received, _clock.get_time())
 
 @rpc("any_peer", "call_remote", "unreliable")
@@ -234,9 +234,11 @@ func _send_pong(idx: int, ping_received: float, pong_sent: float):
 
 @rpc("any_peer", "call_remote", "reliable")
 func _request_timestamp():
+	_logger.debug("Requested initial timestamp @ %.4fs raw time" % [_clock.get_raw_time()])
 	_set_timestamp.rpc_id(multiplayer.get_remote_sender_id(), _clock.get_time())
 
 @rpc("any_peer", "call_remote", "reliable")
 func _set_timestamp(timestamp: float):
+	_logger.debug("Received initial timestamp @ %.4fs raw time" % [_clock.get_raw_time()])
 	_clock.set_time(timestamp)
 	_loop()
