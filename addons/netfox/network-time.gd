@@ -335,6 +335,7 @@ signal after_client_sync(peer_id: int)
 
 var _tick: int = 0
 var _active: bool = false
+var _was_paused: bool = false
 var _initial_sync_done = false
 var _process_delta: float = 0
 
@@ -449,22 +450,23 @@ func _loop():
 	var previous_stretch_factor = _clock_stretch_factor
 	_clock_stretch_factor = lerpf(clock_stretch_min, clock_stretch_max, clock_stretch_f)
 	
-	# Detect game pause ( editor only )
-	if OS.has_feature("editor"):
-		var clock_step = _clock.get_time() - _last_process_time
-		var clock_step_raw = clock_step / previous_stretch_factor
-		_last_process_time += clock_step
-		
-		if clock_step_raw > 1.:
+	# Detect editor pause
+	var clock_step = _clock.get_time() - _last_process_time
+	var clock_step_raw = clock_step / previous_stretch_factor
+	if OS.has_feature("editor") and clock_step_raw > 1.:
 			# Game stalled for a while, probably paused, don't run extra ticks
 			# to catch up
-			_next_tick_time += clock_step
+			_was_paused = true
 			_logger.debug("Game stalled for %.4fs, assuming it was a pause" % [clock_step_raw])
-	else:
-		_last_process_time = _clock.get_time()
+
+	# Handle pause
+	if _was_paused:
+		_was_paused = false
+		_next_tick_time += clock_step
 	
 	# Run tick loop if needed
 	var ticks_in_loop = 0
+	_last_process_time = _clock.get_time()
 	while _next_tick_time < _last_process_time and ticks_in_loop < max_ticks_per_frame:
 		if ticks_in_loop == 0:
 			before_tick_loop.emit()
@@ -489,6 +491,10 @@ func _process(delta):
 func _physics_process(delta):
 	if _active and sync_to_physics:
 		_loop()
+
+func _notification(what):
+	if what == NOTIFICATION_UNPAUSED:
+		_was_paused = true
 
 @rpc("any_peer", "reliable", "call_remote")
 func _submit_sync_success():
