@@ -98,7 +98,19 @@ The synchronization itself is handled by [NetworkTimeSynchronizer].
 Each time can be accessed as ticks or seconds. Both advance after every network
 tick.
 
+### Synchronized time
+
+* `NetworkTime.time`
+* `NetworkTime.ticks`
+
+Marks the current network game time. This is continuously synchronized, making
+sure that these values are as close to eachother on all peers as possible.
+
+Use this whenever a notion of game time is needed.
+
 ### Local time
+
+*Deprecated since netfox v1.9.0.* Use synchronized time instead.
 
 * `NetworkTime.local_time`
 * `NetworkTime.local_ticks`
@@ -113,6 +125,8 @@ Not suitable for synchronizing data, as the local time is different at each
 player.
 
 ### Remote time
+
+*Deprecated since netfox v1.9.0.* Use synchronized time instead.
 
 * `NetworkTime.remote_ticks`
 * `NetwokrTime.remote_time`
@@ -131,20 +145,6 @@ for tying game logic to it.
 
 To get notified when a time synchronization happens and the remote time is
 updated, use the `NetworkTime.after_sync` signal.
-
-### Time
-
-* `NetworkTime.time`
-* `NetworkTime.ticks`
-
-Marks the current network game time. On start, this time is set to the
-estimated remote time.
-
-The game time is only adjusted if it is too far off from the remote time,
-making it a good, consistent source of time.
-
-Can be used when timing data needs to be shared between players, and for game
-logic that is synchronized over the network.
 
 ## Settings
 
