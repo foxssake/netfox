@@ -259,17 +259,19 @@ var clock_stretch_max: float:
 
 ## The currently used clock stretch factor.
 ##
-## As the game progresses, the game clock may be ahead of, or behind the host's 
-## clock. To compensate, whenever the game clock is ahead of the host's clock, 
-## the game will slightly slow down, to allow the host's clock to catch up. When
-## the host's clock is ahead of the game clock, the game will run slightly 
-## faster to catch up with the host's clock.
-## [br]
+## As the game progresses, the simulation clock may be ahead of, or behind the
+## host's remote clock. To compensate, whenever the simulation clock is ahead of
+## the remote clock, the game will slightly slow down, to allow the remote clock
+## to catch up. When the remote clock is ahead of the simulation clock, the game
+## will run slightly faster to catch up with the remote clock.
+## [br][br]
 ## This value indicates the current clock speed multiplier. Values over 1.0 
 ## indicate speeding up, under 1.0 indicate slowing down.
-## [br]
-## See [member clock_stretch_max] for clock stretch bounds.
-## [br]
+## [br][br]
+## See [member clock_stretch_max] for clock stretch bounds.[br]
+## See [_NetworkTimeSynchronizer] for more on the reference- and simulation
+## clock.
+## [br][br]
 ## [i]read-only[/i]
 var clock_stretch_factor: float:
 	get:
