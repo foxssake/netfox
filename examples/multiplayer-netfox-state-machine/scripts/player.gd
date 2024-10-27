@@ -9,13 +9,15 @@ extends CharacterBody3D
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 func _ready():
+	position = Vector3(0, 4, 0)
+	
 	# Wait a single frame, so player spawner has time to set input owner
 	await get_tree().process_frame
 	$RollbackSynchronizer.process_settings()
-	state_machine.set_state(state_machine.get_child(0))
+	state_machine.set_state(&"Idle")
 	state_machine.state_changed.connect(func (_old_state, new_state):
 		if new_state:
-			current_state_label.text = new_state.name
+			current_state_label.text = new_state
 	)
 
 # Callback during rollback tick

@@ -1,15 +1,17 @@
 extends NetworkedState
 
 @export var character: CharacterBody3D
-@export var move_state: NetworkedState
-@export var jump_state: NetworkedState
 @export var input: PlayerInputStateMachine
 
 func enter():
 	character.set_color(Color.WHITE)
 
 func update(delta, tick, is_fresh):
+	character.velocity *= NetworkTime.physics_factor
+	character.move_and_slide()
+	character.velocity /= NetworkTime.physics_factor
+	
 	if input.movement != Vector3.ZERO:
-		state_machine.set_state(move_state)
+		state_machine.set_state(&"Move")
 	elif input.jump:
-		state_machine.set_state(jump_state)
+		state_machine.set_state(&"Jump")

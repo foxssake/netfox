@@ -1,8 +1,6 @@
 extends NetworkedState
 
 @export var character: CharacterBody3D
-@export var idle_state: NetworkedState
-@export var jump_state: NetworkedState
 @export var input: PlayerInputStateMachine
 @export var speed = 5.0
 
@@ -26,6 +24,6 @@ func update(delta, tick, is_fresh):
 	character.velocity /= NetworkTime.physics_factor
 	
 	if input.jump:
-		state_machine.set_state(jump_state)
+		state_machine.set_state(&"Jump")
 	elif input_dir == Vector3.ZERO:
-		state_machine.set_state(idle_state)
+		state_machine.set_state(&"Idle")

@@ -35,7 +35,7 @@ mesh = SubResource("CapsuleMesh_vogks")
 [node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("2_qf1b4")
 root = NodePath("..")
-state_properties = Array[String]([":position", "NetworkedStateMachine:_current_state"])
+state_properties = Array[String]([":position", "NetworkedStateMachine:_current_state_name"])
 input_properties = Array[String](["Input:movement", "Input:jump"])
 
 [node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
@@ -49,22 +49,20 @@ script = ExtResource("4_1uirt")
 [node name="NetworkedStateMachine" type="Node" parent="."]
 script = ExtResource("5_d8tb7")
 
-[node name="Idle" type="Node" parent="NetworkedStateMachine" node_paths=PackedStringArray("character", "move_state", "jump_state", "input")]
+[node name="Idle" type="Node" parent="NetworkedStateMachine" node_paths=PackedStringArray("character", "input", "state_machine")]
 script = ExtResource("6_plr4e")
 character = NodePath("../..")
-move_state = NodePath("../Move")
-jump_state = NodePath("../Jump")
 input = NodePath("../../Input")
+state_machine = NodePath("..")
 
-[node name="Move" type="Node" parent="NetworkedStateMachine" node_paths=PackedStringArray("character", "idle_state", "jump_state", "input")]
+[node name="Move" type="Node" parent="NetworkedStateMachine" node_paths=PackedStringArray("character", "input", "state_machine")]
 script = ExtResource("7_xl1vh")
 character = NodePath("../..")
-idle_state = NodePath("../Idle")
-jump_state = NodePath("../Jump")
 input = NodePath("../../Input")
+state_machine = NodePath("..")
 
-[node name="Jump" type="Node" parent="NetworkedStateMachine" node_paths=PackedStringArray("character", "idle_state", "input")]
+[node name="Jump" type="Node" parent="NetworkedStateMachine" node_paths=PackedStringArray("character", "input", "state_machine")]
 script = ExtResource("8_prifk")
 character = NodePath("../..")
-idle_state = NodePath("../Idle")
 input = NodePath("../../Input")
+state_machine = NodePath("..")

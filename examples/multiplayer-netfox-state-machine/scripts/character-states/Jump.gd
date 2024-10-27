@@ -1,10 +1,9 @@
 extends NetworkedState
 
 @export var character: CharacterBody3D
-@export var idle_state: NetworkedState
 @export var input: PlayerInputStateMachine
 @export var speed = 5.0
-@export var jump_strength = 2.0
+@export var jump_strength = 5.0
 
 # Only enter if the character is on the floor
 func can_enter(_previous_state):
@@ -15,8 +14,14 @@ func enter():
 	character.velocity.y = jump_strength
 
 func update(delta, tick, is_fresh):
-	character.velocity.x = move_toward(character.velocity.x, 0, speed)
-	character.velocity.z = move_toward(character.velocity.z, 0, speed)
+	var input_dir = input.movement
+	var direction = (character.transform.basis * Vector3(input_dir.x, 0, input_dir.z)).normalized()
+	if direction:
+		character.velocity.x = direction.x * speed
+		character.velocity.z = direction.z * speed
+	else:
+		character.velocity.x = move_toward(character.velocity.x, 0, speed)
+		character.velocity.z = move_toward(character.velocity.z, 0, speed)
 
 	# move_and_slide assumes physics delta
 	# multiplying velocity by NetworkTime.physics_factor compensates for it
@@ -25,4 +30,4 @@ func update(delta, tick, is_fresh):
 	character.velocity /= NetworkTime.physics_factor
 	
 	if character.is_on_floor():
-		state_machine.set_state(idle_state)
+		state_machine.set_state(&"Idle")
