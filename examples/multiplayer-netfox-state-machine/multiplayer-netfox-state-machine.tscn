@@ -1,9 +1,9 @@
 [gd_scene load_steps=8 format=3 uid="uid://b2nbnsert06me"]
 
-[ext_resource type="Script" path="res://examples/multiplayer-netfox-state-machine/scripts/player-spawner.gd" id="1_1otey"]
-[ext_resource type="PackedScene" uid="uid://k3y73rql2u6e" path="res://examples/multiplayer-netfox-state-machine/characters/player.tscn" id="2_ec1of"]
-[ext_resource type="PackedScene" uid="uid://badtpsxn5lago" path="res://examples/shared/ui/network-popup.tscn" id="4_lq3lq"]
-[ext_resource type="Script" path="res://examples/multiplayer-netfox/scripts/time-display.gd" id="4_n66wk"]
+[ext_resource type="Script" path="res://examples/multiplayer-netfox-state-machine/scripts/player-spawner.gd" id="1_sueoi"]
+[ext_resource type="PackedScene" uid="uid://k3y73rql2u6e" path="res://examples/multiplayer-netfox-state-machine/characters/player.tscn" id="2_m5dic"]
+[ext_resource type="PackedScene" uid="uid://badtpsxn5lago" path="res://examples/shared/ui/network-popup.tscn" id="3_ibskd"]
+[ext_resource type="Script" path="res://examples/multiplayer-netfox/scripts/time-display.gd" id="4_56qa1"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_rrbfu"]
 
@@ -72,8 +72,8 @@ environment = SubResource("Environment_ef1wp")
 spawn_path = NodePath("../../Players")
 
 [node name="Player Spawner" type="Node" parent="Network" node_paths=PackedStringArray("spawn_root")]
-script = ExtResource("1_1otey")
-player_scene = ExtResource("2_ec1of")
+script = ExtResource("1_sueoi")
+player_scene = ExtResource("2_m5dic")
 spawn_root = NodePath("../../Players")
 
 [node name="Players" type="Node" parent="."]
@@ -86,7 +86,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Network Popup" parent="UI" instance=ExtResource("4_lq3lq")]
+[node name="Network Popup" parent="UI" instance=ExtResource("3_ibskd")]
 layout_mode = 1
 
 [node name="LAN Bootstrapper" parent="UI/Network Popup" index="3" node_paths=PackedStringArray("connect_ui")]
@@ -99,6 +99,6 @@ connect_ui = NodePath("..")
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
-script = ExtResource("4_n66wk")
+script = ExtResource("4_56qa1")
 
 [editable path="UI/Network Popup"]
