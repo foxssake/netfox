@@ -35,7 +35,7 @@ mesh = SubResource("CapsuleMesh_tnl3b")
 [node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("2_qf1b4")
 root = NodePath("..")
-state_properties = Array[String]([":position", "NetworkedStateMachine:state"])
+state_properties = Array[String]([":position", ":velocity", "NetworkedStateMachine:state"])
 input_properties = Array[String](["Input:movement", "Input:jump"])
 
 [node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
