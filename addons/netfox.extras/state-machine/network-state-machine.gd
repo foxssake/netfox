@@ -4,7 +4,7 @@ class_name NetworkedStateMachine
 
 ## A networked state machine that can be used to synchronize state between peers.
 
-@export var state: StringName = "": set = _set_state
+@export var state: StringName = "": set = set_state
 
 signal state_changed(old_state: NetworkedState, new_state: NetworkedState)
 
@@ -19,7 +19,7 @@ func _ready():
 			_available_states[child.name] = child
 
 # Method to set the state
-func _set_state(new_state: StringName) -> void:
+func set_state(new_state: StringName) -> void:
 	if !new_state:
 		return
 	
@@ -34,6 +34,7 @@ func _set_state(new_state: StringName) -> void:
 		return
 	
 	if _state_object:
+		
 		if !new_state_class.can_enter(_state_object):
 			return
 	
@@ -48,6 +49,3 @@ func _set_state(new_state: StringName) -> void:
 func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 	if _state_object:
 		_state_object.update(delta, tick, is_fresh)
-
-func set_state(new_state: StringName) -> void:
-	state = new_state
