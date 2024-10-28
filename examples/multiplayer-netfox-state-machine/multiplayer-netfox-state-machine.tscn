@@ -1,104 +1,14 @@
-[gd_scene load_steps=8 format=3 uid="uid://b2nbnsert06me"]
+[gd_scene load_steps=3 format=3 uid="uid://ccrn3tkucslv1"]
 
-[ext_resource type="Script" path="res://examples/multiplayer-netfox-state-machine/scripts/player-spawner.gd" id="1_sueoi"]
-[ext_resource type="PackedScene" uid="uid://k3y73rql2u6e" path="res://examples/multiplayer-netfox-state-machine/characters/player.tscn" id="2_m5dic"]
-[ext_resource type="PackedScene" uid="uid://badtpsxn5lago" path="res://examples/shared/ui/network-popup.tscn" id="3_ibskd"]
-[ext_resource type="Script" path="res://examples/multiplayer-netfox/scripts/time-display.gd" id="4_56qa1"]
+[ext_resource type="PackedScene" uid="uid://b2nbnsert06me" path="res://examples/multiplayer-netfox/multiplayer-netfox.tscn" id="1_bfe2b"]
+[ext_resource type="PackedScene" uid="uid://d4avkbkq3m4ra" path="res://examples/multiplayer-netfox-state-machine/characters/player.tscn" id="2_fawao"]
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_rrbfu"]
+[node name="multiplayer-netfox-state-machine" type="Node"]
 
-[sub_resource type="Sky" id="Sky_g0uhm"]
-sky_material = SubResource("ProceduralSkyMaterial_rrbfu")
+[node name="Game Scene2" parent="." instance=ExtResource("1_bfe2b")]
 
-[sub_resource type="Environment" id="Environment_ef1wp"]
-background_mode = 2
-sky = SubResource("Sky_g0uhm")
+[node name="Player Spawner" parent="Game Scene2/Network" index="1"]
+player_scene = ExtResource("2_fawao")
 
-[node name="Game Scene2" type="Node3D"]
-
-[node name="Map" type="Node" parent="."]
-
-[node name="CSGCombiner3D" type="CSGCombiner3D" parent="Map"]
-use_collision = true
-
-[node name="CSGFloor" type="CSGBox3D" parent="Map/CSGCombiner3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
-size = Vector3(16, 0.5, 16)
-
-[node name="CSGWall" type="CSGBox3D" parent="Map/CSGCombiner3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 8)
-size = Vector3(16, 2, 1)
-
-[node name="CSGWall2" type="CSGBox3D" parent="Map/CSGCombiner3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -8)
-size = Vector3(16, 2, 1)
-
-[node name="CSGWall3" type="CSGBox3D" parent="Map/CSGCombiner3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 1, 0)
-size = Vector3(1, 2, 16)
-
-[node name="CSGWall4" type="CSGBox3D" parent="Map/CSGCombiner3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1, 0)
-size = Vector3(1, 2, 16)
-
-[node name="CSGCorner" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 1, 8)
-
-[node name="CSGCorner2" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 1, -8)
-
-[node name="CSGCorner3" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1, -8)
-
-[node name="CSGCorner4" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1, 8)
-
-[node name="Environment" type="Node" parent="."]
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
-transform = Transform3D(0.5, 0.612372, -0.612372, 0, 0.707107, 0.707107, 0.866025, -0.353553, 0.353553, -6.7361, 8.77817, 3.88909)
-shadow_enabled = true
-
-[node name="Camera3D" type="Camera3D" parent="Environment"]
-transform = Transform3D(1, 0, 0, 0, 0.5, 0.866025, 0, -0.866025, 0.5, 0, 14.3564, 8.86602)
-current = true
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
-environment = SubResource("Environment_ef1wp")
-
-[node name="Network" type="Node" parent="."]
-
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Network"]
-spawn_path = NodePath("../../Players")
-
-[node name="Player Spawner" type="Node" parent="Network" node_paths=PackedStringArray("spawn_root")]
-script = ExtResource("1_sueoi")
-player_scene = ExtResource("2_m5dic")
-spawn_root = NodePath("../../Players")
-
-[node name="Players" type="Node" parent="."]
-
-[node name="UI" type="Control" parent="."]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Network Popup" parent="UI" instance=ExtResource("3_ibskd")]
-layout_mode = 1
-
-[node name="LAN Bootstrapper" parent="UI/Network Popup" index="3" node_paths=PackedStringArray("connect_ui")]
-connect_ui = NodePath("..")
-
-[node name="Noray Bootstrapper" parent="UI/Network Popup" index="4" node_paths=PackedStringArray("connect_ui")]
-connect_ui = NodePath("..")
-
-[node name="Time Display" type="Label" parent="UI"]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 23.0
-script = ExtResource("4_56qa1")
-
-[editable path="UI/Network Popup"]
+[editable path="Game Scene2"]
+[editable path="Game Scene2/UI/Network Popup"]

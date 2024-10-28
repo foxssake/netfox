@@ -1,6 +1,5 @@
-[gd_scene load_steps=12 format=3 uid="uid://k3y73rql2u6e"]
+[gd_scene load_steps=11 format=3 uid="uid://d4avkbkq3m4ra"]
 
-[ext_resource type="Script" path="res://examples/multiplayer-netfox-state-machine/scripts/player.gd" id="1_rmsnx"]
 [ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="2_qf1b4"]
 [ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="3_dkpv5"]
 [ext_resource type="Script" path="res://examples/multiplayer-netfox-state-machine/scripts/player-input.gd" id="4_1uirt"]
@@ -9,16 +8,14 @@
 [ext_resource type="Script" path="res://examples/multiplayer-netfox-state-machine/scripts/character-states/Move.gd" id="7_xl1vh"]
 [ext_resource type="Script" path="res://examples/multiplayer-netfox-state-machine/scripts/character-states/Jump.gd" id="8_prifk"]
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_t2650"]
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_2l8pk"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2gc5u"]
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_vogks"]
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_tnl3b"]
 material = SubResource("StandardMaterial3D_2gc5u")
 
-[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("state_machine")]
-script = ExtResource("1_rmsnx")
-state_machine = NodePath("NetworkedStateMachine")
+[node name="player" type="CharacterBody3D"]
 
 [node name="StateNameLabel3D" type="Label3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.24079, 0)
@@ -27,20 +24,18 @@ fixed_size = true
 text = "Idle"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-shape = SubResource("CapsuleShape3D_t2650")
+shape = SubResource("CapsuleShape3D_2l8pk")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("CapsuleMesh_vogks")
+mesh = SubResource("CapsuleMesh_tnl3b")
 
-[node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
+[node name="RollbackSynchronizer" type="Node" parent="."]
 script = ExtResource("2_qf1b4")
-root = NodePath("..")
 state_properties = Array[String]([":position", "NetworkedStateMachine:_current_state_name"])
 input_properties = Array[String](["Input:movement", "Input:jump"])
 
-[node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
+[node name="TickInterpolator" type="Node" parent="."]
 script = ExtResource("3_dkpv5")
-root = NodePath("..")
 properties = Array[String]([":position"])
 
 [node name="Input" type="Node" parent="."]
@@ -49,20 +44,11 @@ script = ExtResource("4_1uirt")
 [node name="NetworkedStateMachine" type="Node" parent="."]
 script = ExtResource("5_d8tb7")
 
-[node name="Idle" type="Node" parent="NetworkedStateMachine" node_paths=PackedStringArray("character", "input", "state_machine")]
+[node name="Idle" type="Node" parent="NetworkedStateMachine"]
 script = ExtResource("6_plr4e")
-character = NodePath("../..")
-input = NodePath("../../Input")
-state_machine = NodePath("..")
 
-[node name="Move" type="Node" parent="NetworkedStateMachine" node_paths=PackedStringArray("character", "input", "state_machine")]
+[node name="Move" type="Node" parent="NetworkedStateMachine"]
 script = ExtResource("7_xl1vh")
-character = NodePath("../..")
-input = NodePath("../../Input")
-state_machine = NodePath("..")
 
-[node name="Jump" type="Node" parent="NetworkedStateMachine" node_paths=PackedStringArray("character", "input", "state_machine")]
+[node name="Jump" type="Node" parent="NetworkedStateMachine"]
 script = ExtResource("8_prifk")
-character = NodePath("../..")
-input = NodePath("../../Input")
-state_machine = NodePath("..")
