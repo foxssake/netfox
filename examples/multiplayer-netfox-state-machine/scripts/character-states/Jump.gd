@@ -7,7 +7,7 @@ extends NetworkedState
 
 # Only enter if the character is on the floor
 func can_enter(_previous_state):
-	return character.is_on_floor()
+	return input.jump and character.is_on_floor()
 	
 func enter(_previous_state, _tick):
 	character.set_color(Color.BLUE)
