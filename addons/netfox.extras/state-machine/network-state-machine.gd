@@ -10,6 +10,7 @@ signal on_state_changed(old_state: NetworkedState, new_state: NetworkedState)
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_extras("NetworkedStateMachine")
 
+var _is_fresh: bool = false
 var _state_object: NetworkedState = null
 var _available_states: Dictionary = {}
 
@@ -20,6 +21,7 @@ func _ready():
 
 # Callback during rollback tick
 func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
+	_is_fresh = is_fresh
 	if _state_object:
 		_state_object.update(delta, tick, is_fresh)
 		
@@ -41,11 +43,13 @@ func transition(new_state: StringName) -> void:
 	if _state_object:
 		
 		if !new_state_class.can_enter(_state_object):
+			# _logger.info("[Fresh: %s] [Rollback: %s] Transition prevented from state %s into %s" % [_is_fresh, NetworkRollback.is_rollback(), state, new_state])
 			return
 	
 		_state_object.exit(new_state_class, NetworkRollback.tick)
 	
 	on_state_changed.emit(_state_object, new_state_class)
+	_logger.info("[Fresh: %s] [Rollback: %s] Transitioned from state %s into %s" % [_is_fresh, NetworkRollback.is_rollback(), state, new_state])
 	state = new_state
 	var _previous_state_object: NetworkedState = _state_object
 	_state_object = new_state_class
