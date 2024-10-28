@@ -9,7 +9,7 @@ extends NetworkedState
 func can_enter(_previous_state):
 	return character.is_on_floor()
 	
-func enter():
+func enter(_previous_state, _tick):
 	character.set_color(Color.BLUE)
 	character.velocity.y = jump_strength
 

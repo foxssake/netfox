@@ -4,7 +4,7 @@ extends NetworkedState
 @export var input: PlayerInputStateMachine
 @export var speed = 5.0
 
-func enter():
+func enter(_previous_state, _tick):
 	character.set_color(Color.RED)
 
 func update(delta, tick, is_fresh):

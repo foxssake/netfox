@@ -50,20 +50,17 @@ script = ExtResource("4_1uirt")
 script = ExtResource("5_d8tb7")
 state = &"Idle"
 
-[node name="Idle" type="Node" parent="NetworkedStateMachine" node_paths=PackedStringArray("character", "input", "state_machine")]
-script = ExtResource("6_plr4e")
-character = NodePath("../..")
-input = NodePath("../../Input")
-state_machine = NodePath("..")
-
-[node name="Move" type="Node" parent="NetworkedStateMachine" node_paths=PackedStringArray("character", "input", "state_machine")]
-script = ExtResource("7_xl1vh")
-character = NodePath("../..")
-input = NodePath("../../Input")
-state_machine = NodePath("..")
-
-[node name="Jump" type="Node" parent="NetworkedStateMachine" node_paths=PackedStringArray("character", "input", "state_machine")]
+[node name="Jump" type="Node" parent="NetworkedStateMachine" node_paths=PackedStringArray("character", "input")]
 script = ExtResource("8_prifk")
 character = NodePath("../..")
 input = NodePath("../../Input")
-state_machine = NodePath("..")
+
+[node name="Idle" type="Node" parent="NetworkedStateMachine" node_paths=PackedStringArray("character", "input")]
+script = ExtResource("6_plr4e")
+character = NodePath("../..")
+input = NodePath("../../Input")
+
+[node name="Move" type="Node" parent="NetworkedStateMachine" node_paths=PackedStringArray("character", "input")]
+script = ExtResource("7_xl1vh")
+character = NodePath("../..")
+input = NodePath("../../Input")

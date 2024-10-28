@@ -8,9 +8,8 @@ class_name NetworkedStateMachine
 
 signal on_state_changed(old_state: NetworkedState, new_state: NetworkedState)
 
-static var _logger: _NetfoxLogger = _NetfoxLogger.for_extras("NetworkWeapon")
+static var _logger: _NetfoxLogger = _NetfoxLogger.for_extras("NetworkedStateMachine")
 
-# Semi-private state property
 var _state_object: NetworkedState = null
 var _available_states: Dictionary = {}
 
@@ -34,7 +33,7 @@ func transition(new_state: StringName) -> void:
 		return
 	
 	if !_available_states.has(new_state):
-		_logger.warning("%s attempted to transition into a non-existing state" % state)
+		_logger.warning("Attempted to transition from state %s into non-existing state %s" % [state, new_state])
 		return
 		
 	var new_state_class: NetworkedState = _available_states[new_state]
@@ -44,12 +43,13 @@ func transition(new_state: StringName) -> void:
 		if !new_state_class.can_enter(_state_object):
 			return
 	
-		_state_object.exit()
+		_state_object.exit(new_state_class, NetworkRollback.tick)
 	
 	on_state_changed.emit(_state_object, new_state_class)
 	state = new_state
+	var _previous_state_object: NetworkedState = _state_object
 	_state_object = new_state_class
-	_state_object.enter()
+	_state_object.enter(_previous_state_object, NetworkRollback.tick)
 
 func set_state(new_state: StringName) -> void:
 	transition(new_state)
