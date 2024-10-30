@@ -7,7 +7,7 @@ extends RewindableState
 func enter(_previous_state, _tick):
 	character.set_color(Color.RED)
 
-func update(delta, tick, is_fresh):
+func tick(delta, tick, is_fresh):
 	var input_dir = input.movement
 	var direction = (character.transform.basis * Vector3(input_dir.x, 0, input_dir.z)).normalized()
 	if direction:

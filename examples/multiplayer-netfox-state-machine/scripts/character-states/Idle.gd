@@ -6,7 +6,7 @@ extends RewindableState
 func enter(_previous_state, _tick):
 	character.set_color(Color.WHITE)
 
-func update(delta, tick, is_fresh):
+func tick(delta, tick, is_fresh):
 	character.velocity *= NetworkTime.physics_factor
 	character.move_and_slide()
 	character.velocity /= NetworkTime.physics_factor
