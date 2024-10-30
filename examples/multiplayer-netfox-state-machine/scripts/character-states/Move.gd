@@ -24,6 +24,6 @@ func update(delta, tick, is_fresh):
 	character.velocity /= NetworkTime.physics_factor
 	
 	if input.jump:
-		state_machine.set_state(&"Jump")
+		state_machine.transition(&"Jump")
 	elif input_dir == Vector3.ZERO:
-		state_machine.set_state(&"Idle")
+		state_machine.transition(&"Idle")

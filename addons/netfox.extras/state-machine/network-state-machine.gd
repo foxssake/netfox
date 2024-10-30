@@ -4,7 +4,9 @@ class_name NetworkedStateMachine
 
 ## A networked state machine that can be used to synchronize state between peers.
 
-@export var state: StringName = "": set = transition
+@export var state: StringName = "":
+	get: return _state_object.name if _state_object != null else ""
+	set(v): _set_state(v)
 
 signal on_state_changed(old_state: NetworkedState, new_state: NetworkedState)
 
@@ -25,6 +27,7 @@ func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 		
 # Method to set the state
 func transition(new_state: StringName) -> void:
+	_logger.debug("Attempting transition %s -> %s" % [state, new_state])
 	if !new_state:
 		_logger.warning("%s attempted to transition but the new state name was invalid" % state)
 		return
@@ -51,5 +54,12 @@ func transition(new_state: StringName) -> void:
 	_state_object = new_state_class
 	_state_object.enter(_previous_state_object, NetworkRollback.tick)
 
-func set_state(new_state: StringName) -> void:
-	transition(new_state)
+func _set_state(new_state: StringName) -> void:
+	if not new_state:
+		return
+	
+	if not _available_states.has(new_state):
+		_logger.warning("Attempted to jump to unknown state: %s" % [new_state])
+		return
+	
+	_state_object = _available_states[new_state]

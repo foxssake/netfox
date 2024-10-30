@@ -12,6 +12,6 @@ func update(delta, tick, is_fresh):
 	character.velocity /= NetworkTime.physics_factor
 	
 	if input.movement != Vector3.ZERO:
-		state_machine.set_state(&"Move")
+		state_machine.transition(&"Move")
 	elif input.jump:
-		state_machine.set_state(&"Jump")
+		state_machine.transition(&"Jump")

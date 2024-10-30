@@ -30,4 +30,4 @@ func update(delta, tick, is_fresh):
 	character.velocity /= NetworkTime.physics_factor
 	
 	if character.is_on_floor():
-		state_machine.set_state(&"Idle")
+		state_machine.transition(&"Idle")
