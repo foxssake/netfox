@@ -170,6 +170,10 @@ func _discipline_clock():
 			return a.get_rtt() < b.get_rtt()
 	)
 	
+	_logger.trace("Using sorted samples: \n%s" % [
+		"\n".join(sorted_samples.map(func(it): return "\t" + it.to_string()))
+	])
+	
 	# Calculate rtt bounds
 	var rtt_min = sorted_samples.front().get_rtt()
 	var rtt_max = sorted_samples.back().get_rtt()
@@ -177,11 +181,12 @@ func _discipline_clock():
 	_rtt_jitter = (rtt_max - rtt_min) / 2.
 	
 	# Calculate offset
-	var offset = 0.
+	var offset := 0.
+	var offsets = sorted_samples.map(func(it): return it.get_offset())
 	var offset_weight = 0.
-	for i in range(sorted_samples.size()):
+	for i in range(offsets.size()):
 		var w = pow(2, -i)
-		offset += sorted_samples[i].get_offset() * w
+		offset += offsets[i] * w
 		offset_weight += w
 	offset /= offset_weight
 	
@@ -197,10 +202,11 @@ func _discipline_clock():
 		on_panic.emit(offset)
 	else:
 		# Nudge clock towards estimated time
-		_clock.adjust(offset / adjust_steps)
-		_logger.trace("Adjusted clock, offset: %sms, new time: %ss" % [offset * 1000., _clock.get_time()])
+		var nudge := offset / adjust_steps
+		_clock.adjust(nudge)
+		_logger.trace("Adjusted clock by %.2fms, offset: %.2fms, new time: %.4fss" % [nudge * 1000., offset * 1000., _clock.get_time()])
 		
-		_offset = offset * (1. - 1. / adjust_steps)
+		_offset = offset - nudge
 
 @rpc("any_peer", "call_remote", "unreliable")
 func _send_ping(idx: int):
@@ -218,10 +224,7 @@ func _send_pong(idx: int, ping_received: float, pong_sent: float):
 	sample.pong_sent = pong_sent
 	sample.pong_received = pong_received
 	
-	_logger.trace("Received sample: t1=%s; t2=%s; t3=%s; t4=%s; theta=%sms; delta=%sms" % [
-		sample.ping_sent, sample.ping_received, sample.pong_sent, sample.pong_received,
-		sample.get_offset() * 1000., sample.get_rtt() * 1000.
-	])
+	_logger.trace("Received sample: %s" % [sample])
 	
 	# Once a sample is done, remove from in-flight samples and move to sample buffer
 	_awaiting_samples.erase(idx)
