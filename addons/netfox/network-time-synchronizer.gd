@@ -5,20 +5,29 @@ class_name _NetworkTimeSynchronizer
 ##
 ## Make sure to read the [i]NetworkTimeSynchronizer Guide[/i] to understand the
 ## different clocks that the class docs refer to.
-##
+## 
 ## @tutorial(NetworkTimeSynchronizer Guide): https://foxssake.github.io/netfox/netfox/guides/network-time-synchronizer/
 
+## The minimum time in seconds between two sync samples.
+## 
+## See [member sync_interval]
+const MIN_SYNC_INTERVAL := 0.1
+
 ## Time between sync samples, in seconds.
-## [br]
+## Cannot be less than [member MIN_SYNC_INTERVAL]
+## [br][br]
 ## [i]read-only[/i], you can change this in the Netfox project settings
 var sync_interval: float:
 	get:
-		return ProjectSettings.get_setting("netfox/time/sync_interval", 0.25)
+		return maxf(
+			ProjectSettings.get_setting("netfox/time/sync_interval", 0.25),
+			MIN_SYNC_INTERVAL
+		)
 	set(v):
 		push_error("Trying to set read-only variable sync_interval")
 
 ## Number of measurements ( samples ) to use for time synchronization.
-## [br]
+## [br][br]
 ## [i]read-only[/i], you can change this in the Netfox project settings
 var sync_samples: int:
 	get:
@@ -31,7 +40,7 @@ var sync_samples: int:
 ## Lower values result in more aggressive changes in clock and may be more 
 ## sensitive to jitter. Larger values may end up approaching the remote clock
 ## too slowly.
-## [br]
+## [br][br]
 ## [i]read-only[/i], you can change this in the Netfox project settings
 var adjust_steps: int:
 	get:
@@ -43,7 +52,7 @@ var adjust_steps: int:
 ##
 ## Once this threshold is reached, the clock will be reset to the remote clock's 
 ## value, and the nudge process will start from scratch.
-## [br]
+## [br][br]
 ## [i]read-only[/i], you can change this in the Netfox project settings
 var panic_threshold: float:
 	get:
@@ -55,7 +64,7 @@ var panic_threshold: float:
 ##
 ## This value is calculated from multiple samples. The actual roundtrip times 
 ## can be anywhere in the [member rtt] +/- [member rtt_jitter] range.
-## [br]
+## [br][br]
 ## [i]read-only[/i]
 var rtt: float:
 	get:
@@ -67,7 +76,7 @@ var rtt: float:
 ##
 ## This value is calculated from multiple samples. The actual roundtrip times 
 ## can be anywhere in the [member rtt] +/- [member rtt_jitter] range.
-## [br]
+## [br][br]
 ## [i]read-only[/i]
 var rtt_jitter: float:
 	get:
@@ -79,7 +88,7 @@ var rtt_jitter: float:
 ##
 ## Positive values mean that the host's remote clock is ahead of ours, while
 ## negative values mean that our clock is behind the host's remote.
-## [br]
+## [br][br]
 ## [i]read-only[/i]
 var remote_offset: float:
 	get:

@@ -32,7 +32,9 @@ var SETTINGS = [
 		# Time to wait between time syncs
 		"name": "netfox/time/sync_interval",
 		"value": 0.25,
-		"type": TYPE_FLOAT
+		"type": TYPE_FLOAT,
+		"hint": PROPERTY_HINT_RANGE,
+		"hint_string": "%s,2,or_greater" % [_NetworkTimeSynchronizer.MIN_SYNC_INTERVAL]
 	},
 	{
 		"name": "netfox/time/sync_samples",
