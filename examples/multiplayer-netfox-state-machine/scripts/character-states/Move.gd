@@ -1,4 +1,4 @@
-extends NetworkedState
+extends RewindableState
 
 @export var character: CharacterBody3D
 @export var input: PlayerInputStateMachine

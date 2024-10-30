@@ -1,6 +1,6 @@
 extends CharacterBody3D
 
-@export var state_machine: NetworkedStateMachine
+@export var state_machine: RewindableStateMachine
 
 @onready var mesh_instance: MeshInstance3D = $MeshInstance3D
 @onready var current_state_label: Label3D = $StateNameLabel3D
