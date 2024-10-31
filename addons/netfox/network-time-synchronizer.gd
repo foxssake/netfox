@@ -172,8 +172,9 @@ func _loop():
 		await get_tree().create_timer(sync_interval).timeout
 
 func _discipline_clock():
-	# Sort samples by latency
 	var sorted_samples := _sample_buffer.slice(0, _sample_buf_size) as Array[NetworkClockSample]
+	
+	# Sort samples by latency
 	sorted_samples.sort_custom(
 		func(a: NetworkClockSample, b: NetworkClockSample):
 			return a.get_rtt() < b.get_rtt()
@@ -194,7 +195,7 @@ func _discipline_clock():
 	var offsets = sorted_samples.map(func(it): return it.get_offset())
 	var offset_weight = 0.
 	for i in range(offsets.size()):
-		var w = pow(2, -i)
+		var w = 1. / (1. + sorted_samples[i].get_rtt())
 		offset += offsets[i] * w
 		offset_weight += w
 	offset /= offset_weight
