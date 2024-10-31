@@ -60,12 +60,10 @@ func tick(delta, tick, is_fresh):
 Transitions are based on *node names*, i.e. calling `transition(&"Move")` will
 transition to a state node called *Move*. 
 
-## Adding states
-
-States must be added as children under a RewindableStateMachine to work.
-
 ![RewindableStates under a state
 machine](../assets/rewindable-state-children.png)
+
+States must be added as children under a RewindableStateMachine to work.
 
 [multiplayer-state-machine]: https://github.com/foxssake/netfox/tree/main/examples/multiplayer-state-machine
 [RollbackSynchronizer]: ../../netfox/nodes/rollback-synchronizer.md
