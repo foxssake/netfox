@@ -1,5 +1,5 @@
 @tool
-@icon("res://addons/netfox/icons/state-synchronizer.svg")
+@icon("res://addons/netfox.extras/icons/rewindable-state.svg")
 extends Node
 class_name RewindableState
 
