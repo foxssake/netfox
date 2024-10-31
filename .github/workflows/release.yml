@@ -21,6 +21,7 @@ jobs:
         with:
           version: 4.1.1
           use-dotnet: false
+          include-templates: true
       - name: Verify setup
         run: godot --version
       - name: Build
