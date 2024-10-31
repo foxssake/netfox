@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://ccrn3tkucslv1"]
 
 [ext_resource type="PackedScene" uid="uid://b2nbnsert06me" path="res://examples/multiplayer-netfox/multiplayer-netfox.tscn" id="1_bfe2b"]
-[ext_resource type="PackedScene" uid="uid://d4avkbkq3m4ra" path="res://examples/multiplayer-netfox-state-machine/characters/player.tscn" id="2_fawao"]
+[ext_resource type="PackedScene" uid="uid://d4avkbkq3m4ra" path="res://examples/multiplayer-state-machine/characters/player.tscn" id="2_fawao"]
 
 [node name="multiplayer-netfox-state-machine" type="Node"]
 
