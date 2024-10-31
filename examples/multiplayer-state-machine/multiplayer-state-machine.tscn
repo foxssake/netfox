@@ -3,12 +3,12 @@
 [ext_resource type="PackedScene" uid="uid://b2nbnsert06me" path="res://examples/multiplayer-netfox/multiplayer-netfox.tscn" id="1_bfe2b"]
 [ext_resource type="PackedScene" uid="uid://d4avkbkq3m4ra" path="res://examples/multiplayer-state-machine/characters/player.tscn" id="2_fawao"]
 
-[node name="multiplayer-netfox-state-machine" type="Node"]
+[node name="multiplayer-state-machine" type="Node"]
 
-[node name="Game Scene2" parent="." instance=ExtResource("1_bfe2b")]
+[node name="Game Scene" parent="." instance=ExtResource("1_bfe2b")]
 
-[node name="Player Spawner" parent="Game Scene2/Network" index="1"]
+[node name="Player Spawner" parent="Game Scene/Network" index="1"]
 player_scene = ExtResource("2_fawao")
 
-[editable path="Game Scene2"]
-[editable path="Game Scene2/UI/Network Popup"]
+[editable path="Game Scene"]
+[editable path="Game Scene/UI/Network Popup"]
