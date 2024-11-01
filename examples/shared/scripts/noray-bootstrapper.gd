@@ -1,7 +1,6 @@
 extends Node
 
 enum Role { NONE, HOST, CLIENT }
-var role = Role.NONE
 
 @export_category("UI")
 @export var connect_ui: Control
@@ -11,6 +10,8 @@ var role = Role.NONE
 @export var force_relay_check: CheckBox
 
 @onready var brawler_spawner := %"Brawler Spawner" as BrawlerSpawner
+
+var role = Role.NONE
 
 func _ready():
 	Noray.on_oid.connect(func(oid): oid_input.text = oid)
