@@ -29,6 +29,7 @@ font_size = 64
 [node name="Network" type="Node" parent="."]
 
 [node name="Brawler Spawner" type="Node" parent="Network" node_paths=PackedStringArray("spawn_root", "camera", "joining_screen", "name_input")]
+unique_name_in_owner = true
 script = ExtResource("5_qv1fx")
 player_scene = ExtResource("7_tcy3g")
 spawn_root = NodePath("../../Players")
@@ -168,10 +169,6 @@ script = ExtResource("16_6pky3")
 visible = false
 layout_mode = 2
 
-[node name="No Host Brawler" type="CheckBox" parent="UI/Network Popup/LAN"]
-layout_mode = 2
-text = "No Host Brawler"
-
 [node name="Address Row" type="HBoxContainer" parent="UI/Network Popup/LAN"]
 layout_mode = 2
 size_flags_vertical = 2
@@ -199,6 +196,11 @@ text = "16384"
 [node name="Actions Row" type="HBoxContainer" parent="UI/Network Popup/LAN"]
 layout_mode = 2
 size_flags_horizontal = 4
+
+[node name="Host Only Button" type="Button" parent="UI/Network Popup/LAN/Actions Row"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Host Only"
 
 [node name="Host Button" type="Button" parent="UI/Network Popup/LAN/Actions Row"]
 layout_mode = 2
@@ -269,6 +271,10 @@ placeholder_text = "Host OID"
 [node name="Connect Actions Row" type="HBoxContainer" parent="UI/Network Popup/Noray"]
 layout_mode = 2
 
+[node name="Host Only Button" type="Button" parent="UI/Network Popup/Noray/Connect Actions Row"]
+layout_mode = 2
+text = "Host Only"
+
 [node name="Host Button" type="Button" parent="UI/Network Popup/Noray/Connect Actions Row"]
 layout_mode = 2
 text = "Host"
@@ -281,31 +287,19 @@ text = "Join"
 layout_mode = 2
 text = "Force Relay"
 
-[node name="No Host Brawler" type="CheckBox" parent="UI/Network Popup/Noray"]
-layout_mode = 2
-text = "No Host Brawler"
-
-[node name="LAN Bootstrapper" type="Node" parent="UI/Network Popup" node_paths=PackedStringArray("connect_ui", "address_input", "port_input", "host_button", "join_button", "spawn_host_avatar_checkbox")]
+[node name="LAN Bootstrapper" type="Node" parent="UI/Network Popup" node_paths=PackedStringArray("connect_ui", "address_input", "port_input")]
 script = ExtResource("12_gjc7i")
 connect_ui = NodePath("..")
 address_input = NodePath("../LAN/Address Row/Address LineEdit")
 port_input = NodePath("../LAN/Address Row/Port LineEdit")
-host_button = NodePath("../LAN/Actions Row/Host Button")
-join_button = NodePath("../LAN/Actions Row/Join Button")
-spawn_host_avatar_checkbox = NodePath("../LAN/No Host Brawler")
 
-[node name="Noray Bootstrapper" type="Node" parent="UI/Network Popup" node_paths=PackedStringArray("connect_ui", "noray_address_input", "noray_connect_button", "noray_disconnect_button", "oid_input", "host_oid_input", "host_button", "join_button", "force_relay_check", "spawn_host_avatar_checkbox")]
+[node name="Noray Bootstrapper" type="Node" parent="UI/Network Popup" node_paths=PackedStringArray("connect_ui", "noray_address_input", "oid_input", "host_oid_input", "force_relay_check")]
 script = ExtResource("11_vpdh0")
 connect_ui = NodePath("..")
 noray_address_input = NodePath("../Noray/Noray Address Row/Address LineEdit")
-noray_connect_button = NodePath("../Noray/Noray Actions Row/Connect Button")
-noray_disconnect_button = NodePath("../Noray/Noray Actions Row/Disconnect Button")
 oid_input = NodePath("../Noray/OID Row/OID Value")
 host_oid_input = NodePath("../Noray/Connect Host Row/Host LineEdit")
-host_button = NodePath("../Noray/Connect Actions Row/Host Button")
-join_button = NodePath("../Noray/Connect Actions Row/Join Button")
 force_relay_check = NodePath("../Noray/Connect Actions Row/Force Relay Checkbox")
-spawn_host_avatar_checkbox = NodePath("../Noray/No Host Brawler")
 
 [node name="Player stats" type="Control" parent="UI" node_paths=PackedStringArray("score_label", "score_manager")]
 visible = false
@@ -373,5 +367,11 @@ vertical_alignment = 1
 visible = false
 layout_mode = 1
 
-[connection signal="spawn_host_avatar" from="UI/Network Popup/LAN Bootstrapper" to="Network/Brawler Spawner" method="_set_host_spawn_avatar"]
-[connection signal="spawn_host_avatar" from="UI/Network Popup/Noray Bootstrapper" to="Network/Brawler Spawner" method="_set_host_spawn_avatar"]
+[connection signal="pressed" from="UI/Network Popup/LAN/Actions Row/Host Only Button" to="UI/Network Popup/LAN Bootstrapper" method="host_only"]
+[connection signal="pressed" from="UI/Network Popup/LAN/Actions Row/Host Button" to="UI/Network Popup/LAN Bootstrapper" method="host"]
+[connection signal="pressed" from="UI/Network Popup/LAN/Actions Row/Join Button" to="UI/Network Popup/LAN Bootstrapper" method="join"]
+[connection signal="pressed" from="UI/Network Popup/Noray/Noray Actions Row/Connect Button" to="UI/Network Popup/Noray Bootstrapper" method="connect_to_noray"]
+[connection signal="pressed" from="UI/Network Popup/Noray/Noray Actions Row/Disconnect Button" to="UI/Network Popup/Noray Bootstrapper" method="disconnect_from_noray"]
+[connection signal="pressed" from="UI/Network Popup/Noray/Connect Actions Row/Host Only Button" to="UI/Network Popup/Noray Bootstrapper" method="host_only"]
+[connection signal="pressed" from="UI/Network Popup/Noray/Connect Actions Row/Host Button" to="UI/Network Popup/Noray Bootstrapper" method="host"]
+[connection signal="pressed" from="UI/Network Popup/Noray/Connect Actions Row/Join Button" to="UI/Network Popup/Noray Bootstrapper" method="join"]
