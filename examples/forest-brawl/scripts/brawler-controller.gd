@@ -101,10 +101,19 @@ func _rollback_tick(delta, tick, is_fresh):
 		if is_fresh:
 			GameEvents.on_brawler_respawn.emit(self)
 
-	# Add the gravity.
+	# Apply gravity
 	_force_update_is_on_floor()
 	if not is_on_floor():
 		velocity.y -= gravity * delta
+	
+	# Stick to moving platforms
+	var platform_velocity := Vector3.ZERO
+	var collision_result := KinematicCollision3D.new()
+	if test_move(global_transform, Vector3.DOWN * delta, collision_result):
+		var collider := collision_result.get_collider()
+		if collider is MovingPlatform:
+			var platform := collider as MovingPlatform
+			platform_velocity = platform.get_velocity()
 
 	# Jump
 	if input.movement.y > 0 and is_on_floor():
@@ -124,9 +133,11 @@ func _rollback_tick(delta, tick, is_fresh):
 		transform = transform.looking_at(position + Vector3(input.aim.x, 0, input.aim.z), Vector3.UP, true).scaled_local(scale)
 
 	# Apply movement
+	velocity += platform_velocity
 	velocity *= NetworkTime.physics_factor
 	move_and_slide()
 	velocity /= NetworkTime.physics_factor
+	velocity -= platform_velocity
 	
 	# Death
 	if position.y < -death_depth and tick > respawn_tick and is_fresh:
