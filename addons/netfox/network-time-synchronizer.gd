@@ -190,7 +190,7 @@ func _discipline_clock():
 	var offsets = sorted_samples.map(func(it): return it.get_offset())
 	var offset_weight = 0.
 	for i in range(offsets.size()):
-		var w = 1. / (1. + sorted_samples[i].get_rtt())
+		var w = log(1 + sorted_samples[i].get_rtt())
 		offset += offsets[i] * w
 		offset_weight += w
 		
