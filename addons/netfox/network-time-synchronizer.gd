@@ -204,6 +204,10 @@ func _discipline_clock():
 		# Reset clock, throw away all samples
 		_clock.adjust(offset)
 		_sample_buffer.clear()
+		
+		# Also drop in-flight samples
+		_awaiting_samples.clear()
+		
 		_offset = 0.
 		
 		_logger.warning("Offset %ss is above panic threshold %ss! Resetting clock" % [offset, panic_threshold])
@@ -226,6 +230,10 @@ func _send_ping(idx: int):
 @rpc("any_peer", "call_remote", "unreliable")
 func _send_pong(idx: int, ping_received: float, pong_sent: float):
 	var pong_received = _clock.get_time()
+	
+	if not _awaiting_samples.has(idx):
+		# Sample was dropped mid-flight during a panic episode
+		return
 	
 	var sample = _awaiting_samples[idx] as NetworkClockSample
 	sample.ping_received = ping_received
