@@ -1,9 +1,9 @@
 [gd_scene load_steps=8 format=3 uid="uid://b2nbnsert06me"]
 
 [ext_resource type="Script" path="res://examples/multiplayer-netfox/scripts/player-spawner.gd" id="1_ngijx"]
-[ext_resource type="PackedScene" uid="uid://k3y73rql2u6e" path="res://examples/multiplayer-netfox/characters/player.tscn" id="2_ec1of"]
+[ext_resource type="PackedScene" uid="uid://k3y73rql2u6e" path="res://examples/multiplayer-netfox/characters/player.tscn" id="2_xjsod"]
 [ext_resource type="PackedScene" uid="uid://badtpsxn5lago" path="res://examples/shared/ui/network-popup.tscn" id="4_lq3lq"]
-[ext_resource type="Script" path="res://examples/multiplayer-netfox/scripts/time-display.gd" id="4_n66wk"]
+[ext_resource type="Script" path="res://examples/shared/scripts/simple-time-display.gd" id="4_n66wk"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_rrbfu"]
 
@@ -14,7 +14,7 @@ sky_material = SubResource("ProceduralSkyMaterial_rrbfu")
 background_mode = 2
 sky = SubResource("Sky_g0uhm")
 
-[node name="Game Scene2" type="Node3D"]
+[node name="Game Scene" type="Node3D"]
 
 [node name="Map" type="Node" parent="."]
 
@@ -73,7 +73,7 @@ spawn_path = NodePath("../../Players")
 
 [node name="Player Spawner" type="Node" parent="Network" node_paths=PackedStringArray("spawn_root")]
 script = ExtResource("1_ngijx")
-player_scene = ExtResource("2_ec1of")
+player_scene = ExtResource("2_xjsod")
 spawn_root = NodePath("../../Players")
 
 [node name="Players" type="Node" parent="."]
