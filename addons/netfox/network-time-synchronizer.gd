@@ -100,10 +100,8 @@ var _active: bool = false
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkTimeSynchronizer")
 
 # Samples are stored in a ring buffer
-var _sample_buffer: Array[NetworkClockSample] = []
-var _sample_buf_size: int = 0
+var _sample_buffer: _RingBuffer
 var _sample_idx: int = 0
-
 var _awaiting_samples: Dictionary = {}
 
 var _clock: NetworkClocks.SystemClock = NetworkClocks.SystemClock.new()
@@ -138,11 +136,8 @@ func start():
 
 	if not multiplayer.is_server():
 		_active = true
-		
-		_sample_buffer.clear()
-		_sample_buffer.resize(sync_samples)
-		_sample_buf_size = 0
 		_sample_idx = 0
+		_sample_buffer = _RingBuffer.new(sync_samples)
 		
 		_request_timestamp.rpc_id(1)
 
@@ -172,7 +167,7 @@ func _loop():
 		await get_tree().create_timer(sync_interval).timeout
 
 func _discipline_clock():
-	var sorted_samples := _sample_buffer.slice(0, _sample_buf_size) as Array[NetworkClockSample]
+	var sorted_samples := _sample_buffer.get_data()
 	
 	# Sort samples by latency
 	sorted_samples.sort_custom(
@@ -181,7 +176,7 @@ func _discipline_clock():
 	)
 	
 	_logger.trace("Using sorted samples: \n%s" % [
-		"\n".join(sorted_samples.map(func(it): return "\t" + it.to_string()))
+		"\n".join(sorted_samples.map(func(it: NetworkClockSample): return "\t" + it.to_string() + " (%.4fs)" % [get_time() - it.ping_sent]))
 	])
 	
 	# Calculate rtt bounds
@@ -198,14 +193,17 @@ func _discipline_clock():
 		var w = 1. / (1. + sorted_samples[i].get_rtt())
 		offset += offsets[i] * w
 		offset_weight += w
+		
+		_logger.trace("Adding offset %.2fms * %.2f = %.2fms" % [offsets[i] * 1000., w, offsets[i] * 1000. * w])
+		
+	_logger.trace("Normalizing weight %.2fms / %.4f => %.2fms" % [offset * 1000., offset_weight, offset / offset_weight * 1000.])
 	offset /= offset_weight
 	
 	# Panic / Adjust
 	if abs(offset) > panic_threshold:
 		# Reset clock, throw away all samples
 		_clock.adjust(offset)
-		_sample_buffer.fill(null)
-		_sample_buf_size = 0
+		_sample_buffer.clear()
 		_offset = 0.
 		
 		_logger.warning("Offset %ss is above panic threshold %ss! Resetting clock" % [offset, panic_threshold])
@@ -238,9 +236,7 @@ func _send_pong(idx: int, ping_received: float, pong_sent: float):
 	
 	# Once a sample is done, remove from in-flight samples and move to sample buffer
 	_awaiting_samples.erase(idx)
-	
-	_sample_buffer[_sample_buf_size % _sample_buffer.size()] = sample
-	_sample_buf_size = mini(_sample_buf_size + 1, _sample_buffer.size())
+	_sample_buffer.push(sample)
 	
 	# Discipline clock based on new sample
 	_discipline_clock()

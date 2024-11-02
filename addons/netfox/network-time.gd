@@ -444,7 +444,8 @@ func _loop():
 	clock_diff = sign(clock_diff) * max(abs(clock_diff) - 0.001, 0.)
 	
 	var clock_stretch_min = 1. / clock_stretch_max
-	var clock_stretch_f = (1. + clock_diff / (1. * ticktime)) / 2.
+	# var clock_stretch_f = (1. + clock_diff / (1. * ticktime)) / 2.
+	var clock_stretch_f = inverse_lerp(-ticktime, +ticktime, clock_diff)
 	clock_stretch_f = clampf(clock_stretch_f, 0., 1.)
 
 	var previous_stretch_factor = _clock_stretch_factor
