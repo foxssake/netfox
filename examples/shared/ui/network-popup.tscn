@@ -4,15 +4,28 @@
 [ext_resource type="Script" path="res://examples/shared/scripts/noray-bootstrapper.gd" id="2_fgck5"]
 
 [node name="Network Popup" type="TabContainer"]
-offset_right = 540.0
-offset_bottom = 210.0
+custom_minimum_size = Vector2(360, 240)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -125.5
+offset_top = -48.5
+offset_right = 125.5
+offset_bottom = 48.5
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 
 [node name="LAN" type="VBoxContainer" parent="."]
+visible = false
 layout_mode = 2
 
 [node name="Address Row" type="HBoxContainer" parent="LAN"]
 layout_mode = 2
-size_flags_vertical = 0
+size_flags_vertical = 2
 
 [node name="Address Label" type="Label" parent="LAN/Address Row"]
 layout_mode = 2
@@ -49,7 +62,6 @@ size_flags_horizontal = 4
 text = "Join"
 
 [node name="Noray" type="VBoxContainer" parent="."]
-visible = false
 layout_mode = 2
 
 [node name="Noray Address Row" type="HBoxContainer" parent="Noray"]
@@ -119,15 +131,17 @@ text = "Join"
 layout_mode = 2
 text = "Force Relay"
 
-[node name="LAN Bootstrapper" type="Node" parent="." node_paths=PackedStringArray("address_input", "port_input", "host_button", "join_button")]
+[node name="LAN Bootstrapper" type="Node" parent="." node_paths=PackedStringArray("connect_ui", "address_input", "port_input", "host_button", "join_button")]
 script = ExtResource("1_dy86e")
+connect_ui = NodePath("..")
 address_input = NodePath("../LAN/Address Row/Address LineEdit")
 port_input = NodePath("../LAN/Address Row/Port LineEdit")
 host_button = NodePath("../LAN/Actions Row/Host Button")
 join_button = NodePath("../LAN/Actions Row/Join Button")
 
-[node name="Noray Bootstrapper" type="Node" parent="." node_paths=PackedStringArray("noray_address_input", "noray_connect_button", "noray_disconnect_button", "oid_input", "host_oid_input", "host_button", "join_button", "force_relay_check")]
+[node name="Noray Bootstrapper" type="Node" parent="." node_paths=PackedStringArray("connect_ui", "noray_address_input", "noray_connect_button", "noray_disconnect_button", "oid_input", "host_oid_input", "host_button", "join_button", "force_relay_check")]
 script = ExtResource("2_fgck5")
+connect_ui = NodePath("..")
 noray_address_input = NodePath("../Noray/Noray Address Row/Address LineEdit")
 noray_connect_button = NodePath("../Noray/Noray Actions Row/Connect Button")
 noray_disconnect_button = NodePath("../Noray/Noray Actions Row/Disconnect Button")
