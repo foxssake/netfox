@@ -3,6 +3,8 @@
 Manages state during the network rollback loop by hooking into
 [NetworkRollback] events. Simulates nodes as required during rollback.
 
+To read more on best practices, see [Rollback caveats].
+
 ## Configuring state and input
 
 To use *RollbackSynchronizer*, add it as a child to the target node, specify
@@ -98,5 +100,6 @@ When *only* multiplayer authority changes, call `process_authority()`. When the
 configured state- or input properties change ( i.e. different properties need
 to be synced ), call `process_settings()`.
 
+[Rollback caveats]: ../tutorials/rollback-caveats.md
 [NetworkRollback]: ../guides/network-rollback.md
 [Property paths]: ../guides/property-paths.md
