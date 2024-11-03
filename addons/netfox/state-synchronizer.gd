@@ -7,7 +7,7 @@ class_name StateSynchronizer
 @export var properties: Array[String]
 
 var _property_cache: PropertyCache
-var _props: Array[PropertyEntry]
+var _property_entries: Array[PropertyEntry]
 
 var _last_received_tick: int = -1
 var _last_received_state: Dictionary = {}
@@ -17,7 +17,7 @@ var _last_received_state: Dictionary = {}
 ## Call this after any change to configuration.
 func process_settings():
 	_property_cache = PropertyCache.new(root)
-	_props = []
+	_property_entries = []
 
 	for property in properties:
 		var property_entry = _property_cache.get_entry(property)
@@ -30,7 +30,7 @@ func _ready():
 func _after_tick(_dt, tick):
 	if is_multiplayer_authority():
 		# Submit snapshot
-		var state = PropertySnapshot.extract(_props)
+		var state = PropertySnapshot.extract(_property_entries)
 		_submit_state.rpc(state, tick)
 	else:
 		# Apply last received state
