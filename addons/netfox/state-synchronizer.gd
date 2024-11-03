@@ -20,8 +20,8 @@ func process_settings():
 	_property_entries = []
 
 	for property in properties:
-		var pe = _property_cache.get_entry(property)
-		_property_entries.push_back(pe)
+		var property_entry = _property_cache.get_entry(property)
+		_props.push_back(property_entry)
 
 func _ready():
 	process_settings()

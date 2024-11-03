@@ -26,9 +26,9 @@ func process_settings():
 	_state_to = {}
 
 	for property in properties:
-		var pe = _property_cache.get_entry(property)
-		_property_entries.push_back(pe)
-		_interpolators[property] = Interpolators.find_for(pe.get_value())
+		var property_entry = _property_cache.get_entry(property)
+		_props.push_back(property_entry)
+		_interpolators[property] = Interpolators.find_for(property_entry.get_value())
 
 ## Check if interpolation can be done.
 ##
@@ -79,9 +79,9 @@ func _interpolate(from: Dictionary, to: Dictionary, f: float):
 	for property in from:
 		if not to.has(property): continue
 		
-		var pe = _property_cache.get_entry(property)
+		var property_entry = _property_cache.get_entry(property)
 		var a = from[property]
 		var b = to[property]
 		var interpolate = _interpolators[property] as Callable
 		
-		pe.set_value(interpolate.call(a, b, f))
+		property_entry.set_value(interpolate.call(a, b, f))

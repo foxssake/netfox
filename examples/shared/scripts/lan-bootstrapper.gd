@@ -4,14 +4,14 @@ extends Node
 @export var connect_ui: Control
 @export var address_input: LineEdit
 @export var port_input: LineEdit
-@export var host_button: Button
-@export var join_button: Button
 
-func _ready():
-	join_button.button_up.connect(_join)
-	host_button.button_up.connect(_host)
+@onready var brawler_spawner := %"Brawler Spawner" as BrawlerSpawner
 
-func _host():
+func host_only():
+	brawler_spawner.spawn_host_avatar = false
+	host()
+
+func host():
 	var host = _parse_input()
 	if host.size() == 0:
 		return ERR_CANT_RESOLVE
@@ -48,7 +48,7 @@ func _host():
 	# are assumed to be absent, hence starting NetworkTime manually
 	NetworkTime.start()
 
-func _join():
+func join():
 	var host = _parse_input()
 	if host.size() == 0:
 		return ERR_CANT_RESOLVE

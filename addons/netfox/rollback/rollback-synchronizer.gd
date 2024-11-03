@@ -48,8 +48,8 @@ func process_settings():
 
 	# Gather state properties - all state properties are recorded
 	for property in state_properties:
-		var pe = _property_cache.get_entry(property)
-		_record_state_property_entries.push_back(pe)
+		var property_entry = _property_cache.get_entry(property)
+		_record_state_property_entries.push_back(property_entry)
 	
 	process_authority()
 	
@@ -72,17 +72,17 @@ func process_authority():
 	# Gather state properties that we own
 	# i.e. it's the state of a node that belongs to the local peer
 	for property in state_properties:
-		var pe = _property_cache.get_entry(property)
-		if pe.node.is_multiplayer_authority():
-			_auth_state_property_entries.push_back(pe)
+		var property_entry = _property_cache.get_entry(property)
+		if property_entry.node.is_multiplayer_authority():
+			_auth_state_property_entries.push_back(property_entry)
 
 	# Gather input properties that we own
 	# Only record input that is our own
 	for property in input_properties:
-		var pe = _property_cache.get_entry(property)
-		if pe.node.is_multiplayer_authority():
-			_auth_input_property_entries.push_back(pe)
-			_record_input_property_entries.push_back(pe)
+		var property_entry = _property_cache.get_entry(property)
+		if property_entry.node.is_multiplayer_authority():
+			_auth_input_property_entries.push_back(property_entry)
+			_record_input_property_entries.push_back(property_entry)
 
 func _ready():
 	process_settings()
@@ -216,14 +216,14 @@ func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 	if buffer.is_empty():
 		return {}
 	
-	var earliest = buffer.keys().min()
-	var latest = buffer.keys().max()
+	var earliest_tick = buffer.keys().min()
+	var latest_tick = buffer.keys().max()
 
-	if tick < earliest:
-		return buffer[earliest]
+	if tick < earliest_tick:
+		return buffer[earliest_tick]
 	
-	if tick > latest:
-		return buffer[latest]
+	if tick > latest_tick:
+		return buffer[latest_tick]
 	
 	var before = buffer.keys() \
 		.filter(func (key): return key < tick) \
@@ -236,9 +236,9 @@ func _submit_input(input: Dictionary, tick: int):
 	var sender = multiplayer.get_remote_sender_id()
 	var sanitized = {}
 	for property in input:
-		var pe = _property_cache.get_entry(property)
+		var property_entry = _property_cache.get_entry(property)
 		var value = input[property]
-		var input_owner = pe.node.get_multiplayer_authority()
+		var input_owner = property_entry.node.get_multiplayer_authority()
 		
 		if input_owner != sender:
 			_logger.warning("Received input for node owned by %s from %s, sender has no authority!" \
@@ -277,9 +277,9 @@ func _submit_state(state: Dictionary, tick: int):
 	var sender = multiplayer.get_remote_sender_id()
 	var sanitized = {}
 	for property in state:
-		var pe = _property_cache.get_entry(property)
+		var property_entry = _property_cache.get_entry(property)
 		var value = state[property]
-		var state_owner = pe.node.get_multiplayer_authority()
+		var state_owner = property_entry.node.get_multiplayer_authority()
 		
 		if state_owner != sender:
 			_logger.warning("Received state for node owned by %s from %s, sender has no authority!" \
