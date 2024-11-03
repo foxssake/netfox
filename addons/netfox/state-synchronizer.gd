@@ -21,7 +21,7 @@ func process_settings():
 
 	for property in properties:
 		var property_entry = _property_cache.get_entry(property)
-		_props.push_back(property_entry)
+		_property_entries.push_back(property_entry)
 
 func _ready():
 	process_settings()

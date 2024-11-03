@@ -27,7 +27,7 @@ func process_settings():
 
 	for property in properties:
 		var property_entry = _property_cache.get_entry(property)
-		_props.push_back(property_entry)
+		_property_entries.push_back(property_entry)
 		_interpolators[property] = Interpolators.find_for(property_entry.get_value())
 
 ## Check if interpolation can be done.
