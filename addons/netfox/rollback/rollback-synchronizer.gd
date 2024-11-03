@@ -216,14 +216,14 @@ func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 	if buffer.is_empty():
 		return {}
 	
-	var earliest = buffer.keys().min()
-	var latest = buffer.keys().max()
+	var earliest_tick = buffer.keys().min()
+	var latest_tick = buffer.keys().max()
 
-	if tick < earliest:
-		return buffer[earliest]
+	if tick < earliest_tick:
+		return buffer[earliest_tick]
 	
-	if tick > latest:
-		return buffer[latest]
+	if tick > latest_tick:
+		return buffer[latest_tick]
 	
 	var before = buffer.keys() \
 		.filter(func (key): return key < tick) \
