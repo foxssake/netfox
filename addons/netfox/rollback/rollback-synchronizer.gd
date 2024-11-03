@@ -179,8 +179,8 @@ func _before_tick(_delta, tick):
 	PropertySnapshot.apply(state, _property_cache)
 
 func _after_tick(_delta, _tick):
-	if not _auth_input_property_entries.is_empty():
-		var input = PropertySnapshot.extract(_auth_input_property_entries)
+	if not _record_input_property_entries.is_empty():
+		var input = PropertySnapshot.extract(_record_input_property_entries)
 		_inputs[NetworkTime.tick] = input
 
 		#Send the last n inputs for each property 
