@@ -62,7 +62,30 @@ Unfortunately, Godot does not support manually updating or stepping the physics
 system, [at least at the time of writing](https://github.com/godotengine/godot/pull/76462).
 This means that:
 
-* Rollback and physics-based games don't work at the moment
+* Rollback and physics-based games ( RigidBodies ) don't work at the moment
 * Collision detection can work, but with workarounds
 
-If there's a way to force an update for your given node type, it should work.
+If there's a way to force an update for your given node type, it should work,
+i.e.
+
+* ShapeCast (2D and 3D) - [force_shapecast_update()] 
+* ChacacterBody (2D and 3D) - [move_and_collide()] ( which has a test only
+  mode )
+
+### State Machines
+
+State machines don't usually expect to be updated multiple times in a single
+frame or be snapped back to a previous point in time. Be cautious of:
+
+- Safeguards that implement a cooldown to changes.
+- States based on values not updated in `_rollback_tick`.
+- Transitions that enforce a specific order to state changes.
+- Transitions that trigger on any state change.
+
+The key concept to keep in mind is that netfox stores the configured states for
+each processed tick. When it rolls back everything is snapped back to that
+point in time and then played forward to the present in a single frame.
+
+
+[force_shapecast_update()]: https://docs.godotengine.org/en/stable/classes/class_shapecast3d.html#class-shapecast3d-method-force-shapecast-update
+[move_and_collide()]: https://docs.godotengine.org/en/stable/classes/class_physicsbody3d.html#class-physicsbody3d-method-move-and-collide

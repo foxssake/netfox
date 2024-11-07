@@ -26,10 +26,10 @@ class_name RollbackSynchronizer
 @export var ticks_to_send_full_state: int = -1
 var current_tick_to_send_full_state: int = 0
 
-var _record_state_props: Array[PropertyEntry] = []
-var _record_input_props: Array[PropertyEntry] = []
-var _auth_state_props: Array[PropertyEntry] = []
-var _auth_input_props: Array[PropertyEntry] = []
+var _record_state_property_entries: Array[PropertyEntry] = []
+var _record_input_property_entries: Array[PropertyEntry] = []
+var _auth_state_property_entries: Array[PropertyEntry] = []
+var _auth_input_property_entries: Array[PropertyEntry] = []
 var _nodes: Array[Node] = []
 
 var _states: Dictionary = {} #<tick, Dictionary<String, Variant>>
@@ -54,17 +54,17 @@ func process_settings():
 	_freshness_store = RollbackFreshnessStore.new()
 
 	_nodes.clear()
-	_record_state_props.clear()
-
+	_record_state_property_entries.clear()
+	
 	_states.clear()
 	_inputs.clear()
 	_earliest_input = NetworkTime.tick
 
-	# Gather state props - all state props are recorded
+	# Gather state properties - all state properties are recorded
 	for property in state_properties:
-		var pe = _property_cache.get_entry(property)
-		_record_state_props.push_back(pe)
-
+		var property_entry = _property_cache.get_entry(property)
+		_record_state_property_entries.push_back(property_entry)
+	
 	process_authority()
 
 	# Gather all rollback-aware nodes to simulate during rollbacks
@@ -81,22 +81,25 @@ func process_settings():
 func process_authority():
 	_record_input_props.clear()
 	_auth_input_props.clear()
-	_auth_state_props.clear()
+
+	_record_input_property_entries.clear()
+	_auth_input_property_entries.clear()
+	_auth_state_property_entries.clear()
 
 	# Gather state properties that we own
 	# i.e. it's the state of a node that belongs to the local peer
 	for property in state_properties:
-		var pe = _property_cache.get_entry(property)
-		if pe.node.is_multiplayer_authority():
-			_auth_state_props.push_back(pe)
+		var property_entry = _property_cache.get_entry(property)
+		if property_entry.node.is_multiplayer_authority():
+			_auth_state_property_entries.push_back(property_entry)
 
 	# Gather input properties that we own
 	# Only record input that is our own
 	for property in input_properties:
-		var pe = _property_cache.get_entry(property)
-		if pe.node.is_multiplayer_authority():
-			_record_input_props.push_back(pe)
-			_auth_input_props.push_back(pe)
+		var property_entry = _property_cache.get_entry(property)
+		if property_entry.node.is_multiplayer_authority():
+			_auth_input_property_entries.push_back(property_entry)
+			_record_input_property_entries.push_back(property_entry)
 
 func _ready():
 	process_settings()
@@ -114,7 +117,7 @@ func _ready():
 	NetworkRollback.after_loop.connect(_after_loop)
 
 func _before_loop():
-	if _auth_input_props.is_empty():
+	if _auth_input_property_entries.is_empty():
 		# We don't have any inputs we own, simulate from earliest we've received
 		NetworkRollback.notify_resimulation_start(_earliest_input)
 	else:
@@ -164,13 +167,13 @@ func _process_tick(tick: int):
 
 func _record_tick(tick: int):
 	# Broadcast state we own
-	if not _auth_state_props.is_empty():
+	if not _auth_state_property_entries.is_empty():
 		var full_state_to_broadcast: Dictionary = {}
 		# DEBUG
 		#if (multiplayer.is_server() && root.player_id == 1 && tick < 500):
 			#_logger.info("recorded tick %s for brawler 1" % [tick])
 
-		for property in _auth_state_props:
+		for property in _auth_state_property_entries:
 			if _can_simulate(property.node, tick - 1):
 				# Only broadcast if we've simulated the node
 				full_state_to_broadcast[property.to_string()] = property.get_value()
@@ -218,8 +221,8 @@ func _record_tick(tick: int):
 
 
 	# Record state for specified tick ( current + 1 )
-	if not _record_state_props.is_empty() and tick > _latest_state_tick:
-		_states[tick] = PropertySnapshot.extract(_record_state_props)
+	if not _record_state_property_entries.is_empty() and tick > _latest_state:
+		_states[tick] = PropertySnapshot.extract(_record_state_property_entries)
 
 func _after_loop():
 	_earliest_input = NetworkTime.tick
@@ -234,8 +237,8 @@ func _before_tick(_delta, tick):
 	PropertySnapshot.apply(state, _property_cache)
 
 func _after_tick(_delta, _tick):
-	if not _auth_input_props.is_empty():
-		var input = PropertySnapshot.extract(_auth_input_props)
+	if not _record_input_property_entries.is_empty():
+		var input = PropertySnapshot.extract(_record_input_property_entries)
 		_inputs[NetworkTime.tick] = input
 
 		#Send the last n inputs for each property
@@ -271,15 +274,15 @@ func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 	if buffer.is_empty():
 		return {}
 
-	var earliest = buffer.keys().min()
-	var latest = buffer.keys().max()
+	var earliest_tick = buffer.keys().min()
+	var latest_tick = buffer.keys().max()
 
-	if tick < earliest:
-		return buffer[earliest]
-
-	if tick > latest:
-		return buffer[latest]
-
+	if tick < earliest_tick:
+		return buffer[earliest_tick]
+	
+	if tick > latest_tick:
+		return buffer[latest_tick]
+	
 	var before = buffer.keys() \
 		.filter(func (key): return key < tick) \
 		.max()
@@ -292,9 +295,9 @@ func _submit_input(input: Dictionary, tick: int):
 	var sanitized = {}
 
 	for property in input:
-		var pe = _property_cache.get_entry(property)
+		var property_entry = _property_cache.get_entry(property)
 		var value = input[property]
-		var input_owner = pe.node.get_multiplayer_authority()
+		var input_owner = property_entry.node.get_multiplayer_authority()
 		
 		if input_owner != sender:
 			_logger.warning("Received input for node owned by %s from %s, sender has no authority!" \
@@ -327,10 +330,11 @@ func _submit_full_state(received_state: Dictionary, received_tick: int):
 
 	var sender_id = multiplayer.get_remote_sender_id()
 	var sanitized = {}
+
 	for property_name in received_state:
-		var pe = _property_cache.get_entry(property_name)
+		var property_entry = _property_cache.get_entry(property_name)
 		var value = received_state[property_name]
-		var state_owner_id = pe.node.get_multiplayer_authority()
+		var state_owner_id = property_entry.node.get_multiplayer_authority()
 		
 		if state_owner_id != sender_id:
 			_logger.warning("Received state for node owned by %s from %s, sender has no authority!" \
