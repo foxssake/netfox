@@ -79,8 +79,8 @@ func process_settings():
 ## RollbackSynchronizer changes. Make sure to do this at the same time on all
 ## peers.
 func process_authority():
-	_record_input_props.clear()
-	_auth_input_props.clear()
+	_record_input_property_entries.clear()
+	_auth_input_property_entries.clear()
 
 	_record_input_property_entries.clear()
 	_auth_input_property_entries.clear()
@@ -221,7 +221,7 @@ func _record_tick(tick: int):
 
 
 	# Record state for specified tick ( current + 1 )
-	if not _record_state_property_entries.is_empty() and tick > _latest_state:
+	if not _record_state_property_entries.is_empty() and tick > _latest_state_tick:
 		_states[tick] = PropertySnapshot.extract(_record_state_property_entries)
 
 func _after_loop():
