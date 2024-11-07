@@ -20,7 +20,7 @@ var SETTINGS = [
 		"name": "netfox/extras/borderless",
 		"value": true,
 		"type": TYPE_BOOL
-	},
+	}
 ]
 
 const AUTOLOADS = [
@@ -35,7 +35,7 @@ class WindowTilerEditorDebugger extends EditorDebuggerPlugin:
 	func _has_capture(prefix):
 		return prefix == "tile-session"
 
-	func _capture(message, data, session_id):
+	func _capture(message, _data, session_id):
 
 		if message == "tile-session:get_id":
 			get_session(session_id).send_message("tile-session:session_id", [{"id": session_id, "total": get_sessions().size()}])

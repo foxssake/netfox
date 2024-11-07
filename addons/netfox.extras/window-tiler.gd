@@ -21,8 +21,6 @@ func _on_tile_session(message: String, data: Array) -> bool:
 
 func tile_window(i: int, total: int) -> void:
 
-	print(" auto tile window: ", str(ProjectSettings.get_setting("netfox/extras/auto_tile_windows","not set")))
-
 	if not ProjectSettings.get_setting("netfox/extras/auto_tile_windows", true):
 		return
 
