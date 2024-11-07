@@ -192,15 +192,7 @@ func _record_tick(tick: int):
 				current_tick_to_send_full_state += 1
 				
 				var previous_state: Dictionary = _states[tick - 1]
-				var diff_state_to_broadcast: Dictionary = {}
-
-				for picked_property_path in full_state_to_broadcast:
-					#If previous tick doesnt have a property, this means its a new property added in runtime, so we must add it.
-					if (previous_state.has(picked_property_path) == false):
-						diff_state_to_broadcast[picked_property_path] = full_state_to_broadcast[picked_property_path]
-					#If different value, include it in broadcasting state
-					elif (previous_state[picked_property_path] != full_state_to_broadcast[picked_property_path]):
-						diff_state_to_broadcast[picked_property_path] = full_state_to_broadcast[picked_property_path]
+				var diff_state_to_broadcast: Dictionary = PropertySnapshot.diff(previous_state, full_state_to_broadcast)
 
 				if (diff_state_to_broadcast.size() == full_state_to_broadcast.size()):
 					_submit_full_state.rpc(full_state_to_broadcast, tick)
