@@ -38,7 +38,8 @@ class WindowTilerEditorDebugger extends EditorDebuggerPlugin:
 	func _capture(message, _data, session_id):
 
 		if message == "tile-session:get_id":
-			get_session(session_id).send_message("tile-session:session_id", [{"id": session_id, "total": get_sessions().size()}])
+			var total_sessions = get_sessions().filter(func(session): return session.is_active())
+			get_session(session_id).send_message("tile-session:session_id", [{"id": session_id, "total": total_sessions.size()}])
 			return true
 
 
