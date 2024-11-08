@@ -98,7 +98,19 @@ The synchronization itself is handled by [NetworkTimeSynchronizer].
 Each time can be accessed as ticks or seconds. Both advance after every network
 tick.
 
+### Synchronized time
+
+* `NetworkTime.time`
+* `NetworkTime.ticks`
+
+Marks the current network game time. This is continuously synchronized, making
+sure that these values are as close to eachother on all peers as possible.
+
+Use this whenever a notion of game time is needed.
+
 ### Local time
+
+*Deprecated since netfox v1.9.0.* Use synchronized time instead.
 
 * `NetworkTime.local_time`
 * `NetworkTime.local_ticks`
@@ -113,6 +125,8 @@ Not suitable for synchronizing data, as the local time is different at each
 player.
 
 ### Remote time
+
+*Deprecated since netfox v1.9.0.* Use synchronized time instead.
 
 * `NetworkTime.remote_ticks`
 * `NetwokrTime.remote_time`
@@ -132,20 +146,6 @@ for tying game logic to it.
 To get notified when a time synchronization happens and the remote time is
 updated, use the `NetworkTime.after_sync` signal.
 
-### Time
-
-* `NetworkTime.time`
-* `NetworkTime.ticks`
-
-Marks the current network game time. On start, this time is set to the
-estimated remote time.
-
-The game time is only adjusted if it is too far off from the remote time,
-making it a good, consistent source of time.
-
-Can be used when timing data needs to be shared between players, and for game
-logic that is synchronized over the network.
-
 ## Settings
 
 Settings are found in the Project Settings, under Netfox > Time:
@@ -157,19 +157,25 @@ Settings are found in the Project Settings, under Netfox > Time:
 *Max Ticks Per Frame* sets the maximum number of frames to simulate per tick loop. Used to avoid freezing the game under load.
 
 *Recalibrate Threshold* is the largest allowed time discrepancy in seconds. If
-the difference between the remote time and game time is larger than this
-setting, the game time will be reset to the remote time.
+the difference between the remote clock and reference clock is larger than this
+setting, the reference clock will be reset to the remote clock. See
+[NetworkTimeSynchronizer] for more details.
 
-*Sync Interval* is the resting time between time synchronizations. Note that
-the synchronization itself may take multiple seconds, so overall there will be
-more time between two synchronization runs than just the interval.
+*Sync Interval* is the resting time in seconds between sampling the remote
+clock.
 
-*Sync Samples* is the number of measurements to take for estimating roundtrip
-time.
+*Sync Samples* is the number of measurements to use for time synchronization.
+This includes measuring roundtrip time and estimating clock offsets.
 
-*Sync Sample Interval* is the resting time between roundtrip measurements.
+*Sync Adjust Steps* is the number of iterations to use when adjusting the
+reference clock. Larger values result in more stable clocks but slower
+convergence, while smaller values synchronize more aggressively.
 
-*Sync to Physics* ties the network tick loop to the physics process when
-enabled.
+*Sync Sample Interval* *deprecated in netfox v1.9.0*. Originally used as the
+resting time between roundtrip measurements.
+
+*Sync to Physics* ensures that the network tick loop runs in Godot's physics
+process when enabled. This can be useful in cases where a lot of physics
+operations need to be done as part of the tick- or the rollback loop.
 
 [NetworkTimeSynchronizer]: ./network-time-synchronizer.md
