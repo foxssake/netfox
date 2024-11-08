@@ -18,7 +18,7 @@ var SETTINGS = [
 	},
 	{
 		"name": "netfox/extras/borderless",
-		"value": true,
+		"value": false,
 		"type": TYPE_BOOL
 	},
 ]
