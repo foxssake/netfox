@@ -35,7 +35,6 @@ func _build():
 	if dir:
 		for f in dir.get_files():
 			if f.begins_with("instance-"):
-				print("Removing cache file: ",OS.get_cache_dir(),"/",f)
 				dir.remove(OS.get_cache_dir()+"/"+f)
 
 	return true
