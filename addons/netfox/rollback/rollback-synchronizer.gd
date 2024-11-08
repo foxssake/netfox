@@ -5,8 +5,6 @@ class_name RollbackSynchronizer
 ## synchronizing data between players, but with support for rollback.
 
 @export var root: Node = get_parent()
-## This is to give time for Input authority to be set.
-@export var await_first_frame: bool = true
 @export var state_properties: Array[String]
 
 @export_subgroup("Inputs")
@@ -26,10 +24,11 @@ var _states: Dictionary = {}
 var _inputs: Dictionary = {}
 var _latest_state: int = -1
 var _earliest_input: int
-var _started_at_tick: int = -1
 
 var _property_cache: PropertyCache
 var _freshness_store: RollbackFreshnessStore
+
+var _is_initialized: bool = false
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("RollbackSynchronizer")
 
@@ -46,17 +45,23 @@ func process_settings():
 	
 	_states.clear()
 	_inputs.clear()
+	_latest_state = NetworkTime.tick - 1
+	_earliest_input = NetworkTime.tick
 
 	# Gather state properties - all state properties are recorded
 	for property in state_properties:
 		var property_entry = _property_cache.get_entry(property)
 		_record_state_property_entries.push_back(property_entry)
 	
+	process_authority()
+	
 	# Gather all rollback-aware nodes to simulate during rollbacks
 	_nodes = root.find_children("*")
 	_nodes.push_front(root)
 	_nodes = _nodes.filter(func(it): return NetworkRollback.is_rollback_aware(it))
 	_nodes.erase(self)
+	
+	_is_initialized = true
 
 ## Process settings based on authority.
 ##
@@ -83,24 +88,11 @@ func process_authority():
 			_auth_input_property_entries.push_back(property_entry)
 			_record_input_property_entries.push_back(property_entry)
 
-func process_time_flags():
-	_latest_state = NetworkTime.tick - 1
-	_earliest_input = NetworkTime.tick
-	if (_started_at_tick == -1):
-		_started_at_tick = NetworkTime.tick
-
 func _ready():
-	process_settings()
-
-	if (await_first_frame):
-		await get_tree().process_frame
-	process_authority()
-	
 	if not NetworkTime.is_initial_sync_done():
 		# Wait for time sync to complete
 		await NetworkTime.after_sync
-	process_time_flags()
-	
+	process_settings.call_deferred()
 	
 	NetworkTime.before_tick.connect(_before_tick)
 	NetworkTime.after_tick.connect(_after_tick)
@@ -243,6 +235,10 @@ func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 
 @rpc("any_peer", "unreliable", "call_remote")
 func _submit_input(input: Dictionary, tick: int):
+	if not _is_initialized:
+		# Settings not processed yet
+		return
+	
 	var sender = multiplayer.get_remote_sender_id()
 	var sanitized = {}
 	for property in input:
@@ -274,6 +270,10 @@ func _submit_input(input: Dictionary, tick: int):
 
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_state(state: Dictionary, tick: int):
+	if not _is_initialized:
+		# Settings not processed yet
+		return
+	
 	if tick > NetworkTime.tick:
 		# This used to be weird, but is now expected due to estimating remote time
 		# push_warning("Received state from the future %s / %s - adding nonetheless" % [tick, NetworkTime.tick])
