@@ -20,7 +20,7 @@ var SETTINGS = [
 		"name": "netfox/extras/borderless",
 		"value": true,
 		"type": TYPE_BOOL
-	}
+	},
 ]
 
 const AUTOLOADS = [
@@ -30,20 +30,16 @@ const AUTOLOADS = [
 	}
 ]
 
-class WindowTilerEditorDebugger extends EditorDebuggerPlugin:
+func _build():
+	var dir = DirAccess.open(OS.get_cache_dir())
+	if dir:
+		for f in dir.get_files():
+			if f.begins_with("instance-"):
+				print("Removing cache file: ",OS.get_cache_dir(),"/",f)
+				dir.remove(OS.get_cache_dir()+"/"+f)
 
-	func _has_capture(prefix):
-		return prefix == "tile-session"
+	return true
 
-	func _capture(message, _data, session_id):
-
-		if message == "tile-session:get_id":
-			var total_sessions = get_sessions().filter(func(session): return session.is_active())
-			get_session(session_id).send_message("tile-session:session_id", [{"id": session_id, "total": total_sessions.size()}])
-			return true
-
-
-var window_tiler = WindowTilerEditorDebugger.new()
 
 func _enter_tree():
 	for setting in SETTINGS:
@@ -52,7 +48,6 @@ func _enter_tree():
 	for autoload in AUTOLOADS:
 		add_autoload_singleton(autoload.name, autoload.path)
 
-	add_debugger_plugin(window_tiler)
 
 func _exit_tree():
 	if ProjectSettings.get_setting("netfox/general/clear_settings", false):
@@ -61,8 +56,6 @@ func _exit_tree():
 
 	for autoload in AUTOLOADS:
 		remove_autoload_singleton(autoload.name)
-
-	remove_debugger_plugin(window_tiler)
 
 func add_setting(setting: Dictionary):
 	if ProjectSettings.has_setting(setting.name):

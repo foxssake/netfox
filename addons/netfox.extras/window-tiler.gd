@@ -2,21 +2,25 @@ extends Node
 
 
 func _ready() -> void:
-	EngineDebugger.register_message_capture("tile-session", _on_tile_session)
-	EngineDebugger.send_message.call_deferred("tile-session:get_id", [])
 
+	var u_time = str(Time.get_unix_time_from_system())
+	var file = FileAccess.open(str(OS.get_cache_dir(),"/instance-",u_time), FileAccess.WRITE)
+	file.close()
 
-func _on_tile_session(message: String, data: Array) -> bool:
-	if message == "session_id":
-		var info: Dictionary = data[0]
-		var id = info.get("id", -1)
-		var total = info.get("total", 0)
-		if total > 1:
-			for i in range(total):
-				if i == id:
-					tile_window(i, total)
-		return true
-	return false
+	var instance = count_instance_locks()
+	await get_tree().create_timer(0.5).timeout
+	var total = count_instance_locks()
+
+	tile_window(instance -1, total)
+
+func count_instance_locks() -> int:
+	var count = 0
+	var dir = DirAccess.open(OS.get_cache_dir())
+	if dir:
+		for f in dir.get_files():
+			if f.begins_with("instance-"):
+				count += 1
+	return count
 
 
 func tile_window(i: int, total: int) -> void:
@@ -29,10 +33,14 @@ func tile_window(i: int, total: int) -> void:
 
 	var window: Window = get_tree().get_root()
 	window.set_current_screen(screen)
+
+	if total == 1:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_MAXIMIZED)
+		return
+
 	window.borderless = ProjectSettings.get_setting("netfox/extras/borderless", true)
 
 	# Divide up the screen
-
 	var windows_per_row = int(ceil(sqrt(total)))
 	var windows_per_col = int(ceil(total / float(windows_per_row)))
 	var window_size = Vector2(
@@ -42,7 +50,6 @@ func tile_window(i: int, total: int) -> void:
 	window.set_size(window_size)
 
 	# Position of the window based on index.
-
 	var row = i / windows_per_row
 	var col = i % windows_per_row
 
