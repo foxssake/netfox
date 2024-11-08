@@ -91,12 +91,12 @@ var tick: int:
 ## Time is continuously synced to the server. In case the time difference is 
 ## excessive between local and the server, both [code]tick[/code] and
 ## [code]time[/code] will be reset to the estimated server values.
-## [br]
+## [br][br]
 ## This property determines the difference threshold in seconds for
 ## recalibration.
-## [br]
+## [br][br]
 ## [i]read-only[/i], you can change this in the project settings
-## [br]
+## [br][br]
 ## @deprecated: Use [member _NetworkTimeSynchronizer.panic_threshold] instead.
 var recalibrate_threshold: float:
 	get:
@@ -108,9 +108,9 @@ var recalibrate_threshold: float:
 ##
 ## This is value is only an estimate, and is regularly updated. This means that 
 ## this value can and probably will change depending on network conditions.
-## [br]
+## [br][br]
 ## [i]read-only[/i]
-## [br]
+## [br][br]
 ## @deprecated: Will return the same as [member tick].
 var remote_tick: int:
 	get:
@@ -122,9 +122,9 @@ var remote_tick: int:
 ##
 ## This is value is only an estimate, and is regularly updated. This means that 
 ## this value can and probably will change depending on network conditions.
-## [br]
+## [br][br]
 ## [i]read-only[/i]
-## [br]
+## [br][br]
 ## @deprecated: Will return the same as [member time].
 var remote_time: float:
 	get:
@@ -137,9 +137,9 @@ var remote_time: float:
 ## This value is updated regularly, during server time sync. Latency can be 
 ## estimated as half of the roundtrip time. Returns the same as [member 
 ## _NetworkTimeSynchronizer.rtt].
-## [br]
+## [br][br]
 ## Will always be 0 on servers.
-## [br]
+## [br][br]
 ## [i]read-only[/i]
 var remote_rtt: float:
 	get:
@@ -152,14 +152,14 @@ var remote_rtt: float:
 ## On clients, this value is synced to the server [i]only once[/i] when joining
 ## the game. After that, it will increase monotonically, incrementing every 
 ## single tick.
-## [br]
+## [br][br]
 ## When hosting, this value is simply the number of ticks since game start.
-## [br]
+## [br][br]
 ## This property can be used for things that require a timer that is guaranteed
 ## to be linear, i.e. no jumps in time.
-## [br]
+## [br][br]
 ## [i]read-only[/i]
-## [br]
+## [br][br]
 ## @deprecated: Will return the same as [member tick].
 var local_tick: int:
 	get:
@@ -172,14 +172,14 @@ var local_tick: int:
 ## On clients, this value is synced to the server [i]only once[/i] when joining
 ## the game. After that, it will increase monotonically, incrementing every 
 ## single tick.
-## [br]
+## [br][br]
 ## When hosting, this value is simply the seconds elapsed since game start.
-## [br]
+## [br][br]
 ## This property can be used for things that require a timer that is guaranteed
 ## to be linear, i.e. no jumps in time.
-## [br]
+## [br][br]
 ## [i]read-only[/i]
-## [br]
+## [br][br]
 ## @deprecated: Will return the same as [member time].
 var local_time: float:
 	get:
@@ -247,9 +247,9 @@ var physics_factor: float:
 ## minimum allowed clock stretch factor is derived as 1.0 / clock_stretch_max. 
 ## Setting this to larger values will allow for quicker clock adjustment at the 
 ## cost of bigger deviations in game speed.
-## [br]
+## [br][br]
 ## Make sure to adjust this value based on the game's needs.
-## [br]
+## [br][br]
 ## [i]read-only[/i], you can change this in the project settings
 var clock_stretch_max: float:
 	get:
@@ -297,9 +297,9 @@ var clock_offset: float:
 ##
 ## Positive values mean the reference clock is behind the remote clock. 
 ## Negative values mean the reference clock is ahead of the remote clock.
-## [br]
+## [br][br]
 ## Returns the same as [member _NetworkTimeSynchronizer.remote_offset].
-## [br]
+## [br][br]
 ## [i]read-only[/i]
 var remote_clock_offset: float:
 	get:
@@ -355,9 +355,9 @@ static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkTime")
 ##
 ## Once this is called, time will be synchronized and ticks will be consistently
 ## emitted.
-## [br]
+## [br][br]
 ## On clients, the initial time sync must complete before any ticks are emitted.
-## [br]
+## [br][br]
 ## To check if this initial sync is done, see [method is_initial_sync_done]. If
 ## you need a signal, see [signal after_sync].
 func start():

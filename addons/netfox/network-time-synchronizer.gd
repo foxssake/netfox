@@ -121,7 +121,7 @@ signal on_initial_sync()
 ## Panic means that the difference between clocks is too large. The time sync 
 ## will reset the clock to the remote clock's time and restart the time sync loop 
 ## from there. 
-## [br]
+## [br][br]
 ## Use this event in case you need to react to clock changes in your game.
 signal on_panic(offset: float)
 
@@ -193,10 +193,7 @@ func _discipline_clock():
 		var w = log(1 + sorted_samples[i].get_rtt())
 		offset += offsets[i] * w
 		offset_weight += w
-		
-		_logger.trace("Adding offset %.2fms * %.2f = %.2fms" % [offsets[i] * 1000., w, offsets[i] * 1000. * w])
-		
-	_logger.trace("Normalizing weight %.2fms / %.4f => %.2fms" % [offset * 1000., offset_weight, offset / offset_weight * 1000.])
+	
 	offset /= offset_weight
 	
 	# Panic / Adjust
