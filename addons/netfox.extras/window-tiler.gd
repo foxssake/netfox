@@ -39,15 +39,6 @@ func tile_window(i: int, total: int) -> void:
 		screen_rect.size.x / windows_per_row, screen_rect.size.y / windows_per_col
 	)
 
-	# Set up window size, don't take up more than 1/4 of the screen.
-	var max_window_width = screen_rect.size.x / 2
-	var max_window_height = screen_rect.size.y / 2
-
-	if window_size.x > max_window_width:
-		window_size.x = max_window_width
-	if window_size.y > max_window_height:
-		window_size.y = max_window_height
-
 	window.set_size(window_size)
 
 	# Position of the window based on index.
