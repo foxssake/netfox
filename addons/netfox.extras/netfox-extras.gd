@@ -30,16 +30,6 @@ const AUTOLOADS = [
 	}
 ]
 
-func _build():
-	var dir = DirAccess.open(OS.get_cache_dir())
-	if dir:
-		for f in dir.get_files():
-			if f.begins_with("instance-"):
-				dir.remove(OS.get_cache_dir()+"/"+f)
-
-	return true
-
-
 func _enter_tree():
 	for setting in SETTINGS:
 		add_setting(setting)

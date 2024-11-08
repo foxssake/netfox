@@ -1,27 +1,61 @@
 extends Node
 
+var prefix := "instance"
+var sid := "%d" % [Time.get_unix_time_from_system()]
+var uid := "%d" % [Time.get_unix_time_from_system() * 1000_0000.]
+
+static var _logger := _NetfoxLogger.for_extras("WindowTiler")
 
 func _ready() -> void:
+	_logger.debug("Tiling with sid: %s, uid: %s" % [sid, uid])
+	_cleanup()
+	_make_lock(sid, uid)
+	
+	await get_tree().create_timer(0.25).timeout
+	var locks = _list_lock_ids()
 
-	var u_time = str(Time.get_unix_time_from_system())
-	var file = FileAccess.open(str(OS.get_cache_dir(),"/instance-",u_time), FileAccess.WRITE)
+	var tile_count = locks.size()
+	var idx = locks.find(uid)
+	
+	_logger.debug("Tiling as idx %d / %d - %s in %s" % [idx, tile_count, uid, locks])
+	tile_window(idx, tile_count)
+
+func _make_lock(sid: String, uid: String) -> Error:
+	var path = "%s/%s-%s-%s" % [OS.get_cache_dir(), prefix, sid, uid]
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	
+	if file == null:
+		return FileAccess.get_open_error()
+	
 	file.close()
+	return Error.OK
 
-	var instance = count_instance_locks()
-	await get_tree().create_timer(0.5).timeout
-	var total = count_instance_locks()
-
-	tile_window(instance -1, total)
-
-func count_instance_locks() -> int:
-	var count = 0
-	var dir = DirAccess.open(OS.get_cache_dir())
+func _list_lock_ids() -> Array[String]:
+	var result: Array[String] = []
+	var dir := DirAccess.open(OS.get_cache_dir())
+	
 	if dir:
 		for f in dir.get_files():
-			if f.begins_with("instance-"):
-				count += 1
-	return count
+			if f.begins_with(prefix):
+				result.append(_get_uid(f))
+	
+	return result
 
+func _cleanup():
+	var result: Array[String] = []
+	var dir := DirAccess.open(OS.get_cache_dir())
+	
+	if dir:
+		for f in dir.get_files():
+			if f.begins_with(prefix) and _get_sid(f) != sid:
+					_logger.trace("Cleaned up lock: %s" % [f])
+					dir.remove(OS.get_cache_dir() + "/" + f)
+
+func _get_sid(filename: String) -> String:
+	return filename.get_slice("-", 1)
+
+func _get_uid(filename: String) -> String:
+	return filename.get_slice("-", 2)
 
 func tile_window(i: int, total: int) -> void:
 
