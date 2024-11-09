@@ -7,6 +7,11 @@ var uid := "%d" % [Time.get_unix_time_from_system() * 1000_0000.]
 static var _logger := _NetfoxLogger.for_extras("WindowTiler")
 
 func _ready() -> void:
+
+	# Running on a non-editor (export template) build
+	if OS.has_feature("template"):
+		return
+
 	_logger.debug("Tiling with sid: %s, uid: %s" % [sid, uid])
 	_cleanup()
 	_make_lock(sid, uid)
