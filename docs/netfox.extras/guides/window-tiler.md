@@ -31,5 +31,3 @@ slightly overlap.
 *Borderless* Enable borderless mode to make the most out of the screen real
 estate.
 
-
-
