@@ -89,7 +89,7 @@ func _tile_window(i: int, total: int) -> void:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_MAXIMIZED)
 		return
 
-	window.borderless = ProjectSettings.get_setting("netfox/extras/borderless", true)
+	window.borderless = ProjectSettings.get_setting("netfox/extras/borderless", false)
 
 	# Divide up the screen
 	var windows_per_row = int(ceil(sqrt(total)))

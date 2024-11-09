@@ -28,6 +28,7 @@ NetworkEvents="*res://addons/netfox/network-events.gd"
 Noray="*res://addons/netfox.noray/noray.gd"
 PacketHandshake="*res://addons/netfox.noray/packet-handshake.gd"
 NetworkPerformance="*res://addons/netfox/network-performance.gd"
+WindowTiler="*res://addons/netfox.extras/window-tiler.gd"
 
 [display]
 
@@ -112,6 +113,7 @@ aim_south={
 
 general/clear_settings=false
 time/tickrate=24
+extras/auto_tile_windows=true
 
 [rendering]
 
