@@ -13,20 +13,26 @@ func _ready() -> void:
 	if OS.has_feature("template"):
 		return
 
-	_logger.debug("Tiling with sid: %s, uid: %s" % [_sid, _uid])
+	# Cleanup in case some files were left
 	_cleanup()
+
+	# Don't tile if disabled
+	if not ProjectSettings.get_setting("netfox/extras/auto_tile_windows", false):
+		return
+
+	_logger.debug("Tiling with sid: %s, uid: %s" % [_sid, _uid])
 	_make_lock(_sid, _uid)
-	
+
 	# Search for locks, stop once no new locks are found
 	var locks = []
 	await get_tree().create_timer(0.25).timeout
 	for i in range(20):
 		await get_tree().create_timer(0.1).timeout
 		var new_locks = _list_lock_ids()
-		
+
 		if locks == new_locks:
 			break
-			
+
 		locks = new_locks
 
 	var tile_count = locks.size()
@@ -73,10 +79,6 @@ func _get_uid(filename: String) -> String:
 	return filename.substr(_prefix.length() + 1).get_slice("-", 1)
 
 func _tile_window(i: int, total: int) -> void:
-
-	if not ProjectSettings.get_setting("netfox/extras/auto_tile_windows", true):
-		return
-
 	var screen = ProjectSettings.get_setting("netfox/extras/screen", 0)
 	var screen_rect = DisplayServer.screen_get_usable_rect(screen)
 

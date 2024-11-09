@@ -5,10 +5,11 @@ const ROOT = "res://addons/netfox.extras"
 
 var SETTINGS = [
 	_NetfoxLogger.make_setting("netfox/logging/netfox_extras_log_level"),
+	
 	#Window Tiler Settings
 	{
 		"name": "netfox/extras/auto_tile_windows",
-		"value": true,
+		"value": false,
 		"type": TYPE_BOOL
 	},
 	{
