@@ -1,12 +1,12 @@
 extends Node
 
 # Hash the game name, so we always get a valid filename
-var _prefix := "netfox-window-tiler-%x" % [ProjectSettings.get("application/config/name").hash()]
+var _prefix: String = "netfox-window-tiler-%x" % [ProjectSettings.get("application/config/name").hash()]
 
-var _sid := "%x" % [hash(int(Time.get_unix_time_from_system() / 2.))]
-var _uid := "%d" % [Time.get_unix_time_from_system() * 1000_0000.]
+var _sid: String = "%x" % [hash(int(Time.get_unix_time_from_system() / 2.))]
+var _uid: String = "%d" % [Time.get_unix_time_from_system() * 1000_0000.]
 
-static var _logger := _NetfoxLogger.for_extras("WindowTiler")
+static var _logger: _NetfoxLogger = _NetfoxLogger.for_extras("WindowTiler")
 
 func _ready() -> void:
 	# Running on a non-editor (export template) build
@@ -21,7 +21,11 @@ func _ready() -> void:
 		return
 
 	_logger.debug("Tiling with sid: %s, uid: %s" % [_sid, _uid])
-	_make_lock(_sid, _uid)
+	
+	var err = _make_lock(_sid, _uid)
+	if err != Error.OK:
+		_logger.warning("Failed to create lock for tiling, reason: %s" % [error_string(err)])
+		return
 
 	# Search for locks, stop once no new locks are found
 	var locks = []
