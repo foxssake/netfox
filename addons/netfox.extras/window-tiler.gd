@@ -1,32 +1,33 @@
 extends Node
 
-var prefix := "instance"
-var sid := "%d" % [Time.get_unix_time_from_system()]
-var uid := "%d" % [Time.get_unix_time_from_system() * 1000_0000.]
+# Hash the game name, so we always get a valid filename
+var _prefix := "netfox-window-tiler-%x" % [ProjectSettings.get("application/config/name").hash()]
+
+var _sid := "%d" % [Time.get_unix_time_from_system()]
+var _uid := "%d" % [Time.get_unix_time_from_system() * 1000_0000.]
 
 static var _logger := _NetfoxLogger.for_extras("WindowTiler")
 
 func _ready() -> void:
-
 	# Running on a non-editor (export template) build
 	if OS.has_feature("template"):
 		return
 
-	_logger.debug("Tiling with sid: %s, uid: %s" % [sid, uid])
+	_logger.debug("Tiling with sid: %s, uid: %s" % [_sid, _uid])
 	_cleanup()
-	_make_lock(sid, uid)
+	_make_lock(_sid, _uid)
 	
 	await get_tree().create_timer(0.25).timeout
 	var locks = _list_lock_ids()
 
 	var tile_count = locks.size()
-	var idx = locks.find(uid)
+	var idx = locks.find(_uid)
 	
-	_logger.debug("Tiling as idx %d / %d - %s in %s" % [idx, tile_count, uid, locks])
-	tile_window(idx, tile_count)
+	_logger.debug("Tiling as idx %d / %d - %s in %s" % [idx, tile_count, _uid, locks])
+	_tile_window(idx, tile_count)
 
 func _make_lock(sid: String, uid: String) -> Error:
-	var path = "%s/%s-%s-%s" % [OS.get_cache_dir(), prefix, sid, uid]
+	var path = "%s/%s-%s-%s" % [OS.get_cache_dir(), _prefix, sid, uid]
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	
 	if file == null:
@@ -41,7 +42,7 @@ func _list_lock_ids() -> Array[String]:
 	
 	if dir:
 		for f in dir.get_files():
-			if f.begins_with(prefix):
+			if f.begins_with(_prefix):
 				result.append(_get_uid(f))
 	
 	return result
@@ -52,17 +53,17 @@ func _cleanup():
 	
 	if dir:
 		for f in dir.get_files():
-			if f.begins_with(prefix) and _get_sid(f) != sid:
+			if f.begins_with(_prefix) and _get_sid(f) != _sid:
 					_logger.trace("Cleaned up lock: %s" % [f])
 					dir.remove(OS.get_cache_dir() + "/" + f)
 
 func _get_sid(filename: String) -> String:
-	return filename.get_slice("-", 1)
+	return filename.substr(_prefix.length() + 1).get_slice("-", 0)
 
 func _get_uid(filename: String) -> String:
-	return filename.get_slice("-", 2)
+	return filename.substr(_prefix.length() + 1).get_slice("-", 1)
 
-func tile_window(i: int, total: int) -> void:
+func _tile_window(i: int, total: int) -> void:
 
 	if not ProjectSettings.get_setting("netfox/extras/auto_tile_windows", true):
 		return
