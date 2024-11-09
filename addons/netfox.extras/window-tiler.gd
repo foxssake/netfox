@@ -3,7 +3,7 @@ extends Node
 # Hash the game name, so we always get a valid filename
 var _prefix := "netfox-window-tiler-%x" % [ProjectSettings.get("application/config/name").hash()]
 
-var _sid := "%d" % [Time.get_unix_time_from_system()]
+var _sid := "%x" % [hash(int(Time.get_unix_time_from_system() / 2.))]
 var _uid := "%d" % [Time.get_unix_time_from_system() * 1000_0000.]
 
 static var _logger := _NetfoxLogger.for_extras("WindowTiler")
@@ -17,8 +17,17 @@ func _ready() -> void:
 	_cleanup()
 	_make_lock(_sid, _uid)
 	
+	# Search for locks, stop once no new locks are found
+	var locks = []
 	await get_tree().create_timer(0.25).timeout
-	var locks = _list_lock_ids()
+	for i in range(20):
+		await get_tree().create_timer(0.1).timeout
+		var new_locks = _list_lock_ids()
+		
+		if locks == new_locks:
+			break
+			
+		locks = new_locks
 
 	var tile_count = locks.size()
 	var idx = locks.find(_uid)
