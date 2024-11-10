@@ -345,9 +345,7 @@ var _last_process_time: float = 0.
 var _clock: NetworkClocks.SteppingClock = NetworkClocks.SteppingClock.new()
 var _clock_stretch_factor: float = 1.
 
-# Cache the synced clients, as the rpc call itself may arrive multiple times
-# ( for some reason? )
-var _synced_clients: Dictionary = {}
+var _synced_peers: Dictionary = {}
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkTime")
 
@@ -367,9 +365,8 @@ func start():
 	_tick = 0
 	_initial_sync_done = false
 	
-	after_client_sync.connect(func(pid):
-		_logger.debug("Client #%s is now on time!" % [pid])
-	)
+	# Host is always synced, as their time is considered ground truth
+	_synced_peers[1] = true
 	
 	NetworkTimeSynchronizer.start()
 	
@@ -380,13 +377,13 @@ func start():
 		_initial_sync_done = true
 		_active = true
 		
-		_submit_sync_success.rpc_id(1)
+		_submit_sync_success.rpc()
 	else:
 		_active = true
 		_initial_sync_done = true
-		
-		# Remove clients from the synced cache when disconnected
-		multiplayer.peer_disconnected.connect(func(peer): _synced_clients.erase(peer))
+
+	# Remove clients from the synced cache when disconnected
+	multiplayer.peer_disconnected.connect(func(peer): _synced_peers.erase(peer))
 
 	_clock.set_time(NetworkTimeSynchronizer.get_time())
 	_last_process_time = _clock.get_time()
@@ -400,6 +397,7 @@ func start():
 func stop():
 	NetworkTimeSynchronizer.stop()
 	_active = false
+	_synced_peers.clear()
 
 ## Check if the initial time sync is done.
 func is_initial_sync_done() -> bool:
@@ -409,11 +407,7 @@ func is_initial_sync_done() -> bool:
 ##
 ## Using this from a client is considered an error.
 func is_client_synced(peer_id: int) -> bool:
-	if not multiplayer.is_server():
-		_logger.error("Trying to check if client is synced from another client!")
-		return false
-	else:
-		return _synced_clients.has(peer_id)
+	return _synced_peers.has(peer_id)
 
 ## Convert a duration of ticks to seconds.
 func ticks_to_seconds(ticks: int) -> float:
@@ -497,10 +491,14 @@ func _notification(what):
 	if what == NOTIFICATION_UNPAUSED:
 		_was_paused = true
 
-@rpc("any_peer", "reliable", "call_remote")
+@rpc("any_peer", "reliable", "call_local")
 func _submit_sync_success():
 	var peer_id = multiplayer.get_remote_sender_id()
 	
-	if not _synced_clients.has(peer_id):
-		_synced_clients[peer_id] = true
-		after_client_sync.emit(multiplayer.get_remote_sender_id())
+	_logger.trace("Received time sync success from #%s, synced peers: %s" % [peer_id, _synced_peers.keys()])
+	
+	# Check is necessary, RPC arrives twice for some reason; see trace log above
+	if not _synced_peers.has(peer_id):
+		_synced_peers[peer_id] = true
+		after_client_sync.emit(peer_id)
+		_logger.debug("Peer #%s is now on time!" % [peer_id])
