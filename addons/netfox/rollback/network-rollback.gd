@@ -4,6 +4,11 @@ class_name _NetworkRollback
 ## Whether rollback is enabled.
 var enabled: bool = ProjectSettings.get_setting("netfox/rollback/enabled", true)
 
+## Whether diff states are enabled.
+## [br][br]
+## Diff states send only the state properties that have changed.
+var enable_diff_states: bool = ProjectSettings.get_setting("netfox/rollback/enable_diff_states", true)
+
 ## How many ticks to store as history.
 ##
 ## The larger the history limit, the further we can roll back into the past, 
@@ -44,12 +49,6 @@ var input_redundancy: int:
 		return max(1, value)
 	set(v):
 		push_error("Trying to set read-only variable input_redundancy")
-
-var enable_state_diffs: bool:
-	get:
-		return ProjectSettings.get_setting("netfox/rollback/enable_state_diffs", true)
-	set(v):
-		push_error("Trying to set read-only variable enable_state_diffs at runtime")
 
 var tick: int:
 	get:

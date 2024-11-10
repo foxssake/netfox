@@ -8,7 +8,16 @@ class_name RollbackSynchronizer
 
 @export_group("State")
 @export var state_properties: Array[String]
-@export var full_state_interval: int = -1
+
+## Ticks to wait between sending full states.
+## [br][br]
+## If set to 0, full states will never be sent. If set to 1, only full states
+## will be sent. If set higher, full states will be sent regularly, but not
+## for every tick.
+## [br][br]
+## Only considered if [member _NetworkRollback.enable_diff_states] is true.
+@export_range(0, 128, 1, "or_greater")
+var full_state_interval: int = 0
 
 @export_group("Inputs")
 @export var input_properties: Array[String]
@@ -155,7 +164,7 @@ func _record_tick(tick: int):
 	# Broadcast state we own
 	if not _auth_state_property_entries.is_empty():
 		var full_state: Dictionary = {}
-		
+
 		for property in _auth_state_property_entries:
 			if _can_simulate(property.node, tick - 1):
 				# Only broadcast if we've simulated the node
@@ -165,12 +174,12 @@ func _record_tick(tick: int):
 			_latest_state = max(_latest_state, tick)
 			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), full_state)
 
-			if not NetworkRollback.enable_state_diffs:
+			if not NetworkRollback.enable_diff_states:
 				# Broadcast new full state
 				_submit_full_state.rpc(full_state, tick)
 			elif full_state_interval > 0 and NetworkTime.tick > _next_full_state:
 				# Send full state so we can send deltas from there
-				_logger.debug("Broadcasting full state")
+				_logger.trace("Broadcasting full state")
 				_submit_full_state.rpc(full_state, tick)
 				_next_full_state = NetworkTime.tick + full_state_interval
 			else:
@@ -326,7 +335,7 @@ func _submit_full_state(state: Dictionary, tick: int):
 	_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), sanitized)
 	_latest_state = tick
 		
-	if NetworkRollback.enable_state_diffs:
+	if NetworkRollback.enable_diff_states:
 		_receive_full_state_ack.rpc_id(get_multiplayer_authority(), tick)
 
 @rpc("any_peer", "unreliable_ordered", "call_remote")
@@ -360,4 +369,4 @@ func _receive_full_state_ack(tick: int):
 	var sender_id := multiplayer.get_remote_sender_id()
 	_ackd_full_state[sender_id] = tick
 	
-	_logger.debug("Peer %d ack'd full state for tick %d" % [sender_id, tick])
+	_logger.trace("Peer %d ack'd full state for tick %d" % [sender_id, tick])
