@@ -177,11 +177,11 @@ func _record_tick(tick: int):
 			if not NetworkRollback.enable_diff_states:
 				# Broadcast new full state
 				_submit_full_state.rpc(full_state, tick)
-			elif full_state_interval > 0 and NetworkTime.tick > _next_full_state:
+			elif full_state_interval > 0 and tick > _next_full_state:
 				# Send full state so we can send deltas from there
 				_logger.trace("Broadcasting full state")
 				_submit_full_state.rpc(full_state, tick)
-				_next_full_state = NetworkTime.tick + full_state_interval
+				_next_full_state = tick + full_state_interval
 			else:
 				for peer in multiplayer.get_peers():
 					# Peer hasn't received a full state yet, can't send diffs
