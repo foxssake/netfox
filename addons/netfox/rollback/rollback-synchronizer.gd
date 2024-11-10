@@ -60,6 +60,13 @@ func process_settings():
 	_inputs.clear()
 	_latest_state = NetworkTime.tick - 1
 	_earliest_input = NetworkTime.tick
+	_next_full_state = NetworkTime.tick
+	
+	# Scatter full state sends, so not all nodes send at the same tick
+	if is_inside_tree():
+		_next_full_state += hash(get_path()) % maxi(1, full_state_interval)
+	else:
+		_next_full_state += hash(name) % maxi(1, full_state_interval)
 
 	# Gather state properties - all state properties are recorded
 	for property in state_properties:
@@ -179,7 +186,7 @@ func _record_tick(tick: int):
 				_submit_full_state.rpc(full_state, tick)
 			elif full_state_interval > 0 and tick > _next_full_state:
 				# Send full state so we can send deltas from there
-				_logger.trace("Broadcasting full state")
+				_logger.trace("Broadcasting full state for tick %d" % [tick])
 				_submit_full_state.rpc(full_state, tick)
 				_next_full_state = tick + full_state_interval
 			else:
