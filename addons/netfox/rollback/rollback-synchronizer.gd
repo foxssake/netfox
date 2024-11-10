@@ -292,6 +292,11 @@ func _submit_input(input: Dictionary, tick: int):
 		for property in sanitized:
 			for i in range(0, sanitized[property].size()):
 				var t = tick - i
+				if t < NetworkTime.tick - NetworkRollback.history_limit:
+					# Input too old
+					_logger.error("Received input for %s, rejecting because older than %s frames" % [t, NetworkRollback.history_limit])
+					continue
+
 				var old_input = _inputs.get(t, {}).get(property)
 				var new_input = sanitized[property][i]
 
