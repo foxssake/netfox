@@ -23,12 +23,12 @@ var _auth_state_property_entries: Array[PropertyEntry] = []
 var _auth_input_property_entries: Array[PropertyEntry] = []
 var _nodes: Array[Node] = []
 
-var _states: Dictionary = {} #<tick, Dictionary<String, Variant>>
-var _inputs: Dictionary = {} #<tick, Dictionary<String, Variant>>
-var _latest_state_tick: int = -1
+var _states: Dictionary = {}
+var _inputs: Dictionary = {}
+var _latest_state: int = -1
 var _earliest_input: int
 
-var _sent_full_state: Dictionary = {}
+var _ackd_full_state: Dictionary = {}
 var _next_full_state: int
 
 var _property_cache: PropertyCache
@@ -49,7 +49,7 @@ func process_settings():
 	
 	_states.clear()
 	_inputs.clear()
-	_latest_state_tick = NetworkTime.tick - 1
+	_latest_state = NetworkTime.tick - 1
 	_earliest_input = NetworkTime.tick
 
 	# Gather state properties - all state properties are recorded
@@ -111,7 +111,7 @@ func _before_loop():
 		NetworkRollback.notify_resimulation_start(_earliest_input)
 	else:
 		# We own inputs, simulate from latest authorative state
-		NetworkRollback.notify_resimulation_start(_latest_state_tick)
+		NetworkRollback.notify_resimulation_start(_latest_state)
 
 func _prepare_tick(tick: int):
 	# Prepare state
@@ -136,7 +136,7 @@ func _can_simulate(node: Node, tick: int) -> bool:
 		# Simulate ONLY if we have state from server
 		# Simulate from latest authorative state - anything the server confirmed we don't rerun
 		# Don't simulate frames we don't have input for
-		return tick >= _latest_state_tick and _inputs.has(tick)
+		return tick >= _latest_state and _inputs.has(tick)
 
 func _process_tick(tick: int):
 	# Simulate rollback tick
@@ -162,7 +162,7 @@ func _record_tick(tick: int):
 				full_state[property.to_string()] = property.get_value()
 
 		if full_state.size() > 0:
-			_latest_state_tick = max(_latest_state_tick, tick)
+			_latest_state = max(_latest_state, tick)
 			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), full_state)
 
 			if not NetworkRollback.enable_state_diffs:
@@ -176,12 +176,12 @@ func _record_tick(tick: int):
 			else:
 				for peer in multiplayer.get_peers():
 					# Peer hasn't received a full state yet, can't send diffs
-					if not _sent_full_state.has(peer):
+					if not _ackd_full_state.has(peer):
 						_submit_full_state.rpc_id(peer, full_state, tick)
 						continue
 					
 					# History doesn't have reference tick?
-					var reference_tick = _sent_full_state[peer]
+					var reference_tick = _ackd_full_state[peer]
 					if not _states.has(reference_tick):
 						_submit_full_state.rpc_id(peer, full_state, tick)
 						continue
@@ -198,7 +198,7 @@ func _record_tick(tick: int):
 						_submit_diff_state.rpc_id(peer, diff_state, tick, reference_tick)
 
 	# Record state for specified tick ( current + 1 )
-	if not _record_state_property_entries.is_empty() and tick > _latest_state_tick:
+	if not _record_state_property_entries.is_empty() and tick > _latest_state:
 		_states[tick] = PropertySnapshot.extract(_record_state_property_entries)
 
 func _after_loop():
@@ -324,7 +324,7 @@ func _submit_full_state(state: Dictionary, tick: int):
 		return
 
 	_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), sanitized)
-	_latest_state_tick = tick
+	_latest_state = tick
 		
 	if NetworkRollback.enable_state_diffs:
 		_receive_full_state_ack.rpc_id(get_multiplayer_authority(), tick)
@@ -343,7 +343,7 @@ func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 	var reference_state = _states.get(reference_tick, {})
 
 	if (diff_state.is_empty()):
-		_latest_state_tick = _latest_state_tick
+		_latest_state = _latest_state
 		_states[tick] = reference_state
 	else:
 		var sender = multiplayer.get_remote_sender_id()
@@ -351,13 +351,13 @@ func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 
 		if sanitized.size() > 0:
 			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), sanitized)
-			_latest_state_tick = tick
+			_latest_state = tick
 		else:
 			_logger.warning("Received invalid state from %s for tick %s" % [sender, tick])
 
 @rpc("any_peer", "reliable", "call_remote")
 func _receive_full_state_ack(tick: int):
 	var sender_id := multiplayer.get_remote_sender_id()
-	_sent_full_state[sender_id] = tick
+	_ackd_full_state[sender_id] = tick
 	
 	_logger.debug("Peer %d ack'd full state for tick %d" % [sender_id, tick])
