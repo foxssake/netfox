@@ -266,22 +266,27 @@ func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 
 	return buffer[before]
 
+func _sanitize_by_authority(snapshot: Dictionary, sender: int) -> Dictionary:
+	var sanitized := {}
+	
+	for property in snapshot:
+		var property_entry := _property_cache.get_entry(property)
+		var value = snapshot[property]
+		var authority := property_entry.node.get_multiplayer_authority()
+		
+		if authority == sender:
+			sanitized[property] = value
+		else:
+			_logger.warning("Received data for property %s, owned by %s, from sender %s" % [
+				property, authority, sender
+			])
+	
+	return sanitized
+
 @rpc("any_peer", "unreliable", "call_remote")
 func _submit_input(input: Dictionary, tick: int):
 	var sender = multiplayer.get_remote_sender_id()
-	var sanitized = {}
-
-	for property in input:
-		var property_entry = _property_cache.get_entry(property)
-		var value = input[property]
-		var input_owner = property_entry.node.get_multiplayer_authority()
-		
-		if input_owner != sender:
-			_logger.warning("Received input for node owned by %s from %s, sender has no authority!" \
-				% [input_owner, sender])
-			continue
-
-		sanitized[property] = value
+	var sanitized = _sanitize_by_authority(input, sender)
 
 	if sanitized.size() > 0:
 		for property in sanitized:
@@ -305,24 +310,12 @@ func _submit_full_state(state: Dictionary, tick: int):
 		_logger.error("Received full state for %s, rejecting because older than %s frames" % [tick, NetworkRollback.history_limit])
 		return
 
-	var sender_id = multiplayer.get_remote_sender_id()
-	var sanitized = {}
-
-	for property_name in state:
-		var property_entry = _property_cache.get_entry(property_name)
-		var value = state[property_name]
-		var state_owner_id = property_entry.node.get_multiplayer_authority()
-		
-		if state_owner_id != sender_id:
-			_logger.warning("Received state for node owned by %s from %s, sender has no authority!" \
-				% [state_owner_id, sender_id])
-			continue
-		
-		sanitized[property_name] = value
+	var sender = multiplayer.get_remote_sender_id()
+	var sanitized = _sanitize_by_authority(state, sender)
 	
 	if sanitized.size() == 0:
 		# State is completely invalid
-		_logger.warning("Received invalid state from %s for tick %s" % [sender_id, tick])
+		_logger.warning("Received invalid state from %s for tick %s" % [sender, tick])
 		return
 
 	_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), sanitized)
@@ -348,26 +341,14 @@ func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 		_latest_state_tick = _latest_state_tick
 		_states[tick] = reference_state
 	else:
-		var sender_id = multiplayer.get_remote_sender_id()
-		var sanitized = {}
-		
-		for property_name in diff_state:
-			var pe = _property_cache.get_entry(property_name)
-			var value = diff_state[property_name]
-			var state_owner_id = pe.node.get_multiplayer_authority()
-			
-			if state_owner_id != sender_id:
-				_logger.warning("Received state for node owned by %s from %s, sender has no authority!" \
-					% [state_owner_id, sender_id])
-				continue
-			
-			sanitized[property_name] = value
+		var sender = multiplayer.get_remote_sender_id()
+		var sanitized = _sanitize_by_authority(diff_state, sender)
 
 		if sanitized.size() > 0:
 			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), sanitized)
 			_latest_state_tick = tick
 		else:
-			_logger.warning("Received invalid state from %s for tick %s" % [sender_id, tick])
+			_logger.warning("Received invalid state from %s for tick %s" % [sender, tick])
 
 @rpc("any_peer", "reliable", "call_remote")
 func _receive_full_state_ack(tick: int):
