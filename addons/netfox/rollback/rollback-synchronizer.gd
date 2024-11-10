@@ -73,9 +73,6 @@ func process_settings():
 func process_authority():
 	_record_input_property_entries.clear()
 	_auth_input_property_entries.clear()
-
-	_record_input_property_entries.clear()
-	_auth_input_property_entries.clear()
 	_auth_state_property_entries.clear()
 
 	# Gather state properties that we own
@@ -191,7 +188,7 @@ func _record_tick(tick: int):
 					
 					# Prepare diff and send
 					var reference_state = _get_history(_states, reference_tick)
-					var diff_state = PropertySnapshot.diff(reference_state, full_state)
+					var diff_state = PropertySnapshot.make_patch(reference_state, full_state)
 					
 					if diff_state.size() == full_state.size():
 						# State is completely different, send full state
