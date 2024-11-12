@@ -180,26 +180,36 @@ func _record_tick(tick: int):
 		if full_state.size() > 0:
 			_latest_state_tick = max(_latest_state_tick, tick)
 			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), full_state)
-
+			
 			if not NetworkRollback.enable_diff_states:
 				# Broadcast new full state
 				_submit_full_state.rpc(full_state, tick)
+				
+				NetworkPerformance.push_full_state_broadcast(full_state)
+				NetworkPerformance.push_sent_state_broadcast(full_state)
 			elif full_state_interval > 0 and tick > _next_full_state_tick:
 				# Send full state so we can send deltas from there
 				_logger.trace("Broadcasting full state for tick %d" % [tick])
 				_submit_full_state.rpc(full_state, tick)
 				_next_full_state_tick = tick + full_state_interval
+				
+				NetworkPerformance.push_full_state_broadcast(full_state)
+				NetworkPerformance.push_sent_state_broadcast(full_state)
 			else:
 				for peer in multiplayer.get_peers():
+					NetworkPerformance.push_full_state(full_state)
+					
 					# Peer hasn't received a full state yet, can't send diffs
 					if not _ackd_full_state.has(peer):
 						_submit_full_state.rpc_id(peer, full_state, tick)
+						NetworkPerformance.push_sent_state(full_state)
 						continue
 					
 					# History doesn't have reference tick?
 					var reference_tick = _ackd_full_state[peer]
 					if not _states.has(reference_tick):
 						_submit_full_state.rpc_id(peer, full_state, tick)
+						NetworkPerformance.push_sent_state(full_state)
 						continue
 					
 					# Prepare diff and send
@@ -209,9 +219,11 @@ func _record_tick(tick: int):
 					if diff_state.size() == full_state.size():
 						# State is completely different, send full state
 						_submit_full_state.rpc_id(peer, full_state, tick)
+						NetworkPerformance.push_sent_state(full_state)
 					else:
 						# Send only diff
 						_submit_diff_state.rpc_id(peer, diff_state, tick, reference_tick)
+						NetworkPerformance.push_sent_state(diff_state)
 
 	# Record state for specified tick ( current + 1 )
 	if not _record_state_property_entries.is_empty() and tick > _latest_state_tick:
