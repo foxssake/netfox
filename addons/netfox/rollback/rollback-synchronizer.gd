@@ -58,6 +58,10 @@ var _ackd_state: Dictionary = {}
 var _next_full_state_tick: int
 var _next_diff_ack_tick: int
 
+var _retrieved_tick: int
+var _has_input: bool
+var _input_tick: int
+
 var _property_cache: PropertyCache
 var _freshness_store: RollbackFreshnessStore
 
@@ -131,6 +135,21 @@ func process_authority():
 			_auth_input_property_entries.push_back(property_entry)
 			_record_input_property_entries.push_back(property_entry)
 
+func has_input() -> bool:
+	return _has_input
+
+func get_input_age() -> int:
+	if has_input():
+		return NetworkRollback.tick - _retrieved_tick
+	else:
+		return -1
+
+func _ready():
+	if not NetworkTime.is_initial_sync_done():
+		# Wait for time sync to complete
+		await NetworkTime.after_sync
+	process_settings.call_deferred()
+
 func _connect_signals():
 	NetworkTime.before_tick.connect(_before_tick)
 	NetworkTime.after_tick.connect(_after_tick)
@@ -177,6 +196,9 @@ func _prepare_tick(tick: int):
 
 	PropertySnapshot.apply(state, _property_cache)
 	PropertySnapshot.apply(input, _property_cache)
+
+	_has_input = _retrieved_tick != -1
+	_input_tick = _retrieved_tick
 
 	for node in _nodes:
 		if _can_simulate(node, tick):
@@ -311,26 +333,32 @@ func _attempt_submit_input(input: Dictionary):
 	elif not multiplayer.is_server():
 		_submit_input.rpc_id(1, input, NetworkTime.tick)
 
+# TODO: Eventually refactor into separate HistoryBuffer class
 func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 	if buffer.has(tick):
+		_retrieved_tick = tick
 		return buffer[tick]
 
 	if buffer.is_empty():
+		_retrieved_tick = -1
 		return {}
 
 	var earliest_tick = buffer.keys().min()
 	var latest_tick = buffer.keys().max()
 
 	if tick < earliest_tick:
+		_retrieved_tick = earliest_tick
 		return buffer[earliest_tick]
 	
 	if tick > latest_tick:
+		_retrieved_tick = latest_tick
 		return buffer[latest_tick]
 	
 	var before = buffer.keys() \
 		.filter(func (key): return key < tick) \
 		.max()
-
+	
+	_retrieved_tick = before
 	return buffer[before]
 
 func _sanitize_by_authority(snapshot: Dictionary, sender: int) -> Dictionary:
