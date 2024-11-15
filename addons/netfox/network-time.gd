@@ -258,6 +258,7 @@ signal after_client_sync(peer_id: int)
 
 var _tick: int = 0
 var _active: bool = false
+var _is_activating: bool = false
 var _initial_sync_done = false
 var _process_delta: float = 0
 
@@ -268,8 +269,6 @@ var _remote_rtt: float = 0
 var _remote_tick: int = 0
 var _local_tick: int = 0
 
-# Cache the synced clients, as the rpc call itself may arrive multiple times
-# ( for some reason? )
 var _synced_clients: Dictionary = {}
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkTime")
@@ -284,9 +283,10 @@ static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkTime")
 ## To check if this initial sync is done, see [method is_initial_sync_done]. If
 ## you need a signal, see [signal after_sync].
 func start():
-	if _active:
+	if _active or _is_activating:
 		return
 
+	_is_activating = true
 	_tick = 0
 	_remote_tick = 0
 	_local_tick = 0
@@ -324,6 +324,7 @@ func start():
 func stop():
 	NetworkTimeSynchronizer.stop()
 	_active = false
+	_is_activating = false
 
 ## Check if the initial time sync is done.
 func is_initial_sync_done() -> bool:
