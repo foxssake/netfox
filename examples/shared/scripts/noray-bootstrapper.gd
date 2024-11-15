@@ -5,27 +5,20 @@ enum Role { NONE, HOST, CLIENT }
 @export_category("UI")
 @export var connect_ui: Control
 @export var noray_address_input: LineEdit
-@export var noray_connect_button: Button
-@export var noray_disconnect_button: Button
 @export var oid_input: LineEdit
 @export var host_oid_input: LineEdit
-@export var host_button: Button
-@export var join_button: Button
 @export var force_relay_check: CheckBox
+
+@onready var brawler_spawner := %"Brawler Spawner" as BrawlerSpawner
 
 var role = Role.NONE
 
 func _ready():
-	noray_connect_button.button_up.connect(_connect_to_noray)
-	noray_disconnect_button.button_up.connect(_disconnect_from_noray)
-	host_button.button_up.connect(_host)
-	join_button.button_up.connect(_join)
-	
 	Noray.on_oid.connect(func(oid): oid_input.text = oid)
 	Noray.on_connect_nat.connect(_handle_connect_nat)
 	Noray.on_connect_relay.connect(_handle_connect_relay)
 
-func _connect_to_noray():
+func connect_to_noray():
 	# Connect to noray
 	var err = OK
 	var address = noray_address_input.text
@@ -55,11 +48,15 @@ func _connect_to_noray():
 	print("Registered local port: %d" % Noray.local_port)
 	return OK
 
-func _disconnect_from_noray():
+func disconnect_from_noray():
 	Noray.disconnect_from_host()
 	oid_input.clear()
 
-func _host():
+func host_only():
+	brawler_spawner.spawn_host_avatar = false
+	host()
+
+func host():
 	if Noray.local_port <= 0:
 		return ERR_UNCONFIGURED
 	
@@ -94,7 +91,7 @@ func _host():
 	# are assumed to be absent, hence starting NetworkTime manually
 	NetworkTime.start()
 
-func _join():
+func join():
 	role = Role.CLIENT
 
 	if force_relay_check.button_pressed:

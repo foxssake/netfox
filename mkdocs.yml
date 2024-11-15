@@ -7,6 +7,7 @@ nav:
     - Tutorials:
       - 'netfox/tutorials/responsive-player-movement.md'
       - 'netfox/tutorials/rollback-caveats.md'
+      - 'netfox/tutorials/interpolation-caveats.md'
     - Concepts:
       - 'netfox/concepts/servers-clients-ownership.md'
       - 'netfox/concepts/authoritative-servers.md'
@@ -31,4 +32,6 @@ nav:
     - Guides:
       - 'netfox.extras/guides/base-net-input.md'
       - 'netfox.extras/guides/network-weapon.md'
+      - 'netfox.extras/guides/rewindable-state-machine.md'
+      - 'netfox.extras/guides/window-tiler.md'
 

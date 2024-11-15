@@ -2,7 +2,8 @@
 
 Interpolates between network ticks to smooth out motion.
 
-Uses [Interpolators] under the hood to support various data types.
+Uses [Interpolators] under the hood to support various data types. To read more
+on best practices, see [Interpolation caveats].
 
 ## Configuring interpolation
 
@@ -57,4 +58,5 @@ interpolated properties during runtime, make sure to call `process_settings()`,
 otherwise *TickInterpolator* won't apply the changes.
 
 [Interpolators]: ../guides/interpolators.md
+[Interpolation caveats]: ../tutorials/interpolation-caveats.md
 [Property paths]: ../guides/property-paths.md
