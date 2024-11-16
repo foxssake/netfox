@@ -78,12 +78,17 @@ spawn_point = Vector3(0, 1, 0)
 
 [node name="Network Popup" parent="Network" instance=ExtResource("1_0btv1")]
 
-[node name="LAN Bootstrapper" parent="Network/Network Popup" index="3" node_paths=PackedStringArray("connect_ui")]
-connect_ui = NodePath("..")
+[node name="LAN" parent="Network/Network Popup" index="1"]
+visible = true
 
-[node name="Noray Bootstrapper" parent="Network/Network Popup" index="4" node_paths=PackedStringArray("connect_ui")]
-connect_ui = NodePath("..")
+[node name="Noray" parent="Network/Network Popup" index="2"]
+visible = false
 
 [node name="Players" type="Node" parent="."]
+
+[connection signal="pressed" from="Network/Network Popup/LAN/Actions Row/Host Button" to="Network/Network Popup/LAN Bootstrapper" method="host"]
+[connection signal="pressed" from="Network/Network Popup/LAN/Actions Row/Join Button" to="Network/Network Popup/LAN Bootstrapper" method="join"]
+[connection signal="pressed" from="Network/Network Popup/Noray/Connect Actions Row/Host Button" to="Network/Network Popup/Noray Bootstrapper" method="host"]
+[connection signal="pressed" from="Network/Network Popup/Noray/Connect Actions Row/Join Button" to="Network/Network Popup/Noray Bootstrapper" method="join"]
 
 [editable path="Network/Network Popup"]
