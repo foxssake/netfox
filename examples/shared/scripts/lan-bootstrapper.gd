@@ -5,10 +5,10 @@ extends Node
 @export var address_input: LineEdit
 @export var port_input: LineEdit
 
-@onready var brawler_spawner := %"Brawler Spawner" as BrawlerSpawner
-
 func host_only():
-	brawler_spawner.spawn_host_avatar = false
+	var brawler_spawner: BrawlerSpawner = %"Brawler Spawner"
+	if (not brawler_spawner == null):
+		brawler_spawner.spawn_host_avatar = false
 	host()
 
 func host():

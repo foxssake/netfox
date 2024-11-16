@@ -10,5 +10,16 @@
 [node name="Player Spawner" parent="Game Scene/Network" index="1"]
 player_scene = ExtResource("2_fawao")
 
+[node name="LAN" parent="Game Scene/UI/Network Popup" index="1"]
+visible = true
+
+[node name="Noray" parent="Game Scene/UI/Network Popup" index="2"]
+visible = false
+
+[connection signal="pressed" from="Game Scene/UI/Network Popup/LAN/Actions Row/Host Button" to="Game Scene/UI/Network Popup/LAN Bootstrapper" method="host"]
+[connection signal="pressed" from="Game Scene/UI/Network Popup/LAN/Actions Row/Join Button" to="Game Scene/UI/Network Popup/LAN Bootstrapper" method="join"]
+[connection signal="pressed" from="Game Scene/UI/Network Popup/Noray/Connect Actions Row/Host Button" to="Game Scene/UI/Network Popup/Noray Bootstrapper" method="host"]
+[connection signal="pressed" from="Game Scene/UI/Network Popup/Noray/Connect Actions Row/Join Button" to="Game Scene/UI/Network Popup/Noray Bootstrapper" method="join"]
+
 [editable path="Game Scene"]
 [editable path="Game Scene/UI/Network Popup"]
