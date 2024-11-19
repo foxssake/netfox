@@ -7,7 +7,7 @@ extends Node
 
 func host_only():
 	var brawler_spawner: BrawlerSpawner = %"Brawler Spawner"
-	if (not brawler_spawner == null):
+	if brawler_spawner != null:
 		brawler_spawner.spawn_host_avatar = false
 	host()
 
