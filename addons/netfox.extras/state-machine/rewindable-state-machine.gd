@@ -22,14 +22,14 @@ class_name RewindableStateMachine
 ## need to skip [method transition]'s callbacks. 
 @export var state: StringName = "":
 	get: return _state_object.name if _state_object != null else ""
-	set(v): _set_state(v)
+	set(v): transition(v, true)
 
 ## Emitted during state transitions.
 ##
 ## This signal is emitted whenever a transition happens during rollback, which 
 ## means it may be emitted multiple times for the same transition if it gets 
 ## resimulated during rollback.
-signal on_state_changed(old_state: RewindableState, new_state: RewindableState)
+signal on_state_changed(old_state: RewindableState, new_state: RewindableState, is_rollback: bool)
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_extras("RewindableStateMachine")
 
@@ -48,25 +48,25 @@ var _available_states: Dictionary = {}
 ## [br][br]
 ## Does nothing if transitioning to the currently active state. Emits a warning
 ## and does nothing when transitioning to an unknown state.
-func transition(new_state_name: StringName) -> void:
+func transition(new_state_name: StringName, is_rollback: bool = false) -> void:
 	if state == new_state_name:
 		return
 	
 	if not _available_states.has(new_state_name):
-		_logger.warning("Attempted to transition from state '%s' into unknown state '%s'", [state, new_state_name])
+		_logger.warning("Attempted to transition from state '%s' into unknown state '%s'" % [state, new_state_name])
 		return
 		
 	var new_state: RewindableState = _available_states[new_state_name]
 	if _state_object:
-		if !new_state.can_enter(_state_object):
+		if !is_rollback and !new_state.can_enter(_state_object):
 			return
 	
-		_state_object.exit(new_state, NetworkRollback.tick)
+		_state_object.exit(new_state, NetworkRollback.tick, is_rollback)
 	
 	var _previous_state: RewindableState = _state_object
 	_state_object = new_state
-	on_state_changed.emit(_previous_state, new_state)
-	_state_object.enter(_previous_state, NetworkRollback.tick)
+	_state_object.enter(_previous_state, NetworkRollback.tick, is_rollback)
+	on_state_changed.emit(_previous_state, _state_object, is_rollback)
 
 func _ready():
 	# Gather known states
@@ -106,13 +106,3 @@ func _get_configuration_warnings():
 func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 	if _state_object:
 		_state_object.tick(delta, tick, is_fresh)
-
-func _set_state(new_state: StringName) -> void:
-	if not new_state:
-		return
-	
-	if not _available_states.has(new_state):
-		_logger.warning("Attempted to jump to unknown state: %s", [new_state])
-		return
-	
-	_state_object = _available_states[new_state]

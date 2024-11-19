@@ -4,7 +4,7 @@ extends RewindableState
 @export var input: PlayerInputStateMachine
 @export var speed = 5.0
 
-func enter(_previous_state, _tick):
+func enter(_previous_state, _tick, _is_rollback):
 	character.set_color(Color.RED)
 
 func tick(delta, tick, is_fresh):
