@@ -9,8 +9,6 @@ enum Role { NONE, HOST, CLIENT }
 @export var host_oid_input: LineEdit
 @export var force_relay_check: CheckBox
 
-@onready var brawler_spawner := %"Brawler Spawner" as BrawlerSpawner
-
 var role = Role.NONE
 
 func _ready():
@@ -53,7 +51,9 @@ func disconnect_from_noray():
 	oid_input.clear()
 
 func host_only():
-	brawler_spawner.spawn_host_avatar = false
+	var brawler_spawner: BrawlerSpawner = %"Brawler Spawner"
+	if brawler_spawner != null:
+		brawler_spawner.spawn_host_avatar = false
 	host()
 
 func host():

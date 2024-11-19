@@ -78,12 +78,4 @@ spawn_point = Vector3(0, 1, 0)
 
 [node name="Network Popup" parent="Network" instance=ExtResource("1_0btv1")]
 
-[node name="LAN Bootstrapper" parent="Network/Network Popup" index="3" node_paths=PackedStringArray("connect_ui")]
-connect_ui = NodePath("..")
-
-[node name="Noray Bootstrapper" parent="Network/Network Popup" index="4" node_paths=PackedStringArray("connect_ui")]
-connect_ui = NodePath("..")
-
 [node name="Players" type="Node" parent="."]
-
-[editable path="Network/Network Popup"]
