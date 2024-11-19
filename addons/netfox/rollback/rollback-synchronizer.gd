@@ -28,6 +28,8 @@ var _earliest_input: int
 var _property_cache: PropertyCache
 var _freshness_store: RollbackFreshnessStore
 
+var _is_initialized: bool = false
+
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("RollbackSynchronizer")
 
 ## Process settings.
@@ -58,6 +60,8 @@ func process_settings():
 	_nodes.push_front(root)
 	_nodes = _nodes.filter(func(it): return NetworkRollback.is_rollback_aware(it))
 	_nodes.erase(self)
+	
+	_is_initialized = true
 
 ## Process settings based on authority.
 ##
@@ -85,12 +89,10 @@ func process_authority():
 			_record_input_property_entries.push_back(property_entry)
 
 func _ready():
-	process_settings()
-	
 	if not NetworkTime.is_initial_sync_done():
 		# Wait for time sync to complete
 		await NetworkTime.after_sync
-	_latest_state = NetworkTime.tick - 1
+	process_settings.call_deferred()
 	
 	NetworkTime.before_tick.connect(_before_tick)
 	NetworkTime.after_tick.connect(_after_tick)
@@ -233,6 +235,10 @@ func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 
 @rpc("any_peer", "unreliable", "call_remote")
 func _submit_input(input: Dictionary, tick: int):
+	if not _is_initialized:
+		# Settings not processed yet
+		return
+	
 	var sender = multiplayer.get_remote_sender_id()
 	var sanitized = {}
 	for property in input:
@@ -269,6 +275,10 @@ func _submit_input(input: Dictionary, tick: int):
 
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_state(state: Dictionary, tick: int):
+	if not _is_initialized:
+		# Settings not processed yet
+		return
+	
 	if tick > NetworkTime.tick:
 		# This used to be weird, but is now expected due to estimating remote time
 		# push_warning("Received state from the future %s / %s - adding nonetheless" % [tick, NetworkTime.tick])
