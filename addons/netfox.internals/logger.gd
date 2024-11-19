@@ -11,6 +11,8 @@ enum {
 	LOG_MAX
 }
 
+const DEFAULT_LOG_LEVEL := LOG_DEBUG
+
 static var log_level: int
 static var module_log_level: Dictionary
 
@@ -27,14 +29,6 @@ const level_prefixes: Array[String] = [
 	""
 ]
 
-static func _static_init():
-	log_level = ProjectSettings.get_setting("netfox/logging/log_level", LOG_MIN)
-	module_log_level = {
-		"netfox": ProjectSettings.get_setting("netfox/logging/netfox_log_level", LOG_MIN),
-		"netfox.noray": ProjectSettings.get_setting("netfox/logging/netfox_noray_log_level", LOG_MIN),
-		"netfox.extras": ProjectSettings.get_setting("netfox/logging/netfox_extras_log_level", LOG_MIN)
-	}
-
 static func for_netfox(p_name: String) -> _NetfoxLogger:
 	return _NetfoxLogger.new("netfox", p_name)
 
@@ -47,10 +41,18 @@ static func for_extras(p_name: String) -> _NetfoxLogger:
 static func make_setting(name: String) -> Dictionary:
 	return {
 		"name": name,
-		"value": LOG_DEBUG,
+		"value": DEFAULT_LOG_LEVEL,
 		"type": TYPE_INT,
 		"hint": PROPERTY_HINT_ENUM,
 		"hint_string": "All,Trace,Debug,Info,Warning,Error,None"
+	}
+
+static func _static_init():
+	log_level = ProjectSettings.get_setting("netfox/logging/log_level", DEFAULT_LOG_LEVEL)
+	module_log_level = {
+		"netfox": ProjectSettings.get_setting("netfox/logging/netfox_log_level", DEFAULT_LOG_LEVEL),
+		"netfox.noray": ProjectSettings.get_setting("netfox/logging/netfox_noray_log_level", DEFAULT_LOG_LEVEL),
+		"netfox.extras": ProjectSettings.get_setting("netfox/logging/netfox_extras_log_level", DEFAULT_LOG_LEVEL)
 	}
 
 func _init(p_module: String, p_name: String):
