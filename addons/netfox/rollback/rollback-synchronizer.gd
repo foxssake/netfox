@@ -44,6 +44,7 @@ var diff_ack_interval: int = 0
 @export var enable_input_broadcast: bool = true
 
 var _record_state_property_entries: Array[PropertyEntry] = []
+var _record_state_node_denylist: Dictionary = {} # TODO: Implement with _Set
 var _record_input_property_entries: Array[PropertyEntry] = []
 var _auth_state_property_entries: Array[PropertyEntry] = []
 var _auth_input_property_entries: Array[PropertyEntry] = []
@@ -200,6 +201,15 @@ func _prepare_tick(tick: int):
 	_has_input = _retrieved_tick != -1
 	_input_tick = _retrieved_tick
 
+	# Save data for input prediction
+	_has_input = _retrieved_tick != -1
+	_input_tick = _retrieved_tick
+	
+	# Reset set of nodes that shouldn't be recorded, i.e. they can't predict
+	# with current input
+	_record_state_node_denylist.clear()
+	
+	# Gather nodes that can be simulated
 	for node in _nodes:
 		if _can_simulate(node, tick):
 			NetworkRollback.notify_simulated(node)
