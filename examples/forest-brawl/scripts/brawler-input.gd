@@ -5,16 +5,23 @@ class_name BrawlerInput
 var camera: Camera3D
 
 @onready var _player: Node3D = get_parent()
+@onready var _rollback_synchronizer: RollbackSynchronizer = _player.find_child("RollbackSynchronizer")
 @onready var _confine_mouse: bool = DisplayServer.mouse_get_mode() == DisplayServer.MOUSE_MODE_CONFINED
 
 var movement: Vector3 = Vector3.ZERO
 var aim: Vector3 = Vector3.ZERO
 var is_firing: bool = false
 
+var confidence: float = 1.0
+
 var _last_mouse_input: float = 0.0
 var _aim_target: Vector3
 var _projected_target: Vector3
 var _has_aim: bool = false
+
+func _ready():
+	super()
+	NetworkRollback.after_prepare_tick.connect(_predict)
 
 func _input(event):
 	if event is InputEventMouse:
@@ -64,6 +71,21 @@ func _gather():
 		)
 	
 	is_firing = Input.is_action_pressed("weapon_fire")
+
+func _predict(_tick):
+	if not _rollback_synchronizer:
+		return
+	
+	var input_age := _rollback_synchronizer.get_input_age()
+	var max_predictable_age = NetworkTime.seconds_to_ticks(0.25)
+	
+	confidence = 1. - input_age / max_predictable_age
+	confidence = pow(confidence, 4.)
+	confidence = clampf(confidence, 0., 1.)
+	
+	movement *= confidence
+	aim *= confidence
+	is_firing = is_firing and input_age == 0
 
 func _physics_process(_delta):
 	if not camera:

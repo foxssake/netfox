@@ -33,6 +33,8 @@ var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 var respawn_tick: int = -1
 var respawn_count: int = 0
 
+static var _logger := _NetfoxLogger.new("game", "Brawler")
+
 func register_hit(from: BrawlerController):
 	if from == self:
 		push_error("Player %s (#%s) trying to register hit on themselves!" % [player_name, player_id])
@@ -88,6 +90,14 @@ func _tick(_delta, tick):
 		animation_tree.set("parameters/Throw/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
 
 func _rollback_tick(delta, tick, is_fresh):
+	if input.confidence < 1.:
+		_logger.debug("Input age is %d ticks, confidence is at %.2f", [rollback_synchronizer.get_input_age(), input.confidence])
+
+	if input.confidence <= 0.:
+		_logger.info("Confidence in input is zero, skipping tick %d!", [tick])
+		rollback_synchronizer.skip_simulating(self)
+		return
+	
 	# Respawn
 	if tick == respawn_tick:
 		_snap_to_spawn()

@@ -141,9 +141,13 @@ func has_input() -> bool:
 
 func get_input_age() -> int:
 	if has_input():
-		return NetworkRollback.tick - _retrieved_tick
+		return NetworkRollback.tick - _input_tick
 	else:
 		return -1
+
+# TODO: Rename to ignore
+func skip_simulating(node: Node):
+	_record_state_node_denylist[node] = true
 
 func _ready():
 	if not NetworkTime.is_initial_sync_done():
@@ -233,7 +237,7 @@ func _process_tick(tick: int):
 	#		If authority: Latest input >= tick >= Latest state
 	#		If not: Latest input >= tick >= Earliest input
 	for node in _nodes:
-		if NetworkRollback.is_simulated(node):
+		if NetworkRollback.is_simulated(node) and not _record_state_node_denylist.has(node):
 			var is_fresh = _freshness_store.is_fresh(node, tick)
 			NetworkRollback.process_rollback(node, NetworkTime.ticktime, tick, is_fresh)
 			_freshness_store.notify_processed(node, tick)
@@ -244,7 +248,7 @@ func _record_tick(tick: int):
 		var full_state: Dictionary = {}
 
 		for property in _auth_state_property_entries:
-			if _can_simulate(property.node, tick - 1):
+			if _can_simulate(property.node, tick - 1) and not _record_state_node_denylist.has(property.node):
 				# Only broadcast if we've simulated the node
 				full_state[property.to_string()] = property.get_value()
 
