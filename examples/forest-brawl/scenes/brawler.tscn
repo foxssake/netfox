@@ -153,6 +153,7 @@ script = ExtResource("7_cmfmx")
 root = NodePath("..")
 state_properties = Array[String]([":transform", ":velocity", ":speed", "Displaceable:mass", "Displaceable:impulse"])
 full_state_interval = 24
+diff_ack_interval = 1
 input_properties = Array[String](["Input:movement", "Input:aim"])
 enable_input_broadcast = false
 

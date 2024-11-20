@@ -430,13 +430,13 @@ func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 @rpc("any_peer", "reliable", "call_remote")
 func _ack_full_state(tick: int):
 	var sender_id := multiplayer.get_remote_sender_id()
-	_ackd_state[sender_id] = maxi(_ackd_state.get(sender_id, 0), tick)
+	_ackd_state[sender_id] = tick
 	
 	_logger.trace("Peer %d ack'd full state for tick %d" % [sender_id, tick])
 
-@rpc("any_peer", "unreliable", "call_remote")
+@rpc("any_peer", "unreliable_ordered", "call_remote")
 func _ack_diff_state(tick: int):
 	var sender_id := multiplayer.get_remote_sender_id()
-	_ackd_state[sender_id] = maxi(_ackd_state.get(sender_id, 0), tick)
+	_ackd_state[sender_id] = tick
 	
 	_logger.trace("Peer %d ack'd diff state for tick %d" % [sender_id, tick])
