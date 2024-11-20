@@ -168,7 +168,7 @@ func _request_projectile(id: String, tick: int, request_data: Dictionary):
 
 @rpc("authority", "reliable", "call_local")
 func _accept_projectile(id: String, tick: int, response_data: Dictionary):
-	_logger.info("[%s] Accepting projectile %s from %s", [multiplayer.get_unique_id(), id, multiplayer.get_remote_sender_id()])
+	_logger.info("Accepting projectile %s from %s", [id, multiplayer.get_remote_sender_id()])
 	if multiplayer.get_unique_id() == multiplayer.get_remote_sender_id():
 		# Projectile is local, nothing to do
 		return
