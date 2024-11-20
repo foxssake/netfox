@@ -19,6 +19,23 @@ class_name RollbackSynchronizer
 @export_range(0, 128, 1, "or_greater")
 var full_state_interval: int = 0
 
+## Ticks to wait between unreliably acknowledging diff states.
+## [br][br]
+## This can reduce the amount of properties sent in diff states, due to clients
+## more often acknowledging received states. To avoid introducing hickups, these
+## are sent unreliably.
+## [br][br]
+## If set to 0, diff states will never be acknowledged. If set to 1, all diff 
+## states will be acknowledged. If set higher, ack's will be sent regularly, but
+## not for every diff state.
+## [br][br]
+## If enabled, it's worth to tune this setting until network traffic is actually
+## reduced.
+## [br][br]
+## Only considered if [member _NetworkRollback.enable_diff_states] is true.
+@export_range(0, 128, 1, "or_greater")
+var diff_ack_interval: int = 0
+
 @export_group("Inputs")
 @export var input_properties: Array[String]
 
@@ -37,8 +54,9 @@ var _inputs: Dictionary = {}
 var _latest_state_tick: int
 var _earliest_input_tick: int
 
-var _ackd_full_state: Dictionary = {}
+var _ackd_state: Dictionary = {}
 var _next_full_state_tick: int
+var _next_diff_ack_tick: int
 
 var _property_cache: PropertyCache
 var _freshness_store: RollbackFreshnessStore
@@ -63,12 +81,15 @@ func process_settings():
 	_latest_state_tick = NetworkTime.tick - 1
 	_earliest_input_tick = NetworkTime.tick
 	_next_full_state_tick = NetworkTime.tick
+	_next_diff_ack_tick = NetworkTime.tick
 	
 	# Scatter full state sends, so not all nodes send at the same tick
 	if is_inside_tree():
 		_next_full_state_tick += hash(get_path()) % maxi(1, full_state_interval)
+		_next_diff_ack_tick += hash(get_path()) % maxi(1, diff_ack_interval)
 	else:
 		_next_full_state_tick += hash(name) % maxi(1, full_state_interval)
+		_next_diff_ack_tick += hash(name) % maxi(1, diff_ack_interval)
 
 	# Gather state properties - all state properties are recorded
 	for property in state_properties:
@@ -203,13 +224,13 @@ func _record_tick(tick: int):
 					NetworkPerformance.push_full_state(full_state)
 					
 					# Peer hasn't received a full state yet, can't send diffs
-					if not _ackd_full_state.has(peer):
+					if not _ackd_state.has(peer):
 						_submit_full_state.rpc_id(peer, full_state, tick)
 						NetworkPerformance.push_sent_state(full_state)
 						continue
 					
 					# History doesn't have reference tick?
-					var reference_tick = _ackd_full_state[peer]
+					var reference_tick = _ackd_state[peer]
 					if not _states.has(reference_tick):
 						_submit_full_state.rpc_id(peer, full_state, tick)
 						NetworkPerformance.push_sent_state(full_state)
@@ -357,7 +378,7 @@ func _submit_full_state(state: Dictionary, tick: int):
 	var sender = multiplayer.get_remote_sender_id()
 	var sanitized = _sanitize_by_authority(state, sender)
 	
-	if sanitized.size() == 0:
+	if sanitized.is_empty():
 		# State is completely invalid
 		_logger.warning("Received invalid state from %s for tick %s" % [sender, tick])
 		return
@@ -366,7 +387,7 @@ func _submit_full_state(state: Dictionary, tick: int):
 	_latest_state_tick = tick
 		
 	if NetworkRollback.enable_diff_states:
-		_receive_full_state_ack.rpc_id(get_multiplayer_authority(), tick)
+		_ack_full_state.rpc_id(get_multiplayer_authority(), tick)
 
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
@@ -384,6 +405,7 @@ func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 		_logger.warn("Reference tick %d missing for %d" % [reference_tick, tick])
 
 	var reference_state = _states.get(reference_tick, {})
+	var is_valid_state := true
 
 	if (diff_state.is_empty()):
 		_latest_state_tick = tick
@@ -392,15 +414,29 @@ func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 		var sender = multiplayer.get_remote_sender_id()
 		var sanitized = _sanitize_by_authority(diff_state, sender)
 
-		if sanitized.size() > 0:
+		if not sanitized.is_empty():
 			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), sanitized)
 			_latest_state_tick = tick
 		else:
+			# State is completely invalid
 			_logger.warning("Received invalid state from %s for tick %s" % [sender, tick])
+			is_valid_state = false
+	
+	if NetworkRollback.enable_diff_states:
+		if is_valid_state and diff_ack_interval > 0 and tick > _next_diff_ack_tick:
+			_ack_diff_state.rpc_id(get_multiplayer_authority(), tick)
+			_next_diff_ack_tick = tick + diff_ack_interval
 
 @rpc("any_peer", "reliable", "call_remote")
-func _receive_full_state_ack(tick: int):
+func _ack_full_state(tick: int):
 	var sender_id := multiplayer.get_remote_sender_id()
-	_ackd_full_state[sender_id] = tick
+	_ackd_state[sender_id] = maxi(_ackd_state.get(sender_id, 0), tick)
 	
 	_logger.trace("Peer %d ack'd full state for tick %d" % [sender_id, tick])
+
+@rpc("any_peer", "unreliable", "call_remote")
+func _ack_diff_state(tick: int):
+	var sender_id := multiplayer.get_remote_sender_id()
+	_ackd_state[sender_id] = maxi(_ackd_state.get(sender_id, 0), tick)
+	
+	_logger.trace("Peer %d ack'd diff state for tick %d" % [sender_id, tick])
