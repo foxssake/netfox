@@ -11,4 +11,3 @@
 player_scene = ExtResource("2_fawao")
 
 [editable path="Game Scene"]
-[editable path="Game Scene/UI/Network Popup"]

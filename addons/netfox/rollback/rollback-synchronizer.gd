@@ -43,6 +43,8 @@ var _next_full_state_tick: int
 var _property_cache: PropertyCache
 var _freshness_store: RollbackFreshnessStore
 
+var _is_initialized: bool = false
+
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("RollbackSynchronizer")
 
 ## Process settings.
@@ -80,6 +82,8 @@ func process_settings():
 	_nodes.push_front(root)
 	_nodes = _nodes.filter(func(it): return NetworkRollback.is_rollback_aware(it))
 	_nodes.erase(self)
+	
+	_is_initialized = true
 
 ## Process settings based on authority.
 ##
@@ -107,11 +111,10 @@ func process_authority():
 			_record_input_property_entries.push_back(property_entry)
 
 func _ready():
-	process_settings()
-
 	if not NetworkTime.is_initial_sync_done():
 		# Wait for time sync to complete
 		await NetworkTime.after_sync
+	process_settings.call_deferred()
 
 	NetworkTime.before_tick.connect(_before_tick)
 	NetworkTime.after_tick.connect(_after_tick)
@@ -313,6 +316,10 @@ func _sanitize_by_authority(snapshot: Dictionary, sender: int) -> Dictionary:
 
 @rpc("any_peer", "unreliable", "call_remote")
 func _submit_input(input: Dictionary, tick: int):
+	if not _is_initialized:
+		# Settings not processed yet
+		return
+	
 	var sender = multiplayer.get_remote_sender_id()
 	var sanitized = _sanitize_by_authority(input, sender)
 
@@ -338,6 +345,10 @@ func _submit_input(input: Dictionary, tick: int):
 
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_full_state(state: Dictionary, tick: int):
+	if not _is_initialized:
+		# Settings not processed yet
+		return
+
 	if tick < NetworkTime.tick - NetworkRollback.history_limit:
 		# State too old!
 		_logger.error("Received full state for %s, rejecting because older than %s frames" % [tick, NetworkRollback.history_limit])
@@ -359,6 +370,10 @@ func _submit_full_state(state: Dictionary, tick: int):
 
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
+	if not _is_initialized:
+		# Settings not processed yet
+		return
+
 	if tick < NetworkTime.tick - NetworkRollback.history_limit:
 		# State too old!
 		_logger.error("Received diff state for %s, rejecting because older than %s frames" % [tick, NetworkRollback.history_limit])
