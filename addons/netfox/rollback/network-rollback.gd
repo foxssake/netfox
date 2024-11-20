@@ -4,6 +4,11 @@ class_name _NetworkRollback
 ## Whether rollback is enabled.
 var enabled: bool = ProjectSettings.get_setting("netfox/rollback/enabled", true)
 
+## Whether diff states are enabled.
+## [br][br]
+## Diff states send only the state properties that have changed.
+var enable_diff_states: bool = ProjectSettings.get_setting("netfox/rollback/enable_diff_states", true)
+
 ## How many ticks to store as history.
 ##
 ## The larger the history limit, the further we can roll back into the past, 

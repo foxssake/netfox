@@ -86,6 +86,11 @@ var SETTINGS = [
 		"value": 0,
 		"type": TYPE_INT
 	},
+	{
+		"name": "netfox/rollback/enable_diff_states",
+		"value": true,
+		"type": TYPE_BOOL
+	},
 	# Events
 	{
 		"name": "netfox/events/enabled",

@@ -20,13 +20,26 @@ will most often be the *RollbackSynchronizer*'s parent node.
 state, the server is the ultimate authority. Make sure that nodes containing
 state properties are owned by the server.
 
+*Full state interval* specifies how many ticks to wait between full states. If
+diff states are enabled, full states are only sent at specific intervals, to
+make sure that peers always have the correct state data. *Only considered if
+diff states are enabled.*
+
+*Diff ack interval* specifies how many ticks to wait between acknowledging diff
+states. Setting this to lower non-zero values may result in more bandwidth
+savings on non-changing properties, but this can be outweighed by the increased
+number of ack messages. *Only considered if diff states are enabled.*
+
+See [diff states](#diff-states) for more on how the above two settings are
+used.
+
 *Input properties* are gathered for each player and sent to the server to use
 for simulation. Make sure that nodes containing input properties are owned by
 their respective players.
 
 See [Property paths] on how to specify properties.
 
-*enable_input_broadcast* toggles whether input properties are broadcast to all
+*Enable input broadcast* toggles whether input properties are broadcast to all
 peers, or only to the server. The default is *true* to support legacy
 behaviour. It is recommended to turn this off to lower bandwidth and lessen the
 attack surface for cheating.
@@ -100,6 +113,33 @@ When *only* multiplayer authority changes, call `process_authority()`. When the
 configured state- or input properties change ( i.e. different properties need
 to be synced ), call `process_settings()`.
 
+## Diff states
+
+When diff states are enabled in the [rollback settings], netfox will attempt to
+save bandwidth by only sending state properties that have changed.
+
+These changes are always based on a tick that the receiving peer has confirmed
+it already has. Basically we don't want to send changes compared to a tick that
+the peer has no knowledge about.
+
+Peers notify the host of which ticks they know about by *acknowledging* ( or
+ack'ing ) ticks. This acknowledging has two flavors.
+
+The first flavor is *full states*. These states contain all the state data,
+regardless of what changed and what has stayed the same. These ensure that
+peers have all the state data for a given tick. Once a full state is received,
+the receiving peer acknowledges that tick over a reliable channel.
+
+The second flavor is *diff states*. Peers may also acknowledge ticks after
+receiving a diff state, meaning that they have reconstructed the given state
+from a known earlier state and the diff state received. These are acknowledged
+over an unreliable channel. By using an unreliable channel, we can acknowledge
+diff states more often without causing any hiccups in network traffic.
+
+When diff states are disabled, netfox will always send full state data for all
+ticks.
+
 [Rollback caveats]: ../tutorials/rollback-caveats.md
 [NetworkRollback]: ../guides/network-rollback.md
 [Property paths]: ../guides/property-paths.md
+[rollback settings]: ../guides/network-rollback.md#settings
