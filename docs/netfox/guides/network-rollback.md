@@ -99,5 +99,9 @@ update is received from the server. The drawback is that the game will have
 some latency built-in, as it reacts to player inputs with some delay. Setting
 to zero will always display the latest game state.
 
+*Enable diff states* toggles diff states. By sending only state properties that
+have changed, netfox can reduce the bandwidth needed to synchronize the game
+between peers. See [RollbackSynchronizer] on how this is done and configured.
+
 [Client-Side Prediction and Server Reconciliation]: https://www.gabrielgambetta.com/client-side-prediction-server-reconciliation.html
 [RollbackSynchronizer]: ../nodes/rollback-synchronizer.md
