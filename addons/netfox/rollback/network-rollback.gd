@@ -158,7 +158,7 @@ func _rollback():
 	# Limit number of rollback ticks
 	if to - from > history_limit:
 		_logger.warning(
-			"Trying to run rollback for ticks %d to %d, past the history limit of %d" %
+			"Trying to run rollback for ticks %d to %d, past the history limit of %d",
 			[from, to, history_limit]
 		)
 		from = NetworkTime.tick - history_limit

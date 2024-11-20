@@ -36,7 +36,7 @@ func fire() -> Node:
 	else:
 		_accept_projectile.rpc(id, NetworkTime.tick, data)
 
-	_logger.debug("Calling after fire hook for %s" % [projectile.name])
+	_logger.debug("Calling after fire hook for %s", [projectile.name])
 	_after_fire(projectile)
 
 	return projectile
@@ -128,7 +128,7 @@ func _before_tick_loop():
 		if is_instance_valid(projectile):
 			_reconcile(projectile, local_data, response_data)
 		else:
-			_logger.warning("Projectile %s vanished by the time of reconciliation!" % [projectile_id])
+			_logger.warning("Projectile %s vanished by the time of reconciliation!", [projectile_id])
 
 	_reconcile_buffer.clear()
 
@@ -149,7 +149,7 @@ func _request_projectile(id: String, tick: int, request_data: Dictionary):
 	# Reject if sender can't use this input
 	if not _can_peer_use(sender) or not _can_fire():
 		_decline_projectile.rpc_id(sender, id)
-		_logger.error("Projectile %s rejected! Peer %s can't use this weapon now" % [id, sender])
+		_logger.error("Projectile %s rejected! Peer %s can't use this weapon now", [id, sender])
 		return
 	
 	# Validate incoming data
@@ -159,7 +159,7 @@ func _request_projectile(id: String, tick: int, request_data: Dictionary):
 	if not _is_reconcilable(projectile, request_data, local_data):
 		projectile.queue_free()
 		_decline_projectile.rpc_id(sender, id)
-		_logger.error("Projectile %s rejected! Can't reconcile states: [%s, %s]" % [id, request_data, local_data])
+		_logger.error("Projectile %s rejected! Can't reconcile states: [%s, %s]", [id, request_data, local_data])
 		return
 	
 	_save_projectile(projectile, id, local_data)
@@ -168,7 +168,7 @@ func _request_projectile(id: String, tick: int, request_data: Dictionary):
 
 @rpc("authority", "reliable", "call_local")
 func _accept_projectile(id: String, tick: int, response_data: Dictionary):
-	_logger.info("[%s] Accepting projectile %s from %s" % [multiplayer.get_unique_id(), id, multiplayer.get_remote_sender_id()])
+	_logger.info("[%s] Accepting projectile %s from %s", [multiplayer.get_unique_id(), id, multiplayer.get_remote_sender_id()])
 	if multiplayer.get_unique_id() == multiplayer.get_remote_sender_id():
 		# Projectile is local, nothing to do
 		return

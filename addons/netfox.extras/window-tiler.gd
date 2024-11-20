@@ -20,11 +20,11 @@ func _ready() -> void:
 	if not ProjectSettings.get_setting("netfox/extras/auto_tile_windows", false):
 		return
 
-	_logger.debug("Tiling with sid: %s, uid: %s" % [_sid, _uid])
+	_logger.debug("Tiling with sid: %s, uid: %s", [_sid, _uid])
 	
 	var err = _make_lock(_sid, _uid)
 	if err != Error.OK:
-		_logger.warning("Failed to create lock for tiling, reason: %s" % [error_string(err)])
+		_logger.warning("Failed to create lock for tiling, reason: %s", [error_string(err)])
 		return
 
 	# Search for locks, stop once no new locks are found
@@ -42,7 +42,7 @@ func _ready() -> void:
 	var tile_count = locks.size()
 	var idx = locks.find(_uid)
 	
-	_logger.debug("Tiling as idx %d / %d - %s in %s" % [idx, tile_count, _uid, locks])
+	_logger.debug("Tiling as idx %d / %d - %s in %s", [idx, tile_count, _uid, locks])
 	_tile_window(idx, tile_count)
 
 func _make_lock(sid: String, uid: String) -> Error:
@@ -73,7 +73,7 @@ func _cleanup():
 	if dir:
 		for f in dir.get_files():
 			if f.begins_with(_prefix) and _get_sid(f) != _sid:
-					_logger.trace("Cleaned up lock: %s" % [f])
+					_logger.trace("Cleaned up lock: %s", [f])
 					dir.remove(OS.get_cache_dir() + "/" + f)
 
 func _get_sid(filename: String) -> String:
