@@ -70,36 +70,41 @@ func _check_log_level(level: int) -> bool:
 	
 	return true
 
-func _format_text(text: String, level: int) -> String:
+func _format_text(text: String, values: Array, level: int) -> String:
 	level = clampi(level, LOG_MIN, LOG_MAX)
 	var peer_id := NetworkEvents.multiplayer.get_unique_id()
 	var tick := NetworkTime.tick
 	
-	return "[%s][@%s][#%s][%s::%s] %s" % [level_prefixes[level], tick, peer_id, module, name, text]
+	var prefix := "[%s][@%s][#%s][%s::%s] " % [level_prefixes[level], tick, peer_id, module, name]
+	
+	if values.is_empty():
+		return prefix + text
+	else:
+		return prefix + (text % values)
 
-func _log_text(text: String, level: int):
+func _log_text(text: String, values: Array, level: int):
 	if _check_log_level(level):
-		print(_format_text(text, level))
+		print(_format_text(text, values, level))
 
-func trace(text: String):
-	_log_text(text, LOG_TRACE)
+func trace(text: String, values: Array = []):
+	_log_text(text, values, LOG_TRACE)
 
-func debug(text: String):
-	_log_text(text, LOG_DEBUG)
+func debug(text: String, values: Array = []):
+	_log_text(text, values, LOG_DEBUG)
 
-func info(text: String):
-	_log_text(text, LOG_INFO)
+func info(text: String, values: Array = []):
+	_log_text(text, values, LOG_INFO)
 
-func warning(text: String):
+func warning(text: String, values: Array = []):
 	if _check_log_level(LOG_WARN):
-		var formatted_text = _format_text(text, LOG_WARN)
+		var formatted_text = _format_text(text, values, LOG_WARN)
 		push_warning(formatted_text)
 		# Print so it shows up in the Output panel too
 		print(formatted_text)
 
-func error(text: String):
+func error(text: String, values: Array = []):
 	if _check_log_level(LOG_ERROR):
-		var formatted_text = _format_text(text, LOG_ERROR)
+		var formatted_text = _format_text(text, values, LOG_ERROR)
 		push_error(formatted_text)
 		# Print so it shows up in the Output panel too
 		print(formatted_text)
