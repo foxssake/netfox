@@ -459,7 +459,7 @@ func _loop():
 			# Game stalled for a while, probably paused, don't run extra ticks
 			# to catch up
 			_was_paused = true
-			_logger.debug("Game stalled for %.4fs, assuming it was a pause" % [clock_step_raw])
+			_logger.debug("Game stalled for %.4fs, assuming it was a pause", [clock_step_raw])
 
 	# Handle pause
 	if _was_paused:
@@ -505,9 +505,9 @@ func _is_active() -> bool:
 func _submit_sync_success():
 	var peer_id = multiplayer.get_remote_sender_id()
 	
-	_logger.trace("Received time sync success from #%s, synced peers: %s" % [peer_id, _synced_peers.keys()])
+	_logger.trace("Received time sync success from #%s, synced peers: %s", [peer_id, _synced_peers.keys()])
 	
 	if not _synced_peers.has(peer_id):
 		_synced_peers[peer_id] = true
 		after_client_sync.emit(peer_id)
-		_logger.debug("Peer #%s is now on time!" % [peer_id])
+		_logger.debug("Peer #%s is now on time!", [peer_id])

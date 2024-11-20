@@ -213,7 +213,7 @@ func _record_tick(tick: int):
 				NetworkPerformance.push_sent_state_broadcast(full_state)
 			elif full_state_interval > 0 and tick > _next_full_state_tick:
 				# Send full state so we can send deltas from there
-				_logger.trace("Broadcasting full state for tick %d" % [tick])
+				_logger.trace("Broadcasting full state for tick %d", [tick])
 				_submit_full_state.rpc(full_state, tick)
 				_next_full_state_tick = tick + full_state_interval
 				
@@ -329,9 +329,10 @@ func _sanitize_by_authority(snapshot: Dictionary, sender: int) -> Dictionary:
 		if authority == sender:
 			sanitized[property] = value
 		else:
-			_logger.warning("Received data for property %s, owned by %s, from sender %s" % [
-				property, authority, sender
-			])
+			_logger.warning(
+				"Received data for property %s, owned by %s, from sender %s",
+				[ property, authority, sender ]
+			)
 	
 	return sanitized
 
@@ -350,7 +351,7 @@ func _submit_input(input: Dictionary, tick: int):
 				var t = tick - i
 				if t < NetworkTime.tick - NetworkRollback.history_limit:
 					# Input too old
-					_logger.error("Received input for %s, rejecting because older than %s frames" % [t, NetworkRollback.history_limit])
+					_logger.error("Received input for %s, rejecting because older than %s frames", [t, NetworkRollback.history_limit])
 					continue
 
 				var old_input = _inputs.get(t, {}).get(property)
@@ -362,7 +363,7 @@ func _submit_input(input: Dictionary, tick: int):
 					_inputs[t][property] = new_input
 					_earliest_input_tick = min(_earliest_input_tick, t)
 	else:
-		_logger.warning("Received invalid input from %s for tick %s for %s" % [sender, tick, root.name])
+		_logger.warning("Received invalid input from %s for tick %s for %s", [sender, tick, root.name])
 
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_full_state(state: Dictionary, tick: int):
@@ -372,7 +373,7 @@ func _submit_full_state(state: Dictionary, tick: int):
 
 	if tick < NetworkTime.tick - NetworkRollback.history_limit:
 		# State too old!
-		_logger.error("Received full state for %s, rejecting because older than %s frames" % [tick, NetworkRollback.history_limit])
+		_logger.error("Received full state for %s, rejecting because older than %s frames", [tick, NetworkRollback.history_limit])
 		return
 
 	var sender = multiplayer.get_remote_sender_id()
@@ -380,7 +381,7 @@ func _submit_full_state(state: Dictionary, tick: int):
 	
 	if sanitized.is_empty():
 		# State is completely invalid
-		_logger.warning("Received invalid state from %s for tick %s" % [sender, tick])
+		_logger.warning("Received invalid state from %s for tick %s", [sender, tick])
 		return
 
 	_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), sanitized)
@@ -397,12 +398,12 @@ func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 
 	if tick < NetworkTime.tick - NetworkRollback.history_limit:
 		# State too old!
-		_logger.error("Received diff state for %s, rejecting because older than %s frames" % [tick, NetworkRollback.history_limit])
+		_logger.error("Received diff state for %s, rejecting because older than %s frames", [tick, NetworkRollback.history_limit])
 		return
 
 	if not _states.has(reference_tick):
 		# Reference tick missing, hope for the best
-		_logger.warn("Reference tick %d missing for %d" % [reference_tick, tick])
+		_logger.warn("Reference tick %d missing for %d", [reference_tick, tick])
 
 	var reference_state = _states.get(reference_tick, {})
 	var is_valid_state := true
@@ -419,7 +420,7 @@ func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 			_latest_state_tick = tick
 		else:
 			# State is completely invalid
-			_logger.warning("Received invalid state from %s for tick %s" % [sender, tick])
+			_logger.warning("Received invalid state from %s for tick %s", [sender, tick])
 			is_valid_state = false
 	
 	if NetworkRollback.enable_diff_states:
@@ -432,11 +433,11 @@ func _ack_full_state(tick: int):
 	var sender_id := multiplayer.get_remote_sender_id()
 	_ackd_state[sender_id] = tick
 	
-	_logger.trace("Peer %d ack'd full state for tick %d" % [sender_id, tick])
+	_logger.trace("Peer %d ack'd full state for tick %d", [sender_id, tick])
 
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _ack_diff_state(tick: int):
 	var sender_id := multiplayer.get_remote_sender_id()
 	_ackd_state[sender_id] = tick
 	
-	_logger.trace("Peer %d ack'd diff state for tick %d" % [sender_id, tick])
+	_logger.trace("Peer %d ack'd diff state for tick %d", [sender_id, tick])

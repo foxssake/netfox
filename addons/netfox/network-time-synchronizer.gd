@@ -152,7 +152,7 @@ func get_time() -> float:
 	return _clock.get_time()
 
 func _loop():
-	_logger.info("Time sync loop started! Initial timestamp: %ss" % [_clock.get_time()])
+	_logger.info("Time sync loop started! Initial timestamp: %ss", [_clock.get_time()])
 	on_initial_sync.emit()
 
 	while _active:
@@ -175,7 +175,7 @@ func _discipline_clock():
 			return a.get_rtt() < b.get_rtt()
 	)
 	
-	_logger.trace("Using sorted samples: \n%s" % [
+	_logger.trace("Using sorted samples: \n%s", [
 		"\n".join(sorted_samples.map(func(it: NetworkClockSample): return "\t" + it.to_string() + " (%.4fs)" % [get_time() - it.ping_sent]))
 	])
 	
@@ -207,13 +207,13 @@ func _discipline_clock():
 		
 		_offset = 0.
 		
-		_logger.warning("Offset %ss is above panic threshold %ss! Resetting clock" % [offset, panic_threshold])
+		_logger.warning("Offset %ss is above panic threshold %ss! Resetting clock", [offset, panic_threshold])
 		on_panic.emit(offset)
 	else:
 		# Nudge clock towards estimated time
 		var nudge := offset / adjust_steps
 		_clock.adjust(nudge)
-		_logger.trace("Adjusted clock by %.2fms, offset: %.2fms, new time: %.4fss" % [nudge * 1000., offset * 1000., _clock.get_time()])
+		_logger.trace("Adjusted clock by %.2fms, offset: %.2fms, new time: %.4fss", [nudge * 1000., offset * 1000., _clock.get_time()])
 		
 		_offset = offset - nudge
 
@@ -237,7 +237,7 @@ func _send_pong(idx: int, ping_received: float, pong_sent: float):
 	sample.pong_sent = pong_sent
 	sample.pong_received = pong_received
 	
-	_logger.trace("Received sample: %s" % [sample])
+	_logger.trace("Received sample: %s", [sample])
 	
 	# Once a sample is done, remove from in-flight samples and move to sample buffer
 	_awaiting_samples.erase(idx)
@@ -248,11 +248,11 @@ func _send_pong(idx: int, ping_received: float, pong_sent: float):
 
 @rpc("any_peer", "call_remote", "reliable")
 func _request_timestamp():
-	_logger.debug("Requested initial timestamp @ %.4fs raw time" % [_clock.get_raw_time()])
+	_logger.debug("Requested initial timestamp @ %.4fs raw time", [_clock.get_raw_time()])
 	_set_timestamp.rpc_id(multiplayer.get_remote_sender_id(), _clock.get_time())
 
 @rpc("any_peer", "call_remote", "reliable")
 func _set_timestamp(timestamp: float):
-	_logger.debug("Received initial timestamp @ %.4fs raw time" % [_clock.get_raw_time()])
+	_logger.debug("Received initial timestamp @ %.4fs raw time", [_clock.get_raw_time()])
 	_clock.set_time(timestamp)
 	_loop()
