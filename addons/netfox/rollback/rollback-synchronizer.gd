@@ -202,9 +202,6 @@ func _prepare_tick(tick: int):
 	PropertySnapshot.apply(state, _property_cache)
 	PropertySnapshot.apply(input, _property_cache)
 
-	_has_input = _retrieved_tick != -1
-	_input_tick = _retrieved_tick
-
 	# Save data for input prediction
 	_has_input = _retrieved_tick != -1
 	_input_tick = _retrieved_tick
@@ -222,12 +219,12 @@ func _can_simulate(node: Node, tick: int) -> bool:
 	if node.is_multiplayer_authority():
 		# Simulate from earliest input
 		# Don't simulate frames we don't have input for
-		return tick >= _earliest_input_tick and _inputs.has(tick)
+		return tick >= _earliest_input_tick
 	else:
 		# Simulate ONLY if we have state from server
 		# Simulate from latest authorative state - anything the server confirmed we don't rerun
 		# Don't simulate frames we don't have input for
-		return tick >= _latest_state_tick and _inputs.has(tick)
+		return tick >= _latest_state_tick
 
 func _process_tick(tick: int):
 	# Simulate rollback tick
@@ -237,7 +234,7 @@ func _process_tick(tick: int):
 	#		If authority: Latest input >= tick >= Latest state
 	#		If not: Latest input >= tick >= Earliest input
 	for node in _nodes:
-		if NetworkRollback.is_simulated(node) and not _record_state_node_denylist.has(node):
+		if NetworkRollback.is_simulated(node):
 			var is_fresh = _freshness_store.is_fresh(node, tick)
 			NetworkRollback.process_rollback(node, NetworkTime.ticktime, tick, is_fresh)
 			_freshness_store.notify_processed(node, tick)
@@ -302,7 +299,10 @@ func _record_tick(tick: int):
 
 	# Record state for specified tick ( current + 1 )
 	if not _record_state_property_entries.is_empty() and tick > _latest_state_tick:
-		_states[tick] = PropertySnapshot.extract(_record_state_property_entries)
+		var record_properties = _record_input_property_entries\
+			.filter(func(pe): return not _record_state_node_denylist.has(pe.node))
+
+		_states[tick] = PropertySnapshot.extract(record_properties)
 
 func _after_loop():
 	_earliest_input_tick = NetworkTime.tick
