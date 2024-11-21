@@ -27,7 +27,7 @@ class_name RewindableStateMachine
 ## Emitted after the tick loop when the state has changed.
 ##
 ## This signal is emitted whenever a tick has finished and the state has changed, which 
-## means it will only emit once per tick. Ideal for updating displays or making quick changes without further simulation (i.e physics)
+## means it will only emit once per tick. Ideal for updating displays or making quick changes without further simulation.
 signal after_tick_state_changed(old_state: RewindableState, new_state: RewindableState)
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_extras("RewindableStateMachine")
