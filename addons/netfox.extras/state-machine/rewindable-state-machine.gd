@@ -53,7 +53,7 @@ func transition(new_state_name: StringName, is_rollback: bool = false) -> void:
 		return
 	
 	if not _available_states.has(new_state_name):
-		_logger.warning("Attempted to transition from state '%s' into unknown state '%s'" % [state, new_state_name])
+		_logger.warning("Attempted to transition from state '%s' into unknown state '%s'", [state, new_state_name])
 		return
 		
 	var new_state: RewindableState = _available_states[new_state_name]
