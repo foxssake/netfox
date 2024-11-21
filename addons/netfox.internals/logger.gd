@@ -16,6 +16,9 @@ const DEFAULT_LOG_LEVEL := LOG_DEBUG
 static var log_level: int
 static var module_log_level: Dictionary
 
+static var _tags: Dictionary = {}
+static var _ordered_tags: Array[Callable] = []
+
 var module: String
 var name: String
 
@@ -47,6 +50,23 @@ static func make_setting(name: String) -> Dictionary:
 		"hint_string": "All,Trace,Debug,Info,Warning,Error,None"
 	}
 
+static func register_tag(tag: Callable, priority: int = 0):
+	# Save tag
+	if not _tags.has(priority):
+		_tags[priority] = [tag]
+	else:
+		_tags[priority].push_back(tag)
+
+	# Recalculate tag order
+	_ordered_tags.clear()
+	
+	var prio_groups = _tags.keys()
+	prio_groups.sort()
+
+	for prio_group in prio_groups:
+		var tag_group = _tags[prio_group]
+		_ordered_tags.append_array(tag_group)
+
 static func _static_init():
 	log_level = ProjectSettings.get_setting("netfox/logging/log_level", DEFAULT_LOG_LEVEL)
 	module_log_level = {
@@ -72,15 +92,20 @@ func _check_log_level(level: int) -> bool:
 
 func _format_text(text: String, values: Array, level: int) -> String:
 	level = clampi(level, LOG_MIN, LOG_MAX)
-	var peer_id := NetworkEvents.multiplayer.get_unique_id()
-	var tick := NetworkTime.tick
 	
-	var prefix := "[%s][@%s][#%s][%s::%s] " % [level_prefixes[level], tick, peer_id, module, name]
+	var result := PackedStringArray()
+	
+	result.append("[%s]" % [level_prefixes[level]])
+	for tag in _ordered_tags:
+		result.append("[%s]" % [tag.call()])
+	result.append("[%s::%s] " % [module, name])
 	
 	if values.is_empty():
-		return prefix + text
+		result.append(text)
 	else:
-		return prefix + (text % values)
+		result.append(text % values)
+	
+	return "".join(result)
 
 func _log_text(text: String, values: Array, level: int):
 	if _check_log_level(level):
