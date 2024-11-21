@@ -437,7 +437,7 @@ func ticks_between(seconds_from: float, seconds_to: float) -> int:
 	return seconds_to_ticks(seconds_to - seconds_from)
 
 static func _static_init():
-	_NetfoxLogger.register_tag(func(): return "@%d" % NetworkTime.tick, -99)
+	_NetfoxLogger.register_tag(func(): return "@%d" % NetworkTime.tick, -100)
 
 func _loop():
 	# Adjust local clock

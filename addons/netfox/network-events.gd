@@ -73,7 +73,7 @@ func is_server() -> bool:
 	return true
 
 static func _static_init():
-	_NetfoxLogger.register_tag(func(): return "#%d" % NetworkEvents.multiplayer.get_unique_id(), -100)
+	_NetfoxLogger.register_tag(func(): return "#%d" % NetworkEvents.multiplayer.get_unique_id(), -99)
 
 func _ready():
 	enabled = ProjectSettings.get_setting("netfox/events/enabled", true)

@@ -51,6 +51,7 @@ static func make_setting(name: String) -> Dictionary:
 	}
 
 static func register_tag(tag: Callable, priority: int = 0):
+	# Save tag
 	if not _tags.has(priority):
 		_tags[priority] = [tag]
 	else:
