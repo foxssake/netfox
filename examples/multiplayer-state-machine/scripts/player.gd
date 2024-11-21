@@ -15,7 +15,7 @@ func _ready():
 	await get_tree().process_frame
 	$RollbackSynchronizer.process_settings()
 	state_machine.state = &"Idle"
-	state_machine.on_state_changed.connect(func (_old_state, new_state, _is_rollback):
+	state_machine.after_tick_state_changed.connect(func (_old_state, new_state):
 		if new_state.name:
 			current_state_label.text = new_state.name
 	)

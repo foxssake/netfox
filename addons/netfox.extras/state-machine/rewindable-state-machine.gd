@@ -24,16 +24,16 @@ class_name RewindableStateMachine
 	get: return _state_object.name if _state_object != null else ""
 	set(v): transition(v, true)
 
-## Emitted during state transitions.
+## Emitted after the tick loop when the state has changed.
 ##
-## This signal is emitted whenever a transition happens during rollback, which 
-## means it may be emitted multiple times for the same transition if it gets 
-## resimulated during rollback.
-signal on_state_changed(old_state: RewindableState, new_state: RewindableState, is_rollback: bool)
+## This signal is emitted whenever a tick has finished and the state has changed, which 
+## means it will only emit once per tick. Ideal for updating displays or making quick changes without further simulation (i.e physics)
+signal after_tick_state_changed(old_state: RewindableState, new_state: RewindableState)
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_extras("RewindableStateMachine")
 
 var _state_object: RewindableState = null
+var _previous_tick_state: RewindableState = null
 var _available_states: Dictionary = {}
 
 ## Transition to a new state specified by [param new_state_name].
@@ -66,12 +66,18 @@ func transition(new_state_name: StringName, is_rollback: bool = false) -> void:
 	var _previous_state: RewindableState = _state_object
 	_state_object = new_state
 	_state_object.enter(_previous_state, NetworkRollback.tick, is_rollback)
-	on_state_changed.emit(_previous_state, _state_object, is_rollback)
 
-func _ready():
-	# Gather known states
-	for child in find_children("*", "RewindableState", false):
-		_available_states[child.name] = child
+func _notification(what: int):
+	if what == NOTIFICATION_READY:
+		# Gather known states
+		for child in find_children("*", "RewindableState", false):
+			_available_states[child.name] = child
+			
+		NetworkTime.after_tick_loop.connect(func ():
+			if _state_object != _previous_tick_state:
+				after_tick_state_changed.emit(_previous_tick_state, _state_object)
+				_previous_tick_state = _state_object
+		)
 
 func _get_configuration_warnings():
 	const MISSING_SYNCHRONIZER_ERROR := \
