@@ -32,7 +32,7 @@ func tick(delta: float, tick: int, is_fresh: bool) -> void:
 ## This method is called whenever the state machine enters this state.
 ## [br][br]
 ## [i]override[/i] to react to state transitions
-func enter(previous_state: RewindableState, tick: int, is_rollback: bool) -> void:
+func enter(previous_state: RewindableState, tick: int) -> void:
 	pass
 
 ## Callback for entering the state.
@@ -40,7 +40,7 @@ func enter(previous_state: RewindableState, tick: int, is_rollback: bool) -> voi
 ## This method is called whenever the state machine exits this state.
 ## [br][br]
 ## [i]override[/i] to react to state transitions
-func exit(next_state: RewindableState, tick: int, is_rollback: bool) -> void:
+func exit(next_state: RewindableState, tick: int) -> void:
 	pass
 
 ## Callback for validating state transitions.

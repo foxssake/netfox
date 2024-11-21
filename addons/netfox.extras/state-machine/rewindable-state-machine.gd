@@ -22,18 +22,28 @@ class_name RewindableStateMachine
 ## need to skip [method transition]'s callbacks. 
 @export var state: StringName = "":
 	get: return _state_object.name if _state_object != null else ""
-	set(v): transition(v, true)
+	set(v): _set_state(v)
 
-## Emitted after the tick loop when the state has changed.
+## Emitted during state transitions.
 ##
-## This signal is emitted whenever a tick has finished and the state has changed, which 
-## means it will only emit once per tick. Ideal for updating displays or making quick changes without further simulation.
-signal after_tick_state_changed(old_state: RewindableState, new_state: RewindableState)
+## This signal can be used to run gameplay code on state changes.
+## [br][br]
+## This signal is emitted whenever a transition happens during rollback, which 
+## means it may be emitted multiple times for the same transition if it gets 
+## resimulated during rollback.
+signal on_state_changed(old_state: RewindableState, new_state: RewindableState)
+
+## Emitted after the displayed state has changed.
+##
+## This signal can be used to update visuals based on state changes.
+## [br][br]
+## This signal is emitted whenever the state after a tick loop has changed.
+signal on_display_state_changed(old_state: RewindableState, new_state: RewindableState)
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_extras("RewindableStateMachine")
 
 var _state_object: RewindableState = null
-var _previous_tick_state: RewindableState = null
+var _previous_state_object: RewindableState = null
 var _available_states: Dictionary = {}
 
 ## Transition to a new state specified by [param new_state_name].
@@ -48,7 +58,7 @@ var _available_states: Dictionary = {}
 ## [br][br]
 ## Does nothing if transitioning to the currently active state. Emits a warning
 ## and does nothing when transitioning to an unknown state.
-func transition(new_state_name: StringName, is_rollback: bool = false) -> void:
+func transition(new_state_name: StringName) -> void:
 	if state == new_state_name:
 		return
 	
@@ -58,26 +68,22 @@ func transition(new_state_name: StringName, is_rollback: bool = false) -> void:
 		
 	var new_state: RewindableState = _available_states[new_state_name]
 	if _state_object:
-		if !is_rollback and !new_state.can_enter(_state_object):
+		if !new_state.can_enter(_state_object):
 			return
 	
-		_state_object.exit(new_state, NetworkRollback.tick, is_rollback)
+		_state_object.exit(new_state, NetworkRollback.tick)
 	
 	var _previous_state: RewindableState = _state_object
 	_state_object = new_state
-	_state_object.enter(_previous_state, NetworkRollback.tick, is_rollback)
+	on_state_changed.emit(_previous_state, new_state)
+	_state_object.enter(_previous_state, NetworkRollback.tick)
 
-func _notification(what: int):
-	if what == NOTIFICATION_READY:
-		# Gather known states
-		for child in find_children("*", "RewindableState", false):
-			_available_states[child.name] = child
-			
-		NetworkTime.after_tick_loop.connect(func ():
-			if _state_object != _previous_tick_state:
-				after_tick_state_changed.emit(_previous_tick_state, _state_object)
-				_previous_tick_state = _state_object
-		)
+func _ready():
+	# Gather known states
+	for child in find_children("*", "RewindableState", false):
+		_available_states[child.name] = child
+	
+	NetworkTime.after_tick_loop.connect(_after_tick_loop)
 
 func _get_configuration_warnings():
 	const MISSING_SYNCHRONIZER_ERROR := \
@@ -112,3 +118,18 @@ func _get_configuration_warnings():
 func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 	if _state_object:
 		_state_object.tick(delta, tick, is_fresh)
+
+func _after_tick_loop():
+	if _state_object != _previous_state_object:
+		on_display_state_changed.emit(_previous_state_object, _state_object)
+		_previous_state_object = _state_object
+
+func _set_state(new_state: StringName) -> void:
+	if not new_state:
+		return
+	
+	if not _available_states.has(new_state):
+		_logger.warning("Attempted to jump to unknown state: %s", [new_state])
+		return
+	
+	_state_object = _available_states[new_state]
