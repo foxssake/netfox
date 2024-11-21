@@ -15,6 +15,8 @@ class_name RewindableStateMachine
 ## [br][br]
 ## To implement states, extend the [RewindableState] class and add it as a child
 ## node.
+##
+## @tutorial(RewindableStateMachine Guide): https://foxssake.github.io/netfox/netfox.extras/guides/rewindable-state-machine/
 
 ## Name of the current state.
 ## 
@@ -31,6 +33,9 @@ class_name RewindableStateMachine
 ## This signal is emitted whenever a transition happens during rollback, which 
 ## means it may be emitted multiple times for the same transition if it gets 
 ## resimulated during rollback.
+## [br][br]
+## [b]State changes are not necessarily emitted on all peers.[/b]
+## See: [url=https://foxssake.github.io/netfox/netfox.extras/guides/rewindable-state-machine/#caveats]RewindableStateMachine caveats[/url]
 signal on_state_changed(old_state: RewindableState, new_state: RewindableState)
 
 ## Emitted after the displayed state has changed.
