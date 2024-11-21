@@ -403,7 +403,7 @@ func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 
 	if not _states.has(reference_tick):
 		# Reference tick missing, hope for the best
-		_logger.warn("Reference tick %d missing for %d", [reference_tick, tick])
+		_logger.warning("Reference tick %d missing for %d", [reference_tick, tick])
 
 	var reference_state = _states.get(reference_tick, {})
 	var is_valid_state := true
