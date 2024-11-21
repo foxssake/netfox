@@ -4,6 +4,7 @@
 
 # netfox
 
+[![License](https://img.shields.io/github/license/foxssake/netfox)](https://github.com/foxssake/netfox/blob/main/LICENSE)
 [![GitHub Release](https://img.shields.io/github/v/release/foxssake/netfox)](https://github.com/foxssake/netfox/releases)
 [![Documentation](https://img.shields.io/badge/Docs-github.io-blue)](https://foxssake.github.io/netfox/)
 [![Discord](https://img.shields.io/discord/1253434107656933447?logo=discord&label=Discord)](https://discord.gg/xWGh4GskG5)
@@ -139,7 +140,7 @@ knock eachother off of the map.
 </table>
 
 Building something cool with netfox? Whether it's released or in progress, feel
-free to open a PR!
+free to open a PR, adding your game to the list!
 
 ## License
 
@@ -172,6 +173,17 @@ Author(s) at the time of writing:
 
 * @elementbound
 
+## Funding
+
+If you've found netfox useful, feel free to fund us on ko-fi:
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/T6T8WZD0W)
+
+Donations are always appreciated and taken as gratitude for the work that has
+already been done.
+
+If you'd like to fund a specific feature or development, please contact us in [email].
+
 [source]: https://github.com/foxssake/netfox/archive/refs/heads/main.zip
 [Godot engine]: https://godotengine.org/
 [noray]: https://github.com/foxssake/noray
@@ -184,3 +196,5 @@ Author(s) at the time of writing:
 
 [open an issue]: https://github.com/foxssake/netfox/issues
 [GDScript style guide]: https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_styleguide.html
+
+[email]: mailto:foxssake@gmail.com?subject=netfox
