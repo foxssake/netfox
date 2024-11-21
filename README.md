@@ -2,6 +2,10 @@
   <img src="docs/assets/netfox.svg" />
 </p>
 
+[![GitHub Release](https://img.shields.io/github/v/release/foxssake/netfox)](https://github.com/foxssake/netfox/releases)
+[![Documentation](https://img.shields.io/badge/%F0%9F%93%84-Documentation-blue)](https://foxssake.github.io/netfox/)
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/T6T8WZD0W)
+
 # netfox
 
 A set of addons for responsive online games with the [Godot engine].
