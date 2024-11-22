@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://jskoprs7vkq0"]
+[gd_scene load_steps=24 format=3 uid="uid://jskoprs7vkq0"]
 
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/effects/repulse-effect.gd" id="1_47iru"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/aura-sphere-mesh.gd" id="2_7rgpm"]
@@ -108,6 +108,98 @@ fill = 1
 fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(1, 0.5)
 
+[sub_resource type="Animation" id="Animation_km8h3"]
+resource_name = "birth"
+length = 0.25
+step = 0.0416667
+tracks/0/type = "scale_3d"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Aura")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = PackedFloat32Array(0, 1, 0.005, 0.005, 0.005, 0.25, 1, 1, 1, 1)
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Aura:transparency")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.25),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [1.0, 0.0]
+}
+tracks/2/type = "scale_3d"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Decal")
+tracks/2/interp = 2
+tracks/2/loop_wrap = true
+tracks/2/keys = PackedFloat32Array(0, 1, 0.005, 0.005, 0.005, 0.25, 1, 1, 1, 1)
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("GPUParticles3D:emitting")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.0416667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [false, true]
+}
+
+[sub_resource type="Animation" id="Animation_psafd"]
+resource_name = "death"
+length = 0.25
+step = 0.0416667
+tracks/0/type = "scale_3d"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Aura")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = PackedFloat32Array(0, 1, 1, 1, 1, 0.25, 1, 0.005, 0.005, 0.005)
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Aura:transparency")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.25),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+tracks/2/type = "scale_3d"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Decal")
+tracks/2/interp = 2
+tracks/2/loop_wrap = true
+tracks/2/keys = PackedFloat32Array(0, 1, 1, 1, 1, 0.25, 1, 0.005, 0.005, 0.005)
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("GPUParticles3D:emitting")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.0416667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_g1rid"]
+_data = {
+"birth": SubResource("Animation_km8h3"),
+"death": SubResource("Animation_psafd")
+}
+
 [node name="Repulse Effect" type="Node3D" node_paths=PackedStringArray("area", "particles", "aura")]
 script = ExtResource("1_47iru")
 area = NodePath("Area3D")
@@ -117,11 +209,13 @@ particles = NodePath("GPUParticles3D")
 aura = NodePath("Aura")
 
 [node name="Aura" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+transform = Transform3D(0.005, 0, 0, 0, 0.005, 0, 0, 0, 0.005, 0, 0.25, 0)
+transparency = 1.0
 mesh = SubResource("ArrayMesh_c08x4")
 skeleton = NodePath("../..")
 
 [node name="GPUParticles3D" type="GPUParticles3D" parent="."]
+emitting = false
 amount = 128
 lifetime = 0.5
 local_coords = true
@@ -139,9 +233,15 @@ script = ExtResource("3_pwfeh")
 sounds = Array[AudioStream]([ExtResource("4_rqncr"), ExtResource("5_4vybw"), ExtResource("6_6gndw")])
 
 [node name="Decal" type="Decal" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.875, 0)
+transform = Transform3D(0.005, 0, 0, 0, 0.005, 0, 0, 0, 0.005, 0, -1.875, 0)
 size = Vector3(8, 4, 8)
 texture_emission = SubResource("GradientTexture2D_qncv1")
 emission_energy = 0.5
 modulate = Color(1, 0.4, 0, 1)
 lower_fade = 1.0
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+autoplay = "birth"
+libraries = {
+"": SubResource("AnimationLibrary_g1rid")
+}

@@ -3,8 +3,8 @@ class_name Effect
 
 @export var duration: float = 8.0
 @export var winddown_time: float = 2.0
-@export var particles: GPUParticles3D = null
-@export var aura: MeshInstance3D = null
+
+@onready var animation_player: AnimationPlayer = $AnimationPlayer as AnimationPlayer
 
 var _apply_tick: int = 0
 var _cease_tick: int = 0
@@ -28,16 +28,6 @@ func _ready():
 		_cease_tick + NetworkTime.seconds_to_ticks(winddown_time),
 		_cease_tick + NetworkRollback.history_limit
 	)
-	
-	if particles:
-		particles.emitting = false
-	
-	if aura:
-		aura.scale = Vector3.ONE * 0.005
-
-func _process(delta):
-	if aura:
-		aura.scale = aura.scale.move_toward(Vector3.ONE if is_active() else Vector3.ONE * 0.005, delta * 4)
 
 func _rollback_tick(tick):
 	if is_multiplayer_authority() and NetworkRollback.is_simulated(get_target()):
@@ -47,11 +37,8 @@ func _rollback_tick(tick):
 			_cease()
 
 func _tick(_delta, tick):
-	if particles != null:
-		if tick == _apply_tick:
-			particles.emitting = true
-		if tick == _cease_tick:
-			particles.emitting = false
+	if tick == _cease_tick:
+		animation_player.play("death")
 	if tick >= _destroy_tick:
 		queue_free()
 
