@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://jskoprs7vkq0"]
+[gd_scene load_steps=21 format=3 uid="uid://jskoprs7vkq0"]
 
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/effects/repulse-effect.gd" id="1_47iru"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/aura-sphere-mesh.gd" id="2_7rgpm"]
@@ -95,6 +95,19 @@ rings = 4
 [sub_resource type="SphereShape3D" id="SphereShape3D_1qng7"]
 radius = 4.0
 
+[sub_resource type="Gradient" id="Gradient_dvsrp"]
+interpolation_mode = 2
+offsets = PackedFloat32Array(0, 0.9, 0.95, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1, 0.5, 0.5, 0.5, 1, 0.0705882, 0.0705882, 0.0705882, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_qncv1"]
+gradient = SubResource("Gradient_dvsrp")
+width = 128
+height = 128
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
 [node name="Repulse Effect" type="Node3D" node_paths=PackedStringArray("area", "particles", "aura")]
 script = ExtResource("1_47iru")
 area = NodePath("Area3D")
@@ -124,3 +137,11 @@ shape = SubResource("SphereShape3D_1qng7")
 autoplay = true
 script = ExtResource("3_pwfeh")
 sounds = Array[AudioStream]([ExtResource("4_rqncr"), ExtResource("5_4vybw"), ExtResource("6_6gndw")])
+
+[node name="Decal" type="Decal" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.875, 0)
+size = Vector3(8, 4, 8)
+texture_emission = SubResource("GradientTexture2D_qncv1")
+emission_energy = 0.5
+modulate = Color(1, 0.4, 0, 1)
+lower_fade = 1.0

@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://bd38peoq8b5ae"]
+[gd_scene load_steps=17 format=3 uid="uid://bd38peoq8b5ae"]
 
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/effects/speed-effect.gd" id="1_r0k2e"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/aura-sphere-mesh.gd" id="2_ot0pi"]
@@ -90,6 +90,16 @@ material = SubResource("StandardMaterial3D_y5edj")
 radial_segments = 8
 rings = 4
 
+[sub_resource type="Gradient" id="Gradient_w2g4m"]
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_moiwh"]
+gradient = SubResource("Gradient_w2g4m")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+metadata/_snap_enabled = true
+
 [node name="Speed Effect" type="Node3D" node_paths=PackedStringArray("particles", "aura")]
 script = ExtResource("1_r0k2e")
 bonus = 0.5
@@ -112,3 +122,11 @@ draw_pass_1 = SubResource("SphereMesh_74i8l")
 [node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("3_hmarj")
 autoplay = true
+
+[node name="Decal" type="Decal" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.375, 0)
+size = Vector3(2, 1, 2)
+texture_emission = SubResource("GradientTexture2D_moiwh")
+emission_energy = 0.5
+modulate = Color(0, 0.733333, 1, 1)
+cull_mask = 1048573
