@@ -65,5 +65,29 @@ machine](../assets/rewindable-state-children.png)
 
 States must be added as children under a RewindableStateMachine to work.
 
+## Caveats
+
+RewindableStateMachine runs in the [rollback tick loop], which means that all
+the [Rollback Caveats] apply.
+
+In addition, rollback ticks are only ran for nodes that have known inputs for
+the given tick, and *need* to be simulated - either on the server to determine
+the new state, or on the client to predict. In practice, ticks are usually only
+ran on the host owning state and the client owning inputs. The rest of the
+peers use the state broadcast by the host.
+
+**This means that transition callbacks are not always ran.** This is by design
+and expected ( see [#327] ).
+
+As a best practice, in the `enter()`, `exit()` callbacks and the
+`on_state_changed` signal, only change game state - i.e. properties that are
+configured as state in [RollbackSynchronizer].
+
+To update visuals - e.g. change animation, spawn effects, etc. -, use the
+`on_display_state_changed` signal to react to state transitions.
+
 [multiplayer-state-machine]: https://github.com/foxssake/netfox/tree/main/examples/multiplayer-state-machine
 [RollbackSynchronizer]: ../../netfox/nodes/rollback-synchronizer.md
+[rollback tick loop]: ../../netfox/guides/network-rollback.md#network-rollback-loop
+[Rollback Caveats]: ../../netfox/tutorials/rollback-caveats.md
+[#327]: https://github.com/foxssake/netfox/issues/327#issuecomment-2491251374

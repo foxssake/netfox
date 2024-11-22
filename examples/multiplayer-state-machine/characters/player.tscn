@@ -35,7 +35,7 @@ mesh = SubResource("CapsuleMesh_tnl3b")
 [node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("2_qf1b4")
 root = NodePath("..")
-state_properties = Array[String]([":position", ":velocity", "RewindableStateMachine:state"])
+state_properties = Array[String]([":position", ":velocity", ":color", "RewindableStateMachine:state"])
 input_properties = Array[String](["Input:movement", "Input:jump"])
 
 [node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
@@ -48,7 +48,6 @@ script = ExtResource("4_1uirt")
 
 [node name="RewindableStateMachine" type="Node" parent="."]
 script = ExtResource("5_o4thu")
-state = &"Idle"
 
 [node name="Jump" type="Node" parent="RewindableStateMachine" node_paths=PackedStringArray("character", "input")]
 script = ExtResource("8_prifk")
