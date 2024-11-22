@@ -17,7 +17,7 @@ class_name RollbackSynchronizer
 ## [br][br]
 ## Only considered if [member _NetworkRollback.enable_diff_states] is true.
 @export_range(0, 128, 1, "or_greater")
-var full_state_interval: int = 0
+var full_state_interval: int = 24
 
 ## Ticks to wait between unreliably acknowledging diff states.
 ## [br][br]
