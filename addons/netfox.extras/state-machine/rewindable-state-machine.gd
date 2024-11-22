@@ -83,12 +83,16 @@ func transition(new_state_name: StringName) -> void:
 	on_state_changed.emit(_previous_state, new_state)
 	_state_object.enter(_previous_state, NetworkRollback.tick)
 
-func _ready():
-	# Gather known states
-	for child in find_children("*", "RewindableState", false):
-		_available_states[child.name] = child
-	
-	NetworkTime.after_tick_loop.connect(_after_tick_loop)
+func _notification(what: int):
+	# Use notification instead of _ready, so users can write their own _ready 
+	# callback without having to call super()
+	if what == NOTIFICATION_READY:
+		# Gather known states
+		for child in find_children("*", "RewindableState", false):
+			_available_states[child.name] = child
+		
+		# Compare states after tick loop
+		NetworkTime.after_tick_loop.connect(_after_tick_loop)
 
 func _get_configuration_warnings():
 	const MISSING_SYNCHRONIZER_ERROR := \
