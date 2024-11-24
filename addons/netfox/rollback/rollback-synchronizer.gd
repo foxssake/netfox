@@ -44,11 +44,11 @@ var diff_ack_interval: int = 0
 @export var enable_input_broadcast: bool = true
 
 var _record_state_property_entries: Array[PropertyEntry] = []
-var _record_state_node_denylist: Dictionary = {} # TODO: Implement with _Set
 var _record_input_property_entries: Array[PropertyEntry] = []
 var _auth_state_property_entries: Array[PropertyEntry] = []
 var _auth_input_property_entries: Array[PropertyEntry] = []
 var _nodes: Array[Node] = []
+var _skipset: _Set = _Set.new()
 
 var _states: Dictionary = {}
 var _inputs: Dictionary = {}
@@ -145,9 +145,8 @@ func get_input_age() -> int:
 	else:
 		return -1
 
-# TODO: Rename to ignore
-func skip_simulating(node: Node):
-	_record_state_node_denylist[node] = true
+func ignore(node: Node):
+	_skipset.add(node)
 
 func _ready():
 	if not NetworkTime.is_initial_sync_done():
@@ -208,7 +207,7 @@ func _prepare_tick(tick: int):
 	
 	# Reset set of nodes that shouldn't be recorded, i.e. they can't predict
 	# with current input
-	_record_state_node_denylist.clear()
+	_skipset.clear()
 	
 	# Gather nodes that can be simulated
 	for node in _nodes:
@@ -219,12 +218,12 @@ func _can_simulate(node: Node, tick: int) -> bool:
 	if node.is_multiplayer_authority():
 		# Simulate from earliest input
 		# Don't simulate frames we don't have input for
-		return tick >= _earliest_input_tick and _inputs.has(tick)
+		return tick >= _earliest_input_tick
 	else:
 		# Simulate ONLY if we have state from server
 		# Simulate from latest authorative state - anything the server confirmed we don't rerun
 		# Don't simulate frames we don't have input for
-		return tick >= _latest_state_tick and _inputs.has(tick)
+		return tick >= _latest_state_tick
 
 func _process_tick(tick: int):
 	# Simulate rollback tick
@@ -245,7 +244,7 @@ func _record_tick(tick: int):
 		var full_state: Dictionary = {}
 
 		for property in _auth_state_property_entries:
-			if _can_simulate(property.node, tick - 1) and not _record_state_node_denylist.has(property.node):
+			if _can_simulate(property.node, tick - 1):
 				# Only broadcast if we've simulated the node
 				full_state[property.to_string()] = property.get_value()
 
@@ -299,8 +298,7 @@ func _record_tick(tick: int):
 
 	# Record state for specified tick ( current + 1 )
 	if not _record_state_property_entries.is_empty() and tick > _latest_state_tick:
-		var record_properties = _record_input_property_entries\
-			.filter(func(pe): return true or not _record_state_node_denylist.has(pe.node))
+		var record_properties = _record_state_property_entries
 
 		_states[tick] = PropertySnapshot.extract(record_properties)
 
