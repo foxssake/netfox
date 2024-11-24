@@ -219,12 +219,12 @@ func _can_simulate(node: Node, tick: int) -> bool:
 	if node.is_multiplayer_authority():
 		# Simulate from earliest input
 		# Don't simulate frames we don't have input for
-		return tick >= _earliest_input_tick
+		return tick >= _earliest_input_tick and _inputs.has(tick)
 	else:
 		# Simulate ONLY if we have state from server
 		# Simulate from latest authorative state - anything the server confirmed we don't rerun
 		# Don't simulate frames we don't have input for
-		return tick >= _latest_state_tick
+		return tick >= _latest_state_tick and _inputs.has(tick)
 
 func _process_tick(tick: int):
 	# Simulate rollback tick
@@ -300,7 +300,7 @@ func _record_tick(tick: int):
 	# Record state for specified tick ( current + 1 )
 	if not _record_state_property_entries.is_empty() and tick > _latest_state_tick:
 		var record_properties = _record_input_property_entries\
-			.filter(func(pe): return not _record_state_node_denylist.has(pe.node))
+			.filter(func(pe): return true or not _record_state_node_denylist.has(pe.node))
 
 		_states[tick] = PropertySnapshot.extract(record_properties)
 
@@ -317,6 +317,7 @@ func _before_tick(_delta, tick):
 	PropertySnapshot.apply(state, _property_cache)
 
 func _after_tick(_delta, _tick):
+	# Record input
 	if not _record_input_property_entries.is_empty():
 		var input = PropertySnapshot.extract(_record_input_property_entries)
 		_inputs[NetworkTime.tick] = input
@@ -332,6 +333,7 @@ func _after_tick(_delta, _tick):
 
 		_attempt_submit_input(inputs)
 
+	# Trim history
 	while _states.size() > NetworkRollback.history_limit:
 		_states.erase(_states.keys().min())
 

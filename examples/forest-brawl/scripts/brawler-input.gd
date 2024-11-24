@@ -19,15 +19,19 @@ var _aim_target: Vector3
 var _projected_target: Vector3
 var _has_aim: bool = false
 
+static var _logger := _NetfoxLogger.new("game", "BrawlerInput")
+
 func _ready():
 	super()
-	NetworkRollback.after_prepare_tick.connect(_predict)
+#	NetworkRollback.after_prepare_tick.connect(_predict)
 
 func _input(event):
 	if event is InputEventMouse:
 		_last_mouse_input = NetworkTime.local_time
 
 func _gather():
+#	_logger.info("Gathering input")
+	
 	# Movement
 	movement = Vector3(
 		Input.get_axis("move_west", "move_east"),
@@ -73,7 +77,16 @@ func _gather():
 	is_firing = Input.is_action_pressed("weapon_fire")
 
 func _predict(_tick):
+	if is_multiplayer_authority():
+		confidence = 1.
+		# _logger.info("Predicted input with full confidence for rollback tick %d" % NetworkRollback.tick)
+		return
+	
 	if not _rollback_synchronizer:
+		return
+	
+	if not _rollback_synchronizer.has_input():
+		confidence = 0.
 		return
 	
 	var input_age := _rollback_synchronizer.get_input_age()
@@ -82,6 +95,8 @@ func _predict(_tick):
 	confidence = 1. - input_age / max_predictable_age
 	confidence = pow(confidence, 4.)
 	confidence = clampf(confidence, 0., 1.)
+	
+	# _logger.info("Predicted input with confidence %.2f for rollback tick %d, with input age %d" % [confidence, NetworkRollback.tick, input_age])
 	
 	movement *= confidence
 	aim *= confidence
