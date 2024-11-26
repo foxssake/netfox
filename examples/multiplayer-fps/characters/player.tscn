@@ -1,0 +1,55 @@
+[gd_scene load_steps=11 format=3 uid="uid://vrso6qncj1nm"]
+
+[ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="1_g0p7o"]
+[ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="2_3rc26"]
+[ext_resource type="Script" path="res://examples/multiplayer-state-machine/scripts/player-input.gd" id="3_tl7vf"]
+[ext_resource type="Script" path="res://addons/netfox.extras/state-machine/rewindable-state-machine.gd" id="4_luo1m"]
+[ext_resource type="Script" path="res://examples/multiplayer-state-machine/scripts/character-states/Jump.gd" id="5_jdgee"]
+[ext_resource type="Script" path="res://examples/multiplayer-state-machine/scripts/character-states/Idle.gd" id="6_rqkac"]
+[ext_resource type="Script" path="res://examples/multiplayer-state-machine/scripts/character-states/Move.gd" id="7_g50ly"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_6kydi"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2gc5u"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_xnks4"]
+material = SubResource("StandardMaterial3D_2gc5u")
+
+[node name="player" type="CharacterBody3D"]
+
+[node name="StateNameLabel3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.24079, 0)
+pixel_size = 0.002
+fixed_size = true
+text = "Idle"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_6kydi")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_xnks4")
+
+[node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("1_g0p7o")
+root = NodePath("..")
+state_properties = Array[String]([":position", ":velocity", ":color", "RewindableStateMachine:state"])
+input_properties = Array[String](["Input:movement", "Input:jump"])
+
+[node name="TickInterpolator" type="Node" parent="."]
+script = ExtResource("2_3rc26")
+properties = Array[String]([":position"])
+
+[node name="Input" type="Node" parent="."]
+script = ExtResource("3_tl7vf")
+
+[node name="RewindableStateMachine" type="Node" parent="."]
+script = ExtResource("4_luo1m")
+
+[node name="Jump" type="Node" parent="RewindableStateMachine"]
+script = ExtResource("5_jdgee")
+
+[node name="Idle" type="Node" parent="RewindableStateMachine"]
+script = ExtResource("6_rqkac")
+
+[node name="Move" type="Node" parent="RewindableStateMachine"]
+script = ExtResource("7_g50ly")

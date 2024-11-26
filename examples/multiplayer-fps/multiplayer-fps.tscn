@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://bfshwoko470di"]
+
+[ext_resource type="PackedScene" uid="uid://b2nbnsert06me" path="res://examples/multiplayer-netfox/multiplayer-netfox.tscn" id="1_4bukf"]
+[ext_resource type="PackedScene" uid="uid://vrso6qncj1nm" path="res://examples/multiplayer-fps/characters/player.tscn" id="2_p13fk"]
+
+[node name="multiplayer-fps" type="Node"]
+
+[node name="Game Scene" parent="." instance=ExtResource("1_4bukf")]
+
+[node name="Player Spawner" parent="Game Scene/Network" index="1"]
+player_scene = ExtResource("2_p13fk")
+
+[editable path="Game Scene"]
