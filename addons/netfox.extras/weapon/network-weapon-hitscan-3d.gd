@@ -6,13 +6,19 @@ class_name NetworkWeaponHitscan3D
 ## Maximum distance to cast the ray
 @export var max_distance: float = 1000.0
 
+static var _logger: _NetfoxLogger = _NetfoxLogger.for_extras("NetworkWeapon")
+
 var _weapon: _NetworkWeaponProxy
 
+func fire() -> void:
+	if not can_fire():
+		return
+	
+	_apply_data(_get_data())
+	_after_fire()
+	
 func can_fire() -> bool:
 	return _weapon.can_fire()
-
-func fire():
-	return _weapon.fire()
 
 func _init():
 	_weapon = _NetworkWeaponProxy.new()

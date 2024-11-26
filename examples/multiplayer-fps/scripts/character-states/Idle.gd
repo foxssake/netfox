@@ -1,7 +1,7 @@
 extends RewindableState
 
 @export var character: CharacterBody3D
-@export var input: PlayerInputStateMachine
+@export var input: PlayerInputFPS
 
 func enter(_previous_state, _tick):
 	character.color = Color.WHITE

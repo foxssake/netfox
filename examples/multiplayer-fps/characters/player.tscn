@@ -1,12 +1,14 @@
-[gd_scene load_steps=11 format=3 uid="uid://vrso6qncj1nm"]
+[gd_scene load_steps=13 format=3 uid="uid://vrso6qncj1nm"]
 
 [ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="1_g0p7o"]
+[ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/player.gd" id="1_mk8qw"]
 [ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="2_3rc26"]
-[ext_resource type="Script" path="res://examples/multiplayer-state-machine/scripts/player-input.gd" id="3_tl7vf"]
+[ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/player-weapon.gd" id="3_4j0gy"]
+[ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/player-input.gd" id="3_8oqer"]
 [ext_resource type="Script" path="res://addons/netfox.extras/state-machine/rewindable-state-machine.gd" id="4_luo1m"]
-[ext_resource type="Script" path="res://examples/multiplayer-state-machine/scripts/character-states/Jump.gd" id="5_jdgee"]
-[ext_resource type="Script" path="res://examples/multiplayer-state-machine/scripts/character-states/Idle.gd" id="6_rqkac"]
-[ext_resource type="Script" path="res://examples/multiplayer-state-machine/scripts/character-states/Move.gd" id="7_g50ly"]
+[ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/character-states/Jump.gd" id="7_pccac"]
+[ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/character-states/Idle.gd" id="8_64tl6"]
+[ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/character-states/Move.gd" id="9_bhgiu"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_6kydi"]
 
@@ -15,7 +17,13 @@
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_xnks4"]
 material = SubResource("StandardMaterial3D_2gc5u")
 
-[node name="player" type="CharacterBody3D"]
+[node name="player" type="CharacterBody3D" node_paths=PackedStringArray("state_machine")]
+script = ExtResource("1_mk8qw")
+state_machine = NodePath("RewindableStateMachine")
+
+[node name="Head" type="Node3D" parent="."]
+
+[node name="Camera3D" type="Camera3D" parent="Head"]
 
 [node name="StateNameLabel3D" type="Label3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.24079, 0)
@@ -35,21 +43,31 @@ root = NodePath("..")
 state_properties = Array[String]([":position", ":velocity", ":color", "RewindableStateMachine:state"])
 input_properties = Array[String](["Input:movement", "Input:jump"])
 
-[node name="TickInterpolator" type="Node" parent="."]
+[node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("2_3rc26")
+root = NodePath("..")
 properties = Array[String]([":position"])
 
+[node name="PlayerFPSWeapon" type="Node3D" parent="."]
+script = ExtResource("3_4j0gy")
+
 [node name="Input" type="Node" parent="."]
-script = ExtResource("3_tl7vf")
+script = ExtResource("3_8oqer")
 
 [node name="RewindableStateMachine" type="Node" parent="."]
 script = ExtResource("4_luo1m")
 
-[node name="Jump" type="Node" parent="RewindableStateMachine"]
-script = ExtResource("5_jdgee")
+[node name="Jump" type="Node" parent="RewindableStateMachine" node_paths=PackedStringArray("character", "input")]
+script = ExtResource("7_pccac")
+character = NodePath("../..")
+input = NodePath("../../Input")
 
-[node name="Idle" type="Node" parent="RewindableStateMachine"]
-script = ExtResource("6_rqkac")
+[node name="Idle" type="Node" parent="RewindableStateMachine" node_paths=PackedStringArray("character", "input")]
+script = ExtResource("8_64tl6")
+character = NodePath("../..")
+input = NodePath("../../Input")
 
-[node name="Move" type="Node" parent="RewindableStateMachine"]
-script = ExtResource("7_g50ly")
+[node name="Move" type="Node" parent="RewindableStateMachine" node_paths=PackedStringArray("character", "input")]
+script = ExtResource("9_bhgiu")
+character = NodePath("../..")
+input = NodePath("../../Input")

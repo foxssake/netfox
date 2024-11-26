@@ -1,11 +1,16 @@
 extends Node
-class_name PlayerInputStateMachine
+class_name PlayerInputFPS
+
+@onready var camera: Camera3D = $"../Head/Camera3D"
 
 var movement: Vector3 = Vector3.ZERO
+var fire: bool = false
 var jump: bool = false
 
 func _ready():
 	NetworkTime.before_tick_loop.connect(_gather)
+	if is_multiplayer_authority():
+		camera.current = true
 
 func _gather():
 	if not is_multiplayer_authority():
@@ -18,3 +23,4 @@ func _gather():
 	movement = Vector3(mx, 0, mz)
 
 	jump = Input.is_action_pressed("move_jump")
+	fire = Input.is_action_pressed("weapon_fire")

@@ -1,7 +1,7 @@
 extends RewindableState
 
 @export var character: CharacterBody3D
-@export var input: PlayerInputStateMachine
+@export var input: PlayerInputFPS
 @export var speed = 5.0
 @export var jump_strength = 5.0
 
