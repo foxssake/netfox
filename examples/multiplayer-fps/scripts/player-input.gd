@@ -2,6 +2,7 @@ extends BaseNetInput
 class_name PlayerInputFPS
 
 @export var mouse_sensitivity: float = 1.0
+@export var big_gun: MeshInstance3D
 
 @onready var camera: Camera3D = $"../Head/Camera3D"
 
@@ -56,4 +57,5 @@ func _gather():
 func setup():
 	is_setup = true
 	camera.current = true
+	big_gun.hide()
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)

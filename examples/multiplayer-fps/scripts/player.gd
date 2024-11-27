@@ -23,9 +23,7 @@ func _ready():
 	
 	# Set starting state
 	state_machine.state = &"Idle"
-	state_machine.on_display_state_changed.connect(func(_old_state, _new_state):
-		current_state_label.text = state_machine.state
-	)
+	current_state_label.text = name
 	
 	# Ensure material is unique
 	mesh_instance.material_override = _material

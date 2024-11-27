@@ -2,9 +2,11 @@ extends NetworkWeaponHitscan3D
 class_name PlayerFPSWeapon
 
 @export var fire_cooldown: float = 0.15
+@export var textures: StandardMaterial3D
 
-@onready var input: PlayerInputFPS = $"../Input"
+@onready var input: PlayerInputFPS = $"../../Input"
 @onready var sound: AudioStreamPlayer3D = $AudioStreamPlayer3D
+@onready var bullethole: BulletHole = $BulletHole
 
 var last_fire: int = -1
 
@@ -22,13 +24,7 @@ func _after_fire():
 	sound.play()
 
 func _on_hit(result: Dictionary):
-	var hit_position = result.position
-	var hit_normal = result.normal
-	var collider = result.collider
-	
-	print(collider.name)
-
-	pass
+	bullethole.action(result)
 	
 func _tick(_delta: float, _t: int):
 	if input.fire:
