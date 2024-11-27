@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://vrso6qncj1nm"]
+[gd_scene load_steps=15 format=3 uid="uid://vrso6qncj1nm"]
 
 [ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="1_g0p7o"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/player.gd" id="1_mk8qw"]
@@ -6,9 +6,13 @@
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/player-weapon.gd" id="3_4j0gy"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/player-input.gd" id="3_8oqer"]
 [ext_resource type="Script" path="res://addons/netfox.extras/state-machine/rewindable-state-machine.gd" id="4_luo1m"]
+[ext_resource type="AudioStream" uid="uid://cope814m1d7p6" path="res://examples/multiplayer-fps/sounds/fire.mp3" id="5_14ltm"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/character-states/Jump.gd" id="7_pccac"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/character-states/Idle.gd" id="8_64tl6"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/character-states/Move.gd" id="9_bhgiu"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_qmeb2"]
+size = Vector3(0.4, 0.25, 0.5)
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_6kydi"]
 
@@ -22,8 +26,13 @@ script = ExtResource("1_mk8qw")
 state_machine = NodePath("RewindableStateMachine")
 
 [node name="Head" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.705698, 0)
 
 [node name="Camera3D" type="Camera3D" parent="Head"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.25)
+mesh = SubResource("BoxMesh_qmeb2")
 
 [node name="StateNameLabel3D" type="Label3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.24079, 0)
@@ -40,16 +49,19 @@ mesh = SubResource("CapsuleMesh_xnks4")
 [node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("1_g0p7o")
 root = NodePath("..")
-state_properties = Array[String]([":position", ":velocity", ":color", "RewindableStateMachine:state"])
-input_properties = Array[String](["Input:movement", "Input:jump"])
+state_properties = Array[String]([":transform", ":velocity", ":color", "RewindableStateMachine:state"])
+input_properties = Array[String](["Input:movement", "Input:jump", "Input:fire", "Input:look_angle"])
 
 [node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("2_3rc26")
 root = NodePath("..")
-properties = Array[String]([":position"])
+properties = Array[String]([":position", ":rotation"])
 
 [node name="PlayerFPSWeapon" type="Node3D" parent="."]
 script = ExtResource("3_4j0gy")
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="PlayerFPSWeapon"]
+stream = ExtResource("5_14ltm")
 
 [node name="Input" type="Node" parent="."]
 script = ExtResource("3_8oqer")
