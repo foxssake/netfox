@@ -334,10 +334,10 @@ func _sanitize_by_authority(snapshot: Dictionary, sender: int) -> Dictionary:
 
 @rpc("any_peer", "unreliable", "call_remote")
 func _submit_inputs(inputs: Dictionary, tick: int):
-  if not _is_initialized:
-    # Settings not processed yet
-    return
-    
+	if not _is_initialized:
+		# Settings not processed yet
+		return
+	
 	var sender = multiplayer.get_remote_sender_id()
 	var sanitized = {}
 	
@@ -349,9 +349,9 @@ func _submit_inputs(inputs: Dictionary, tick: int):
 			var old_input: Dictionary = _inputs.get(picked_tick, {})
 			if (old_input.is_empty()): #New input! Merge it into our history
 				_inputs[picked_tick] = sanitized[picked_tick]
-				_earliest_input = min(_earliest_input, picked_tick)
+				_earliest_input_tick = min(_earliest_input_tick, picked_tick)
 	else:
-		_logger.warning("Received invalid input from %s for tick %s for %s" % [sender_id, tick, root.name])
+		_logger.warning("Received invalid input from %s for tick %s for %s" % [sender, tick, root.name])
 
 
 @rpc("any_peer", "unreliable_ordered", "call_remote")
