@@ -31,6 +31,9 @@ func tick(delta: float, tick: int, is_fresh: bool) -> void:
 ##
 ## This method is called whenever the state machine enters this state.
 ## [br][br]
+## It is best practice to only modify game state here, i.e. properties that are
+## configured as state in a [RollbackSynchronizer].
+## [br][br]
 ## [i]override[/i] to react to state transitions
 func enter(previous_state: RewindableState, tick: int) -> void:
 	pass
@@ -38,6 +41,9 @@ func enter(previous_state: RewindableState, tick: int) -> void:
 ## Callback for entering the state.
 ##
 ## This method is called whenever the state machine exits this state.
+## [br][br]
+## It is best practice to only modify game state here, i.e. properties that are
+## configured as state in a [RollbackSynchronizer].
 ## [br][br]
 ## [i]override[/i] to react to state transitions
 func exit(next_state: RewindableState, tick: int) -> void:

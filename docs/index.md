@@ -4,6 +4,12 @@
 
 # netfox
 
+[![License](https://img.shields.io/github/license/foxssake/netfox)](https://github.com/foxssake/netfox/blob/main/LICENSE)
+[![GitHub Release](https://img.shields.io/github/v/release/foxssake/netfox)](https://github.com/foxssake/netfox/releases)
+[![Documentation](https://img.shields.io/badge/Docs-github.io-blue)](https://foxssake.github.io/netfox/)
+[![Discord](https://img.shields.io/discord/1253434107656933447?logo=discord&label=Discord)](https://discord.gg/xWGh4GskG5)
+[![ko-fi](https://img.shields.io/badge/Support%20on-ko--fi-ff5e5b?logo=ko-fi)](https://ko-fi.com/T6T8WZD0W)
+
 A set of addons for responsive online games with the [Godot engine].
 
 ## Features

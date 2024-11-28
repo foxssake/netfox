@@ -4,7 +4,7 @@ extends RewindableState
 @export var input: PlayerInputStateMachine
 
 func enter(_previous_state, _tick):
-	character.set_color(Color.WHITE)
+	character.color = Color.WHITE
 
 func tick(delta, tick, is_fresh):
 	character.velocity *= NetworkTime.physics_factor

@@ -4,6 +4,11 @@ class_name _NetworkRollback
 ## Whether rollback is enabled.
 var enabled: bool = ProjectSettings.get_setting("netfox/rollback/enabled", true)
 
+## Whether diff states are enabled.
+## [br][br]
+## Diff states send only the state properties that have changed.
+var enable_diff_states: bool = ProjectSettings.get_setting("netfox/rollback/enable_diff_states", true)
+
 ## How many ticks to store as history.
 ##
 ## The larger the history limit, the further we can roll back into the past, 
@@ -153,7 +158,7 @@ func _rollback():
 	# Limit number of rollback ticks
 	if to - from > history_limit:
 		_logger.warning(
-			"Trying to run rollback for ticks %d to %d, past the history limit of %d" %
+			"Trying to run rollback for ticks %d to %d, past the history limit of %d",
 			[from, to, history_limit]
 		)
 		from = NetworkTime.tick - history_limit

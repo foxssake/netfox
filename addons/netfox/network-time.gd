@@ -333,8 +333,14 @@ signal after_sync()
 ## is ticking and gameplay has started on their end.
 signal after_client_sync(peer_id: int)
 
+# NetworkTime states
+const _STATE_INACTIVE := 0
+const _STATE_SYNCING := 1
+const _STATE_ACTIVE := 2
+
+var _state: int = _STATE_INACTIVE
+
 var _tick: int = 0
-var _active: bool = false
 var _was_paused: bool = false
 var _initial_sync_done = false
 var _process_delta: float = 0
@@ -359,7 +365,7 @@ static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkTime")
 ## To check if this initial sync is done, see [method is_initial_sync_done]. If
 ## you need a signal, see [signal after_sync].
 func start():
-	if _active:
+	if _state != _STATE_INACTIVE:
 		return
 
 	_tick = 0
@@ -369,17 +375,18 @@ func start():
 	_synced_peers[1] = true
 	
 	NetworkTimeSynchronizer.start()
+	_state = _STATE_SYNCING
 	
 	if not multiplayer.is_server():
 		await NetworkTimeSynchronizer.on_initial_sync
 
 		_tick = seconds_to_ticks(NetworkTimeSynchronizer.get_time())
 		_initial_sync_done = true
-		_active = true
+		_state = _STATE_ACTIVE
 		
 		_submit_sync_success.rpc()
 	else:
-		_active = true
+		_state = _STATE_ACTIVE
 		_initial_sync_done = true
 
 	# Remove clients from the synced cache when disconnected
@@ -396,7 +403,7 @@ func start():
 ## emitted until the next start.
 func stop():
 	NetworkTimeSynchronizer.stop()
-	_active = false
+	_state = _STATE_INACTIVE
 	_synced_peers.clear()
 
 ## Check if the initial time sync is done.
@@ -429,6 +436,9 @@ func seconds_between(tick_from: int, tick_to: int) -> float:
 func ticks_between(seconds_from: float, seconds_to: float) -> int:
 	return seconds_to_ticks(seconds_to - seconds_from)
 
+static func _static_init():
+	_NetfoxLogger.register_tag(func(): return "@%d" % NetworkTime.tick, -100)
+
 func _loop():
 	# Adjust local clock
 	_clock.step(_clock_stretch_factor)
@@ -452,7 +462,7 @@ func _loop():
 			# Game stalled for a while, probably paused, don't run extra ticks
 			# to catch up
 			_was_paused = true
-			_logger.debug("Game stalled for %.4fs, assuming it was a pause" % [clock_step_raw])
+			_logger.debug("Game stalled for %.4fs, assuming it was a pause", [clock_step_raw])
 
 	# Handle pause
 	if _was_paused:
@@ -480,25 +490,27 @@ func _loop():
 func _process(delta):
 	_process_delta = delta
 	
-	if _active and not sync_to_physics:
+	if _is_active() and not sync_to_physics:
 		_loop()
 
 func _physics_process(delta):
-	if _active and sync_to_physics:
+	if _is_active() and sync_to_physics:
 		_loop()
 
 func _notification(what):
 	if what == NOTIFICATION_UNPAUSED:
 		_was_paused = true
 
+func _is_active() -> bool:
+	return _state == _STATE_ACTIVE
+
 @rpc("any_peer", "reliable", "call_local")
 func _submit_sync_success():
 	var peer_id = multiplayer.get_remote_sender_id()
 	
-	_logger.trace("Received time sync success from #%s, synced peers: %s" % [peer_id, _synced_peers.keys()])
+	_logger.trace("Received time sync success from #%s, synced peers: %s", [peer_id, _synced_peers.keys()])
 	
-	# Check is necessary, RPC arrives twice for some reason; see trace log above
 	if not _synced_peers.has(peer_id):
 		_synced_peers[peer_id] = true
 		after_client_sync.emit(peer_id)
-		_logger.debug("Peer #%s is now on time!" % [peer_id])
+		_logger.debug("Peer #%s is now on time!", [peer_id])

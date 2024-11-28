@@ -15,6 +15,8 @@ class_name RewindableStateMachine
 ## [br][br]
 ## To implement states, extend the [RewindableState] class and add it as a child
 ## node.
+##
+## @tutorial(RewindableStateMachine Guide): https://foxssake.github.io/netfox/netfox.extras/guides/rewindable-state-machine/
 
 ## Name of the current state.
 ## 
@@ -26,14 +28,27 @@ class_name RewindableStateMachine
 
 ## Emitted during state transitions.
 ##
+## This signal can be used to run gameplay code on state changes.
+## [br][br]
 ## This signal is emitted whenever a transition happens during rollback, which 
 ## means it may be emitted multiple times for the same transition if it gets 
 ## resimulated during rollback.
+## [br][br]
+## [b]State changes are not necessarily emitted on all peers.[/b]
+## See: [url=https://foxssake.github.io/netfox/netfox.extras/guides/rewindable-state-machine/#caveats]RewindableStateMachine caveats[/url]
 signal on_state_changed(old_state: RewindableState, new_state: RewindableState)
+
+## Emitted after the displayed state has changed.
+##
+## This signal can be used to update visuals based on state changes.
+## [br][br]
+## This signal is emitted whenever the state after a tick loop has changed.
+signal on_display_state_changed(old_state: RewindableState, new_state: RewindableState)
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_extras("RewindableStateMachine")
 
 var _state_object: RewindableState = null
+var _previous_state_object: RewindableState = null
 var _available_states: Dictionary = {}
 
 ## Transition to a new state specified by [param new_state_name].
@@ -53,7 +68,7 @@ func transition(new_state_name: StringName) -> void:
 		return
 	
 	if not _available_states.has(new_state_name):
-		_logger.warning("Attempted to transition from state '%s' into unknown state '%s'" % [state, new_state_name])
+		_logger.warning("Attempted to transition from state '%s' into unknown state '%s'", [state, new_state_name])
 		return
 		
 	var new_state: RewindableState = _available_states[new_state_name]
@@ -68,10 +83,16 @@ func transition(new_state_name: StringName) -> void:
 	on_state_changed.emit(_previous_state, new_state)
 	_state_object.enter(_previous_state, NetworkRollback.tick)
 
-func _ready():
-	# Gather known states
-	for child in find_children("*", "RewindableState", false):
-		_available_states[child.name] = child
+func _notification(what: int):
+	# Use notification instead of _ready, so users can write their own _ready 
+	# callback without having to call super()
+	if what == NOTIFICATION_READY:
+		# Gather known states
+		for child in find_children("*", "RewindableState", false):
+			_available_states[child.name] = child
+		
+		# Compare states after tick loop
+		NetworkTime.after_tick_loop.connect(_after_tick_loop)
 
 func _get_configuration_warnings():
 	const MISSING_SYNCHRONIZER_ERROR := \
@@ -107,12 +128,17 @@ func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 	if _state_object:
 		_state_object.tick(delta, tick, is_fresh)
 
+func _after_tick_loop():
+	if _state_object != _previous_state_object:
+		on_display_state_changed.emit(_previous_state_object, _state_object)
+		_previous_state_object = _state_object
+
 func _set_state(new_state: StringName) -> void:
 	if not new_state:
 		return
 	
 	if not _available_states.has(new_state):
-		_logger.warning("Attempted to jump to unknown state: %s" % [new_state])
+		_logger.warning("Attempted to jump to unknown state: %s", [new_state])
 		return
 	
 	_state_object = _available_states[new_state]

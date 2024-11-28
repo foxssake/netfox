@@ -20,7 +20,6 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="LAN" type="VBoxContainer" parent="."]
-visible = false
 layout_mode = 2
 
 [node name="Address Row" type="HBoxContainer" parent="LAN"]
@@ -62,6 +61,7 @@ size_flags_horizontal = 4
 text = "Join"
 
 [node name="Noray" type="VBoxContainer" parent="."]
+visible = false
 layout_mode = 2
 
 [node name="Noray Address Row" type="HBoxContainer" parent="Noray"]
@@ -131,22 +131,23 @@ text = "Join"
 layout_mode = 2
 text = "Force Relay"
 
-[node name="LAN Bootstrapper" type="Node" parent="." node_paths=PackedStringArray("connect_ui", "address_input", "port_input", "host_button", "join_button")]
+[node name="LAN Bootstrapper" type="Node" parent="." node_paths=PackedStringArray("connect_ui", "address_input", "port_input")]
 script = ExtResource("1_dy86e")
 connect_ui = NodePath("..")
 address_input = NodePath("../LAN/Address Row/Address LineEdit")
 port_input = NodePath("../LAN/Address Row/Port LineEdit")
-host_button = NodePath("../LAN/Actions Row/Host Button")
-join_button = NodePath("../LAN/Actions Row/Join Button")
 
-[node name="Noray Bootstrapper" type="Node" parent="." node_paths=PackedStringArray("connect_ui", "noray_address_input", "noray_connect_button", "noray_disconnect_button", "oid_input", "host_oid_input", "host_button", "join_button", "force_relay_check")]
+[node name="Noray Bootstrapper" type="Node" parent="." node_paths=PackedStringArray("connect_ui", "noray_address_input", "oid_input", "host_oid_input", "force_relay_check")]
 script = ExtResource("2_fgck5")
 connect_ui = NodePath("..")
 noray_address_input = NodePath("../Noray/Noray Address Row/Address LineEdit")
-noray_connect_button = NodePath("../Noray/Noray Actions Row/Connect Button")
-noray_disconnect_button = NodePath("../Noray/Noray Actions Row/Disconnect Button")
 oid_input = NodePath("../Noray/OID Row/OID Value")
 host_oid_input = NodePath("../Noray/Connect Host Row/Host LineEdit")
-host_button = NodePath("../Noray/Connect Actions Row/Host Button")
-join_button = NodePath("../Noray/Connect Actions Row/Join Button")
 force_relay_check = NodePath("../Noray/Connect Actions Row/Force Relay Checkbox")
+
+[connection signal="pressed" from="LAN/Actions Row/Host Button" to="LAN Bootstrapper" method="host"]
+[connection signal="pressed" from="LAN/Actions Row/Join Button" to="LAN Bootstrapper" method="join"]
+[connection signal="pressed" from="Noray/Noray Actions Row/Connect Button" to="Noray Bootstrapper" method="connect_to_noray"]
+[connection signal="pressed" from="Noray/Noray Actions Row/Disconnect Button" to="Noray Bootstrapper" method="disconnect_from_noray"]
+[connection signal="pressed" from="Noray/Connect Actions Row/Host Button" to="Noray Bootstrapper" method="host"]
+[connection signal="pressed" from="Noray/Connect Actions Row/Join Button" to="Noray Bootstrapper" method="join"]

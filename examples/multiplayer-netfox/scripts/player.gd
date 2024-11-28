@@ -11,10 +11,6 @@ func _ready():
 	
 	if input == null:
 		input = $Input
-	
-	# Wait a single frame, so player spawner has time to set input owner
-	await get_tree().process_frame
-	$RollbackSynchronizer.process_settings()
 
 func _rollback_tick(delta, _tick, _is_fresh):
 	# Add the gravity.

@@ -5,7 +5,7 @@ extends RewindableState
 @export var speed = 5.0
 
 func enter(_previous_state, _tick):
-	character.set_color(Color.RED)
+	character.color = Color.RED
 
 func tick(delta, tick, is_fresh):
 	var input_dir = input.movement
