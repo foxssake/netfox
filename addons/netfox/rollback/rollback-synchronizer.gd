@@ -279,9 +279,9 @@ func _before_tick(_delta, tick):
 
 func _after_tick(_delta, _tick):
 	if not _record_input_property_entries.is_empty():
-		var input = PropertySnapshot.extract(_record_input_property_entries)
-    var delayed_input_tick: int = _tick + input_delay
-		_inputs[delayed_input_tick] = input
+		var local_input = PropertySnapshot.extract(_record_input_property_entries)
+		var delayed_input_tick: int = _tick + input_delay
+		_inputs[delayed_input_tick] = local_input
 
 		#Send the last n inputs for each property
 		var inputs = {}
