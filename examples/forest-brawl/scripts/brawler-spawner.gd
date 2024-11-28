@@ -1,4 +1,5 @@
 extends Node
+class_name BrawlerSpawner
 
 @export var player_scene: PackedScene
 @export var spawn_root: Node
@@ -6,6 +7,7 @@ extends Node
 @export var joining_screen: Control
 @export var name_input: LineEdit
 
+var spawn_host_avatar: bool = true
 var avatars: Dictionary = {}
 
 func _ready():
@@ -28,8 +30,9 @@ func _handle_connected(id: int):
 		joining_screen.visible = false
 
 func _handle_host():
-	# Spawn own avatar on host machine
-	_spawn(1)
+	if spawn_host_avatar:
+		# Spawn own avatar on host machine
+		_spawn(1)
 
 func _handle_new_peer(id: int):
 	# Spawn an avatar for new player
