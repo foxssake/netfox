@@ -286,7 +286,7 @@ func _after_tick(_delta, _tick):
 		#Send the last n inputs for each property
 		var inputs = {}
 		for i in range(0, NetworkRollback.input_redundancy):
-			var tick_input: Dictionary = _inputs.get(delayed_input_tick - i, {})
+			var tick_input = _inputs.get(delayed_input_tick - i, {})
 			for property in tick_input:
 				if not inputs.has(property):
 					inputs[property] = []
