@@ -4,6 +4,12 @@
 
 # netfox
 
+[![License](https://img.shields.io/github/license/foxssake/netfox)](https://github.com/foxssake/netfox/blob/main/LICENSE)
+[![GitHub Release](https://img.shields.io/github/v/release/foxssake/netfox)](https://github.com/foxssake/netfox/releases)
+[![Documentation](https://img.shields.io/badge/Docs-github.io-blue)](https://foxssake.github.io/netfox/)
+[![Discord](https://img.shields.io/discord/1253434107656933447?logo=discord&label=Discord)](https://discord.gg/xWGh4GskG5)
+[![ko-fi](https://img.shields.io/badge/Support%20on-ko--fi-ff5e5b?logo=ko-fi)](https://ko-fi.com/T6T8WZD0W)
+
 A set of addons for responsive online games with the [Godot engine].
 
 ## Features
@@ -67,6 +73,14 @@ After adding *netfox* to your project, make sure to enable the addons in your
 project settings. Otherwise, Godot will present you with errors about
 undeclared identifiers.
 
+## Supported versions
+
+Godot 4.x is supported by netfox. If you find any issue using any supported
+version, please [open an issue].
+
+Forest Brawl and the other examples are written against Godot 4.1. They may or
+may not work when opened with any other version.
+
 ## Prototyping
 
 To try your game online with [noray], a free to use instance is hosted at
@@ -98,6 +112,8 @@ how things work. For that, refer to the guides.
 [netfox.extras]: https://github.com/foxssake/netfox/tree/main/addons/netfox.extras
 [netfox.internals]: https://github.com/foxssake/netfox/tree/main/addons/netfox.internals
 [Forest Brawl]: https://github.com/foxssake/netfox/tree/main/examples/forest-brawl
+
+[open an issue]: https://github.com/foxssake/netfox/issues
 
 [Godot engine]: https://godotengine.org/
 [noray]: https://github.com/foxssake/noray

@@ -1,0 +1,65 @@
+[gd_scene load_steps=12 format=3 uid="uid://d4avkbkq3m4ra"]
+
+[ext_resource type="Script" path="res://examples/multiplayer-state-machine/scripts/player.gd" id="1_rmsnx"]
+[ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="2_qf1b4"]
+[ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="3_dkpv5"]
+[ext_resource type="Script" path="res://examples/multiplayer-state-machine/scripts/player-input.gd" id="4_1uirt"]
+[ext_resource type="Script" path="res://addons/netfox.extras/state-machine/rewindable-state-machine.gd" id="5_o4thu"]
+[ext_resource type="Script" path="res://examples/multiplayer-state-machine/scripts/character-states/Idle.gd" id="6_plr4e"]
+[ext_resource type="Script" path="res://examples/multiplayer-state-machine/scripts/character-states/Move.gd" id="7_xl1vh"]
+[ext_resource type="Script" path="res://examples/multiplayer-state-machine/scripts/character-states/Jump.gd" id="8_prifk"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_2l8pk"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2gc5u"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_tnl3b"]
+material = SubResource("StandardMaterial3D_2gc5u")
+
+[node name="player" type="CharacterBody3D" node_paths=PackedStringArray("state_machine")]
+script = ExtResource("1_rmsnx")
+state_machine = NodePath("RewindableStateMachine")
+
+[node name="StateNameLabel3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.24079, 0)
+pixel_size = 0.002
+fixed_size = true
+text = "Idle"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_2l8pk")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_tnl3b")
+
+[node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("2_qf1b4")
+root = NodePath("..")
+state_properties = Array[String]([":position", ":velocity", ":color", "RewindableStateMachine:state"])
+input_properties = Array[String](["Input:movement", "Input:jump"])
+
+[node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("3_dkpv5")
+root = NodePath("..")
+properties = Array[String]([":position"])
+
+[node name="Input" type="Node" parent="."]
+script = ExtResource("4_1uirt")
+
+[node name="RewindableStateMachine" type="Node" parent="."]
+script = ExtResource("5_o4thu")
+
+[node name="Jump" type="Node" parent="RewindableStateMachine" node_paths=PackedStringArray("character", "input")]
+script = ExtResource("8_prifk")
+character = NodePath("../..")
+input = NodePath("../../Input")
+
+[node name="Idle" type="Node" parent="RewindableStateMachine" node_paths=PackedStringArray("character", "input")]
+script = ExtResource("6_plr4e")
+character = NodePath("../..")
+input = NodePath("../../Input")
+
+[node name="Move" type="Node" parent="RewindableStateMachine" node_paths=PackedStringArray("character", "input")]
+script = ExtResource("7_xl1vh")
+character = NodePath("../..")
+input = NodePath("../../Input")

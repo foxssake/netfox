@@ -31,8 +31,10 @@ var SETTINGS = [
 	{
 		# Time to wait between time syncs
 		"name": "netfox/time/sync_interval",
-		"value": 1.0,
-		"type": TYPE_FLOAT
+		"value": 0.25,
+		"type": TYPE_FLOAT,
+		"hint": PROPERTY_HINT_RANGE,
+		"hint_string": "%s,2,or_greater" % [_NetworkTimeSynchronizer.MIN_SYNC_INTERVAL]
 	},
 	{
 		"name": "netfox/time/sync_samples",
@@ -40,6 +42,12 @@ var SETTINGS = [
 		"type": TYPE_INT
 	},
 	{
+		"name": "netfox/time/sync_adjust_steps",
+		"value": 8,
+		"type": TYPE_INT
+	},
+	{
+		# !! Deprecated
 		# Time to wait between time sync samples
 		"name": "netfox/time/sync_sample_interval",
 		"value": 0.1,
@@ -49,6 +57,13 @@ var SETTINGS = [
 		"name": "netfox/time/sync_to_physics",
 		"value": false,
 		"type": TYPE_BOOL
+	},
+	{
+		"name": "netfox/time/max_time_stretch",
+		"value": 1.25,
+		"type": TYPE_FLOAT,
+		"hint": PROPERTY_HINT_RANGE,
+		"hint_string": "1,2,0.05,or_greater"
 	},
 	# Rollback settings
 	{
@@ -70,6 +85,11 @@ var SETTINGS = [
 		"name": "netfox/rollback/display_offset",
 		"value": 0,
 		"type": TYPE_INT
+	},
+	{
+		"name": "netfox/rollback/enable_diff_states",
+		"value": true,
+		"type": TYPE_BOOL
 	},
 	# Events
 	{

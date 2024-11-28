@@ -1,13 +1,21 @@
 extends Node
+class_name _NetworkRollback
 
 ## Whether rollback is enabled.
 var enabled: bool = ProjectSettings.get_setting("netfox/rollback/enabled", true)
+
+## Whether diff states are enabled.
+## [br][br]
+## Diff states send only the state properties that have changed.
+var enable_diff_states: bool = ProjectSettings.get_setting("netfox/rollback/enable_diff_states", true)
 
 ## How many ticks to store as history.
 ##
 ## The larger the history limit, the further we can roll back into the past, 
 ## thus the more latency we can manage.
-##
+## [br][br]
+## Rollback won't go further than this limit, regardless of inputs received.
+## [br][br]
 ## [i]read-only[/i], you can change this in the project settings
 var history_limit: int:
 	get:
@@ -21,7 +29,7 @@ var history_limit: int:
 ## state of the game, but let's say the state two frames ago ( offset = 2 ).
 ## This can help with hiding latency, by giving more time for an up-to-date
 ## state to arrive before we try to display it.
-##
+## [br][br]
 ## [i]read-only[/i], you can change this in the project settings
 var display_offset: int:
 	get:
@@ -33,7 +41,7 @@ var display_offset: int:
 ##
 ## With UDP - packets may be lost, arrive late or out of order.
 ## To mitigate this, we send the current and previous n ticks of input data.
-##
+## [br][br]
 ## [i]read-only[/i], you can change this in the project settings
 var input_redundancy: int:
 	get:
@@ -78,6 +86,8 @@ var _resim_from: int
 var _is_rollback: bool = false
 var _simulated_nodes: Dictionary = {}
 
+static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkRollback")
+
 ## Submit the resimulation start tick for the current loop.
 ##
 ## This is used to determine the resimulation range during each loop.
@@ -97,7 +107,7 @@ func notify_simulated(node: Node):
 ##
 ## This is used mostly internally by [RollbackSynchronizer]. The idea is to 
 ## submit each affected node while preparing the tick, and then use
-## [code]is_simulated[/code] to run only the nodes that need to be resimulated.
+## [member is_simulated] to run only the nodes that need to be resimulated.
 func is_simulated(node: Node):
 	return _simulated_nodes.has(node)
 
@@ -117,10 +127,10 @@ func is_rollback_aware(what: Object) -> bool:
 ## simulation for the given rollback tick.
 ##
 ## This is used by [RollbackSynchronizer] to resimulate ticks during rollback.
-## While the _rollback_tick method could be called directly as well, this method
-## exists to future-proof the code a bit, so the method name is not repeated all
-## over the place.
-##
+## While the [code]_rollback_tick[/code] method could be called directly as 
+## well, this method exists to future-proof the code a bit, so the method name
+## is not repeated all over the place.
+## [br][br]
 ## [i]Note:[/i] Make sure to check if the target is rollback-aware, because if
 ## it's not, this method will run into an error.
 func process_rollback(target: Object, delta: float, p_tick: int, is_fresh: bool):
@@ -144,7 +154,15 @@ func _rollback():
 
 	# to = Current tick
 	var to = NetworkTime.tick
-	
+
+	# Limit number of rollback ticks
+	if to - from > history_limit:
+		_logger.warning(
+			"Trying to run rollback for ticks %d to %d, past the history limit of %d",
+			[from, to, history_limit]
+		)
+		from = NetworkTime.tick - history_limit
+
 	# for tick in from .. to:
 	for tick in range(from, to):
 		_tick = tick

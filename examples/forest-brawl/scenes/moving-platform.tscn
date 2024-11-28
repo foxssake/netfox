@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3 uid="uid://cjavt41cokqv5"]
+
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/moving-platform.gd" id="1_q5d25"]
+[ext_resource type="PackedScene" uid="uid://bnyoffewc4b" path="res://examples/forest-brawl/models/kenney-platformer-kit/blockHexagon.glb" id="2_h7k7v"]
+[ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="3_b65sx"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_y7a63"]
+points = PackedVector3Array(-0.557, 0.890101, -0.299866, 0.648933, 0.781605, 0.229175, 0.62806, 0.823296, 0.270961, -0.0369031, 0.0136385, 0.556084, 0.0421915, 0.0163715, -0.552961, -0.163975, 0.823296, 0.646129, -0.5, 0.00740408, 0.281541, 0.0426543, 0.989841, -0.559451, 0.48164, 0.0113339, -0.2993, -0.495398, 0.988618, 0.298944, 0.523822, 0.76081, -0.45848, -0.5, 0.00740408, -0.281541, 0.48164, 0.0113339, 0.2993, 0.499254, 0.986877, 0.297878, -0.143102, 0.76081, -0.667022, 0.148614, 0.76081, 0.667022, -0.643422, 0.781605, 0.249937, 0.499253, 0.986876, -0.297878, -0.0372869, 0.991605, 0.561466, -0.518184, 0.76081, 0.45848, 0.148614, 0.802501, -0.667022, 0.648933, 0.781605, -0.229175, -0.643422, 0.781605, -0.249937, 0.523822, 0.76081, 0.45848, -0.518184, 0.76081, -0.45848, -0.495399, 0.988619, -0.298944, -0.0368981, 0.0136993, -0.556015, 0.0421962, 0.016314, 0.553027, -0.143102, 0.76081, 0.667022, -0.163975, 0.823296, -0.646129, 0.148614, 0.802501, 0.667022, -0.037283, 0.991557, -0.561412)
+
+[node name="Moving Platform" type="AnimatableBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, -6)
+sync_to_physics = false
+script = ExtResource("1_q5d25")
+speed = 1.0
+
+[node name="blockHexagon" parent="." instance=ExtResource("2_h7k7v")]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("ConvexPolygonShape3D_y7a63")
+
+[node name="Target" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4)
+
+[node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("3_b65sx")
+root = NodePath("..")
+properties = Array[String]([":transform"])

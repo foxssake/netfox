@@ -1,16 +1,33 @@
 extends Node
+class_name _NetworkTimeSynchronizer
 
-## Time between syncs, in seconds.
+## Continuously synchronizes time to the host's remote clock.
 ##
+## Make sure to read the [i]NetworkTimeSynchronizer Guide[/i] to understand the
+## different clocks that the class docs refer to.
+## 
+## @tutorial(NetworkTimeSynchronizer Guide): https://foxssake.github.io/netfox/netfox/guides/network-time-synchronizer/
+
+## The minimum time in seconds between two sync samples.
+## 
+## See [member sync_interval]
+const MIN_SYNC_INTERVAL := 0.1
+
+## Time between sync samples, in seconds.
+## Cannot be less than [member MIN_SYNC_INTERVAL]
+## [br][br]
 ## [i]read-only[/i], you can change this in the Netfox project settings
 var sync_interval: float:
 	get:
-		return ProjectSettings.get_setting("netfox/time/sync_interval", 1.0)
+		return maxf(
+			ProjectSettings.get_setting("netfox/time/sync_interval", 0.25),
+			MIN_SYNC_INTERVAL
+		)
 	set(v):
 		push_error("Trying to set read-only variable sync_interval")
 
-## Number of measurements ( samples ) to take to guess latency.
-##
+## Number of measurements ( samples ) to use for time synchronization.
+## [br][br]
 ## [i]read-only[/i], you can change this in the Netfox project settings
 var sync_samples: int:
 	get:
@@ -18,25 +35,95 @@ var sync_samples: int:
 	set(v):
 		push_error("Trying to set read-only variable sync_samples")
 
-## Time between samples in a single sync process.
+## Number of iterations to nudge towards the host's remote clock.
 ##
+## Lower values result in more aggressive changes in clock and may be more 
+## sensitive to jitter. Larger values may end up approaching the remote clock
+## too slowly.
+## [br][br]
 ## [i]read-only[/i], you can change this in the Netfox project settings
-var sync_sample_interval: float:
+var adjust_steps: int:
 	get:
-		return ProjectSettings.get_setting("netfox/time/sync_sample_interval", 0.1)
+		return ProjectSettings.get_setting("netfox/time/sync_adjust_steps", 8)
 	set(v):
-		push_error("Trying to set read-only variable sync_sample_interval")
+		push_error("Trying to set read-only variable adjust_steps")
 
-var _remote_rtt: Dictionary = {}
-var _remote_time: Dictionary = {}
-var _remote_tick: Dictionary = {}
+## Largest tolerated offset from the host's remote clock before panicking.
+##
+## Once this threshold is reached, the clock will be reset to the remote clock's 
+## value, and the nudge process will start from scratch.
+## [br][br]
+## [i]read-only[/i], you can change this in the Netfox project settings
+var panic_threshold: float:
+	get:
+		return ProjectSettings.get_setting("netfox/time/recalibrate_threshold", 2.)
+	set(v):
+		push_error("Trying to set read-only variable panic_threshold")
+
+## Measured roundtrip time measured to the host.
+##
+## This value is calculated from multiple samples. The actual roundtrip times 
+## can be anywhere in the [member rtt] +/- [member rtt_jitter] range.
+## [br][br]
+## [i]read-only[/i]
+var rtt: float:
+	get:
+		return _rtt
+	set(v):
+		push_error("Trying to set read-only variable rtt")
+
+## Measured jitter in the roundtrip time to the host remote.
+##
+## This value is calculated from multiple samples. The actual roundtrip times 
+## can be anywhere in the [member rtt] +/- [member rtt_jitter] range.
+## [br][br]
+## [i]read-only[/i]
+var rtt_jitter: float:
+	get:
+		return _rtt_jitter
+	set(v):
+		push_error("Trying to set read-only variable rtt_jitter")
+
+## Estimated offset from the host's remote clock.
+##
+## Positive values mean that the host's remote clock is ahead of ours, while
+## negative values mean that our clock is behind the host's remote.
+## [br][br]
+## [i]read-only[/i]
+var remote_offset: float:
+	get:
+		return _offset
+	set(v):
+		push_error("Trying to set read-only variable remote_offset")
+
 var _active: bool = false
+static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkTimeSynchronizer")
 
-## Event emitted when a time sync process completes
-signal on_sync(server_time: float, server_tick: int, rtt: float)
+# Samples are stored in a ring buffer
+var _sample_buffer: _RingBuffer
+var _sample_idx: int = 0
+var _awaiting_samples: Dictionary = {}
 
-## Event emitted when a response to a ping request arrives.
-signal on_ping(peer_id: int, peer_time: float, peer_tick: int)
+var _clock: NetworkClocks.SystemClock = NetworkClocks.SystemClock.new()
+var _offset: float = 0.
+var _rtt: float = 0.
+var _rtt_jitter: float = 0.
+
+## Emitted after the initial time sync.
+##
+## At the start of the game, clients request an initial timestamp to kickstart 
+## their time sync loop. This event is emitted once that initial timestamp is 
+## received.
+signal on_initial_sync()
+
+## Emitted when clocks get overly out of sync and a time sync panic occurs.
+##
+## Panic means that the difference between clocks is too large. The time sync 
+## will reset the clock to the remote clock's time and restart the time sync loop 
+## from there. 
+## [br][br]
+## Use this event in case you need to react to clock changes in your game.
+signal on_panic(offset: float)
 
 ## Start the time synchronization loop.
 ##
@@ -44,103 +131,128 @@ signal on_ping(peer_id: int, peer_time: float, peer_tick: int)
 func start():
 	if _active:
 		return
+		
+	_clock.set_time(0.)
 
-	_active = true
-	_sync_time_loop(sync_interval)
+	if not multiplayer.is_server():
+		_active = true
+		_sample_idx = 0
+		_sample_buffer = _RingBuffer.new(sync_samples)
+		
+		_request_timestamp.rpc_id(1)
 
 ## Stop the time synchronization loop.
 func stop():
 	_active = false
 
-## Get the amount of time passed since Godot has started, in seconds.
-func get_real_time():
-	return Time.get_ticks_msec() / 1000.0
-
-## Estimate the time at the given peer, in seconds.
+## Get the current time from the reference clock.
 ##
-## While this is a coroutine, so it won't block your game, this can take multiple
-## seconds, depending on latency, number of samples and sample interval.
-##
-## Returns a triplet of the following:
-## [ol]
-## last_remote_time - Latest timestamp received from target
-## rtt - Estimated roundtrip time to target
-## synced_time - Estimated time at target
-## [/ol]
-func sync_time(id: int) -> Array[float]:
-	_remote_rtt.clear()
-	_remote_time.clear()
-	_remote_tick.clear()
-	
-	for i in range(sync_samples):
-		get_rtt(id, i)
-		await get_tree().create_timer(sync_sample_interval).timeout
-	
-	# Wait for all samples to run through
-	while _remote_rtt.size() != sync_samples:
-		await get_tree().process_frame
-	
-	var samples = _remote_rtt.values().duplicate()
-	var last_remote_time = _remote_time.values().max()
-	samples.sort()
-	var average = samples.reduce(func(a, b): return a + b) / samples.size()
-	
-	# Reject samples that are too far away from average
-	var deviation_threshold = 1
-	samples = samples.filter(func(s): return (s - average) / average < deviation_threshold)
-	
-	# Return NAN if none of the samples fit within threshold
-	# Should be rare, but technically possible
-	if samples.is_empty():
-		return [NAN, NAN, NAN]
-	
-	average = samples.reduce(func(a, b): return a + b) / samples.size()
-	var rtt = average
-	var latency = rtt / 2.0
+## Returns a timestamp in seconds, with a fractional part for extra precision.
+func get_time() -> float:
+	return _clock.get_time()
 
-	return [last_remote_time, rtt, last_remote_time + latency]
+func _loop():
+	_logger.info("Time sync loop started! Initial timestamp: %ss", [_clock.get_time()])
+	on_initial_sync.emit()
 
-## Get roundtrip time to a given peer, in seconds.
-func get_rtt(id: int, sample_id: int = -1) -> float:
-	if id == multiplayer.get_unique_id():
-		return 0
+	while _active:
+		var sample = NetworkClockSample.new()
+		_awaiting_samples[_sample_idx] = sample
+		
+		sample.ping_sent = _clock.get_time()
+		_send_ping.rpc_id(1, _sample_idx)
+		
+		_sample_idx += 1
+		
+		await get_tree().create_timer(sync_interval).timeout
+
+func _discipline_clock():
+	var sorted_samples := _sample_buffer.get_data()
 	
-	var trip_start = get_real_time()
-	_request_ping.rpc_id(id)
-	var response = await on_ping
-	var trip_end = get_real_time()
-	var rtt = trip_end - trip_start
+	# Sort samples by latency
+	sorted_samples.sort_custom(
+		func(a: NetworkClockSample, b: NetworkClockSample):
+			return a.get_rtt() < b.get_rtt()
+	)
 	
-	_remote_rtt[sample_id] = rtt
-	_remote_time[sample_id] = response[1]
-	_remote_tick[sample_id] = response[2]
-	return rtt
+	_logger.trace("Using sorted samples: \n%s", [
+		"\n".join(sorted_samples.map(func(it: NetworkClockSample): return "\t" + it.to_string() + " (%.4fs)" % [get_time() - it.ping_sent]))
+	])
+	
+	# Calculate rtt bounds
+	var rtt_min = sorted_samples.front().get_rtt()
+	var rtt_max = sorted_samples.back().get_rtt()
+	_rtt = (rtt_max + rtt_min) / 2.
+	_rtt_jitter = (rtt_max - rtt_min) / 2.
+	
+	# Calculate offset
+	var offset := 0.
+	var offsets = sorted_samples.map(func(it): return it.get_offset())
+	var offset_weight = 0.
+	for i in range(offsets.size()):
+		var w = log(1 + sorted_samples[i].get_rtt())
+		offset += offsets[i] * w
+		offset_weight += w
+	
+	offset /= offset_weight
+	
+	# Panic / Adjust
+	if abs(offset) > panic_threshold:
+		# Reset clock, throw away all samples
+		_clock.adjust(offset)
+		_sample_buffer.clear()
+		
+		# Also drop in-flight samples
+		_awaiting_samples.clear()
+		
+		_offset = 0.
+		
+		_logger.warning("Offset %ss is above panic threshold %ss! Resetting clock", [offset, panic_threshold])
+		on_panic.emit(offset)
+	else:
+		# Nudge clock towards estimated time
+		var nudge := offset / adjust_steps
+		_clock.adjust(nudge)
+		_logger.trace("Adjusted clock by %.2fms, offset: %.2fms, new time: %.4fss", [nudge * 1000., offset * 1000., _clock.get_time()])
+		
+		_offset = offset - nudge
 
-func _sync_time_loop(interval: float):
-	while true:
-		var sync_result = await sync_time(1)
-		var rtt = sync_result[1]
-		var new_time = sync_result[2]
-
-		if not _active:
-			# Make sure we don't emit any events if we've been stopped since
-			break
-		if new_time == NAN:
-			# Skip if sync has failed
-			continue
-
-		var new_tick = floor(new_time * NetworkTime.tickrate)
-		new_time = NetworkTime.ticks_to_seconds(new_tick) # Sync to tick
-
-		on_sync.emit(new_time, new_tick, rtt)
-		await get_tree().create_timer(interval).timeout
-
-@rpc("any_peer", "reliable", "call_remote")
-func _request_ping():
+@rpc("any_peer", "call_remote", "unreliable")
+func _send_ping(idx: int):
+	var ping_received = _clock.get_time()
 	var sender = multiplayer.get_remote_sender_id()
-	_respond_ping.rpc_id(sender, NetworkTime.time, NetworkTime.tick)
 
-@rpc("any_peer", "reliable", "call_remote")
-func _respond_ping(peer_time: float, peer_tick: int):
-	var sender = multiplayer.get_remote_sender_id()
-	on_ping.emit(sender, peer_time, peer_tick)
+	_send_pong.rpc_id(sender, idx, ping_received, _clock.get_time())
+
+@rpc("any_peer", "call_remote", "unreliable")
+func _send_pong(idx: int, ping_received: float, pong_sent: float):
+	var pong_received = _clock.get_time()
+	
+	if not _awaiting_samples.has(idx):
+		# Sample was dropped mid-flight during a panic episode
+		return
+	
+	var sample = _awaiting_samples[idx] as NetworkClockSample
+	sample.ping_received = ping_received
+	sample.pong_sent = pong_sent
+	sample.pong_received = pong_received
+	
+	_logger.trace("Received sample: %s", [sample])
+	
+	# Once a sample is done, remove from in-flight samples and move to sample buffer
+	_awaiting_samples.erase(idx)
+	_sample_buffer.push(sample)
+	
+	# Discipline clock based on new sample
+	_discipline_clock()
+
+@rpc("any_peer", "call_remote", "reliable")
+func _request_timestamp():
+	_logger.debug("Requested initial timestamp @ %.4fs raw time", [_clock.get_raw_time()])
+	_set_timestamp.rpc_id(multiplayer.get_remote_sender_id(), _clock.get_time())
+
+@rpc("any_peer", "call_remote", "reliable")
+func _set_timestamp(timestamp: float):
+	_logger.debug("Received initial timestamp @ %.4fs raw time", [_clock.get_raw_time()])
+	_clock.set_time(timestamp)
+	_loop()
