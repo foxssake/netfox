@@ -29,6 +29,9 @@ func _ready():
 ## Creates a bullethole decal, applies the texture and rotation/position calculations and removes the bullethole after the pool is full
 func action(result: Dictionary) -> void:
 	var decal_node: Decal = pool.next()
+	create_bullethole.call_deferred(decal_node, result)
+	
+func create_bullethole(decal_node: Decal, result: Dictionary):
 	decal_node.texture_albedo = material.albedo_texture
 	decal_node.texture_emission = material.emission_texture
 	decal_node.texture_normal = material.normal_texture
@@ -37,9 +40,6 @@ func action(result: Dictionary) -> void:
 		0.02, 
 		randf_range(hole_minimum_size, hole_maximum_size)
 	)
-	
-	if !decal_node.is_inside_tree():
-		add_child(decal_node)
 
 	# Extract position and normal from the result dictionary
 	var collision_point: Vector3 = result.position
