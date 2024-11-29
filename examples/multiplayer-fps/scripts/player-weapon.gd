@@ -1,8 +1,7 @@
 extends NetworkWeaponHitscan3D
 class_name PlayerFPSWeapon
 
-@export var fire_cooldown: float = 0.15
-@export var textures: StandardMaterial3D
+@export var fire_cooldown: float = 0.25
 
 @onready var input: PlayerInputFPS = $"../../Input"
 @onready var sound: AudioStreamPlayer3D = $AudioStreamPlayer3D

@@ -9,6 +9,8 @@ extends CharacterBody3D
 @onready var hud: CanvasGroup = $HUD
 @onready var health: Health = $Health
 
+static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("PropertyCache")
+
 var color: Color:
 	get: return _color
 	set(v): set_color(v)
@@ -18,6 +20,7 @@ var _material: StandardMaterial3D = StandardMaterial3D.new()
 
 # Get the gravity from the project settings to be synced with RigidBody nodes.
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
+var teleport_position = null
 
 func _ready():
 	# Set spawn position
@@ -30,10 +33,20 @@ func _ready():
 	# Ensure material is unique
 	mesh_instance.material_override = _material
 	hud.hide()
-	health.health_depleted.connect(die)
+	health.health_depleted.connect(func ():
+		health.set_health(100)
+		die(get_parent().get_next_spawn_point().global_position)
+	)
 
 # Callback during rollback tick
 func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
+	if teleport_position:
+		global_position = teleport_position
+		$TickInterpolator.teleport()
+		teleport_position = null
+	elif is_multiplayer_authority():
+		visible = true
+		
 	_force_update_is_on_floor()
 	if not is_on_floor():
 		velocity.y -= gravity * delta
@@ -63,9 +76,11 @@ func set_color(color: Color):
 
 func damage():
 	if is_multiplayer_authority():
+		$HitSFX.play()
 		health.add_health(-33)
 
-func die():
-	health.add_health(100)
-	global_position = get_parent().get_next_spawn_point().global_position
-	$TickInterpolator.teleport()
+func die(new_global_position: Vector3):
+	$DieSFX.play()
+	_logger.warning("%s Died" % name)
+	teleport_position = new_global_position
+	visible = false

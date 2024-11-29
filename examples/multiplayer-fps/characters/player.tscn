@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=3 uid="uid://vrso6qncj1nm"]
+[gd_scene load_steps=33 format=3 uid="uid://vrso6qncj1nm"]
 
 [ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="1_g0p7o"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/player.gd" id="1_mk8qw"]
@@ -19,6 +19,8 @@
 [ext_resource type="Texture2D" uid="uid://b66gbhylc33yy" path="res://examples/multiplayer-fps/textures/crosshair.png" id="14_qqmle"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/ui/health.gd" id="16_2kod4"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/ui/health-progress-bar.gd" id="17_ghjct"]
+[ext_resource type="AudioStream" uid="uid://q7ql86p7flj" path="res://examples/multiplayer-fps/sounds/hit.wav" id="20_e2bcn"]
+[ext_resource type="AudioStream" uid="uid://15pyqe2uw4s3" path="res://examples/multiplayer-fps/sounds/death.wav" id="21_ogjhm"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_qmeb2"]
 size = Vector3(0.4, 0.25, 0.5)
@@ -133,7 +135,7 @@ properties = Array[String]([":transform", "Head:transform"])
 [node name="StateSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("8_p73id")
 root = NodePath("..")
-properties = Array[String](["Health:current_health"])
+properties = Array[String](["Health:current_health", ":teleport_position", ":visible"])
 
 [node name="Input" type="Node" parent="." node_paths=PackedStringArray("big_gun", "hud")]
 script = ExtResource("3_8oqer")
@@ -197,3 +199,11 @@ value = 100.0
 fill_mode = 3
 script = ExtResource("17_ghjct")
 health = NodePath("../../../../Health")
+
+[node name="HitSFX" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("20_e2bcn")
+volume_db = -6.919
+max_distance = 10.0
+
+[node name="DieSFX" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("21_ogjhm")
