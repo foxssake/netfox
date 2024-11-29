@@ -30,11 +30,7 @@ func _ready():
 	# Ensure material is unique
 	mesh_instance.material_override = _material
 	hud.hide()
-	health.health_depleted.connect(func ():
-		health.add_health(100)
-		position = Vector3.ZERO
-		$TickInterpolator.teleport()
-	)
+	health.health_depleted.connect(die)
 
 # Callback during rollback tick
 func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
@@ -68,3 +64,8 @@ func set_color(color: Color):
 func damage():
 	if is_multiplayer_authority():
 		health.add_health(-33)
+
+func die():
+	health.add_health(100)
+	global_position = get_parent().get_next_spawn_point().global_position
+	$TickInterpolator.teleport()
