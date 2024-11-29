@@ -6,6 +6,8 @@ extends CharacterBody3D
 @onready var current_state_label: Label3D = $StateNameLabel3D
 @onready var input: PlayerInputFPS = $Input
 @onready var head: Node3D = $Head
+@onready var hud: CanvasGroup = $HUD
+@onready var health: Health = $Health
 
 var color: Color:
 	get: return _color
@@ -27,6 +29,12 @@ func _ready():
 	
 	# Ensure material is unique
 	mesh_instance.material_override = _material
+	hud.hide()
+	health.health_depleted.connect(func ():
+		health.add_health(100)
+		position = Vector3.ZERO
+		$TickInterpolator.teleport()
+	)
 
 # Callback during rollback tick
 func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
@@ -56,3 +64,7 @@ func set_color(color: Color):
 
 	_material.albedo_color = color
 	_color = color
+
+func damage():
+	if is_multiplayer_authority():
+		health.add_health(-33)

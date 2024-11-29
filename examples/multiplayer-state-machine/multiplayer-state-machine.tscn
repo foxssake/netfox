@@ -1,13 +1,19 @@
-[gd_scene load_steps=3 format=3 uid="uid://ccrn3tkucslv1"]
+[gd_scene load_steps=5 format=3 uid="uid://ccrn3tkucslv1"]
 
-[ext_resource type="PackedScene" uid="uid://b2nbnsert06me" path="res://examples/multiplayer-netfox/multiplayer-netfox.tscn" id="1_bfe2b"]
+[ext_resource type="PackedScene" uid="uid://cq3dcpr8oj6rp" path="res://examples/shared/scenes/game-scene.tscn" id="1_m3jtc"]
+[ext_resource type="PackedScene" uid="uid://dyl47ir5j5sf2" path="res://examples/shared/scenes/maps/map.tscn" id="2_2xaee"]
 [ext_resource type="PackedScene" uid="uid://d4avkbkq3m4ra" path="res://examples/multiplayer-state-machine/characters/player.tscn" id="2_fawao"]
+[ext_resource type="Script" path="res://examples/multiplayer-state-machine/scripts/player-spawner.gd" id="2_lan3x"]
 
 [node name="multiplayer-state-machine" type="Node"]
 
-[node name="Game Scene" parent="." instance=ExtResource("1_bfe2b")]
+[node name="Game Scene" parent="." instance=ExtResource("1_m3jtc")]
 
-[node name="Player Spawner" parent="Game Scene/Network" index="1"]
+[node name="Player Spawner" parent="Game Scene/Network" index="1" node_paths=PackedStringArray("spawn_root")]
+script = ExtResource("2_lan3x")
 player_scene = ExtResource("2_fawao")
+spawn_root = NodePath("../../Players")
+
+[node name="Map" parent="Game Scene" instance=ExtResource("2_2xaee")]
 
 [editable path="Game Scene"]

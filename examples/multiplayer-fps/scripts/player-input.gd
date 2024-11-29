@@ -3,6 +3,7 @@ class_name PlayerInputFPS
 
 @export var mouse_sensitivity: float = 1.0
 @export var big_gun: MeshInstance3D
+@export var hud: CanvasGroup
 
 @onready var camera: Camera3D = $"../Head/Camera3D"
 
@@ -58,4 +59,5 @@ func setup():
 	is_setup = true
 	camera.current = true
 	big_gun.hide()
+	hud.show()
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)

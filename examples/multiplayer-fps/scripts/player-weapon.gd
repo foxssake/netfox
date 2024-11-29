@@ -25,6 +25,8 @@ func _after_fire():
 
 func _on_hit(result: Dictionary):
 	bullethole.action(result)
+	if result.collider.has_method("damage"):
+		result.collider.damage()
 	
 func _tick(_delta: float, _t: int):
 	if input.fire:

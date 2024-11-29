@@ -13,7 +13,6 @@ properties/0/sync = true
 properties/0/watch = false
 
 [node name="Player" type="CharacterBody3D"]
-collision_mask = 2
 script = ExtResource("1_52uoj")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
