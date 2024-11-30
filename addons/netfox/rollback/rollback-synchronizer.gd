@@ -49,6 +49,7 @@ var _auth_state_property_entries: Array[PropertyEntry] = []
 var _auth_input_property_entries: Array[PropertyEntry] = []
 var _nodes: Array[Node] = []
 var _skipset: _Set = _Set.new()
+var _simset: _Set = _Set.new()
 
 var _states: Dictionary = {}
 var _inputs: Dictionary = {}
@@ -143,6 +144,7 @@ func get_input_age() -> int:
 	if has_input():
 		return NetworkRollback.tick - _input_tick
 	else:
+		_logger.error("Trying to check input age without having input!")
 		return -1
 
 func ignore(node: Node):
@@ -205,9 +207,10 @@ func _prepare_tick(tick: int):
 	_has_input = _retrieved_tick != -1
 	_input_tick = _retrieved_tick
 	
-	# Reset set of nodes that shouldn't be recorded, i.e. they can't predict
+	# Reset the set of nodes that shouldn't be recorded, i.e. they can't predict
 	# with current input
 	_skipset.clear()
+	_simset.clear()
 	
 	# Gather nodes that can be simulated
 	for node in _nodes:
@@ -215,6 +218,8 @@ func _prepare_tick(tick: int):
 			NetworkRollback.notify_simulated(node)
 
 func _can_simulate(node: Node, tick: int) -> bool:
+#	if not _inputs.has(tick):
+#		return false
 	if node.is_multiplayer_authority():
 		# Simulate from earliest input
 		# Don't simulate frames we don't have input for
@@ -233,10 +238,17 @@ func _process_tick(tick: int):
 	#		If authority: Latest input >= tick >= Latest state
 	#		If not: Latest input >= tick >= Earliest input
 	for node in _nodes:
-		if NetworkRollback.is_simulated(node):
-			var is_fresh = _freshness_store.is_fresh(node, tick)
-			NetworkRollback.process_rollback(node, NetworkTime.ticktime, tick, is_fresh)
-			_freshness_store.notify_processed(node, tick)
+		if not NetworkRollback.is_simulated(node):
+			continue
+		
+		if _skipset.has(node):
+			continue
+		
+		var is_fresh = _freshness_store.is_fresh(node, tick)
+		NetworkRollback.process_rollback(node, NetworkTime.ticktime, tick, is_fresh)
+		_freshness_store.notify_processed(node, tick)
+		
+		_simset.add(node)
 
 func _record_tick(tick: int):
 	# Broadcast state we own
@@ -244,7 +256,8 @@ func _record_tick(tick: int):
 		var full_state: Dictionary = {}
 
 		for property in _auth_state_property_entries:
-			if _can_simulate(property.node, tick - 1):
+			# if _can_simulate(property.node, tick - 1) and not _skipset.has(property.node):
+			if _simset.has(property.node):
 				# Only broadcast if we've simulated the node
 				full_state[property.to_string()] = property.get_value()
 
@@ -298,9 +311,12 @@ func _record_tick(tick: int):
 
 	# Record state for specified tick ( current + 1 )
 	if not _record_state_property_entries.is_empty() and tick > _latest_state_tick:
-		var record_properties = _record_state_property_entries
-
-		_states[tick] = PropertySnapshot.extract(record_properties)
+		var record_properties = _record_state_property_entries\
+			.filter(func(pe): return _simset.has(pe.node))
+		var record_state = PropertySnapshot.extract(record_properties)
+		
+		if not record_state.is_empty():
+			_states[tick] = record_state
 
 func _after_loop():
 	_earliest_input_tick = NetworkTime.tick
@@ -473,7 +489,9 @@ func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 		var sanitized = _sanitize_by_authority(diff_state, sender)
 
 		if not sanitized.is_empty():
-			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), sanitized)
+			# TODO: Slight bug
+			var result_state := PropertySnapshot.merge(reference_state, sanitized)
+			_states[tick] = PropertySnapshot.merge(result_state, sanitized)
 			_latest_state_tick = tick
 		else:
 			# State is completely invalid
