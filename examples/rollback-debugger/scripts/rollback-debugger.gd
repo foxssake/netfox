@@ -1,10 +1,17 @@
 extends Node
 
+# Data fields
 @onready var state_history_data := %"State History Data" as TextEdit
 @onready var input_history_data := %"Input History Data" as TextEdit
 @onready var network_tick_data := %"Network Tick Data" as LineEdit
 @onready var rollback_tick_data := %"Rollback Tick Data" as LineEdit
+@onready var has_input_data := %"Has Input Data" as Label
+@onready var input_age_data := %"Input Age Data" as Label
+@onready var skipset_data := %"Skipset Data" as Label
+@onready var simset_data := %"Simset Data" as Label
+@onready var transmit_state_data := %"Transmit State Data" as Label
 
+# Tool buttons
 @onready var nt_before_loop_button := %"NT Before Loop Button" as Button
 @onready var nt_before_tick_button := %"NT Before Tick Button" as Button
 @onready var nt_on_tick_button := %"NT On Tick Button" as Button
@@ -28,11 +35,35 @@ func _ready():
 		OS.alert("No RollbackSynchronizer found! Add one to the scene and run again!")
 		get_tree().quit()
 
+	# Render initial data
+	_render_data()
+	
+	# Apply defaults
+	state_history_data.text = """
+	{
+		2: {":position": Vector2(270, 270)}
+	}
+	"""
+	
+	input_history_data.text = """
+	{
+		2: {"Input:movement": Vector2(1, 0)},
+		3: {"Input:movement": Vector2(1, 0)}
+	}
+	"""
+	
+	network_tick_data.text = "6"
+	rollback_tick_data.text = "2"
+
 	# Start NetworkTime but make sure it doesn't tick on its own
 	NetworkTime.start()
 	NetworkTime.set_process(false)
 
 	# Connect signals
+	rollback_synchronizer._on_transmit_state.connect(func(state):
+		transmit_state_data.text = var_to_str(state)
+	)
+	
 	nt_before_loop_button.pressed.connect(func():
 		NetworkTime.before_tick_loop.emit()
 	)
@@ -101,13 +132,26 @@ func _ready():
 func _render_data():
 	network_tick_data.text = str(NetworkTime.tick)
 	rollback_tick_data.text = str(NetworkRollback.tick)
-	
-	if not rollback_synchronizer:
-		push_warning("No RollbackSynchronizer found!")
-		return
 
 	state_history_data.text = _serialize_history(rollback_synchronizer._states)
 	input_history_data.text = _serialize_history(rollback_synchronizer._inputs)
+	
+	if rollback_synchronizer.has_input():
+		has_input_data.text = "true"
+		input_age_data.text = str(rollback_synchronizer.get_input_age())
+	else:
+		has_input_data.text = "false"
+		input_age_data.text = "?"
+	
+	skipset_data.text = "\n".join(
+		rollback_synchronizer._skipset.values()\
+		.map(func(node): return "\t" + node.name)
+	)
+	
+	simset_data.text = "\n".join(
+		rollback_synchronizer._simset.values()\
+		.map(func(node): return "\t" + node.name)
+	)
 
 func _read_data():
 	if network_tick_data.text.is_valid_int():

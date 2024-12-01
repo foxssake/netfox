@@ -162,4 +162,5 @@ replication_config = SubResource("SceneReplicationConfig_4cjl8")
 [node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("8_pj7o0")
 root = NodePath("..")
+enabled = false
 properties = Array[String]([":transform"])

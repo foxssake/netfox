@@ -71,6 +71,8 @@ var _is_initialized: bool = false
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("RollbackSynchronizer")
 
+signal _on_transmit_state(state: Dictionary)
+
 ## Process settings.
 ##
 ## Call this after any change to configuration. Updates based on authority too
@@ -241,13 +243,13 @@ func _process_tick(tick: int):
 		if not NetworkRollback.is_simulated(node):
 			continue
 		
+		var is_fresh = _freshness_store.is_fresh(node, tick)
+		NetworkRollback.process_rollback(node, NetworkTime.ticktime, tick, is_fresh)
+		
 		if _skipset.has(node):
 			continue
 		
-		var is_fresh = _freshness_store.is_fresh(node, tick)
-		NetworkRollback.process_rollback(node, NetworkTime.ticktime, tick, is_fresh)
 		_freshness_store.notify_processed(node, tick)
-		
 		_simset.add(node)
 
 func _record_tick(tick: int):
@@ -260,6 +262,8 @@ func _record_tick(tick: int):
 			if _simset.has(property.node):
 				# Only broadcast if we've simulated the node
 				full_state[property.to_string()] = property.get_value()
+			
+		_on_transmit_state.emit(full_state)
 
 		if full_state.size() > 0:
 			_latest_state_tick = max(_latest_state_tick, tick)
@@ -311,12 +315,10 @@ func _record_tick(tick: int):
 
 	# Record state for specified tick ( current + 1 )
 	if not _record_state_property_entries.is_empty() and tick > _latest_state_tick:
-		var record_properties = _record_state_property_entries\
-			.filter(func(pe): return _simset.has(pe.node))
+		var record_properties = _record_state_property_entries
 		var record_state = PropertySnapshot.extract(record_properties)
 		
-		if not record_state.is_empty():
-			_states[tick] = record_state
+		_states[tick] = record_state
 
 func _after_loop():
 	_earliest_input_tick = NetworkTime.tick

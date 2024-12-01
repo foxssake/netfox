@@ -25,46 +25,102 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="State" type="VBoxContainer" parent="HBoxContainer"]
+[node name="History" type="VBoxContainer" parent="HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="State History Label" type="Label" parent="HBoxContainer/State"]
+[node name="State History Label" type="Label" parent="HBoxContainer/History"]
 layout_mode = 2
 text = "State history"
 
-[node name="ScrollContainer" type="ScrollContainer" parent="HBoxContainer/State"]
+[node name="ScrollContainer" type="ScrollContainer" parent="HBoxContainer/History"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Container" type="PanelContainer" parent="HBoxContainer/State/ScrollContainer"]
+[node name="Container" type="PanelContainer" parent="HBoxContainer/History/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="State History Data" type="TextEdit" parent="HBoxContainer/State/ScrollContainer/Container"]
+[node name="State History Data" type="TextEdit" parent="HBoxContainer/History/ScrollContainer/Container"]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="Input History Label" type="Label" parent="HBoxContainer/State"]
+[node name="Input History Label" type="Label" parent="HBoxContainer/History"]
 layout_mode = 2
 text = "Input history"
 
-[node name="ScrollContainer2" type="ScrollContainer" parent="HBoxContainer/State"]
+[node name="ScrollContainer2" type="ScrollContainer" parent="HBoxContainer/History"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Container" type="PanelContainer" parent="HBoxContainer/State/ScrollContainer2"]
+[node name="Container" type="PanelContainer" parent="HBoxContainer/History/ScrollContainer2"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="Input History Data" type="TextEdit" parent="HBoxContainer/State/ScrollContainer2/Container"]
+[node name="Input History Data" type="TextEdit" parent="HBoxContainer/History/ScrollContainer2/Container"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Data" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.5
+
+[node name="Has Input" type="HBoxContainer" parent="HBoxContainer/Data"]
+layout_mode = 2
+
+[node name="Has Input Label" type="Label" parent="HBoxContainer/Data/Has Input"]
+layout_mode = 2
+text = "Has input:"
+
+[node name="Has Input Data" type="Label" parent="HBoxContainer/Data/Has Input"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "true"
+
+[node name="Input Age" type="HBoxContainer" parent="HBoxContainer/Data"]
+layout_mode = 2
+
+[node name="Input Age Label" type="Label" parent="HBoxContainer/Data/Input Age"]
+layout_mode = 2
+text = "Input age:"
+
+[node name="Input Age Data" type="Label" parent="HBoxContainer/Data/Input Age"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "2 ticks"
+
+[node name="Skipset Label" type="Label" parent="HBoxContainer/Data"]
+layout_mode = 2
+text = "Skipset:"
+
+[node name="Skipset Data" type="Label" parent="HBoxContainer/Data"]
+unique_name_in_owner = true
+layout_mode = 2
+tab_stops = PackedFloat32Array(8)
+
+[node name="Simset Label" type="Label" parent="HBoxContainer/Data"]
+layout_mode = 2
+text = "Simset:"
+
+[node name="Simset Data" type="Label" parent="HBoxContainer/Data"]
+unique_name_in_owner = true
+layout_mode = 2
+tab_stops = PackedFloat32Array(16)
+
+[node name="Transmit State Label" type="Label" parent="HBoxContainer/Data"]
+layout_mode = 2
+text = "Transmit state:"
+
+[node name="Transmit State Data" type="Label" parent="HBoxContainer/Data"]
 unique_name_in_owner = true
 layout_mode = 2
 
 [node name="Tools" type="VBoxContainer" parent="HBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 8
 
 [node name="Tick Container" type="HBoxContainer" parent="HBoxContainer/Tools"]
 layout_mode = 2

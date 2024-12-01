@@ -96,7 +96,7 @@ func _predict(_tick):
 	confidence = pow(confidence, 4.)
 	confidence = clampf(confidence, 0., 1.)
 	
-	_logger.info("Predicted input with confidence %.2f for rollback tick %d, with input age %d" % [confidence, NetworkRollback.tick, input_age])
+#	_logger.info("Predicted input with confidence %.2f for rollback tick %d, with input age %d" % [confidence, NetworkRollback.tick, input_age])
 	
 	movement *= confidence
 	aim *= confidence

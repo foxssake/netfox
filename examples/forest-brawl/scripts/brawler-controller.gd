@@ -93,7 +93,7 @@ func _rollback_tick(delta, tick, is_fresh):
 	# _logger.debug("Input age is %d ticks, confidence is at %.2f", [rollback_synchronizer.get_input_age(), input.confidence])
 
 	if input.confidence < 1.:
-		_logger.info("Not confident in input, skipping tick %d!", [tick])
+#		_logger.info("Not confident in input, skipping tick %d!", [tick])
 		rollback_synchronizer.ignore(self)
 		return
 	
