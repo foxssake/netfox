@@ -1,5 +1,13 @@
 site_name: netfox
 theme: readthedocs
+plugins:
+  - plantuml:
+      puml_url: https://www.plantuml.com/plantuml/
+      num_workers: 8
+      theme:
+        enabled: false
+      interaction:
+        enabled: false
 nav:
   - 'index.md'
   - 'upgrading.md'
