@@ -60,8 +60,8 @@ func _ready():
 	NetworkTime.set_process(false)
 
 	# Connect signals
-	rollback_synchronizer._on_transmit_state.connect(func(state):
-		transmit_state_data.text = var_to_str(state)
+	rollback_synchronizer._on_transmit_state.connect(func(state, tick):
+		transmit_state_data.text = "@%d: %s" % [tick, var_to_str(state)]
 	)
 	
 	nt_before_loop_button.pressed.connect(func():

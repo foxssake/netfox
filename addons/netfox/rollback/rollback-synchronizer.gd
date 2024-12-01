@@ -71,7 +71,7 @@ var _is_initialized: bool = false
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("RollbackSynchronizer")
 
-signal _on_transmit_state(state: Dictionary)
+signal _on_transmit_state(state: Dictionary, tick: int)
 
 ## Process settings.
 ##
@@ -263,7 +263,7 @@ func _record_tick(tick: int):
 				# Only broadcast if we've simulated the node
 				full_state[property.to_string()] = property.get_value()
 			
-		_on_transmit_state.emit(full_state)
+		_on_transmit_state.emit(full_state, tick)
 
 		if full_state.size() > 0:
 			_latest_state_tick = max(_latest_state_tick, tick)
@@ -493,7 +493,8 @@ func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 		if not sanitized.is_empty():
 			# TODO: Slight bug
 			var result_state := PropertySnapshot.merge(reference_state, sanitized)
-			_states[tick] = PropertySnapshot.merge(result_state, sanitized)
+			# _states[tick] = PropertySnapshot.merge(result_state, sanitized)
+			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), sanitized)
 			_latest_state_tick = tick
 		else:
 			# State is completely invalid
