@@ -25,7 +25,23 @@ but before the *after tick* signal is fired.
 
 The following is the network rollback loop in isolation:
 
-![Network rollback loop](../assets/network-rollback-loop.svg)
+```puml
+@startuml
+
+start
+
+:before_loop;
+while(Rollback)
+  :on_prepare_tick;
+  :on_process_tick;
+  :on_record_tick;
+endwhile
+:after_loop;
+
+stop
+
+@enduml
+```
 
 Signal handlers must implement the right steps for rollback to work.
 
@@ -52,7 +68,32 @@ This can be used to change to the state that is appropriate for display.
 
 The network rollback loop is part of the network tick loop as follows:
 
-![Network loop](../assets/network-loop.svg)
+```puml
+@startuml
+
+start
+
+:NetworkTime.before_tick_loop;
+
+while (Ticks to simulate)  is (>0)
+  :NetworkTime.before_tick;
+  :NetworkTime.on_tick;
+  :NetworkRollback.before_loop;
+  while(Rollback)
+    :NetworkRollback.on_prepare_tick;
+    :NetworkRollback.on_process_tick;
+    :NetworkRollback.on_record_tick;
+  endwhile
+  :NetworkRollback.after_loop;
+  :NetworkTime.after_tick;
+endwhile (0)
+
+:NetworkTime.after_tick_loop;
+
+stop
+
+@enduml
+```
 
 ## Conditional simulation
 

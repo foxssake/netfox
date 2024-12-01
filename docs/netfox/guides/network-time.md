@@ -17,7 +17,25 @@ During each frame, *NetworkTime* checks how much time has elapsed since the
 last tick loop. When more time has elapsed than a single tick's duration, the
 *network tick loop* will run:
 
-![Network tick loop](../assets/network-tick-loop.svg)
+```puml
+@startuml
+
+start
+
+:before_tick_loop;
+
+while (Ticks to simulate)  is (>0)
+  :before_tick;
+  :on_tick;
+  :after_tick;
+endwhile (0)
+
+:after_tick_loop;
+
+stop
+
+@enduml
+```
 
 The tick loop will run as long as it catches up on ticks to run. Every loop is
 limited to run at most `max_ticks_per_frame` ticks to avoid overwhelming the

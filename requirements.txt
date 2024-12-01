@@ -1,0 +1,1 @@
+mkdocs_puml==2.3.0
