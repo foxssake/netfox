@@ -63,6 +63,7 @@ var _next_diff_ack_tick: int
 var _retrieved_tick: int
 var _has_input: bool
 var _input_tick: int
+var _is_predicted_tick: bool
 
 var _property_cache: PropertyCache
 var _freshness_store: RollbackFreshnessStore
@@ -208,6 +209,7 @@ func _prepare_tick(tick: int):
 	# Save data for input prediction
 	_has_input = _retrieved_tick != -1
 	_input_tick = _retrieved_tick
+	_is_predicted_tick = not _inputs.has(tick)
 	
 	# Reset the set of nodes that shouldn't be recorded, i.e. they can't predict
 	# with current input
@@ -254,7 +256,7 @@ func _process_tick(tick: int):
 
 func _record_tick(tick: int):
 	# Broadcast state we own
-	if not _auth_state_property_entries.is_empty():
+	if not _auth_state_property_entries.is_empty() and not _is_predicted_tick:
 		var full_state: Dictionary = {}
 
 		for property in _auth_state_property_entries:

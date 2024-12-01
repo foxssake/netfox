@@ -90,7 +90,7 @@ func _predict(_tick):
 		return
 	
 	var input_age := _rollback_synchronizer.get_input_age()
-	var max_predictable_age := NetworkTime.seconds_to_ticks(0.25)
+	var max_predictable_age := 2 #NetworkTime.seconds_to_ticks(0.25)
 	
 	confidence = 1. - input_age / float(max_predictable_age)
 	confidence = pow(confidence, 4.)
