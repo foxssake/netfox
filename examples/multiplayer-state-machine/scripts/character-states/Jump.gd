@@ -8,9 +8,11 @@ extends RewindableState
 # Only enter if the character is on the floor
 func can_enter(_previous_state):
 	return input.jump and character.is_on_floor()
-	
-func enter(_previous_state, _tick):
+
+func display_enter(_previous, _t):
 	character.color = Color.BLUE
+
+func enter(_previous_state, _tick):
 	character.velocity.y = jump_strength
 
 func tick(delta, tick, is_fresh):

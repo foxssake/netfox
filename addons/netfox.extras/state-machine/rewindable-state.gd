@@ -64,6 +64,12 @@ func can_enter(previous_state: RewindableState) -> bool:
 	# Return true if the state machine can transition to the next state
 	return true
 
+func display_enter(previous_state: RewindableState, tick: int) -> void:
+	pass
+
+func display_exit(next_state: RewindableState, tick: int) -> void:
+	pass
+
 func _get_configuration_warnings():
 	return [] if get_parent() is RewindableStateMachine else ["This state should be a child of a RewindableStateMachine."]
 
