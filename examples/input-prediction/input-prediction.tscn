@@ -40,44 +40,56 @@ transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 5, 
 operation = 2
 radius = 4.0
 height = 24.0
+sides = 32
 
 [node name="CSGCylinder3D4" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 5, -8)
 operation = 2
 radius = 4.0
 height = 24.0
+sides = 32
 
 [node name="CSGCylinder3D2" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
 transform = Transform3D(1.91069e-15, 4.37114e-08, -1, 1, -4.37114e-08, 0, -4.37114e-08, -1, -4.37114e-08, 12, 5, 0)
 operation = 2
 radius = 4.0
 height = 16.0
+sides = 32
 
 [node name="CSGCylinder3D3" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
 transform = Transform3D(1.91069e-15, 4.37114e-08, -1, 1, -4.37114e-08, 0, -4.37114e-08, -1, -4.37114e-08, -12, 5, 0)
 operation = 2
 radius = 4.0
 height = 16.0
+sides = 32
 
 [node name="CSGSphere3D" type="CSGSphere3D" parent="Map/CSGCombiner3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 5, -8)
 operation = 2
 radius = 4.0
+radial_segments = 32
+rings = 16
 
 [node name="CSGSphere3D2" type="CSGSphere3D" parent="Map/CSGCombiner3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 5, -8)
 operation = 2
 radius = 4.0
+radial_segments = 32
+rings = 16
 
 [node name="CSGSphere3D3" type="CSGSphere3D" parent="Map/CSGCombiner3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 5, 8)
 operation = 2
 radius = 4.0
+radial_segments = 32
+rings = 16
 
 [node name="CSGSphere3D4" type="CSGSphere3D" parent="Map/CSGCombiner3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 5, 8)
 operation = 2
 radius = 4.0
+radial_segments = 32
+rings = 16
 
 [node name="Environment" type="Node" parent="."]
 

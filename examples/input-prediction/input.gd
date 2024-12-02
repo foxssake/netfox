@@ -1,6 +1,13 @@
 extends BaseNetInput
 
 var movement: Vector3
+var confidence: float = 1.
+
+@onready var _rollback_synchronizer := $"../RollbackSynchronizer" as RollbackSynchronizer
+
+func _ready():
+	super()
+	NetworkRollback.after_prepare_tick.connect(_predict)
 
 func _gather():
 	movement = Vector3(
@@ -8,3 +15,18 @@ func _gather():
 		Input.get_action_strength("move_jump"),
 		Input.get_axis("move_north", "move_south")
 	)
+
+func _predict(_t):
+	if not _rollback_synchronizer.is_predicting():
+		# Not predicting, nothing to do
+		confidence = 1.
+		return
+	
+	if not _rollback_synchronizer.has_input():
+		confidence = 0.
+		return
+	
+	# Decay input over .25s
+	var decay_time := 4 #NetworkTime.seconds_to_ticks(.25)
+	confidence = _rollback_synchronizer.get_input_age() / float(decay_time)
+	confidence = clampf(1. - confidence, 0., 1.)

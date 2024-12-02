@@ -18,6 +18,7 @@ radial_segments = 32
 rings = 16
 
 [node name="marble" type="CharacterBody3D"]
+collision_layer = 2
 script = ExtResource("1_n25ns")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
@@ -34,7 +35,6 @@ script = ExtResource("2_nlyyn")
 root = NodePath("..")
 state_properties = Array[String]([":transform", ":velocity"])
 input_properties = Array[String](["Input:movement"])
-enable_input_broadcast = false
 
 [node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("5_ruljv")
