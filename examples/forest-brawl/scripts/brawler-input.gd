@@ -85,22 +85,7 @@ func _predict(_tick):
 	if not _rollback_synchronizer:
 		return
 	
-	if not _rollback_synchronizer.has_input():
-		confidence = 0.
-		return
-	
-	var input_age := _rollback_synchronizer.get_input_age()
-	var max_predictable_age := 2 #NetworkTime.seconds_to_ticks(0.25)
-	
-	confidence = 1. - input_age / float(max_predictable_age)
-	confidence = pow(confidence, 4.)
-	confidence = clampf(confidence, 0., 1.)
-	
-#	_logger.info("Predicted input with confidence %.2f for rollback tick %d, with input age %d" % [confidence, NetworkRollback.tick, input_age])
-	
-	movement *= confidence
-	aim *= confidence
-	is_firing = is_firing and input_age == 0
+	confidence = 1.0 if _rollback_synchronizer.has_input() else 0.0
 
 func _physics_process(_delta):
 	if not camera:
