@@ -85,7 +85,7 @@ func _predict(_tick):
 	if not _rollback_synchronizer:
 		return
 	
-	confidence = 1.0 if _rollback_synchronizer.has_input() else 0.0
+	confidence = 1.0 if not _rollback_synchronizer.is_predicting() else 0.0
 
 func _physics_process(_delta):
 	if not camera:

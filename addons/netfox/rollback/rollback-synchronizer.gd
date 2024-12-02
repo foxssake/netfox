@@ -150,6 +150,9 @@ func get_input_age() -> int:
 		_logger.error("Trying to check input age without having input!")
 		return -1
 
+func is_predicting() -> bool:
+	return _is_predicted_tick
+
 func ignore(node: Node):
 	_skipset.add(node)
 
