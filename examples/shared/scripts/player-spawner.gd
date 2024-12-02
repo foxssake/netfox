@@ -43,7 +43,6 @@ func _spawn(id: int):
 	var avatar = player_scene.instantiate() as Node
 	avatars[id] = avatar
 	avatar.name += " #%d" % id
-	spawn_root.add_child(avatar)
 	
 	# Avatar is always owned by server
 	avatar.set_multiplayer_authority(1)
@@ -55,3 +54,5 @@ func _spawn(id: int):
 	if input != null:
 		input.set_multiplayer_authority(id)
 		print("Set input(%s) ownership to %s" % [input.name, id])
+	
+	spawn_root.add_child(avatar)

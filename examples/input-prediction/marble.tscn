@@ -10,6 +10,8 @@
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fyc8n"]
 albedo_texture = ExtResource("1_64oxq")
+metallic = 0.8
+roughness = 0.1
 texture_filter = 0
 
 [sub_resource type="SphereMesh" id="SphereMesh_y7mm6"]

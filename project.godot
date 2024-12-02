@@ -115,6 +115,7 @@ general/clear_settings=false
 time/tickrate=24
 extras/auto_tile_windows=true
 rollback/enable_diff_states=false
+extras/screen=1
 
 [rendering]
 

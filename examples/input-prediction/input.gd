@@ -27,6 +27,6 @@ func _predict(_t):
 		return
 	
 	# Decay input over .25s
-	var decay_time := 4 #NetworkTime.seconds_to_ticks(.25)
+	var decay_time := 3 #NetworkTime.seconds_to_ticks(.25)
 	confidence = _rollback_synchronizer.get_input_age() / float(decay_time)
 	confidence = clampf(1. - confidence, 0., 1.)
