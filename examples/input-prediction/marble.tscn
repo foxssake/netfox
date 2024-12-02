@@ -1,0 +1,42 @@
+[gd_scene load_steps=9 format=3 uid="uid://ryvnj6wy1gij"]
+
+[ext_resource type="Texture2D" uid="uid://dfwpt4r3mwe3" path="res://examples/input-prediction/checkers.png" id="1_64oxq"]
+[ext_resource type="Script" path="res://examples/input-prediction/marble.gd" id="1_n25ns"]
+[ext_resource type="Script" path="res://examples/input-prediction/input.gd" id="2_7f8dy"]
+[ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="2_nlyyn"]
+[ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="5_ruljv"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_bpiah"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fyc8n"]
+albedo_texture = ExtResource("1_64oxq")
+texture_filter = 0
+
+[sub_resource type="SphereMesh" id="SphereMesh_y7mm6"]
+material = SubResource("StandardMaterial3D_fyc8n")
+radial_segments = 32
+rings = 16
+
+[node name="marble" type="CharacterBody3D"]
+script = ExtResource("1_n25ns")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_bpiah")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_y7mm6")
+
+[node name="Input" type="Node" parent="."]
+script = ExtResource("2_7f8dy")
+
+[node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("2_nlyyn")
+root = NodePath("..")
+state_properties = Array[String]([":transform", ":velocity"])
+input_properties = Array[String](["Input:movement"])
+enable_input_broadcast = false
+
+[node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("5_ruljv")
+root = NodePath("..")
+properties = Array[String]([":transform"])
