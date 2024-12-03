@@ -35,8 +35,9 @@ script = ExtResource("2_7f8dy")
 [node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("2_nlyyn")
 root = NodePath("..")
-state_properties = Array[String]([":transform", ":velocity"])
+state_properties = Array[String]([":transform", ":velocity", ":is_reversing"])
 input_properties = Array[String](["Input:movement"])
+enable_input_broadcast = false
 
 [node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("5_ruljv")

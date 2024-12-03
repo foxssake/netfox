@@ -2,12 +2,15 @@ extends CharacterBody3D
 
 @export var max_speed: float = 16.
 @export var acceleration: float = 16.
+@export var turn_degrees: float = 360.
 @export var jump_strength: float = 8.
+
+var is_reversing := false
 
 @onready var _rollback_synchronizer := $RollbackSynchronizer as RollbackSynchronizer
 @onready var input := $Input as Node
 
-var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
+var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 func _ready():
 	position = Vector3(0, 4, 0)
@@ -29,21 +32,41 @@ func _rollback_tick(dt, _t, _if):
 	var movement = (input.movement * input.confidence) as Vector3
 	movement.y = 0.
 	
-	if movement.is_zero_approx():
-		var dv := velocity
-		dv.y = 0.
-		dv = dv.normalized() * acceleration * dt
-
-		if dv.length_squared() > velocity.length_squared():
-			dv = velocity
-		velocity -= dv
-	else:
-		var accel = movement.z * acceleration * dt
-		var steer = movement.x * clampf(velocity.length(), 0., acceleration) * 4. * dt
+	var reverse_factor = 1.
+	
+	if is_on_floor():
+		var accel := 0.
+		var steer := 0.
+		var brake := 0.
 		
-		velocity += accel * transform.basis.z + steer * transform.basis.x
+		var speed := velocity.length()
+		
+		if movement.is_zero_approx():
+			# Brake
+			brake = acceleration * 1. * dt
+		else:
+			if is_zero_approx(speed) and not is_zero_approx(movement.z):
+				is_reversing = not is_reversing
+
+			if is_reversing:
+				movement.z *= -1.
+
+			if movement.z > 0:
+				accel = abs(movement.z) * acceleration * dt
+			else:
+				brake = abs(movement.z) * 2. * acceleration * dt
+
+			steer = movement.x * turn_degrees
+			steer *= pow(clampf(speed / max_speed, 0., 1.), .5)
+		
+		if is_reversing:
+			reverse_factor = -1.
+		
+		brake = minf(brake, speed)
+		velocity += accel * reverse_factor * transform.basis.z - velocity.normalized() * brake
+		velocity = velocity.rotated(transform.basis.y, deg_to_rad(steer) * dt)
+		
 		if velocity.length() > max_speed:
-			# TODO: This includes gravity too
 			velocity = velocity.normalized() * max_speed
 		
 	velocity *= NetworkTime.physics_factor
@@ -51,9 +74,9 @@ func _rollback_tick(dt, _t, _if):
 	velocity /= NetworkTime.physics_factor
 	
 	# Face velocity
-	var look = velocity.normalized()
+	var look = velocity.normalized() * reverse_factor
 	if not look.is_zero_approx() and abs(look.y) < .95:
-		look_at_from_position(position, position + look)
+		look_at_from_position(position, position + look, transform.basis.y, true)
 
 func _force_update():
 	var old_velocity = velocity

@@ -11,9 +11,9 @@ func _ready():
 
 func _gather():
 	movement = Vector3(
-		Input.get_axis("move_west", "move_east"),
+		Input.get_axis("move_east", "move_west"),
 		Input.get_action_strength("move_jump"),
-		Input.get_axis("move_north", "move_south")
+		Input.get_axis("move_south", "move_north")
 	)
 
 func _predict(_t):
@@ -27,6 +27,6 @@ func _predict(_t):
 		return
 	
 	# Decay input over .25s
-	var decay_time := 3 #NetworkTime.seconds_to_ticks(.25)
+	var decay_time := 2 #NetworkTime.seconds_to_ticks(.25)
 	confidence = _rollback_synchronizer.get_input_age() / float(decay_time)
 	confidence = clampf(1. - confidence, 0., 1.)
