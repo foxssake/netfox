@@ -23,9 +23,18 @@ func process_settings():
 		var property_entry = _property_cache.get_entry(property)
 		_property_entries.push_back(property_entry)
 
-func _ready():
-	process_settings()
+func _connect_signals():
 	NetworkTime.after_tick.connect(_after_tick)
+
+func _disconnect_signals():
+	NetworkTime.after_tick.disconnect(_after_tick)
+
+func _enter_tree():
+	_connect_signals.call_deferred()
+	process_settings.call_deferred()
+
+func _exit_tree():
+	_disconnect_signals()
 
 func _after_tick(_dt, tick):
 	if is_multiplayer_authority():
