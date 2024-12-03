@@ -51,8 +51,7 @@ func _gather():
 		look_angle = Vector2.ZERO
 		mouse_rotation = Vector2.ZERO
 	else:
-		var delta: float = 1.0 / NetworkTime.tickrate
-		look_angle = Vector2(-mouse_rotation.y * delta, -mouse_rotation.x * delta)
+		look_angle = Vector2(-mouse_rotation.y * NetworkTime.ticktime, -mouse_rotation.x * NetworkTime.ticktime)
 		mouse_rotation = Vector2.ZERO
 
 func setup():

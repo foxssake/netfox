@@ -1,19 +1,14 @@
-[gd_scene load_steps=33 format=3 uid="uid://vrso6qncj1nm"]
+[gd_scene load_steps=28 format=3 uid="uid://vrso6qncj1nm"]
 
 [ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="1_g0p7o"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/player.gd" id="1_mk8qw"]
 [ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="2_3rc26"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/player-weapon.gd" id="3_4j0gy"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/player-input.gd" id="3_8oqer"]
-[ext_resource type="Script" path="res://addons/netfox.extras/state-machine/rewindable-state-machine.gd" id="4_luo1m"]
 [ext_resource type="AudioStream" uid="uid://cope814m1d7p6" path="res://examples/multiplayer-fps/sounds/fire.mp3" id="5_14ltm"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/bullethole.gd" id="6_f1qm8"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/ui/projection3d.gd" id="6_sv41w"]
-[ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/character-states/Jump.gd" id="7_pccac"]
 [ext_resource type="Texture2D" uid="uid://b8r41bt6ft8jt" path="res://examples/multiplayer-fps/textures/bullet_hole.png" id="7_sxhbg"]
-[ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/character-states/Idle.gd" id="8_64tl6"]
-[ext_resource type="Script" path="res://addons/netfox/state-synchronizer.gd" id="8_p73id"]
-[ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/character-states/Move.gd" id="9_bhgiu"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/ui/window-size-connector.gd" id="13_mlcnx"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/ui/crosshair.gd" id="14_npl66"]
 [ext_resource type="Texture2D" uid="uid://b66gbhylc33yy" path="res://examples/multiplayer-fps/textures/crosshair.png" id="14_qqmle"]
@@ -56,9 +51,8 @@ bg_color = Color(0.811765, 0.0823529, 0, 1)
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_xnks4"]
 material = SubResource("StandardMaterial3D_2gc5u")
 
-[node name="player" type="CharacterBody3D" node_paths=PackedStringArray("state_machine")]
+[node name="player" type="CharacterBody3D"]
 script = ExtResource("1_mk8qw")
-state_machine = NodePath("RewindableStateMachine")
 
 [node name="Head" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.705698, 0)
@@ -87,12 +81,11 @@ mesh = SubResource("BoxMesh_0vqha")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.439686, -0.406913, -0.200588)
 mesh = SubResource("BoxMesh_wqpqp")
 
-[node name="StateNameLabel3D" type="Label3D" parent="."]
+[node name="DisplayNameLabel3D" type="Label3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.30427, 0)
 pixel_size = 0.002
 billboard = 1
 fixed_size = true
-text = "Idle"
 font_size = 16
 
 [node name="Projection3D" type="Node3D" parent="."]
@@ -124,18 +117,13 @@ mesh = SubResource("CapsuleMesh_xnks4")
 [node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("1_g0p7o")
 root = NodePath("..")
-state_properties = Array[String]([":transform", ":velocity", ":color", "RewindableStateMachine:state", "Head:transform"])
+state_properties = Array[String]([":transform", ":velocity", "Head:transform", "Health:current_health"])
 input_properties = Array[String](["Input:movement", "Input:jump", "Input:fire", "Input:look_angle"])
 
 [node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("2_3rc26")
 root = NodePath("..")
 properties = Array[String]([":transform", "Head:transform"])
-
-[node name="StateSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
-script = ExtResource("8_p73id")
-root = NodePath("..")
-properties = Array[String](["Health:current_health", ":teleport_position", ":visible"])
 
 [node name="Input" type="Node" parent="." node_paths=PackedStringArray("big_gun", "hud")]
 script = ExtResource("3_8oqer")
@@ -144,24 +132,6 @@ hud = NodePath("../HUD")
 
 [node name="Health" type="Node" parent="."]
 script = ExtResource("16_2kod4")
-
-[node name="RewindableStateMachine" type="Node" parent="."]
-script = ExtResource("4_luo1m")
-
-[node name="Jump" type="Node" parent="RewindableStateMachine" node_paths=PackedStringArray("character", "input")]
-script = ExtResource("7_pccac")
-character = NodePath("../..")
-input = NodePath("../../Input")
-
-[node name="Idle" type="Node" parent="RewindableStateMachine" node_paths=PackedStringArray("character", "input")]
-script = ExtResource("8_64tl6")
-character = NodePath("../..")
-input = NodePath("../../Input")
-
-[node name="Move" type="Node" parent="RewindableStateMachine" node_paths=PackedStringArray("character", "input")]
-script = ExtResource("9_bhgiu")
-character = NodePath("../..")
-input = NodePath("../../Input")
 
 [node name="HUD" type="CanvasGroup" parent="."]
 

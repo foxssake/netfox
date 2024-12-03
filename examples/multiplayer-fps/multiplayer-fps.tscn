@@ -9,6 +9,11 @@
 
 [node name="Game Scene" parent="." instance=ExtResource("1_7ldlg")]
 
+[node name="Player Spawner" parent="Game Scene/Network" index="1" node_paths=PackedStringArray("spawn_points")]
+script = ExtResource("3_c7rxg")
+player_scene = ExtResource("2_p13fk")
+spawn_points = [NodePath("../../Map/Marker3D"), NodePath("../../Map/Marker3D2"), NodePath("../../Map/Marker3D3"), NodePath("../../Map/Marker3D4"), NodePath("../../Map/Marker3D5")]
+
 [node name="Map" parent="Game Scene" instance=ExtResource("2_f3ad8")]
 
 [node name="Marker3D" type="Marker3D" parent="Game Scene/Map"]
@@ -25,10 +30,5 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.17049, 1, -17)
 
 [node name="Marker3D5" type="Marker3D" parent="Game Scene/Map"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.17049, 1, 0)
-
-[node name="Player Spawner" parent="Game Scene/Network" index="1" node_paths=PackedStringArray("spawn_points")]
-script = ExtResource("3_c7rxg")
-player_scene = ExtResource("2_p13fk")
-spawn_points = [NodePath("../../Map/Marker3D"), NodePath("../../Map/Marker3D2"), NodePath("../../Map/Marker3D3"), NodePath("../../Map/Marker3D4"), NodePath("../../Map/Marker3D5")]
 
 [editable path="Game Scene"]

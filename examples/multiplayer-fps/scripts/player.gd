@@ -1,9 +1,9 @@
 extends CharacterBody3D
 
-@export var state_machine: RewindableStateMachine
+@export var speed = 5.0
+@export var jump_strength = 5.0
 
-@onready var mesh_instance: MeshInstance3D = $MeshInstance3D
-@onready var current_state_label: Label3D = $StateNameLabel3D
+@onready var display_name: Label3D = $DisplayNameLabel3D
 @onready var input: PlayerInputFPS = $Input
 @onready var head: Node3D = $Head
 @onready var hud: CanvasGroup = $HUD
@@ -11,44 +11,24 @@ extends CharacterBody3D
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("PropertyCache")
 
-var color: Color:
-	get: return _color
-	set(v): set_color(v)
-
-var _color: Color = Color.WHITE
-var _material: StandardMaterial3D = StandardMaterial3D.new()
-
 # Get the gravity from the project settings to be synced with RigidBody nodes.
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
-var teleport_position = null
 
 func _ready():
-	# Set spawn position
+	display_name.text = name
 	position = Vector3(0, 4, 0)
-	
-	# Set starting state
-	state_machine.state = &"Idle"
-	current_state_label.text = name
-	
-	# Ensure material is unique
-	mesh_instance.material_override = _material
 	hud.hide()
-	health.health_depleted.connect(func ():
-		health.set_health(100)
-		die(get_parent().get_next_spawn_point().global_position)
-	)
 
 # Callback during rollback tick
 func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
-	if teleport_position:
-		global_position = teleport_position
-		$TickInterpolator.teleport()
-		teleport_position = null
-	elif is_multiplayer_authority():
-		visible = true
-		
+	if health.current_health <= 0:
+		die()
+	
 	_force_update_is_on_floor()
-	if not is_on_floor():
+	if is_on_floor():
+		if input.jump:
+			velocity.y = jump_strength
+	else:
 		velocity.y -= gravity * delta
 		
 	# Handle look left and right
@@ -60,6 +40,21 @@ func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 	head.rotation.x = clamp(head.rotation.x, -1.57, 1.57)
 	head.rotation.z = 0
 	head.rotation.y = 0
+	
+	var input_dir = input.movement
+	var direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.z)).normalized()
+	if direction:
+		velocity.x = direction.x * speed
+		velocity.z = direction.z * speed
+	else:
+		velocity.x = move_toward(velocity.x, 0, speed)
+		velocity.z = move_toward(velocity.z, 0, speed)
+
+	# move_and_slide assumes physics delta
+	# multiplying velocity by NetworkTime.physics_factor compensates for it
+	velocity *= NetworkTime.physics_factor
+	move_and_slide()
+	velocity /= NetworkTime.physics_factor
 
 func _force_update_is_on_floor():
 	var old_velocity = velocity
@@ -67,20 +62,15 @@ func _force_update_is_on_floor():
 	move_and_slide()
 	velocity = old_velocity
 
-func set_color(color: Color):
-	if color == _color:
-		return
-
-	_material.albedo_color = color
-	_color = color
-
 func damage():
+	$HitSFX.play()
 	if is_multiplayer_authority():
-		$HitSFX.play()
 		health.add_health(-33)
+		_logger.warning("%s HP now at %s" % [name, health.current_health])
 
-func die(new_global_position: Vector3):
+func die():
 	$DieSFX.play()
 	_logger.warning("%s Died" % name)
-	teleport_position = new_global_position
-	visible = false
+	global_position = get_parent().get_next_spawn_point().global_position
+	$TickInterpolator.teleport()
+	health.set_health(100)

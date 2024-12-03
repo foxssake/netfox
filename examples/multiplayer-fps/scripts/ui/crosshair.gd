@@ -1,3 +1,4 @@
+@tool
 ## Places a crosshair in the center of the screen
 class_name CrossHair extends Node2D
 

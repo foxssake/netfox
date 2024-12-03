@@ -5,8 +5,6 @@ class_name Health extends Node
 @export var max_health: float = 100.0
 ## The current health
 @export var current_health: float = max_health
-## Only use hitboxes if one is present
-@export var hitbox_only: bool = true
 
 ## current_health has reached zero
 signal health_depleted
