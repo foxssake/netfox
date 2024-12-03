@@ -21,9 +21,6 @@ func _ready():
 
 # Callback during rollback tick
 func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
-	if health.current_health <= 0:
-		die()
-	
 	_force_update_is_on_floor()
 	if is_on_floor():
 		if input.jump:
@@ -67,6 +64,8 @@ func damage():
 	if is_multiplayer_authority():
 		health.add_health(-33)
 		_logger.warning("%s HP now at %s" % [name, health.current_health])
+		if health.current_health <= 0.0:
+			die()
 
 func die():
 	$DieSFX.play()
