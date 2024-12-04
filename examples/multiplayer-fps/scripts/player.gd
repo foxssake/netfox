@@ -13,6 +13,7 @@ static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("PropertyCache")
 # Get the gravity from the project settings to be synced with RigidBody nodes.
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 var health: int = 100
+var pending_damage: int = 0
 
 func _ready():
 	display_name.text = name
@@ -21,7 +22,11 @@ func _ready():
 
 # Callback during rollback tick
 func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
-	if health <= 0.0:
+	if pending_damage > 0:
+		health -= pending_damage
+		pending_damage = 0
+		
+	if health <= 0:
 		$DieSFX.play()
 		if is_multiplayer_authority():
 			die()
@@ -57,8 +62,6 @@ func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 	velocity *= NetworkTime.physics_factor
 	move_and_slide()
 	velocity /= NetworkTime.physics_factor
-	
-	print(health)
 
 func _force_update_is_on_floor():
 	var old_velocity = velocity
@@ -68,11 +71,13 @@ func _force_update_is_on_floor():
 
 func damage():
 	$HitSFX.play()
-	health -= 34
-	_logger.warning("%s HP now at %s" % [name, health])
+	if is_multiplayer_authority():
+		pending_damage += 34
+		_logger.warning("%s HP now at %s" % [name, health])
 
 func die():
-	_logger.warning("%s Died" % name)
-	global_position = get_parent().get_next_spawn_point().global_position
-	$TickInterpolator.teleport()
-	health = 100
+	if is_multiplayer_authority():
+		_logger.warning("%s Died" % name)
+		global_position = get_parent().get_next_spawn_point().global_position
+		$TickInterpolator.teleport()
+		health = 100

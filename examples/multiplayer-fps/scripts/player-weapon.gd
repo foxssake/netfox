@@ -18,9 +18,11 @@ func _can_fire() -> bool:
 func _can_peer_use(peer_id: int) -> bool:
 	return peer_id == input.get_multiplayer_authority()
 
+func _on_fire():
+	sound.play()
+	
 func _after_fire():
 	last_fire = NetworkTime.tick
-	sound.play()
 
 func _on_hit(result: Dictionary):
 	bullethole.action(result)
