@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://vrso6qncj1nm"]
+[gd_scene load_steps=27 format=3 uid="uid://vrso6qncj1nm"]
 
 [ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="1_g0p7o"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/player.gd" id="1_mk8qw"]
@@ -12,7 +12,6 @@
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/ui/window-size-connector.gd" id="13_mlcnx"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/ui/crosshair.gd" id="14_npl66"]
 [ext_resource type="Texture2D" uid="uid://b66gbhylc33yy" path="res://examples/multiplayer-fps/textures/crosshair.png" id="14_qqmle"]
-[ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/ui/health.gd" id="16_2kod4"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/ui/health-progress-bar.gd" id="17_ghjct"]
 [ext_resource type="AudioStream" uid="uid://q7ql86p7flj" path="res://examples/multiplayer-fps/sounds/hit.wav" id="20_e2bcn"]
 [ext_resource type="AudioStream" uid="uid://15pyqe2uw4s3" path="res://examples/multiplayer-fps/sounds/death.wav" id="21_ogjhm"]
@@ -93,7 +92,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.11014, 0)
 script = ExtResource("6_sv41w")
 projection_size = Vector2(1, 0.1)
 
-[node name="ProgressBar" type="ProgressBar" parent="Projection3D" node_paths=PackedStringArray("health")]
+[node name="ProgressBar" type="ProgressBar" parent="Projection3D" node_paths=PackedStringArray("player")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -106,7 +105,7 @@ step = 1.0
 value = 100.0
 show_percentage = false
 script = ExtResource("17_ghjct")
-health = NodePath("../../Health")
+player = NodePath("../..")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("CapsuleShape3D_6kydi")
@@ -117,7 +116,7 @@ mesh = SubResource("CapsuleMesh_xnks4")
 [node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("1_g0p7o")
 root = NodePath("..")
-state_properties = Array[String]([":transform", ":velocity", "Head:transform", "Health:current_health"])
+state_properties = Array[String]([":transform", ":health", ":velocity", "Head:transform"])
 input_properties = Array[String](["Input:movement", "Input:jump", "Input:fire", "Input:look_angle"])
 
 [node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
@@ -129,9 +128,6 @@ properties = Array[String]([":transform", "Head:transform"])
 script = ExtResource("3_8oqer")
 big_gun = NodePath("../Head/BigGun")
 hud = NodePath("../HUD")
-
-[node name="Health" type="Node" parent="."]
-script = ExtResource("16_2kod4")
 
 [node name="HUD" type="CanvasGroup" parent="."]
 
@@ -160,7 +156,7 @@ layout_mode = 2
 layout_mode = 2
 size_flags_vertical = 6
 
-[node name="ProgressBar" type="ProgressBar" parent="HUD/MarginContainer/VBoxContainer" node_paths=PackedStringArray("health")]
+[node name="ProgressBar" type="ProgressBar" parent="HUD/MarginContainer/VBoxContainer" node_paths=PackedStringArray("player")]
 custom_minimum_size = Vector2(30, 100)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -168,7 +164,7 @@ step = 1.0
 value = 100.0
 fill_mode = 3
 script = ExtResource("17_ghjct")
-health = NodePath("../../../../Health")
+player = NodePath("../../../..")
 
 [node name="HitSFX" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("20_e2bcn")

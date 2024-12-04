@@ -1,6 +1,6 @@
 extends ProgressBar
 
-@export var health: Health
+@export var player: CharacterBody3D
 
 func _process(delta: float):
-	value = health.current_health
+	value = player.health

@@ -7,12 +7,12 @@ extends CharacterBody3D
 @onready var input: PlayerInputFPS = $Input
 @onready var head: Node3D = $Head
 @onready var hud: CanvasGroup = $HUD
-@onready var health: Health = $Health
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("PropertyCache")
 
 # Get the gravity from the project settings to be synced with RigidBody nodes.
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
+var health: int = 100
 
 func _ready():
 	display_name.text = name
@@ -21,6 +21,11 @@ func _ready():
 
 # Callback during rollback tick
 func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
+	if health <= 0.0:
+		$DieSFX.play()
+		if is_multiplayer_authority():
+			die()
+		
 	_force_update_is_on_floor()
 	if is_on_floor():
 		if input.jump:
@@ -52,6 +57,8 @@ func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 	velocity *= NetworkTime.physics_factor
 	move_and_slide()
 	velocity /= NetworkTime.physics_factor
+	
+	print(health)
 
 func _force_update_is_on_floor():
 	var old_velocity = velocity
@@ -61,15 +68,11 @@ func _force_update_is_on_floor():
 
 func damage():
 	$HitSFX.play()
-	if is_multiplayer_authority():
-		health.add_health(-33)
-		_logger.warning("%s HP now at %s" % [name, health.current_health])
-		if health.current_health <= 0.0:
-			die()
+	health -= 34
+	_logger.warning("%s HP now at %s" % [name, health])
 
 func die():
-	$DieSFX.play()
 	_logger.warning("%s Died" % name)
 	global_position = get_parent().get_next_spawn_point().global_position
 	$TickInterpolator.teleport()
-	health.set_health(100)
+	health = 100
