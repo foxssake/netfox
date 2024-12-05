@@ -12,8 +12,6 @@ var movement: Vector3 = Vector3.ZERO
 var aim: Vector3 = Vector3.ZERO
 var is_firing: bool = false
 
-var confidence: float = 1.0
-
 var _last_mouse_input: float = 0.0
 var _aim_target: Vector3
 var _projected_target: Vector3
@@ -77,15 +75,12 @@ func _gather():
 	is_firing = Input.is_action_pressed("weapon_fire")
 
 func _predict(_tick):
-#	if is_multiplayer_authority():
-#		confidence = 1.
-#		# _logger.info("Predicted input with full confidence for rollback tick %d" % NetworkRollback.tick)
-#		return
-	
 	if not _rollback_synchronizer:
 		return
 	
-	confidence = 1.0 if not _rollback_synchronizer.is_predicting() else 0.0
+	if _rollback_synchronizer.is_predicting():
+		movement = Vector3.ZERO
+		aim = Vector3.ZERO
 
 func _physics_process(_delta):
 	if not camera:

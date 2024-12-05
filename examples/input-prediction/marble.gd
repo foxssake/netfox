@@ -29,7 +29,7 @@ func _rollback_tick(dt, _t, _if):
 	else:
 		velocity.y -= gravity * dt
 	
-	var movement = (input.movement * input.confidence) as Vector3
+	var movement := input.movement as Vector3
 	movement.y = 0.
 	
 	var reverse_factor = 1.

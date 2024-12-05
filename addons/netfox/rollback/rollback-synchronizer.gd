@@ -6,6 +6,8 @@ class_name RollbackSynchronizer
 
 @export var root: Node = get_parent()
 
+@export var enable_prediction: bool = false
+
 @export_group("State")
 @export var state_properties: Array[String]
 
@@ -225,8 +227,9 @@ func _prepare_tick(tick: int):
 			NetworkRollback.notify_simulated(node)
 
 func _can_simulate(node: Node, tick: int) -> bool:
-#	if not _inputs.has(tick):
-#		return false
+	if not enable_prediction and not _inputs.has(tick):
+		# Don't simulate if prediction is not allowed and input is unknown
+		return false
 	if node.is_multiplayer_authority():
 		# Simulate from earliest input
 		# Don't simulate frames we don't have input for
@@ -263,7 +266,6 @@ func _record_tick(tick: int):
 		var full_state: Dictionary = {}
 
 		for property in _auth_state_property_entries:
-			# if _can_simulate(property.node, tick - 1) and not _skipset.has(property.node):
 			if _simset.has(property.node):
 				# Only broadcast if we've simulated the node
 				full_state[property.to_string()] = property.get_value()
