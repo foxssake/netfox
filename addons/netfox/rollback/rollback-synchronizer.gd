@@ -6,6 +6,10 @@ class_name RollbackSynchronizer
 
 @export var root: Node = get_parent()
 
+## Toggle prediction.
+## [br][br]
+## Enabling this will run [code]_rollback_tick[/code] on nodes under
+## [member root] even if there's no current input available for the tick.
 @export var enable_prediction: bool = false
 
 @export_group("State")
@@ -41,8 +45,9 @@ var diff_ack_interval: int = 0
 @export_group("Inputs")
 @export var input_properties: Array[String]
 
-## This will broadcast input to all peers, turning this off will limit to sending it to the server only.
-## Turning this off is recommended to save bandwidth and reduce cheating risks.
+## This will broadcast input to all peers, turning this off will limit to
+## sending it to the server only. Turning this off is recommended to save
+## bandwidth and reduce cheating risks.
 @export var enable_input_broadcast: bool = true
 
 var _record_state_property_entries: Array[PropertyEntry] = []
@@ -142,9 +147,20 @@ func process_authority():
 			_auth_input_property_entries.push_back(property_entry)
 			_record_input_property_entries.push_back(property_entry)
 
+## Check if input is available for the current tick.
+##
+## This input is not always current, it may be from multiple ticks ago.
+## [br][br]
+## Returns true if input is available.
 func has_input() -> bool:
 	return _has_input
 
+## Get the age of currently available input in ticks.
+##
+## The available input may be from the current tick, or from multiple ticks ago.
+## This number of tick is the input's age.
+## [br][br]
+## Calling this when [member has_input] is false will yield an error.
 func get_input_age() -> int:
 	if has_input():
 		return NetworkRollback.tick - _input_tick
@@ -152,9 +168,19 @@ func get_input_age() -> int:
 		_logger.error("Trying to check input age without having input!")
 		return -1
 
+## Check if the current tick is predicted.
+##
+## A tick becomes predicted if there's no up-to-date input available. It will be
+## simulated and recorded, but will not be broadcast, nor considered
+## authoritative.
 func is_predicting() -> bool:
 	return _is_predicted_tick
 
+## Ignore a given node's state for the current rollback tick.
+##
+## Ignoring a node means its state cannot be properly predicted using the input
+## available. It may still do partial simulation ( e.g. gravity ).
+# TODO: Remove?
 func ignore(node: Node):
 	_skipset.add(node)
 
