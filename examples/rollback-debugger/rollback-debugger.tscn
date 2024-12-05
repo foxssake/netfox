@@ -1,0 +1,240 @@
+[gd_scene load_steps=6 format=3 uid="uid://c3q2g36patykx"]
+
+[ext_resource type="Script" path="res://examples/rollback-debugger/scripts/rollback-debugger.gd" id="1_2emun"]
+[ext_resource type="Texture2D" uid="uid://csg26ysqqb4xe" path="res://addons/netfox/icons/rollback-synchronizer.svg" id="2_hjcrm"]
+[ext_resource type="Script" path="res://examples/rollback-debugger/scripts/subject.gd" id="3_5kvxc"]
+[ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="3_0135o"]
+[ext_resource type="Script" path="res://examples/rollback-debugger/scripts/input.gd" id="4_p1byq"]
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Rollback Debugger" type="Node" parent="."]
+script = ExtResource("1_2emun")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="History" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="State History Label" type="Label" parent="HBoxContainer/History"]
+layout_mode = 2
+text = "State history"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="HBoxContainer/History"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Container" type="PanelContainer" parent="HBoxContainer/History/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="State History Data" type="TextEdit" parent="HBoxContainer/History/ScrollContainer/Container"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Input History Label" type="Label" parent="HBoxContainer/History"]
+layout_mode = 2
+text = "Input history"
+
+[node name="ScrollContainer2" type="ScrollContainer" parent="HBoxContainer/History"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Container" type="PanelContainer" parent="HBoxContainer/History/ScrollContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Input History Data" type="TextEdit" parent="HBoxContainer/History/ScrollContainer2/Container"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Data" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.5
+
+[node name="Has Input" type="HBoxContainer" parent="HBoxContainer/Data"]
+layout_mode = 2
+
+[node name="Has Input Label" type="Label" parent="HBoxContainer/Data/Has Input"]
+layout_mode = 2
+text = "Has input:"
+
+[node name="Has Input Data" type="Label" parent="HBoxContainer/Data/Has Input"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "true"
+
+[node name="Input Age" type="HBoxContainer" parent="HBoxContainer/Data"]
+layout_mode = 2
+
+[node name="Input Age Label" type="Label" parent="HBoxContainer/Data/Input Age"]
+layout_mode = 2
+text = "Input age:"
+
+[node name="Input Age Data" type="Label" parent="HBoxContainer/Data/Input Age"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "2 ticks"
+
+[node name="Skipset Label" type="Label" parent="HBoxContainer/Data"]
+layout_mode = 2
+text = "Skipset:"
+
+[node name="Skipset Data" type="Label" parent="HBoxContainer/Data"]
+unique_name_in_owner = true
+layout_mode = 2
+tab_stops = PackedFloat32Array(8)
+
+[node name="Simset Label" type="Label" parent="HBoxContainer/Data"]
+layout_mode = 2
+text = "Simset:"
+
+[node name="Simset Data" type="Label" parent="HBoxContainer/Data"]
+unique_name_in_owner = true
+layout_mode = 2
+tab_stops = PackedFloat32Array(16)
+
+[node name="Transmit State Label" type="Label" parent="HBoxContainer/Data"]
+layout_mode = 2
+text = "Transmit state:"
+
+[node name="Transmit State Data" type="Label" parent="HBoxContainer/Data"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Tools" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 8
+
+[node name="Tick Container" type="HBoxContainer" parent="HBoxContainer/Tools"]
+layout_mode = 2
+
+[node name="Network Tick Label" type="Label" parent="HBoxContainer/Tools/Tick Container"]
+layout_mode = 2
+text = "Network Tick: "
+
+[node name="Network Tick Data" type="LineEdit" parent="HBoxContainer/Tools/Tick Container"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0"
+
+[node name="Rollback Tick Label" type="Label" parent="HBoxContainer/Tools/Tick Container"]
+layout_mode = 2
+text = "Rollback Tick: "
+
+[node name="Rollback Tick Data" type="LineEdit" parent="HBoxContainer/Tools/Tick Container"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0"
+
+[node name="NT Before Loop Button" type="Button" parent="HBoxContainer/Tools"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "NetworkTime.before_tick_loop"
+
+[node name="HSeparator5" type="HSeparator" parent="HBoxContainer/Tools"]
+layout_mode = 2
+
+[node name="NT Before Tick Button" type="Button" parent="HBoxContainer/Tools"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "NetworkTime.before_tick"
+
+[node name="NT On Tick Button" type="Button" parent="HBoxContainer/Tools"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "NetworkTime.on_tick"
+
+[node name="HSeparator6" type="HSeparator" parent="HBoxContainer/Tools"]
+layout_mode = 2
+
+[node name="NR Before Loop Button" type="Button" parent="HBoxContainer/Tools"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "NetworkRollback.before_loop"
+
+[node name="HSeparator2" type="HSeparator" parent="HBoxContainer/Tools"]
+layout_mode = 2
+
+[node name="NR Prepare Button" type="Button" parent="HBoxContainer/Tools"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "NetworkRollback.on_prepare_tick"
+
+[node name="NR Process Button" type="Button" parent="HBoxContainer/Tools"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "NetworkRollback.on_process_tick"
+
+[node name="NR Record Button" type="Button" parent="HBoxContainer/Tools"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "NetworkRollback.on_record_tick"
+
+[node name="HSeparator3" type="HSeparator" parent="HBoxContainer/Tools"]
+layout_mode = 2
+
+[node name="NR After Loop" type="Button" parent="HBoxContainer/Tools"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "NetworkRollback.after_loop"
+
+[node name="HSeparator7" type="HSeparator" parent="HBoxContainer/Tools"]
+layout_mode = 2
+
+[node name="NT After Tick Button" type="Button" parent="HBoxContainer/Tools"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "NetworkTime.after_tick"
+
+[node name="HSeparator8" type="HSeparator" parent="HBoxContainer/Tools"]
+layout_mode = 2
+
+[node name="NT After Tick Loop Button" type="Button" parent="HBoxContainer/Tools"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "NetworkTime.after_tick_loop"
+
+[node name="HSeparator4" type="HSeparator" parent="HBoxContainer/Tools"]
+layout_mode = 2
+
+[node name="Run NR Tick Button" type="Button" parent="HBoxContainer/Tools"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Run Rollback tick"
+
+[node name="Advance Button" type="Button" parent="HBoxContainer/Tools"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Advance tick"
+
+[node name="Subject" type="Sprite2D" parent="."]
+z_index = -1
+position = Vector2(270, 270)
+texture = ExtResource("2_hjcrm")
+script = ExtResource("3_5kvxc")
+
+[node name="Input" type="Node" parent="Subject"]
+script = ExtResource("4_p1byq")
+
+[node name="RollbackSynchronizer" type="Node" parent="Subject" node_paths=PackedStringArray("root")]
+script = ExtResource("3_0135o")
+root = NodePath("..")
+state_properties = Array[String]([":position"])
+input_properties = Array[String](["Input:movement"])
