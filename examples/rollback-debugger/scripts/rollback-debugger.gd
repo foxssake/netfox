@@ -7,7 +7,6 @@ extends Node
 @onready var rollback_tick_data := %"Rollback Tick Data" as LineEdit
 @onready var has_input_data := %"Has Input Data" as Label
 @onready var input_age_data := %"Input Age Data" as Label
-@onready var skipset_data := %"Skipset Data" as Label
 @onready var simset_data := %"Simset Data" as Label
 @onready var transmit_state_data := %"Transmit State Data" as Label
 
@@ -125,11 +124,6 @@ func _render_data():
 	else:
 		has_input_data.text = "false"
 		input_age_data.text = "?"
-	
-	skipset_data.text = "\n".join(
-		rollback_synchronizer._skipset.values()\
-		.map(func(node): return "\t" + node.name)
-	)
 	
 	simset_data.text = "\n".join(
 		rollback_synchronizer._simset.values()\
