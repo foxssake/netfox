@@ -5,7 +5,6 @@ class_name BrawlerInput
 var camera: Camera3D
 
 @onready var _player: Node3D = get_parent()
-@onready var _rollback_synchronizer: RollbackSynchronizer = _player.find_child("RollbackSynchronizer")
 @onready var _confine_mouse: bool = DisplayServer.mouse_get_mode() == DisplayServer.MOUSE_MODE_CONFINED
 
 var movement: Vector3 = Vector3.ZERO
@@ -17,19 +16,11 @@ var _aim_target: Vector3
 var _projected_target: Vector3
 var _has_aim: bool = false
 
-static var _logger := _NetfoxLogger.new("game", "BrawlerInput")
-
-func _ready():
-	super()
-	NetworkRollback.after_prepare_tick.connect(_predict)
-
 func _input(event):
 	if event is InputEventMouse:
 		_last_mouse_input = NetworkTime.local_time
 
 func _gather():
-#	_logger.info("Gathering input")
-	
 	# Movement
 	movement = Vector3(
 		Input.get_axis("move_west", "move_east"),
@@ -73,14 +64,6 @@ func _gather():
 		)
 	
 	is_firing = Input.is_action_pressed("weapon_fire")
-
-func _predict(_tick):
-	if not _rollback_synchronizer:
-		return
-	
-	if _rollback_synchronizer.is_predicting():
-		movement = Vector3.ZERO
-		aim = Vector3.ZERO
 
 func _physics_process(_delta):
 	if not camera:

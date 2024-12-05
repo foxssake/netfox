@@ -37,23 +37,6 @@ func _ready():
 
 	# Render initial data
 	_render_data()
-	
-	# Apply defaults
-	state_history_data.text = """
-	{
-		2: {":position": Vector2(270, 270)}
-	}
-	"""
-	
-	input_history_data.text = """
-	{
-		2: {"Input:movement": Vector2(1, 0)},
-		3: {"Input:movement": Vector2(1, 0)}
-	}
-	"""
-	
-	network_tick_data.text = "6"
-	rollback_tick_data.text = "2"
 
 	# Start NetworkTime but make sure it doesn't tick on its own
 	NetworkTime.start()

@@ -33,8 +33,6 @@ var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 var respawn_tick: int = -1
 var respawn_count: int = 0
 
-static var _logger := _NetfoxLogger.new("game", "Brawler")
-
 func register_hit(from: BrawlerController):
 	if from == self:
 		push_error("Player %s (#%s) trying to register hit on themselves!" % [player_name, player_id])

@@ -500,8 +500,8 @@ func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 		if not sanitized.is_empty():
 			# TODO: Slight bug
 			var result_state := PropertySnapshot.merge(reference_state, sanitized)
-			# _states[tick] = PropertySnapshot.merge(result_state, sanitized)
 			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), sanitized)
+#			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), sanitized)
 			_latest_state_tick = tick
 		else:
 			# State is completely invalid
