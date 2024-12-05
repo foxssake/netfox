@@ -92,15 +92,6 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "2 ticks"
 
-[node name="Skipset Label" type="Label" parent="HBoxContainer/Data"]
-layout_mode = 2
-text = "Skipset:"
-
-[node name="Skipset Data" type="Label" parent="HBoxContainer/Data"]
-unique_name_in_owner = true
-layout_mode = 2
-tab_stops = PackedFloat32Array(8)
-
 [node name="Simset Label" type="Label" parent="HBoxContainer/Data"]
 layout_mode = 2
 text = "Simset:"
