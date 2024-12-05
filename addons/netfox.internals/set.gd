@@ -9,6 +9,9 @@ func add(value):
 func has(value) -> bool:
 	return _data.has(value)
 
+func size() -> int:
+	return _data.size()
+
 func erase(value):
 	return _data.erase(value)
 

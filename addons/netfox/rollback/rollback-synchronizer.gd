@@ -352,6 +352,9 @@ func _record_tick(tick: int):
 		var record_state = PropertySnapshot.extract(record_properties)
 		
 		_states[tick] = record_state
+	
+	# Push metrics
+	NetworkPerformance.push_rollback_nodes_simulated(_simset.size())
 
 func _after_loop():
 	_earliest_input_tick = NetworkTime.tick
