@@ -55,7 +55,6 @@ var _record_input_property_entries: Array[PropertyEntry] = []
 var _auth_state_property_entries: Array[PropertyEntry] = []
 var _auth_input_property_entries: Array[PropertyEntry] = []
 var _nodes: Array[Node] = []
-var _skipset: _Set = _Set.new()
 var _simset: _Set = _Set.new()
 
 var _states: Dictionary = {}
@@ -176,14 +175,6 @@ func get_input_age() -> int:
 func is_predicting() -> bool:
 	return _is_predicted_tick
 
-## Ignore a given node's state for the current rollback tick.
-##
-## Ignoring a node means its state cannot be properly predicted using the input
-## available. It may still do partial simulation ( e.g. gravity ).
-# TODO: Remove?
-func ignore(node: Node):
-	_skipset.add(node)
-
 func _ready():
 	if not NetworkTime.is_initial_sync_done():
 		# Wait for time sync to complete
@@ -242,9 +233,7 @@ func _prepare_tick(tick: int):
 	_input_tick = _retrieved_tick
 	_is_predicted_tick = not _inputs.has(tick)
 	
-	# Reset the set of nodes that shouldn't be recorded, i.e. they can't predict
-	# with current input
-	_skipset.clear()
+	# Reset the set of simulated nodes
 	_simset.clear()
 	
 	# Gather nodes that can be simulated
@@ -279,11 +268,8 @@ func _process_tick(tick: int):
 		
 		var is_fresh = _freshness_store.is_fresh(node, tick)
 		NetworkRollback.process_rollback(node, NetworkTime.ticktime, tick, is_fresh)
-		
-		if _skipset.has(node):
-			continue
-		
 		_freshness_store.notify_processed(node, tick)
+
 		_simset.add(node)
 
 func _record_tick(tick: int):
@@ -527,10 +513,8 @@ func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 		var sanitized = _sanitize_by_authority(diff_state, sender)
 
 		if not sanitized.is_empty():
-			# TODO: Slight bug
 			var result_state := PropertySnapshot.merge(reference_state, sanitized)
-			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), sanitized)
-#			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), sanitized)
+			_states[tick] = result_state
 			_latest_state_tick = tick
 		else:
 			# State is completely invalid
