@@ -4,11 +4,11 @@
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/player.gd" id="1_mk8qw"]
 [ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="2_3rc26"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/player-weapon.gd" id="3_4j0gy"]
-[ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/player-input.gd" id="3_8oqer"]
 [ext_resource type="AudioStream" uid="uid://cope814m1d7p6" path="res://examples/multiplayer-fps/sounds/fire.mp3" id="5_14ltm"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/bullethole.gd" id="6_f1qm8"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/ui/projection3d.gd" id="6_sv41w"]
 [ext_resource type="Texture2D" uid="uid://b8r41bt6ft8jt" path="res://examples/multiplayer-fps/textures/bullet_hole.png" id="7_sxhbg"]
+[ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/player-input.gd" id="10_50d5g"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/ui/window-size-connector.gd" id="13_mlcnx"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/ui/crosshair.gd" id="14_npl66"]
 [ext_resource type="Texture2D" uid="uid://b66gbhylc33yy" path="res://examples/multiplayer-fps/textures/crosshair.png" id="14_qqmle"]
@@ -125,7 +125,7 @@ root = NodePath("..")
 properties = Array[String]([":transform", "Head:transform"])
 
 [node name="Input" type="Node" parent="." node_paths=PackedStringArray("big_gun", "hud")]
-script = ExtResource("3_8oqer")
+script = ExtResource("10_50d5g")
 big_gun = NodePath("../Head/BigGun")
 hud = NodePath("../HUD")
 

@@ -3,12 +3,12 @@ extends CharacterBody3D
 @export var speed = 5.0
 @export var jump_strength = 5.0
 
-@onready var display_name: Label3D = $DisplayNameLabel3D
-@onready var input: PlayerInputFPS = $Input
-@onready var head: Node3D = $Head
-@onready var hud: CanvasGroup = $HUD
+@onready var display_name := $DisplayNameLabel3D as Label3D
+@onready var input := $Input as PlayerInputFPS
+@onready var head := $Head as Node3D
+@onready var hud := $HUD as CanvasGroup
 
-static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("PropertyCache")
+static var _logger := _NetfoxLogger.new("game", "Player")
 
 # Get the gravity from the project settings to be synced with RigidBody nodes.
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
@@ -73,11 +73,11 @@ func damage():
 	$HitSFX.play()
 	if is_multiplayer_authority():
 		pending_damage += 34
-		_logger.warning("%s HP now at %s" % [name, health])
+		_logger.warning("%s HP now at %s", [name, health])
 
 func die():
 	if is_multiplayer_authority():
-		_logger.warning("%s Died" % name)
+		_logger.warning("%s died", [name])
 		global_position = get_parent().get_next_spawn_point().global_position
 		$TickInterpolator.teleport()
 		health = 100
