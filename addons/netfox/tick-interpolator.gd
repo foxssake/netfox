@@ -51,15 +51,25 @@ func teleport():
 	_state_from = PropertySnapshot.extract(_property_entries)
 	_state_to = _state_from
 
-func _ready():
-	process_settings()
+func _connect_signals():
 	NetworkTime.before_tick_loop.connect(_before_tick_loop)
 	NetworkTime.after_tick_loop.connect(_after_tick_loop)
+
+func _disconnect_signals():
+	NetworkTime.before_tick_loop.disconnect(_before_tick_loop)
+	NetworkTime.after_tick_loop.disconnect(_after_tick_loop)
+
+func _enter_tree():
+	process_settings()
+	_connect_signals.call_deferred()
 
 	# Wait a frame for any initial setup before recording first state
 	if record_first_state:
 		await get_tree().process_frame
 		teleport()
+
+func _exit_tree():
+	_disconnect_signals()
 
 func _process(_delta):
 	_interpolate(_state_from, _state_to, NetworkTime.tick_factor)

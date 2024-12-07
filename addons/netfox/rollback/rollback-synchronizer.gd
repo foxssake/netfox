@@ -131,12 +131,7 @@ func process_authority():
 			_auth_input_property_entries.push_back(property_entry)
 			_record_input_property_entries.push_back(property_entry)
 
-func _ready():
-	if not NetworkTime.is_initial_sync_done():
-		# Wait for time sync to complete
-		await NetworkTime.after_sync
-	process_settings.call_deferred()
-
+func _connect_signals():
 	NetworkTime.before_tick.connect(_before_tick)
 	NetworkTime.after_tick.connect(_after_tick)
 	NetworkRollback.before_loop.connect(_before_loop)
@@ -144,6 +139,26 @@ func _ready():
 	NetworkRollback.on_process_tick.connect(_process_tick)
 	NetworkRollback.on_record_tick.connect(_record_tick)
 	NetworkRollback.after_loop.connect(_after_loop)
+
+func _disconnect_signals():
+	NetworkTime.before_tick.disconnect(_before_tick)
+	NetworkTime.after_tick.disconnect(_after_tick)
+	NetworkRollback.before_loop.disconnect(_before_loop)
+	NetworkRollback.on_prepare_tick.disconnect(_prepare_tick)
+	NetworkRollback.on_process_tick.disconnect(_process_tick)
+	NetworkRollback.on_record_tick.disconnect(_record_tick)
+	NetworkRollback.after_loop.disconnect(_after_loop)
+
+func _enter_tree():
+	if not NetworkTime.is_initial_sync_done():
+		# Wait for time sync to complete
+		await NetworkTime.after_sync
+	_connect_signals.call_deferred()
+	process_settings.call_deferred()
+
+func _exit_tree():
+	_is_initialized = false
+	_disconnect_signals()
 
 func _before_loop():
 	if _auth_input_property_entries.is_empty():
