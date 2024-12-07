@@ -11,8 +11,11 @@ var _state_from: Dictionary = {}
 var _state_to: Dictionary = {}
 var _property_entries: Array[PropertyEntry] = []
 var _interpolators: Dictionary = {}
+var _is_teleporting: bool = false
 
 var _property_cache: PropertyCache
+
+static var _logger := _NetfoxLogger.for_netfox("TickInterpolator")
 
 ## Process settings.
 ##
@@ -45,11 +48,19 @@ func can_interpolate() -> bool:
 func push_state():
 	_state_from = _state_to
 	_state_to = PropertySnapshot.extract(_property_entries)
+	
+#	_logger.info("New state: %s -> %s", [_state_from[":transform"].origin, _state_to[":transform"].origin])
 
 ## Record current state and transition without interpolation.
 func teleport():
+	if _is_teleporting:
+		return
+
 	_state_from = PropertySnapshot.extract(_property_entries)
 	_state_to = _state_from
+	_is_teleporting = true
+	
+	_logger.info("Teleport activated")
 
 func _connect_signals():
 	NetworkTime.before_tick_loop.connect(_before_tick_loop)
@@ -72,13 +83,18 @@ func _exit_tree():
 	_disconnect_signals()
 
 func _process(_delta):
-	_interpolate(_state_from, _state_to, NetworkTime.tick_factor)
+	if not _is_teleporting or true:
+		_interpolate(_state_from, _state_to, NetworkTime.tick_factor)
 
 func _before_tick_loop():
+	if _is_teleporting:
+		_is_teleporting = false
+		_logger.info("Teleport deactivated")
+		
 	PropertySnapshot.apply(_state_to, _property_cache)
 
 func _after_tick_loop():
-	if enable_recording:
+	if enable_recording and not _is_teleporting:
 		push_state()
 		PropertySnapshot.apply(_state_from, _property_cache)
 
