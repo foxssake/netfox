@@ -5,6 +5,7 @@ extends CharacterBody3D
 
 @onready var display_name := $DisplayNameLabel3D as Label3D
 @onready var input := $Input as PlayerInputFPS
+@onready var tick_interpolator := $TickInterpolator as TickInterpolator
 @onready var head := $Head as Node3D
 @onready var hud := $HUD as CanvasGroup
 
@@ -12,25 +13,35 @@ static var _logger := _NetfoxLogger.new("game", "Player")
 
 # Get the gravity from the project settings to be synced with RigidBody nodes.
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
-var health: int = 100
+@export var health: int = 100
 var pending_damage: int = 0
+@export var death_tick: int = -1
+@export var respawn_position: Vector3
+var did_respawn := false
 
 func _ready():
 	display_name.text = name
 	position = Vector3(0, 4, 0)
 	hud.hide()
+	
+	NetworkRollback.before_loop.connect(func(): did_respawn = false)
+	NetworkTime.on_tick.connect(_tick)
+
+func _tick(dt: float, tick: int):
+	if health <= 0:
+		$DieSFX.play()
+		die()
+		tick_interpolator.teleport()
+	
+	if did_respawn:
+		tick_interpolator.teleport()
 
 # Callback during rollback tick
 func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
-	if pending_damage > 0:
-		health -= pending_damage
-		pending_damage = 0
-		
-	if health <= 0:
-		$DieSFX.play()
-		if is_multiplayer_authority():
-			die()
-		
+	if tick == death_tick:
+		global_position = respawn_position
+		did_respawn = true
+	
 	_force_update_is_on_floor()
 	if is_on_floor():
 		if input.jump:
@@ -72,12 +83,16 @@ func _force_update_is_on_floor():
 func damage():
 	$HitSFX.play()
 	if is_multiplayer_authority():
-		pending_damage += 34
+		health -= 34
 		_logger.warning("%s HP now at %s", [name, health])
 
 func die():
-	if is_multiplayer_authority():
-		_logger.warning("%s died", [name])
-		global_position = get_parent().get_next_spawn_point().global_position
-		$TickInterpolator.teleport()
-		health = 100
+	if not is_multiplayer_authority():
+		return
+
+	_logger.warning("%s died", [name])
+#	respawn_position = get_parent().get_next_spawn_point().global_position
+	respawn_position = global_position + Vector3.RIGHT
+	death_tick = NetworkTime.tick
+
+	health = 100
