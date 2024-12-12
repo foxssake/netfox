@@ -61,6 +61,14 @@ echo "Building with Windows preset"
 godot --headless --export-release "Windows Desktop" "build/win64/forest-brawl.exe"
 zip -j "build/forest-brawl.v${version}.win64.zip" build/win64/*
 
+# Build docs
+echo $BOLD"Building docs" $NC
+mkdocs build --no-directory-urls
+cd site
+zip -r "../build/netfox.docs.v${version}.zip" ./*
+cd ..
+rm -rf site
+
 # Cleanup
 echo $BOLD"Cleaning up" $NC
 rm -rf build/win64 build/linux
