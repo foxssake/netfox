@@ -130,7 +130,7 @@ mesh = SubResource("CapsuleMesh_xnks4")
 [node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("1_g0p7o")
 root = NodePath("..")
-state_properties = Array[String]([":transform", ":velocity", "Head:transform", ":did_respawn"])
+state_properties = Array[String]([":transform", ":velocity", ":did_respawn", "Head:transform"])
 input_properties = Array[String](["Input:movement", "Input:jump", "Input:fire", "Input:look_angle"])
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]

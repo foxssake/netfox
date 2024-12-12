@@ -24,15 +24,15 @@ func _ready():
 	position = Vector3(0, 4, 0)
 	hud.hide()
 	
-	NetworkRollback.before_loop.connect(func(): did_respawn = false)
 	NetworkTime.on_tick.connect(_tick)
+	NetworkTime.after_tick_loop.connect(_after_tick_loop)
 
 func _tick(dt: float, tick: int):
 	if health <= 0:
 		$DieSFX.play()
 		die()
-		tick_interpolator.teleport()
-	
+
+func _after_tick_loop():
 	if did_respawn:
 		tick_interpolator.teleport()
 
@@ -41,6 +41,8 @@ func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 	if tick == death_tick:
 		global_position = respawn_position
 		did_respawn = true
+	else:
+		did_respawn = false
 	
 	_force_update_is_on_floor()
 	if is_on_floor():
@@ -91,8 +93,7 @@ func die():
 		return
 
 	_logger.warning("%s died", [name])
-#	respawn_position = get_parent().get_next_spawn_point().global_position
-	respawn_position = global_position + Vector3.RIGHT
+	respawn_position = get_parent().get_next_spawn_point().global_position
 	death_tick = NetworkTime.tick
 
 	health = 100
