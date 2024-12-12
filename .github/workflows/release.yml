@@ -24,6 +24,10 @@ jobs:
           include-templates: true
       - name: Verify setup
         run: godot --version
+      - name: Setup Python
+        uses: actions/setup-python@v5
+      - name: Setup mkdocs
+        run: pip install mkdocs mkdocs_puml
       - name: Build
         run: sh/build.sh
       - name: Parse version
