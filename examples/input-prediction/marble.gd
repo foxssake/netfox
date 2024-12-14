@@ -22,6 +22,11 @@ func _ready():
 	mesh.set_surface_override_material(0, material)
 
 func _rollback_tick(dt, _t, _if):
+	if is_zero_approx(input.confidence):
+		# Can't predict, not enough confidence in input
+		_rollback_synchronizer.ignore_prediction(self)
+		return
+
 	_force_update()
 
 	if is_on_floor():

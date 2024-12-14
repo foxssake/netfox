@@ -12,6 +12,9 @@ func has(value) -> bool:
 func size() -> int:
 	return _data.size()
 
+func is_empty() -> bool:
+	return _data.is_empty()
+
 func erase(value):
 	return _data.erase(value)
 

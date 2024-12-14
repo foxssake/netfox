@@ -56,6 +56,7 @@ var _auth_state_property_entries: Array[PropertyEntry] = []
 var _auth_input_property_entries: Array[PropertyEntry] = []
 var _nodes: Array[Node] = []
 var _simset: _Set = _Set.new()
+var _skipset: _Set = _Set.new()
 
 var _states: Dictionary = {}
 var _inputs: Dictionary = {}
@@ -175,6 +176,12 @@ func get_input_age() -> int:
 func is_predicting() -> bool:
 	return _is_predicted_tick
 
+## Ignore a node's prediction for the current rollback tick.
+##
+## Call this when the input is too old to base predictions on.
+func ignore_prediction(node: Node):
+	_skipset.add(node)
+
 func _ready():
 	if not NetworkTime.is_initial_sync_done():
 		# Wait for time sync to complete
@@ -233,8 +240,9 @@ func _prepare_tick(tick: int):
 	_input_tick = _retrieved_tick
 	_is_predicted_tick = not _inputs.has(tick)
 	
-	# Reset the set of simulated nodes
+	# Reset the set of simulated and ignored nodes
 	_simset.clear()
+	_skipset.clear()
 	
 	# Gather nodes that can be simulated
 	for node in _nodes:
@@ -265,11 +273,14 @@ func _process_tick(tick: int):
 	for node in _nodes:
 		if not NetworkRollback.is_simulated(node):
 			continue
-		
+
 		var is_fresh = _freshness_store.is_fresh(node, tick)
 		NetworkRollback.process_rollback(node, NetworkTime.ticktime, tick, is_fresh)
-		_freshness_store.notify_processed(node, tick)
 
+		if _skipset.has(node):
+			continue
+
+		_freshness_store.notify_processed(node, tick)
 		_simset.add(node)
 
 func _record_tick(tick: int):
@@ -334,10 +345,16 @@ func _record_tick(tick: int):
 
 	# Record state for specified tick ( current + 1 )
 	if not _record_state_property_entries.is_empty() and tick > _latest_state_tick:
-		var record_properties = _record_state_property_entries
-		var record_state = PropertySnapshot.extract(record_properties)
-		
-		_states[tick] = record_state
+		if _skipset.is_empty():
+			_states[tick] = PropertySnapshot.extract(_record_state_property_entries)
+		else:
+			var record_properties = _record_state_property_entries\
+				.filter(func(pe): return not _skipset.has(pe.node))
+
+			var merge_state = _get_history(_states, tick - 1)
+			var record_state = PropertySnapshot.extract(record_properties)
+
+			_states[tick] = PropertySnapshot.merge(merge_state, record_state)
 	
 	# Push metrics
 	NetworkPerformance.push_rollback_nodes_simulated(_simset.size())
