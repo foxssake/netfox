@@ -27,7 +27,7 @@ func _predict(_t):
 		return
 	
 	# Decay input over a short time
-	var decay_time := NetworkTime.seconds_to_ticks(.1)
+	var decay_time := NetworkTime.seconds_to_ticks(.15)
 	
 	# **ALWAYS** cast either side to float, otherwise the integer-integer 
 	# division yields either 1 or 0 confidence

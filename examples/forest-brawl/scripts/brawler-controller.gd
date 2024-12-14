@@ -11,13 +11,13 @@ class_name BrawlerController
 @export var respawn_time: float = 4.0
 
 # Dependencies
-@onready var input: BrawlerInput = $Input
-@onready var rollback_synchronizer: RollbackSynchronizer = $RollbackSynchronizer
-@onready var animation_tree: AnimationTree = $AnimationTree
-@onready var weapon: BrawlerWeapon = $Weapon as BrawlerWeapon
-@onready var mesh: MeshInstance3D = $"bomber-guy/rig/Skeleton3D/Cube_008"
-@onready var nametag: Label3D = $Nametag
-@onready var fall_sound: PlayRandomStream3D = $"Fall Sound"
+@onready var input := $Input as BrawlerInput
+@onready var rollback_synchronizer := $RollbackSynchronizer as RollbackSynchronizer
+@onready var animation_tree := $AnimationTree as AnimationTree
+@onready var weapon := $Weapon as BrawlerWeapon
+@onready var mesh := $"bomber-guy/rig/Skeleton3D/Cube_008" as MeshInstance3D
+@onready var nametag := $Nametag as Label3D
+@onready var fall_sound := $"Fall Sound" as PlayRandomStream3D
 
 var player_name: String = "":
 	set(p_name):
@@ -96,6 +96,11 @@ func _rollback_tick(delta, tick, is_fresh):
 		
 		if is_fresh:
 			GameEvents.on_brawler_respawn.emit(self)
+
+	# Skip predictions
+	if rollback_synchronizer.is_predicting():
+		rollback_synchronizer.ignore_prediction(self)
+		return
 
 	# Apply gravity
 	_force_update_is_on_floor()

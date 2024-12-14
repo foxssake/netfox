@@ -151,6 +151,7 @@ mass = 4.0
 [node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("7_cmfmx")
 root = NodePath("..")
+enable_prediction = true
 state_properties = Array[String]([":transform", ":velocity", ":speed", "Displaceable:mass", "Displaceable:impulse"])
 diff_ack_interval = 4
 input_properties = Array[String](["Input:movement", "Input:aim"])
