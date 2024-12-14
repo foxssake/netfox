@@ -3,12 +3,11 @@
 # Outputs a contributors' notice
 
 
-echo """
-# Contributors
+echo """# Contributors
 
 This addon, and the entirety of [netfox] is a shared effort of [Fox's Sake
-Studio], and the community. The following is the list of contributors involved
-with netfox:
+Studio], and the community. The following is the list of community contributors
+involved with netfox:
 """
 
 git log --pretty="* %an <%ae>%n%cn <%ce>" | sort -u \
