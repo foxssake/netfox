@@ -82,6 +82,27 @@ Under the hood, these specializations create a special *NetworkWeapon* node,
 that proxies all the method calls back to the specialization. This is a
 workaround to build multiple inheritance in a single inheritance language.
 
+## Hitscan weapons
+
+Use *NetworkWeaponHitscan3D* to build networked hitscan weapons. It builds upon
+the same principle as *NetworkWeapon*, but modified for hitscan.
+
+Most of the callbacks are the same, with the following differences:
+
+*_spawn* is not used, as there's no projectiles involved.
+
+*_on_fire* is called whenever the weapon is successfully fired. Can be used to
+implement effects on firing, such as sound or visual effects.
+
+*_on_hit* is called whenever the weapon hits a target. Depending on
+configuration, this may be another player, a different character, or just level
+geometry. The raycast result is passed as a parameter to distinguish between
+hits.
+
+Reconciliation is handled under the hood - *_get_data*, *_apply_data*,
+*_is_reconcilable*, and *_reconcile* do not need to be implemented.
+
+
 [MultiplayerSynchronizer]: https://docs.godotengine.org/en/stable/classes/class_multiplayersynchronizer.html
 [RollbackSynchronizer]: ../../netfox/nodes/rollback-synchronizer.md
 [Node]: https://docs.godotengine.org/en/stable/classes/class_node.html

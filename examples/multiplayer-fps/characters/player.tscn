@@ -1,0 +1,192 @@
+[gd_scene load_steps=28 format=3 uid="uid://vrso6qncj1nm"]
+
+[ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="1_g0p7o"]
+[ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/player.gd" id="1_mk8qw"]
+[ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="2_3rc26"]
+[ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/player-weapon.gd" id="3_4j0gy"]
+[ext_resource type="AudioStream" uid="uid://cope814m1d7p6" path="res://examples/multiplayer-fps/sounds/fire.mp3" id="5_14ltm"]
+[ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/bullethole.gd" id="6_f1qm8"]
+[ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/ui/projection3d.gd" id="6_sv41w"]
+[ext_resource type="Texture2D" uid="uid://b8r41bt6ft8jt" path="res://examples/multiplayer-fps/textures/bullet_hole.png" id="7_sxhbg"]
+[ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/player-input.gd" id="10_50d5g"]
+[ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/ui/window-size-connector.gd" id="13_mlcnx"]
+[ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/ui/crosshair.gd" id="14_npl66"]
+[ext_resource type="Texture2D" uid="uid://b66gbhylc33yy" path="res://examples/multiplayer-fps/textures/crosshair.png" id="14_qqmle"]
+[ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/ui/health-progress-bar.gd" id="17_ghjct"]
+[ext_resource type="AudioStream" uid="uid://q7ql86p7flj" path="res://examples/multiplayer-fps/sounds/hit.wav" id="20_e2bcn"]
+[ext_resource type="AudioStream" uid="uid://15pyqe2uw4s3" path="res://examples/multiplayer-fps/sounds/death.wav" id="21_ogjhm"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_qmeb2"]
+size = Vector3(0.4, 0.25, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_faajq"]
+transparency = 1
+albedo_texture = ExtResource("7_sxhbg")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xx8rr"]
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_0vqha"]
+material = SubResource("StandardMaterial3D_xx8rr")
+size = Vector3(0.2, 0.2, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_khk4l"]
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_wqpqp"]
+material = SubResource("StandardMaterial3D_khk4l")
+size = Vector3(0.2, 0.2, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6sg7v"]
+bg_color = Color(0, 0, 0, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kndy7"]
+bg_color = Color(0.811765, 0.0823529, 0, 1)
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_6kydi"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2gc5u"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_xnks4"]
+material = SubResource("StandardMaterial3D_2gc5u")
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_70css"]
+properties/0/path = NodePath(".:health")
+properties/0/spawn = true
+properties/0/sync = false
+properties/0/watch = true
+properties/1/path = NodePath(".:death_tick")
+properties/1/spawn = true
+properties/1/sync = false
+properties/1/watch = true
+properties/2/path = NodePath(".:respawn_position")
+properties/2/spawn = true
+properties/2/sync = false
+properties/2/watch = true
+
+[node name="player" type="CharacterBody3D"]
+script = ExtResource("1_mk8qw")
+
+[node name="Head" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.705698, 0)
+
+[node name="Camera3D" type="Camera3D" parent="Head"]
+
+[node name="Nose" type="MeshInstance3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.25)
+mesh = SubResource("BoxMesh_qmeb2")
+
+[node name="PlayerFPSWeapon" type="Node3D" parent="Head"]
+script = ExtResource("3_4j0gy")
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="Head/PlayerFPSWeapon"]
+stream = ExtResource("5_14ltm")
+
+[node name="BulletHole" type="Node3D" parent="Head/PlayerFPSWeapon"]
+script = ExtResource("6_f1qm8")
+material = SubResource("StandardMaterial3D_faajq")
+
+[node name="TinyGun" type="MeshInstance3D" parent="Head/PlayerFPSWeapon"]
+transform = Transform3D(0.15, 0, 0, 0, 0.15, 0, 0, 0, 0.15, 0.09, -0.18, -0.3)
+mesh = SubResource("BoxMesh_0vqha")
+
+[node name="BigGun" type="MeshInstance3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.439686, -0.406913, -0.200588)
+mesh = SubResource("BoxMesh_wqpqp")
+
+[node name="DisplayNameLabel3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.30427, 0)
+pixel_size = 0.002
+billboard = 1
+fixed_size = true
+font_size = 16
+
+[node name="Projection3D" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.11014, 0)
+script = ExtResource("6_sv41w")
+projection_size = Vector2(1, 0.1)
+
+[node name="ProgressBar" type="ProgressBar" parent="Projection3D" node_paths=PackedStringArray("player")]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+theme_override_styles/background = SubResource("StyleBoxFlat_6sg7v")
+theme_override_styles/fill = SubResource("StyleBoxFlat_kndy7")
+step = 1.0
+value = 100.0
+show_percentage = false
+script = ExtResource("17_ghjct")
+player = NodePath("../..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_6kydi")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_xnks4")
+
+[node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("1_g0p7o")
+root = NodePath("..")
+state_properties = Array[String]([":transform", ":velocity", ":did_respawn", "Head:transform"])
+input_properties = Array[String](["Input:movement", "Input:jump", "Input:fire", "Input:look_angle"])
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_70css")
+
+[node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("2_3rc26")
+root = NodePath("..")
+properties = Array[String]([":transform", "Head:transform"])
+
+[node name="Input" type="Node" parent="." node_paths=PackedStringArray("big_gun", "hud")]
+script = ExtResource("10_50d5g")
+big_gun = NodePath("../Head/BigGun")
+hud = NodePath("../HUD")
+
+[node name="HUD" type="CanvasGroup" parent="."]
+
+[node name="WindowSizeConnector" type="Node" parent="HUD" node_paths=PackedStringArray("target_nodes")]
+script = ExtResource("13_mlcnx")
+target_nodes = [NodePath("../MarginContainer")]
+
+[node name="CrossHair" type="Node2D" parent="HUD"]
+script = ExtResource("14_npl66")
+crosshair_sprite = ExtResource("14_qqmle")
+
+[node name="MarginContainer" type="MarginContainer" parent="HUD"]
+offset_right = 540.0
+offset_bottom = 540.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HUD/MarginContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="HUD/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 6
+
+[node name="ProgressBar" type="ProgressBar" parent="HUD/MarginContainer/VBoxContainer" node_paths=PackedStringArray("player")]
+custom_minimum_size = Vector2(30, 100)
+layout_mode = 2
+size_flags_horizontal = 0
+step = 1.0
+value = 100.0
+fill_mode = 3
+script = ExtResource("17_ghjct")
+player = NodePath("../../../..")
+
+[node name="HitSFX" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("20_e2bcn")
+volume_db = -6.919
+max_distance = 10.0
+
+[node name="DieSFX" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("21_ogjhm")
