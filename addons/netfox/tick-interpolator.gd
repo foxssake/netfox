@@ -11,6 +11,7 @@ var _state_from: Dictionary = {}
 var _state_to: Dictionary = {}
 var _property_entries: Array[PropertyEntry] = []
 var _interpolators: Dictionary = {}
+var _is_teleporting: bool = false
 
 var _property_cache: PropertyCache
 
@@ -35,7 +36,7 @@ func process_settings():
 ## Even if it's enabled, no interpolation will be done if there are no
 ## properties to interpolate.
 func can_interpolate() -> bool:
-	return enabled and not properties.is_empty()
+	return enabled and not properties.is_empty() and not _is_teleporting
 
 ## Record current state for interpolation.
 ##
@@ -48,8 +49,12 @@ func push_state():
 
 ## Record current state and transition without interpolation.
 func teleport():
+	if _is_teleporting:
+		return
+
 	_state_from = PropertySnapshot.extract(_property_entries)
 	_state_to = _state_from
+	_is_teleporting = true
 
 func _connect_signals():
 	NetworkTime.before_tick_loop.connect(_before_tick_loop)
@@ -75,10 +80,11 @@ func _process(_delta):
 	_interpolate(_state_from, _state_to, NetworkTime.tick_factor)
 
 func _before_tick_loop():
+	_is_teleporting = false
 	PropertySnapshot.apply(_state_to, _property_cache)
 
 func _after_tick_loop():
-	if enable_recording:
+	if enable_recording and not _is_teleporting:
 		push_state()
 		PropertySnapshot.apply(_state_from, _property_cache)
 
