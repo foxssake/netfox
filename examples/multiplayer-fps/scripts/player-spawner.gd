@@ -58,4 +58,5 @@ func _spawn(id: int):
 		print("Set input(%s) ownership to %s" % [input.name, id])
 
 func get_next_spawn_point():
+	# TODO: Make consistent between peers
 	return spawn_points.pick_random()

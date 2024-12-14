@@ -1,6 +1,7 @@
 @tool
-## Whatever 2D nodes are added to Projection3D are projected onto a plane
 class_name Projection3D extends Node3D
+
+## Whatever 2D nodes are added to Projection3D are projected onto a plane
 
 ## Width of the projection
 @export var projection_size: Vector2 = Vector2(1.0, 0.66)
@@ -12,19 +13,23 @@ class_name Projection3D extends Node3D
 @export var always_on_top: bool = false
 ## No lighting or shading
 @export var disable_shading: bool = true
-## d
 
-## Triggered when the Node is fully constructed
-signal construction_complete
+## Emitted when the Node is fully constructed
+signal on_constructed
 
-var is_editor: bool = Engine.is_editor_hint()
 var plane_mesh = PlaneMesh.new()
 var viewport = SubViewport.new()
 var original_children: Array[Node] = []
 
+## Set the size of the projection and resolution
+func set_size(new_projection_size: Vector2, new_resolution_size: Vector2):
+	plane_mesh.size = new_projection_size
+	viewport.size = new_resolution_size
 
 func _ready():
-	if is_editor: return
+	if Engine.is_editor_hint():
+		return
+
 	var children = get_children()
 	original_children = children
 
@@ -62,10 +67,5 @@ func _ready():
 		material.disable_ambient_light = true
 	material.no_depth_test = always_on_top
 	plane_mesh.material = material
-	construction_complete.emit()
 
-
-## Set the size of the projection and resolution
-func set_size(new_projection_size: Vector2, new_resolution_size: Vector2):
-	plane_mesh.size = new_projection_size
-	viewport.size = new_resolution_size
+	on_constructed.emit()

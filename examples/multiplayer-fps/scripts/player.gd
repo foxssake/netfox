@@ -11,17 +11,14 @@ extends CharacterBody3D
 
 static var _logger := _NetfoxLogger.new("game", "Player")
 
-# Get the gravity from the project settings to be synced with RigidBody nodes.
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
-@export var health: int = 100
-var pending_damage: int = 0
-@export var death_tick: int = -1
-@export var respawn_position: Vector3
+var health: int = 100
+var death_tick: int = -1
+var respawn_position: Vector3
 var did_respawn := false
 
 func _ready():
 	display_name.text = name
-	position = Vector3(0, 4, 0)
 	hud.hide()
 	
 	NetworkTime.on_tick.connect(_tick)
@@ -36,14 +33,15 @@ func _after_tick_loop():
 	if did_respawn:
 		tick_interpolator.teleport()
 
-# Callback during rollback tick
 func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
+	# Handle respawn
 	if tick == death_tick:
 		global_position = respawn_position
 		did_respawn = true
 	else:
 		did_respawn = false
 	
+	# Gravity
 	_force_update_is_on_floor()
 	if is_on_floor():
 		if input.jump:
@@ -61,6 +59,7 @@ func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 	head.rotation.z = 0
 	head.rotation.y = 0
 	
+	# Apply movement
 	var input_dir = input.movement
 	var direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.z)).normalized()
 	if direction:

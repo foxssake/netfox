@@ -1,7 +1,7 @@
 # Attributions
 
-This document outlines the sources of the sound effects and textures used. Thank you all for 
-the freely usable resources!
+This document outlines the sources of the sound effects and textures used.
+Thank you all for the freely usable resources!
 
 ## Bullethole
 
@@ -11,10 +11,10 @@ Appears when a bullet hits a wall.
 
 Files:
 
-* textures/bullet_hole.png
+* `textures/bullet_hole.png`
 
-*"Bullet Decal Bullethole"* by [musdasch], under the [Creative Commons
-0] license.
+*"Bullet Decal Bullethole"* by [musdasch], under the [Creative Commons 0]
+license.
 
 ## Crosshair
 
@@ -22,10 +22,9 @@ Created by krazyjakee (PR author).
 
 Files:
 
-* textures/crosshair.png
+* `textures/crosshair.png`
 
-*"Crosshair"* by [krazyjakee], under the [Creative Commons
-0] license.
+*"Crosshair"* by [krazyjakee], under the [Creative Commons 0] license.
 
 ## Sound Effects
 
@@ -35,11 +34,12 @@ Weapons and damage sound effects
 
 Files:
 
-* sounds/death.wav
-* sounds/fire.mp3
-* sounds/hit.wav
+* `sounds/death.wav`
+* `sounds/fire.mp3`
+* `sounds/hit.wav`
 
-*"GameAudioGDC Bundle"* by [sonniss](https://sonniss.com/), under the [Unlimited User License] license.
+*"GameAudioGDC Bundle"* by [sonniss](https://sonniss.com/), under the
+[Unlimited User License] license.
 
 
 [musdasch]: https://opengameart.org/users/musdasch

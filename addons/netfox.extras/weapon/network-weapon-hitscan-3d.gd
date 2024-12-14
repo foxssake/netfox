@@ -6,17 +6,26 @@ class_name NetworkWeaponHitscan3D
 ## Maximum distance to cast the ray
 @export var max_distance: float = 1000.0
 
-static var _logger: _NetfoxLogger = _NetfoxLogger.for_extras("NetworkWeapon")
+## Mask used to detect raycast hits
+@export_flags_3d_physics var collision_mask: int = 0xFFFFFFFF
+
+## Colliders excluded from raycast hits
+@export var exclude: Array[RID] = []
 
 var _weapon: _NetworkWeaponProxy
 
-func fire() -> void:
+## Try to fire the weapon and return the projectile.
+## [br][br]
+## Returns true if the weapon was fired.
+func fire() -> bool:
 	if not can_fire():
-		return
+		return false
 	
 	_apply_data(_get_data())
 	_after_fire()
-	
+	return true
+
+## Check whether this weapon can be fired.
 func can_fire() -> bool:
 	return _weapon.can_fire()
 
@@ -34,31 +43,38 @@ func _init():
 	_weapon.c_is_reconcilable = _is_reconcilable
 	_weapon.c_reconcile = _reconcile
 
-## Determines if the weapon can fire. Always true in this basic implementation.
+## Override this method with your own can fire logic.
+## [br][br]
+## See [NetworkWeapon].
 func _can_fire() -> bool:
 	return true
 
-## Allows all peers to use the weapon.
+## Override this method to check if a given peer can use this weapon.
+## [br][br]
+## See [NetworkWeapon].
 func _can_peer_use(peer_id: int) -> bool:
 	return true
 
-## Placeholder for any actions after firing.
+## Override this method to run any logic needed after successfully firing the 
+## weapon.
+## [br][br]
+## See [NetworkWeapon].
 func _after_fire():
 	pass
 
-## No projectile is spawned for a hitscan weapon.
 func _spawn():
+	# No projectile is spawned for a hitscan weapon.
 	pass
 
-## Collects data needed to synchronize the firing event.
 func _get_data() -> Dictionary:
+	# Collect data needed to synchronize the firing event.
 	return {
 		"origin": global_transform.origin,
 		"direction": -global_transform.basis.z  # Assuming forward direction.
 	}
 
-## Reproduces the firing event on all peers.
 func _apply_data(data: Dictionary):
+	# Reproduces the firing event on all peers.
 	var origin = data["origin"] as Vector3
 	var direction = data["direction"] as Vector3
 
@@ -69,9 +85,10 @@ func _apply_data(data: Dictionary):
 	var ray_params = PhysicsRayQueryParameters3D.new()
 	ray_params.from = origin
 	ray_params.to = origin + direction * max_distance
-	# Optionally, set collision masks or exclude objects:
-	# ray_params.collision_mask = your_collision_mask
-	# ray_params.exclude = [self]
+
+	# Set collision masks or exclude objects:
+	ray_params.collision_mask = collision_mask
+	ray_params.exclude = exclude
 
 	var result = space_state.intersect_ray(ray_params)
 
@@ -82,26 +99,29 @@ func _apply_data(data: Dictionary):
 	# Play firing effects on all peers.
 	_on_fire()
 
-## Determines if reconciliation is needed. Always true for hitscan weapons.
 func _is_reconcilable(request_data: Dictionary, local_data: Dictionary) -> bool:
+	# Always reconcilable
 	return true
 
-## No reconciliation needed for hitscan weapons in this basic implementation.
 func _reconcile(local_data: Dictionary, remote_data: Dictionary):
+	# Nothing to do on reconcile
 	pass
 
-## Handles the hit result, such as displaying impact effects.
+## Override to implement raycast hit logic.
+## [br][br]
+## The parameter is the result of a
+## [method PhysicsDirectSpaceState3D.intersect_ray] call.
 func _on_hit(result: Dictionary):
 	# Implement hit effect logic here.
-	var hit_position = result.position
-	var hit_normal = result.normal
-	var collider = result.collider
+	# var hit_position = result.position
+	# var hit_normal = result.normal
+	# var collider = result.collider
 
 	# For example, you might emit a signal or instantiate a hit effect scene:
 	# emit_signal("hit_detected", hit_position, hit_normal, collider)
 	pass
 
-## Handles firing effects, like muzzle flash or sound.
+## Override to implement firing effects, like muzzle flash or sound.
 func _on_fire():
 	# Implement firing effect logic here.
 	pass
