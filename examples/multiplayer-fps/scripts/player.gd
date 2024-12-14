@@ -16,6 +16,7 @@ var health: int = 100
 var death_tick: int = -1
 var respawn_position: Vector3
 var did_respawn := false
+var deaths := 0
 
 func _ready():
 	display_name.text = name
@@ -27,6 +28,7 @@ func _ready():
 func _tick(dt: float, tick: int):
 	if health <= 0:
 		$DieSFX.play()
+		deaths += 1
 		die()
 
 func _after_tick_loop():
@@ -92,7 +94,10 @@ func die():
 		return
 
 	_logger.warning("%s died", [name])
-	respawn_position = get_parent().get_next_spawn_point().global_position
+	respawn_position = get_parent().get_next_spawn_point(get_player_id(), deaths)
 	death_tick = NetworkTime.tick
 
 	health = 100
+
+func get_player_id() -> int:
+	return input.get_multiplayer_authority()

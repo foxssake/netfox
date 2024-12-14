@@ -44,7 +44,7 @@ func _spawn(id: int):
 	avatars[id] = avatar
 	avatar.name += " #%d" % id
 	add_child(avatar)
-	avatar.global_position = get_next_spawn_point().global_position
+	avatar.global_position = get_next_spawn_point(id)
 	
 	# Avatar is always owned by server
 	avatar.set_multiplayer_authority(1)
@@ -57,6 +57,11 @@ func _spawn(id: int):
 		input.set_multiplayer_authority(id)
 		print("Set input(%s) ownership to %s" % [input.name, id])
 
-func get_next_spawn_point():
-	# TODO: Make consistent between peers
-	return spawn_points.pick_random()
+func get_next_spawn_point(peer_id: int, spawn_idx: int = 0) -> Vector3:
+	# The same data is used to calculate the index on all peers
+	# As a result, spawn points are the same, even without sync
+	var idx := peer_id * 37 + spawn_idx * 19
+	idx = hash(idx)
+	idx = idx % spawn_points.size()
+
+	return spawn_points[idx].global_position

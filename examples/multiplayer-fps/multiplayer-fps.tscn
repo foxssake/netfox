@@ -14,7 +14,7 @@ sky_material = SubResource("ProceduralSkyMaterial_m76yx")
 background_mode = 2
 sky = SubResource("Sky_e76ss")
 
-[node name="multiplayer-fps2" type="Node"]
+[node name="multiplayer-fps" type="Node"]
 
 [node name="Environment" type="Node" parent="."]
 
