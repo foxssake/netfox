@@ -2,7 +2,6 @@
 
 # Outputs a contributors' notice
 
-
 echo """# Contributors
 
 This addon, and the entirety of [netfox] is a shared effort of [Fox's Sake
