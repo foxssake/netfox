@@ -131,6 +131,11 @@ func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 func _after_tick_loop():
 	if _state_object != _previous_state_object:
 		on_display_state_changed.emit(_previous_state_object, _state_object)
+		
+		if _previous_state_object:
+			_previous_state_object.display_exit(_state_object, NetworkTime.tick)
+		_state_object.display_enter(_previous_state_object, NetworkTime.tick)
+		
 		_previous_state_object = _state_object
 
 func _set_state(new_state: StringName) -> void:
