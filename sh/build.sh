@@ -10,12 +10,9 @@ TMP="$ROOT/buildtmp"
 # Assume we're running from project root
 source sh/shared.sh
 
-echo $BOLD"Commit history:"$NC
-git log
-
-echo $BOLD"Unshallowing"$NC
+# Grab commit history
+echo $BOLD"Unshallowing commit history"$NC
 git fetch --unshallow --filter=tree:0
-git log
 
 echo $BOLD"Building netfox v${version}" $NC
 
