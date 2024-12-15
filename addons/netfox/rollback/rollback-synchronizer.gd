@@ -48,6 +48,7 @@ var _record_input_property_entries: Array[PropertyEntry] = []
 var _auth_state_property_entries: Array[PropertyEntry] = []
 var _auth_input_property_entries: Array[PropertyEntry] = []
 var _nodes: Array[Node] = []
+var _properties_dirty: bool = false
 
 var _states: Dictionary = {}
 var _inputs: Dictionary = {}
@@ -78,11 +79,12 @@ func process_settings():
 	
 	_states.clear()
 	_inputs.clear()
+	_ackd_state.clear()
 	_latest_state_tick = NetworkTime.tick - 1
 	_earliest_input_tick = NetworkTime.tick
 	_next_full_state_tick = NetworkTime.tick
 	_next_diff_ack_tick = NetworkTime.tick
-	
+
 	# Scatter full state sends, so not all nodes send at the same tick
 	if is_inside_tree():
 		_next_full_state_tick += hash(get_path()) % maxi(1, full_state_interval)
@@ -130,6 +132,24 @@ func process_authority():
 		if property_entry.node.is_multiplayer_authority():
 			_auth_input_property_entries.push_back(property_entry)
 			_record_input_property_entries.push_back(property_entry)
+
+func add_state(node: Variant, property: String):
+	var property_path := PropertyEntry.make_path(root, node, property)
+	if not property_path or state_properties.has(property_path):
+		return
+
+	state_properties.push_back(property_path)
+	_properties_dirty = true
+	_reprocess_settings.call_deferred()
+
+func add_input(node: Variant, property: String):
+	var property_path := PropertyEntry.make_path(root, node, property)
+	if not property_path or input_properties.has(property_path):
+		return
+
+	input_properties.push_back(property_path)
+	_properties_dirty = true
+	_reprocess_settings.call_deferred()
 
 func _connect_signals():
 	NetworkTime.before_tick.connect(_before_tick)
@@ -310,6 +330,13 @@ func _attempt_submit_input(input: Dictionary):
 		_submit_input.rpc(input, NetworkTime.tick)
 	elif not multiplayer.is_server():
 		_submit_input.rpc_id(1, input, NetworkTime.tick)
+
+func _reprocess_settings():
+	if not _properties_dirty:
+		return
+
+	_properties_dirty = false
+	process_settings()
 
 func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 	if buffer.has(tick):

@@ -10,6 +10,7 @@ class_name TickInterpolator
 var _state_from: Dictionary = {}
 var _state_to: Dictionary = {}
 var _property_entries: Array[PropertyEntry] = []
+var _properties_dirty: bool = false
 var _interpolators: Dictionary = {}
 var _is_teleporting: bool = false
 
@@ -30,6 +31,15 @@ func process_settings():
 		var property_entry = _property_cache.get_entry(property)
 		_property_entries.push_back(property_entry)
 		_interpolators[property] = Interpolators.find_for(property_entry.get_value())
+
+func add_property(node: Variant, property: String):
+	var property_path := PropertyEntry.make_path(root, node, property)
+	if not property_path or properties.has(property_path):
+		return
+
+	properties.push_back(property_path)
+	_properties_dirty = true
+	_reprocess_settings.call_deferred()
 
 ## Check if interpolation can be done.
 ##
@@ -78,6 +88,13 @@ func _exit_tree():
 
 func _process(_delta):
 	_interpolate(_state_from, _state_to, NetworkTime.tick_factor)
+
+func _reprocess_settings():
+	if not _properties_dirty:
+		return
+
+	_properties_dirty = false
+	process_settings()
 
 func _before_tick_loop():
 	_is_teleporting = false
