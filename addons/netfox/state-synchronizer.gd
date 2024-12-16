@@ -1,3 +1,4 @@
+@tool
 extends Node
 class_name StateSynchronizer
 
@@ -33,6 +34,36 @@ func add_state(node: Variant, property: String):
 	_properties_dirty = true
 	_reprocess_settings.call_deferred()
 
+func _notification(what):
+	if what == NOTIFICATION_EDITOR_PRE_SAVE:
+		update_configuration_warnings()
+
+func _get_configuration_warnings():
+	var result = []
+
+	if not root:
+		root = get_parent()
+
+	# Explore state properties
+	if not root:
+		return ["No valid root node found!"]
+
+	var nodes: Array[Node] = root.find_children("*")
+	nodes.push_back(root)
+	for node in nodes:
+		if not node.has_method(&"_get_synchronized_state_properties"):
+			continue
+		
+		if node.get_script() != null and not node.get_script().is_tool():
+			result.push_back("Node \"%s\" (\"%s\") has a non-@tool script!" % [root.get_path_to(node), node.name])
+			continue
+
+		var props = node._get_synchronized_state_properties()
+		for prop in props:
+			add_state(node, prop)
+
+	return result
+
 func _connect_signals():
 	NetworkTime.after_tick.connect(_after_tick)
 
@@ -40,10 +71,16 @@ func _disconnect_signals():
 	NetworkTime.after_tick.disconnect(_after_tick)
 
 func _enter_tree():
+	if Engine.is_editor_hint():
+		return
+
 	_connect_signals.call_deferred()
 	process_settings.call_deferred()
 
 func _exit_tree():
+	if Engine.is_editor_hint():
+		return
+
 	_disconnect_signals()
 
 func _after_tick(_dt, tick):

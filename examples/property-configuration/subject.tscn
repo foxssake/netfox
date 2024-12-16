@@ -1,0 +1,22 @@
+[gd_scene load_steps=5 format=3 uid="uid://bf3cwd7tq7lf"]
+
+[ext_resource type="Script" path="res://examples/property-configuration/scripts/subject.gd" id="1_wpisv"]
+[ext_resource type="Script" path="res://addons/netfox/state-synchronizer.gd" id="2_x4ao5"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_0gr3k"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_8yfbu"]
+
+[node name="Subject" type="CharacterBody3D"]
+script = ExtResource("1_wpisv")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_0gr3k")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_8yfbu")
+
+[node name="StateSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("2_x4ao5")
+root = NodePath("..")
+properties = Array[String]([":name", ":health"])
