@@ -10,6 +10,10 @@ TMP="$ROOT/buildtmp"
 # Assume we're running from project root
 source sh/shared.sh
 
+# Grab commit history
+echo $BOLD"Unshallowing commit history"$NC
+git fetch --unshallow --filter=tree:0
+
 echo $BOLD"Building netfox v${version}" $NC
 
 echo "Directories"
@@ -32,11 +36,13 @@ for addon in ${addons[@]}; do
     cd "$TMP"
 
     cp -r "${addon_src}" "${addon_tmp}"
+    "$ROOT/sh/contributors.sh" > "${addon_tmp}/${addon}/CONTRIBUTORS.md"
 
     has_deps="false"
     for dep in ${addon_deps[$addon]}; do
       echo "Adding dependency $dep"
       cp -r "$ROOT/addons/${dep}" "${addon_tmp}"
+      "$ROOT/sh/contributors.sh" > "${addon_tmp}/${dep}/CONTRIBUTORS.md"
       has_deps="true"
     done
 
