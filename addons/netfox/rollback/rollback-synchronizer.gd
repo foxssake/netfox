@@ -1,3 +1,4 @@
+@tool
 extends Node
 class_name RollbackSynchronizer
 
@@ -169,7 +170,35 @@ func _disconnect_signals():
 	NetworkRollback.on_record_tick.disconnect(_record_tick)
 	NetworkRollback.after_loop.disconnect(_after_loop)
 
+func _notification(what):
+	if what == NOTIFICATION_EDITOR_PRE_SAVE:
+		update_configuration_warnings()
+
+func _get_configuration_warnings():
+	if not root:
+		root = get_parent()
+
+	# Explore state and input properties
+	if not root:
+		return ["No valid root node found!"]
+	
+	var result = []
+	result.append_array(_NetfoxEditorUtils.gather_properties(root, "_get_rollback_state_properties",
+		func(node, prop):
+			add_state(node, prop)
+	))
+	
+	result.append_array(_NetfoxEditorUtils.gather_properties(root, "_get_rollback_input_properties",
+		func(node, prop):
+			add_input(node, prop)
+	))
+	
+	return result
+
 func _enter_tree():
+	if Engine.is_editor_hint():
+		return
+	
 	if not NetworkTime.is_initial_sync_done():
 		# Wait for time sync to complete
 		await NetworkTime.after_sync
@@ -177,6 +206,9 @@ func _enter_tree():
 	process_settings.call_deferred()
 
 func _exit_tree():
+	if Engine.is_editor_hint():
+		return
+	
 	_is_initialized = false
 	_disconnect_signals()
 
@@ -332,7 +364,7 @@ func _attempt_submit_input(input: Dictionary):
 		_submit_input.rpc_id(1, input, NetworkTime.tick)
 
 func _reprocess_settings():
-	if not _properties_dirty:
+	if not _properties_dirty or Engine.is_editor_hint():
 		return
 
 	_properties_dirty = false

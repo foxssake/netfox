@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://bf3cwd7tq7lf"]
+[gd_scene load_steps=6 format=3 uid="uid://bf3cwd7tq7lf"]
 
 [ext_resource type="Script" path="res://examples/property-configuration/scripts/subject.gd" id="1_wpisv"]
-[ext_resource type="Script" path="res://addons/netfox/state-synchronizer.gd" id="2_x4ao5"]
+[ext_resource type="Script" path="res://examples/property-configuration/scripts/input.gd" id="2_ay2fd"]
+[ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="3_xjq6c"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_0gr3k"]
 
@@ -10,13 +11,16 @@
 [node name="Subject" type="CharacterBody3D"]
 script = ExtResource("1_wpisv")
 
+[node name="Input" type="Node" parent="."]
+script = ExtResource("2_ay2fd")
+
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("CapsuleShape3D_0gr3k")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("CapsuleMesh_8yfbu")
 
-[node name="StateSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
-script = ExtResource("2_x4ao5")
+[node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("3_xjq6c")
 root = NodePath("..")
-properties = Array[String]([":name", ":health"])
+input_properties = Array[String]([":movement", ":is_jumping"])
