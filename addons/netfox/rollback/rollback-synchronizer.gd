@@ -1,3 +1,4 @@
+@tool
 extends Node
 class_name RollbackSynchronizer
 
@@ -48,6 +49,7 @@ var _record_input_property_entries: Array[PropertyEntry] = []
 var _auth_state_property_entries: Array[PropertyEntry] = []
 var _auth_input_property_entries: Array[PropertyEntry] = []
 var _nodes: Array[Node] = []
+var _properties_dirty: bool = false
 
 var _states: Dictionary = {}
 var _inputs: Dictionary = {}
@@ -78,11 +80,12 @@ func process_settings():
 	
 	_states.clear()
 	_inputs.clear()
+	_ackd_state.clear()
 	_latest_state_tick = NetworkTime.tick - 1
 	_earliest_input_tick = NetworkTime.tick
 	_next_full_state_tick = NetworkTime.tick
 	_next_diff_ack_tick = NetworkTime.tick
-	
+
 	# Scatter full state sends, so not all nodes send at the same tick
 	if is_inside_tree():
 		_next_full_state_tick += hash(get_path()) % maxi(1, full_state_interval)
@@ -131,6 +134,24 @@ func process_authority():
 			_auth_input_property_entries.push_back(property_entry)
 			_record_input_property_entries.push_back(property_entry)
 
+func add_state(node: Variant, property: String):
+	var property_path := PropertyEntry.make_path(root, node, property)
+	if not property_path or state_properties.has(property_path):
+		return
+
+	state_properties.push_back(property_path)
+	_properties_dirty = true
+	_reprocess_settings.call_deferred()
+
+func add_input(node: Variant, property: String):
+	var property_path := PropertyEntry.make_path(root, node, property)
+	if not property_path or input_properties.has(property_path):
+		return
+
+	input_properties.push_back(property_path)
+	_properties_dirty = true
+	_reprocess_settings.call_deferred()
+
 func _connect_signals():
 	NetworkTime.before_tick.connect(_before_tick)
 	NetworkTime.after_tick.connect(_after_tick)
@@ -149,7 +170,35 @@ func _disconnect_signals():
 	NetworkRollback.on_record_tick.disconnect(_record_tick)
 	NetworkRollback.after_loop.disconnect(_after_loop)
 
+func _notification(what):
+	if what == NOTIFICATION_EDITOR_PRE_SAVE:
+		update_configuration_warnings()
+
+func _get_configuration_warnings():
+	if not root:
+		root = get_parent()
+
+	# Explore state and input properties
+	if not root:
+		return ["No valid root node found!"]
+	
+	var result = []
+	result.append_array(_NetfoxEditorUtils.gather_properties(root, "_get_rollback_state_properties",
+		func(node, prop):
+			add_state(node, prop)
+	))
+	
+	result.append_array(_NetfoxEditorUtils.gather_properties(root, "_get_rollback_input_properties",
+		func(node, prop):
+			add_input(node, prop)
+	))
+	
+	return result
+
 func _enter_tree():
+	if Engine.is_editor_hint():
+		return
+	
 	if not NetworkTime.is_initial_sync_done():
 		# Wait for time sync to complete
 		await NetworkTime.after_sync
@@ -157,6 +206,9 @@ func _enter_tree():
 	process_settings.call_deferred()
 
 func _exit_tree():
+	if Engine.is_editor_hint():
+		return
+	
 	_is_initialized = false
 	_disconnect_signals()
 
@@ -310,6 +362,13 @@ func _attempt_submit_input(input: Dictionary):
 		_submit_input.rpc(input, NetworkTime.tick)
 	elif not multiplayer.is_server():
 		_submit_input.rpc_id(1, input, NetworkTime.tick)
+
+func _reprocess_settings():
+	if not _properties_dirty or Engine.is_editor_hint():
+		return
+
+	_properties_dirty = false
+	process_settings()
 
 func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 	if buffer.has(tick):

@@ -1,3 +1,4 @@
+@tool
 extends Node
 class_name TickInterpolator
 
@@ -10,6 +11,7 @@ class_name TickInterpolator
 var _state_from: Dictionary = {}
 var _state_to: Dictionary = {}
 var _property_entries: Array[PropertyEntry] = []
+var _properties_dirty: bool = false
 var _interpolators: Dictionary = {}
 var _is_teleporting: bool = false
 
@@ -30,6 +32,15 @@ func process_settings():
 		var property_entry = _property_cache.get_entry(property)
 		_property_entries.push_back(property_entry)
 		_interpolators[property] = Interpolators.find_for(property_entry.get_value())
+
+func add_property(node: Variant, property: String):
+	var property_path := PropertyEntry.make_path(root, node, property)
+	if not property_path or properties.has(property_path):
+		return
+
+	properties.push_back(property_path)
+	_properties_dirty = true
+	_reprocess_settings.call_deferred()
 
 ## Check if interpolation can be done.
 ##
@@ -56,6 +67,23 @@ func teleport():
 	_state_to = _state_from
 	_is_teleporting = true
 
+func _notification(what):
+	if what == NOTIFICATION_EDITOR_PRE_SAVE:
+		update_configuration_warnings()
+
+func _get_configuration_warnings():
+	if not root:
+		root = get_parent()
+
+	# Explore interpolated properties
+	if not root:
+		return ["No valid root node found!"]
+
+	return _NetfoxEditorUtils.gather_properties(root, "_get_interpolated_properties",
+		func(node, prop):
+			add_property(node, prop)
+	)
+	
 func _connect_signals():
 	NetworkTime.before_tick_loop.connect(_before_tick_loop)
 	NetworkTime.after_tick_loop.connect(_after_tick_loop)
@@ -65,6 +93,9 @@ func _disconnect_signals():
 	NetworkTime.after_tick_loop.disconnect(_after_tick_loop)
 
 func _enter_tree():
+	if Engine.is_editor_hint():
+		return
+
 	process_settings()
 	_connect_signals.call_deferred()
 
@@ -74,10 +105,23 @@ func _enter_tree():
 		teleport()
 
 func _exit_tree():
+	if Engine.is_editor_hint():
+		return
+
 	_disconnect_signals()
 
 func _process(_delta):
+	if Engine.is_editor_hint():
+		return
+
 	_interpolate(_state_from, _state_to, NetworkTime.tick_factor)
+
+func _reprocess_settings():
+	if not _properties_dirty or Engine.is_editor_hint():
+		return
+
+	_properties_dirty = false
+	process_settings()
 
 func _before_tick_loop():
 	_is_teleporting = false
