@@ -1,10 +1,13 @@
 extends Node
+class_name _NetworkPerformance
 
 const NETWORK_LOOP_DURATION_MONITOR: StringName = &"netfox/Network loop duration (ms)"
 const ROLLBACK_LOOP_DURATION_MONITOR: StringName = &"netfox/Rollback loop duration (ms)"
 const NETWORK_TICKS_MONITOR: StringName = &"netfox/Network ticks simulated"
 const ROLLBACK_TICKS_MONITOR: StringName = &"netfox/Rollback ticks simulated"
 const ROLLBACK_TICK_DURATION_MONITOR: StringName = &"netfox/Rollback tick duration (ms)"
+const ROLLBACK_NODES_SIMULATED_MONITOR: StringName = &"netfox/Rollback nodes simulated"
+const ROLLBACK_NODES_SIMULATED_PER_TICK_MONITOR: StringName = &"netfox/Rollback nodes simulated per tick (avg)"
 
 const FULL_STATE_PROPERTIES_COUNT: StringName = &"netfox/Full state properties count"
 const SENT_STATE_PROPERTIES_COUNT: StringName = &"netfox/Sent state properties count"
@@ -22,6 +25,9 @@ var _rollback_loop_duration: float = 0
 var _rollback_ticks: int = 0
 var _rollback_ticks_accum: int = 0
 
+var _rollback_nodes_simulated: int = 0
+var _rollback_nodes_simulated_accum: int = 0
+
 var _full_state_props: int = 0
 var _full_state_props_accum: int = 0
 
@@ -30,6 +36,12 @@ var _sent_state_props_accum: int = 0
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkPerformance")
 
+## Check if performance monitoring is enabled.
+## [br][br]
+## By default, monitoring is only enabled in debug builds 
+## ( see [method OS.is_debug_build] ). [br]
+## Can be forced on with the [code]netfox_perf[/code] feature tag. [br]
+## Can be forced off with the [code]netfox_noperf[/code] feature tag.
 func is_enabled():
 	if OS.has_feature("netfox_noperf"):
 		return false
@@ -62,6 +74,18 @@ func get_rollback_ticks() -> int:
 ## rollback loop, in millisec.
 func get_rollback_tick_duration_ms() -> float:
 	return _rollback_loop_duration * 1000 / maxi(_rollback_ticks, 1)
+
+## Get the number of nodes simulated during the last rollback loop.
+func get_rollback_nodes_simulated() -> int:
+	return _rollback_nodes_simulated
+
+## Get the number of nodes simulated per tick on average during the last
+## rollback loop.
+func get_rollback_nodes_simulated_per_tick() -> float:
+	return _rollback_nodes_simulated / maxf(1., _rollback_ticks)
+
+func push_rollback_nodes_simulated(count: int):
+	_rollback_nodes_simulated_accum += count
 
 ## Get the number of properties in the full state recorded during the last tick
 ## loop.
@@ -102,6 +126,8 @@ func _ready():
 	Performance.add_custom_monitor(NETWORK_TICKS_MONITOR, get_network_ticks)
 	Performance.add_custom_monitor(ROLLBACK_TICKS_MONITOR, get_rollback_ticks)
 	Performance.add_custom_monitor(ROLLBACK_TICK_DURATION_MONITOR, get_rollback_tick_duration_ms)
+	Performance.add_custom_monitor(ROLLBACK_NODES_SIMULATED_MONITOR, get_rollback_nodes_simulated)
+	Performance.add_custom_monitor(ROLLBACK_NODES_SIMULATED_PER_TICK_MONITOR, get_rollback_nodes_simulated_per_tick)
 	
 	Performance.add_custom_monitor(FULL_STATE_PROPERTIES_COUNT, get_full_state_props_count)
 	Performance.add_custom_monitor(SENT_STATE_PROPERTIES_COUNT, get_sent_state_props_count)
@@ -135,6 +161,7 @@ func _after_tick_loop():
 func _before_rollback_loop():
 	_rollback_loop_start = _time()
 	_rollback_ticks_accum = 0
+	_rollback_nodes_simulated_accum = 0
 
 func _on_rollback_tick(_t):
 	_rollback_ticks_accum += 1
@@ -142,6 +169,7 @@ func _on_rollback_tick(_t):
 func _after_rollback_loop():
 	_rollback_loop_duration = _time() - _rollback_loop_start
 	_rollback_ticks = _rollback_ticks_accum
+	_rollback_nodes_simulated = _rollback_nodes_simulated_accum
 
 func _time() -> float:
 	return Time.get_unix_time_from_system()
