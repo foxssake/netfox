@@ -96,18 +96,32 @@ text = "2 ticks"
 layout_mode = 2
 text = "Simset:"
 
-[node name="Simset Data" type="Label" parent="HBoxContainer/Data"]
+[node name="Simset List" type="ItemList" parent="HBoxContainer/Data"]
 unique_name_in_owner = true
 layout_mode = 2
-tab_stops = PackedFloat32Array(16)
+size_flags_vertical = 3
+
+[node name="Skipset Label" type="Label" parent="HBoxContainer/Data"]
+layout_mode = 2
+text = "Skipset:"
+
+[node name="Skipset List" type="ItemList" parent="HBoxContainer/Data"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
 
 [node name="Transmit State Label" type="Label" parent="HBoxContainer/Data"]
 layout_mode = 2
 text = "Transmit state:"
 
-[node name="Transmit State Data" type="Label" parent="HBoxContainer/Data"]
+[node name="PanelContainer" type="PanelContainer" parent="HBoxContainer/Data"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Transmit State Data" type="Label" parent="HBoxContainer/Data/PanelContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_vertical = 3
 
 [node name="Tools" type="VBoxContainer" parent="HBoxContainer"]
 layout_mode = 2
