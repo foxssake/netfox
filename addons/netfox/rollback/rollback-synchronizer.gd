@@ -178,9 +178,11 @@ func is_predicting() -> bool:
 
 ## Ignore a node's prediction for the current rollback tick.
 ##
-## Call this when the input is too old to base predictions on.
+## Call this when the input is too old to base predictions on. This call is
+## ignored if [member enable_prediction] is false.
 func ignore_prediction(node: Node):
-	_skipset.add(node)
+	if enable_prediction:
+		_skipset.add(node)
 
 func _ready():
 	if not NetworkTime.is_initial_sync_done():
@@ -289,7 +291,7 @@ func _record_tick(tick: int):
 		var full_state: Dictionary = {}
 
 		for property in _auth_state_property_entries:
-			if _simset.has(property.node):
+			if _can_simulate(property.node, tick - 1) and not _skipset.has(property.node):
 				# Only broadcast if we've simulated the node
 				full_state[property.to_string()] = property.get_value()
 			
