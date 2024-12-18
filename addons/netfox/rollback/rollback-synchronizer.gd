@@ -50,6 +50,11 @@ var diff_ack_interval: int = 0
 ## bandwidth and reduce cheating risks.
 @export var enable_input_broadcast: bool = true
 
+## This is measured in ticks. So if your game's tickrate (project settings > Time) is 60 ticks, 4 ticks are 68 ms (bad but acceptable)
+## If your game's tickrate is 30 ticks, 4 ticks are 134 ms (laggy)
+## The lesser the value, the tighter the controls feel locally, but the less time for other players to catch up to this node's input
+@export var input_delay: int = 0
+
 var _record_state_property_entries: Array[PropertyEntry] = []
 var _record_input_property_entries: Array[PropertyEntry] = []
 var _auth_state_property_entries: Array[PropertyEntry] = []
@@ -188,6 +193,13 @@ func _ready():
 	if not NetworkTime.is_initial_sync_done():
 		# Wait for time sync to complete
 		await NetworkTime.after_sync
+
+	# Dummy states to parse for first inputs before our first real input
+	# The code: PropertySnapshot.apply(input, _property_cache) -> does literally nothing if input == {}
+	# So the default input stays in its default values for the first input delay ticks.
+	for i in input_delay:
+		_inputs[NetworkTime.tick + i] = {}
+	
 	process_settings.call_deferred()
 
 func _connect_signals():
@@ -376,19 +388,20 @@ func _before_tick(_delta, tick):
 func _after_tick(_delta, _tick):
 	# Record input
 	if not _record_input_property_entries.is_empty():
-		var input = PropertySnapshot.extract(_record_input_property_entries)
-		_inputs[NetworkTime.tick] = input
+		var local_input = PropertySnapshot.extract(_record_input_property_entries)
+		var delayed_input_tick: int = _tick + input_delay
+		_inputs[delayed_input_tick] = local_input
 
 		#Send the last n inputs for each property
 		var inputs = {}
 		for i in range(0, NetworkRollback.input_redundancy):
-			var tick_input = _inputs.get(NetworkTime.tick - i, {})
+			var tick_input = _inputs.get(delayed_input_tick - i, {})
 			for property in tick_input:
 				if not inputs.has(property):
 					inputs[property] = []
 				inputs[property].push_back(tick_input[property])
 
-		_attempt_submit_input(inputs)
+		_attempt_submit_input(inputs, delayed_input_tick)
 
 	# Trim history
 	while _states.size() > NetworkRollback.history_limit:
@@ -399,12 +412,12 @@ func _after_tick(_delta, _tick):
 
 	_freshness_store.trim()
 
-func _attempt_submit_input(input: Dictionary):
+func _attempt_submit_input(input: Dictionary, delayed_input_tick: int):
 	# TODO: Default to input broadcast in mesh network setups
 	if enable_input_broadcast:
-		_submit_input.rpc(input, NetworkTime.tick)
+		_submit_input.rpc(input, delayed_input_tick)
 	elif not multiplayer.is_server():
-		_submit_input.rpc_id(1, input, NetworkTime.tick)
+		_submit_input.rpc_id(1, input, delayed_input_tick)
 
 # TODO: Eventually refactor into separate HistoryBuffer class
 func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
