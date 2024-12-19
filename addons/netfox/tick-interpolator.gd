@@ -2,10 +2,25 @@
 extends Node
 class_name TickInterpolator
 
+## Interpolates between network ticks for smooth motion.
+
+## The root node for resolving node paths in properties.
 @export var root: Node
+
+## Toggles interpolation.
 @export var enabled: bool = true
+
+## Properties to interpolate.
 @export var properties: Array[String]
+
+## If enabled, takes a snapshot immediately upon instantiation, instead of 
+## waiting for the first network tick. Useful for objects that start moving 
+## instantly, like projectiles.
 @export var record_first_state: bool = true
+
+## Toggle automatic state recording. When enabled, the node will take a new 
+## snapshot on every network tick. When disabled, call [member push_state]
+## whenever properties are updated.
 @export var enable_recording: bool = true
 
 var _state_from: Dictionary = {}
@@ -18,7 +33,7 @@ var _is_teleporting: bool = false
 var _property_cache: PropertyCache
 
 ## Process settings.
-##
+## [br][br]
 ## Call this after any change to configuration.
 func process_settings():
 	_property_cache = PropertyCache.new(root)
@@ -33,6 +48,11 @@ func process_settings():
 		_property_entries.push_back(property_entry)
 		_interpolators[property] = Interpolators.find_for(property_entry.get_value())
 
+## Add a property to interpolate.
+## [br][br]
+## Settings will be automatically updated. The [param node] may be a string or
+## [NodePath] pointing to a node, or an actual [Node] instance. If the given 
+## property is already interpolated, this method does nothing.
 func add_property(node: Variant, property: String):
 	var property_path := PropertyEntry.make_path(root, node, property)
 	if not property_path or properties.has(property_path):
@@ -43,14 +63,14 @@ func add_property(node: Variant, property: String):
 	_reprocess_settings.call_deferred()
 
 ## Check if interpolation can be done.
-##
+## [br][br]
 ## Even if it's enabled, no interpolation will be done if there are no
 ## properties to interpolate.
 func can_interpolate() -> bool:
 	return enabled and not properties.is_empty() and not _is_teleporting
 
 ## Record current state for interpolation.
-##
+## [br][br]
 ## Note that this will rotate the states, so the previous target becomes the new
 ## starting point for the interpolation. This is automatically called if 
 ## [code]enable_recording[/code] is true.

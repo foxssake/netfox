@@ -3,8 +3,15 @@ extends Node
 class_name StateSynchronizer
 
 ## Synchronizes state from authority.
+##
+## Similar to Godot's [MultiplayerSynchronizer], but is tied to the network tick loop. Works well
+## with [TickInterpolator].
+## [br][br]
 
+## The root node for resolving node paths in properties.
 @export var root: Node
+
+## Properties to record and broadcast.
 @export var properties: Array[String]
 
 var _property_cache: PropertyCache
@@ -15,7 +22,7 @@ var _last_received_tick: int = -1
 var _last_received_state: Dictionary = {}
 
 ## Process settings.
-##
+## [br][br]
 ## Call this after any change to configuration.
 func process_settings():
 	_property_cache = PropertyCache.new(root)
@@ -25,6 +32,11 @@ func process_settings():
 		var property_entry = _property_cache.get_entry(property)
 		_property_entries.push_back(property_entry)
 
+## Add a state property.
+## [br][br]
+## Settings will be automatically updated. The [param node] may be a string or
+## [NodePath] pointing to a node, or an actual [Node] instance. If the given 
+## property is already tracked, this method does nothing.
 func add_state(node: Variant, property: String):
 	var property_path := PropertyEntry.make_path(root, node, property)
 	if not property_path or properties.has(property_path):

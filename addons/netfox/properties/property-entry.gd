@@ -40,9 +40,12 @@ static func make_path(root: Node, node: Variant, property: String) -> String:
 	elif node is NodePath:
 		node_path = str(node)
 	elif node is Node:
-		node = str(root.get_path_to(node))
+		node_path = str(root.get_path_to(node))
 	else:
 		_logger.error("Can't stringify node reference: %s", [node])
 		return ""
+
+	if node_path == ".":
+		node_path = ""
 
 	return "%s:%s" % [node_path, property]

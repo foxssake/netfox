@@ -23,4 +23,5 @@ mesh = SubResource("CapsuleMesh_8yfbu")
 [node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("3_xjq6c")
 root = NodePath("..")
-input_properties = Array[String]([":movement", ":is_jumping"])
+state_properties = Array[String]([":transform", "MeshInstance3D:transform"])
+input_properties = Array[String](["Input:movement", "Input:is_jumping"])

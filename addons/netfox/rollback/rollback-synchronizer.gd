@@ -5,9 +5,16 @@ class_name RollbackSynchronizer
 ## Similar to [MultiplayerSynchronizer], this class is responsible for
 ## synchronizing data between players, but with support for rollback.
 
+## The root node for resolving node paths in properties. Defaults to the parent
+## node.
 @export var root: Node = get_parent()
 
 @export_group("State")
+## Properties that define the game state.
+## [br][br]
+## State properties are recorded for each tick and restored during rollback.
+## State is restored before every rollback tick, and recorded after simulating
+## the tick.
 @export var state_properties: Array[String]
 
 ## Ticks to wait between sending full states.
@@ -38,6 +45,10 @@ var full_state_interval: int = 24
 var diff_ack_interval: int = 0
 
 @export_group("Inputs")
+## Properties that define the input for the game simulation.
+## [br][br]
+## Input properties drive the simulation, which in turn results in updated state
+## properties. Input is recorded after every network tick.
 @export var input_properties: Array[String]
 
 ## This will broadcast input to all peers, turning this off will limit to sending it to the server only.
@@ -134,6 +145,11 @@ func process_authority():
 			_auth_input_property_entries.push_back(property_entry)
 			_record_input_property_entries.push_back(property_entry)
 
+## Add a state property.
+## [br][br]
+## Settings will be automatically updated. The [param node] may be a string or
+## [NodePath] pointing to a node, or an actual [Node] instance. If the given 
+## property is already tracked, this method does nothing.
 func add_state(node: Variant, property: String):
 	var property_path := PropertyEntry.make_path(root, node, property)
 	if not property_path or state_properties.has(property_path):
@@ -143,6 +159,11 @@ func add_state(node: Variant, property: String):
 	_properties_dirty = true
 	_reprocess_settings.call_deferred()
 
+## Add an input property.
+## [br][br]
+## Settings will be automatically updated. The [param node] may be a string or
+## [NodePath] pointing to a node, or an actual [Node] instance. If the given 
+## property is already tracked, this method does nothing.
 func add_input(node: Variant, property: String):
 	var property_path := PropertyEntry.make_path(root, node, property)
 	if not property_path or input_properties.has(property_path):

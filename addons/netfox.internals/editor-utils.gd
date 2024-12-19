@@ -5,7 +5,7 @@ static func gather_properties(root: Node, callback_name: String, handler: Callab
 	var result: Array[String] = []
 
 	var nodes: Array[Node] = root.find_children("*")
-	nodes.push_back(root)
+	nodes.push_front(root)
 	for node in nodes:
 		if not node.has_method(callback_name):
 			continue
@@ -21,6 +21,24 @@ static func gather_properties(root: Node, callback_name: String, handler: Callab
 			continue
 
 		for prop in props:
-			handler.call(node, prop)
+			if prop is String:
+				# Property is a string, meaning property path relative to node
+				handler.call(node, prop)
+			elif prop is Array and prop.size() >= 2:
+				# Property is a node-property tuple
+				var prop_node: Node = null
+
+				# Node can be a String, NodePath, or an actual Node
+				if prop[0] is String or prop[0] is NodePath:
+					prop_node = node.get_node(prop[0])
+				elif prop[0] is Node:
+					prop_node = prop[0]
+				else:
+					result.push_back("Node %s specified invalid node in \"%s\": %s" % [readable_node_name, callback_name, prop])
+					continue
+
+				handler.call(prop_node, prop[1])
+			else:
+				result.push_back("Node %s specified invalid property in \"%s\": %s" % [readable_node_name, callback_name, prop])
 
 	return result
