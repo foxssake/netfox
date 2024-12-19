@@ -1,9 +1,14 @@
+@tool
 extends Node
 class_name RollbackSynchronizer
 
 ## Similar to [MultiplayerSynchronizer], this class is responsible for
 ## synchronizing data between players, but with support for rollback.
+## [br][br]
+## @tutorial(RollbackSynchronizer Guide): https://foxssake.github.io/netfox/netfox/nodes/rollback-synchronizer/
 
+## The root node for resolving node paths in properties. Defaults to the parent
+## node.
 @export var root: Node = get_parent()
 
 ## Toggle prediction.
@@ -13,6 +18,11 @@ class_name RollbackSynchronizer
 @export var enable_prediction: bool = false
 
 @export_group("State")
+## Properties that define the game state.
+## [br][br]
+## State properties are recorded for each tick and restored during rollback.
+## State is restored before every rollback tick, and recorded after simulating
+## the tick.
 @export var state_properties: Array[String]
 
 ## Ticks to wait between sending full states.
@@ -43,6 +53,10 @@ var full_state_interval: int = 24
 var diff_ack_interval: int = 0
 
 @export_group("Inputs")
+## Properties that define the input for the game simulation.
+## [br][br]
+## Input properties drive the simulation, which in turn results in updated state
+## properties. Input is recorded after every network tick.
 @export var input_properties: Array[String]
 
 ## This will broadcast input to all peers, turning this off will limit to
@@ -55,8 +69,11 @@ var _record_input_property_entries: Array[PropertyEntry] = []
 var _auth_state_property_entries: Array[PropertyEntry] = []
 var _auth_input_property_entries: Array[PropertyEntry] = []
 var _nodes: Array[Node] = []
+
 var _simset: _Set = _Set.new()
 var _skipset: _Set = _Set.new()
+
+var _properties_dirty: bool = false
 
 var _states: Dictionary = {}
 var _inputs: Dictionary = {}
@@ -94,11 +111,12 @@ func process_settings():
 	
 	_states.clear()
 	_inputs.clear()
+	_ackd_state.clear()
 	_latest_state_tick = NetworkTime.tick - 1
 	_earliest_input_tick = NetworkTime.tick
 	_next_full_state_tick = NetworkTime.tick
 	_next_diff_ack_tick = NetworkTime.tick
-	
+
 	# Scatter full state sends, so not all nodes send at the same tick
 	if is_inside_tree():
 		_next_full_state_tick += hash(get_path()) % maxi(1, full_state_interval)
@@ -146,6 +164,34 @@ func process_authority():
 		if property_entry.node.is_multiplayer_authority():
 			_auth_input_property_entries.push_back(property_entry)
 			_record_input_property_entries.push_back(property_entry)
+
+## Add a state property.
+## [br][br]
+## Settings will be automatically updated. The [param node] may be a string or
+## [NodePath] pointing to a node, or an actual [Node] instance. If the given 
+## property is already tracked, this method does nothing.
+func add_state(node: Variant, property: String):
+	var property_path := PropertyEntry.make_path(root, node, property)
+	if not property_path or state_properties.has(property_path):
+		return
+
+	state_properties.push_back(property_path)
+	_properties_dirty = true
+	_reprocess_settings.call_deferred()
+
+## Add an input property.
+## [br][br]
+## Settings will be automatically updated. The [param node] may be a string or
+## [NodePath] pointing to a node, or an actual [Node] instance. If the given 
+## property is already tracked, this method does nothing.
+func add_input(node: Variant, property: String):
+	var property_path := PropertyEntry.make_path(root, node, property)
+	if not property_path or input_properties.has(property_path):
+		return
+
+	input_properties.push_back(property_path)
+	_properties_dirty = true
+	_reprocess_settings.call_deferred()
 
 ## Check if input is available for the current tick.
 ##
@@ -208,7 +254,35 @@ func _disconnect_signals():
 	NetworkRollback.on_record_tick.disconnect(_record_tick)
 	NetworkRollback.after_loop.disconnect(_after_loop)
 
+func _notification(what):
+	if what == NOTIFICATION_EDITOR_PRE_SAVE:
+		update_configuration_warnings()
+
+func _get_configuration_warnings():
+	if not root:
+		root = get_parent()
+
+	# Explore state and input properties
+	if not root:
+		return ["No valid root node found!"]
+	
+	var result = []
+	result.append_array(_NetfoxEditorUtils.gather_properties(root, "_get_rollback_state_properties",
+		func(node, prop):
+			add_state(node, prop)
+	))
+	
+	result.append_array(_NetfoxEditorUtils.gather_properties(root, "_get_rollback_input_properties",
+		func(node, prop):
+			add_input(node, prop)
+	))
+	
+	return result
+
 func _enter_tree():
+	if Engine.is_editor_hint():
+		return
+	
 	if not NetworkTime.is_initial_sync_done():
 		# Wait for time sync to complete
 		await NetworkTime.after_sync
@@ -216,6 +290,9 @@ func _enter_tree():
 	process_settings.call_deferred()
 
 func _exit_tree():
+	if Engine.is_editor_hint():
+		return
+	
 	_is_initialized = false
 	_disconnect_signals()
 
@@ -405,6 +482,13 @@ func _attempt_submit_input(input: Dictionary):
 		_submit_input.rpc(input, NetworkTime.tick)
 	elif not multiplayer.is_server():
 		_submit_input.rpc_id(1, input, NetworkTime.tick)
+
+func _reprocess_settings():
+	if not _properties_dirty or Engine.is_editor_hint():
+		return
+
+	_properties_dirty = false
+	process_settings()
 
 # TODO: Eventually refactor into separate HistoryBuffer class
 func _get_history(buffer: Dictionary, tick: int) -> Dictionary:

@@ -27,7 +27,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
       - name: Setup mkdocs
-        run: pip install mkdocs mkdocs_puml
+        run: pip install mkdocs && pip install $(mkdocs get-deps)
       - name: Build
         run: sh/build.sh
       - name: Parse version

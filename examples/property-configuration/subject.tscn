@@ -1,0 +1,44 @@
+[gd_scene load_steps=5 format=3 uid="uid://bf3cwd7tq7lf"]
+
+[ext_resource type="Script" path="res://examples/property-configuration/scripts/subject.gd" id="1_wpisv"]
+[ext_resource type="Script" path="res://examples/property-configuration/scripts/input.gd" id="2_ay2fd"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_0gr3k"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_8yfbu"]
+
+[node name="Subject" type="CharacterBody3D"]
+script = ExtResource("1_wpisv")
+
+[node name="Input" type="Node" parent="."]
+script = ExtResource("2_ay2fd")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_0gr3k")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_8yfbu")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+bbcode_enabled = true
+text = "[center][b]Property configuration example[/b][/center]
+
+[p]This is a non-playable example. Head back to the editor, and add a [i]TickInterpolator[/i], [i]StateSynchronizer[/i], or [i]RollbackSynchronizer[/i] node.[/p]
+
+[p]Upon adding the nodes, they will automatically pick up the configuration specified in the [i]Subject[/i] and [i]Input[/i] nodes.[/p]
+
+[p]Feel free to experiment with different method implementations! To update, save the scene, and select any of the nodes again to update the inspector UI.[/p]"
