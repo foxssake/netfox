@@ -1,1 +1,3 @@
-mkdocs_puml==2.3.0
+mkdocs
+mkdocs-puml
+pymdown-extensions
