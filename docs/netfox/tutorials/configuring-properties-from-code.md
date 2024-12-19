@@ -95,6 +95,8 @@ func _get_rollback_input_propertes() -> Array:
 	return ["movement", "is_jumping"]
 ```
 
+See the [Property configuration example].
+
 !!! note
     In general, it's best practice to only specify node's own properties. An
     exception is when the given node has no script attached.
@@ -111,3 +113,4 @@ right node names.
 [property paths]: ../guides/property-paths.md
 [NodePath]: https://docs.godotengine.org/en/stable/classes/class_nodepath.html
 [Node]: https://docs.godotengine.org/en/stable/classes/class_node.html
+[Property configuration example]: https://github.com/foxssake/netfox/tree/main/examples/property-configuration
