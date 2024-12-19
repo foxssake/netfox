@@ -102,9 +102,10 @@ Once the request is sent, *noray* will send a message to both the client and
 the host players to connect to each other. The actual connection is done by
 handling signals.
 
-> *Note* that *noray* provides no functionality to share OpenIDs. For
-> development, you can display the OpenID in a textbox, letting players copy it
-> and share over their preferred messaging app.
+!!!note
+    *noray* provides no functionality to share OpenIDs. For development, you
+    can display the OpenID in a textbox, letting players copy it and share over
+    their preferred messaging app.
 
 ## Handling signals
 
@@ -147,9 +148,10 @@ func _handle_connect(address: String, port: int) -> Error:
   return OK
 ```
 
-> *Note:* Make sure to **always** specifiy the local port for the client - this
-> is the only port noray recognizes, and failing to specify it will result in
-> broken connectivity.
+!!!note
+    Make sure to **always** specifiy the local port for the client - this is
+    the only port noray recognizes, and failing to specify it will result in
+    broken connectivity.
 
 Host example:
 
@@ -168,10 +170,11 @@ func _handle_connect(address: String, port: int) -> Error:
   return OK
 ```
 
-> *Note:* The host handshake is a bit different, as it can't receive manual
-> packets, only send them. So it assumes that the target is always responsive,
-> and just blasts them with a bunch of packets. If the target is indeed
-> responsive, it can connect. If not, nothing happens, as expected.
+!!!note
+    The host handshake is a bit different, as it can't receive manual packets,
+    only send them. So it assumes that the target is always responsive, and
+    just blasts them with a bunch of packets. If the target is indeed
+    responsive, it can connect. If not, nothing happens, as expected.
 
 [noray]: https://github.com/foxssake/noray
 [NAT Punch-through for Multiplayer Games]: https://keithjohnston.wordpress.com/2014/02/17/nat-punch-through-for-multiplayer-games/

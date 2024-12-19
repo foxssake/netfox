@@ -44,10 +44,11 @@ peers, or only to the server. The default is *true* to support legacy
 behaviour. It is recommended to turn this off to lower bandwidth and lessen the
 attack surface for cheating.
 
-> *Note* that it is not recommended to have both state and input properties on
-> the same node. Since nodes with state belong to the server, and nodes with
-> input belong to the player, it is difficult to separate ownership on the same
-> node.
+!!!warning
+    It is not recommended to have both state and input properties on the same
+    node. Since nodes with state belong to the server, and nodes with input
+    belong to the player, it is difficult to separate ownership on the same
+    node.
 
 ## Writing rollback-aware scripts
 

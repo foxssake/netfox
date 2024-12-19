@@ -95,7 +95,8 @@ specified PacketPeer will be used to send data until two-way connectivity is
 confirmed or the timeout is reached. Between every packet sent, it takes a
 short pause.
 
-> *Note* that the PacketPeer must already be configured with a target address.
+!!!note
+    The PacketPeer must already be configured with a target address.
 
 ## Handshake over ENetConnection
 

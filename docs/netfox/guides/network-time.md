@@ -99,10 +99,11 @@ avoid false positives in production builds.
 The other supported case is pausing the game from the engine itself. Whenever
 `SceneTree.paused` is set to true, *NetworkTime* won't run the tick loop.
 
-> *Note* that pausing the tick loop can cause desynchronization between peers,
-and could lead to clients fast-forwarding ticks to catch up, or time
-recalibrations. If the game is paused via SceneTree, make sure it is paused and
-unpaused at the same time on all peers.
+!!!warning
+    Pausing the tick loop can cause desynchronization between peers, and could
+    lead to clients fast-forwarding ticks to catch up, or time recalibrations.
+    If the game is paused via SceneTree, make sure it is paused and unpaused at
+    the same time on all peers.
 
 ## Time synchronization
 

@@ -24,8 +24,12 @@ jobs:
         uses: actions/checkout@v2
       - name: Setup Pages
         uses: actions/configure-pages@v3
+      - name: Setup Python
+        uses: actions/setup-python@v5
+      - name: Setup mkdocs
+        run: pip install mkdocs && pip install $(mkdocs get-deps)
       - name: Build
-        uses: Tiryoh/actions-mkdocs@v0
+        run: mkdocs build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:

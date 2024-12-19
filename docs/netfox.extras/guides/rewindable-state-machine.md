@@ -15,9 +15,11 @@ The first step is to add the RewindableStateMachine to your scene. It also
 requires a RollbackSynchronizer that manages its `state` property. Unless these
 conditions are satisfied, an editor warning will be displayed.
 
-> Note: Editor warnings are only updated when the node tree changes.
-> Configuration changes don't trigger an update. You may need to reload the
-> scene after fixing a warning.
+!!!note
+    Editor warnings are only updated when the node tree changes. Configuration
+    changes don't trigger an update. You may need to reload the scene after
+    fixing a warning, or make a tree change, like deleting and re-adding a node
+    by cutting and pasting.
 
 ![RewindableStateMachine with
 RollbackSynchronizer](../assets/rewindable-state-machine-rollback.png)
