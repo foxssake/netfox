@@ -9,6 +9,12 @@ class_name RollbackSynchronizer
 ## node.
 @export var root: Node = get_parent()
 
+## Toggle prediction.
+## [br][br]
+## Enabling this will run [code]_rollback_tick[/code] on nodes under
+## [member root] even if there's no current input available for the tick.
+@export var enable_prediction: bool = false
+
 @export_group("State")
 ## Properties that define the game state.
 ## [br][br]
@@ -51,8 +57,9 @@ var diff_ack_interval: int = 0
 ## properties. Input is recorded after every network tick.
 @export var input_properties: Array[String]
 
-## This will broadcast input to all peers, turning this off will limit to sending it to the server only.
-## Turning this off is recommended to save bandwidth and reduce cheating risks.
+## This will broadcast input to all peers, turning this off will limit to
+## sending it to the server only. Turning this off is recommended to save
+## bandwidth and reduce cheating risks.
 @export var enable_input_broadcast: bool = true
 
 var _record_state_property_entries: Array[PropertyEntry] = []
@@ -60,6 +67,10 @@ var _record_input_property_entries: Array[PropertyEntry] = []
 var _auth_state_property_entries: Array[PropertyEntry] = []
 var _auth_input_property_entries: Array[PropertyEntry] = []
 var _nodes: Array[Node] = []
+
+var _simset: _Set = _Set.new()
+var _skipset: _Set = _Set.new()
+
 var _properties_dirty: bool = false
 
 var _states: Dictionary = {}
@@ -71,12 +82,19 @@ var _ackd_state: Dictionary = {}
 var _next_full_state_tick: int
 var _next_diff_ack_tick: int
 
+var _retrieved_tick: int
+var _has_input: bool
+var _input_tick: int
+var _is_predicted_tick: bool
+
 var _property_cache: PropertyCache
 var _freshness_store: RollbackFreshnessStore
 
 var _is_initialized: bool = false
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("RollbackSynchronizer")
+
+signal _on_transmit_state(state: Dictionary, tick: int)
 
 ## Process settings.
 ##
@@ -173,6 +191,49 @@ func add_input(node: Variant, property: String):
 	_properties_dirty = true
 	_reprocess_settings.call_deferred()
 
+## Check if input is available for the current tick.
+##
+## This input is not always current, it may be from multiple ticks ago.
+## [br][br]
+## Returns true if input is available.
+func has_input() -> bool:
+	return _has_input
+
+## Get the age of currently available input in ticks.
+##
+## The available input may be from the current tick, or from multiple ticks ago.
+## This number of tick is the input's age.
+## [br][br]
+## Calling this when [member has_input] is false will yield an error.
+func get_input_age() -> int:
+	if has_input():
+		return NetworkRollback.tick - _input_tick
+	else:
+		_logger.error("Trying to check input age without having input!")
+		return -1
+
+## Check if the current tick is predicted.
+##
+## A tick becomes predicted if there's no up-to-date input available. It will be
+## simulated and recorded, but will not be broadcast, nor considered
+## authoritative.
+func is_predicting() -> bool:
+	return _is_predicted_tick
+
+## Ignore a node's prediction for the current rollback tick.
+##
+## Call this when the input is too old to base predictions on. This call is
+## ignored if [member enable_prediction] is false.
+func ignore_prediction(node: Node):
+	if enable_prediction:
+		_skipset.add(node)
+
+func _ready():
+	if not NetworkTime.is_initial_sync_done():
+		# Wait for time sync to complete
+		await NetworkTime.after_sync
+	process_settings.call_deferred()
+
 func _connect_signals():
 	NetworkTime.before_tick.connect(_before_tick)
 	NetworkTime.after_tick.connect(_after_tick)
@@ -251,20 +312,33 @@ func _prepare_tick(tick: int):
 	PropertySnapshot.apply(state, _property_cache)
 	PropertySnapshot.apply(input, _property_cache)
 
+	# Save data for input prediction
+	_has_input = _retrieved_tick != -1
+	_input_tick = _retrieved_tick
+	_is_predicted_tick = not _inputs.has(tick)
+	
+	# Reset the set of simulated and ignored nodes
+	_simset.clear()
+	_skipset.clear()
+	
+	# Gather nodes that can be simulated
 	for node in _nodes:
 		if _can_simulate(node, tick):
 			NetworkRollback.notify_simulated(node)
 
 func _can_simulate(node: Node, tick: int) -> bool:
+	if not enable_prediction and not _inputs.has(tick):
+		# Don't simulate if prediction is not allowed and input is unknown
+		return false
 	if node.is_multiplayer_authority():
 		# Simulate from earliest input
 		# Don't simulate frames we don't have input for
-		return tick >= _earliest_input_tick and _inputs.has(tick)
+		return tick >= _earliest_input_tick
 	else:
 		# Simulate ONLY if we have state from server
 		# Simulate from latest authorative state - anything the server confirmed we don't rerun
 		# Don't simulate frames we don't have input for
-		return tick >= _latest_state_tick and _inputs.has(tick)
+		return tick >= _latest_state_tick
 
 func _process_tick(tick: int):
 	# Simulate rollback tick
@@ -274,20 +348,29 @@ func _process_tick(tick: int):
 	#		If authority: Latest input >= tick >= Latest state
 	#		If not: Latest input >= tick >= Earliest input
 	for node in _nodes:
-		if NetworkRollback.is_simulated(node):
-			var is_fresh = _freshness_store.is_fresh(node, tick)
-			NetworkRollback.process_rollback(node, NetworkTime.ticktime, tick, is_fresh)
-			_freshness_store.notify_processed(node, tick)
+		if not NetworkRollback.is_simulated(node):
+			continue
+
+		var is_fresh = _freshness_store.is_fresh(node, tick)
+		NetworkRollback.process_rollback(node, NetworkTime.ticktime, tick, is_fresh)
+
+		if _skipset.has(node):
+			continue
+
+		_freshness_store.notify_processed(node, tick)
+		_simset.add(node)
 
 func _record_tick(tick: int):
 	# Broadcast state we own
-	if not _auth_state_property_entries.is_empty():
+	if not _auth_state_property_entries.is_empty() and not _is_predicted_tick:
 		var full_state: Dictionary = {}
 
 		for property in _auth_state_property_entries:
-			if _can_simulate(property.node, tick - 1):
+			if _can_simulate(property.node, tick - 1) and not _skipset.has(property.node):
 				# Only broadcast if we've simulated the node
 				full_state[property.to_string()] = property.get_value()
+			
+		_on_transmit_state.emit(full_state, tick)
 
 		if full_state.size() > 0:
 			_latest_state_tick = max(_latest_state_tick, tick)
@@ -339,7 +422,19 @@ func _record_tick(tick: int):
 
 	# Record state for specified tick ( current + 1 )
 	if not _record_state_property_entries.is_empty() and tick > _latest_state_tick:
-		_states[tick] = PropertySnapshot.extract(_record_state_property_entries)
+		if _skipset.is_empty():
+			_states[tick] = PropertySnapshot.extract(_record_state_property_entries)
+		else:
+			var record_properties = _record_state_property_entries\
+				.filter(func(pe): return not _skipset.has(pe.node))
+
+			var merge_state = _get_history(_states, tick - 1)
+			var record_state = PropertySnapshot.extract(record_properties)
+
+			_states[tick] = PropertySnapshot.merge(merge_state, record_state)
+	
+	# Push metrics
+	NetworkPerformance.push_rollback_nodes_simulated(_simset.size())
 
 func _after_loop():
 	_earliest_input_tick = NetworkTime.tick
@@ -354,6 +449,7 @@ func _before_tick(_delta, tick):
 	PropertySnapshot.apply(state, _property_cache)
 
 func _after_tick(_delta, _tick):
+	# Record input
 	if not _record_input_property_entries.is_empty():
 		var input = PropertySnapshot.extract(_record_input_property_entries)
 		_inputs[NetworkTime.tick] = input
@@ -369,6 +465,7 @@ func _after_tick(_delta, _tick):
 
 		_attempt_submit_input(inputs)
 
+	# Trim history
 	while _states.size() > NetworkRollback.history_limit:
 		_states.erase(_states.keys().min())
 
@@ -391,26 +488,32 @@ func _reprocess_settings():
 	_properties_dirty = false
 	process_settings()
 
+# TODO: Eventually refactor into separate HistoryBuffer class
 func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
 	if buffer.has(tick):
+		_retrieved_tick = tick
 		return buffer[tick]
 
 	if buffer.is_empty():
+		_retrieved_tick = -1
 		return {}
 
 	var earliest_tick = buffer.keys().min()
 	var latest_tick = buffer.keys().max()
 
 	if tick < earliest_tick:
+		_retrieved_tick = earliest_tick
 		return buffer[earliest_tick]
 	
 	if tick > latest_tick:
+		_retrieved_tick = latest_tick
 		return buffer[latest_tick]
 	
 	var before = buffer.keys() \
 		.filter(func (key): return key < tick) \
 		.max()
-
+	
+	_retrieved_tick = before
 	return buffer[before]
 
 func _sanitize_by_authority(snapshot: Dictionary, sender: int) -> Dictionary:
@@ -511,7 +614,8 @@ func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 		var sanitized = _sanitize_by_authority(diff_state, sender)
 
 		if not sanitized.is_empty():
-			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), sanitized)
+			var result_state := PropertySnapshot.merge(reference_state, sanitized)
+			_states[tick] = result_state
 			_latest_state_tick = tick
 		else:
 			# State is completely invalid

@@ -64,6 +64,12 @@ signal before_loop()
 ## Handlers should apply the state and input corresponding to the given tick.
 signal on_prepare_tick(tick: int)
 
+## Event emitted after preparing each rollback tick.
+##
+## Handlers may process the prepared tick, e.g. modulating the input by its age
+## to implement input prediction.
+signal after_prepare_tick(tick: int)
+
 ## Event emitted to process the given rollback tick.
 ##
 ## Handlers should check if they *need* to resimulate the given tick, and if so,
@@ -172,6 +178,7 @@ func _rollback():
 		#	Done individually by Rewindables ( usually Rollback Synchronizers )
 		#	Restore input and state for tick
 		on_prepare_tick.emit(tick)
+		after_prepare_tick.emit(tick)
 
 		# Simulate rollback tick
 		#	Method call on rewindables
