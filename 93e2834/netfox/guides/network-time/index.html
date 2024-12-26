@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://foxssake.github.io/netfox/93e2834/netfox/guides/network-time/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>NetworkTime - netfox</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/mkdocs_puml/puml.css" rel="stylesheet" />
+        <link href="../../../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "NetworkTime";
+        var mkdocs_page_input_path = "netfox/guides/network-time.md";
+        var mkdocs_page_url = "/netfox/93e2834/netfox/guides/network-time/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> netfox
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../upgrading/">Upgrading netfox</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >Tutorials</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/responsive-player-movement/">Responsive player movement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/configuring-properties-from-code/">Configuring properties from code</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/rollback-caveats/">Rollback caveats</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/interpolation-caveats/">Interpolation caveats</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Concepts</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../concepts/servers-clients-ownership/">Servers, clients, and ownership</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../concepts/authoritative-servers/">Authoritative servers</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Guides</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../logging/">Logging</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">NetworkTime</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#network-tick-loop">Network tick loop</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#starting-and-stopping">Starting and stopping</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pausing">Pausing</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#time-synchronization">Time synchronization</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#synchronized-time">Synchronized time</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#local-time">Local time</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#remote-time">Remote time</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#settings">Settings</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../network-time-synchronizer/">NetworkTimeSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../network-events/">NetworkEvents</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../interpolators/">Interpolators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../property-paths/">Property paths</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../network-rollback/">NetworkRollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../network-performance/">NetworkPerformance</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Nodes</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../nodes/tick-interpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../nodes/rollback-synchronizer/">RollbackSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../nodes/state-synchronizer/">StateSynchronizer</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.noray</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.noray/guides/noray/">Noray</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.noray/guides/packet-handshake/">PacketHandshake</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.extras</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/base-net-input/">BaseNetInput</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/network-weapon/">NetworkWeapon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/rewindable-state-machine/">RewindableStateMachine</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/window-tiler/">WindowTiler</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">netfox</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">netfox</li>
+          <li class="breadcrumb-item">Guides</li>
+      <li class="breadcrumb-item active">NetworkTime</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="networktime">NetworkTime</h1>
+<p>Tracks shared network time between players, and provides an event loop for
+synchronized game updates. Provided as an autoload.</p>
+<p>A separate timer is provided for network ticks, making the network game 
+update rate independent from rendering or physics frames.</p>
+<h2 id="network-tick-loop">Network tick loop</h2>
+<p><em>NetworkTime</em> provides its own independent event loop by exposing signals. This
+makes networked game logic independent of current FPS, and makes it run at a
+consistent rate. Connect handlers to <em>NetworkTime</em>'s signals to implement
+networked game logic.</p>
+<p>During each frame, <em>NetworkTime</em> checks how much time has elapsed since the
+last tick loop. When more time has elapsed than a single tick's duration, the
+<em>network tick loop</em> will run:</p>
+<div class='puml-container'><div class="puml light" style="display: block"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="430px" preserveAspectRatio="xMidYMid meet" style="width:191px;height:430px;background:#FFFFFF;" version="1.1" viewBox="0 0 191 430" width="191px" zoomAndPan="magnify" class="diagram"><defs/><g><ellipse cx="94.656" cy="20" fill="#222222" rx="10" ry="10" style="stroke:#222222;stroke-width:1;"/><rect fill="#F1F1F1" height="33.9688" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="118.1035" x="35.6042" y="50"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="98.1035" x="45.6042" y="71.1387">before_tick_loop</text><rect fill="#F1F1F1" height="33.9688" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="86.4688" x="51.4216" y="159.6792"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="66.4688" x="61.4216" y="180.8179">before_tick</text><rect fill="#F1F1F1" height="33.9688" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="62.5332" x="63.3894" y="213.6479"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="42.5332" x="73.3894" y="234.7866">on_tick</text><rect fill="#F1F1F1" height="33.9688" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="76.1855" x="56.5632" y="267.6167"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="56.1855" x="66.5632" y="288.7554">after_tick</text><polygon fill="#F1F1F1" points="48,103.9688,141.312,103.9688,153.312,115.9688,141.312,127.9688,48,127.9688,36,115.9688,48,103.9688" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="16.2153" x="98.656" y="138.1792">&gt;0</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="93.312" x="48" y="119.7769">Ticks to simulate</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="6.9985" x="29.0015" y="113.3745">0</text><rect fill="#F1F1F1" height="33.9688" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="107.8203" x="40.7458" y="343.5854"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="87.8203" x="50.7458" y="364.7241">after_tick_loop</text><ellipse cx="94.656" cy="408.5542" fill="none" rx="11" ry="11" style="stroke:#222222;stroke-width:1;"/><ellipse cx="94.656" cy="408.5542" fill="#222222" rx="6" ry="6" style="stroke:#222222;stroke-width:1;"/><line style="stroke:#181818;stroke-width:1;" x1="94.656" x2="94.656" y1="30" y2="50"/><polygon fill="#181818" points="90.656,40,94.656,50,98.656,40,94.656,44" style="stroke:#181818;stroke-width:1;"/><line style="stroke:#181818;stroke-width:1;" x1="94.656" x2="94.656" y1="193.6479" y2="213.6479"/><polygon fill="#181818" points="90.656,203.6479,94.656,213.6479,98.656,203.6479,94.656,207.6479" style="stroke:#181818;stroke-width:1;"/><line style="stroke:#181818;stroke-width:1;" x1="94.656" x2="94.656" y1="247.6167" y2="267.6167"/><polygon fill="#181818" points="90.656,257.6167,94.656,267.6167,98.656,257.6167,94.656,261.6167" style="stroke:#181818;stroke-width:1;"/><line style="stroke:#181818;stroke-width:1;" x1="94.656" x2="94.656" y1="127.9688" y2="159.6792"/><polygon fill="#181818" points="90.656,149.6792,94.656,159.6792,98.656,149.6792,94.656,153.6792" style="stroke:#181818;stroke-width:1;"/><line style="stroke:#181818;stroke-width:1;" x1="94.656" x2="94.656" y1="301.5854" y2="311.5854"/><line style="stroke:#181818;stroke-width:1;" x1="94.656" x2="165.312" y1="311.5854" y2="311.5854"/><polygon fill="#181818" points="161.312,222.23,165.312,212.23,169.312,222.23,165.312,218.23" style="stroke:#181818;stroke-width:1;"/><line style="stroke:#181818;stroke-width:1;" x1="165.312" x2="165.312" y1="115.9688" y2="311.5854"/><line style="stroke:#181818;stroke-width:1;" x1="165.312" x2="153.312" y1="115.9688" y2="115.9688"/><polygon fill="#181818" points="163.312,111.9688,153.312,115.9688,163.312,119.9688,159.312,115.9688" style="stroke:#181818;stroke-width:1;"/><line style="stroke:#181818;stroke-width:1;" x1="36" x2="24" y1="115.9688" y2="115.9688"/><polygon fill="#181818" points="20,208.23,24,218.23,28,208.23,24,212.23" style="stroke:#181818;stroke-width:1;"/><line style="stroke:#181818;stroke-width:1;" x1="24" x2="24" y1="115.9688" y2="323.5854"/><line style="stroke:#181818;stroke-width:1;" x1="24" x2="94.656" y1="323.5854" y2="323.5854"/><line style="stroke:#181818;stroke-width:1;" x1="94.656" x2="94.656" y1="323.5854" y2="343.5854"/><polygon fill="#181818" points="90.656,333.5854,94.656,343.5854,98.656,333.5854,94.656,337.5854" style="stroke:#181818;stroke-width:1;"/><line style="stroke:#181818;stroke-width:1;" x1="94.656" x2="94.656" y1="83.9688" y2="103.9688"/><polygon fill="#181818" points="90.656,93.9688,94.656,103.9688,98.656,93.9688,94.656,97.9688" style="stroke:#181818;stroke-width:1;"/><line style="stroke:#181818;stroke-width:1;" x1="94.656" x2="94.656" y1="377.5542" y2="397.5542"/><polygon fill="#181818" points="90.656,387.5542,94.656,397.5542,98.656,387.5542,94.656,391.5542" style="stroke:#181818;stroke-width:1;"/></g></svg></div></div>
+
+<p>The tick loop will run as long as it catches up on ticks to run. Every loop is
+limited to run at most <code>max_ticks_per_frame</code> ticks to avoid overwhelming the
+CPU.</p>
+<p>To tie the network tick loop to Godot's physics process, enable
+<code>sync_to_physics</code>. This will result in the tick loop running a single tick in
+every physics update.</p>
+<p>To move your game logic to the network tick loop, use the <em>on_tick</em> event:</p>
+<div class="highlight"><pre><span></span><code><span class="k">extends</span><span class="w"> </span><span class="n">Node3D</span>
+
+<span class="err">@</span><span class="k">export</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">speed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">4.0</span>
+
+<span class="k">func</span><span class="w"> </span><span class="n">_ready</span><span class="p">():</span>
+<span class="w">  </span><span class="n">NetworkTime</span><span class="o">.</span><span class="n">on_tick</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">_tick</span><span class="p">)</span>
+
+<span class="k">func</span><span class="w"> </span><span class="n">_tick</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span><span class="w"> </span><span class="n">tick</span><span class="p">):</span>
+<span class="w">  </span><span class="c1"># Move forward</span>
+<span class="w">  </span><span class="n">position</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">basis</span><span class="o">.</span><span class="n">z</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">delta</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">speed</span>
+</code></pre></div>
+<blockquote>
+<p>By convention, <em>on_tick</em> handlers are named <em>_tick</em>.</p>
+</blockquote>
+<h2 id="starting-and-stopping">Starting and stopping</h2>
+<p>By default, <em>NetworkTime</em> does not run the tick loop at all. This lets you
+control when the network tick loop, and thus the game starts and stops.</p>
+<p>To start the tick loop, call the <code>NetworkTime.start()</code> coroutine. On servers,
+this will start the tick loop and return immediately. On clients, it will first
+synchronize the time to the server, start the network tick loop, and only then
+return. Use this when starting the game.</p>
+<blockquote>
+<p>Starting the tick loop before starting multiplayer is not supported.</p>
+</blockquote>
+<p>To stop the tick loop, call <code>NetworkTime.stop()</code>. This will immediately stop
+the tick loop and return. Use this when the player leaves a game.</p>
+<p>To get notified when a client successfully syncs their time and starts the tick
+loop, use the <code>NetworkTime.after_client_sync(peer_id)</code> signal. This is fired
+once per client, and only on the server.</p>
+<h2 id="pausing">Pausing</h2>
+<p><em>NetworkTime</em> also supports pausing the game, if needed. There's two cases
+where pauses are considered.</p>
+<p>When running ( and pausing ) the game from the editor, the network tick loop
+is automatically paused. As there's currently no API to detect the editor
+pausing the game, <em>NetworkTime</em> checks if Godot's <code>_process</code> delta and actual
+delta is mismatching, and if so, considers the game paused. In some cases, this
+can result in false positives when the game simply hangs for a bit, e.g. when
+loading resources.</p>
+<p>This pause detection only happens when the game is run from the editor, to
+avoid false positives in production builds.</p>
+<p>The other supported case is pausing the game from the engine itself. Whenever
+<code>SceneTree.paused</code> is set to true, <em>NetworkTime</em> won't run the tick loop.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Pausing the tick loop can cause desynchronization between peers, and could
+lead to clients fast-forwarding ticks to catch up, or time recalibrations.
+If the game is paused via SceneTree, make sure it is paused and unpaused at
+the same time on all peers.</p>
+</div>
+<h2 id="time-synchronization">Time synchronization</h2>
+<p><em>NetworkTime</em> runs a time synchronization loop on clients, in the background.
+Synchronizing time makes sure that all players have a shared idea of time and
+can exchange timing-related data.</p>
+<p>The synchronization itself is handled by <a href="../network-time-synchronizer/">NetworkTimeSynchronizer</a>.</p>
+<p><em>NetworkTime</em> provides different kinds of time, each for different use cases.
+Each time can be accessed as ticks or seconds. Both advance after every network
+tick.</p>
+<h3 id="synchronized-time">Synchronized time</h3>
+<ul>
+<li><code>NetworkTime.time</code></li>
+<li><code>NetworkTime.ticks</code></li>
+</ul>
+<p>Marks the current network game time. This is continuously synchronized, making
+sure that these values are as close to eachother on all peers as possible.</p>
+<p>Use this whenever a notion of game time is needed.</p>
+<h3 id="local-time">Local time</h3>
+<p><em>Deprecated since netfox v1.9.0.</em> Use synchronized time instead.</p>
+<ul>
+<li><code>NetworkTime.local_time</code></li>
+<li><code>NetworkTime.local_ticks</code></li>
+</ul>
+<p>Marks the current time in reference to the local machine. Starts at zero when
+the network tick loop starts.</p>
+<p>Useful for logic that is tied to the tick loop, but is not synchronized over
+the network. A good example is visual effects.</p>
+<p>Not suitable for synchronizing data, as the local time is different at each
+player.</p>
+<h3 id="remote-time">Remote time</h3>
+<p><em>Deprecated since netfox v1.9.0.</em> Use synchronized time instead.</p>
+<ul>
+<li><code>NetworkTime.remote_ticks</code></li>
+<li><code>NetwokrTime.remote_time</code></li>
+<li><code>NetworkTime.remote_rtt</code></li>
+</ul>
+<p>Marks the current <em>estimated</em> time of the server. This is a regularly updated
+estimate.</p>
+<p>Note that on each update, the remote time may jump forwards or even backwards.</p>
+<p>The estimate is based on the measured roundtrip time ( <em>remote_rtt</em> ) and the
+assumption that the latency is exactly half of that.</p>
+<p>Can be used as a base for comparisons ( e.g. latency ), but <em>not recommended</em>
+for tying game logic to it.</p>
+<p>To get notified when a time synchronization happens and the remote time is
+updated, use the <code>NetworkTime.after_sync</code> signal.</p>
+<h2 id="settings">Settings</h2>
+<p>Settings are found in the Project Settings, under Netfox &gt; Time:</p>
+<p><img alt="NetworkTime Settings" src="../../assets/network-time-settings.png" /></p>
+<p><em>Tickrate</em> specifies the number of ticks every second in the network tick loop.</p>
+<p><em>Max Ticks Per Frame</em> sets the maximum number of frames to simulate per tick loop. Used to avoid freezing the game under load.</p>
+<p><em>Recalibrate Threshold</em> is the largest allowed time discrepancy in seconds. If
+the difference between the remote clock and reference clock is larger than this
+setting, the reference clock will be reset to the remote clock. See
+<a href="../network-time-synchronizer/">NetworkTimeSynchronizer</a> for more details.</p>
+<p><em>Sync Interval</em> is the resting time in seconds between sampling the remote
+clock.</p>
+<p><em>Sync Samples</em> is the number of measurements to use for time synchronization.
+This includes measuring roundtrip time and estimating clock offsets.</p>
+<p><em>Sync Adjust Steps</em> is the number of iterations to use when adjusting the
+reference clock. Larger values result in more stable clocks but slower
+convergence, while smaller values synchronize more aggressively.</p>
+<p><em>Sync Sample Interval</em> <em>deprecated in netfox v1.9.0</em>. Originally used as the
+resting time between roundtrip measurements.</p>
+<p><em>Sync to Physics</em> ensures that the network tick loop runs in Godot's physics
+process when enabled. This can be useful in cases where a lot of physics
+operations need to be done as part of the tick- or the rollback loop.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../logging/" class="btn btn-neutral float-left" title="Logging"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../network-time-synchronizer/" class="btn btn-neutral float-right" title="NetworkTimeSynchronizer">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../logging/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../network-time-synchronizer/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../assets/mkdocs_puml/puml.js"></script>
+      <script src="../../../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
