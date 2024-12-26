@@ -21,5 +21,5 @@ fi;
 
 # Push version
 print -e "Pushing version $BOLD$VERSION$NC"
-# mike deploy --push "$VERSION"
+mike deploy --push "$VERSION"
 
