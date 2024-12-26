@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>RewindableStateMachine - netfox</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "RewindableStateMachine";
+        var mkdocs_page_input_path = "netfox.extras/guides/rewindable-state-machine.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> netfox
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../upgrading/">Upgrading netfox</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Tutorials</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/tutorials/responsive-player-movement/">Responsive player movement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/tutorials/rollback-caveats/">Rollback caveats</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/tutorials/interpolation-caveats/">Interpolation caveats</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Concepts</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/concepts/servers-clients-ownership/">Servers, clients, and ownership</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/concepts/authoritative-servers/">Authoritative servers</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/guides/logging/">Logging</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/guides/network-time/">NetworkTime</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/guides/network-time-synchronizer/">NetworkTimeSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/guides/network-events/">NetworkEvents</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/guides/interpolators/">Interpolators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/guides/property-paths/">Property paths</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/guides/network-rollback/">NetworkRollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/guides/network-performance/">NetworkPerformance</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Nodes</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/nodes/tick-interpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/nodes/rollback-synchronizer/">RollbackSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/nodes/state-synchronizer/">StateSynchronizer</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.noray</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.noray/guides/noray/">Noray</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.noray/guides/packet-handshake/">PacketHandshake</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.extras</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Guides</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../base-net-input/">BaseNetInput</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../network-weapon/">NetworkWeapon</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="./">RewindableStateMachine</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#creating-a-state-machine">Creating a state machine</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#implementing-states">Implementing states</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#caveats">Caveats</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../window-tiler/">WindowTiler</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">netfox</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">netfox.extras</li>
+          <li class="breadcrumb-item">Guides</li>
+      <li class="breadcrumb-item active">RewindableStateMachine</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="rewindablestatemachine">RewindableStateMachine</h1>
+<p>Rollback-aware state machine implementation.</p>
+<p>State machines are often used in games to implement different behaviors.
+However, most implementations are not prepared for rollbacks. This class
+provides an extensible implementation that can be used alongside a
+<a href="../../../netfox/nodes/rollback-synchronizer/">RollbackSynchronizer</a>.</p>
+<p>For a full example, see <a href="https://github.com/foxssake/netfox/tree/main/examples/multiplayer-state-machine">multiplayer-state-machine</a>.</p>
+<h2 id="creating-a-state-machine">Creating a state machine</h2>
+<p>The first step is to add the RewindableStateMachine to your scene. It also
+requires a RollbackSynchronizer that manages its <code>state</code> property. Unless these
+conditions are satisfied, an editor warning will be displayed.</p>
+<blockquote>
+<p>Note: Editor warnings are only updated when the node tree changes,
+configuration changes don't trigger an update. You may need to reload the
+scene after fixing a warning.</p>
+</blockquote>
+<p><img alt="RewindableStateMachine with
+RollbackSynchronizer" src="../../assets/rewindable-state-machine-rollback.png" /></p>
+<p>Notice the RollbackSynchronizer added as a sibling to the
+RewindableStateMachine, and having its <code>state</code> property configured.</p>
+<h2 id="implementing-states">Implementing states</h2>
+<p>States are where the custom gameplay logic can be implemented. Each state must
+be an extension of the RewindableState class, and added as a child to the
+RewindableStateMachine.</p>
+<p>States react to the game world using the following callbacks:</p>
+<ul>
+<li><code>tick(delta, tick, is_fresh)</code> is called for every rollback tick.</li>
+<li><code>enter(previous_state, tick)</code> is called when entering the state.</li>
+<li><code>exit(next_state, tick)</code> is called when exiting the state.</li>
+<li><code>can_enter(previous_state)</code> is called before entering the state. The state is
+  only entered if this method returns true.</li>
+</ul>
+<p>You can override any of these callbacks to implement your custom behaviors.</p>
+<p>For example, the snippet below implements an idle state, that transitions to
+other states based on movement inputs:</p>
+<pre><code class="language-gdscript">extends RewindableState
+
+@export var input: PlayerInputStateMachine
+
+func tick(delta, tick, is_fresh):
+    if input.movement != Vector3.ZERO:
+        state_machine.transition(&amp;&quot;Move&quot;)
+    elif input.jump:
+        state_machine.transition(&amp;&quot;Jump&quot;)
+
+</code></pre>
+<p>Transitions are based on <em>node names</em>, i.e. calling <code>transition(&amp;"Move")</code> will
+transition to a state node called <em>Move</em>. </p>
+<p><img alt="RewindableStates under a state
+machine" src="../../assets/rewindable-state-children.png" /></p>
+<p>States must be added as children under a RewindableStateMachine to work.</p>
+<h2 id="caveats">Caveats</h2>
+<p>RewindableStateMachine runs in the <a href="../../../netfox/guides/network-rollback/#network-rollback-loop">rollback tick loop</a>, which means that all
+the <a href="../../../netfox/tutorials/rollback-caveats/">Rollback Caveats</a> apply.</p>
+<p>In addition, rollback ticks are only ran for nodes that have known inputs for
+the given tick, and <em>need</em> to be simulated - either on the server to determine
+the new state, or on the client to predict. In practice, ticks are usually only
+ran on the host owning state and the client owning inputs. The rest of the
+peers use the state broadcast by the host.</p>
+<p><strong>This means that transition callbacks are not always ran.</strong> This is by design
+and expected ( see <a href="https://github.com/foxssake/netfox/issues/327#issuecomment-2491251374">#327</a> ).</p>
+<p>As a best practice, in the <code>enter()</code>, <code>exit()</code> callbacks and the
+<code>on_state_changed</code> signal, only change game state - i.e. properties that are
+configured as state in <a href="../../../netfox/nodes/rollback-synchronizer/">RollbackSynchronizer</a>.</p>
+<p>To update visuals - e.g. change animation, spawn effects, etc. -, use the
+<code>on_display_state_changed</code> signal to react to state transitions.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../network-weapon/" class="btn btn-neutral float-left" title="NetworkWeapon"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../window-tiler/" class="btn btn-neutral float-right" title="WindowTiler">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../network-weapon/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../window-tiler/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+      <script src="../../../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
