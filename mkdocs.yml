@@ -3,6 +3,8 @@ site_url: 'https://foxssake.github.io/netfox/'
 theme:
   name: readthedocs
   custom_dir: docs/custom_theme/
+extra_css:
+  - css/version-selector.css
 plugins:
   - plantuml:
       puml_url: https://www.plantuml.com/plantuml/
