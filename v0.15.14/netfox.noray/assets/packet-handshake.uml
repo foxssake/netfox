@@ -1,0 +1,28 @@
+@startuml
+
+actor "Player A" as A
+entity "Router A" as RA
+boundary Internet as Net
+entity "Router B" as RB
+actor "Player B" as B
+
+A ->x RB : $-w-
+note over RB: Packet denied
+
+B ->x RA : $-w-
+note over RA: Packet denied
+
+note over RA, RB: NAT table updated on both routers
+
+A -> B: $-w-
+note over RB: Packed allowed
+
+B -> A: $-w-
+note over RB: Packed allowed
+
+A -> B: $rwx
+B -> A: $rwx
+
+note over Net #lightgreen: Connection established
+
+@enduml
