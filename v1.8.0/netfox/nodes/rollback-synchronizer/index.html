@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://foxssake.github.io/netfox/v1.8.0/netfox/nodes/rollback-synchronizer/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>RollbackSynchronizer - netfox</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "RollbackSynchronizer";
+        var mkdocs_page_input_path = "netfox/nodes/rollback-synchronizer.md";
+        var mkdocs_page_url = "/netfox/v1.8.0/netfox/nodes/rollback-synchronizer/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> netfox
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../upgrading/">Upgrading netfox</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >Tutorials</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/responsive-player-movement/">Responsive player movement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/rollback-caveats/">Rollback caveats</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Concepts</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../concepts/servers-clients-ownership/">Servers, clients, and ownership</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../concepts/authoritative-servers/">Authoritative servers</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/logging/">Logging</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-time/">NetworkTime</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-time-synchronizer/">NetworkTimeSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-events/">NetworkEvents</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/interpolators/">Interpolators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/property-paths/">Property paths</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-rollback/">NetworkRollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-performance/">NetworkPerformance</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Nodes</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../tick-interpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">RollbackSynchronizer</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#configuring-state-and-input">Configuring state and input</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#writing-rollback-aware-scripts">Writing rollback-aware scripts</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#changing-configuration">Changing configuration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#changing-ownership">Changing ownership</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../state-synchronizer/">StateSynchronizer</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.noray</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.noray/guides/noray/">Noray</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.noray/guides/packet-handshake/">PacketHandshake</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.extras</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/base-net-input/">BaseNetInput</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/network-weapon/">NetworkWeapon</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">netfox</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">netfox</li>
+          <li class="breadcrumb-item">Nodes</li>
+      <li class="breadcrumb-item active">RollbackSynchronizer</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="rollbacksynchronizer">RollbackSynchronizer</h1>
+<p>Manages state during the network rollback loop by hooking into
+<a href="../../guides/network-rollback/">NetworkRollback</a> events. Simulates nodes as required during rollback.</p>
+<h2 id="configuring-state-and-input">Configuring state and input</h2>
+<p>To use <em>RollbackSynchronizer</em>, add it as a child to the target node, specify
+the root node, and configure which properties to manage:</p>
+<p><img alt="RollbackSynchronizer configuration" src="../../assets/rollback-synchronizer-config.png" /></p>
+<p><em>Root</em> specifies the root node for resolving state and input properties. Best
+practice dictates to add <em>RollbackSynchronizer</em> under its target, so <em>Root</em>
+will most often be the <em>RollbackSynchronizer</em>'s parent node.</p>
+<p><em>State properties</em> are recorded for each tick and restored during rollback. For
+state, the server is the ultimate authority. Make sure that nodes containing
+state properties are owned by the server.</p>
+<p><em>Input properties</em> are gathered for each player and sent to the server to use
+for simulation. Make sure that nodes containing input properties are owned by
+their respective players.</p>
+<p>See <a href="../../guides/property-paths/">Property paths</a> on how to specify properties.</p>
+<p><em>enable_input_broadcast</em> toggles whether input properties are broadcast to all
+peers, or only to the server. The default is <em>true</em> to support legacy
+behaviour. It is recommended to turn this off to lower bandwidth and lessen the
+attack surface for cheating.</p>
+<blockquote>
+<p><em>Note</em> that it is not recommended to have both state and input properties on
+the same node. Since nodes with state belong to the server, and nodes with
+input belong to the player, it is difficult to separate ownership on the same
+node.</p>
+</blockquote>
+<h2 id="writing-rollback-aware-scripts">Writing rollback-aware scripts</h2>
+<p>During setup, <em>RollbackSynchronizer</em> finds all the rollback-aware nodes under
+the specified <em>root</em>. During rollback, it will call all the rollback-aware
+nodes to simulate new state.</p>
+<p>To learn about rollback-awareness, see <a href="../../guides/network-rollback/">NetworkRollback</a>.</p>
+<p>In short, implement <code>_rollback_tick</code> in your scripts:</p>
+<pre><code class="language-gdscript">extends CharacterBody3D
+
+@export var speed = 4.0
+@export var input: PlayerInput
+
+func _rollback_tick(delta, tick, is_fresh):
+  velocity = input.movement.normalized() * speed
+  velocity *= NetworkTime.physics_factor
+
+  move_and_slide()
+</code></pre>
+<h2 id="changing-configuration">Changing configuration</h2>
+<p><em>RollbackSynchronizer</em> has to do some setup work whenever the state or the
+input properties change.</p>
+<p>By default, this work is done upon instantiation. If you need to change state
+or input properties during runtime, make sure to call <code>process_settings()</code>,
+otherwise <em>RollbackSynchronizer</em> won't apply the changes.</p>
+<p>While changing configuration after instantiation is possible, it is not
+recommended. You may get away with it if the configuration change happens in a
+few ticks after instantiation. For longer periods, experiment at your own risk.</p>
+<h2 id="changing-ownership">Changing ownership</h2>
+<p>The setup work above is also needed whenever the multiplayer authority changes
+of any of the nodes that have a state- or input property.</p>
+<p>Changing authority during gameplay is supported. Make sure to call
+<code>process_authority()</code> on all peers at the same time, to ensure they're on sync
+about ownership.</p>
+<p>This method is called automatically during instantiation and whenever
+<code>process_settings()</code> is called.</p>
+<hr />
+<p>When <em>only</em> multiplayer authority changes, call <code>process_authority()</code>. When the
+configured state- or input properties change ( i.e. different properties need
+to be synced ), call <code>process_settings()</code>.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../tick-interpolator/" class="btn btn-neutral float-left" title="TickInterpolator"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../state-synchronizer/" class="btn btn-neutral float-right" title="StateSynchronizer">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../tick-interpolator/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../state-synchronizer/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+      <script src="../../../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

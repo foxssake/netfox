@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://foxssake.github.io/netfox/v1.8.0/netfox.noray/guides/noray/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Noray - netfox</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Noray";
+        var mkdocs_page_input_path = "netfox.noray/guides/noray.md";
+        var mkdocs_page_url = "/netfox/v1.8.0/netfox.noray/guides/noray/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> netfox
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../upgrading/">Upgrading netfox</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Tutorials</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/tutorials/responsive-player-movement/">Responsive player movement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/tutorials/rollback-caveats/">Rollback caveats</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Concepts</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/concepts/servers-clients-ownership/">Servers, clients, and ownership</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/concepts/authoritative-servers/">Authoritative servers</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/guides/logging/">Logging</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/guides/network-time/">NetworkTime</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/guides/network-time-synchronizer/">NetworkTimeSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/guides/network-events/">NetworkEvents</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/guides/interpolators/">Interpolators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/guides/property-paths/">Property paths</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/guides/network-rollback/">NetworkRollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/guides/network-performance/">NetworkPerformance</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Nodes</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/nodes/tick-interpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/nodes/rollback-synchronizer/">RollbackSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/nodes/state-synchronizer/">StateSynchronizer</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.noray</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" >Guides</a>
+    <ul class="current">
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Noray</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#identifiers">Identifiers</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#relays-and-nat-punchthrough">Relays and NAT Punchthrough</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#registering-with-noray">Registering with noray</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#starting-a-host">Starting a host</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#starting-a-client">Starting a client</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#handling-signals">Handling signals</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../packet-handshake/">PacketHandshake</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.extras</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/base-net-input/">BaseNetInput</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/network-weapon/">NetworkWeapon</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">netfox</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">netfox.noray</li>
+          <li class="breadcrumb-item">Guides</li>
+      <li class="breadcrumb-item active">Noray</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="noray">Noray</h1>
+<p>Singleton providing <a href="https://github.com/foxssake/noray">noray</a> integration.</p>
+<p><em>noray</em> is a backend application that orchestrates connection between players.
+To do this, players send a connection request to <em>noray</em>, and in turn <em>noray</em>
+sends the players' external addresses to eachother. It is then up to the
+players to conduct a handshake process.</p>
+<p>If the handshake fails, players can request a <em>relay</em> from <em>noray</em>. In these
+cases, <em>noray</em> will receive data from one player and forward it to the other,
+acting as a middle man.</p>
+<h2 id="identifiers">Identifiers</h2>
+<p><em>noray</em> identifies players with two different IDs: OpenID and PrivateID.</p>
+<p><em>OpenID</em> is public, and can be shared with other players. This ID is used to
+identify hosts when connecting to games.</p>
+<p><em>PrivateID</em> is only sent to the player it identifies and should <strong>never</strong> be
+shared. Acts similar to a password, and is used to authorize commands.</p>
+<h2 id="relays-and-nat-punchthrough">Relays and NAT Punchthrough</h2>
+<p><em>noray</em> provides two methods of connecting players.</p>
+<p><em>NAT Punchthrough</em> relies on the NAT table. Players must continuously send data
+to eachother until either two-way communication is established, or a timeout is
+reached. For certain router setups, NAT punchthrough does not work.</p>
+<p>See: <a href="https://keithjohnston.wordpress.com/2014/02/17/nat-punch-through-for-multiplayer-games/">NAT Punch-through for Multiplayer Games</a></p>
+<p>For <em>relays</em>, <em>noray</em> allocates a specific port to a given player. When <em>noray</em>
+receives data on this port, it will forward it as-is to the player. As long as
+<em>noray</em> is accessible over the internet, relays should work reliably no matter
+the router setup.</p>
+<h2 id="registering-with-noray">Registering with noray</h2>
+<p>To start using <em>noray</em>, connect to a <em>noray</em> server, request IDs by
+registering, and then register the remote address:</p>
+<pre><code class="language-gdscript">var host = &quot;some.noray.host&quot;
+var port = 8890
+var err = OK
+
+# Connect to noray
+err = await Noray.connect_to_host(host, port)
+if err != OK:
+  return err # Failed to connect
+
+# Register host
+Noray.register_host()
+await Noray.on_pid
+
+# Register remote address
+# This is where noray will direct traffic
+err = await Noray.register_remote()
+if err != OK:
+  return err # Failed to register
+</code></pre>
+<p>By calling <code>Noray.register_host()</code>, a request is sent to <em>noray</em>. Once a
+response is received, both the <code>on_pid</code> and <code>on_oid</code> signals are fired, for
+receiving the PrivateID and OpenID respectively.</p>
+<p>The remote address must be registered so that <em>noray</em> knows where to direct
+other players wanting to connect. This process also sets <code>Noray.local_port</code>,
+which is where traffic can be received through <em>noray</em>.</p>
+<h2 id="starting-a-host">Starting a host</h2>
+<p>To host a game, start listening on <em>noray</em>'s local port:</p>
+<pre><code class="language-gdscript">var peer = ENetMultiplayerPeer.new()
+var err = peer.create_server(Noray.local_port)
+
+if err != OK:
+  return false # Failed to listen on port
+</code></pre>
+<p>The rest is handled by <em>noray</em>.</p>
+<h2 id="starting-a-client">Starting a client</h2>
+<p>To connect to a game, send a request to <em>noray</em> with the host's OpenID.</p>
+<pre><code class="language-gdscript">var oid = &quot;abcd1234&quot;
+
+# Connect using NAT punchthrough
+Noray.connect_nat(oid)
+
+# Or connect using relay
+Noray.connect_relay(oid)
+</code></pre>
+<p>Once the request is sent, <em>noray</em> will send a message to both the client and
+the host players to connect to each other. The actual connection is done by
+handling signals.</p>
+<blockquote>
+<p><em>Note</em> that <em>noray</em> provides no functionality to share OpenIDs. For
+development, you can display the OpenID in a textbox, letting players copy it
+and share over their preferred messaging app.</p>
+</blockquote>
+<h2 id="handling-signals">Handling signals</h2>
+<p>When a connect message is received, the appropriate signal is fired.</p>
+<p><em>on_connect_nat</em> is fired to connect with NAT punchthrough.</p>
+<p><em>on_connect_relay</em> is fired to connect to a relay.</p>
+<p>In both cases, a public address is passed to the signal handler, in the form of
+an address string and a port. Handlers must conduct a handshake ( e.g. with
+<a href="../packet-handshake/">PacketHandshake</a> ) and connect if successful.</p>
+<p>Client example:</p>
+<pre><code class="language-gdscript">func _ready():
+  Noray.on_connect_nat.connect(_handle_connect)
+  Noray.on_connect_relay.connect(_handle_connect)
+
+func _handle_connect(address: String, port: int) -&gt; Error:
+  # Do a handshake
+  var udp = PacketPeerUDP.new()
+  udp.bind(Noray.local_port)
+  udp.set_dest_address(address, port)
+
+  var err = await PacketHandshake.over_packet_peer(udp)
+  udp.close()
+
+  if err != OK:
+    return err
+
+  # Connect to host
+  var peer = ENetMultiplayerPeer.new()
+  err = peer.create_client(address, port, 0, 0, 0, Noray.local_port)
+
+  if err != OK:
+    return err
+
+  return OK
+</code></pre>
+<blockquote>
+<p><em>Note:</em> Make sure to <strong>always</strong> specifiy the local port for the client - this
+is the only port noray recognizes, and failing to specify it will result in
+broken connectivity.</p>
+</blockquote>
+<p>Host example:</p>
+<pre><code class="language-gdscript">func _ready():
+  Noray.on_connect_nat.connect(_handle_connect)
+  Noray.on_connect_relay.connect(_handle_connect)
+
+func _handle_connect(address: String, port: int) -&gt; Error:
+  var peer = get_tree().get_multiplayer().multiplayer_peer as ENetMultiplayerPeer
+  var err = await PacketHandshake.over_enet(peer.host, address, port)
+
+  if err != OK:
+    return err
+
+  return OK
+</code></pre>
+<blockquote>
+<p><em>Note:</em> The host handshake is a bit different, as it can't receive manual
+packets, only send them. So it assumes that the target is always responsive,
+and just blasts them with a bunch of packets. If the target is indeed
+responsive, it can connect. If not, nothing happens, as expected.</p>
+</blockquote>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../../netfox/nodes/state-synchronizer/" class="btn btn-neutral float-left" title="StateSynchronizer"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../packet-handshake/" class="btn btn-neutral float-right" title="PacketHandshake">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../../../netfox/nodes/state-synchronizer/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../packet-handshake/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+      <script src="../../../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
