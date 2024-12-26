@@ -1,6 +1,8 @@
 site_name: netfox
 site_url: 'https://foxssake.github.io/netfox/'
-theme: readthedocs
+theme:
+  name: readthedocs
+  custom_dir: docs/custom_theme/
 plugins:
   - plantuml:
       puml_url: https://www.plantuml.com/plantuml/
