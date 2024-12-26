@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Ticking in Sync - netfox</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Ticking in Sync";
+        var mkdocs_page_input_path = "tutorials/ticking-in-sync.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> netfox
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tutorials</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Ticking in Sync</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#tldr">tl;dr</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#the-challenge">The challenge</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#ticks">Ticks</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#times">Times</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#networktime">NetworkTime</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#different-times">Different times</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#local-time">Local time</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#remote-time">Remote time</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#time">Time</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#utilities">Utilities</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#project-settings">Project Settings</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../rollback/">Rollback</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/network-time/">NetworkTime</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/network-time-synchronizer/">NetworkTimeSynchronizer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/network-events/">NetworkEvents</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/interpolators/">Interpolators</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/property-paths/">Property paths</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/network-rollback/">NetworkRollback</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Nodes</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nodes/tick-interpolator/">TickInterpolator</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">netfox</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Tutorials</li>
+      <li class="breadcrumb-item active">Ticking in Sync</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="ticking-in-sync">Ticking in Sync</h1>
+<h2 id="tldr">tl;dr</h2>
+<ul>
+<li>Call <code>NetworkTime.start()</code> when gameplay starts and <code>NetworkTime.stop()</code> when
+  it ends</li>
+<li>Subscribe to <code>NetworkTime.on_tick</code> signal for your game logic, instead of
+  <code>_process</code> or <code>_physics_process</code></li>
+<li>Use <code>NetworkTime.time</code> or <code>NetworkTime.tick</code> for current game time in seconds
+  or ticks respectively</li>
+<li>For more in-depth explanations, see <a href="../../guides/network-time/">NetworkTime</a></li>
+</ul>
+<h2 id="the-challenge">The challenge</h2>
+<h3 id="ticks">Ticks</h3>
+<p>Multiplayer games, similarly to "regular" single-player games, are interactive
+simulations. These consist of a game state ( e.g. the map, the players, the
+enemies, etc. ), which are affected by the player via input ( e.g. keyboard and
+mouse ).</p>
+<p>Based on this input, the game state is updated regularly, many times a second,
+giving the illusion that things happen continuously, in a fluid manner. We will
+refer to these updates as <em>ticks</em>. The amount of ticks in a second is called
+the <em>tickrate</em>.</p>
+<p>It would sound logical to run games at as high as a tickrate as the PC can
+handle to make everything smoother, but that can be actually counter-intuitive.
+Some kinds of simulations can be sensitive to varying tickrates, and often the
+actual tickrate doesn't even need to be that high. For slower games, you may be
+able to get away with 30 ticks per second, instead of trying to push through
+1200 updates per second over the Atlantic.</p>
+<p>Note that this tickrate can differ from the game's render rate or <em>frames per
+second</em> you see on the screen. For rendering, games generally either try to
+match the display's refresh rate, or just output as many frames as they can.</p>
+<p>Adding multiplayer to the mix complicates things a lot further, almost
+irrespective of the architecture used, as handling player data and/or input
+that can arrive at any moment can be difficult.</p>
+<p>To simplify things and avoid a lot of edge cases, we can make sure that all
+players' simulation runs at the same tickrate, so that for example one player
+won't send twice as many updates as another in the same interval.</p>
+<p>Having a fixed tickrate also makes it easier to think of each tick as a list of
+steps we can do to make sure the simulation is consistent across all players,
+for example:</p>
+<ol>
+<li>Gather inputs from all players</li>
+<li>Update player state</li>
+<li>Broadcast changes</li>
+</ol>
+<p>Imagine trying to do the same, but trying to account for the fact that one
+player is running at 60 ticks per second and needs very frequent updates, the
+other player is doing 30 ticks per second, and we may or may not receive any
+input at all, or we may receive multiple inputs for the same tick.</p>
+<h3 id="times">Times</h3>
+<p>Other times, we need to synchronize data or events that are tied to times. For
+example, a player picked up a powerup and it will expire at the 27th second of
+the game. Or player B will respawn at the 38th second.</p>
+<p>For these cases, it's important to have all clients share a common notion of
+time - what's the current time? While this does not need to be exact ( and
+doesn't even need to be ), it is important that this shared notion to be
+reasonably accurate, and for time to advance at the same rate at every player.</p>
+<h2 id="networktime">NetworkTime</h2>
+<p><code>NetworkTime</code> is netfox's solution to synchronizing time and tickrate for all
+participants.</p>
+<p>It drives the network tick loop, by emitting signals. Subscribing to these
+guarantees that ticks are done at the same rate for all the participants.</p>
+<p>While ticks happen at the same time, you may need different notions of time for
+different use cases.</p>
+<p>To use NetworkTime, call <code>NetworkTime.start()</code> when your game starts ( either
+by hosting it or connecting to a server ), and call <code>NetworkTime.stop()</code> once
+the game is over.</p>
+<h2 id="different-times">Different times</h2>
+<h3 id="local-time">Local time</h3>
+<p>This is the simplest one of them all. It is basically the time that has elapsed
+since NetworkTime is running - it starts at 0 and ticks upwards infinitely. Can
+be used for things that are updated during network ticks, but don't need to be
+synchronized across multiple devices, for example visuals.</p>
+<ul>
+<li><code>NetworkTime.local_time</code> - The number of seconds elapsed in local time</li>
+<li><code>NetworkTime.local_ticks</code> - The number of ticks elapsed in local time</li>
+</ul>
+<h3 id="remote-time">Remote time</h3>
+<p>To think in terms of shared time, the time on the host must be known. Due to
+the laws of physics, we can't know <em>exactly</em> what's the time on the host. We
+may ask, but it also takes time to send the question and receive the answer, so
+the received info will be off. In addition, we can't know if the information
+travels the same speed towards the host as it travels back to us. This latter
+part is actually impossible to ever know - from our single point of view, it
+might have taken 0% of the time to send the question, and 100% of the time to
+receive the answer, and we wouldn't notice anything from it!</p>
+<p>However, it is possible to <em>estimate</em> the time this roundtrip takes, and then
+<em>assume</em> that information travels the same speed both ways - thus deduce that
+latency is half of our estimated roundtrip.</p>
+<p>And with that, we have an estimate of what's the time on the host.</p>
+<p>Note that network conditions may change, thus the remote time is regularly
+updated by the newest estimate. This also means that the remote time may jump
+forwards or even backwards, as it's updated.</p>
+<p>Can be used as a base for comparisons ( e.g. latency ), but <em>not recommended</em>
+for tying game logic to it.</p>
+<ul>
+<li><code>NetworkTime.remote_ticks</code> - Estimated time on the host, in ticks</li>
+<li><code>NetwokrTime.remote_time</code> - Estimated time on the host, in seconds</li>
+<li><code>NetworkTime.remote_rtt</code> - Estimated roundtrip time to host, in seconds</li>
+</ul>
+<h3 id="time">Time</h3>
+<p>"Regular" time combines the best of both worlds - it is based on an estimate of
+the host's time, but doesn't jump around. It is synced to the host once, and
+then only ever updated in case the clocks go extremely out of sync for whatever
+reason.</p>
+<p>Use this as your go-to solution, and specifically when you need to share
+timestamps between clients - for example sending a message saying Player C
+fired their gun at tick #357.</p>
+<ul>
+<li><code>NetworkTime.time</code> - Network time, in seconds</li>
+<li><code>NetworkTime.ticks</code> - Network time, in ticks</li>
+</ul>
+<h2 id="utilities">Utilities</h2>
+<p>NetworkTime also provides various methods and properties regarding time:</p>
+<ul>
+<li><code>NetworkTime.tickrate</code></li>
+<li><code>NetworkTime.ticktime</code></li>
+<li>
+<p><code>NetworkTime.tick_factor</code></p>
+</li>
+<li>
+<p><code>NetworkTime.ticks_to_seconds(ticks)</code></p>
+</li>
+<li><code>NetworkTime.seconds_to_ticks(seconds)</code></li>
+<li><code>NetworkTime.ticks_between(from_seconds, to_seconds)</code></li>
+<li><code>NetworkTime.seconds_between(from_tick, to_tick)</code></li>
+</ul>
+<p><em>TODO</em>: Reference docs</p>
+<h2 id="project-settings">Project Settings</h2>
+<p>Actual tickrate is controlled by project settings, and cannot be changed at
+runtime. The settings themselves are under <em>Netfox/Time</em>.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../.." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../rollback/" class="btn btn-neutral float-right" title="Rollback">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../.." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../rollback/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+      <script src="../../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

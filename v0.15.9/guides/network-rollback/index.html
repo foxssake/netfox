@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>NetworkRollback - netfox</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "NetworkRollback";
+        var mkdocs_page_input_path = "guides/network-rollback.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> netfox
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tutorials</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tutorials/ticking-in-sync/">Ticking in Sync</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tutorials/rollback/">Rollback</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../network-time/">NetworkTime</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../network-time-synchronizer/">NetworkTimeSynchronizer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../network-events/">NetworkEvents</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../interpolators/">Interpolators</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../property-paths/">Property paths</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">NetworkRollback</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#network-rollback-loop">Network rollback loop</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#conditional-simulation">Conditional simulation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#rollback-awareness">Rollback-awareness</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#settings">Settings</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Nodes</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nodes/tick-interpolator/">TickInterpolator</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">netfox</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Guides</li>
+      <li class="breadcrumb-item active">NetworkRollback</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="networkrollback">NetworkRollback</h1>
+<p>Orchestrates the network rollback loop. Provided as an autoload.</p>
+<p>Due to latency, the server may receive inputs from clients from multiple ticks
+ago. Whenever this happens, the server rewinds its time and resimulates the
+whole game from the time of the new input. The resimulated ticks are then sent
+to clients to update their state.</p>
+<p>Also due to latency, clients may receive a state from the server that is
+several ticks old. Clients rewind their simulation to the time of the latest
+received state and resimulate from there.</p>
+<p>On both clients and servers, simulated states are recorded for reuse later.</p>
+<p>Further reading: <a href="https://www.gabrielgambetta.com/client-side-prediction-server-reconciliation.html">Client-Side Prediction and Server Reconciliation</a></p>
+<p>Note that most of the time you do not need to use this class - the
+<a href="../nodes/rollback-synchronizer.md">RollbackSynchronizer</a> node helps with writing rollback-aware behaviour.</p>
+<h2 id="network-rollback-loop">Network rollback loop</h2>
+<p><em>NetworkRollback</em> runs the <em>network rollback loop</em> after every network tick,
+but before the <em>after tick</em> signal is fired.</p>
+<p>The following is the network rollback loop in isolation:</p>
+<p><img alt="Network rollback loop" src="../../assets/network-rollback-loop.svg" /></p>
+<p>Signal handlers must implement the right steps for rollback to work.</p>
+<p>During <em>before_loop</em>, all rollback-aware nodes must submit where to start the
+resimulation, by calling <code>NetworkRollback.notify_resimulation_start</code>.
+Resimulation will begin from the earliest tick submitted.</p>
+<p>In each <em>on_prepare_tick(tick)</em> handler, nodes must rewind their state to the
+specified tick. If a state is not available for the given tick, use the latest
+tick that is earlier than the given tick. Nodes may also register themselves as
+being simulated by calling <code>NetworkRollback.notify_simulated</code>. This is not used
+by <em>NetworkRollback</em> itself, but can be used by other nodes to check which
+nodes are simulated in the current rollback tick.</p>
+<p>For the <em>on_process_tick(tick)</em> signal, nodes must advance their simulation by
+a single tick.</p>
+<p>In <em>on_record_tick(tick)</em>, nodes must record their state for the given tick.
+Note that since the simulation was advanced by one tick in the previous signal,
+the <em>tick</em> parameter is incremented here.</p>
+<p>The <em>after_loop</em> signal notifies its subscribers that the resimulation is done.
+This can be used to change to the state that is appropriate for display.</p>
+<p>The network rollback loop is part of the network tick loop as follows:</p>
+<p><img alt="Network loop" src="../../assets/network-loop.svg" /></p>
+<h2 id="conditional-simulation">Conditional simulation</h2>
+<p>During rollback, <em>NetworkRollback</em> loops over the full range of ticks to
+resimulate. Some nodes may not need to be resimulated for the current tick,
+e.g. because they don't have input for the current tick.</p>
+<p><em>NetworkRollback</em> can be used to track nodes that will be simulated in the
+current rollback tick. Register nodes that will be simulated by calling
+<code>NetworkRollback.notify_simulated</code>. To check if a node has been registered,
+call <code>NetworkRollback.is_simulated</code>.</p>
+<h2 id="rollback-awareness">Rollback-awareness</h2>
+<p><a href="../nodes/rollback-synchronizer.md">RollbackSynchronizer</a> considers nodes rollback-aware that implement the
+<code>_rollback_tick</code> method. Rollback-aware nodes are nodes that can participate in
+the rollback process, i.e. they can resimulate earlier ticks.</p>
+<p>To check if a node is rollback-aware, call <code>NetworkRollback.is_rollback_aware</code>.
+To actually run a rollback tick on them, call
+<code>NetworkRollback.process_rollback</code>.</p>
+<p>These methods are called by <a href="../nodes/rollback-synchronizer.md">RollbackSynchronizer</a> under the hood.</p>
+<h2 id="settings">Settings</h2>
+<p><img alt="Network rollback settings" src="../../assets/network-rollback-settings.png" /></p>
+<p><em>Enabled</em> toggles network rollback. No signals are fired when disabled.</p>
+<p><em>History limit</em> is the maximum number of recorded ticks to keep. Larger values
+enable further rewinds and thus larger latencies, but consume more memory for
+each node that is recorded.</p>
+<p><em>Display offset</em> specifies the age of the tick to display. By displaying an
+older state instead of the latest one, games can mask adjustments if a state
+update is received from the server. The drawback is that the game will have
+some latency built-in, as it reacts to player inputs with some delay. Setting
+to zero will always display the latest game state.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../property-paths/" class="btn btn-neutral float-left" title="Property paths"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../nodes/tick-interpolator/" class="btn btn-neutral float-right" title="TickInterpolator">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../property-paths/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../nodes/tick-interpolator/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+      <script src="../../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
