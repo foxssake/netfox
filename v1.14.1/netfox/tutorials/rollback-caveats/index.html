@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://foxssake.github.io/netfox/v1.14.1/netfox/tutorials/rollback-caveats/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Rollback caveats - netfox</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Rollback caveats";
+        var mkdocs_page_input_path = "netfox/tutorials/rollback-caveats.md";
+        var mkdocs_page_url = "/netfox/v1.14.1/netfox/tutorials/rollback-caveats/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> netfox
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../upgrading/">Upgrading netfox</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" >Tutorials</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../responsive-player-movement/">Responsive player movement</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Rollback caveats</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#characterbody-velocity">CharacterBody velocity</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#characterbody-on-floor">CharacterBody on floor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#physics-updates">Physics updates</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#state-machines">State Machines</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../interpolation-caveats/">Interpolation caveats</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Concepts</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../concepts/servers-clients-ownership/">Servers, clients, and ownership</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../concepts/authoritative-servers/">Authoritative servers</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/logging/">Logging</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-time/">NetworkTime</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-time-synchronizer/">NetworkTimeSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-events/">NetworkEvents</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/interpolators/">Interpolators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/property-paths/">Property paths</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-rollback/">NetworkRollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-performance/">NetworkPerformance</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Nodes</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../nodes/tick-interpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../nodes/rollback-synchronizer/">RollbackSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../nodes/state-synchronizer/">StateSynchronizer</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.noray</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.noray/guides/noray/">Noray</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.noray/guides/packet-handshake/">PacketHandshake</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.extras</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/base-net-input/">BaseNetInput</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/network-weapon/">NetworkWeapon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/rewindable-state-machine/">RewindableStateMachine</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/window-tiler/">WindowTiler</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">netfox</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">netfox</li>
+          <li class="breadcrumb-item">Tutorials</li>
+      <li class="breadcrumb-item active">Rollback caveats</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="rollback-caveats">Rollback caveats</h1>
+<p>As with most things, rollback has some drawbacks along with its benefits.</p>
+<h3 id="characterbody-velocity">CharacterBody velocity</h3>
+<p>Godot's <code>move_and_slide()</code> uses the <code>velocity</code> property, which is set in
+meters/second. The method assumes a delta time based on what kind of frame is
+being run. However, it is not aware of <em>netfox</em>'s network ticks, which means
+that movement speed will be off.</p>
+<p>To counteract this, multiply velocity with <code>NetworkTime.physics_factor</code>, which
+will adjust for the difference between Godot's <em>assumed</em> delta time and the
+delta time <em>netfox</em> is using.</p>
+<p>If you don't want to lose your original velocity ( e.g. because it accumulates
+acceleration over time ), divide by the same property after using any built-in
+method. For example:</p>
+<pre><code class="language-gdscript"># Apply movement
+velocity *= NetworkTime.physics_factor
+move_and_slide()
+velocity /= NetworkTime.physics_factor
+</code></pre>
+<h3 id="characterbody-on-floor">CharacterBody on floor</h3>
+<p>CharacterBodies only update their <code>is_on_floor()</code> state only after a
+<code>move_and_slide()</code> call.</p>
+<p>This means that during rollback, the position is updated, but the
+<code>is_on_floor()</code> state is not.</p>
+<p>As a work-around, do a zero-velocity move before checking if the node is on the
+floor:</p>
+<pre><code class="language-gdscript">extends CharacterBody3D
+
+func _rollback_tick(delta, tick, is_fresh):
+    # Add the gravity.
+    _force_update_is_on_floor()
+    if not is_on_floor():
+        velocity.y -= gravity * delta
+
+  # ...
+
+func _force_update_is_on_floor():
+    var old_velocity = velocity
+    velocity = Vector3.ZERO
+    move_and_slide()
+    velocity = old_velocity
+</code></pre>
+<h3 id="physics-updates">Physics updates</h3>
+<p>Godot's physics system is updated only during <code>_physics_process</code>, while
+rollback updates the game state multiple times during a single frame.</p>
+<p>Unfortunately, Godot does not support manually updating or stepping the physics
+system, <a href="https://github.com/godotengine/godot/pull/76462">at least at the time of writing</a>.
+This means that:</p>
+<ul>
+<li>Rollback and physics-based games ( RigidBodies ) don't work at the moment</li>
+<li>Collision detection can work, but with workarounds</li>
+</ul>
+<p>If there's a way to force an update for your given node type, it should work,
+i.e.</p>
+<ul>
+<li>ShapeCast (2D and 3D) - <a href="https://docs.godotengine.org/en/stable/classes/class_shapecast3d.html#class-shapecast3d-method-force-shapecast-update">force_shapecast_update()</a> </li>
+<li>ChacacterBody (2D and 3D) - <a href="https://docs.godotengine.org/en/stable/classes/class_physicsbody3d.html#class-physicsbody3d-method-move-and-collide">move_and_collide()</a> ( which has a test only
+  mode )</li>
+</ul>
+<h3 id="state-machines">State Machines</h3>
+<p>State machines don't usually expect to be updated multiple times in a single
+frame or be snapped back to a previous point in time. Be cautious of:</p>
+<ul>
+<li>Safeguards that implement a cooldown to changes.</li>
+<li>States based on values not updated in <code>_rollback_tick</code>.</li>
+<li>Transitions that enforce a specific order to state changes.</li>
+<li>Transitions that trigger on any state change.</li>
+</ul>
+<p>The key concept to keep in mind is that netfox stores the configured states for
+each processed tick. When it rolls back everything is snapped back to that
+point in time and then played forward to the present in a single frame.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../responsive-player-movement/" class="btn btn-neutral float-left" title="Responsive player movement"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../interpolation-caveats/" class="btn btn-neutral float-right" title="Interpolation caveats">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../responsive-player-movement/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../interpolation-caveats/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+      <script src="../../../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

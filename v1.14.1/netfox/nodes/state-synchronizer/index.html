@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://foxssake.github.io/netfox/v1.14.1/netfox/nodes/state-synchronizer/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>StateSynchronizer - netfox</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "StateSynchronizer";
+        var mkdocs_page_input_path = "netfox/nodes/state-synchronizer.md";
+        var mkdocs_page_url = "/netfox/v1.14.1/netfox/nodes/state-synchronizer/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> netfox
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../upgrading/">Upgrading netfox</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >Tutorials</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/responsive-player-movement/">Responsive player movement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/rollback-caveats/">Rollback caveats</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/interpolation-caveats/">Interpolation caveats</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Concepts</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../concepts/servers-clients-ownership/">Servers, clients, and ownership</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../concepts/authoritative-servers/">Authoritative servers</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/logging/">Logging</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-time/">NetworkTime</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-time-synchronizer/">NetworkTimeSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-events/">NetworkEvents</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/interpolators/">Interpolators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/property-paths/">Property paths</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-rollback/">NetworkRollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-performance/">NetworkPerformance</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Nodes</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../tick-interpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../rollback-synchronizer/">RollbackSynchronizer</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">StateSynchronizer</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#configuring-state">Configuring state</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#changing-configuration">Changing configuration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#when-to-use-statesynchronizer-and-multiplayersynchronizer">When to use StateSynchronizer and MultiplayerSynchronizer</a>
+    </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.noray</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.noray/guides/noray/">Noray</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.noray/guides/packet-handshake/">PacketHandshake</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.extras</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/base-net-input/">BaseNetInput</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/network-weapon/">NetworkWeapon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/rewindable-state-machine/">RewindableStateMachine</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/window-tiler/">WindowTiler</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">netfox</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">netfox</li>
+          <li class="breadcrumb-item">Nodes</li>
+      <li class="breadcrumb-item active">StateSynchronizer</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="statesynchronizer">StateSynchronizer</h1>
+<p>Synchronizes state from the node's authority to other peers.</p>
+<p>Similar to Godot's <a href="https://docs.godotengine.org/en/stable/classes/class_multiplayersynchronizer.html">MultiplayerSynchronizer</a>, but is tied to the <a href="../../guides/network-time/">network tick
+loop</a>. Works well with <a href="../tick-interpolator/">TickInterpolator</a>.</p>
+<p>One way to use this node is to synchronize logic that runs only on the server,
+for example NPC's in your games. The NPC's are controlled fully by the server,
+and their state is synchronized to the clients by the <em>StateSynchronizer</em>
+nodes.</p>
+<h2 id="configuring-state">Configuring state</h2>
+<p>To use <em>StateSynchronizer</em>, add it as a child to the target node, specify the
+root node, and configure which properties to synchronize:</p>
+<p><img alt="StateSynchronizer configuration" src="../../assets/state-synchronizer-config.png" /></p>
+<p><em>Root</em> specifies the root node for resolving properties. Best practice dictates
+to add <em>StateSynchronizer</em> under its target, so <em>Root</em> will most often be the
+<em>StateSynchronizer</em>'s parent node.</p>
+<p><em>Properties</em> are recorded for each tick on the node's authority ( usually the
+server ), and broadcast to other peers. These are analogous to
+<a href="../rollback-synchronizer/">RollbackSynchronizer</a>'s <em>state properties</em>.</p>
+<p>See <a href="../../guides/property-paths/">Property paths</a> on how to specify properties.</p>
+<h2 id="changing-configuration">Changing configuration</h2>
+<p><em>StateSynchronizer</em> has to do some setup work whenever the state or the
+input properties change.</p>
+<p>By default, this work is done upon instantiation. If you need to change
+properties during runtime, make sure to call <code>process_settings()</code>, otherwise
+<em>StateSynchronizer</em> won't apply the changes.</p>
+<p>You can change the node's authority without calling <code>process_settings()</code> again.
+Make sure that the authority is changed the same way on all peers, to avoid
+discrepancies.</p>
+<h2 id="when-to-use-statesynchronizer-and-multiplayersynchronizer">When to use StateSynchronizer and MultiplayerSynchronizer</h2>
+<p>Part of the design philosophy of netfox is to build <em>on top of</em> Godot's
+networking tools, instead of <em>replacing</em> them.</p>
+<p>Both <a href="https://docs.godotengine.org/en/stable/classes/class_multiplayersynchronizer.html">MultiplayerSynchronizer</a> and StateSynchronizer can be used to synchronize
+state from authority to the rest of the peers.</p>
+<p><a href="https://docs.godotengine.org/en/stable/classes/class_multiplayersynchronizer.html">MultiplayerSynchronizer</a> uses its own timer, and is independent of netfox's
+<a href="../../guides/network-time/">network tick loop</a>. It can also do delta updates, and manage visibility per
+peer. Since it is not tied to netfox's tick loop, it does not work with
+<a href="../tick-interpolator/">TickInterpolator</a>.</p>
+<p>StateSynchronizer records all the properties specified and broadcasts them
+as-is to all peers. This does not include visiblity or delta updates. The
+broadcast happens on every network tick. This node is explicitly designed to
+work with <a href="../tick-interpolator/">TickInterpolator</a>.</p>
+<hr />
+<p>You can use StateSynchronizer for properties that you want to be interpolated,
+like position, rotation, or any other visual properties.</p>
+<p>You can use <a href="https://docs.godotengine.org/en/stable/classes/class_multiplayersynchronizer.html">MultiplayerSynchronizer</a> for properties that either don't need
+interpolation ( e.g. a unit's HP ), or specifically need one of
+<a href="https://docs.godotengine.org/en/stable/classes/class_multiplayersynchronizer.html">MultiplayerSynchronizer</a>'s features.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../rollback-synchronizer/" class="btn btn-neutral float-left" title="RollbackSynchronizer"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../../netfox.noray/guides/noray/" class="btn btn-neutral float-right" title="Noray">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../rollback-synchronizer/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../../netfox.noray/guides/noray/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+      <script src="../../../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
