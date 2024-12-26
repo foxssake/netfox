@@ -16,10 +16,13 @@ git fetch --unshallow --filter=tree:0
 
 # Figure out version
 TAG="$(git tag --points-at HEAD)"
+REF="$(git rev-parse --abbrev-ref HEAD)"
 SHA="$(git rev-parse --short HEAD)"
 
 VERSION="$SHA"
-if [ "$TAG" != "" ]; then
+if [ "$REF" == "main" ]; then
+  VERSION="latest";
+elif [ "$TAG" != "" ]; then
   VERSION="$TAG";
 fi;
 
