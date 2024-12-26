@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://foxssake.github.io/netfox/34b0c84/netfox.noray/guides/packet-handshake/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>PacketHandshake - netfox</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/mkdocs_puml/puml.css" rel="stylesheet" />
+        <link href="../../../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "PacketHandshake";
+        var mkdocs_page_input_path = "netfox.noray/guides/packet-handshake.md";
+        var mkdocs_page_url = "/netfox/34b0c84/netfox.noray/guides/packet-handshake/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> netfox
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../upgrading/">Upgrading netfox</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Tutorials</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/tutorials/responsive-player-movement/">Responsive player movement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/tutorials/configuring-properties-from-code/">Configuring properties from code</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/tutorials/rollback-caveats/">Rollback caveats</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/tutorials/interpolation-caveats/">Interpolation caveats</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Concepts</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/concepts/servers-clients-ownership/">Servers, clients, and ownership</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/concepts/authoritative-servers/">Authoritative servers</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/guides/logging/">Logging</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/guides/network-time/">NetworkTime</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/guides/network-time-synchronizer/">NetworkTimeSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/guides/network-events/">NetworkEvents</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/guides/interpolators/">Interpolators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/guides/property-paths/">Property paths</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/guides/network-rollback/">NetworkRollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/guides/network-performance/">NetworkPerformance</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Nodes</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/nodes/tick-interpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/nodes/rollback-synchronizer/">RollbackSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox/nodes/state-synchronizer/">StateSynchronizer</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.noray</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" >Guides</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../noray/">Noray</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">PacketHandshake</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#nat-punchthrough">NAT punchthrough</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#handshake-process">Handshake process</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#handshake-over-packetpeer">Handshake over PacketPeer</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#handshake-over-enetconnection">Handshake over ENetConnection</a>
+    </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.extras</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/base-net-input/">BaseNetInput</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/network-weapon/">NetworkWeapon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/rewindable-state-machine/">RewindableStateMachine</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/window-tiler/">WindowTiler</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">netfox</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">netfox.noray</li>
+          <li class="breadcrumb-item">Guides</li>
+      <li class="breadcrumb-item active">PacketHandshake</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="packethandshake">PacketHandshake</h1>
+<p>Singleton implementing handshake over UDP.</p>
+<p>The point of the handshake itself is to confirm two-way connection between
+two parties - i.e. both parties can receive message from the other and 
+receive acknowledgement from the other that their messages have arrived.</p>
+<p>This is an important step before establishing connection for actual game 
+play, as this lets both the client's and server's routers ( if any ) know 
+that traffic is expected and should be let through.</p>
+<h2 id="nat-punchthrough">NAT punchthrough</h2>
+<p>Most players are behind a router. Routers are directly connected to the
+internet, and protect machines behind them from unwanted traffic.</p>
+<p>When routers receive packets from an unknown source, those packets are rejected
+and don't reach the player's device. When data was sent to that address first,
+routers see traffic as a reply and allow incoming data.</p>
+<p>To take an example, if a random PC starts sending traffic your way, the router
+will reject it. If you send data to the host behind godotengine.org, your
+router will allow incoming traffic from it. Otherwise, you wouldn't be able to
+open the website in your browser, as the incoming HTTP response would be
+rejected.</p>
+<p>This can be used to our advantage. If both players start sending traffic
+towards eachother, eventually the routers will assume it's a response to some
+request and allow the traffic.</p>
+<blockquote>
+<p>This is a very simplified description of how routers work. NAT punchthrough
+does not always work. For further reading, see <a href="https://en.wikipedia.org/wiki/Network_address_translation">Network address translation</a>.</p>
+</blockquote>
+<h2 id="handshake-process">Handshake process</h2>
+<p>To confirm two-way connectivity, a string is sent back and forth, encoding the
+player's knowledge about the connection:</p>
+<p>The <em>Read flag</em> is set once we have received data from the other player.</p>
+<p>The <em>Write flag</em> is set once we send data to the other player. Since data is
+always sent, this flag is always set.</p>
+<p>The <em>Duplex flag</em> is set when we have received data from the other player
+knowing that they have also received data from us. This means that data flows
+both ways.</p>
+<p>The handshake process is successful when both players have the <em>Duplex flag</em>
+set <em>and</em> both players know that the other player has the <em>Duplex flag</em> set.</p>
+<p>Each flag is encoded as its specific character or a hyphen. The encoded string
+is prepended with a dollar sign. For example:</p>
+<ul>
+<li><em>$rw-</em> means that we have sent and received data from the other player</li>
+<li><em>$rwx</em> means that the <em>read</em>, <em>write</em>, and <em>duplex</em> flags are all set</li>
+</ul>
+<p>Here's the handshake process illustrated:</p>
+<div class='puml-container'><div class="puml light" style="display: block"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" data-diagram-type="SEQUENCE" height="567px" preserveAspectRatio="xMidYMid meet" style="width:369px;height:567px;background:#FFFFFF;" version="1.1" viewBox="0 0 369 567" width="369px" zoomAndPan="magnify" class="diagram"><defs/><g><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="36" x2="36" y1="81.2969" y2="486.8906"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="111.5928" x2="111.5928" y1="81.2969" y2="486.8906"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="185.6445" x2="185.6445" y1="81.2969" y2="486.8906"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="260.4805" x2="260.4805" y1="81.2969" y2="486.8906"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="335.5596" x2="335.5596" y1="81.2969" y2="486.8906"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="57.5928" x="5" y="77.9951">Player A</text><ellipse cx="36.7964" cy="13.5" fill="#E2E2F0" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M36.7964,21.5 L36.7964,48.5 M23.7964,29.5 L49.7964,29.5 M36.7964,48.5 L23.7964,63.5 M36.7964,48.5 L49.7964,63.5 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="57.5928" x="5" y="498.8857">Player A</text><ellipse cx="36.7964" cy="510.6875" fill="#E2E2F0" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M36.7964,518.6875 L36.7964,545.6875 M23.7964,526.6875 L49.7964,526.6875 M36.7964,545.6875 L23.7964,560.6875 M36.7964,545.6875 L49.7964,560.6875 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="61.0518" x="78.5928" y="77.9951">Router A</text><ellipse cx="112.1187" cy="49" fill="#E2E2F0" rx="12" ry="12" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="100.1187" x2="124.1187" y1="63" y2="63"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="61.0518" x="78.5928" y="498.8857">Router A</text><ellipse cx="112.1187" cy="518.1875" fill="#E2E2F0" rx="12" ry="12" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="100.1187" x2="124.1187" y1="532.1875" y2="532.1875"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="55.8359" x="155.6445" y="77.9951">Internet</text><path d="M166.0625,37 L166.0625,61 M166.0625,49 L183.0625,49 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><ellipse cx="195.0625" cy="49" fill="#E2E2F0" rx="12" ry="12" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="55.8359" x="155.6445" y="498.8857">Internet</text><path d="M166.0625,506.1875 L166.0625,530.1875 M166.0625,518.1875 L183.0625,518.1875 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><ellipse cx="195.0625" cy="518.1875" fill="#E2E2F0" rx="12" ry="12" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="61.0791" x="227.4805" y="77.9951">Router B</text><ellipse cx="261.02" cy="49" fill="#E2E2F0" rx="12" ry="12" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="249.02" x2="273.02" y1="63" y2="63"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="61.0791" x="227.4805" y="498.8857">Router B</text><ellipse cx="261.02" cy="518.1875" fill="#E2E2F0" rx="12" ry="12" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="249.02" x2="273.02" y1="532.1875" y2="532.1875"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="57.6201" x="304.5596" y="77.9951">Player B</text><ellipse cx="336.3696" cy="13.5" fill="#E2E2F0" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M336.3696,21.5 L336.3696,48.5 M323.3696,29.5 L349.3696,29.5 M336.3696,48.5 L323.3696,63.5 M336.3696,48.5 L349.3696,63.5 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="57.6201" x="304.5596" y="498.8857">Player B</text><ellipse cx="336.3696" cy="510.6875" fill="#E2E2F0" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M336.3696,518.6875 L336.3696,545.6875 M323.3696,526.6875 L349.3696,526.6875 M336.3696,545.6875 L323.3696,560.6875 M336.3696,545.6875 L349.3696,560.6875 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:2;" x1="243.02" x2="253.02" y1="107.4297" y2="117.4297"/><line style="stroke:#181818;stroke-width:2;" x1="243.02" x2="253.02" y1="117.4297" y2="107.4297"/><line style="stroke:#181818;stroke-width:1;" x1="36.7964" x2="248.02" y1="112.4297" y2="112.4297"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="28.2852" x="43.7964" y="107.3638">$-w-</text><path d="M204,125.4297 L204,150.4297 L317,150.4297 L317,135.4297 L307,125.4297 L204,125.4297 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M307,125.4297 L307,135.4297 L317,135.4297 L307,125.4297 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="92.0601" x="210" y="142.4966">Packet denied</text><line style="stroke:#181818;stroke-width:2;" x1="119.1187" x2="129.1187" y1="171.6953" y2="181.6953"/><line style="stroke:#181818;stroke-width:2;" x1="119.1187" x2="129.1187" y1="181.6953" y2="171.6953"/><line style="stroke:#181818;stroke-width:1;" x1="124.1187" x2="335.3696" y1="176.6953" y2="176.6953"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="28.2852" x="129.1187" y="171.6294">$-w-</text><path d="M55,189.6953 L55,214.6953 L168,214.6953 L168,199.6953 L158,189.6953 L55,189.6953 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M158,189.6953 L158,199.6953 L168,199.6953 L158,189.6953 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="92.0601" x="61" y="206.7622">Packet denied</text><path d="M62,224.8281 L62,249.8281 L309,249.8281 L309,234.8281 L299,224.8281 L62,224.8281 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M299,224.8281 L299,234.8281 L309,234.8281 L299,224.8281 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="226.6875" x="68" y="241.895">NAT table updated on both routers</text><polygon fill="#181818" points="324.3696,272.0938,334.3696,276.0938,324.3696,280.0938,328.3696,276.0938" style="stroke:#181818;stroke-width:1;"/><line style="stroke:#181818;stroke-width:1;" x1="36.7964" x2="330.3696" y1="276.0938" y2="276.0938"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="28.2852" x="43.7964" y="271.0278">$-w-</text><path d="M200,289.0938 L200,314.0938 L321,314.0938 L321,299.0938 L311,289.0938 L200,289.0938 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M311,289.0938 L311,299.0938 L321,299.0938 L311,289.0938 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="100.8896" x="206" y="306.1606">Packed allowed</text><polygon fill="#181818" points="47.7964,336.3594,37.7964,340.3594,47.7964,344.3594,43.7964,340.3594" style="stroke:#181818;stroke-width:1;"/><line style="stroke:#181818;stroke-width:1;" x1="41.7964" x2="335.3696" y1="340.3594" y2="340.3594"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="28.2852" x="53.7964" y="335.2935">$-w-</text><path d="M200,353.3594 L200,378.3594 L321,378.3594 L321,363.3594 L311,353.3594 L200,353.3594 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M311,353.3594 L311,363.3594 L321,363.3594 L311,353.3594 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="100.8896" x="206" y="370.4263">Packed allowed</text><polygon fill="#181818" points="324.3696,400.625,334.3696,404.625,324.3696,408.625,328.3696,404.625" style="stroke:#181818;stroke-width:1;"/><line style="stroke:#181818;stroke-width:1;" x1="36.7964" x2="330.3696" y1="404.625" y2="404.625"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="31.9414" x="43.7964" y="399.5591">$rwx</text><polygon fill="#181818" points="47.7964,429.7578,37.7964,433.7578,47.7964,437.7578,43.7964,433.7578" style="stroke:#181818;stroke-width:1;"/><line style="stroke:#181818;stroke-width:1;" x1="41.7964" x2="335.3696" y1="433.7578" y2="433.7578"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="31.9414" x="53.7964" y="428.6919">$rwx</text><path d="M99,446.7578 L99,471.7578 L272,471.7578 L272,456.7578 L262,446.7578 L99,446.7578 " fill="#90EE90" style="stroke:#181818;stroke-width:0.5;"/><path d="M262,446.7578 L262,456.7578 L272,456.7578 L262,446.7578 " fill="#90EE90" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="152.2612" x="105" y="463.8247">Connection established</text></g></svg></div></div>
+
+<h2 id="handshake-over-packetpeer">Handshake over PacketPeer</h2>
+<p>To run the handshake over raw UDP, call <code>PacketHandshake.over_packet_peer</code>. The
+specified PacketPeer will be used to send data until two-way connectivity is
+confirmed or the timeout is reached. Between every packet sent, it takes a
+short pause.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The PacketPeer must already be configured with a target address.</p>
+</div>
+<h2 id="handshake-over-enetconnection">Handshake over ENetConnection</h2>
+<p>If the game is already running, the handshake must be done over the already
+active connection. For this case, use <code>PacketHandshake.over_enet</code>.</p>
+<p>This connection can't be used to receive custom packets, only to send them. So
+the target address will be spammed with traffic confirming two-way connectivity
+until timeout. Handshake will always be considered successful.</p>
+<p>If the connectivity exists, players will simply connect. Otherwise,
+connectivity will fail as expected, regardless of the handshake results.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../noray/" class="btn btn-neutral float-left" title="Noray"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../../netfox.extras/guides/base-net-input/" class="btn btn-neutral float-right" title="BaseNetInput">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../noray/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../../netfox.extras/guides/base-net-input/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../assets/mkdocs_puml/puml.js"></script>
+      <script src="../../../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
