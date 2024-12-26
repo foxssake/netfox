@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Formatting
+# See: https://github.com/chalk/ansi-styles/blob/main/index.js
 NC="\033[0m";
 BOLD="\033[1m";
 
