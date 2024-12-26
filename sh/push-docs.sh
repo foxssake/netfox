@@ -3,6 +3,10 @@
 BOLD="$(tput bold)"
 NC="$(tput sgr0)"
 
+# git config
+git config user.name "Fox's Sake CI"
+git config user.email "ci@foxssake.studio"
+
 # Assume we're running from project root
 source sh/shared.sh
 
