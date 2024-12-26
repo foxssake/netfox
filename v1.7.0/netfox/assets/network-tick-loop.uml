@@ -1,0 +1,18 @@
+@startuml
+
+start
+
+:before_tick_loop;
+
+while (Ticks to simulate)  is (>0)
+  :before_tick;
+  :on_tick;
+  :after_tick;
+endwhile (0)
+
+:after_tick_loop;
+
+stop
+
+@enduml
+
