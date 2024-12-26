@@ -1,9 +1,9 @@
 site_name: netfox
+site_url: 'https://foxssake.github.io/netfox/'
 theme: readthedocs
 plugins:
   - plantuml:
       puml_url: https://www.plantuml.com/plantuml/
-      num_workers: 8
       theme:
         enabled: false
       interaction:
