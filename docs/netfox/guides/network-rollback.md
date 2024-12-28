@@ -33,6 +33,7 @@ start
 :before_loop;
 while(Rollback)
   :on_prepare_tick;
+  :after_prepare_tick;
   :on_process_tick;
   :on_record_tick;
 endwhile
@@ -55,6 +56,9 @@ tick that is earlier than the given tick. Nodes may also register themselves as
 being simulated by calling `NetworkRollback.notify_simulated`. This is not used
 by *NetworkRollback* itself, but can be used by other nodes to check which
 nodes are simulated in the current rollback tick.
+
+Before processing, *after_prepare_tick(tick)* is emitted. This is where any
+additional state- or input preparation may happen, such as [input prediction].
 
 For the *on_process_tick(tick)* signal, nodes must advance their simulation by
 a single tick.
@@ -81,6 +85,7 @@ while (Ticks to simulate)  is (>0)
   :NetworkRollback.before_loop;
   while(Rollback)
     :NetworkRollback.on_prepare_tick;
+    :NetworkRollback.after_prepare_tick;
     :NetworkRollback.on_process_tick;
     :NetworkRollback.on_record_tick;
   endwhile
@@ -145,4 +150,5 @@ have changed, netfox can reduce the bandwidth needed to synchronize the game
 between peers. See [RollbackSynchronizer] on how this is done and configured.
 
 [Client-Side Prediction and Server Reconciliation]: https://www.gabrielgambetta.com/client-side-prediction-server-reconciliation.html
+[input prediction]: ../tutorials/predicting-input.md
 [RollbackSynchronizer]: ../nodes/rollback-synchronizer.md
