@@ -17,12 +17,11 @@ var pool := NodePool.new()
 
 func _ready():
 	pool.pool_limit = instance_limit
-	pool.spawn_root = self
+	pool.spawn_root = get_tree().root.get_node("multiplayer-fps/Map/StaticBody3D")
 	
 	var decal_node: Decal = Decal.new()
 	decal_node.cull_mask = decal_mask
 	decal_node.layers = decal_layer
-	decal_node.top_level = true
 	
 	pool.target_node = decal_node
 
