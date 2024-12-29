@@ -28,10 +28,11 @@ func _predict(_t):
 	
 	# Decay input over a short time
 	var decay_time := NetworkTime.seconds_to_ticks(.15)
+	var input_age := _rollback_synchronizer.get_input_age()
 	
 	# **ALWAYS** cast either side to float, otherwise the integer-integer 
 	# division yields either 1 or 0 confidence
-	confidence = _rollback_synchronizer.get_input_age() / float(decay_time)
+	confidence = input_age / float(decay_time)
 	confidence = clampf(1. - confidence, 0., 1.)
 
 	# Modulate input based on confidence
