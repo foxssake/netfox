@@ -13,22 +13,19 @@ Another trick *netfox* enables to hide this latency is *input prediction*.
 ## About prediction
 
 By default, nodes are only simulated for ticks that we currently have enough
-information for. In practice, this means that a node is simulated if we have
-its *input* for the current tick. It is impossible to tell the future, so if
-there's no input, the node simply isn't simulated, as we can't know what the
-player intended to do.
+information for - i.e. the *input* for the current tick. If there's no input,
+the node simply isn't simulated, as we can't know what the player intended to
+do.
 
 But, what if we do know? Or what if we can make a reasonable guess?
 
-For example, in driving games, it is generally a safe assumption that if the
-player was going full throttle three ticks ago, they are probably still going
-full throttle.
+For example, in driving games, it is a safe assumption that if the player was
+going full throttle three ticks ago, they are still going full throttle.
 
 It is important to consider the last received input's *age*. The more time
 passes, the harder it is to reasonably predict the player's inputs.
 
-*Prediction* allows users to implement similar, reasonable, game-specific
-predictions.
+*Prediction* allows users to implement similar, game-specific predictions.
 
 ## Implementing input prediction
 
@@ -50,9 +47,9 @@ You may also check if there's *any* known input for the current tick that we
 can base our prediction off of. This is done by calling
 `RollbackSynchronizer.has_input()`.
 
-For the actual prediction, you may also consider the age of the last known
-input. This is obtained by calling `RollbackSynchronizer.get_input_age()`,
-which will return the applied input's age in ticks.
+For the actual prediction, consider the age of the last known input. This is
+obtained by calling `RollbackSynchronizer.get_input_age()`, which will return
+the applied input's age in ticks.
 
 ---
 
