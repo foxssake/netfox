@@ -41,6 +41,10 @@ func register_hit(from: BrawlerController):
 	last_hit_player = from
 	last_hit_tick = NetworkRollback.tick if NetworkRollback.is_rollback() else NetworkTime.tick
 
+func shove(motion: Vector3):
+	# TODO: mass
+	move_and_collide(motion)
+
 func _ready():
 	if not input:
 		input = $Input
@@ -49,7 +53,7 @@ func _ready():
 
 	GameEvents.on_brawler_spawn.emit(self)
 	NetworkTime.on_tick.connect(_tick)
-	
+
 	if not player_name:
 		player_name = "Nameless Brawler #%s" % [player_id]
 	

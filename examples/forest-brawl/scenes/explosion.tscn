@@ -7,6 +7,9 @@
 [ext_resource type="AudioStream" uid="uid://dk44nxlwr3m1o" path="res://examples/forest-brawl/sounds/boom2.wav" id="5_yr2wj"]
 [ext_resource type="AudioStream" uid="uid://yyc2x2137nqa" path="res://examples/forest-brawl/sounds/boom3.wav" id="6_fihgd"]
 
+[sub_resource type="SphereShape3D" id="SphereShape3D_w1bga"]
+radius = 2.0
+
 [sub_resource type="Gradient" id="Gradient_32qlm"]
 interpolation_mode = 2
 colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
@@ -47,9 +50,6 @@ interpolation_mode = 2
 offsets = PackedFloat32Array(0, 0.57561, 1)
 colors = PackedColorArray(1, 0.7, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0)
 
-[sub_resource type="SphereShape3D" id="SphereShape3D_ddj8d"]
-radius = 2.0
-
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6rsal"]
 transparency = 1
 albedo_color = Color(1, 0, 0, 0.25098)
@@ -59,14 +59,14 @@ material = SubResource("StandardMaterial3D_6rsal")
 radius = 2.0
 height = 4.0
 
-[node name="Explosion" type="Area3D"]
-gravity = 0.0
+[node name="Explosion" type="Node3D"]
 script = ExtResource("1_acukw")
-duration = 1.0
-strength = 512.0
+strength = 32.0
+shape = SubResource("SphereShape3D_w1bga")
 
 [node name="Explosion" type="CPUParticles3D" parent="."]
 amount = 32
+explosiveness = 0.8
 local_coords = true
 mesh = SubResource("SphereMesh_5d23i")
 emission_shape = 1
@@ -79,9 +79,6 @@ scale_amount_max = 2.0
 scale_amount_curve = SubResource("Curve_t4jmr")
 color_ramp = SubResource("Gradient_6w0nn")
 script = ExtResource("2_g53bu")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-shape = SubResource("SphereShape3D_ddj8d")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 visible = false
