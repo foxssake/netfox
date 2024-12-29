@@ -91,6 +91,7 @@ var _resim_from: int
 
 var _is_rollback: bool = false
 var _simulated_nodes: Dictionary = {}
+var _mutated_nodes: Dictionary = {}
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkRollback")
 
@@ -141,6 +142,31 @@ func is_rollback_aware(what: Object) -> bool:
 ## it's not, this method will run into an error.
 func process_rollback(target: Object, delta: float, p_tick: int, is_fresh: bool):
 	target._rollback_tick(delta, p_tick, is_fresh)
+
+# TODO(netfox): Mutation API
+func mutate(target: Object, p_tick: int = tick) -> void:
+	_mutated_nodes[target] = mini(p_tick, _mutated_nodes.get(target, p_tick))
+
+	if is_rollback():
+		if p_tick < tick:
+			_logger.warning(
+				"Trying to mutate object %s in the past, for a tick %d!",
+				[target, p_tick]
+			)
+
+# TODO(netfox): Mutation API
+func is_mutated(target: Object, p_tick: int = tick) -> bool:
+	if _mutated_nodes.has(target):
+		return p_tick >= _mutated_nodes.get(target)
+	else:
+		return false
+
+# TODO(netfox): Mutation API
+func is_just_mutated(target: Object, p_tick: int = tick) -> bool:
+	if _mutated_nodes.has(target):
+		return _mutated_nodes.get(target) == p_tick
+	else:
+		return false
 
 func _ready():
 	NetworkTime.after_tick_loop.connect(_rollback)
@@ -193,6 +219,9 @@ func _rollback():
 	
 	# Restore display state
 	after_loop.emit()
+
+	# Cleanup
+	_mutated_nodes.clear()
 	_is_rollback = false
 
 # Insight 1:

@@ -332,6 +332,9 @@ func _can_simulate(node: Node, tick: int) -> bool:
 	if not enable_prediction and not _inputs.has(tick):
 		# Don't simulate if prediction is not allowed and input is unknown
 		return false
+	if NetworkRollback.is_mutated(node, tick):
+		# Mutated nodes are always resimulated
+		return true
 	if node.is_multiplayer_authority():
 		# Simulate from earliest input
 		# Don't simulate frames we don't have input for
@@ -368,8 +371,12 @@ func _record_tick(tick: int):
 		var full_state: Dictionary = {}
 
 		for property in _auth_state_property_entries:
-			if _can_simulate(property.node, tick - 1) and not _skipset.has(property.node):
+			if _can_simulate(property.node, tick - 1) \
+				and not _skipset.has(property.node) \
+				or NetworkRollback.is_mutated(property.node, tick - 1):
 				# Only broadcast if we've simulated the node
+				# NOTE: _can_simulate checks mutations, but to override _skipset
+				# we check a second time
 				full_state[property.to_string()] = property.get_value()
 			
 		_on_transmit_state.emit(full_state, tick)
@@ -428,7 +435,9 @@ func _record_tick(tick: int):
 			_states[tick] = PropertySnapshot.extract(_record_state_property_entries)
 		else:
 			var record_properties = _record_state_property_entries\
-				.filter(func(pe): return not _skipset.has(pe.node))
+				.filter(func(pe): return \
+					not _skipset.has(pe.node) or \
+					NetworkRollback.is_mutated(pe.node, tick - 1))
 
 			var merge_state = _get_history(_states, tick - 1)
 			var record_state = PropertySnapshot.extract(record_properties)
