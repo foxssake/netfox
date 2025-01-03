@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://6212jkmbikjq"]
+[gd_scene load_steps=17 format=3 uid="uid://6212jkmbikjq"]
 
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/displacer.gd" id="1_acukw"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/explosion.gd" id="2_g53bu"]
@@ -7,7 +7,7 @@
 [ext_resource type="AudioStream" uid="uid://dk44nxlwr3m1o" path="res://examples/forest-brawl/sounds/boom2.wav" id="5_yr2wj"]
 [ext_resource type="AudioStream" uid="uid://yyc2x2137nqa" path="res://examples/forest-brawl/sounds/boom3.wav" id="6_fihgd"]
 
-[sub_resource type="SphereShape3D" id="SphereShape3D_w1bga"]
+[sub_resource type="SphereShape3D" id="SphereShape3D_0scc6"]
 radius = 2.0
 
 [sub_resource type="Gradient" id="Gradient_32qlm"]
@@ -50,6 +50,9 @@ interpolation_mode = 2
 offsets = PackedFloat32Array(0, 0.57561, 1)
 colors = PackedColorArray(1, 0.7, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0)
 
+[sub_resource type="SphereShape3D" id="SphereShape3D_ddj8d"]
+radius = 2.0
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6rsal"]
 transparency = 1
 albedo_color = Color(1, 0, 0, 0.25098)
@@ -59,12 +62,14 @@ material = SubResource("StandardMaterial3D_6rsal")
 radius = 2.0
 height = 4.0
 
-[node name="Explosion" type="Node3D"]
+[node name="Explosion" type="Area3D"]
+gravity = 0.0
 script = ExtResource("1_acukw")
-strength = 32.0
-shape = SubResource("SphereShape3D_w1bga")
+duration = 1.0
+strength = 16.0
+shape = SubResource("SphereShape3D_0scc6")
 
-[node name="Explosion" type="CPUParticles3D" parent="."]
+[node name="Explosion Particles" type="CPUParticles3D" parent="."]
 amount = 32
 explosiveness = 0.8
 local_coords = true
@@ -79,6 +84,9 @@ scale_amount_max = 2.0
 scale_amount_curve = SubResource("Curve_t4jmr")
 color_ramp = SubResource("Gradient_6w0nn")
 script = ExtResource("2_g53bu")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_ddj8d")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 visible = false
