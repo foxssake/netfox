@@ -325,6 +325,12 @@ resting time between roundtrip measurements.</p>
 <p><em>Sync to Physics</em> ensures that the network tick loop runs in Godot's physics
 process when enabled. This can be useful in cases where a lot of physics
 operations need to be done as part of the tick- or the rollback loop.</p>
+<p><em>Suppress Offline Peer Warning</em> suppresses warning when <code>NetworkTime.start()</code> is
+called with the active <a href="https://docs.godotengine.org/en/stable/classes/class_multiplayerapi.html#class-multiplayerapi-property-multiplayer-peer">multiplayer peer</a> being an <a href="https://docs.godotengine.org/en/stable/classes/class_offlinemultiplayerpeer.html#class-offlinemultiplayerpeer">OfflineMultiplayerPeer</a>. In
+most cases, this warning means that the tick loop was unintentionally started
+before connecting to a game or hosting one. When this settings is enabled, the
+warning is not printed, instead assuming the <a href="https://docs.godotengine.org/en/stable/classes/class_offlinemultiplayerpeer.html#class-offlinemultiplayerpeer">OfflineMultiplayerPeer</a> is
+intentional.</p>
               
             </div>
           </div>
