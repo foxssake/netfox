@@ -197,4 +197,13 @@ resting time between roundtrip measurements.
 process when enabled. This can be useful in cases where a lot of physics
 operations need to be done as part of the tick- or the rollback loop.
 
+*Suppress Offline Peer Warning* suppresses warning when `NetworkTime.start()` is
+called with the active [multiplayer peer] being an [OfflineMultiplayerPeer]. In
+most cases, this warning means that the tick loop was unintentionally started
+before connecting to a game or hosting one. When this settings is enabled, the
+warning is not printed, instead assuming the [OfflineMultiplayerPeer] is
+intentional.
+
 [NetworkTimeSynchronizer]: ./network-time-synchronizer.md
+[multiplayer peer]: https://docs.godotengine.org/en/stable/classes/class_multiplayerapi.html#class-multiplayerapi-property-multiplayer-peer
+[OfflineMultiplayerPeer]: https://docs.godotengine.org/en/stable/classes/class_offlinemultiplayerpeer.html#class-offlinemultiplayerpeer
