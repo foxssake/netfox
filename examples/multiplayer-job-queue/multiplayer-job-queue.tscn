@@ -1,0 +1,94 @@
+[gd_scene load_steps=8 format=3 uid="uid://c1mtdn4ctuinl"]
+
+[ext_resource type="PackedScene" uid="uid://badtpsxn5lago" path="res://examples/shared/ui/network-popup.tscn" id="1_82grf"]
+[ext_resource type="Script" path="res://examples/multiplayer-job-queue/scripts/player-spawner.gd" id="1_lbpot"]
+[ext_resource type="Script" path="res://examples/shared/scripts/simple-time-display.gd" id="2_1lg63"]
+[ext_resource type="PackedScene" uid="uid://c3j3mujpl8cgm" path="res://examples/multiplayer-job-queue/characters/player.tscn" id="2_h36m3"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_gcuc1"]
+
+[sub_resource type="Sky" id="Sky_g0uhm"]
+sky_material = SubResource("ProceduralSkyMaterial_gcuc1")
+
+[sub_resource type="Environment" id="Environment_agihn"]
+background_mode = 2
+sky = SubResource("Sky_g0uhm")
+
+[node name="Game Scene" type="Node3D"]
+
+[node name="Map" type="Node" parent="."]
+
+[node name="CSGCombiner3D" type="CSGCombiner3D" parent="Map"]
+use_collision = true
+
+[node name="CSGFloor" type="CSGBox3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+size = Vector3(16, 0.5, 16)
+
+[node name="CSGWall" type="CSGBox3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 8)
+size = Vector3(16, 2, 1)
+
+[node name="CSGWall2" type="CSGBox3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -8)
+size = Vector3(16, 2, 1)
+
+[node name="CSGWall3" type="CSGBox3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 1, 0)
+size = Vector3(1, 2, 16)
+
+[node name="CSGWall4" type="CSGBox3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1, 0)
+size = Vector3(1, 2, 16)
+
+[node name="CSGCorner" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 1, 8)
+
+[node name="CSGCorner2" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 1, -8)
+
+[node name="CSGCorner3" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1, -8)
+
+[node name="CSGCorner4" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1, 8)
+
+[node name="Environment" type="Node" parent="."]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
+transform = Transform3D(0.5, 0.612372, -0.612372, 0, 0.707107, 0.707107, 0.866025, -0.353553, 0.353553, -6.7361, 8.77817, 3.88909)
+shadow_enabled = true
+
+[node name="Camera3D" type="Camera3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 0.5, 0.866025, 0, -0.866025, 0.5, 0, 14.3564, 8.86602)
+current = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
+environment = SubResource("Environment_agihn")
+
+[node name="Network" type="Node" parent="."]
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Network"]
+spawn_path = NodePath("../Player Spawner")
+
+[node name="Player Spawner" type="Node" parent="Network" node_paths=PackedStringArray("spawn_root")]
+script = ExtResource("1_lbpot")
+player_scene = ExtResource("2_h36m3")
+spawn_root = NodePath(".")
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Network Popup" parent="UI" instance=ExtResource("1_82grf")]
+layout_mode = 1
+
+[node name="Time Display" type="Label" parent="UI"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+script = ExtResource("2_1lg63")
