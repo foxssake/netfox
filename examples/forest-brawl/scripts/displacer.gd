@@ -21,6 +21,10 @@ func _ready():
 
 	# Run from birth tick on next loop
 	NetworkRollback.notify_resimulation_start(birth_tick)
+	
+	(func():
+		_logger.info("Created explosion at %s@%d", [global_position, birth_tick])
+	).call_deferred()
 
 func _rollback_tick(tick: int):
 	if tick < birth_tick or tick > death_tick:
@@ -41,7 +45,7 @@ func _rollback_tick(tick: int):
 		brawler.shove(offset)
 		NetworkRollback.mutate(brawler)
 
-		_logger.info("Displacing brawler %s: [s=%.2f, sf=%.2f, f=%.2f, d=%s, o=%s]", [brawler.name, strength, strength_factor, f, diff, offset])
+#		_logger.info("Displacing brawler %s: [s=%.2f, sf=%.2f, f=%.2f, d=%s, o=%s]", [brawler.name, strength, strength_factor, f, diff, offset])
 
 		if brawler != fired_by:
 			brawler.register_hit(fired_by)

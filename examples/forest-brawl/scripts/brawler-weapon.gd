@@ -9,6 +9,8 @@ class_name BrawlerWeapon
 
 var last_fire: int = -1
 
+static var _logger := _NetfoxLogger.new("fb", "BrawlerWeapon")
+
 func _ready():
 	NetworkTime.on_tick.connect(_tick)
 
@@ -18,9 +20,17 @@ func _can_fire() -> bool:
 func _can_peer_use(peer_id: int) -> bool:
 	return peer_id == input.get_multiplayer_authority()
 
-func _after_fire(_projectile: Node3D):
-	last_fire = NetworkTime.tick
+func _after_fire(projectile: Node3D):
+	var bomb := projectile as BombProjectile
+	last_fire = get_fired_tick()
 	sound.play()
+	
+	_logger.info("[%s] Ticking new bomb %d -> %d", [bomb.name, get_fired_tick(), NetworkTime.tick])
+	for t in range(get_fired_tick(), NetworkTime.tick):
+		if bomb.is_queued_for_deletion():
+			_logger.info("Stopped ticking @%d, bomb about to be deleted!", [t])
+			break
+		bomb._tick(NetworkTime.ticktime, t)
 
 func _spawn() -> Node3D:
 	var bomb_projectile: BombProjectile = projectile.instantiate() as BombProjectile
