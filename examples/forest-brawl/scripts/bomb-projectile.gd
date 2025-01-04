@@ -10,24 +10,12 @@ var distance_left: float
 var fired_by: Node
 var is_first_tick: bool = true
 
-var _has_exploded: bool = false
-
 var _logger := _NetfoxLogger.new("fb", "BombProjectile")
 
 func _ready():
 	NetworkTime.on_tick.connect(_tick)
 	distance_left = distance
-	
-	# Do a tick in advance to interpolate forwards
-	await get_tree().process_frame
-	_tick(NetworkTime.ticktime, NetworkTime.tick)
-	$TickInterpolator.push_state()
 	is_first_tick = true
-
-func _process(_dt):
-	var words = name.rsplit(" ")
-	if words.size() > 2:
-		_logger.name = "BombProjectile:" + words[2]
 
 func _tick(delta, _t):
 	var dst = speed * delta
@@ -59,11 +47,6 @@ func _tick(delta, _t):
 	is_first_tick = false
 
 func _explode():
-	if _has_exploded:
-		_logger.error("Bomb has exploded multiple times!")
-		return
-	_has_exploded = true
-
 	queue_free()
 	NetworkTime.on_tick.disconnect(_tick)
 	_logger.info("Bomb exploded!")
