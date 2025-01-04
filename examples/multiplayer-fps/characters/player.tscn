@@ -53,16 +53,13 @@ material = SubResource("StandardMaterial3D_2gc5u")
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_70css"]
 properties/0/path = NodePath(".:health")
 properties/0/spawn = true
-properties/0/sync = false
-properties/0/watch = true
+properties/0/replication_mode = 2
 properties/1/path = NodePath(".:death_tick")
 properties/1/spawn = true
-properties/1/sync = false
-properties/1/watch = true
+properties/1/replication_mode = 2
 properties/2/path = NodePath(".:respawn_position")
 properties/2/spawn = true
-properties/2/sync = false
-properties/2/watch = true
+properties/2/replication_mode = 2
 
 [node name="player" type="CharacterBody3D"]
 script = ExtResource("1_mk8qw")
