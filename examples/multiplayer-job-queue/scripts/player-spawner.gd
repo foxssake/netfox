@@ -2,6 +2,7 @@ extends Node
 
 @export var player_scene: PackedScene
 @export var spawn_root: Node
+@export var camera: Camera3D
 
 var avatars: Dictionary = {}
 

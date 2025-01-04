@@ -1,28 +1,28 @@
 [gd_scene load_steps=6 format=3 uid="uid://c3j3mujpl8cgm"]
 
-[ext_resource type="Script" path="res://examples/multiplayer-job-queue/scripts/player.gd" id="1_8chk1"]
-[ext_resource type="Script" path="res://examples/multiplayer-job-queue/scripts/player-input.gd" id="1_fw5er"]
-[ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="2_6qmb0"]
-[ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="3_8rexj"]
-[ext_resource type="Texture2D" uid="uid://b66gbhylc33yy" path="res://examples/multiplayer-fps/textures/crosshair.png" id="3_1744y"]
+[ext_resource type="Script" path="res://examples/multiplayer-job-queue/scripts/player.gd" id="1_ko3qb"]
+[ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="2_2emte"]
+[ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="3_55t3d"]
+[ext_resource type="Script" path="res://examples/multiplayer-job-queue/scripts/player-input.gd" id="4_lxb4l"]
+[ext_resource type="Texture2D" uid="uid://b66gbhylc33yy" path="res://examples/multiplayer-fps/textures/crosshair.png" id="5_3eo8n"]
 
 [node name="Player" type="Node3D"]
-script = ExtResource("1_8chk1")
+script = ExtResource("1_ko3qb")
 
 [node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
-script = ExtResource("2_6qmb0")
+script = ExtResource("2_2emte")
 root = NodePath("..")
 enable_prediction = true
 state_properties = Array[String](["Cursor:position"])
-input_properties = Array[String](["Input:cursor_position"])
+input_properties = Array[String](["Input:cursor_position", "Input:clicked"])
 
 [node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
-script = ExtResource("3_8rexj")
+script = ExtResource("3_55t3d")
 root = NodePath("..")
 properties = Array[String](["Cursor:position"])
 
 [node name="Input" type="Node" parent="."]
-script = ExtResource("1_fw5er")
+script = ExtResource("4_lxb4l")
 
 [node name="Cursor" type="Node2D" parent="."]
 position = Vector2(270, 270)
@@ -41,4 +41,4 @@ text = "Username"
 horizontal_alignment = 1
 
 [node name="Sprite2D" type="Sprite2D" parent="Cursor"]
-texture = ExtResource("3_1744y")
+texture = ExtResource("5_3eo8n")
