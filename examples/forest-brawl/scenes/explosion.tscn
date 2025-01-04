@@ -66,7 +66,7 @@ height = 4.0
 gravity = 0.0
 script = ExtResource("1_acukw")
 duration = 1.0
-strength = 16.0
+strength = 64.0
 shape = SubResource("SphereShape3D_0scc6")
 
 [node name="Explosion Particles" type="CPUParticles3D" parent="."]

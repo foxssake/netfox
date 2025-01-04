@@ -2,8 +2,9 @@ extends CharacterBody3D
 class_name BrawlerController
 
 # Stats
-@export var speed = 5.0
-@export var jump_velocity = 4.5
+@export var speed: float = 5.0
+@export var jump_velocity: float = 4.5
+@export var mass: float = 4.0
 
 # Spawn
 @export var spawn_point: Vector3 = Vector3(0, 4, 0)
@@ -42,8 +43,7 @@ func register_hit(from: BrawlerController):
 	last_hit_tick = NetworkRollback.tick if NetworkRollback.is_rollback() else NetworkTime.tick
 
 func shove(motion: Vector3):
-	# TODO: mass
-	move_and_collide(motion)
+	move_and_collide(motion / mass)
 
 func _ready():
 	if not input:

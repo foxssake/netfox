@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3 uid="uid://wi4owat0bml3"]
+[gd_scene load_steps=28 format=3 uid="uid://wi4owat0bml3"]
 
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/brawler-controller.gd" id="1_np8na"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/brawler-input.gd" id="2_m3v43"]
@@ -9,7 +9,6 @@
 [ext_resource type="AudioStream" uid="uid://4oilc8k83mmt" path="res://examples/forest-brawl/sounds/fall2.wav" id="5_kqmf5"]
 [ext_resource type="AudioStream" uid="uid://b03phi3tfl21k" path="res://examples/forest-brawl/sounds/whoosh.wav" id="6_gh8ps"]
 [ext_resource type="AudioStream" uid="uid://cegpnj82f4gio" path="res://examples/forest-brawl/sounds/fall3.wav" id="6_jc44e"]
-[ext_resource type="Script" path="res://examples/forest-brawl/scripts/displaceable.gd" id="6_ygmle"]
 [ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="7_cmfmx"]
 [ext_resource type="PackedScene" uid="uid://fctd5hkxnf2y" path="res://examples/forest-brawl/models/player/bomber-guy.glb" id="7_ij3cr"]
 [ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="8_pj7o0"]
@@ -144,15 +143,11 @@ fire_cooldown = 0.5
 [node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="Weapon"]
 stream = ExtResource("6_gh8ps")
 
-[node name="Displaceable" type="Node3D" parent="."]
-script = ExtResource("6_ygmle")
-mass = 4.0
-
 [node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("7_cmfmx")
 root = NodePath("..")
 enable_prediction = true
-state_properties = Array[String]([":transform", ":velocity", ":speed", "Displaceable:mass", "Displaceable:impulse"])
+state_properties = Array[String]([":transform", ":velocity", ":speed"])
 diff_ack_interval = 4
 input_properties = Array[String](["Input:movement", "Input:aim"])
 enable_input_broadcast = false

@@ -57,11 +57,6 @@ func _tick(_delta, tick):
 	if tick > despawn_tick:
 		queue_free()
 
-func _find_displaceable(node: Node) -> Displaceable:
-	for result in node.get_children().filter(func(it): return it is Displaceable):
-		return result
-	return null
-
 func _get_overlapping_brawlers() -> Array[BrawlerController]:
 	var result: Array[BrawlerController] = []
 

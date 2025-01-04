@@ -29,12 +29,15 @@ func _ready():
 		_cease_tick + NetworkRollback.history_limit
 	)
 
+	NetworkRollback.notify_resimulation_start(_apply_tick)
+
 func _rollback_tick(tick):
-	if is_multiplayer_authority() and NetworkRollback.is_simulated(get_target()):
-		if tick == _apply_tick:
-			_apply()
-		if tick == _cease_tick:
-			_cease()
+	if tick == _apply_tick:
+		_apply()
+		NetworkRollback.mutate(get_target())
+	if tick == _cease_tick:
+		_cease()
+		NetworkRollback.mutate(get_target())
 
 func _tick(_delta, tick):
 	if tick == _cease_tick:
