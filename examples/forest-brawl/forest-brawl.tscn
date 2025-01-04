@@ -37,9 +37,6 @@ camera = NodePath("../../Camera3D")
 joining_screen = NodePath("../../UI/Joining Screen")
 name_input = NodePath("../../UI/Network Popup/Settings/Player Name/Player Name Input")
 
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Network"]
-spawn_path = NodePath("../../Players")
-
 [node name="Players" type="Node" parent="."]
 
 [node name="ScoreManager" type="Node" parent="." node_paths=PackedStringArray("scorescreen")]
