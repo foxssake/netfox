@@ -87,5 +87,5 @@ func test_clear_should_make_empty() -> void:
 	set.clear()
 
 	# Then
-	expect(set.is_empty())
+	expect_empty(set)
 #endregion

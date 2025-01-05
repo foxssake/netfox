@@ -99,6 +99,12 @@ func expect_true(condition: bool, p_message: String = "") -> void:
 func expect_false(condition: bool, p_message: String = "") -> void:
 	expect_not(condition, p_message)
 
+func expect_empty(object: Object, p_message: String = "Object was not empty!") -> void:
+	if object.has_method("is_empty"):
+		expect(object.is_empty(), p_message)
+	else:
+		fail("Object has no is_empty() method!")
+
 func _get_result() -> Result:
 	return _result
 
