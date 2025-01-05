@@ -81,3 +81,6 @@ func as_tap(results: Array[VestTest.Result]) -> String:
 
 func is_success(results: Array[VestTest.Result]) -> bool:
 	return results.all(func(result: VestTest.Result): return result.status == VestTest.PASS)
+
+func aggregate_results(results: Array[VestTest.Result]) -> int:
+	return results.map(func(it): return it.status).min()

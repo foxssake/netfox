@@ -81,6 +81,3 @@ func test_set_should_not_be_empty() -> void:
 	expect_not(set.is_empty())
 	expect_equal(set.size(), 2)
 #endregion
-
-func test_fail() -> void:
-	fail("This suite shall fall!")
