@@ -14,11 +14,10 @@ func _on_spawn(data):
 	
 ## This method is called by the NetworkJobQueue when a job is enqueued.
 func job_enqueued(job: Dictionary) -> void:
-	spawner.spawn({ "uid": job.uid })
+	spawner.spawn({ "uid": job._uid })
 	
 ## This method is called by the NetworkJobQueue when a job is ready to be processed. You should extend this node and override this method in your own worker.
 func process_job(job: Dictionary) -> void:
 	busy = true
 	# Do something with the job here
 	busy = false
-	pass

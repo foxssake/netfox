@@ -12,7 +12,7 @@ func _get_configuration_warnings():
 
 ## Register the worker with the queue if the parent is a NetworkJobQueue.
 func _notification(what: int):
-	if what == NOTIFICATION_READY:
+	if what == NOTIFICATION_ENTER_TREE:
 		if !queue and get_parent() is NetworkJobQueue:
 			queue = get_parent()
 

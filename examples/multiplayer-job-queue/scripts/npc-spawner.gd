@@ -1,5 +1,7 @@
 extends Node3D
 
+@export var queue: NetworkJobQueue
+
 var waypoints: Array[Vector3] = []
 
 func _ready():
@@ -50,3 +52,6 @@ func _generate_waypoints() -> Array[Vector3]:
 	complete_waypoints.append(key_waypoints[key_waypoints.size() - 1])
 
 	return complete_waypoints
+
+func get_queue_position(uid: int) -> int:
+	return queue.get_queue_position(uid)

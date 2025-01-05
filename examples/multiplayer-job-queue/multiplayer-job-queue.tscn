@@ -62,11 +62,13 @@ state_properties = Array[String](["NetworkJobQueue:queue"])
 [node name="NetworkJobQueue" type="Node" parent="Map"]
 script = ExtResource("6_0qxmk")
 
-[node name="NetworkJobWorker" type="Node" parent="Map/NetworkJobQueue"]
+[node name="NetworkJobWorker" type="Node" parent="Map/NetworkJobQueue" node_paths=PackedStringArray("spawner")]
 script = ExtResource("7_vyxp6")
+spawner = NodePath("../../MultiplayerSpawner")
 
-[node name="NPC Spawner" type="Node3D" parent="Map"]
+[node name="NPC Spawner" type="Node3D" parent="Map" node_paths=PackedStringArray("queue")]
 script = ExtResource("5_bopr6")
+queue = NodePath("../NetworkJobQueue")
 
 [node name="Environment" type="Node" parent="."]
 

@@ -6,6 +6,4 @@ extends StaticBody3D
 func interact():
 	if !is_multiplayer_authority(): return
 	
-	queue.enqueue_job({
-		"index": 0
-	}, worker)
+	queue.enqueue_job({}, worker)

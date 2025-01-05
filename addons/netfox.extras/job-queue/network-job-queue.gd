@@ -46,6 +46,12 @@ func _get_uid() -> int:
 	_id_counter += 1
 	return _id_counter
 
+func get_queue_position(uid: int):
+	for i in range(queue.size()):
+		var job: Dictionary = queue[i]
+		if job._uid == uid:
+			return i
+
 ## Call this method so workers can "register" themselves with the queue.
 func register_worker(worker_name: String, worker_node: NetworkJobWorker) -> void:
 	if !worker_node.queue:
@@ -54,12 +60,13 @@ func register_worker(worker_name: String, worker_node: NetworkJobWorker) -> void
 
 ## Add a dictionary job to the queue. For example: enqueue_job({"worker": "MyWorker", "payload": "Hello World!"})
 func enqueue_job(job: Dictionary, worker: NetworkJobWorker = null) -> int:
+	var uid: int = _get_uid()
+	job[&"_uid"] = uid
+	
 	if worker:
 		job[&"worker"] = worker.worker_name
 		worker.job_enqueued(job)
-	
-	var uid: int = _get_uid()
-	job[&"_uid"] = uid
+		
 	queue.append(job)
 	return uid
 
