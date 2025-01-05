@@ -4,9 +4,9 @@ class_name VestRunner
 
 func _notification(what):
 	if what == NOTIFICATION_EDITOR_POST_SAVE:
-		run_tests()
+		print(as_tap(run_tests()))
 
-static func run_tests(directory: String = "res://test/"):
+func run_tests(directory: String = "res://test/") -> Array[VestTest.Result]:
 	# Find test scripts
 	var test_scripts := []
 
@@ -44,20 +44,21 @@ static func run_tests(directory: String = "res://test/"):
 		test_object._reset_result()
 
 		test_case.callback.call()
-		test_results.push_back(test_object._get_result())
+		var test_result := test_object._get_result()
+		test_result.case = test_case
+		test_results.push_back(test_result)
 
-	# Print report
-	print(as_tap(test_cases, test_results))
+	return test_results
 
-static func as_tap(cases: Array[VestTest.Case], results: Array[VestTest.Result]) -> String:
+func as_tap(results: Array[VestTest.Result]) -> String:
 	var lines := PackedStringArray()
 
 	lines.append("TAP version 14")
 	lines.append("1..%d" % [results.size()])
 
 	for idx in range(results.size()):
-		var case := cases[idx]
 		var result := results[idx]
+		var case := result.case
 
 		if result.status == VestTest.PASS:
 			lines.append("ok %d - %s/%s" % [idx + 1, case.module, case.name])
@@ -74,4 +75,9 @@ static func as_tap(cases: Array[VestTest.Case], results: Array[VestTest.Result])
 					.map(func(message: String): return "    - \"%s\"" % [message.c_escape()]))
 			lines.append("  ...")
 
+	lines.append("")
+
 	return "\n".join(lines)
+
+func is_success(results: Array[VestTest.Result]) -> bool:
+	return results.all(func(result: VestTest.Result): return result.status == VestTest.PASS)

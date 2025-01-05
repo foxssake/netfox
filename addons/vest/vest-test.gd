@@ -15,11 +15,12 @@ class Case:
 		return "VestTest.Case[module=%s, name=%s, callback=%s]" % [module, name, callback]
 
 class Result:
+	var case: Case
 	var status: int
 	var messages: PackedStringArray
 
 	func _to_string() -> String:
-		return "VestTest.Result[status=%s, messages=%s]" % [VestTest.status_string(status), messages]
+		return "VestTest.Result[status=%s, case=%s, messages=%s]" % [VestTest.status_string(status), case, messages]
 
 enum {
 	UNKNOWN = 0,
