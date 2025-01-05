@@ -46,9 +46,6 @@ environment = SubResource("Environment_xhc6u")
 
 [node name="Network" type="Node" parent="."]
 
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Network"]
-spawn_path = NodePath("../../Players")
-
 [node name="Player Spawner" type="Node" parent="Network" node_paths=PackedStringArray("spawn_points")]
 script = ExtResource("3_c7rxg")
 player_scene = ExtResource("2_p13fk")
