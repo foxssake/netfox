@@ -53,11 +53,15 @@ func register_worker(worker_name: String, worker_node: NetworkJobWorker) -> void
 	_workers[worker_name] = worker_node
 
 ## Add a dictionary job to the queue. For example: enqueue_job({"worker": "MyWorker", "payload": "Hello World!"})
-func enqueue_job(job: Dictionary, worker: NetworkJobWorker = null) -> void:
+func enqueue_job(job: Dictionary, worker: NetworkJobWorker = null) -> int:
 	if worker:
 		job[&"worker"] = worker.worker_name
-	job[&"_uid"] = _get_uid()
+		worker.job_enqueued(job)
+	
+	var uid: int = _get_uid()
+	job[&"_uid"] = uid
 	queue.append(job)
+	return uid
 
 func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 	if paused or queue.size() == 0: return

@@ -25,6 +25,10 @@ func register_with_queue() -> void:
 	if queue:
 		queue.register_worker(worker_name, self)
 
+## This method is called by the NetworkJobQueue when a job is enqueued.
+func job_enqueued(job: Dictionary) -> void:
+	pass
+
 ## This method is called by the NetworkJobQueue when a job is ready to be processed. You should extend this node and override this method in your own worker.
 func process_job(job: Dictionary) -> void:
 	busy = true

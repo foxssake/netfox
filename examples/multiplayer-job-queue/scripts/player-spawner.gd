@@ -13,7 +13,7 @@ func _ready():
 	NetworkEvents.on_peer_leave.connect(_handle_leave)
 	NetworkEvents.on_client_stop.connect(_handle_stop)
 	NetworkEvents.on_server_stop.connect(_handle_stop)
-
+	
 func _handle_connected(id: int):
 	# Spawn an avatar for us
 	_spawn(id)

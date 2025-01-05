@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://c1mtdn4ctuinl"]
+[gd_scene load_steps=16 format=3 uid="uid://c1mtdn4ctuinl"]
 
 [ext_resource type="PackedScene" uid="uid://badtpsxn5lago" path="res://examples/shared/ui/network-popup.tscn" id="1_82grf"]
 [ext_resource type="Script" path="res://examples/multiplayer-job-queue/scripts/player-spawner.gd" id="1_lbpot"]
@@ -7,7 +7,11 @@
 [ext_resource type="PackedScene" uid="uid://rx0fioc73ab3" path="res://examples/multiplayer-job-queue/models/Quaternius Cube World Kit/Door_Closed.gltf" id="2_kq8ip"]
 [ext_resource type="PackedScene" uid="uid://dox3nggklmbyv" path="res://examples/multiplayer-job-queue/models/Quaternius Cube World Kit/Button.gltf" id="3_28pr6"]
 [ext_resource type="Script" path="res://examples/multiplayer-job-queue/scripts/spawn-npc-button.gd" id="4_8d6et"]
+[ext_resource type="Script" path="res://examples/multiplayer-job-queue/scripts/npc-spawner.gd" id="5_bopr6"]
+[ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="5_rsolk"]
+[ext_resource type="Script" path="res://addons/netfox.extras/job-queue/network-job-queue.gd" id="6_0qxmk"]
 [ext_resource type="PackedScene" uid="uid://c3j3mujpl8cgm" path="res://examples/multiplayer-job-queue/scenes/player.tscn" id="6_jb2i5"]
+[ext_resource type="Script" path="res://examples/multiplayer-job-queue/scripts/npc-job-worker.gd" id="7_vyxp6"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_gcuc1"]
 
@@ -41,15 +45,28 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 6, 13)
 [node name="Button2" parent="Map" instance=ExtResource("3_28pr6")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 6, 13)
 
-[node name="StaticBody3D" parent="Map/Button2/Button2" index="0" node_paths=PackedStringArray("spawner")]
+[node name="StaticBody3D" parent="Map/Button2/Button2" index="0" node_paths=PackedStringArray("queue", "worker")]
 script = ExtResource("4_8d6et")
-spawner = NodePath("../../../MultiplayerSpawner")
+queue = NodePath("../../../NetworkJobQueue")
+worker = NodePath("../../../NetworkJobQueue/NetworkJobWorker")
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Map"]
 _spawnable_scenes = PackedStringArray("res://examples/multiplayer-job-queue/scenes/npc.tscn")
 spawn_path = NodePath("../NPC Spawner")
 
+[node name="RollbackSynchronizer" type="Node" parent="Map" node_paths=PackedStringArray("root")]
+script = ExtResource("5_rsolk")
+root = NodePath("..")
+state_properties = Array[String](["NetworkJobQueue:queue"])
+
+[node name="NetworkJobQueue" type="Node" parent="Map"]
+script = ExtResource("6_0qxmk")
+
+[node name="NetworkJobWorker" type="Node" parent="Map/NetworkJobQueue"]
+script = ExtResource("7_vyxp6")
+
 [node name="NPC Spawner" type="Node3D" parent="Map"]
+script = ExtResource("5_bopr6")
 
 [node name="Environment" type="Node" parent="."]
 

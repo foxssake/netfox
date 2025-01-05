@@ -1,15 +1,11 @@
 extends StaticBody3D
 
-@export var spawner: MultiplayerSpawner
-
-var npc_scene: PackedScene = load("res://examples/multiplayer-job-queue/scenes/npc.tscn")
-
-func _ready():
-	spawner.spawn_function = _on_spawn
-	
-func _on_spawn(data):
-	return npc_scene.instantiate()
+@export var queue: NetworkJobQueue
+@export var worker: NetworkJobWorker
 
 func interact():
 	if !is_multiplayer_authority(): return
-	spawner.spawn()
+	
+	queue.enqueue_job({
+		"index": 0
+	}, worker)
