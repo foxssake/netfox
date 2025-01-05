@@ -1,6 +1,14 @@
-[gd_scene load_steps=2 format=3 uid="uid://bp8g7j7774mwi"]
+[gd_scene load_steps=3 format=3 uid="uid://bp8g7j7774mwi"]
 
 [ext_resource type="Script" path="res://addons/vest/ui/vest-ui.gd" id="1_cct3x"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xpauq"]
+bg_color = Color(0, 0, 0, 0.501961)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_blend = true
 
 [node name="Vest UI" type="Control"]
 custom_minimum_size = Vector2(0, 144)
@@ -53,6 +61,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_xpauq")
 
 [node name="ScrollContainer" type="ScrollContainer" parent="HBoxContainer/VBoxContainer/PanelContainer"]
 layout_mode = 2
@@ -63,20 +72,20 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/VBoxContainer"]
+[node name="Summary Container" type="HBoxContainer" parent="HBoxContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="Tests Summary Label" type="Label" parent="HBoxContainer/VBoxContainer/HBoxContainer"]
+[node name="Tests Summary Label" type="Label" parent="HBoxContainer/VBoxContainer/Summary Container"]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="VSeparator" type="VSeparator" parent="HBoxContainer/VBoxContainer/HBoxContainer"]
+[node name="VSeparator" type="VSeparator" parent="HBoxContainer/VBoxContainer/Summary Container"]
 layout_mode = 2
 
-[node name="Tests Result Title" type="Label" parent="HBoxContainer/VBoxContainer/HBoxContainer"]
+[node name="Tests Result Title" type="Label" parent="HBoxContainer/VBoxContainer/Summary Container"]
 layout_mode = 2
 text = "Result:"
 
-[node name="Tests Result Label" type="Label" parent="HBoxContainer/VBoxContainer/HBoxContainer"]
+[node name="Tests Result Label" type="Label" parent="HBoxContainer/VBoxContainer/Summary Container"]
 unique_name_in_owner = true
 layout_mode = 2
