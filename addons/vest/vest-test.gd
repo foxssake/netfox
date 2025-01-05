@@ -11,6 +11,9 @@ class Case:
 		name = p_name
 		callback = p_callback
 
+	func get_display_name() -> String:
+		return "%s - %s" % [module, name]
+
 	func _to_string() -> String:
 		return "VestTest.Case[module=%s, name=%s, callback=%s]" % [module, name, callback]
 
@@ -18,6 +21,15 @@ class Result:
 	var case: Case
 	var status: int
 	var messages: PackedStringArray
+	
+	func is_success() -> bool:
+		return status == PASS
+	
+	func get_status_string() -> String:
+		return VestTest.status_string(status)
+
+	func get_status_emoji() -> String:
+		return VestTest.status_emoji(status)
 
 	func _to_string() -> String:
 		return "VestTest.Result[status=%s, case=%s, messages=%s]" % [VestTest.status_string(status), case, messages]
@@ -38,6 +50,14 @@ static func status_string(status: int) -> String:
 		SKIP: return "SKIP"
 		PASS: return "PASS"
 		_: return "?%d" % [status]
+
+static func status_emoji(status: int) -> String:
+	match status:
+		VestTest.UNKNOWN: return "❓"
+		VestTest.FAIL: return "❌"
+		VestTest.SKIP: return "💤"
+		VestTest.PASS: return "✅"
+		_: return "⭕"
 
 func get_suite_name() -> String:
 	return (get_script() as Script).resource_path

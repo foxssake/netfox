@@ -26,31 +26,29 @@ func run_all():
 	var test_duration := _time() - test_start
 	var aggregate_result := runner.aggregate_results(results)
 
+	var success_row = load("res://addons/vest/ui/success-row.tscn") as PackedScene
+	var fail_row = load("res://addons/vest/ui/fail-row.tscn") as PackedScene
+
 	# Render individual results
 	for test_result in results:
-		var result_label := Label.new()
-		result_label.text = "%s %s - %s" % \
-			[get_status_prefix(test_result.status), test_result.case.module, test_result.case.name]
+		var result_row: VestResultRow
+		if test_result.is_success():
+			result_row = success_row.instantiate()
+		else:
+			result_row = fail_row.instantiate()
 
-		results_container.add_child(result_label)
+		results_container.add_child(result_row)
+		result_row.set_result(test_result)
 
 	# Render summaries
 	summary_label.text = "Ran %d tests in %.2fms" % [results.size(), test_duration * 1000.]
-	results_label.text = ("%s %s" % [get_status_prefix(aggregate_result), VestTest.status_string(aggregate_result)]).capitalize()
+	results_label.text = ("%s %s" % [VestTest.status_emoji(aggregate_result), VestTest.status_string(aggregate_result)]).capitalize()
 
 func clear_results():
 	var result_rows := results_container.get_children()
 	for row in result_rows:
 		results_container.remove_child(row)
 		row.queue_free()
-
-func get_status_prefix(status: int) -> String:
-	match status:
-		VestTest.UNKNOWN: return "❓"
-		VestTest.FAIL: return "❌"
-		VestTest.SKIP: return "💤"
-		VestTest.PASS: return "✅"
-		_: return "⭕"
 
 func _notification(what):
 	if what == NOTIFICATION_EDITOR_PRE_SAVE:
