@@ -38,6 +38,9 @@ static func status_string(status: int) -> String:
 		PASS: return "PASS"
 		_: return "?%d" % [status]
 
+func get_suite_name() -> String:
+	return (get_script() as Script).resource_path
+
 func fail(p_message: String = "") -> void:
 	_result.status = FAIL
 	if p_message: _result.messages.push_back(p_message)
@@ -57,21 +60,34 @@ func expect(condition: bool, p_message: String = "") -> void:
 	else:
 		fail(p_message)
 
+func expect_not(condition: bool, p_message: String = "") -> void:
+	if not condition:
+		ok()
+	else:
+		fail(p_message)
+
 func expect_equal(actual: Variant, expected: Variant) -> void:
 	if actual != expected:
 		fail("Actual value differs from expected! %s != %s" % [actual, expected])
 	else:
 		ok()
 
+func expect_true(condition: bool, p_message: String = "") -> void:
+	expect(condition, p_message)
+
+func expect_false(condition: bool, p_message: String = "") -> void:
+	expect_not(condition, p_message)
+
 func _get_result() -> Result:
 	return _result
 
 func _reset_result() -> void:
+	_result = Result.new()
 	_result.status = UNKNOWN
 	_result.messages.clear()
 
 func _get_test_cases() -> Array[Case]:
-	var module := (get_script() as Script).resource_path
+	var module := get_suite_name()
 	var result: Array[Case] = []
 	result.assign(get_method_list()\
 		.filter(func(method): return method["name"].begins_with("test"))\

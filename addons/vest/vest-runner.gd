@@ -6,7 +6,7 @@ func _notification(what):
 	if what == NOTIFICATION_EDITOR_POST_SAVE:
 		run_tests()
 
-func run_tests(directory: String = "res://test/"):
+static func run_tests(directory: String = "res://test/"):
 	# Find test scripts
 	var test_scripts := []
 
@@ -18,7 +18,6 @@ func run_tests(directory: String = "res://test/"):
 	while not to_visit.is_empty() and visited.size() < 128:
 		var at = to_visit.pop_front()
 		da.change_dir(at)
-		print("Visiting directory: %s" % [at])
 
 		to_visit += Array(da.get_directories())\
 			.map(func(dir): return at + "/" + dir)\
@@ -33,14 +32,10 @@ func run_tests(directory: String = "res://test/"):
 		.filter(func(s: Script): return s.get_base_script() == VestTest)\
 		.map(func(s: Script): return s.new())
 
-	print("Found tests: %s" %  [test_scripts])
-
 	# Gather test cases
 	var test_cases: Array[VestTest.Case] = test_scripts\
 		.map(func(t: VestTest): return t._get_test_cases())\
 		.reduce(func(a, b): return a + b)
-
-	print("Found test cases: %s" % [test_cases])
 
 	# Run tests
 	var test_results: Array[VestTest.Result] = []
@@ -51,4 +46,32 @@ func run_tests(directory: String = "res://test/"):
 		test_case.callback.call()
 		test_results.push_back(test_object._get_result())
 
-	print("Test results: %s" % [test_results])
+	# Print report
+	print(as_tap(test_cases, test_results))
+
+static func as_tap(cases: Array[VestTest.Case], results: Array[VestTest.Result]) -> String:
+	var lines := PackedStringArray()
+
+	lines.append("TAP version 14")
+	lines.append("1..%d" % [results.size()])
+
+	for idx in range(results.size()):
+		var case := cases[idx]
+		var result := results[idx]
+
+		if result.status == VestTest.PASS:
+			lines.append("ok %d - %s/%s" % [idx + 1, case.module, case.name])
+		else:
+			lines.append("not ok %d - %s" % [idx + 1, case.name])
+			lines.append("  ---")
+			lines.append("  severity: fail")
+			
+			if result.messages.is_empty():
+				lines.append("  messages: []")
+			else:
+				lines.append("  messages:")
+				lines.append_array(Array(result.messages)\
+					.map(func(message: String): return "    - \"%s\"" % [message.c_escape()]))
+			lines.append("  ...")
+
+	return "\n".join(lines)
