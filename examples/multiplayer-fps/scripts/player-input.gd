@@ -45,7 +45,7 @@ func _gather():
 	movement = Vector3(mx, 0, mz)
 
 	jump = Input.is_action_pressed("move_jump")
-	fire = Input.is_action_pressed("weapon_fire")
+	fire = Input.is_action_pressed("mouse_weapon_fire")
 	
 	if override_mouse:
 		look_angle = Vector2.ZERO
