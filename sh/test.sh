@@ -5,7 +5,7 @@ VEST_LOG="vest.log"
 
 # Run tests
 print $BOLD"Running tests..."$NC
-godot --headless -v -s "res://addons/vest/vest-cli.gd" .
+echo godot --headless -v -s "addons/vest/vest-cli.gd" --path "$(pwd)"
 
 # Check results
 if [ ! -f "$VEST_LOG" ]; then
