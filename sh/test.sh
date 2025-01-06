@@ -5,7 +5,7 @@ VEST_LOG="vest.log"
 
 # Run tests
 print $BOLD"Running tests..."$NC
-godot --headless -q -s "res://addons/vest/vest-cli.gd" .
+godot --headless -s "res://addons/vest/vest-cli.gd" .
 
 # Check results
 if [ ! -f "$VEST_LOG" ]; then
