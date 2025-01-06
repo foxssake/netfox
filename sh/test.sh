@@ -3,10 +3,6 @@
 source sh/shared.sh
 VEST_LOG="vest.log"
 
-# Import project
-echo "Importing project"
-godot --headless --import .
-
 # Run tests
 print $BOLD"Running tests..."$NC
 godot --headless -q -s "res://addons/vest/vest-cli.gd" .
