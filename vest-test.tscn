@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://b0ujtus5peomq"]
-
-[ext_resource type="Script" path="res://addons/vest/vest-runner.gd" id="1_8qf2p"]
-
-[node name="Node3D" type="Node3D"]
-script = ExtResource("1_8qf2p")
