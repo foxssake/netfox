@@ -89,6 +89,3 @@ func test_clear_should_make_empty() -> void:
 	# Then
 	expect_empty(set)
 #endregion
-
-func test_should_fail() -> void:
-	fail("This suite shall fall!")

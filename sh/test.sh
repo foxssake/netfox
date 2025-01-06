@@ -4,12 +4,14 @@ source sh/shared.sh
 VEST_LOG="vest.log"
 
 # Run tests
+# NOTE: Must be ran with 4.2+, so the --import flag is available
+# Otherwise, Godot won't import scripts properly
 print "::group::Import project"
 godot --headless --import .
 print "::endgroup::"
 
 print "::group::Run vest"
-godot --headless -v -s "addons/vest/vest-cli.gd" --path "$(pwd)"
+godot --headless -s "addons/vest/vest-cli.gd" --path "$(pwd)"
 print "::endgroup::"
 
 # Check results
