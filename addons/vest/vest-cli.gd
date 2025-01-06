@@ -1,3 +1,4 @@
+@tool
 extends SceneTree
 class_name VestCLI
 
@@ -9,7 +10,16 @@ func _init() -> void:
 			print("Main loop present after %d iterations" % [i])
 			break
 	
-	# Preload scene
-	var cli_scene := preload("res://addons/vest/cli/vest-cli.tscn") as PackedScene
-	var cli = cli_scene.instantiate()
-	root.add_child(cli)
+	var runner := VestRunner.new()
+	root.add_child(runner)
+	
+	var results := runner.run_tests()
+	var tap_string := runner.as_tap(results)
+	
+	var file := FileAccess.open("res://vest.log", FileAccess.WRITE)
+	file.store_string(tap_string)
+	
+	print("Saved results to vest.log")
+	print(tap_string)
+
+	quit(0 if runner.is_success(results) else 1)
