@@ -6,7 +6,7 @@ func _init() -> void:
 	root.add_child(runner)
 
 	var results := runner.run_tests()
-	var file := FileAccess.open("res://tap.log", FileAccess.WRITE)
+	var file := FileAccess.open("res://vest.log", FileAccess.WRITE)
 	file.store_string(runner.as_tap(results))
 
 	quit()

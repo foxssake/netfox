@@ -22,4 +22,4 @@ mono_crash.*.json
 
 build
 buildtmp
-tap.log
+vest.log

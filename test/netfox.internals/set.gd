@@ -55,7 +55,7 @@ func test_set_should_not_be_empty() -> void:
 	# When
 	set.add("foo")
 	set.add("bar")
-	
+
 	# Then
 	expect_not(set.is_empty())
 	expect_equal(set.size(), 2)
@@ -89,3 +89,6 @@ func test_clear_should_make_empty() -> void:
 	# Then
 	expect_empty(set)
 #endregion
+
+func test_should_fail() -> void:
+	fail("This suite shall fall!")
