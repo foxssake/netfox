@@ -13,7 +13,7 @@ config_version=5
 config/name="netfox"
 config/description="Network addon with rollback"
 run/main_scene="res://examples/forest-brawl/forest-brawl.tscn"
-config/features=PackedStringArray("4.1")
+config/features=PackedStringArray("4.2")
 run/max_fps=240
 config/icon="res://icon.png"
 
