@@ -23,4 +23,4 @@ jobs:
       - name: Verify setup
         run: godot --version
       - name: Run tests
-        run: godot --headless -v -s "addons/vest/vest-cli.gd" --path "$(pwd)"
+        run: sh/test.sh
