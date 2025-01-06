@@ -3,6 +3,7 @@ class_name VestCLI
 
 func _init() -> void:
 	# Load manually to ensure script is present
+	print("Huh?")
 	var runner_script = preload("res://addons/vest/vest-runner.gd")
 	print("Loaded script:", runner_script)
 
