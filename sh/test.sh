@@ -4,20 +4,24 @@ source sh/shared.sh
 VEST_LOG="vest.log"
 
 # Run tests
-print $BOLD"Running tests..."$NC
+print "::group::Import project"
 godot --headless --import .
+print "::endgroup::"
+
+print "::group::Run vest"
 godot --headless -v -s "addons/vest/vest-cli.gd" --path "$(pwd)"
+print "::endgroup::"
 
 # Check results
 if [ ! -f "$VEST_LOG" ]; then
-  print $BOLD"No test logs!"$NC
+  echo "::error::No test logs!"
   exit 1
 fi
 
 if grep "not ok" "$VEST_LOG"; then
-  print $BOLD"Test failed!"$NC
+  echo "::error::There are failing test(s)!"
   cat "$VEST_LOG"
   exit 1
 else
-  print $BOLD"Success!"$NC
+  print "Success!"
 fi
