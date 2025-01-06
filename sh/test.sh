@@ -5,6 +5,7 @@ VEST_LOG="vest.log"
 
 # Run tests
 print $BOLD"Running tests..."$NC
+godot --import .
 godot --headless -v -s "addons/vest/vest-cli.gd" --path "$(pwd)"
 
 # Check results
