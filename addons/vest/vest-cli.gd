@@ -2,11 +2,8 @@ extends SceneTree
 class_name VestCLI
 
 func _init() -> void:
-	# Ensure scripts are loaded
-	preload("res://addons/vest/vest-runner.gd")
-
 	# Create runner
-	var runner := VestRunner.new()
+	var runner := preload("res://addons/vest/vest-runner.gd").new()
 	root.add_child(runner)
 
 	# Run tests
