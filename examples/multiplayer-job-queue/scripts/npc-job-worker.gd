@@ -1,6 +1,7 @@
 extends NetworkJobWorker
 
 @export var spawner: MultiplayerSpawner
+@export var spawn_root: Node3D
 
 var npc_scene: PackedScene = load("res://examples/multiplayer-job-queue/scenes/npc.tscn")
 
@@ -18,6 +19,6 @@ func job_enqueued(job: Dictionary) -> void:
 	
 ## This method is called by the NetworkJobQueue when a job is ready to be processed. You should extend this node and override this method in your own worker.
 func process_job(job: Dictionary) -> void:
-	busy = true
-	# Do something with the job here
-	busy = false
+	for child in spawn_root.get_children():
+		if child.uid == job._uid:
+			child.target_waypoint = child.waypoint_count - 1

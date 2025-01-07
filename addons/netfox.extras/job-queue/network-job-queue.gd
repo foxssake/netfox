@@ -46,11 +46,12 @@ func _get_uid() -> int:
 	_id_counter += 1
 	return _id_counter
 
-func get_queue_position(uid: int):
+func get_queue_position(uid: int) -> int:
 	for i in range(queue.size()):
 		var job: Dictionary = queue[i]
 		if job._uid == uid:
 			return i
+	return 0
 
 ## Call this method so workers can "register" themselves with the queue.
 func register_worker(worker_name: String, worker_node: NetworkJobWorker) -> void:
@@ -69,12 +70,13 @@ func enqueue_job(job: Dictionary, worker: NetworkJobWorker = null) -> int:
 		
 	queue.append(job)
 	return uid
-
-func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
-	if paused or queue.size() == 0: return
+	
+## Process the next jobs in the queue
+func process_jobs():
+	if queue.size() == 0: return
 	
 	for worker_name in _workers.keys():
-		var jobs: Array[Dictionary] = queue.filter(func(x): x[&"worker"] == worker_name)
+		var jobs: Array[Dictionary] = queue.filter(func(x): return x["worker"] == worker_name)
 		var worker: NetworkJobWorker = _workers[worker_name]
 		if worker.busy: continue
 		
@@ -86,3 +88,8 @@ func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 				break
 				
 		worker.process_job(next_job)
+
+func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
+	if paused or queue.size() == 0: return
+	
+	process_jobs()
