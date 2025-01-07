@@ -7,15 +7,15 @@ func _notification(what):
 		print(as_tap(run_tests()))
 
 func run_tests(directory: String = "res://test/") -> Array[VestTest.Result]:
-	# Find test scripts
-	var test_scripts := []
+	# Find test suites
+	var test_suites: Array[VestTest] = []
 
 	var visited := []
 	var to_visit := [directory]
 	var files := []
 	var da := DirAccess.open(directory)
 
-	while not to_visit.is_empty() and visited.size() < 128:
+	while not to_visit.is_empty():
 		var at = to_visit.pop_front()
 		da.change_dir(at)
 
@@ -26,31 +26,38 @@ func run_tests(directory: String = "res://test/") -> Array[VestTest.Result]:
 		files += Array(da.get_files())\
 			.map(func(f): return at + "/" + f)
 
-	test_scripts = files\
+	test_suites.assign(files\
 		.filter(func(f: String): return f.ends_with(".gd"))\
 		.map(func(f): return load(f))\
 		.filter(func(s: Script): return s.get_base_script() == VestTest)\
-		.map(func(s: Script): return s.new())
+		.map(func(s: Script): return s.new()))
 
-	# Gather test cases
-	var test_cases: Array[VestTest.Case] = test_scripts\
-		.map(func(t: VestTest): return t._get_test_cases())\
-		.reduce(func(a, b): return a + b)
-
-	# Run tests
+	# Iterate test suites for tests
 	var test_results: Array[VestTest.Result] = []
-	for test_case in test_cases:
-		var test_object := test_case.callback.get_object() as VestTest
-		test_object._reset_result()
 
-		test_case.callback.call()
-		var test_result := test_object._get_result()
-		test_result.case = test_case
-		test_results.push_back(test_result)
+	for test_suite in test_suites:
+		var test_cases := test_suite._get_test_cases()
+		if test_cases.is_empty():
+			# Empty suite, skip
+			continue
 
-	# Free test instances
-	for test_instance in test_scripts:
-		test_instance.queue_free()
+		# Run suite
+		test_suite.before()
+		for test_case in test_cases:
+			test_suite.before_each()
+			test_suite._reset_result()
+
+			test_case.callback.call()
+			var test_result := test_suite._get_result()
+			test_result.case = test_case
+			test_results.push_back(test_result)
+
+			test_suite.after_each()
+
+		test_suite.after()
+
+		# Free suite
+		test_suite.queue_free()
 
 	return test_results
 
