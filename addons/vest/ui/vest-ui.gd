@@ -10,10 +10,13 @@ class_name VestUI
 @onready var results_label := %"Tests Result Label" as Label
 
 var _run_on_save: bool = false
-var _enabled: bool = false
 
-func enable():
-	_enabled = true
+func handle_resource_saved(resource: Resource):
+	if not resource is Script or not visible:
+		return
+
+	if _run_on_save:
+		run_all()
 
 func run_all():
 	var runner := VestRunner.new()
@@ -49,11 +52,6 @@ func clear_results():
 	for row in result_rows:
 		results_container.remove_child(row)
 		row.queue_free()
-
-func _notification(what):
-	if what == NOTIFICATION_EDITOR_PRE_SAVE:
-		if _enabled and _run_on_save:
-			run_all()
 
 func _ready():
 	run_all_button.pressed.connect(run_all)

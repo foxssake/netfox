@@ -37,7 +37,6 @@ layout_mode = 2
 text = "Run Tests"
 
 [node name="Run On Save Container" type="HBoxContainer" parent="HBoxContainer/Controls"]
-visible = false
 layout_mode = 2
 
 [node name="Run On Save CheckBox" type="CheckBox" parent="HBoxContainer/Controls/Run On Save Container"]
