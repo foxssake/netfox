@@ -48,6 +48,10 @@ func run_tests(directory: String = "res://test/") -> Array[VestTest.Result]:
 		test_result.case = test_case
 		test_results.push_back(test_result)
 
+	# Free test instances
+	for test_instance in test_scripts:
+		test_instance.queue_free()
+
 	return test_results
 
 func as_tap(results: Array[VestTest.Result]) -> String:

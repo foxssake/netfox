@@ -13,6 +13,10 @@ func _ready() -> void:
 	if OS.has_feature("template"):
 		return
 
+	# Running in headless mode
+	if DisplayServer.get_name() == "headless":
+		return
+
 	# Cleanup in case some files were left
 	_cleanup()
 
