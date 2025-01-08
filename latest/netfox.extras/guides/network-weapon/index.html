@@ -143,6 +143,8 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#specializations">Specializations</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#compensating-latency">Compensating latency</a>
+    </li>
     <li class="toctree-l3"><a class="reference internal" href="#hitscan-weapons">Hitscan weapons</a>
     </li>
     </ul>
@@ -239,6 +241,27 @@ to call the base class with <em>super(...)</em>.</p>
 <p>Under the hood, these specializations create a special <em>NetworkWeapon</em> node,
 that proxies all the method calls back to the specialization. This is a
 workaround to build multiple inheritance in a single inheritance language.</p>
+<h2 id="compensating-latency">Compensating latency</h2>
+<p>Whenever the weapon is fired, it takes time for that event to arrive at the
+host. To combat this, along with the weapon being fired, the firing's tick is
+also sent. This way, the host doesn't only know that the weapon was fired, but
+it also knows <em>when</em>.</p>
+<p>To retrieve the exact tick, call <em>get_fired_tick()</em>.</p>
+<p>This can be used to adjust the created projectile's simulation, e.g. by
+simulating it from its spawn to the current tick in <code>_after_fire()</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">func</span><span class="w"> </span><span class="n">_after_fire</span><span class="p">(</span><span class="n">projectile</span><span class="p">:</span><span class="w"> </span><span class="n">Node3D</span><span class="p">):</span>
+<span class="w">    </span><span class="n">last_fire</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_fired_tick</span><span class="p">()</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">range</span><span class="p">(</span><span class="n">get_fired_tick</span><span class="p">(),</span><span class="w"> </span><span class="n">NetworkTime</span><span class="o">.</span><span class="n">tick</span><span class="p">):</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">projectile</span><span class="o">.</span><span class="n">is_queued_for_deletion</span><span class="p">():</span>
+<span class="w">            </span><span class="k">break</span>
+<span class="w">        </span><span class="n">projectile</span><span class="o">.</span><span class="n">_tick</span><span class="p">(</span><span class="n">NetworkTime</span><span class="o">.</span><span class="n">ticktime</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To track the tick the weapon was last fired ( e.g. for cooldowns ), make sure
+to use <code>get_fired_tick()</code>, instead of <code>NetworkTime.tick</code>.</p>
+</div>
 <h2 id="hitscan-weapons">Hitscan weapons</h2>
 <p>Use <em>NetworkWeaponHitscan3D</em> to build networked hitscan weapons. It builds upon
 the same principle as <em>NetworkWeapon</em>, but modified for hitscan.</p>
@@ -252,6 +275,8 @@ geometry. The raycast result is passed as a parameter to distinguish between
 hits.</p>
 <p>Reconciliation is handled under the hood - <em>_get_data</em>, <em>_apply_data</em>,
 <em>_is_reconcilable</em>, and <em>_reconcile</em> do not need to be implemented.</p>
+<p>Hitscan weapons don't implement <em>get_fired_tick()</em>, as there's no projectile to
+simulate.</p>
               
             </div>
           </div>
