@@ -13,12 +13,6 @@ var is_first_tick: bool = true
 func _ready():
 	NetworkTime.on_tick.connect(_tick)
 	distance_left = distance
-	
-	# Do a tick in advance to interpolate forwards
-	await get_tree().process_frame
-	_tick(NetworkTime.ticktime, NetworkTime.tick)
-	$TickInterpolator.push_state()
-	is_first_tick = true
 
 func _tick(delta, _t):
 	var dst = speed * delta
@@ -45,7 +39,7 @@ func _tick(delta, _t):
 		_explode()
 	else:
 		position += motion
-	
+
 	# Skip collisions for a single tick, no more
 	is_first_tick = false
 
