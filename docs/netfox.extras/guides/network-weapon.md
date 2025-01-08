@@ -82,6 +82,32 @@ Under the hood, these specializations create a special *NetworkWeapon* node,
 that proxies all the method calls back to the specialization. This is a
 workaround to build multiple inheritance in a single inheritance language.
 
+## Compensating latency
+
+Whenever the weapon is fired, it takes time for that event to arrive at the
+host. To combat this, along with the weapon being fired, the firing's tick is
+also sent. This way, the host doesn't only know that the weapon was fired, but
+it also knows *when*.
+
+To retrieve the exact tick, call *get_fired_tick()*.
+
+This can be used to adjust the created projectile's simulation, e.g. by
+simulating it from its spawn to the current tick in `_after_fire()`:
+
+```gdscript
+func _after_fire(projectile: Node3D):
+	last_fire = get_fired_tick()
+
+	for t in range(get_fired_tick(), NetworkTime.tick):
+		if projectile.is_queued_for_deletion():
+			break
+		projectile._tick(NetworkTime.ticktime, t)
+```
+
+!!!note
+    To track the tick the weapon was last fired ( e.g. for cooldowns ), make sure
+    to use `get_fired_tick()`, instead of `NetworkTime.tick`.
+
 ## Hitscan weapons
 
 Use *NetworkWeaponHitscan3D* to build networked hitscan weapons. It builds upon
@@ -101,6 +127,9 @@ hits.
 
 Reconciliation is handled under the hood - *_get_data*, *_apply_data*,
 *_is_reconcilable*, and *_reconcile* do not need to be implemented.
+
+Hitscan weapons don't implement *get_fired_tick()*, as there's no projectile to
+simulate.
 
 
 [MultiplayerSynchronizer]: https://docs.godotengine.org/en/stable/classes/class_multiplayersynchronizer.html
