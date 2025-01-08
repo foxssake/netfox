@@ -7,7 +7,8 @@ class_name NetworkWeapon
 var _projectiles: Dictionary = {}
 var _projectile_data: Dictionary = {}
 var _reconcile_buffer: Array = []
-var _rng = RandomNumberGenerator.new()
+var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
+var _fired_tick: int = -1
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_extras("NetworkWeapon")
 
@@ -37,9 +38,14 @@ func fire() -> Node:
 		_accept_projectile.rpc(id, NetworkTime.tick, data)
 
 	_logger.debug("Calling after fire hook for %s", [projectile.name])
+	_fired_tick = NetworkTime.tick
 	_after_fire(projectile)
 
 	return projectile
+
+# TODO: Docs
+func get_fired_tick() -> int:
+	return _fired_tick
 
 ## Override this method with your own can fire logic.
 ##
@@ -147,6 +153,7 @@ func _request_projectile(id: String, tick: int, request_data: Dictionary):
 	var sender = multiplayer.get_remote_sender_id()
 
 	# Reject if sender can't use this input
+	_fired_tick = tick
 	if not _can_peer_use(sender) or not _can_fire():
 		_decline_projectile.rpc_id(sender, id)
 		_logger.error("Projectile %s rejected! Peer %s can't use this weapon now", [id, sender])
@@ -168,16 +175,18 @@ func _request_projectile(id: String, tick: int, request_data: Dictionary):
 
 @rpc("authority", "reliable", "call_local")
 func _accept_projectile(id: String, tick: int, response_data: Dictionary):
-	_logger.info("Accepting projectile %s from %s", [id, multiplayer.get_remote_sender_id()])
 	if multiplayer.get_unique_id() == multiplayer.get_remote_sender_id():
 		# Projectile is local, nothing to do
 		return
+
+	_logger.info("Accepting projectile %s from %s", [id, multiplayer.get_remote_sender_id()])
 	
 	if _projectiles.has(id):
 		var projectile = _projectiles[id]
 		var local_data = _projectile_data[id]
 		_reconcile_buffer.push_back([projectile, local_data, response_data, id])
 	else:
+		_fired_tick = tick
 		var projectile = _spawn()
 		_apply_data(projectile, response_data)
 		_projectile_data.erase(id)
