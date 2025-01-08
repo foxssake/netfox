@@ -21,7 +21,7 @@ func can_fire() -> bool:
 	return _can_fire()
 
 ## Try to fire the weapon and return the projectile.
-##
+## [br][br]
 ## Returns null if the weapon can't be fired.
 func fire() -> Node:
 	if not can_fire():
@@ -43,18 +43,35 @@ func fire() -> Node:
 
 	return projectile
 
-# TODO: Docs
+## Get the tick when the weapon was fired.
+## [br][br]
+## Whenever a weapon gets fired, it takes time for that event to be transmitted
+## to the server. To account for this latency, the exact tick is sent along
+## with other data, so weapon implementations can compensate for the latency.
+## [br][br]
+## One way to use this is to manually simulate the projectile after it's
+## created:
+## [codeblock]
+## func _after_fire(projectile: Node3D):
+##     last_fire = get_fired_tick()
+##     sound.play()
+##
+##     for t in range(get_fired_tick(), NetworkTime.tick):
+##         if projectile.is_queued_for_deletion():
+##             break
+##         projectile._tick(NetworkTime.ticktime, t)
+## [/codeblock]
 func get_fired_tick() -> int:
 	return _fired_tick
 
 ## Override this method with your own can fire logic.
-##
+## [br][br]
 ## This can be used to implement e.g. firing cooldowns and ammo checks.
 func _can_fire() -> bool:
 	return false
 
 ## Override this method to check if a given peer can use this weapon.
-##
+## [br][br]
 ## Usually this should check if the weapon's owner is trying to fire it, but 
 ## for some special cases this can be some different logic, e.g. weapons that 
 ## can be used by any player on a given team.
@@ -63,20 +80,20 @@ func _can_peer_use(peer_id: int) -> bool:
 
 ## Override this method to run any logic needed after successfully firing the 
 ## weapon.
-##
+## [br][br]
 ## This can be used to e.g. reset the firing cooldown or deduct ammo.
 func _after_fire(projectile: Node):
 	pass
 
 ## Override this method to spawn and initialize a projectile.
-##
+## [br][br]
 ## Make sure to return the projectile spawned!
 func _spawn() -> Node:
 	return null
 
 ## Override this method to extract projectile data that should be synchronized
 ## over the network.
-##
+## [br][br]
 ## This will be captured both locally and on the server, and will be used for 
 ## reconciliation.
 func _get_data(projectile: Node) -> Dictionary:
@@ -84,18 +101,18 @@ func _get_data(projectile: Node) -> Dictionary:
 
 ## Override this method to apply projectile data that should be synchronized 
 ## over the network.
-##
+## [br][br]
 ## This is used in cases where some other client fires a weapon and the server 
 ## instructs us to spawn a projectile for it.
 func _apply_data(projectile: Node, data: Dictionary):
 	pass
 
 ## Override this method to check if two projectile states can be reconciled.
-##
+## [br][br]
 ## This can be used to prevent cheating, for example by not allowing the client 
 ## to say it's firing from the other side of the map compared to its actual 
 ## position.
-##
+## [br][br]
 ## When this method returns false, the server will decline the projectile
 ## request.
 func _is_reconcilable(projectile: Node, request_data: Dictionary, local_data: Dictionary) -> bool:
@@ -103,11 +120,11 @@ func _is_reconcilable(projectile: Node, request_data: Dictionary, local_data: Di
 
 ## Override this method to reconcile the initial local and remote projectile
 ## state.
-##
+## [br][br]
 ## Let's say the projectile travels in a straight line from its origin, but we
 ## receive a different origin from the server. In this reconciliation step, 
 ## the projectile's position can be adjusted to account for the different origin.
-##
+## [br][br]
 ## Unless the use case is niche, the best practice is to consider the server's
 ## state as authorative.
 func _reconcile(projectile: Node, local_data: Dictionary, remote_data: Dictionary):

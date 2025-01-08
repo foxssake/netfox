@@ -32,12 +32,18 @@ func _after_fire(projectile: Node3D):
 			break
 		bomb._tick(NetworkTime.ticktime, t)
 
+	_logger.trace("[%s] Ticking new bomb %d -> %d", [bomb.name, get_fired_tick(), NetworkTime.tick])
+	for t in range(get_fired_tick(), NetworkTime.tick):
+		if bomb.is_queued_for_deletion():
+			break
+		bomb._tick(NetworkTime.ticktime, t)
+
 func _spawn() -> Node3D:
 	var bomb_projectile: BombProjectile = projectile.instantiate() as BombProjectile
 	get_tree().root.add_child(bomb_projectile, true)
 	bomb_projectile.global_transform = global_transform
 	bomb_projectile.fired_by = get_parent()
-	
+
 	return bomb_projectile
 
 func _tick(_delta: float, _t: int):

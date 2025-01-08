@@ -15,7 +15,6 @@ var _logger := _NetfoxLogger.new("fb", "BombProjectile")
 func _ready():
 	NetworkTime.on_tick.connect(_tick)
 	distance_left = distance
-	is_first_tick = true
 
 func _tick(delta, _t):
 	var dst = speed * delta
@@ -43,7 +42,7 @@ func _tick(delta, _t):
 		_explode()
 	else:
 		position += motion
-	
+
 	# Skip collisions for a single tick, no more
 	is_first_tick = false
 
