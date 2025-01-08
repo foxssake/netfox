@@ -6,7 +6,6 @@ var bottom_control: VestUI
 func _enter_tree():
 	bottom_control = (load("res://addons/vest/ui/vest-ui.tscn") as PackedScene).instantiate() as VestUI
 	resource_saved.connect(bottom_control.handle_resource_saved)
-	print("handler connected!")
 
 	add_control_to_bottom_panel(bottom_control, "Vest")
 

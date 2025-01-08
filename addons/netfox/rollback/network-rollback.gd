@@ -188,6 +188,7 @@ func is_just_mutated(target: Object, p_tick: int = tick) -> bool:
 		return false
 
 func _ready():
+	if Engine.is_editor_hint(): return
 	NetworkTime.after_tick_loop.connect(_rollback)
 
 func _rollback():
