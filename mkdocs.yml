@@ -24,6 +24,7 @@ nav:
     - Tutorials:
       - 'netfox/tutorials/responsive-player-movement.md'
       - 'netfox/tutorials/predicting-input.md'
+      - 'netfox/tutorials/modifying-objects-during-rollback.md'
       - 'netfox/tutorials/configuring-properties-from-code.md'
       - 'netfox/tutorials/rollback-caveats.md'
       - 'netfox/tutorials/interpolation-caveats.md'
