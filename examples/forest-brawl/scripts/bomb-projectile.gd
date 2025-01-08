@@ -10,8 +10,6 @@ var distance_left: float
 var fired_by: Node
 var is_first_tick: bool = true
 
-var _logger := _NetfoxLogger.new("fb", "BombProjectile")
-
 func _ready():
 	NetworkTime.on_tick.connect(_tick)
 	distance_left = distance
@@ -36,7 +34,7 @@ func _tick(delta, _t):
 	query.transform = global_transform
 	
 	var hit_interval := space.cast_motion(query)
-	if hit_interval[0] != 1.0 or hit_interval[1] != 1.0:
+	if hit_interval[0] != 1.0 or hit_interval[1] != 1.0 and not is_first_tick:
 		# Move to collision
 		position += motion * hit_interval[1]
 		_explode()
@@ -49,7 +47,6 @@ func _tick(delta, _t):
 func _explode():
 	queue_free()
 	NetworkTime.on_tick.disconnect(_tick)
-	_logger.info("Bomb exploded!")
 	
 	if effect:
 		var spawn = effect.instantiate() as Node3D

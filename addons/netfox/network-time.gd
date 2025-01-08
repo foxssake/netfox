@@ -3,7 +3,7 @@ class_name _NetworkTime
 
 ## This class handles timing.
 ##
-## @tutorial(NetworkTime Guide): https://foxssake.github.io/netfox/netfox/guides/network-time/
+## @tutorial(NetworkTime Guide): https://foxssake.github.io/netfox/latest/netfox/guides/network-time/
 
 ## Number of ticks per second.
 ##

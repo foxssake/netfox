@@ -21,9 +21,9 @@ func _ready():
 
 	# Run from birth tick on next loop
 	NetworkRollback.notify_resimulation_start(birth_tick)
-	
+
 	(func():
-		_logger.info("Created explosion at %s@%d", [global_position, birth_tick])
+		_logger.debug("Created explosion at %s@%d", [global_position, birth_tick])
 	).call_deferred()
 
 func _rollback_tick(tick: int):
@@ -45,8 +45,6 @@ func _rollback_tick(tick: int):
 		brawler.shove(offset)
 		NetworkRollback.mutate(brawler)
 
-#		_logger.info("Displacing brawler %s: [s=%.2f, sf=%.2f, f=%.2f, d=%s, o=%s]", [brawler.name, strength, strength_factor, f, diff, offset])
-
 		if brawler != fired_by:
 			brawler.register_hit(fired_by)
 
@@ -66,7 +64,7 @@ func _get_overlapping_brawlers() -> Array[BrawlerController]:
 	query.transform = global_transform
 	
 	# TODO: Move map geo and brawlers to separate layers, so map doesn't clog up
-	# the 32 max_results
+	# the 32 max_results - this would enable bigger collision shapes
 	var hits := state.intersect_shape(query)
 	for hit in hits:
 		var hit_object = hit["collider"]

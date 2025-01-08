@@ -24,13 +24,6 @@ func _after_fire(projectile: Node3D):
 	var bomb := projectile as BombProjectile
 	last_fire = get_fired_tick()
 	sound.play()
-	
-	_logger.info("[%s] Ticking new bomb %d -> %d", [bomb.name, get_fired_tick(), NetworkTime.tick])
-	for t in range(get_fired_tick(), NetworkTime.tick):
-		if bomb.is_queued_for_deletion():
-			_logger.info("Stopped ticking @%d, bomb about to be deleted!", [t])
-			break
-		bomb._tick(NetworkTime.ticktime, t)
 
 	_logger.trace("[%s] Ticking new bomb %d -> %d", [bomb.name, get_fired_tick(), NetworkTime.tick])
 	for t in range(get_fired_tick(), NetworkTime.tick):
