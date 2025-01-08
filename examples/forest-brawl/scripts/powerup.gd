@@ -35,8 +35,7 @@ func _has_powerup(target: Node) -> bool:
 
 @rpc("authority", "reliable", "call_local")
 func _spawn_effect(effect_idx: int, target_path: NodePath):
-#	var effect = effects[effect_idx]
-	var effect = preload("res://examples/forest-brawl/scenes/effects/repulse-effect.tscn")
+	var effect = effects[effect_idx]
 	var target = get_tree().get_root().get_node(target_path)
 
 	var spawn = effect.instantiate()
