@@ -4,6 +4,7 @@ class_name _NetworkRollback
 ## Orchestrates the rollback loop.
 ##
 ## @tutorial(NetworkRollback Guide): https://foxssake.github.io/netfox/latest/netfox/guides/network-rollback/
+## @tutorial(Modifying objects during rollback): https://foxssake.github.io/netfox/latest/netfox/tutorials/modifying-objects-during-rollback/
 
 ## Whether rollback is enabled.
 var enabled: bool = ProjectSettings.get_setting("netfox/rollback/enabled", true)
@@ -164,12 +165,11 @@ func process_rollback(target: Object, delta: float, p_tick: int, is_fresh: bool)
 func mutate(target: Object, p_tick: int = tick) -> void:
 	_mutated_nodes[target] = mini(p_tick, _mutated_nodes.get(target, p_tick))
 
-	if is_rollback():
-		if p_tick < tick:
-			_logger.warning(
-				"Trying to mutate object %s in the past, for a tick %d!",
-				[target, p_tick]
-			)
+	if is_rollback() and p_tick < tick:
+		_logger.warning(
+			"Trying to mutate object %s in the past, for tick %d!",
+			[target, p_tick]
+		)
 
 ## Check whether the target object was mutated in or after the given tick via
 ## [method mutate].
