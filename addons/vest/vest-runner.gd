@@ -37,9 +37,6 @@ func run_tests(directory: String = "res://test/") -> Array[VestTest.Result]:
 
 	for test_suite in test_suites:
 		var test_cases := test_suite._get_test_cases()
-		if test_cases.is_empty():
-			# Empty suite, skip
-			continue
 
 		# Run suite
 		test_suite.before()

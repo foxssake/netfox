@@ -15,13 +15,7 @@ func _ready():
 		push_error("Powerup effect added to non-player!")
 		queue_free()
 		return
-	
-	set_multiplayer_authority(1)
 
-	NetworkRollback.before_loop.connect(func(): NetworkRollback.notify_resimulation_start(_apply_tick), CONNECT_ONE_SHOT)
-	NetworkRollback.on_process_tick.connect(_rollback_tick)
-	NetworkTime.on_tick.connect(_tick)
-	
 	_apply_tick = NetworkTime.tick + 1
 	_cease_tick = _apply_tick + NetworkTime.seconds_to_ticks(duration)
 	_destroy_tick = max(
@@ -29,12 +23,17 @@ func _ready():
 		_cease_tick + NetworkRollback.history_limit
 	)
 
+	# Resim from apply tick on the next loop
+	NetworkRollback.before_loop.connect(func(): NetworkRollback.notify_resimulation_start(_apply_tick), CONNECT_ONE_SHOT)
+
+	NetworkRollback.on_process_tick.connect(_rollback_tick)
+	NetworkTime.on_tick.connect(_tick)
+
 func _rollback_tick(tick):
-	if is_multiplayer_authority() and NetworkRollback.is_simulated(get_target()):
-		if tick == _apply_tick:
-			_apply()
-		if tick == _cease_tick:
-			_cease()
+	if tick == _apply_tick:
+		_apply()
+	if tick == _cease_tick:
+		_cease()
 
 func _tick(_delta, tick):
 	if tick == _cease_tick:

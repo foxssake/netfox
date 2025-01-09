@@ -1,6 +1,11 @@
 extends Node
 class_name _NetworkRollback
 
+## Orchestrates the rollback loop.
+##
+## @tutorial(NetworkRollback Guide): https://foxssake.github.io/netfox/latest/netfox/guides/network-rollback/
+## @tutorial(Modifying objects during rollback): https://foxssake.github.io/netfox/latest/netfox/tutorials/modifying-objects-during-rollback/
+
 ## Whether rollback is enabled.
 var enabled: bool = ProjectSettings.get_setting("netfox/rollback/enabled", true)
 
@@ -10,7 +15,7 @@ var enabled: bool = ProjectSettings.get_setting("netfox/rollback/enabled", true)
 var enable_diff_states: bool = ProjectSettings.get_setting("netfox/rollback/enable_diff_states", true)
 
 ## How many ticks to store as history.
-##
+## [br][br]
 ## The larger the history limit, the further we can roll back into the past, 
 ## thus the more latency we can manage.
 ## [br][br]
@@ -24,7 +29,7 @@ var history_limit: int:
 		push_error("Trying to set read-only variable history_limit")
 
 ## Offset into the past for display.
-##
+## [br][br]
 ## After the rollback, we have the option to not display the absolute latest
 ## state of the game, but let's say the state two frames ago ( offset = 2 ).
 ## This can help with hiding latency, by giving more time for an up-to-date
@@ -38,7 +43,7 @@ var display_offset: int:
 		push_error("Trying to set read-only variable display_offset")
 
 ## How many previous input frames to send along with the current one.
-##
+## [br][br]
 ## With UDP - packets may be lost, arrive late or out of order.
 ## To mitigate this, we send the current and previous n ticks of input data.
 ## [br][br]
@@ -50,6 +55,10 @@ var input_redundancy: int:
 	set(v):
 		push_error("Trying to set read-only variable input_redundancy")
 
+## The current [i]rollback[/i] tick.
+## [br][br]
+## Note that this is different from [member _NetworkTime.tick], and only makes
+## sense in the context of a rollback loop.
 var tick: int:
 	get:
 		return _tick
@@ -60,25 +69,25 @@ var tick: int:
 signal before_loop()
 
 ## Event emitted in preparation of each rollback tick.
-##
+## [br][br]
 ## Handlers should apply the state and input corresponding to the given tick.
 signal on_prepare_tick(tick: int)
 
 ## Event emitted after preparing each rollback tick.
-##
+## [br][br]
 ## Handlers may process the prepared tick, e.g. modulating the input by its age
 ## to implement input prediction.
 signal after_prepare_tick(tick: int)
 
 ## Event emitted to process the given rollback tick.
-##
+## [br][br]
 ## Handlers should check if they *need* to resimulate the given tick, and if so,
 ## generate the next state based on the current data ( applied in the prepare
 ## tick phase ).
 signal on_process_tick(tick: int)
 
 ## Event emitted to record the given rollback tick.
-##
+## [br][br]
 ## By this time, the tick is advanced from the simulation, handlers should save
 ## their resulting states for the given tick.
 signal on_record_tick(tick: int)
@@ -91,6 +100,7 @@ var _resim_from: int
 
 var _is_rollback: bool = false
 var _simulated_nodes: Dictionary = {}
+var _mutated_nodes: Dictionary = {}
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkRollback")
 
@@ -131,7 +141,7 @@ func is_rollback_aware(what: Object) -> bool:
 
 ## Calls the [code]_rollback_tick[/code] method on the target, running its
 ## simulation for the given rollback tick.
-##
+## [br][br]
 ## This is used by [RollbackSynchronizer] to resimulate ticks during rollback.
 ## While the [code]_rollback_tick[/code] method could be called directly as 
 ## well, this method exists to future-proof the code a bit, so the method name
@@ -141,6 +151,41 @@ func is_rollback_aware(what: Object) -> bool:
 ## it's not, this method will run into an error.
 func process_rollback(target: Object, delta: float, p_tick: int, is_fresh: bool):
 	target._rollback_tick(delta, p_tick, is_fresh)
+
+## Marks the target object as mutated.
+## [br][br]
+## Mutated objects will be re-recorded for the specified tick, and resimulated
+## from the given tick onwards.
+## [br][br]
+## For special cases, you can specify the tick when the mutation happened. Since
+## it defaults to the current rollback [member tick], this parameter rarely
+## needs to be specified.
+## [br][br]
+## Note that registering a mutation into the past will yield a warning.
+func mutate(target: Object, p_tick: int = tick) -> void:
+	_mutated_nodes[target] = mini(p_tick, _mutated_nodes.get(target, p_tick))
+
+	if is_rollback() and p_tick < tick:
+		_logger.warning(
+			"Trying to mutate object %s in the past, for tick %d!",
+			[target, p_tick]
+		)
+
+## Check whether the target object was mutated in or after the given tick via
+## [method mutate].
+func is_mutated(target: Object, p_tick: int = tick) -> bool:
+	if _mutated_nodes.has(target):
+		return p_tick >= _mutated_nodes.get(target)
+	else:
+		return false
+
+## Check whether the target object was mutated specifically in the given tick
+## via [method mutate].
+func is_just_mutated(target: Object, p_tick: int = tick) -> bool:
+	if _mutated_nodes.has(target):
+		return _mutated_nodes.get(target) == p_tick
+	else:
+		return false
 
 func _ready():
 	NetworkTime.after_tick_loop.connect(_rollback)
@@ -193,6 +238,9 @@ func _rollback():
 	
 	# Restore display state
 	after_loop.emit()
+
+	# Cleanup
+	_mutated_nodes.clear()
 	_is_rollback = false
 
 # Insight 1:

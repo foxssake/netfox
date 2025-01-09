@@ -200,13 +200,11 @@ _data = {
 "death": SubResource("Animation_psafd")
 }
 
-[node name="Repulse Effect" type="Node3D" node_paths=PackedStringArray("area", "particles", "aura")]
+[node name="Repulse Effect" type="Node3D" node_paths=PackedStringArray("area")]
 script = ExtResource("1_47iru")
 area = NodePath("Area3D")
-strength = 512.0
+strength = 16.0
 duration = 10.0
-particles = NodePath("GPUParticles3D")
-aura = NodePath("Aura")
 
 [node name="Aura" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.005, 0, 0, 0, 0.005, 0, 0, 0, 0.005, 0, 0.25, 0)
