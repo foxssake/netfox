@@ -55,11 +55,10 @@ extends RewindableState
 @export var input: PlayerInputStateMachine
 
 func tick(delta, tick, is_fresh):
-	if input.movement != Vector3.ZERO:
-		state_machine.transition(&"Move")
-	elif input.jump:
-		state_machine.transition(&"Jump")
-
+    if input.movement != Vector3.ZERO:
+        state_machine.transition(&"Move")
+    elif input.jump:
+        state_machine.transition(&"Jump")
 ```
 
 Transitions are based on *node names*, i.e. calling `transition(&"Move")` will
