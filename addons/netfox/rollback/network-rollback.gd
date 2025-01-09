@@ -102,6 +102,16 @@ var _is_rollback: bool = false
 var _simulated_nodes: Dictionary = {}
 var _mutated_nodes: Dictionary = {}
 
+var _rollback_from: int = -1
+var _rollback_to: int = -1
+var _rollback_stage: String = ""
+
+const _STAGE_BEFORE := "B"
+const _STAGE_PREPARE := "P"
+const _STAGE_SIMULATE := "S"
+const _STAGE_RECORD := "R"
+const _STAGE_AFTER := "A"
+
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkRollback")
 
 ## Submit the resimulation start tick for the current loop.
@@ -187,6 +197,17 @@ func is_just_mutated(target: Object, p_tick: int = tick) -> bool:
 	else:
 		return false
 
+static func _static_init():
+	_NetfoxLogger.register_tag(
+		func():
+			if NetworkRollback._is_rollback:
+				return "%s@%d|%d>%d" % [
+					NetworkRollback._rollback_stage, NetworkRollback._tick,
+					NetworkRollback._rollback_from, NetworkRollback._rollback_to]
+			else:
+				return "_"
+	)
+
 func _ready():
 	NetworkTime.after_tick_loop.connect(_rollback)
 
@@ -194,11 +215,13 @@ func _rollback():
 	if not enabled:
 		return
 
-	_is_rollback = true
-
 	# Ask all rewindables to submit their earliest inputs
 	_resim_from = NetworkTime.tick
 	before_loop.emit()
+
+	# Only set _is_rollback *after* emitting before_loop
+	_is_rollback = true
+	_rollback_stage = _STAGE_BEFORE
 	
 	# from = Earliest input amongst all rewindables
 	var from = _resim_from
@@ -215,6 +238,8 @@ func _rollback():
 		from = NetworkTime.tick - history_limit
 
 	# for tick in from .. to:
+	_rollback_from = from
+	_rollback_to = to
 	for tick in range(from, to):
 		_tick = tick
 		_simulated_nodes.clear()
@@ -222,6 +247,7 @@ func _rollback():
 		# Prepare state
 		#	Done individually by Rewindables ( usually Rollback Synchronizers )
 		#	Restore input and state for tick
+		_rollback_stage = _STAGE_PREPARE
 		on_prepare_tick.emit(tick)
 		after_prepare_tick.emit(tick)
 
@@ -231,12 +257,15 @@ func _rollback():
 		#	If current tick is in node's range, tick
 		#		If authority: Latest input >= tick >= Latest state
 		#		If not: Latest input >= tick >= Earliest input
+		_rollback_stage = _STAGE_SIMULATE
 		on_process_tick.emit(tick)
 
 		# Record state for tick + 1
+		_rollback_stage = _STAGE_RECORD
 		on_record_tick.emit(tick + 1)
 	
 	# Restore display state
+	_rollback_stage = _STAGE_AFTER
 	after_loop.emit()
 
 	# Cleanup
