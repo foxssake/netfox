@@ -3,7 +3,7 @@ class_name _NetworkTime
 
 ## This class handles timing.
 ##
-## @tutorial(NetworkTime Guide): https://foxssake.github.io/netfox/netfox/guides/network-time/
+## @tutorial(NetworkTime Guide): https://foxssake.github.io/netfox/latest/netfox/guides/network-time/
 
 ## Number of ticks per second.
 ##
@@ -257,6 +257,14 @@ var clock_stretch_max: float:
 	set(v):
 		push_error("Trying to set read-only variable stretch_max")
 
+## Suppress warning when calling [member start] with an [OfflineMultiplayerPeer]
+## active.
+var suppress_offline_peer_warning: bool:
+	get:
+		return ProjectSettings.get_setting("netfox/time/suppress_offline_peer_warning", false)
+	set(v):
+		push_error("Trying to set read-only variable suppress_offline_peer_warning")
+
 ## The currently used clock stretch factor.
 ##
 ## As the game progresses, the simulation clock may be ahead of, or behind the
@@ -364,16 +372,35 @@ static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkTime")
 ## [br][br]
 ## To check if this initial sync is done, see [method is_initial_sync_done]. If
 ## you need a signal, see [signal after_sync].
-func start():
+## [br][br]
+## Returns [constant OK] on success.[br]
+## Returns [constant ERR_ALREADY_IN_USE] if the tick loop is currently active.[br]
+## Returns [constant ERR_UNAVAILABLE] if there's no available [MultiplayerPeer].
+func start() -> int:
+	# Check if time loop can be started
 	if _state != _STATE_INACTIVE:
-		return
+		_logger.warning(
+			"Multiple calls to NetworkTime.start()! " +
+			"Are you manually calling *and* have NetworkEvents enabled?")
+		return ERR_ALREADY_IN_USE
 
+	if not multiplayer.has_multiplayer_peer():
+		_logger.error("Starting time loop without a multiplayer peer!")
+		return ERR_UNAVAILABLE
+
+	if multiplayer.multiplayer_peer is OfflineMultiplayerPeer and not suppress_offline_peer_warning:
+		_logger.warning("Starting time loop with an offline peer! " +
+			"If this is intended, suppress this warning in the project settings, " +
+			"under netfox/Time/Suppress Offline Peer Warning.")
+
+	# Reset state
 	_tick = 0
 	_initial_sync_done = false
 	
 	# Host is always synced, as their time is considered ground truth
 	_synced_peers[1] = true
-	
+
+	# Start sync
 	NetworkTimeSynchronizer.start()
 	_state = _STATE_SYNCING
 	
@@ -396,6 +423,8 @@ func start():
 	_last_process_time = _clock.get_time()
 	_next_tick_time = _clock.get_time()
 	after_sync.emit()
+	
+	return OK
 
 ## Stop NetworkTime.
 ##

@@ -65,6 +65,11 @@ var SETTINGS = [
 		"hint": PROPERTY_HINT_RANGE,
 		"hint_string": "1,2,0.05,or_greater"
 	},
+	{
+		"name": "netfox/time/suppress_offline_peer_warning",
+		"value": false,
+		"type": TYPE_BOOL
+	},
 	# Rollback settings
 	{
 		"name": "netfox/rollback/enabled",

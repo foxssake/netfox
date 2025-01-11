@@ -1,0 +1,129 @@
+[gd_scene load_steps=8 format=3 uid="uid://dr1ms7r5gpwq6"]
+
+[ext_resource type="Script" path="res://examples/shared/scripts/player-spawner.gd" id="1_3a652"]
+[ext_resource type="PackedScene" uid="uid://ryvnj6wy1gij" path="res://examples/input-prediction/marble.tscn" id="2_8u0ft"]
+[ext_resource type="PackedScene" uid="uid://badtpsxn5lago" path="res://examples/shared/ui/network-popup.tscn" id="3_hlgiv"]
+[ext_resource type="Script" path="res://examples/shared/scripts/simple-time-display.gd" id="4_klbcc"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_wp6ir"]
+
+[sub_resource type="Sky" id="Sky_g0uhm"]
+sky_material = SubResource("ProceduralSkyMaterial_wp6ir")
+
+[sub_resource type="Environment" id="Environment_d1pdb"]
+background_mode = 2
+sky = SubResource("Sky_g0uhm")
+
+[node name="input-prediction" type="Node3D"]
+
+[node name="Map" type="Node" parent="."]
+
+[node name="CSGCombiner3D" type="CSGCombiner3D" parent="Map"]
+use_collision = true
+
+[node name="CSGBox3D" type="CSGBox3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.5, 0)
+size = Vector3(34, 9, 26)
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, 0)
+operation = 2
+size = Vector3(24, 10, 16)
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11, 0)
+operation = 2
+size = Vector3(32, 10, 24)
+
+[node name="CSGCylinder3D" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 5, 8)
+operation = 2
+radius = 4.0
+height = 24.0
+sides = 32
+
+[node name="CSGCylinder3D4" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 5, -8)
+operation = 2
+radius = 4.0
+height = 24.0
+sides = 32
+
+[node name="CSGCylinder3D2" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1.91069e-15, 4.37114e-08, -1, 1, -4.37114e-08, 0, -4.37114e-08, -1, -4.37114e-08, 12, 5, 0)
+operation = 2
+radius = 4.0
+height = 16.0
+sides = 32
+
+[node name="CSGCylinder3D3" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1.91069e-15, 4.37114e-08, -1, 1, -4.37114e-08, 0, -4.37114e-08, -1, -4.37114e-08, -12, 5, 0)
+operation = 2
+radius = 4.0
+height = 16.0
+sides = 32
+
+[node name="CSGSphere3D" type="CSGSphere3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 5, -8)
+operation = 2
+radius = 4.0
+radial_segments = 32
+rings = 16
+
+[node name="CSGSphere3D2" type="CSGSphere3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 5, -8)
+operation = 2
+radius = 4.0
+radial_segments = 32
+rings = 16
+
+[node name="CSGSphere3D3" type="CSGSphere3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 5, 8)
+operation = 2
+radius = 4.0
+radial_segments = 32
+rings = 16
+
+[node name="CSGSphere3D4" type="CSGSphere3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 5, 8)
+operation = 2
+radius = 4.0
+radial_segments = 32
+rings = 16
+
+[node name="Environment" type="Node" parent="."]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
+transform = Transform3D(0.5, 0.612372, -0.612372, 0, 0.707107, 0.707107, 0.866025, -0.353553, 0.353553, -6.7361, 8.77817, 3.88909)
+shadow_enabled = true
+
+[node name="Camera3D" type="Camera3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 0.5, 0.866025, 0, -0.866025, 0.5, 0, 14.3564, 8.86602)
+current = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
+environment = SubResource("Environment_d1pdb")
+
+[node name="Player Spawner" type="Node" parent="." node_paths=PackedStringArray("spawn_root")]
+script = ExtResource("1_3a652")
+player_scene = ExtResource("2_8u0ft")
+spawn_root = NodePath("../Players")
+
+[node name="Players" type="Node" parent="."]
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Network Popup" parent="UI" instance=ExtResource("3_hlgiv")]
+layout_mode = 1
+
+[node name="Time Display" type="Label" parent="UI"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+script = ExtResource("4_klbcc")

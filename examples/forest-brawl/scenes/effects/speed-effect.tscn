@@ -192,12 +192,10 @@ _data = {
 "death": SubResource("Animation_psafd")
 }
 
-[node name="Speed Effect" type="Node3D" node_paths=PackedStringArray("particles", "aura")]
+[node name="Speed Effect" type="Node3D"]
 script = ExtResource("1_r0k2e")
 bonus = 0.5
 duration = 10.0
-particles = NodePath("GPUParticles3D")
-aura = NodePath("Aura")
 
 [node name="Aura" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)

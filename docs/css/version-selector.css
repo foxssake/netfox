@@ -1,0 +1,7 @@
+#version-selector {
+  display: inline !important;
+  border-radius: 2em;
+  padding: 0.25em 0.5em !important;
+  font-family: Lato,proxima-nova,Helvetica Neue,Arial,sans-serif;
+}
+

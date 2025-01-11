@@ -1,14 +1,11 @@
 name: Publish site
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 on:
   push:
     branches:
       - main
+    tags:
+      - v*
   workflow_dispatch:
 
 concurrency:
@@ -24,12 +21,11 @@ jobs:
         uses: actions/checkout@v2
       - name: Setup Pages
         uses: actions/configure-pages@v3
+      - name: Setup Python
+        uses: actions/setup-python@v5
+      - name: Setup mkdocs
+        run: pip install mkdocs && pip install $(mkdocs get-deps)
+      - name: Setup mike
+        run: pip install mike
       - name: Build
-        uses: Tiryoh/actions-mkdocs@v0
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
-        with:
-          path: './site'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v2
+        run: sh/push-docs.sh

@@ -13,12 +13,6 @@ var is_first_tick: bool = true
 func _ready():
 	NetworkTime.on_tick.connect(_tick)
 	distance_left = distance
-	
-	# Do a tick in advance to interpolate forwards
-	await get_tree().process_frame
-	_tick(NetworkTime.ticktime, NetworkTime.tick)
-	$TickInterpolator.push_state()
-	is_first_tick = true
 
 func _tick(delta, _t):
 	var dst = speed * delta
@@ -33,24 +27,26 @@ func _tick(delta, _t):
 	force_shapecast_update()
 	
 	# Find the closest point of contact
-	var collision_points = collision_result\
-		.filter(func(it): return it.collider != fired_by)\
-		.map(func(it): return it.point)
-	collision_points.sort_custom(func(a, b): return position.distance_to(a) < position.distance_to(b))
-
-	if not collision_points.is_empty() and not is_first_tick:
-		# Jump to closest point of contact
-		var contact = collision_points[0]
-		position = contact
+	var space := get_world_3d().direct_space_state
+	var query := PhysicsShapeQueryParameters3D.new()
+	query.motion = motion
+	query.shape = shape
+	query.transform = global_transform
+	
+	var hit_interval := space.cast_motion(query)
+	if hit_interval[0] != 1.0 or hit_interval[1] != 1.0 and not is_first_tick:
+		# Move to collision
+		position += motion * hit_interval[1]
 		_explode()
 	else:
 		position += motion
-	
+
 	# Skip collisions for a single tick, no more
 	is_first_tick = false
 
 func _explode():
 	queue_free()
+	NetworkTime.on_tick.disconnect(_tick)
 	
 	if effect:
 		var spawn = effect.instantiate() as Node3D

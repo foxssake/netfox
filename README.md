@@ -112,6 +112,13 @@ compared to built-in multiplayer tools, a simple demo was implemented as a
 single-player game, which was ported to multiplayer using both a naive approach
 and netfox.
 
+#### Feature examples
+
+* [State machines](examples/multiplayer-state-machine)
+* [Multiplayer FPS](examples/multiplayer-fps)
+* [Rollback Debugger](examples/rollback-debugger)
+* [Property Configuration](examples/property-configuration)
+
 #### Example game
 
 * [Forest Brawl]
