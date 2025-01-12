@@ -66,6 +66,13 @@ var SETTINGS = [
 		"hint_string": "1,2,0.05,or_greater"
 	},
 	{
+		"name": "netfox/time/tickrate_mismatch_action",
+		"value": NetworkTickrateHandshake.WARN,
+		"type": TYPE_INT,
+		"hint": PROPERTY_HINT_ENUM,
+		"hint_string": "Nothing,Warn,Disconnect,Adjust,Signal"
+	},
+	{
 		"name": "netfox/time/suppress_offline_peer_warning",
 		"value": false,
 		"type": TYPE_BOOL

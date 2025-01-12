@@ -341,6 +341,9 @@ signal after_sync()
 ## is ticking and gameplay has started on their end.
 signal after_client_sync(peer_id: int)
 
+# TODO: Doc
+signal on_tickrate_mismatch(peer: int, tickrate: int)
+
 # NetworkTime states
 const _STATE_INACTIVE := 0
 const _STATE_SYNCING := 1
@@ -358,6 +361,8 @@ var _last_process_time: float = 0.
 
 var _clock: NetworkClocks.SteppingClock = NetworkClocks.SteppingClock.new()
 var _clock_stretch_factor: float = 1.
+
+var _tickrate_handshake: NetworkTickrateHandshake
 
 var _synced_peers: Dictionary = {}
 
@@ -419,11 +424,15 @@ func start() -> int:
 	# Remove clients from the synced cache when disconnected
 	multiplayer.peer_disconnected.connect(func(peer): _synced_peers.erase(peer))
 
+	# Set initial clock state
 	_clock.set_time(NetworkTimeSynchronizer.get_time())
 	_last_process_time = _clock.get_time()
 	_next_tick_time = _clock.get_time()
 	after_sync.emit()
-	
+
+	# Handle tickrate handshake
+	_tickrate_handshake.run()
+
 	return OK
 
 ## Stop NetworkTime.
@@ -467,6 +476,15 @@ func ticks_between(seconds_from: float, seconds_to: float) -> int:
 
 static func _static_init():
 	_NetfoxLogger.register_tag(func(): return "@%d" % NetworkTime.tick, -100)
+
+func _ready():
+	_tickrate_handshake = NetworkTickrateHandshake.new()
+	add_child(_tickrate_handshake)
+	
+	# Proxy tickrate mismatch event
+	_tickrate_handshake.on_tickrate_mismatch.connect(func(peer, tickrate):
+		on_tickrate_mismatch.emit(peer, tickrate)
+	)
 
 func _loop():
 	# Adjust local clock
