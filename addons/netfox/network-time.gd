@@ -341,7 +341,9 @@ signal after_sync()
 ## is ticking and gameplay has started on their end.
 signal after_client_sync(peer_id: int)
 
-# TODO: Doc
+## Emitted when a tickrate mismatch is encountered, and
+## [member NetworkTickrateHandshake.mismatch_action] is set to
+## [constant NetworkTickrateHandshake.SIGNAL].
 signal on_tickrate_mismatch(peer: int, tickrate: int)
 
 # NetworkTime states
@@ -441,6 +443,7 @@ func start() -> int:
 ## emitted until the next start.
 func stop():
 	NetworkTimeSynchronizer.stop()
+	_tickrate_handshake.stop()
 	_state = _STATE_INACTIVE
 	_synced_peers.clear()
 
