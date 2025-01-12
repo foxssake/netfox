@@ -597,7 +597,7 @@ func _submit_full_state(state: Dictionary, tick: int):
 	_latest_state_tick = tick
 		
 	if NetworkRollback.enable_diff_states:
-		_ack_full_state.rpc_id(get_multiplayer_authority(), tick)
+		_ack_full_state.rpc_id(sender, tick)
 
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
@@ -614,6 +614,7 @@ func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 		# Reference tick missing, hope for the best
 		_logger.warning("Reference tick %d missing for %d", [reference_tick, tick])
 
+	var sender = multiplayer.get_remote_sender_id()
 	var reference_state = _states.get(reference_tick, {})
 	var is_valid_state := true
 
@@ -621,7 +622,6 @@ func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 		_latest_state_tick = tick
 		_states[tick] = reference_state
 	else:
-		var sender = multiplayer.get_remote_sender_id()
 		var sanitized = _sanitize_by_authority(diff_state, sender)
 
 		if not sanitized.is_empty():
@@ -635,7 +635,7 @@ func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 	
 	if NetworkRollback.enable_diff_states:
 		if is_valid_state and diff_ack_interval > 0 and tick > _next_diff_ack_tick:
-			_ack_diff_state.rpc_id(get_multiplayer_authority(), tick)
+			_ack_diff_state.rpc_id(sender, tick)
 			_next_diff_ack_tick = tick + diff_ack_interval
 
 @rpc("any_peer", "reliable", "call_remote")
