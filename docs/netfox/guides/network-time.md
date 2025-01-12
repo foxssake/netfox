@@ -3,8 +3,8 @@
 Tracks shared network time between players, and provides an event loop for
 synchronized game updates. Provided as an autoload.
 
-A separate timer is provided for network ticks, making the network game 
-update rate independent from rendering or physics frames.
+A separate timer is provided for network ticks, making the network game update
+rate independent from rendering or physics frames.
 
 ## Network tick loop
 
@@ -105,6 +105,42 @@ The other supported case is pausing the game from the engine itself. Whenever
     If the game is paused via SceneTree, make sure it is paused and unpaused at
     the same time on all peers.
 
+## Tickrate matching
+
+The idea of a shared time also implies matching tickrates. If one peer were to
+run at a higher tickrate than the rest, that peer would inevitably get ahead in
+ticks, and get out of sync. If it were to run at a lower tickrate, it would get
+behind and out of sync.
+
+For games where both the server and client are built from the same project,
+this doesn't usually happen, since they share the same tickrate configuration.
+
+If it does happen, by default it will be considered a configuration error, and
+a warning will be emitted:
+
+```
+[WRN][@43][#1][_][netfox::NetworkTickrateHandshake] Local tickrate 24tps differs from tickrate of peer #1366785595 at 36tps! Make sure that tickrates are correctly configured in the Project settings! See netfox/Time/Tickrate.
+```
+
+This behavior is configurable, with the following options available:
+
+Warn
+:   Emit a warning about the tickrate mismatch, but do nothing. Useful for
+    development.
+
+Disconnect
+:   Disconnect clients with mismatching tickrates. This is enforced by the
+    host.
+
+Adjust
+:   Adjust the client's tickrate to match the host's.
+
+Signal
+:   Emit a signal about the detected mismatches, so custom behavior can be
+    implemented.
+
+See the [settings](#settings) for the appropriate configuration.
+
 ## Time synchronization
 
 *NetworkTime* runs a time synchronization loop on clients, in the background.
@@ -120,19 +156,20 @@ tick.
 ### Synchronized time
 
 * `NetworkTime.time`
-* `NetworkTime.ticks`
+* `NetworkTime.tick`
 
 Marks the current network game time. This is continuously synchronized, making
-sure that these values are as close to eachother on all peers as possible.
+sure that these values are as close to each other on all peers as possible.
 
 Use this whenever a notion of game time is needed.
 
 ### Local time
 
-*Deprecated since netfox v1.9.0.* Use synchronized time instead.
+!!! warning
+    *Deprecated since netfox v1.9.0.* Use [synchronized time] instead.
 
 * `NetworkTime.local_time`
-* `NetworkTime.local_ticks`
+* `NetworkTime.local_tick`
 
 Marks the current time in reference to the local machine. Starts at zero when
 the network tick loop starts.
@@ -145,9 +182,10 @@ player.
 
 ### Remote time
 
-*Deprecated since netfox v1.9.0.* Use synchronized time instead.
+!!! warning
+    *Deprecated since netfox v1.9.0.* Use [synchronized time] instead.
 
-* `NetworkTime.remote_ticks`
+* `NetworkTime.remote_tick`
 * `NetwokrTime.remote_time`
 * `NetworkTime.remote_rtt`
 
@@ -197,6 +235,10 @@ resting time between roundtrip measurements.
 process when enabled. This can be useful in cases where a lot of physics
 operations need to be done as part of the tick- or the rollback loop.
 
+*Tickrate Mismatch Action* indicates what to do when a tickrate mismatch is
+detected. See [Tickrate matching](#tickrate-matching) on what the individual
+options do.
+
 *Suppress Offline Peer Warning* suppresses warning when `NetworkTime.start()` is
 called with the active [multiplayer peer] being an [OfflineMultiplayerPeer]. In
 most cases, this warning means that the tick loop was unintentionally started
@@ -205,5 +247,6 @@ warning is not printed, instead assuming the [OfflineMultiplayerPeer] is
 intentional.
 
 [NetworkTimeSynchronizer]: ./network-time-synchronizer.md
+[synchronized time]: #synchronized-time
 [multiplayer peer]: https://docs.godotengine.org/en/stable/classes/class_multiplayerapi.html#class-multiplayerapi-property-multiplayer-peer
 [OfflineMultiplayerPeer]: https://docs.godotengine.org/en/stable/classes/class_offlinemultiplayerpeer.html#class-offlinemultiplayerpeer
