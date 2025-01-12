@@ -4,7 +4,6 @@ class_name NetworkTickrateHandshake
 # TODO: Doc
 
 enum {
-	NOTHING,
 	WARN,
 	DISCONNECT,
 	ADJUST,
@@ -12,8 +11,6 @@ enum {
 }
 
 var mismatch_action: int = ProjectSettings.get_setting("netfox/time/tickrate_mismatch_action", WARN)
-
-var _known_tickrates: Dictionary = {}
 
 static var _logger := _NetfoxLogger.for_netfox("NetworkTickrateHandshake")
 
@@ -26,21 +23,18 @@ func run() -> void:
 		
 		# Submit to anyone joining
 		multiplayer.peer_connected.connect(func(peer):
-			if not self:
-				_logger.error("Can't submit tickrate: %s", [self])
-				return
-			_submit_tickrate.rpc_id(peer, NetworkTime.tickrate + randi_range(5, 15))
-		)
+			self; # Breaks if this statement is not here
+			_submit_tickrate.rpc_id(peer, NetworkTime.tickrate)
+		, CONNECT_DEFERRED)
 	else:
 		# Submit tickrate to server
-		_submit_tickrate.rpc_id(1, NetworkTime.tickrate + randi_range(5, 15))
+		_submit_tickrate.rpc_id(1, NetworkTime.tickrate)
 
 func _ready() -> void:
 	name = "NetworkTickrateHandshake"
 
 func _handle_tickrate_mismatch(peer: int, tickrate: int) -> void:
 	match mismatch_action:
-		NOTHING: pass
 		WARN:
 			_logger.warning(
 				"Local tickrate %dtps differs from tickrate of peer #%d at %dtps! " +
@@ -67,7 +61,6 @@ func _handle_tickrate_mismatch(peer: int, tickrate: int) -> void:
 @rpc("any_peer", "reliable", "call_remote")
 func _submit_tickrate(tickrate: int) -> void:
 	var sender = multiplayer.get_remote_sender_id()
-	_known_tickrates[sender] = tickrate
 	_logger.debug("Received tickrate %d from peer %d", [tickrate, sender])
 
 	if tickrate != NetworkTime.tickrate:

@@ -70,7 +70,7 @@ var SETTINGS = [
 		"value": NetworkTickrateHandshake.WARN,
 		"type": TYPE_INT,
 		"hint": PROPERTY_HINT_ENUM,
-		"hint_string": "Nothing,Warn,Disconnect,Adjust,Signal"
+		"hint_string": "Warn,Disconnect,Adjust,Signal"
 	},
 	{
 		"name": "netfox/time/suppress_offline_peer_warning",
