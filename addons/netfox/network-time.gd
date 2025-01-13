@@ -497,6 +497,7 @@ func _loop():
 	if _was_paused:
 		_was_paused = false
 		_next_tick_time += clock_step
+		_tick = seconds_to_ticks(NetworkTimeSynchronizer.get_time())
 	
 	# Run tick loop if needed
 	var ticks_in_loop = 0
