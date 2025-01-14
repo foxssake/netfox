@@ -9,9 +9,10 @@ Studio], and the community. The following is the list of community contributors
 involved with netfox:
 """
 
-git log --pretty="* %an <%ae>%n%cn <%ce>" | sort -u \
+git log --pretty="* %an <%ae>%n* %cn <%ce>" | sort -u \
   | grep -v "Tamás Gálffy" \
-  | grep -v "<noreply.github.com>"
+  | grep -v "<noreply.github.com>" \
+  | grep -v "<ci@foxssake.studio>"
 
 echo """
 [netfox]: https://github.com/foxssake/netfox

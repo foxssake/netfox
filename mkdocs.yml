@@ -14,9 +14,10 @@ plugins:
         enabled: false
 markdown_extensions:
   - admonition
+  - def_list
   - pymdownx.details
-  - pymdownx.superfences
   - pymdownx.highlight
+  - pymdownx.superfences
 nav:
   - 'index.md'
   - 'upgrading.md'
