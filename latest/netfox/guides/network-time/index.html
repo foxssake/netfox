@@ -261,8 +261,8 @@ avoid false positives in production builds.</p>
 <p class="admonition-title">Warning</p>
 <p>Pausing the tick loop can cause desynchronization between peers, and could
 lead to clients fast-forwarding ticks to catch up, or time recalibrations.
-If the game is paused via SceneTree, make sure it is paused and unpaused at
-the same time on all peers.</p>
+If the game is paused via SceneTree, it is recommended to pause and unpause
+at the same time on all peers.</p>
 </div>
 <h2 id="tickrate-matching">Tickrate matching</h2>
 <p>The idea of a shared time also implies matching tickrates. If one peer were to
@@ -349,6 +349,10 @@ updated, use the <code>NetworkTime.after_sync</code> signal.</p>
 the difference between the remote clock and reference clock is larger than this
 setting, the reference clock will be reset to the remote clock. See
 <a href="../network-time-synchronizer/">NetworkTimeSynchronizer</a> for more details.</p>
+<p><em>Stall Threshold</em> is the amount of time in seconds that can pass between two
+frames until it is considered a stall. This is used to detect game freezes or
+OS-level pauses ( e.g. the window gets minimized ). If a stall is detected, it
+is compensated by adjusting the game clock.</p>
 <p><em>Sync Interval</em> is the resting time in seconds between sampling the remote
 clock.</p>
 <p><em>Sync Samples</em> is the number of measurements to use for time synchronization.
