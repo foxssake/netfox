@@ -104,6 +104,19 @@ var recalibrate_threshold: float:
 	set(v):
 		push_error("Trying to set read-only variable recalibrate_threshold")
 
+## Seconds required to pass before considering the game stalled.
+##
+## If the game becomes unresponsive for some time - e.g. it becomes minimized,
+## unfocused, or freezes -, the game time needs to be readjusted. These stalls
+## are detected by checking how much time passes between frames. If it's more
+## than this threshold, it's considered a stall, and will be compensated
+## against.
+var stall_threshold: float:
+	get:
+		return ProjectSettings.get_setting("netfox/time/stall_threshold", 1.0)
+	set(v):
+		push_error("Trying to set read-only variable stall_threshold")
+
 ## Current network time in ticks on the server.
 ##
 ## This is value is only an estimate, and is regularly updated. This means that 
@@ -487,7 +500,7 @@ func _loop():
 	# Detect editor pause
 	var clock_step = _clock.get_time() - _last_process_time
 	var clock_step_raw = clock_step / previous_stretch_factor
-	if OS.has_feature("editor") and clock_step_raw > 1.:
+	if clock_step_raw > stall_threshold:
 			# Game stalled for a while, probably paused, don't run extra ticks
 			# to catch up
 			_was_paused = true

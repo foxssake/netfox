@@ -29,6 +29,11 @@ var SETTINGS = [
 		"type": TYPE_FLOAT
 	},
 	{
+		"name": "netfox/time/stall_threshold",
+		"value": 1.0,
+		"type": TYPE_FLOAT
+	},
+	{
 		# Time to wait between time syncs
 		"name": "netfox/time/sync_interval",
 		"value": 0.25,
