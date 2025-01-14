@@ -102,8 +102,8 @@ The other supported case is pausing the game from the engine itself. Whenever
 !!!warning
     Pausing the tick loop can cause desynchronization between peers, and could
     lead to clients fast-forwarding ticks to catch up, or time recalibrations.
-    If the game is paused via SceneTree, make sure it is paused and unpaused at
-    the same time on all peers.
+    If the game is paused via SceneTree, it is recommended to pause and unpause
+    at the same time on all peers.
 
 ## Time synchronization
 
@@ -179,6 +179,11 @@ Settings are found in the Project Settings, under Netfox > Time:
 the difference between the remote clock and reference clock is larger than this
 setting, the reference clock will be reset to the remote clock. See
 [NetworkTimeSynchronizer] for more details.
+
+*Stall Threshold* is the amount of time in seconds that can pass between two
+frames until it is considered a stall. This is used to detect game freezes or
+OS-level pauses ( e.g. the window gets minimized ). If a stall is detected, it
+is compensated by adjusting the game clock.
 
 *Sync Interval* is the resting time in seconds between sampling the remote
 clock.
