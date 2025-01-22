@@ -41,6 +41,7 @@ nav:
       - 'netfox/guides/property-paths.md'
       - 'netfox/guides/network-rollback.md'
       - 'netfox/guides/network-performance.md'
+      - 'netfox/guides/netfox-sharp.md'
     - Nodes:
       - 'netfox/nodes/tick-interpolator.md'
       - 'netfox/nodes/rollback-synchronizer.md'
