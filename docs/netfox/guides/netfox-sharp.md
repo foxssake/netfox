@@ -1,9 +1,9 @@
 # Netfox Sharp
 
-> [!WARNING]
-> **Netfox Sharp is currently an experimental build and not ready for production. During this time, breaking changes may be introduced at any time.**
+!!!warning
+    **[Netfox Sharp] is currently an experimental build and not ready for production. During this time, breaking changes may be introduced at any time.**
 
-The Netfox Sharp addon is designed to bridge the gap between GDScript and C# by allowing core netfox features to be accessed in C# without having to worry about [Cross-Language Scripting] with GDScript directly.
+The [Netfox Sharp] addon is designed to bridge the gap between GDScript and C# by allowing core netfox features to be accessed in C# without having to worry about [Cross-Language Scripting] with GDScript directly.
 
 ### What Netfox Sharp Is
 - A wrapper for netfox that uses the existing netfox codebase for its logic.
