@@ -25,34 +25,50 @@ The [Netfox Sharp] addon is designed to bridge the gap between GDScript and C# b
 Existing documentation for netfox should be easily translatable to Netfox Sharp by following the below differences.
 
 - Most changes follow Godot's rules for [Cross-Language Scripting], taking netfox as the base.
-```puml
-'Variables in GDScript use snake_case, while variables in C# use PascalCase,
-'but otherwise use the same wording.
+In netfox, consider the following:
+```gdscript
+# The following example is a snippit of netfox code
+func _ready():
+    NetworkTime.before_tick_loop.connect(_gather)
 
-'GDScript
-enable_prediction = true
-'C#
-EnablePrediction = true
+func _gather():
+    # Input gathering here
+    pass
 
-'The same is true for methods and classes.
-
-'GDScript
-rollback_synchronizer.process_settings()
-'C#
-RollbackSynchronizer.ProcessSettings()
+func _rollback_tick(delta, tick, is_fresh):
+    # Rollback logic here
+    pass
 ```
-- To reduce clutter in the autoload tab and avoid unneeded calls to `GetNode()`, Netfox Sharp uses static instances for each of the core netfox autoloads in its own `NetfoxCore` autoload.
-```puml
-'GDScript
-$NetworkTime.max_ticks_per_frame
-'C#
-NetfoxCore.NetworkTime.MaxTicksPerFrame
+Whereas in Netfox Sharp:
+```C#
+// This is functionally identical Netfox Sharp code
+public override void _Ready()
+{
+    // All netfox autoloads like NetworkTime are accessed through static members
+    // in NetfoxSharp, to save on GetNode() calls and reduce clutter in the
+    // project settings.
+
+    // All members like BeforeTickLoop are in PascalCase, similar to Godot's C#
+    NetfoxSharp.NetworkTime.BeforeTickLoop += Gather;
+}
+
+// As Gather is linked to a signal, it can be any naming convention.
+private void Gather()
+{
+    // Input gathering here
+}
+
+// Since _rollback_tick isn't connected to a signal and is instead handled by
+// netfox internally, netfox's naming convention must be followed.
+public void _rollback_tick(double delta, long tick, bool isFresh)
+{
+   // Rollback logic here
+}
 ```
 - Nodes in the add mode menu have similar names to the GDScript version, but with 'Sharp' affixed, IE `RollbackSynchronizerSharp`. The GDScript versions of the nodes are also present in the add node menu. This is a limitation of how netfox interacts with Godot and cannot be removed.
 
-
-# Technical Differences
-- `RollbackSynchronizerSharp`, `StateSynchronzierSharp`, and `TickInterpolatorSharp` create their own respective GDScript nodes, which are instanced as internal nodes which should not be accessed by any other means.
+# Other Notes
+- `RollbackSynchronizerSharp`, `StateSynchronzierSharp`, and `TickInterpolatorSharp` create their own respective GDScript nodes, which are instanced as internal children nodes and should not be accessed.
 
 [Cross-Language Scripting]: https://docs.godotengine.org/en/stable/tutorials/scripting/cross_language_scripting.html
 [Netfox Sharp]: https://github.com/CyFurStudios/NetfoxSharp/
