@@ -39,6 +39,9 @@ The package consists of multiple addons, each with different features:
     * Shared utilities for the other addons
     * Included as dependency, no need to install separately
 
+## C# Support
+For experimental C# support, see the [Netfox Sharp guide](netfox/guides/netfox-sharp.md).
+
 ## Install
 
 ### Releases
