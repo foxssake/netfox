@@ -41,7 +41,8 @@ The package consists of multiple addons, each with different features:
   * Included as dependency, no need to install separately
 
 ## C# Support
-For experimental C# support, see the [Netfox Sharp repo](https://github.com/CyFurStudios/NetfoxSharp).
+For experimental C# support, see the [Netfox Sharp repo], and the corresponding
+[Netfox Sharp guide].
 
 ## Install
 
@@ -194,6 +195,9 @@ Donations are always appreciated and taken as gratitude for the work that has
 already been done.
 
 If you'd like to fund a specific feature or development, please contact us in [email].
+
+[Netfox Sharp repo]: https://github.com/CyFurStudios/NetfoxSharp
+[Netfox Sharp guide]: https://foxssake.github.io/netfox/latest/netfox/guides/netfox-sharp/
 
 [source]: https://github.com/foxssake/netfox/archive/refs/heads/main.zip
 [Godot engine]: https://godotengine.org/
