@@ -22,5 +22,9 @@ func notify_processed(node: Node, tick: int):
 	_data[tick][node] = true
 
 func trim():
-	while _data.size() > NetworkRollback.history_limit:
-		_data.erase(_data.keys().min())
+	while not _data.is_empty():
+		var earliest_tick := _data.keys().min()
+		if earliest_tick < NetworkRollback.history_start:
+			_data.erase(earliest_tick)
+		else:
+			break
