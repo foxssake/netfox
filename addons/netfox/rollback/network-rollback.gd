@@ -74,7 +74,7 @@ var display_tick: int:
 ## How many previous input frames to send along with the current one.
 ## [br][br]
 ## As inputs are sent over an unreliable channel, packets may get lost or appear
-## out of order. To mitiage packet loss, we send the current and previous n
+## out of order. To mitigate packet loss, we send the current and previous n
 ## ticks of input data. This way, even if the input for a given tick gets lost
 ## in transmission, the next (n-1) packets will contain the data for it.
 ## [br][br]

@@ -48,7 +48,7 @@ func run() -> void:
 		multiplayer.peer_connected.connect(_handle_new_peer)
 	else:
 		# Submit tickrate to host
-		_submit_tickrate.rpc_id(1, NetworkTime.tickrate * 1.5)
+		_submit_tickrate.rpc_id(1, NetworkTime.tickrate)
 
 ## Stop the tickrate handshake.
 ## [br][br]
