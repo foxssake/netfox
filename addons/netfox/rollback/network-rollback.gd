@@ -17,7 +17,8 @@ var enable_diff_states: bool = ProjectSettings.get_setting("netfox/rollback/enab
 ## How many ticks to store as history.
 ## [br][br]
 ## The larger the history limit, the further we can roll back into the past, 
-## thus the more latency we can manage.
+## thus the more latency we can manage. The drawback is, with higher history
+## limit comes more history data stored, thus higher memory usage.
 ## [br][br]
 ## Rollback won't go further than this limit, regardless of inputs received.
 ## [br][br]
@@ -27,6 +28,17 @@ var history_limit: int:
 		return ProjectSettings.get_setting("netfox/rollback/history_limit", 64)
 	set(v):
 		push_error("Trying to set read-only variable history_limit")
+
+## The earliest tick that history is retained for.
+## [br][br]
+## Determined by [member history_limit].
+## [br][br]
+## [i]read-only[/i]
+var history_start: int:
+	get:
+		return maxi(0, NetworkTime.tick - history_limit)
+	set(v):
+		push_error("Trying to set read-only variable history_start")
 
 ## Offset into the past for display.
 ## [br][br]
@@ -42,10 +54,29 @@ var display_offset: int:
 	set(v):
 		push_error("Trying to set read-only variable display_offset")
 
+## The currently displayed tick.
+## [br][br]
+## This is the current tick as returned by [member _NetworkTime.tick], minus
+## the [member display_offset]. By configuring the [member display_offset], a
+## past tick may be displayed to the player, so that updates from the server
+## have slightly more time to arrive, masking latency.
+## [br][br]
+## [i]read-only[/i]
+var display_tick: int:
+	get:
+		if enabled:
+			return maxi(0, NetworkTime.tick - NetworkRollback.display_offset)
+		else:
+			return NetworkTime.tick
+	set(v):
+		push_error("Trying to set read-only variable display_tick")
+
 ## How many previous input frames to send along with the current one.
 ## [br][br]
-## With UDP - packets may be lost, arrive late or out of order.
-## To mitigate this, we send the current and previous n ticks of input data.
+## As inputs are sent over an unreliable channel, packets may get lost or appear
+## out of order. To mitigate packet loss, we send the current and previous n
+## ticks of input data. This way, even if the input for a given tick gets lost
+## in transmission, the next (n-1) packets will contain the data for it.
 ## [br][br]
 ## [i]read-only[/i], you can change this in the project settings
 var input_redundancy: int:

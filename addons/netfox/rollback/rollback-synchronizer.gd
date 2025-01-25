@@ -451,7 +451,7 @@ func _after_loop():
 	_earliest_input_tick = NetworkTime.tick
 
 	# Apply display state
-	var display_state = _get_history(_states, NetworkTime.tick - NetworkRollback.display_offset)
+	var display_state = _get_history(_states, NetworkRollback.display_tick)
 	PropertySnapshot.apply(display_state, _property_cache)
 
 func _before_tick(_delta, tick):
@@ -477,11 +477,19 @@ func _after_tick(_delta, _tick):
 		_attempt_submit_input(inputs)
 
 	# Trim history
-	while _states.size() > NetworkRollback.history_limit:
-		_states.erase(_states.keys().min())
+	while not _states.is_empty():
+		var earliest_tick := _states.keys().min()
+		if earliest_tick < NetworkRollback.history_start:
+			_states.erase(earliest_tick)
+		else:
+			break
 
-	while _inputs.size() > NetworkRollback.history_limit:
-		_inputs.erase(_inputs.keys().min())
+	while not _inputs.is_empty():
+		var earliest_tick := _inputs.keys().min()
+		if earliest_tick < NetworkRollback.history_start:
+			_inputs.erase(earliest_tick)
+		else:
+			break
 
 	_freshness_store.trim()
 
