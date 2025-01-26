@@ -230,6 +230,36 @@ func ignore_prediction(node: Node):
 	if enable_prediction:
 		_skipset.add(node)
 
+## Get the tick of the last known input.
+## [br][br]
+## This is the latest tick where input information is available. If there's
+## locally owned input for this instance ( e.g. running as client ), this value
+## will be the current tick. Otherwise, this will be the latest tick received
+## from the input owner.
+## [br][br]
+## If [member enable_input_broadcast] is false, there may be no input available
+## for peers who own neither state nor input.
+## [br][br]
+## Returns -1 if there's no known input.
+func get_last_known_input() -> int:
+	# If we own input, it is updated regularly, this will be the current tick
+	# If we don't own input, _inputs is only updated when input data is received
+	if not _inputs.is_empty():
+		return _inputs.keys().max()
+	return -1
+
+## Get the tick of the last known state.
+## [br][br]
+## This is the latest tick where information is available for state. For state
+## owners ( usually the host ), this is the current tick. Note that even this
+## data may change as new input arrives. For peers that don't own state, this
+## will be the tick of the latest state received from the state owner.
+func get_last_known_state() -> int:
+	# If we own state, this will be updated when recording and broadcasting
+	# state, this will be the current tick
+	# If we don't own state, this will be updated when state data is received
+	return _latest_state_tick
+
 func _ready():
 	if not NetworkTime.is_initial_sync_done():
 		# Wait for time sync to complete
