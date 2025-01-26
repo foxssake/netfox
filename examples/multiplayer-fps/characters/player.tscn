@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3 uid="uid://vrso6qncj1nm"]
+[gd_scene load_steps=28 format=3 uid="uid://vrso6qncj1nm"]
 
 [ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="1_g0p7o"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/player.gd" id="1_mk8qw"]
@@ -51,20 +51,6 @@ bg_color = Color(0.811765, 0.0823529, 0, 1)
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_xnks4"]
 material = SubResource("StandardMaterial3D_2gc5u")
-
-[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_70css"]
-properties/0/path = NodePath(".:health")
-properties/0/spawn = true
-properties/0/sync = false
-properties/0/watch = true
-properties/1/path = NodePath(".:death_tick")
-properties/1/spawn = true
-properties/1/sync = false
-properties/1/watch = true
-properties/2/path = NodePath(".:respawn_position")
-properties/2/spawn = true
-properties/2/sync = false
-properties/2/watch = true
 
 [node name="player" type="CharacterBody3D"]
 script = ExtResource("1_mk8qw")
@@ -137,11 +123,8 @@ mesh = SubResource("CapsuleMesh_xnks4")
 unique_name_in_owner = true
 script = ExtResource("1_g0p7o")
 root = NodePath("..")
-state_properties = Array[String]([":transform", ":velocity", ":did_respawn", "Head:transform", "Head/PlayerFPSWeapon:last_fire"])
+state_properties = Array[String]([":transform", ":velocity", ":health", ":deaths", "Head:transform", "Head/PlayerFPSWeapon:last_fire"])
 input_properties = Array[String](["Input:movement", "Input:jump", "Input:fire", "Input:look_angle"])
-
-[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
-replication_config = SubResource("SceneReplicationConfig_70css")
 
 [node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("2_3rc26")

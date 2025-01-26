@@ -18,22 +18,22 @@ var respawn_position: Vector3
 var did_respawn := false
 var deaths := 0
 
+var _last_death_sfx_idx := 0
+
 func _ready():
 	display_name.text = name
 	hud.hide()
 
-	NetworkTime.on_tick.connect(_tick)
 	NetworkTime.after_tick_loop.connect(_after_tick_loop)
-
-func _tick(dt: float, tick: int):
-	if health <= 0:
-		$DieSFX.play()
-		deaths += 1
-		die()
 
 func _after_tick_loop():
 	if did_respawn:
 		tick_interpolator.teleport()
+		did_respawn = false
+
+	if deaths > _last_death_sfx_idx:
+		$DieSFX.play()
+		_last_death_sfx_idx = deaths
 
 func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 	# Handle respawn
@@ -77,6 +77,16 @@ func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 	move_and_slide()
 	velocity /= NetworkTime.physics_factor
 
+	# Handle death
+	if health <= 0:
+		deaths += 1
+
+		_logger.info("%s died", [name])
+		global_position = get_parent().get_next_spawn_point(get_player_id(), deaths)
+		did_respawn = true
+
+		health = 100
+
 func _force_update_is_on_floor():
 	var old_velocity = velocity
 	velocity = Vector3.ZERO
@@ -84,20 +94,9 @@ func _force_update_is_on_floor():
 	velocity = old_velocity
 
 func damage():
-	# $HitSFX.play()
-	if is_multiplayer_authority():
-		health -= 34
-		_logger.warning("%s HP now at %s", [name, health])
-
-func die():
-	if not is_multiplayer_authority():
-		return
-
-	_logger.warning("%s died", [name])
-	respawn_position = get_parent().get_next_spawn_point(get_player_id(), deaths)
-	death_tick = NetworkTime.tick
-
-	health = 100
+	# $HitSFX.play() # TODO
+	health -= 34
+	_logger.info("%s HP now at %s", [name, health])
 
 func get_player_id() -> int:
 	return input.get_multiplayer_authority()

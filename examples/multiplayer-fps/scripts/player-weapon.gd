@@ -12,7 +12,9 @@ class_name PlayerFPSWeapon
 var last_fire: int = -1
 
 func _ready():
-	fire_action.mutate(self)
+	fire_action.mutate(self)		# Mutate self, so firing code can run
+	fire_action.mutate($"../../")	# Mutate player
+
 	NetworkTime.after_tick_loop.connect(_after_loop)
 
 func _rollback_tick(_dt, tick: int, _if):
@@ -30,11 +32,11 @@ func _rollback_tick(_dt, tick: int, _if):
 
 func _after_loop():
 	if fire_action.has_confirmed():
-		# sound.play()
+		sound.play()
 		pass
 
 func _can_fire() -> bool:
-	return NetworkTime.seconds_between(last_fire, NetworkTime.tick) >= fire_cooldown
+	return NetworkTime.seconds_between(last_fire, NetworkRollback.tick) >= fire_cooldown
 
 func _fire():
 	last_fire = NetworkRollback.tick
@@ -62,10 +64,13 @@ func _raycast() -> Dictionary:
 	return space.intersect_ray(query)
 
 func _on_hit(result: Dictionary):
-	bullethole.action(result)
+	if not fire_action.has_context():
+		bullethole.action(result)
+		fire_action.set_context(true)
+
 	if result.collider.has_method("damage"):
 		result.collider.damage()
 		NetworkRollback.mutate(result.collider)
 
 func _on_cancel_hit():
-	pass
+	fire_action.erase_context()
