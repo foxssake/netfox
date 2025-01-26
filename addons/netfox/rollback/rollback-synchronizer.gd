@@ -261,6 +261,9 @@ func get_last_known_state() -> int:
 	return _latest_state_tick
 
 func _ready():
+	if Engine.is_editor_hint():
+		return
+
 	if not NetworkTime.is_initial_sync_done():
 		# Wait for time sync to complete
 		await NetworkTime.after_sync
