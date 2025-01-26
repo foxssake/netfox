@@ -20,7 +20,7 @@ var _has_cancelled: bool = false
 var _context: Dictionary = {}
 var _mutated_objects: _Set = _Set.new()
 
-var _logger := _NetfoxLogger.for_netfox("RewindableAction:" + name)
+var _logger := _NetfoxLogger.for_netfox("RewindableAction")
 
 signal on_confirm
 signal on_cancel
