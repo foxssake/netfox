@@ -430,7 +430,14 @@ func _record_tick(tick: int):
 						NetworkPerformance.push_sent_state(diff_state)
 
 	# Record state for specified tick ( current + 1 )
-	if not _record_state_property_entries.is_empty() and tick > _latest_state_tick:
+	
+	# Check if any of the managed nodes were mutated
+	var is_mutated := _record_state_property_entries.any(func(pe):
+		return NetworkRollback.is_mutated(pe.node, tick - 1))
+
+	# Record if there's any properties to record and we're past the latest known state OR something
+	# was mutated
+	if not _record_state_property_entries.is_empty() and (tick > _latest_state_tick or is_mutated):
 		if _skipset.is_empty():
 			_states[tick] = PropertySnapshot.extract(_record_state_property_entries)
 		else:
