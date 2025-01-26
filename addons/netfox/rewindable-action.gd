@@ -170,10 +170,18 @@ func _after_tick_loop() -> void:
 
 	# Submit
 	if is_multiplayer_authority() and _last_set_tick >= 0:
-		_submit_state.rpc(NetworkRollback.history_start, _last_set_tick, _active_ticks.values())
+		var active_tick_bytes = _TicksetSerializer.serialize(NetworkRollback.history_start, _last_set_tick, _active_ticks)
+		_submit_state.rpc(active_tick_bytes)
 
 @rpc("authority", "unreliable_ordered", "call_remote")
-func _submit_state(history_start: int, last_known_tick: int, active_ticks: Array) -> void:
+func _submit_state(bytes: PackedByteArray) -> void:
+	# Decode incoming data
+	var parsed := _TicksetSerializer.deserialize(bytes)
+
+	var history_start: int = parsed[0]
+	var last_known_tick: int = parsed[1]
+	var active_ticks: _Set = parsed[2]
+
 	# Find differences and queue changes
 	var earliest_tick := maxi(history_start, NetworkRollback.history_start)
 	# Don't compare past last event, as to not cancel events the host simply doesn't know about
