@@ -64,10 +64,7 @@ func test_set_should_not_be_empty() -> void:
 #region erase() + clear()
 func test_erase_should_remove() -> void:
 	# Given
-	var set := _Set.new()
-	set.add("foo")
-	set.add("bar")
-	set.add("quix")
+	var set := _Set.of(["foo", "bar", "quix"])
 	var expected = ["foo", "quix"]
 
 	# When
@@ -78,10 +75,7 @@ func test_erase_should_remove() -> void:
 
 func test_clear_should_make_empty() -> void:
 	# Given
-	var set := _Set.new()
-	set.add("foo")
-	set.add("bar")
-	set.add("quix")
+	var set := _Set.of(["foo", "bar", "quix"])
 
 	# When
 	set.clear()
@@ -100,23 +94,16 @@ func test_empty_should_not_be_iterable() -> void:
 
 func test_should_be_iterable() -> void:
 	# Given
-	var set := _Set.new()
-	set.add(2)
-	set.add("Foo")
+	var set := _Set.of([2, "Foo"])
 
 	# When + then
 	expect(set._can_iterate(), "Set should be iterable")
 
 func test_iterate_should_yield_values() -> void:
 	# Given
-	var set := _Set.new()
+	var set := _Set.of([1, 2, "Foo", {}])
 	var expected := [1, 2, "Foo", {}]
 	var iterated := []
-
-	set.add(1)
-	set.add(2)
-	set.add("Foo")
-	set.add({})
 
 	# When
 	for item in set:
@@ -125,3 +112,11 @@ func test_iterate_should_yield_values() -> void:
 	# Then
 	expect_equal(iterated, expected)
 #endregion
+
+func test_min_max() -> void:
+	# Given
+	var set := _Set.of([2, 1, 3])
+	
+	# When + Then
+	expect_equal(set.min(), 1)
+	expect_equal(set.max(), 3)

@@ -84,7 +84,7 @@ func _force_update_is_on_floor():
 	velocity = old_velocity
 
 func damage():
-	$HitSFX.play()
+	# $HitSFX.play()
 	if is_multiplayer_authority():
 		health -= 34
 		_logger.warning("%s HP now at %s", [name, health])

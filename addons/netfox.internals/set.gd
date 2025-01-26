@@ -31,6 +31,12 @@ func clear():
 func values() -> Array:
 	return _data.keys()
 
+func min():
+	return _data.keys().min()
+
+func max():
+	return _data.keys().max()
+
 func equals(other) -> bool:
 	if not other or not other is _Set:
 		return false
