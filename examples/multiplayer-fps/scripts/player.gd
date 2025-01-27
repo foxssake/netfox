@@ -18,7 +18,7 @@ var respawn_position: Vector3
 var did_respawn := false
 var deaths := 0
 
-var _last_death_sfx_idx := 0
+var _ackd_deaths := 0
 
 func _ready():
 	display_name.text = name
@@ -27,13 +27,10 @@ func _ready():
 	NetworkTime.after_tick_loop.connect(_after_tick_loop)
 
 func _after_tick_loop():
-	if did_respawn:
+	if _ackd_deaths != deaths:
 		tick_interpolator.teleport()
-		did_respawn = false
-
-	if deaths > _last_death_sfx_idx:
 		$DieSFX.play()
-		_last_death_sfx_idx = deaths
+		_ackd_deaths = deaths
 
 func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 	# Handle respawn
@@ -80,11 +77,7 @@ func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 	# Handle death
 	if health <= 0:
 		deaths += 1
-
-		_logger.info("%s died", [name])
 		global_position = get_parent().get_next_spawn_point(get_player_id(), deaths)
-		did_respawn = true
-
 		health = 100
 
 func _force_update_is_on_floor():
