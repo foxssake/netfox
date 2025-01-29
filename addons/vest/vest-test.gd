@@ -131,10 +131,14 @@ func expect_not(condition: bool, p_message: String = "") -> void:
 		fail(p_message)
 
 func expect_equal(actual: Variant, expected: Variant) -> void:
-	if actual != expected:
-		fail("Actual value differs from expected! %s != %s" % [actual, expected])
-	else:
+	var equals = actual == expected
+	if actual is Object and actual.has_method("equals"):
+		equals = actual.equals(expected)
+
+	if equals:
 		ok()
+	else:
+		fail("Actual value differs from expected! %s != %s" % [actual, expected])
 
 func expect_not_equal(actual: Variant, expected: Variant) -> void:
 	if actual == expected:
