@@ -89,3 +89,39 @@ func test_clear_should_make_empty() -> void:
 	# Then
 	expect_empty(set)
 #endregion
+
+#region iteration
+func test_empty_should_not_be_iterable() -> void:
+	# Given
+	var set := _Set.new()
+
+	# When + then
+	expect_not(set._can_iterate(), "Set shouldn't be iterable")
+
+func test_should_be_iterable() -> void:
+	# Given
+	var set := _Set.new()
+	set.add(2)
+	set.add("Foo")
+
+	# When + then
+	expect(set._can_iterate(), "Set should be iterable")
+
+func test_iterate_should_yield_values() -> void:
+	# Given
+	var set := _Set.new()
+	var expected := [1, 2, "Foo", {}]
+	var iterated := []
+
+	set.add(1)
+	set.add(2)
+	set.add("Foo")
+	set.add({})
+
+	# When
+	for item in set:
+		iterated.append(item)
+
+	# Then
+	expect_equal(iterated, expected)
+#endregion
