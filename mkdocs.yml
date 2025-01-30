@@ -1,11 +1,32 @@
 site_name: netfox
-theme: readthedocs
+site_url: 'https://foxssake.github.io/netfox/'
+theme:
+  name: readthedocs
+  custom_dir: docs/custom_theme/
+extra_css:
+  - css/version-selector.css
+plugins:
+  - plantuml:
+      puml_url: https://www.plantuml.com/plantuml/
+      theme:
+        enabled: false
+      interaction:
+        enabled: false
+markdown_extensions:
+  - admonition
+  - def_list
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.superfences
 nav:
   - 'index.md'
   - 'upgrading.md'
   - netfox:
     - Tutorials:
       - 'netfox/tutorials/responsive-player-movement.md'
+      - 'netfox/tutorials/predicting-input.md'
+      - 'netfox/tutorials/modifying-objects-during-rollback.md'
+      - 'netfox/tutorials/configuring-properties-from-code.md'
       - 'netfox/tutorials/rollback-caveats.md'
       - 'netfox/tutorials/interpolation-caveats.md'
     - Concepts:
@@ -20,6 +41,7 @@ nav:
       - 'netfox/guides/property-paths.md'
       - 'netfox/guides/network-rollback.md'
       - 'netfox/guides/network-performance.md'
+      - 'netfox/guides/netfox-sharp.md'
     - Nodes:
       - 'netfox/nodes/tick-interpolator.md'
       - 'netfox/nodes/rollback-synchronizer.md'

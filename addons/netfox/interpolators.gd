@@ -52,7 +52,13 @@ static func _static_init():
 		func(a): return a is float,
 		func(a: float, b: float, f: float): return lerpf(a, b, f)
 	)
-	
+
+	# Int
+	register(
+		func(a): return a is int,
+		func(a: int, b: int, f: float): return int(lerpf(a, b, f))
+	)
+
 	# Vector
 	register(
 		func(a): return a is Vector2,
@@ -62,7 +68,24 @@ static func _static_init():
 		func(a): return a is Vector3,
 		func(a: Vector3, b: Vector3, f: float): return a.lerp(b, f)
 	)
-	
+	register(
+		func(a): return a is Vector4,
+		func(a: Vector4, b: Vector4, f: float): return a.lerp(b, f)
+	)
+
+	register(
+		func(a): return a is Vector2i,
+		func(a: Vector2i, b: Vector2i, f: float): return Vector2i(Vector2(a).lerp(b, f))
+	)
+	register(
+		func(a): return a is Vector3i,
+		func(a: Vector3i, b: Vector3i, f: float): return Vector3i(Vector3(a).lerp(b, f))
+	)
+	register(
+		func(a): return a is Vector4i,
+		func(a: Vector4i, b: Vector4i, f: float): return Vector4i(Vector4(a).lerp(b, f))
+	)
+
 	# Transform
 	register(
 		func(a): return a is Transform2D,
@@ -71,4 +94,22 @@ static func _static_init():
 	register(
 		func(a): return a is Transform3D,
 		func(a: Transform3D, b: Transform3D, f: float): return a.interpolate_with(b, f)
+	)
+
+	# Quaternion
+	register(
+		func(a): return a is Quaternion,
+		func(a: Quaternion, b: Quaternion, f: float): return a.slerp(b, f)
+	)
+
+	# Basis
+	register(
+		func(a): return a is Basis,
+		func(a: Basis, b: Basis, f: float): return a.slerp(b, f)
+	)
+
+	# Color
+	register(
+		func(a): return a is Color,
+		func(a: Color, b: Color, f: float): return a.lerp(b, f)
 	)

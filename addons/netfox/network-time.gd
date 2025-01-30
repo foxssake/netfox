@@ -3,7 +3,7 @@ class_name _NetworkTime
 
 ## This class handles timing.
 ##
-## @tutorial(NetworkTime Guide): https://foxssake.github.io/netfox/netfox/guides/network-time/
+## @tutorial(NetworkTime Guide): https://foxssake.github.io/netfox/latest/netfox/guides/network-time/
 
 ## Number of ticks per second.
 ##
@@ -103,6 +103,19 @@ var recalibrate_threshold: float:
 		return ProjectSettings.get_setting("netfox/time/recalibrate_threshold", 8.0)
 	set(v):
 		push_error("Trying to set read-only variable recalibrate_threshold")
+
+## Seconds required to pass before considering the game stalled.
+##
+## If the game becomes unresponsive for some time - e.g. it becomes minimized,
+## unfocused, or freezes -, the game time needs to be readjusted. These stalls
+## are detected by checking how much time passes between frames. If it's more
+## than this threshold, it's considered a stall, and will be compensated
+## against.
+var stall_threshold: float:
+	get:
+		return ProjectSettings.get_setting("netfox/time/stall_threshold", 1.0)
+	set(v):
+		push_error("Trying to set read-only variable stall_threshold")
 
 ## Current network time in ticks on the server.
 ##
@@ -257,6 +270,14 @@ var clock_stretch_max: float:
 	set(v):
 		push_error("Trying to set read-only variable stretch_max")
 
+## Suppress warning when calling [member start] with an [OfflineMultiplayerPeer]
+## active.
+var suppress_offline_peer_warning: bool:
+	get:
+		return ProjectSettings.get_setting("netfox/time/suppress_offline_peer_warning", false)
+	set(v):
+		push_error("Trying to set read-only variable suppress_offline_peer_warning")
+
 ## The currently used clock stretch factor.
 ##
 ## As the game progresses, the simulation clock may be ahead of, or behind the
@@ -333,6 +354,11 @@ signal after_sync()
 ## is ticking and gameplay has started on their end.
 signal after_client_sync(peer_id: int)
 
+## Emitted when a tickrate mismatch is encountered, and
+## [member NetworkTickrateHandshake.mismatch_action] is set to
+## [constant NetworkTickrateHandshake.SIGNAL].
+signal on_tickrate_mismatch(peer: int, tickrate: int)
+
 # NetworkTime states
 const _STATE_INACTIVE := 0
 const _STATE_SYNCING := 1
@@ -351,6 +377,8 @@ var _last_process_time: float = 0.
 var _clock: NetworkClocks.SteppingClock = NetworkClocks.SteppingClock.new()
 var _clock_stretch_factor: float = 1.
 
+var _tickrate_handshake: NetworkTickrateHandshake
+
 var _synced_peers: Dictionary = {}
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkTime")
@@ -364,16 +392,35 @@ static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkTime")
 ## [br][br]
 ## To check if this initial sync is done, see [method is_initial_sync_done]. If
 ## you need a signal, see [signal after_sync].
-func start():
+## [br][br]
+## Returns [constant OK] on success.[br]
+## Returns [constant ERR_ALREADY_IN_USE] if the tick loop is currently active.[br]
+## Returns [constant ERR_UNAVAILABLE] if there's no available [MultiplayerPeer].
+func start() -> int:
+	# Check if time loop can be started
 	if _state != _STATE_INACTIVE:
-		return
+		_logger.warning(
+			"Multiple calls to NetworkTime.start()! " +
+			"Are you manually calling *and* have NetworkEvents enabled?")
+		return ERR_ALREADY_IN_USE
 
+	if not multiplayer.has_multiplayer_peer():
+		_logger.error("Starting time loop without a multiplayer peer!")
+		return ERR_UNAVAILABLE
+
+	if multiplayer.multiplayer_peer is OfflineMultiplayerPeer and not suppress_offline_peer_warning:
+		_logger.warning("Starting time loop with an offline peer! " +
+			"If this is intended, suppress this warning in the project settings, " +
+			"under netfox/Time/Suppress Offline Peer Warning.")
+
+	# Reset state
 	_tick = 0
 	_initial_sync_done = false
 	
 	# Host is always synced, as their time is considered ground truth
 	_synced_peers[1] = true
-	
+
+	# Start sync
 	NetworkTimeSynchronizer.start()
 	_state = _STATE_SYNCING
 	
@@ -392,10 +439,16 @@ func start():
 	# Remove clients from the synced cache when disconnected
 	multiplayer.peer_disconnected.connect(func(peer): _synced_peers.erase(peer))
 
+	# Set initial clock state
 	_clock.set_time(NetworkTimeSynchronizer.get_time())
 	_last_process_time = _clock.get_time()
 	_next_tick_time = _clock.get_time()
 	after_sync.emit()
+
+	# Handle tickrate handshake
+	_tickrate_handshake.run()
+
+	return OK
 
 ## Stop NetworkTime.
 ##
@@ -403,6 +456,7 @@ func start():
 ## emitted until the next start.
 func stop():
 	NetworkTimeSynchronizer.stop()
+	_tickrate_handshake.stop()
 	_state = _STATE_INACTIVE
 	_synced_peers.clear()
 
@@ -436,8 +490,16 @@ func seconds_between(tick_from: int, tick_to: int) -> float:
 func ticks_between(seconds_from: float, seconds_to: float) -> int:
 	return seconds_to_ticks(seconds_to - seconds_from)
 
-static func _static_init():
-	_NetfoxLogger.register_tag(func(): return "@%d" % NetworkTime.tick, -100)
+func _ready():
+	_NetfoxLogger.register_tag(func(): return "@%d" % tick, -100)
+
+	_tickrate_handshake = NetworkTickrateHandshake.new()
+	add_child(_tickrate_handshake)
+	
+	# Proxy tickrate mismatch event
+	_tickrate_handshake.on_tickrate_mismatch.connect(func(peer, tickrate):
+		on_tickrate_mismatch.emit(peer, tickrate)
+	)
 
 func _loop():
 	# Adjust local clock
@@ -458,7 +520,7 @@ func _loop():
 	# Detect editor pause
 	var clock_step = _clock.get_time() - _last_process_time
 	var clock_step_raw = clock_step / previous_stretch_factor
-	if OS.has_feature("editor") and clock_step_raw > 1.:
+	if clock_step_raw > stall_threshold:
 			# Game stalled for a while, probably paused, don't run extra ticks
 			# to catch up
 			_was_paused = true
@@ -468,6 +530,7 @@ func _loop():
 	if _was_paused:
 		_was_paused = false
 		_next_tick_time += clock_step
+		_tick = seconds_to_ticks(NetworkTimeSynchronizer.get_time())
 	
 	# Run tick loop if needed
 	var ticks_in_loop = 0

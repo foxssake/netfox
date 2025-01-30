@@ -7,6 +7,7 @@
 [![License](https://img.shields.io/github/license/foxssake/netfox)](https://github.com/foxssake/netfox/blob/main/LICENSE)
 [![GitHub Release](https://img.shields.io/github/v/release/foxssake/netfox)](https://github.com/foxssake/netfox/releases)
 [![Documentation](https://img.shields.io/badge/Docs-github.io-blue)](https://foxssake.github.io/netfox/)
+[![Netfox Sharp](https://img.shields.io/badge/View-Netfox_Sharp-orange)](https://github.com/CyFurStudios/NetfoxSharp)
 [![Discord](https://img.shields.io/discord/1253434107656933447?logo=discord&label=Discord)](https://discord.gg/xWGh4GskG5)
 [![ko-fi](https://img.shields.io/badge/Support%20on-ko--fi-ff5e5b?logo=ko-fi)](https://ko-fi.com/T6T8WZD0W)
 
@@ -38,6 +39,10 @@ The package consists of multiple addons, each with different features:
 * [netfox.internals]
   * Shared utilities for the other addons
   * Included as dependency, no need to install separately
+
+## C# Support
+For experimental C# support, see the [Netfox Sharp repo], and the corresponding
+[Netfox Sharp guide].
 
 ## Install
 
@@ -112,6 +117,13 @@ compared to built-in multiplayer tools, a simple demo was implemented as a
 single-player game, which was ported to multiplayer using both a naive approach
 and netfox.
 
+#### Feature examples
+
+* [State machines](examples/multiplayer-state-machine)
+* [Multiplayer FPS](examples/multiplayer-fps)
+* [Rollback Debugger](examples/rollback-debugger)
+* [Property Configuration](examples/property-configuration)
+
 #### Example game
 
 * [Forest Brawl]
@@ -183,6 +195,9 @@ Donations are always appreciated and taken as gratitude for the work that has
 already been done.
 
 If you'd like to fund a specific feature or development, please contact us in [email].
+
+[Netfox Sharp repo]: https://github.com/CyFurStudios/NetfoxSharp
+[Netfox Sharp guide]: https://foxssake.github.io/netfox/latest/netfox/guides/netfox-sharp/
 
 [source]: https://github.com/foxssake/netfox/archive/refs/heads/main.zip
 [Godot engine]: https://godotengine.org/

@@ -14,6 +14,9 @@ func can_fire() -> bool:
 func fire() -> Node2D:
 	return _weapon.fire()
 
+func get_fired_tick() -> int:
+	return _weapon.get_fired_tick()
+
 func _init():
 	_weapon = _NetworkWeaponProxy.new()
 	add_child(_weapon, true, INTERNAL_MODE_BACK)

@@ -1,0 +1,90 @@
+[gd_scene load_steps=3 format=3 uid="uid://bp8g7j7774mwi"]
+
+[ext_resource type="Script" path="res://addons/vest/ui/vest-ui.gd" id="1_cct3x"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xpauq"]
+bg_color = Color(0, 0, 0, 0.501961)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_blend = true
+
+[node name="Vest UI" type="Control"]
+custom_minimum_size = Vector2(0, 144)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_cct3x")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Controls" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+
+[node name="Run All Button" type="Button" parent="HBoxContainer/Controls"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Run Tests"
+
+[node name="Run On Save Container" type="HBoxContainer" parent="HBoxContainer/Controls"]
+layout_mode = 2
+
+[node name="Run On Save CheckBox" type="CheckBox" parent="HBoxContainer/Controls/Run On Save Container"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Run On Save Label" type="Label" parent="HBoxContainer/Controls/Run On Save Container"]
+layout_mode = 2
+text = "Run on Save"
+
+[node name="Clear Button" type="Button" parent="HBoxContainer/Controls"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Clear"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PanelContainer" type="PanelContainer" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_xpauq")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="HBoxContainer/VBoxContainer/PanelContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Results" type="VBoxContainer" parent="HBoxContainer/VBoxContainer/PanelContainer/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Summary Container" type="HBoxContainer" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Tests Summary Label" type="Label" parent="HBoxContainer/VBoxContainer/Summary Container"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="VSeparator" type="VSeparator" parent="HBoxContainer/VBoxContainer/Summary Container"]
+layout_mode = 2
+
+[node name="Tests Result Title" type="Label" parent="HBoxContainer/VBoxContainer/Summary Container"]
+layout_mode = 2
+text = "Result:"
+
+[node name="Tests Result Label" type="Label" parent="HBoxContainer/VBoxContainer/Summary Container"]
+unique_name_in_owner = true
+layout_mode = 2

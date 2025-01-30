@@ -57,7 +57,36 @@ is prepended with a dollar sign. For example:
 
 Here's the handshake process illustrated:
 
-![Handshake process](../assets/packet-handshake.svg)
+```puml
+@startuml
+
+actor "Player A" as A
+entity "Router A" as RA
+boundary Internet as Net
+entity "Router B" as RB
+actor "Player B" as B
+
+A ->x RB : $-w-
+note over RB: Packet denied
+
+B ->x RA : $-w-
+note over RA: Packet denied
+
+note over RA, RB: NAT table updated on both routers
+
+A -> B: $-w-
+note over RB: Packed allowed
+
+B -> A: $-w-
+note over RB: Packed allowed
+
+A -> B: $rwx
+B -> A: $rwx
+
+note over Net #lightgreen: Connection established
+
+@enduml
+```
 
 ## Handshake over PacketPeer
 
@@ -66,7 +95,8 @@ specified PacketPeer will be used to send data until two-way connectivity is
 confirmed or the timeout is reached. Between every packet sent, it takes a
 short pause.
 
-> *Note* that the PacketPeer must already be configured with a target address.
+!!!note
+    The PacketPeer must already be configured with a target address.
 
 ## Handshake over ENetConnection
 

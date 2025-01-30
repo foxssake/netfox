@@ -2,8 +2,9 @@ extends CharacterBody3D
 class_name BrawlerController
 
 # Stats
-@export var speed = 5.0
-@export var jump_velocity = 4.5
+@export var speed: float = 5.0
+@export var jump_velocity: float = 4.5
+@export var mass: float = 4.0
 
 # Spawn
 @export var spawn_point: Vector3 = Vector3(0, 4, 0)
@@ -11,13 +12,13 @@ class_name BrawlerController
 @export var respawn_time: float = 4.0
 
 # Dependencies
-@onready var input: BrawlerInput = $Input
-@onready var rollback_synchronizer: RollbackSynchronizer = $RollbackSynchronizer
-@onready var animation_tree: AnimationTree = $AnimationTree
-@onready var weapon: BrawlerWeapon = $Weapon as BrawlerWeapon
-@onready var mesh: MeshInstance3D = $"bomber-guy/rig/Skeleton3D/Cube_008"
-@onready var nametag: Label3D = $Nametag
-@onready var fall_sound: PlayRandomStream3D = $"Fall Sound"
+@onready var input := $Input as BrawlerInput
+@onready var rollback_synchronizer := $RollbackSynchronizer as RollbackSynchronizer
+@onready var animation_tree := $AnimationTree as AnimationTree
+@onready var weapon := $Weapon as BrawlerWeapon
+@onready var mesh := $"bomber-guy/rig/Skeleton3D/Cube_008" as MeshInstance3D
+@onready var nametag := $Nametag as Label3D
+@onready var fall_sound := $"Fall Sound" as PlayRandomStream3D
 
 var player_name: String = "":
 	set(p_name):
@@ -41,6 +42,9 @@ func register_hit(from: BrawlerController):
 	last_hit_player = from
 	last_hit_tick = NetworkRollback.tick if NetworkRollback.is_rollback() else NetworkTime.tick
 
+func shove(motion: Vector3):
+	move_and_collide(motion / mass)
+
 func _ready():
 	if not input:
 		input = $Input
@@ -49,7 +53,7 @@ func _ready():
 
 	GameEvents.on_brawler_spawn.emit(self)
 	NetworkTime.on_tick.connect(_tick)
-	
+
 	if not player_name:
 		player_name = "Nameless Brawler #%s" % [player_id]
 	
@@ -96,6 +100,11 @@ func _rollback_tick(delta, tick, is_fresh):
 		
 		if is_fresh:
 			GameEvents.on_brawler_respawn.emit(self)
+
+	# Skip predictions
+	if rollback_synchronizer.is_predicting():
+		rollback_synchronizer.ignore_prediction(self)
+		return
 
 	# Apply gravity
 	_force_update_is_on_floor()

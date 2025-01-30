@@ -10,19 +10,23 @@ TMP="$ROOT/buildtmp"
 # Assume we're running from project root
 source sh/shared.sh
 
-echo $BOLD"Building netfox v${version}" $NC
+# Grab commit history
+print $BOLD"Unshallowing commit history"$NC
+git fetch --unshallow --filter=tree:0
 
-echo "Directories"
-echo "Root: $ROOT"
-echo "Build: $BUILD"
-echo "Temp: $TMP"
+print $BOLD"Building netfox v${version}" $NC
+
+print "Directories"
+print "Root: $ROOT"
+print "Build: $BUILD"
+print "Temp: $TMP"
 
 rm -rf "$BUILD"
 mkdir -p "$BUILD"
 rm -rf "$TMP"
 
 for addon in ${addons[@]}; do
-    echo "Packing addon ${addon}"
+    print "Packing addon ${addon}"
 
     addon_tmp="$TMP/${addon}.v${version}/addons"
     addon_src="$ROOT/addons/${addon}"
@@ -32,11 +36,13 @@ for addon in ${addons[@]}; do
     cd "$TMP"
 
     cp -r "${addon_src}" "${addon_tmp}"
+    "$ROOT/sh/contributors.sh" > "${addon_tmp}/${addon}/CONTRIBUTORS.md"
 
     has_deps="false"
     for dep in ${addon_deps[$addon]}; do
-      echo "Adding dependency $dep"
+      print "Adding dependency $dep"
       cp -r "$ROOT/addons/${dep}" "${addon_tmp}"
+      "$ROOT/sh/contributors.sh" > "${addon_tmp}/${dep}/CONTRIBUTORS.md"
       has_deps="true"
     done
 
@@ -49,18 +55,26 @@ for addon in ${addons[@]}; do
 done
 
 # Build example game
-echo $BOLD"Building Forest Brawl" $NC
+print $BOLD"Building Forest Brawl" $NC
 mkdir -p build/linux
 mkdir -p build/win64
 
-echo "Building with Linux/X11 preset"
+print "Building with Linux/X11 preset"
 godot --headless --export-release "Linux/X11" "build/linux/forest-brawl.x86_64"
 zip -j "build/forest-brawl.v${version}.linux.zip" build/linux/*
 
-echo "Building with Windows preset"
+print "Building with Windows preset"
 godot --headless --export-release "Windows Desktop" "build/win64/forest-brawl.exe"
 zip -j "build/forest-brawl.v${version}.win64.zip" build/win64/*
 
+# Build docs
+print $BOLD"Building docs" $NC
+mkdocs build --no-directory-urls
+cd site
+zip -r "../build/netfox.docs.v${version}.zip" ./*
+cd ..
+rm -rf site
+
 # Cleanup
-echo $BOLD"Cleaning up" $NC
+print $BOLD"Cleaning up" $NC
 rm -rf build/win64 build/linux

@@ -29,6 +29,11 @@ var SETTINGS = [
 		"type": TYPE_FLOAT
 	},
 	{
+		"name": "netfox/time/stall_threshold",
+		"value": 1.0,
+		"type": TYPE_FLOAT
+	},
+	{
 		# Time to wait between time syncs
 		"name": "netfox/time/sync_interval",
 		"value": 0.25,
@@ -64,6 +69,18 @@ var SETTINGS = [
 		"type": TYPE_FLOAT,
 		"hint": PROPERTY_HINT_RANGE,
 		"hint_string": "1,2,0.05,or_greater"
+	},
+	{
+		"name": "netfox/time/tickrate_mismatch_action",
+		"value": NetworkTickrateHandshake.WARN,
+		"type": TYPE_INT,
+		"hint": PROPERTY_HINT_ENUM,
+		"hint_string": "Warn,Disconnect,Adjust,Signal"
+	},
+	{
+		"name": "netfox/time/suppress_offline_peer_warning",
+		"value": false,
+		"type": TYPE_BOOL
 	},
 	# Rollback settings
 	{
