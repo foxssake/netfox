@@ -37,6 +37,13 @@ var display_offset: int:
 	set(v):
 		push_error("Trying to set read-only variable display_offset")
 
+# TODO: Docs
+var input_delay: int:
+	get:
+		return ProjectSettings.get_setting("netfox/rollback/input_delay", 0)
+	set(v):
+		push_error("Trying to set read-only variable input_delay")
+
 ## How many previous input frames to send along with the current one.
 ##
 ## With UDP - packets may be lost, arrive late or out of order.

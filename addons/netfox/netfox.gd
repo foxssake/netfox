@@ -87,6 +87,11 @@ var SETTINGS = [
 		"type": TYPE_INT
 	},
 	{
+		"name": "netfox/rollback/input_delay",
+		"value": 0,
+		"type": TYPE_INT
+	},
+	{
 		"name": "netfox/rollback/enable_diff_states",
 		"value": true,
 		"type": TYPE_BOOL
