@@ -145,6 +145,21 @@ update is received from the server. The drawback is that the game will have
 some latency built-in, as it reacts to player inputs with some delay. Setting
 to zero will always display the latest game state.
 
+*Input delay* specifies the delay applied to player input, in ticks. This
+results in player inputs shifted into the future, e.g. if the player starts
+moving left on tick 37, it will be sent to the server as tick 39. This way,
+even if the input takes time to arrive, it will still be up to date, as long as
+the network latency is smaller than the input latency.
+
+!!!warning
+    [RollbackSynchronizer]'s `is_fresh` parameter may not work as expected with
+    input delay. This happens because clients already receive data for the
+    current tick, which means that the tick doesn't need to be resimulated, and
+    as a result, no `_rollback_tick` callbacks are ran with `is_fresh` set to
+    true.
+
+    This happens when network latency is smaller than the input delay.
+
 *Enable diff states* toggles diff states. By sending only state properties that
 have changed, netfox can reduce the bandwidth needed to synchronize the game
 between peers. See [RollbackSynchronizer] on how this is done and configured.

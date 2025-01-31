@@ -40,7 +40,7 @@ var history_start: int:
 	set(v):
 		push_error("Trying to set read-only variable history_start")
 
-## Offset into the past for display.
+## Offset into the past for display, in ticks.
 ## [br][br]
 ## After the rollback, we have the option to not display the absolute latest
 ## state of the game, but let's say the state two frames ago ( offset = 2 ).
@@ -70,6 +70,26 @@ var display_tick: int:
 			return NetworkTime.tick
 	set(v):
 		push_error("Trying to set read-only variable display_tick")
+
+## Offset into the future to submit inputs, in ticks.
+##
+## By submitting inputs into the future, they don't happen instantly, but with
+## some delay. This can help hiding latency - even if input takes some time to
+## arrive, it will still be up to date, as it was timestamped into the future.
+## This only works if the input delay is greater than the network latency.
+## [br][br]
+## In cases where the latency is greater than the input delay, this can still
+## reduce the amount of resimulated frames, resulting in less compute.
+## [br][br]
+## [b]Note:[/b] the [code]is_fresh[/code] parameter may not work as expected
+## with input latency higher than network latency.
+## [br][br]
+## [i]read-only[/i], you can change this in the project settings
+var input_delay: int:
+	get:
+		return ProjectSettings.get_setting("netfox/rollback/input_delay", 0)
+	set(v):
+		push_error("Trying to set read-only variable input_delay")
 
 ## How many previous input frames to send along with the current one.
 ## [br][br]
