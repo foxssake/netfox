@@ -513,15 +513,11 @@ func _after_tick(_delta, _tick):
 		_inputs[input_tick] = input
 
 		#Send the last n inputs for each property
-		var inputs = {}
-		for i in range(0, NetworkRollback.input_redundancy):
-			var tick_input = _inputs.get(input_tick - i, {})
-			for property in tick_input:
-				if not inputs.has(property):
-					inputs[property] = []
-				inputs[property].push_back(tick_input[property])
-
-		_attempt_submit_input(inputs, input_tick)
+		var inputs: Array[Dictionary] = []
+		for i in range(0, mini(NetworkRollback.input_redundancy, _inputs.size())):
+			var tick := input_tick - i
+			inputs.append(_inputs.get(tick))
+		_attempt_submit_inputs(inputs, input_tick)
 
 	# Trim history
 	while not _states.is_empty():
@@ -540,12 +536,12 @@ func _after_tick(_delta, _tick):
 
 	_freshness_store.trim()
 
-func _attempt_submit_input(input: Dictionary, input_tick: int):
+func _attempt_submit_inputs(inputs: Array[Dictionary], input_tick: int):
 	# TODO: Default to input broadcast in mesh network setups
 	if enable_input_broadcast:
-		_submit_input.rpc(input, input_tick)
+		_submit_inputs.rpc(inputs, input_tick)
 	elif not multiplayer.is_server():
-		_submit_input.rpc_id(1, input, input_tick)
+		_submit_inputs.rpc_id(1, inputs, input_tick)
 
 func _reprocess_settings():
 	if not _properties_dirty or Engine.is_editor_hint():
@@ -601,33 +597,37 @@ func _sanitize_by_authority(snapshot: Dictionary, sender: int) -> Dictionary:
 	return sanitized
 
 @rpc("any_peer", "unreliable", "call_remote")
-func _submit_input(input: Dictionary, tick: int):
+func _submit_inputs(inputs: Array, tick: int):
 	if not _is_initialized:
 		# Settings not processed yet
 		return
-	
+
 	var sender = multiplayer.get_remote_sender_id()
-	var sanitized = _sanitize_by_authority(input, sender)
 
-	if sanitized.size() > 0:
-		for property in sanitized:
-			for i in range(0, sanitized[property].size()):
-				var t = tick - i
-				if t < NetworkTime.tick - NetworkRollback.history_limit:
-					# Input too old
-					_logger.error("Received input for %s, rejecting because older than %s frames", [t, NetworkRollback.history_limit])
-					continue
+	for offset in range(inputs.size()):
+		var input_tick := tick - offset
 
-				var old_input = _inputs.get(t, {}).get(property)
-				var new_input = sanitized[property][i]
+		if input_tick < NetworkRollback.history_start:
+			# Input too old
+			_logger.warning("Received input for %s, rejecting because older than %s frames", [input_tick, NetworkRollback.history_limit])
+			continue
 
-				if old_input == null:
-					# We received an array of current and previous inputs, merge them into our history.
-					_inputs[t] = _inputs.get(t, {})
-					_inputs[t][property] = new_input
-					_earliest_input_tick = min(_earliest_input_tick, t)
-	else:
-		_logger.warning("Received invalid input from %s for tick %s for %s", [sender, tick, root.name])
+		var input := inputs[offset] as Dictionary
+		if input == null:
+			# We've somehow received a null input - shouldn't happen
+			_logger.error("Null input received for %d, full batch is %s", [input_tick, inputs])
+			continue
+
+		var sanitized = _sanitize_by_authority(input, sender)
+
+		if not sanitized.is_empty():
+			var known_input := _inputs.get(input_tick)
+			if known_input != input:
+				# Received a new input, save to history
+				_inputs[input_tick] = input
+				_earliest_input_tick = mini(_earliest_input_tick, input_tick)
+		else:
+			_logger.warning("Received invalid input from %s for tick %s for %s" % [sender, tick, root.name])
 
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_full_state(state: Dictionary, tick: int):
