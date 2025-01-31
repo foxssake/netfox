@@ -515,10 +515,10 @@ func _after_tick(_delta, _tick):
 		#Send the last n inputs for each property
 		var inputs: Array[Dictionary] = []
 		for i in range(0, mini(NetworkRollback.input_redundancy, _inputs.size())):
-			var input_tick := input_tick - i
-			inputs.append(_inputs.get(input_tick))
-		_attempt_submit_inputs(inputs)
-	
+			var tick := input_tick - i
+			inputs.append(_inputs.get(tick))
+		_attempt_submit_inputs(inputs, input_tick)
+
 	# Trim history
 	while not _states.is_empty():
 		var earliest_tick := _states.keys().min()
@@ -536,12 +536,12 @@ func _after_tick(_delta, _tick):
 
 	_freshness_store.trim()
 
-func _attempt_submit_input(inputs: Array[Dictionary], input_tick: int):
+func _attempt_submit_inputs(inputs: Array[Dictionary], input_tick: int):
 	# TODO: Default to input broadcast in mesh network setups
 	if enable_input_broadcast:
-		_submit_input.rpc(input, input_tick)
+		_submit_inputs.rpc(inputs, input_tick)
 	elif not multiplayer.is_server():
-		_submit_input.rpc_id(1, input, input_tick)
+		_submit_inputs.rpc_id(1, inputs, input_tick)
 
 func _reprocess_settings():
 	if not _properties_dirty or Engine.is_editor_hint():
@@ -601,14 +601,20 @@ func _submit_inputs(inputs: Array, tick: int):
 	if not _is_initialized:
 		# Settings not processed yet
 		return
-	
+
 	var sender = multiplayer.get_remote_sender_id()
-	
+
 	for offset in range(inputs.size()):
 		var input_tick := tick - offset
+
+		if input_tick < NetworkRollback.history_start:
+			# Input too old
+			_logger.warning("Received input for %s, rejecting because older than %s frames", [input_tick, NetworkRollback.history_limit])
+			continue
+
 		var input := inputs[offset] as Dictionary
 		var sanitized = _sanitize_by_authority(input, sender)
-		
+
 		if not sanitized.is_empty():
 			var known_input := _inputs.get(input_tick)
 			if known_input != input:
