@@ -267,6 +267,12 @@ func _ready():
 	if not NetworkTime.is_initial_sync_done():
 		# Wait for time sync to complete
 		await NetworkTime.after_sync
+
+	# Dummy states to parse for first inputs before our first real input
+	# Empty inputs don't change any properties
+	for i in NetworkRollback.input_delay:
+		_inputs[NetworkTime.tick + i] = {}
+	
 	process_settings.call_deferred()
 
 func _connect_signals():
@@ -503,18 +509,19 @@ func _after_tick(_delta, _tick):
 	# Record input
 	if not _record_input_property_entries.is_empty():
 		var input = PropertySnapshot.extract(_record_input_property_entries)
-		_inputs[NetworkTime.tick] = input
+		var input_tick: int = _tick + NetworkRollback.input_delay
+		_inputs[input_tick] = input
 
 		#Send the last n inputs for each property
 		var inputs = {}
 		for i in range(0, NetworkRollback.input_redundancy):
-			var tick_input = _inputs.get(NetworkTime.tick - i, {})
+			var tick_input = _inputs.get(input_tick - i, {})
 			for property in tick_input:
 				if not inputs.has(property):
 					inputs[property] = []
 				inputs[property].push_back(tick_input[property])
 
-		_attempt_submit_input(inputs)
+		_attempt_submit_input(inputs, input_tick)
 
 	# Trim history
 	while not _states.is_empty():
@@ -533,12 +540,12 @@ func _after_tick(_delta, _tick):
 
 	_freshness_store.trim()
 
-func _attempt_submit_input(input: Dictionary):
+func _attempt_submit_input(input: Dictionary, input_tick: int):
 	# TODO: Default to input broadcast in mesh network setups
 	if enable_input_broadcast:
-		_submit_input.rpc(input, NetworkTime.tick)
+		_submit_input.rpc(input, input_tick)
 	elif not multiplayer.is_server():
-		_submit_input.rpc_id(1, input, NetworkTime.tick)
+		_submit_input.rpc_id(1, input, input_tick)
 
 func _reprocess_settings():
 	if not _properties_dirty or Engine.is_editor_hint():

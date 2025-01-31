@@ -101,7 +101,16 @@ var SETTINGS = [
 	{
 		"name": "netfox/rollback/display_offset",
 		"value": 0,
-		"type": TYPE_INT
+		"type": TYPE_INT,
+		"hint": PROPERTY_HINT_RANGE,
+		"hint_string": "0,4,or_greater"
+	},
+	{
+		"name": "netfox/rollback/input_delay",
+		"value": 0,
+		"type": TYPE_INT,
+		"hint": PROPERTY_HINT_RANGE,
+		"hint_string": "0,4,or_greater"
 	},
 	{
 		"name": "netfox/rollback/enable_diff_states",
