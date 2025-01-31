@@ -613,6 +613,11 @@ func _submit_inputs(inputs: Array, tick: int):
 			continue
 
 		var input := inputs[offset] as Dictionary
+		if input == null:
+			# We've somehow received a null input - shouldn't happen
+			_logger.error("Null input received for %d, full batch is %s", [input_tick, inputs])
+			continue
+
 		var sanitized = _sanitize_by_authority(input, sender)
 
 		if not sanitized.is_empty():
