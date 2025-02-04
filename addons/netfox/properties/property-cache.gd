@@ -2,6 +2,7 @@ extends RefCounted
 class_name PropertyCache
 
 var root: Node
+# Typed as Dictionary[String, PropertyEntry]
 var _cache: Dictionary = {}
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("PropertyCache")
@@ -23,3 +24,7 @@ func properties() -> Array:
 	# See: https://github.com/godotengine/godot/issues/72627
 	result.assign(_cache.values())
 	return result
+
+func apply(snapshot:PropertyStoreSnapshot):
+	for property in snapshot.get_properties():
+		get_entry(property.path).set_value(property.value)

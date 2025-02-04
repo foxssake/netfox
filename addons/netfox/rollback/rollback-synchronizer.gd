@@ -75,11 +75,11 @@ var _skipset: _Set = _Set.new()
 
 var _properties_dirty: bool = false
 
-var _states: Dictionary = {}
-var _inputs: Dictionary = {}
+var _states: _HistoryBuffer = _HistoryBuffer.new()
+var _inputs: _HistoryBuffer = _HistoryBuffer.new()
 var _latest_state_tick: int
 var _earliest_input_tick: int
-
+# TODO: Dictionary?
 var _ackd_state: Dictionary = {}
 var _next_full_state_tick: int
 var _next_diff_ack_tick: int
@@ -96,7 +96,7 @@ var _is_initialized: bool = false
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("RollbackSynchronizer")
 
-signal _on_transmit_state(state: Dictionary, tick: int)
+signal _on_transmit_state(state: PropertyStoreSnapshot, tick: int)
 
 ## Process settings.
 ##
@@ -109,8 +109,8 @@ func process_settings():
 	_nodes.clear()
 	_record_state_property_entries.clear()
 	
-	_states.clear()
-	_inputs.clear()
+	_states.clear_history()
+	_inputs.clear_history()
 	_ackd_state.clear()
 	_latest_state_tick = NetworkTime.tick - 1
 	_earliest_input_tick = NetworkTime.tick
@@ -271,7 +271,7 @@ func _ready():
 	# Dummy states to parse for first inputs before our first real input
 	# Empty inputs don't change any properties
 	for i in NetworkRollback.input_delay:
-		_inputs[NetworkTime.tick + i] = {}
+		_inputs.add_if_missing(NetworkTime.tick + i)
 	
 	process_settings.call_deferred()
 
@@ -347,11 +347,11 @@ func _prepare_tick(tick: int):
 	# Prepare state
 	#	Done individually by Rewindables ( usually Rollback Synchronizers )
 	#	Restore input and state for tick
-	var state = _get_history(_states, tick)
-	var input = _get_history(_inputs, tick)
+	var state = _states.get_closest_snapshot(tick)
+	var input = _inputs.get_closest_snapshot(tick)
 
-	PropertySnapshot.apply(state, _property_cache)
-	PropertySnapshot.apply(input, _property_cache)
+	_property_cache.apply(state)
+	_property_cache.apply(input)
 
 	# Save data for input prediction
 	_has_input = _retrieved_tick != -1
@@ -407,7 +407,7 @@ func _process_tick(tick: int):
 func _record_tick(tick: int):
 	# Broadcast state we own
 	if not _auth_state_property_entries.is_empty() and not _is_predicted_tick:
-		var full_state: Dictionary = {}
+		var full_state := PropertyStoreSnapshot.new()
 
 		for property in _auth_state_property_entries:
 			if _can_simulate(property.node, tick - 1) \
@@ -416,57 +416,60 @@ func _record_tick(tick: int):
 				# Only broadcast if we've simulated the node
 				# NOTE: _can_simulate checks mutations, but to override _skipset
 				# we check a second time
-				full_state[property.to_string()] = property.get_value()
+				var prop := Property.new()
+				prop.path = property.to_string()
+				prop.value = property.get_value()
+				full_state.set_property(property.to_string(), prop)
 			
 		_on_transmit_state.emit(full_state, tick)
 
-		if full_state.size() > 0:
+		if full_state.get_paths().size() > 0:
 			_latest_state_tick = max(_latest_state_tick, tick)
-			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), full_state)
+			_states.merge(full_state, tick)
 			
 			if not NetworkRollback.enable_diff_states:
 				# Broadcast new full state
-				_submit_full_state.rpc(full_state, tick)
+				_submit_full_state.rpc(full_state.serialize(), tick)
 				
-				NetworkPerformance.push_full_state_broadcast(full_state)
-				NetworkPerformance.push_sent_state_broadcast(full_state)
+				NetworkPerformance.push_full_state_broadcast(full_state.get_snapshot())
+				NetworkPerformance.push_sent_state_broadcast(full_state.get_snapshot())
 			elif full_state_interval > 0 and tick > _next_full_state_tick:
 				# Send full state so we can send deltas from there
 				_logger.trace("Broadcasting full state for tick %d", [tick])
-				_submit_full_state.rpc(full_state, tick)
+				_submit_full_state.rpc(full_state.serialize(), tick)
 				_next_full_state_tick = tick + full_state_interval
 				
-				NetworkPerformance.push_full_state_broadcast(full_state)
-				NetworkPerformance.push_sent_state_broadcast(full_state)
+				NetworkPerformance.push_full_state_broadcast(full_state.get_snapshot())
+				NetworkPerformance.push_sent_state_broadcast(full_state.get_snapshot())
 			else:
 				for peer in multiplayer.get_peers():
-					NetworkPerformance.push_full_state(full_state)
+					NetworkPerformance.push_full_state(full_state.get_snapshot())
 					
 					# Peer hasn't received a full state yet, can't send diffs
 					if not _ackd_state.has(peer):
-						_submit_full_state.rpc_id(peer, full_state, tick)
-						NetworkPerformance.push_sent_state(full_state)
+						_submit_full_state.rpc_id(peer, full_state.serialize(), tick)
+						NetworkPerformance.push_sent_state(full_state.get_snapshot())
 						continue
 					
 					# History doesn't have reference tick?
 					var reference_tick = _ackd_state[peer]
 					if not _states.has(reference_tick):
-						_submit_full_state.rpc_id(peer, full_state, tick)
-						NetworkPerformance.push_sent_state(full_state)
+						_submit_full_state.rpc_id(peer, full_state.serialize(), tick)
+						NetworkPerformance.push_sent_state(full_state.get_snapshot())
 						continue
 					
 					# Prepare diff and send
-					var reference_state = _get_history(_states, reference_tick)
-					var diff_state = PropertySnapshot.make_patch(reference_state, full_state)
+					var reference_state := _states.get_closest_snapshot(reference_tick)
+					var diff_state := full_state.get_diffs_from(reference_state)
 					
 					if diff_state.size() == full_state.size():
 						# State is completely different, send full state
-						_submit_full_state.rpc_id(peer, full_state, tick)
-						NetworkPerformance.push_sent_state(full_state)
+						_submit_full_state.rpc_id(peer, full_state.serialize(), tick)
+						NetworkPerformance.push_sent_state(full_state.get_snapshot())
 					else:
 						# Send only diff
-						_submit_diff_state.rpc_id(peer, diff_state, tick, reference_tick)
-						NetworkPerformance.push_sent_state(diff_state)
+						_submit_diff_state.rpc_id(peer, diff_state.serialize(), tick, reference_tick)
+						NetworkPerformance.push_sent_state(diff_state.get_snapshot())
 
 	# Record state for specified tick ( current + 1 )
 	
@@ -478,17 +481,20 @@ func _record_tick(tick: int):
 	# was mutated
 	if not _record_state_property_entries.is_empty() and (tick > _latest_state_tick or is_mutated):
 		if _skipset.is_empty():
-			_states[tick] = PropertySnapshot.extract(_record_state_property_entries)
+			# _recordStatePropertyEntries is an Array[PropertyEntry]
+			var snapshot := PropertyStoreSnapshot.create_from(_record_state_property_entries)
+			_states.set_snapshot(snapshot, tick)
 		else:
 			var record_properties = _record_state_property_entries\
 				.filter(func(pe): return \
 					not _skipset.has(pe.node) or \
 					NetworkRollback.is_mutated(pe.node, tick - 1))
 
-			var merge_state = _get_history(_states, tick - 1)
-			var record_state = PropertySnapshot.extract(record_properties)
+			var merge_state = _states.get_closest_snapshot(tick - 1)
+			var record_state = PropertyStoreSnapshot.create_from(record_properties)
 
-			_states[tick] = PropertySnapshot.merge(merge_state, record_state)
+			_states.merge(merge_state, tick)
+			_states.merge(record_state, tick)
 	
 	# Push metrics
 	NetworkPerformance.push_rollback_nodes_simulated(_simset.size())
@@ -497,38 +503,38 @@ func _after_loop():
 	_earliest_input_tick = NetworkTime.tick
 
 	# Apply display state
-	var display_state = _get_history(_states, NetworkRollback.display_tick)
-	PropertySnapshot.apply(display_state, _property_cache)
+	var display_state := _states.get_closest_snapshot(NetworkRollback.display_tick)
+	_property_cache.apply(display_state)
 
 func _before_tick(_delta, tick):
 	# Apply state for tick
-	var state = _get_history(_states, tick)
-	PropertySnapshot.apply(state, _property_cache)
+	var state := _states.get_closest_snapshot(tick)
+	_property_cache.apply(state)
 
 func _after_tick(_delta, _tick):
 	# Record input
 	if not _record_input_property_entries.is_empty():
-		var input = PropertySnapshot.extract(_record_input_property_entries)
+		var input = PropertyStoreSnapshot.create_from(_record_input_property_entries)
 		var input_tick: int = _tick + NetworkRollback.input_delay
-		_inputs[input_tick] = input
+		_inputs.set_snapshot(input, input_tick)
 
 		#Send the last n inputs for each property
-		var inputs: Array[Dictionary] = []
+		var inputs: Array[PropertyStoreSnapshot] = []
 		for i in range(0, mini(NetworkRollback.input_redundancy, _inputs.size())):
 			var tick := input_tick - i
-			inputs.append(_inputs.get(tick))
+			inputs.append(_inputs.get_snapshot(tick))
 		_attempt_submit_inputs(inputs, input_tick)
 
 	# Trim history
-	while not _states.is_empty():
-		var earliest_tick := _states.keys().min()
+	while _states.size() > 0:
+		var earliest_tick := _states.get_earliest_tick()
 		if earliest_tick < NetworkRollback.history_start:
 			_states.erase(earliest_tick)
 		else:
 			break
 
-	while not _inputs.is_empty():
-		var earliest_tick := _inputs.keys().min()
+	while _inputs.size() > 0:
+		var earliest_tick := _inputs.get_earliest_tick()
 		if earliest_tick < NetworkRollback.history_start:
 			_inputs.erase(earliest_tick)
 		else:
@@ -536,7 +542,7 @@ func _after_tick(_delta, _tick):
 
 	_freshness_store.trim()
 
-func _attempt_submit_inputs(inputs: Array[Dictionary], input_tick: int):
+func _attempt_submit_inputs(inputs: Array[PropertyStoreSnapshot], input_tick: int):
 	# TODO: Default to input broadcast in mesh network setups
 	if enable_input_broadcast:
 		_submit_inputs.rpc(inputs, input_tick)
@@ -550,44 +556,21 @@ func _reprocess_settings():
 	_properties_dirty = false
 	process_settings()
 
-# TODO: Eventually refactor into separate HistoryBuffer class
-func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
-	if buffer.has(tick):
-		_retrieved_tick = tick
-		return buffer[tick]
-
-	if buffer.is_empty():
-		_retrieved_tick = -1
-		return {}
-
-	var earliest_tick = buffer.keys().min()
-	var latest_tick = buffer.keys().max()
-
-	if tick < earliest_tick:
-		_retrieved_tick = earliest_tick
-		return buffer[earliest_tick]
+func _sanitize_by_authority(snapshot: PropertyStoreSnapshot, sender: int) -> PropertyStoreSnapshot:
+	var sanitized := PropertyStoreSnapshot.new()
 	
-	if tick > latest_tick:
-		_retrieved_tick = latest_tick
-		return buffer[latest_tick]
+	var properties := snapshot.get_properties()
 	
-	var before = buffer.keys() \
-		.filter(func (key): return key < tick) \
-		.max()
+	if properties.size() == 0:
+		return sanitized
 	
-	_retrieved_tick = before
-	return buffer[before]
-
-func _sanitize_by_authority(snapshot: Dictionary, sender: int) -> Dictionary:
-	var sanitized := {}
-	
-	for property in snapshot:
-		var property_entry := _property_cache.get_entry(property)
-		var value = snapshot[property]
+	for property in snapshot.get_properties():
+		var property_entry := _property_cache.get_entry(property.path)
+		var value = property.value
 		var authority := property_entry.node.get_multiplayer_authority()
 		
 		if authority == sender:
-			sanitized[property] = value
+			sanitized.set_property(property.path, property)
 		else:
 			_logger.warning(
 				"Received data for property %s, owned by %s, from sender %s",
@@ -612,7 +595,7 @@ func _submit_inputs(inputs: Array, tick: int):
 			_logger.warning("Received input for %s, rejecting because older than %s frames", [input_tick, NetworkRollback.history_limit])
 			continue
 
-		var input := inputs[offset] as Dictionary
+		var input := inputs[offset] as PropertyStoreSnapshot
 		if input == null:
 			# We've somehow received a null input - shouldn't happen
 			_logger.error("Null input received for %d, full batch is %s", [input_tick, inputs])
@@ -621,45 +604,54 @@ func _submit_inputs(inputs: Array, tick: int):
 		var sanitized = _sanitize_by_authority(input, sender)
 
 		if not sanitized.is_empty():
-			var known_input := _inputs.get(input_tick)
+			var known_input := _inputs.get_snapshot(input_tick)
+			# TODO: Does this work with PropertyStoreSnapshot?
 			if known_input != input:
 				# Received a new input, save to history
-				_inputs[input_tick] = input
+				_inputs.set_snapshot(input, input_tick)
 				_earliest_input_tick = mini(_earliest_input_tick, input_tick)
 		else:
 			_logger.warning("Received invalid input from %s for tick %s for %s" % [sender, tick, root.name])
 
+# Dictionary is PropertyStoreSnapshot
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_full_state(state: Dictionary, tick: int):
 	if not _is_initialized:
 		# Settings not processed yet
 		return
-
+	
+	var deserialized := PropertyStoreSnapshot.new()
+	deserialized.deserialize(state)
+	
 	if tick < NetworkTime.tick - NetworkRollback.history_limit:
 		# State too old!
 		_logger.error("Received full state for %s, rejecting because older than %s frames", [tick, NetworkRollback.history_limit])
 		return
 
 	var sender = multiplayer.get_remote_sender_id()
-	var sanitized = _sanitize_by_authority(state, sender)
+	var sanitized = _sanitize_by_authority(deserialized, sender)
 	
 	if sanitized.is_empty():
 		# State is completely invalid
 		_logger.warning("Received invalid state from %s for tick %s", [sender, tick])
 		return
-
-	_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), sanitized)
+	
+	_states.merge(sanitized, tick)
 	_latest_state_tick = tick
 		
 	if NetworkRollback.enable_diff_states:
 		_ack_full_state.rpc_id(sender, tick)
 
+# Dictionary is PropertyStoreSnapshot
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 	if not _is_initialized:
 		# Settings not processed yet
 		return
-
+	
+	var deserialized := PropertyStoreSnapshot.new()
+	deserialized.deserialize(diff_state)
+	
 	if tick < NetworkTime.tick - NetworkRollback.history_limit:
 		# State too old!
 		_logger.error("Received diff state for %s, rejecting because older than %s frames", [tick, NetworkRollback.history_limit])
@@ -670,18 +662,18 @@ func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 		_logger.warning("Reference tick %d missing for %d", [reference_tick, tick])
 
 	var sender = multiplayer.get_remote_sender_id()
-	var reference_state = _states.get(reference_tick, {})
+	var reference_state := _states.get_snapshot(reference_tick)
 	var is_valid_state := true
 
-	if (diff_state.is_empty()):
+	if (deserialized.is_empty()):
 		_latest_state_tick = tick
-		_states[tick] = reference_state
+		_states.set_snapshot(reference_state, tick)
 	else:
-		var sanitized = _sanitize_by_authority(diff_state, sender)
+		var sanitized = _sanitize_by_authority(deserialized, sender)
 
 		if not sanitized.is_empty():
-			var result_state := PropertySnapshot.merge(reference_state, sanitized)
-			_states[tick] = result_state
+			_states.merge(reference_state, tick)
+			_states.merge(sanitized, tick)
 			_latest_state_tick = tick
 		else:
 			# State is completely invalid
