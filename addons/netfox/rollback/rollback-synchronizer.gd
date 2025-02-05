@@ -519,10 +519,10 @@ func _after_tick(_delta, _tick):
 		_inputs.set_snapshot(input, input_tick)
 
 		#Send the last n inputs for each property
-		var inputs: Array[PropertyStoreSnapshot] = []
+		var inputs: Array = []
 		for i in range(0, mini(NetworkRollback.input_redundancy, _inputs.size())):
 			var tick := input_tick - i
-			inputs.append(_inputs.get_snapshot(tick))
+			inputs.append(_inputs.get_snapshot(tick).serialize())
 		_attempt_submit_inputs(inputs, input_tick)
 
 	# Trim history
@@ -542,7 +542,7 @@ func _after_tick(_delta, _tick):
 
 	_freshness_store.trim()
 
-func _attempt_submit_inputs(inputs: Array[PropertyStoreSnapshot], input_tick: int):
+func _attempt_submit_inputs(inputs: Array, input_tick: int):
 	# TODO: Default to input broadcast in mesh network setups
 	if enable_input_broadcast:
 		_submit_inputs.rpc(inputs, input_tick)
@@ -564,7 +564,7 @@ func _sanitize_by_authority(snapshot: PropertyStoreSnapshot, sender: int) -> Pro
 	if properties.size() == 0:
 		return sanitized
 	
-	for property in snapshot.get_properties():
+	for property: Property in snapshot.get_properties():
 		var property_entry := _property_cache.get_entry(property.path)
 		var value = property.value
 		var authority := property_entry.node.get_multiplayer_authority()
@@ -594,9 +594,10 @@ func _submit_inputs(inputs: Array, tick: int):
 			# Input too old
 			_logger.warning("Received input for %s, rejecting because older than %s frames", [input_tick, NetworkRollback.history_limit])
 			continue
-
-		var input := inputs[offset] as PropertyStoreSnapshot
-		if input == null:
+		
+		var input := PropertyStoreSnapshot.deserialize(inputs[offset] as Dictionary)
+		
+		if input.size() == 0:
 			# We've somehow received a null input - shouldn't happen
 			_logger.error("Null input received for %d, full batch is %s", [input_tick, inputs])
 			continue
@@ -620,8 +621,7 @@ func _submit_full_state(state: Dictionary, tick: int):
 		# Settings not processed yet
 		return
 	
-	var deserialized := PropertyStoreSnapshot.new()
-	deserialized.deserialize(state)
+	var deserialized = PropertyStoreSnapshot.deserialize(state)
 	
 	if tick < NetworkTime.tick - NetworkRollback.history_limit:
 		# State too old!
@@ -649,8 +649,8 @@ func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 		# Settings not processed yet
 		return
 	
-	var deserialized := PropertyStoreSnapshot.new()
-	deserialized.deserialize(diff_state)
+	
+	var deserialized := PropertyStoreSnapshot.deserialize(diff_state)
 	
 	if tick < NetworkTime.tick - NetworkRollback.history_limit:
 		# State too old!

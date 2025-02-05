@@ -63,4 +63,4 @@ func merge(snapshot: PropertyStoreSnapshot, tick: int):
 		return
 	
 	for property in snapshot.get_properties():
-		_history[tick].set_property(property.Path, property)
+		_history[tick].set_property(property.path, property)

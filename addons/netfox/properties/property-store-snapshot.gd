@@ -4,7 +4,7 @@ class_name PropertyStoreSnapshot
 # Typed as Dictionary[String, Property]
 var _snapshot : Dictionary = {}
 
-func get_size() -> int:
+func size() -> int:
 	return _snapshot.size()
 
 func get_paths() -> Array[String]:
@@ -35,10 +35,16 @@ func has_key(key: String) -> bool:
 	return _snapshot.has(key)
 
 func serialize() -> Dictionary:
-	return _snapshot
+	var serialized: Dictionary = {}
+	for property in _snapshot:
+		serialized[property] = _snapshot[property].serialize()
+	return serialized
 
-func deserialize(dictionary: Dictionary):
-	_snapshot = dictionary
+static func deserialize(data: Dictionary) -> PropertyStoreSnapshot:
+	var deserialized := PropertyStoreSnapshot.new()
+	for property in data:
+		deserialized.set_property(property, Property.deserialize(data[property]))
+	return deserialized
 
 func is_empty() -> bool:
 	return _snapshot.is_empty()
@@ -52,7 +58,7 @@ func get_diffs_from(reference: PropertyStoreSnapshot) -> PropertyStoreSnapshot:
 	for key in _snapshot.keys():
 		if not reference.has_key(key):
 			diffs.set_property(key, _snapshot[key])
-		elif reference[key] != _snapshot[key]:
+		elif reference.get_property(key) != _snapshot[key]:
 			diffs.set_property(key, _snapshot[key])
 	
 	return diffs
@@ -72,5 +78,6 @@ static func create_from(properties: Array[PropertyEntry]) -> PropertyStoreSnapsh
 		property.value = entry.get_value()
 		result.set_property(property.path, property)
 	
-	result.make_read_only()
+	# TODO: Ensure commenting out this line is correct.
+	#result.make_read_only()
 	return result
