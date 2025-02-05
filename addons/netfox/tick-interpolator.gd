@@ -34,6 +34,8 @@ var _is_teleporting: bool = false
 
 var _property_cache: PropertyCache
 
+static var _logger := _NetfoxLogger.for_netfox("TickInterpolator")
+
 ## Process settings.
 ## [br][br]
 ## Call this after any change to configuration.
@@ -153,6 +155,9 @@ func _after_tick_loop():
 	if enable_recording and not _is_teleporting:
 		push_state()
 		PropertySnapshot.apply(_state_from, _property_cache)
+#		_logger.info("[after] Interpolating %s > %s", [_state_from[":transform"].origin, _state_to[":transform"].origin])
+	else:
+		_logger.info("[after] Skipping interpolation due to teleport")
 
 func _interpolate(from: Dictionary, to: Dictionary, f: float):
 	if not can_interpolate():
