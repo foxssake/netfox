@@ -660,10 +660,9 @@ func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 		# Settings not processed yet
 		return
 	
-	
 	var deserialized := PropertyStoreSnapshot.deserialize(diff_state)
 	
-	if tick < NetworkTime.tick - NetworkRollback.history_limit:
+	if tick < NetworkRollback.history_start:
 		# State too old!
 		_logger.error("Received diff state for %s, rejecting because older than %s frames", [tick, NetworkRollback.history_limit])
 		return

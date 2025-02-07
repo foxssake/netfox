@@ -58,7 +58,7 @@ func get_diffs_from(reference: PropertyStoreSnapshot) -> PropertyStoreSnapshot:
 	for key in _snapshot.keys():
 		if not reference.has_key(key):
 			diffs.set_property(key, _snapshot[key])
-		elif reference.get_property(key) != _snapshot[key]:
+		elif reference.get_property(key).value != _snapshot[key].value:
 			diffs.set_property(key, _snapshot[key])
 	
 	return diffs

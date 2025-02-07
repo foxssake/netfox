@@ -123,7 +123,8 @@ escape={
 
 general/clear_settings=false
 extras/auto_tile_windows=true
-rollback/enable_diff_states=false
+rollback/enable_diff_states=true
+rollback/input_redundancy=0
 time/tickrate=24
 
 [rendering]
