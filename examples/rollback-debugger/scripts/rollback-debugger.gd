@@ -40,10 +40,14 @@ func _ready():
 
 	# Set defaults
 	input_history_data.text = """{
-		0: { "Input:movement": Vector2(1, 0) },
-		1: { "Input:movement": Vector2(1, 1) },
-		2: { "Input:movement": Vector2(1, 1) },
-		3: { "Input:movement": Vector2(0, 1) },
+		0: { "Input:movement": {0: "Input:movement",1: Vector2(1, 0)} },
+		1: { "Input:movement": {0: "Input:movement",1: Vector2(1, 0)} },
+		2: { "Input:movement": {0: "Input:movement",1: Vector2(1, 0)} },
+		3: { "Input:movement": {0: "Input:movement",1: Vector2(1, 0)} },
+		4: { "Input:movement": {0: "Input:movement",1: Vector2(0, 1)} },
+		5: { "Input:movement": {0: "Input:movement",1: Vector2(0, 1)} },
+		6: { "Input:movement": {0: "Input:movement",1: Vector2(0, 1)} },
+		7: { "Input:movement": {0: "Input:movement",1: Vector2(0, 1)} }
 	}"""
 
 	# Start NetworkTime but make sure it doesn't tick on its own
@@ -152,17 +156,21 @@ func _read_data():
 	rollback_synchronizer._states = _parse_history(state_history_data.text)
 	rollback_synchronizer._inputs = _parse_history(input_history_data.text)
 
-func _serialize_history(history: Dictionary) -> String:
+func _serialize_history(history: _HistoryBuffer) -> String:
 	var result = PackedStringArray()
 
-	for tick in history.keys():
-		result.append("\t%d: %s" % [tick, var_to_str(history[tick]).replace("\n", "")])
+	for tick in history.ticks():
+		result.append("\t%d: %s" % [tick, var_to_str(history.get_snapshot(tick).serialize()).replace("\n", "")])
 
 	return "{\n%s\n}" % [",\n".join(result)]
 
-func _parse_history(history_string: String) -> Dictionary:
-	var result = str_to_var(history_string)
-	if result:
-		return result
-	else:
-		return {}
+func _parse_history(history_string: String) -> _HistoryBuffer:
+	var serialized = str_to_var(history_string)
+	var result := _HistoryBuffer.new()
+
+	if serialized is Dictionary:
+		for tick in serialized.keys():
+			var snapshot := PropertyStoreSnapshot.deserialize(serialized[tick])
+			result.set_snapshot(snapshot, tick)
+
+	return result

@@ -48,6 +48,9 @@ func set_snapshot(snapshot: PropertyStoreSnapshot, tick: int):
 func clear_history():
 	_history.clear()
 
+func ticks() -> Array:
+	return _history.keys()
+
 func size() -> int:
 	return _history.size()
 

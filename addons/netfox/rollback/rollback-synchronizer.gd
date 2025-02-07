@@ -564,7 +564,7 @@ func _sanitize_by_authority(snapshot: PropertyStoreSnapshot, sender: int) -> Pro
 	if properties.size() == 0:
 		return sanitized
 	
-	for property: Property in snapshot.get_properties():
+	for property in snapshot.get_properties():
 		var property_entry := _property_cache.get_entry(property.path)
 		var value = property.value
 		var authority := property_entry.node.get_multiplayer_authority()
