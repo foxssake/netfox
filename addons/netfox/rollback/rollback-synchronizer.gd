@@ -94,6 +94,9 @@ var _freshness_store: RollbackFreshnessStore
 
 var _is_initialized: bool = false
 
+var _debug_states := {}
+var _debug_inputs := {}
+
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("RollbackSynchronizer")
 
 signal _on_transmit_state(state: PropertyStoreSnapshot, tick: int)
@@ -347,15 +350,15 @@ func _prepare_tick(tick: int):
 	# Prepare state
 	#	Done individually by Rewindables ( usually Rollback Synchronizers )
 	#	Restore input and state for tick
+	_input_tick = _inputs.get_closest_tick(tick)
 	var state = _states.get_closest_snapshot(tick)
-	var input = _inputs.get_closest_snapshot(tick)
+	var input = _inputs.get_closest_snapshot(_input_tick)
 
 	_property_cache.apply(state)
 	_property_cache.apply(input)
 
 	# Save data for input prediction
-	_has_input = _retrieved_tick != -1
-	_input_tick = _retrieved_tick
+	_has_input = _input_tick != -1
 	_is_predicted_tick = not _inputs.has(tick)
 	
 	# Reset the set of simulated and ignored nodes
@@ -498,6 +501,14 @@ func _record_tick(tick: int):
 	
 	# Push metrics
 	NetworkPerformance.push_rollback_nodes_simulated(_simset.size())
+	
+	# Update debug
+	_debug_states.clear()
+	for t in _states.ticks():
+		_debug_states[t] = _states.get_snapshot(t).serialize()
+	_debug_inputs.clear()
+	for t in _inputs.ticks():
+		_debug_inputs[t] = _inputs.get_snapshot(t).serialize()
 
 func _after_loop():
 	_earliest_input_tick = NetworkTime.tick

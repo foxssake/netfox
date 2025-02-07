@@ -1,3 +1,4 @@
+extends RefCounted
 class_name _HistoryBuffer
 
 # Typed as Dictionary[int, PropertyStoreSnapshot]
