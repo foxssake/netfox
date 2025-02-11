@@ -1,9 +1,9 @@
 class_name _HistoryBuffer extends RefCounted
 
-# Temporarily typed as Dictionary[int, ???]
+# Temporarily typed as Dictionary[int, Dictionary[String, Variant]]
 var _buffer: Dictionary = {}
 
-func get_snapshot(tick: int, default = {}):
+func get_snapshot(tick: int, default = {}) -> Dictionary:
 	if _buffer.has(tick):
 		return _buffer[tick]
 	else:

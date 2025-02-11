@@ -347,7 +347,6 @@ func _prepare_tick(tick: int):
 	# Prepare state
 	#	Done individually by Rewindables ( usually Rollback Synchronizers )
 	#	Restore input and state for tick
-	# TODO: Refactor _get_history
 	var retrieved_tick = _inputs.get_closest_tick(tick)
 	var state = _states.get_history(tick)
 	var input = _inputs.get_history(tick)
@@ -595,8 +594,7 @@ func _submit_inputs(inputs: Array, tick: int):
 		var sanitized = _sanitize_by_authority(input, sender)
 
 		if not sanitized.is_empty():
-			#TODO: Remove the as Dictionary
-			var known_input := _inputs.get_snapshot(input_tick) as Dictionary
+			var known_input := _inputs.get_snapshot(input_tick)
 			if known_input != input:
 				# Received a new input, save to history
 				_inputs.set_snapshot(input, input_tick)
