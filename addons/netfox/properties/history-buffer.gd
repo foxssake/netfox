@@ -15,6 +15,35 @@ func set_snapshot(data, tick: int):
 func get_buffer() -> Dictionary:
 	return _buffer
 
+func get_closest_tick(tick: int) -> int:
+	if _buffer.has(tick):
+		return tick
+	
+	if _buffer.is_empty():
+		return -1
+	
+	var earliest_tick = _buffer.keys().min()
+	
+	if tick < earliest_tick:
+		return earliest_tick
+	
+	var latest_tick = _buffer.keys().max()
+	
+	if tick > latest_tick:
+		return latest_tick
+	
+	return _buffer.keys() \
+		.filter(func (key): return key < tick) \
+		.max()
+	
+func get_history(tick: int) -> Dictionary:
+	var closest_tick = get_closest_tick(tick)
+	
+	if closest_tick == -1:
+		return {}
+	
+	return _buffer[closest_tick]
+
 # Defaults
 func clear():
 	_buffer.clear()

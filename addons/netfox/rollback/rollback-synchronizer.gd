@@ -348,8 +348,9 @@ func _prepare_tick(tick: int):
 	#	Done individually by Rewindables ( usually Rollback Synchronizers )
 	#	Restore input and state for tick
 	# TODO: Refactor _get_history
-	var state = _get_history(_states.get_buffer(), tick)
-	var input = _get_history(_inputs.get_buffer(), tick)
+	var retrieved_tick = _inputs.get_closest_tick(tick)
+	var state = _states.get_history(tick)
+	var input = _inputs.get_history(tick)
 
 	PropertySnapshot.apply(state, _property_cache)
 	PropertySnapshot.apply(input, _property_cache)
@@ -457,7 +458,7 @@ func _record_tick(tick: int):
 						continue
 					
 					# Prepare diff and send
-					var reference_state = _get_history(_states.get_buffer(), reference_tick)
+					var reference_state = _states.get_history(reference_tick)
 					var diff_state = PropertySnapshot.make_patch(reference_state, full_state)
 					
 					if diff_state.size() == full_state.size():
@@ -485,8 +486,8 @@ func _record_tick(tick: int):
 				.filter(func(pe): return \
 					not _skipset.has(pe.node) or \
 					NetworkRollback.is_mutated(pe.node, tick - 1))
-
-			var merge_state = _get_history(_states.get_buffer(), tick - 1)
+			
+			var merge_state = _states.get_history(tick - 1)
 			var record_state = PropertySnapshot.extract(record_properties)
 			
 			_states.set_snapshot(PropertySnapshot.merge(merge_state, record_state), tick)
@@ -498,12 +499,12 @@ func _after_loop():
 	_earliest_input_tick = NetworkTime.tick
 
 	# Apply display state
-	var display_state = _get_history(_states.get_buffer(), NetworkRollback.display_tick)
+	var display_state = _states.get_history(NetworkRollback.display_tick)
 	PropertySnapshot.apply(display_state, _property_cache)
 
 func _before_tick(_delta, tick):
 	# Apply state for tick
-	var state = _get_history(_states.get_buffer(), tick)
+	var state = _states.get_history(tick)
 	PropertySnapshot.apply(state, _property_cache)
 
 func _after_tick(_delta, _tick):
@@ -550,34 +551,6 @@ func _reprocess_settings():
 
 	_properties_dirty = false
 	process_settings()
-
-# TODO: Eventually refactor into separate HistoryBuffer class
-func _get_history(buffer: Dictionary, tick: int) -> Dictionary:
-	if buffer.has(tick):
-		_retrieved_tick = tick
-		return buffer[tick]
-
-	if buffer.is_empty():
-		_retrieved_tick = -1
-		return {}
-
-	var earliest_tick = buffer.keys().min()
-	var latest_tick = buffer.keys().max()
-
-	if tick < earliest_tick:
-		_retrieved_tick = earliest_tick
-		return buffer[earliest_tick]
-	
-	if tick > latest_tick:
-		_retrieved_tick = latest_tick
-		return buffer[latest_tick]
-	
-	var before = buffer.keys() \
-		.filter(func (key): return key < tick) \
-		.max()
-	
-	_retrieved_tick = before
-	return buffer[before]
 
 func _sanitize_by_authority(snapshot: Dictionary, sender: int) -> Dictionary:
 	var sanitized := {}
