@@ -44,8 +44,8 @@ func merge(data: _PropertyStoreSnapshot) -> _PropertyStoreSnapshot:
 	var result = _snapshot.duplicate()
 	for key in data.as_dictionary():
 		result[key] = data._snapshot[key]
-	_snapshot = result
-	return self
+	#_snapshot = result
+	return _PropertyStoreSnapshot.from_dictionary(result)
 
 func make_patch(data: _PropertyStoreSnapshot) -> _PropertyStoreSnapshot:
 	var result: Dictionary = {}
