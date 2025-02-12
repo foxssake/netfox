@@ -468,7 +468,7 @@ func _record_tick(tick: int):
 					else:
 						# Send only diff
 						_submit_diff_state.rpc_id(peer, diff_state.as_dictionary(), tick, reference_tick)
-						NetworkPerformance.push_sent_state(diff_state)
+						NetworkPerformance.push_sent_state(diff_state.as_dictionary())
 
 	# Record state for specified tick ( current + 1 )
 	
