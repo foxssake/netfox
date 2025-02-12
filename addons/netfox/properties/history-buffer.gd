@@ -9,13 +9,6 @@ func get_snapshot(tick: int, default = {}) -> _PropertyStoreSnapshot:
 	else:
 		return _PropertyStoreSnapshot.new()
 
-func get_snapshot_as_dictionary(tick: int, default = {}) -> Dictionary:
-	if _buffer.has(tick):
-		var snapshot := _buffer[tick] as _PropertyStoreSnapshot
-		return snapshot.as_dictionary()
-	else:
-		return default
-
 func set_snapshot(data, tick: int):
 	if data is Dictionary:
 		var snapshot := _PropertyStoreSnapshot.from_dictionary(data)
