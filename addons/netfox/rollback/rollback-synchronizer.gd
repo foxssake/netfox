@@ -80,6 +80,7 @@ var _inputs := _HistoryBuffer.new()
 var _latest_state_tick: int
 var _earliest_input_tick: int
 
+# Typed as Dictionary[int, int] (Peer, tick_ackd)
 var _ackd_state: Dictionary = {}
 var _next_full_state_tick: int
 var _next_diff_ack_tick: int
@@ -515,6 +516,7 @@ func _after_tick(_delta, _tick):
 		_inputs.set_snapshot(input, input_tick)
 
 		#Send the last n inputs for each property
+		# Typed as Array[Dictionary[String, Variant]]
 		var inputs: Array[Dictionary] = []
 		for i in range(0, mini(NetworkRollback.input_redundancy, _inputs.size())):
 			var tick := input_tick - i
@@ -538,6 +540,7 @@ func _after_tick(_delta, _tick):
 
 	_freshness_store.trim()
 
+# inputs typed as Array[Dictionary[String, Variant]]
 func _attempt_submit_inputs(inputs: Array[Dictionary], input_tick: int):
 	# TODO: Default to input broadcast in mesh network setups
 	if enable_input_broadcast:
@@ -569,7 +572,8 @@ func _sanitize_by_authority(snapshot: _PropertyStoreSnapshot, sender: int) -> _P
 			)
 	
 	return sanitized
-# TODO: Convert all Array[Dictionary] and Dictionaries back to _PropertyStoreSnapshot and Array[_PropertyStoreSnapshot] in all RPCs
+
+# inputs typed as Array[Dictionary[String, Variant]]
 @rpc("any_peer", "unreliable", "call_remote")
 func _submit_inputs(inputs: Array, tick: int):
 	if not _is_initialized:
@@ -608,6 +612,8 @@ func _submit_inputs(inputs: Array, tick: int):
 		else:
 			_logger.warning("Received invalid input from %s for tick %s for %s" % [sender, tick, root.name])
 
+
+# state typed as Dictionary[String, Variant]
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_full_state(state: Dictionary, tick: int):
 	if not _is_initialized:
@@ -635,6 +641,7 @@ func _submit_full_state(state: Dictionary, tick: int):
 	if NetworkRollback.enable_diff_states:
 		_ack_full_state.rpc_id(sender, tick)
 
+# state typed as Dictionary[String, Variant]
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 	if not _is_initialized:
