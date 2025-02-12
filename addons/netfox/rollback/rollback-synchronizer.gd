@@ -633,7 +633,7 @@ func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 	var reference_state = _states.get_snapshot(reference_tick, {})
 	var is_valid_state := true
 
-	if (diff_state.is_empty()):
+	if diff_state.is_empty():
 		_latest_state_tick = tick
 		_states.set_snapshot(deserialized.as_dictionary(), tick)
 	else:
