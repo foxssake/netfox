@@ -3,6 +3,8 @@ class_name _PropertyStoreSnapshot extends RefCounted
 # Typed as Dictionary[String, Variant]
 var _snapshot: Dictionary = {}
 
+static var _logger := _NetfoxLogger.for_netfox("PropertyStoreSnapshot")
+
 func as_dictionary() -> Dictionary:
 	return _snapshot.duplicate()
 
@@ -56,3 +58,24 @@ func make_patch(data: _PropertyStoreSnapshot) -> _PropertyStoreSnapshot:
 			result[property_path] = new_property
 	
 	return _PropertyStoreSnapshot.from_dictionary(result)
+
+func sanitize(sender: int, property_cache: PropertyCache) -> bool:
+	var sanitized := {}
+	
+	for property in _snapshot.keys():
+		var property_entry := property_cache.get_entry(property)
+		var authority = property_entry.node.get_multiplayer_authority()
+		
+		if authority == sender:
+			sanitized[property] = _snapshot[property]
+		else:
+			_logger.warning(
+				"Received data for property %s, owned by %s, from sender %s",
+				[ property, authority, sender ]
+			)
+	
+	if sanitized.is_empty():
+		return false
+		
+	_snapshot = sanitized
+	return true

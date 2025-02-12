@@ -543,24 +543,6 @@ func _reprocess_settings():
 	_properties_dirty = false
 	process_settings()
 
-func _sanitize_by_authority(snapshot: _PropertyStoreSnapshot, sender: int) -> _PropertyStoreSnapshot:
-	var sanitized := _PropertyStoreSnapshot.new()
-	
-	for property in snapshot.as_dictionary():
-		var property_entry := _property_cache.get_entry(property)
-		var value = snapshot.get_value(property)
-		var authority := property_entry.node.get_multiplayer_authority()
-		
-		if authority == sender:
-			sanitized.set_value(property, value)
-		else:
-			_logger.warning(
-				"Received data for property %s, owned by %s, from sender %s",
-				[ property, authority, sender ]
-			)
-	
-	return sanitized
-
 # inputs typed as Array[Dictionary[String, Variant]]
 @rpc("any_peer", "unreliable", "call_remote")
 func _submit_inputs(inputs: Array, tick: int):
@@ -588,10 +570,10 @@ func _submit_inputs(inputs: Array, tick: int):
 			# We've somehow received a null input - shouldn't happen
 			_logger.error("Null input received for %d, full batch is %s", [input_tick, inputs])
 			continue
+				
+		var sanitize_success := input.sanitize(sender, _property_cache)
 		
-		var sanitized = _sanitize_by_authority(input, sender)
-
-		if not sanitized.is_empty():
+		if sanitize_success:
 			var known_input := _inputs.get_snapshot(input_tick)
 			if not known_input.equals(input):
 				# Received a new input, save to history
@@ -614,16 +596,16 @@ func _submit_full_state(state: Dictionary, tick: int):
 		# State too old!
 		_logger.error("Received full state for %s, rejecting because older than %s frames", [tick, NetworkRollback.history_limit])
 		return
-
+ 
 	var sender = multiplayer.get_remote_sender_id()
-	var sanitized = _sanitize_by_authority(deserialized, sender)
+	var sanitize_success := deserialized.sanitize(sender, _property_cache)
 	
-	if sanitized.is_empty():
+	if not sanitize_success:
 		# State is completely invalid
 		_logger.warning("Received invalid state from %s for tick %s", [sender, tick])
 		return
 	
-	_states.set_snapshot(_states.get_snapshot(tick, {}).merge(sanitized), tick)
+	_states.set_snapshot(_states.get_snapshot(tick, {}).merge(deserialized), tick)
 	_latest_state_tick = tick
 		
 	if NetworkRollback.enable_diff_states:
@@ -655,10 +637,10 @@ func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 		_latest_state_tick = tick
 		_states.set_snapshot(deserialized.as_dictionary(), tick)
 	else:
-		var sanitized = _sanitize_by_authority(deserialized, sender)
+		var sanitize_success := deserialized.sanitize(sender, _property_cache)
 
-		if not sanitized.is_empty():
-			var result_state := reference_state.merge(sanitized)
+		if sanitize_success:
+			var result_state := reference_state.merge(deserialized)
 			_states.set_snapshot(result_state, tick)
 			_latest_state_tick = tick
 		else:
