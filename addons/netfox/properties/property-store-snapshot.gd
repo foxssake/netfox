@@ -1,6 +1,7 @@
 class_name _PropertyStoreSnapshot extends RefCounted
 
-# Typed as Dictionary[String, Variant]
+# Maps property paths to their values
+# Dictionary[String, Variant]
 var _snapshot: Dictionary = {}
 
 static var _logger := _NetfoxLogger.for_netfox("PropertyStoreSnapshot")
@@ -13,17 +14,17 @@ static func from_dictionary(data: Dictionary) -> _PropertyStoreSnapshot:
 	snapshot._snapshot = data
 	return snapshot
 
-func set_value(key: String, data: Variant):
-	_snapshot[key] = data
+func set_value(property_path: String, data: Variant):
+	_snapshot[property_path] = data
 
-func get_value(key: String) -> Variant:
-	return _snapshot[key]
+func get_value(property_path: String) -> Variant:
+	return _snapshot[property_path]
 
 func size() -> int:
 	return _snapshot.size()
 
-func equals(data: _PropertyStoreSnapshot):
-	return _snapshot == data._snapshot
+func equals(other: _PropertyStoreSnapshot):
+	return _snapshot == other._snapshot
 
 func is_empty() -> bool:
 	return _snapshot.is_empty()
