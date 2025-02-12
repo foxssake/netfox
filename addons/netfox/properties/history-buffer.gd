@@ -66,8 +66,8 @@ func size() -> int:
 func is_empty() -> bool:
 	return _buffer.is_empty()
 
-func has(key) -> bool:
-	return _buffer.has(key)
+func has(tick) -> bool:
+	return _buffer.has(tick)
 
-func erase(key):
-	_buffer.erase(key)
+func erase(tick):
+	_buffer.erase(tick)
