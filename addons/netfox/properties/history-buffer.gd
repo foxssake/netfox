@@ -1,6 +1,6 @@
 class_name _HistoryBuffer extends RefCounted
 
-# Temporarily typed as Dictionary[int, _PropertyStoreSnapshot]
+# Typed as Dictionary[int, _PropertyStoreSnapshot]
 var _buffer: Dictionary = {}
 
 func get_snapshot(tick: int, default = {}) -> _PropertyStoreSnapshot:
@@ -64,7 +64,6 @@ func trim(earliest_tick_to_keep: int = NetworkRollback.history_start):
 func merge(data: _PropertyStoreSnapshot, tick:int):
 	set_snapshot(get_snapshot(tick).merge(data), tick)
 
-# Defaults
 func clear():
 	_buffer.clear()
 
