@@ -55,6 +55,12 @@ func get_history(tick: int) -> _PropertyStoreSnapshot:
 	
 	return _buffer[closest_tick]
 
+func trim(earliest_tick_to_keep: int = NetworkRollback.history_start):
+	var ticks := _buffer.keys()
+	for tick in ticks:
+		if tick < earliest_tick_to_keep:
+			_buffer.erase(tick)
+
 func merge(data: _PropertyStoreSnapshot, tick:int):
 	set_snapshot(get_snapshot(tick).merge(data), tick)
 

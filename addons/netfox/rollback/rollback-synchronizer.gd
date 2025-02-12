@@ -524,20 +524,8 @@ func _after_tick(_delta, _tick):
 		_attempt_submit_inputs(inputs, input_tick)
 
 	# Trim history
-	while not _states.is_empty():
-		var earliest_tick := _states.get_buffer().keys().min()
-		if earliest_tick < NetworkRollback.history_start:
-			_states.erase(earliest_tick)
-		else:
-			break
-
-	while not _inputs.is_empty():
-		var earliest_tick := _inputs.get_buffer().keys().min()
-		if earliest_tick < NetworkRollback.history_start:
-			_inputs.erase(earliest_tick)
-		else:
-			break
-
+	_states.trim()
+	_inputs.trim()
 	_freshness_store.trim()
 
 # inputs typed as Array[Dictionary[String, Variant]]
