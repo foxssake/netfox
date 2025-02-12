@@ -85,7 +85,6 @@ var _ackd_state: Dictionary = {}
 var _next_full_state_tick: int
 var _next_diff_ack_tick: int
 
-var _retrieved_tick: int
 var _has_input: bool
 var _input_tick: int
 var _is_predicted_tick: bool
@@ -356,8 +355,8 @@ func _prepare_tick(tick: int):
 	input.apply(_property_cache)
 
 	# Save data for input prediction
-	_has_input = _retrieved_tick != -1
-	_input_tick = _retrieved_tick
+	_has_input = retrieved_tick != -1
+	_input_tick = retrieved_tick
 	_is_predicted_tick = not _inputs.has(tick)
 	
 	# Reset the set of simulated and ignored nodes
@@ -424,8 +423,8 @@ func _record_tick(tick: int):
 
 		if full_state.size() > 0:
 			_latest_state_tick = max(_latest_state_tick, tick)
-			var merged_state := _states.get_snapshot(tick, {}).merge(full_state)
-			_states.set_snapshot(merged_state, tick)
+			
+			_states.merge(full_state, tick)
 			
 			if not NetworkRollback.enable_diff_states:
 				# Broadcast new full state
@@ -515,12 +514,11 @@ func _after_tick(_delta, _tick):
 		var input_tick: int = _tick + NetworkRollback.input_delay
 		_inputs.set_snapshot(input, input_tick)
 
-		#Send the last n inputs for each property
-		# Typed as Array[Dictionary[String, Variant]]
-		var inputs: Array[Dictionary] = []
+		# Send the last n inputs for each property
+		var inputs: Array[_PropertyStoreSnapshot] = []
 		for i in range(0, mini(NetworkRollback.input_redundancy, _inputs.size())):
 			var tick := input_tick - i
-			inputs.append(_inputs.get_snapshot(tick).as_dictionary())
+			inputs.append(_inputs.get_snapshot(tick))
 		_attempt_submit_inputs(inputs, input_tick)
 
 	# Trim history
@@ -528,13 +526,17 @@ func _after_tick(_delta, _tick):
 	_inputs.trim()
 	_freshness_store.trim()
 
-# inputs typed as Array[Dictionary[String, Variant]]
-func _attempt_submit_inputs(inputs: Array[Dictionary], input_tick: int):
+func _attempt_submit_inputs(inputs: Array[_PropertyStoreSnapshot], input_tick: int):
+	
+	var serialized_inputs : Array[Dictionary] = []
+	for input in inputs:
+		serialized_inputs.push_back(input.as_dictionary())
+	
 	# TODO: Default to input broadcast in mesh network setups
 	if enable_input_broadcast:
-		_submit_inputs.rpc(inputs, input_tick)
+		_submit_inputs.rpc(serialized_inputs, input_tick)
 	elif not multiplayer.is_server():
-		_submit_inputs.rpc_id(1, inputs, input_tick)
+		_submit_inputs.rpc_id(1, serialized_inputs, input_tick)
 
 func _reprocess_settings():
 	if not _properties_dirty or Engine.is_editor_hint():
@@ -543,21 +545,20 @@ func _reprocess_settings():
 	_properties_dirty = false
 	process_settings()
 
-# inputs typed as Array[Dictionary[String, Variant]]
 @rpc("any_peer", "unreliable", "call_remote")
-func _submit_inputs(inputs: Array, tick: int):
+func _submit_inputs(serialized_inputs: Array, tick: int):
 	if not _is_initialized:
 		# Settings not processed yet
 		return
 	
-	var deserialized : Array[_PropertyStoreSnapshot] = []
+	var inputs : Array[_PropertyStoreSnapshot] = []
 	
-	for input in inputs:
-		deserialized.push_back(_PropertyStoreSnapshot.from_dictionary(input))
+	for input in serialized_inputs:
+		inputs.push_back(_PropertyStoreSnapshot.from_dictionary(input))
 
 	var sender = multiplayer.get_remote_sender_id()
 
-	for offset in range(deserialized.size()):
+	for offset in range(inputs.size()):
 		var input_tick := tick - offset
 
 		if input_tick < NetworkRollback.history_start:
@@ -565,47 +566,48 @@ func _submit_inputs(inputs: Array, tick: int):
 			_logger.warning("Received input for %s, rejecting because older than %s frames", [input_tick, NetworkRollback.history_limit])
 			continue
 
-		var input := deserialized[offset]
+		var input := inputs[offset]
 		if input == null:
 			# We've somehow received a null input - shouldn't happen
-			_logger.error("Null input received for %d, full batch is %s", [input_tick, inputs])
+			_logger.error("Null input received for %d, full batch is %s", [input_tick, serialized_inputs])
 			continue
 				
 		var sanitize_success := input.sanitize(sender, _property_cache)
 		
-		if sanitize_success:
-			var known_input := _inputs.get_snapshot(input_tick)
-			if not known_input.equals(input):
-				# Received a new input, save to history
-				_inputs.set_snapshot(input, input_tick)
-				_earliest_input_tick = mini(_earliest_input_tick, input_tick)
-		else:
+		if not sanitize_success:
 			_logger.warning("Received invalid input from %s for tick %s for %s" % [sender, tick, root.name])
+			return
+		
+		var known_input := _inputs.get_snapshot(input_tick)
+		if not known_input.equals(input):
+			# Received a new input, save to history
+			_inputs.set_snapshot(input, input_tick)
+			_earliest_input_tick = mini(_earliest_input_tick, input_tick)
 
 
-# state typed as Dictionary[String, Variant]
+# `serialized_state` is a serialized _PropertyStoreSnapshot
 @rpc("any_peer", "unreliable_ordered", "call_remote")
-func _submit_full_state(state: Dictionary, tick: int):
+func _submit_full_state(serialized_state: Dictionary, tick: int):
 	if not _is_initialized:
 		# Settings not processed yet
 		return
 	
-	var deserialized := _PropertyStoreSnapshot.from_dictionary(state)
+	var state := _PropertyStoreSnapshot.from_dictionary(serialized_state)
 	
-	if tick < NetworkTime.tick - NetworkRollback.history_limit:
+	if tick < NetworkRollback.history_start:
 		# State too old!
 		_logger.error("Received full state for %s, rejecting because older than %s frames", [tick, NetworkRollback.history_limit])
 		return
  
 	var sender = multiplayer.get_remote_sender_id()
-	var sanitize_success := deserialized.sanitize(sender, _property_cache)
+	var sanitize_success := state.sanitize(sender, _property_cache)
 	
 	if not sanitize_success:
 		# State is completely invalid
 		_logger.warning("Received invalid state from %s for tick %s", [sender, tick])
 		return
 	
-	_states.set_snapshot(_states.get_snapshot(tick, {}).merge(deserialized), tick)
+	_states.merge(state, tick)
 	_latest_state_tick = tick
 		
 	if NetworkRollback.enable_diff_states:
@@ -613,12 +615,12 @@ func _submit_full_state(state: Dictionary, tick: int):
 
 # state typed as Dictionary[String, Variant]
 @rpc("any_peer", "unreliable_ordered", "call_remote")
-func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
+func _submit_diff_state(serialized_diff_state: Dictionary, tick: int, reference_tick: int):
 	if not _is_initialized:
 		# Settings not processed yet
 		return
 	
-	var deserialized := _PropertyStoreSnapshot.from_dictionary(diff_state)
+	var diff_state := _PropertyStoreSnapshot.from_dictionary(serialized_diff_state)
 	
 	if tick < NetworkTime.tick - NetworkRollback.history_limit:
 		# State too old!
@@ -633,14 +635,14 @@ func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 	var reference_state = _states.get_snapshot(reference_tick, {})
 	var is_valid_state := true
 
-	if diff_state.is_empty():
+	if serialized_diff_state.is_empty():
 		_latest_state_tick = tick
-		_states.set_snapshot(deserialized.as_dictionary(), tick)
+		_states.set_snapshot(diff_state.as_dictionary(), tick)
 	else:
-		var sanitize_success := deserialized.sanitize(sender, _property_cache)
+		var sanitize_success := diff_state.sanitize(sender, _property_cache)
 
 		if sanitize_success:
-			var result_state := reference_state.merge(deserialized)
+			var result_state := reference_state.merge(diff_state)
 			_states.set_snapshot(result_state, tick)
 			_latest_state_tick = tick
 		else:
