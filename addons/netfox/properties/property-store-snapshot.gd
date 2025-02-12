@@ -4,7 +4,7 @@ class_name _PropertyStoreSnapshot extends RefCounted
 var _snapshot: Dictionary = {}
 
 func as_dictionary() -> Dictionary:
-	return _snapshot
+	return _snapshot.duplicate()
 
 static func from_dictionary(data: Dictionary) -> _PropertyStoreSnapshot:
 	var snapshot := _PropertyStoreSnapshot.new()
@@ -16,6 +16,12 @@ func set_value(key: String, data: Variant):
 
 func get_value(key: String) -> Variant:
 	return _snapshot[key]
+
+func size() -> int:
+	return _snapshot.size()
+
+func equals(data: _PropertyStoreSnapshot):
+	return _snapshot == data._snapshot
 
 func is_empty() -> bool:
 	return _snapshot.is_empty()
@@ -32,30 +38,21 @@ func apply(cache: PropertyCache):
 		var value = _snapshot[property_path]
 		property_entry.set_value(value)
 
-# TODO: Simplify
-func merge(b: _PropertyStoreSnapshot) -> _PropertyStoreSnapshot:
-	var result = {}
-	for key in _snapshot:
-		result[key] = _snapshot[key]
-	for key in b.as_dictionary():
-		result[key] = b._snapshot[key]
+func merge(data: _PropertyStoreSnapshot) -> _PropertyStoreSnapshot:
+	var result = _snapshot.duplicate()
+	for key in data.as_dictionary():
+		result[key] = data._snapshot[key]
 	_snapshot = result
 	return self
 
-func make_patch(b: _PropertyStoreSnapshot) -> _PropertyStoreSnapshot:
+func make_patch(data: _PropertyStoreSnapshot) -> _PropertyStoreSnapshot:
 	var result: Dictionary = {}
 	
-	for property_path in b.as_dictionary():
-		var va = _snapshot.get(property_path)
-		var vb = b.get(property_path)
+	for property_path in data.as_dictionary():
+		var old_property = _snapshot.get(property_path)
+		var new_property = data.get(property_path)
 		
-		if va != vb:
-			result[property_path] = vb
+		if old_property != new_property:
+			result[property_path] = new_property
 	
 	return _PropertyStoreSnapshot.from_dictionary(result)
-
-func size() -> int:
-	return _snapshot.size()
-
-func equals(data: _PropertyStoreSnapshot):
-	return _snapshot == data._snapshot
