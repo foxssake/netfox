@@ -637,7 +637,7 @@ func _submit_diff_state(serialized_diff_state: Dictionary, tick: int, reference_
 
 	if serialized_diff_state.is_empty():
 		_latest_state_tick = tick
-		_states.set_snapshot(diff_state.as_dictionary(), tick)
+		_states.merge(reference_state, tick)
 	else:
 		var sanitize_success := diff_state.sanitize(sender, _property_cache)
 
