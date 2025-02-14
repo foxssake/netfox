@@ -325,6 +325,13 @@ var clock_offset: float:
 var remote_clock_offset: float:
 	get:
 		return NetworkTimeSynchronizer.remote_offset
+		
+
+var _channel_manager: ChannelManager
+
+
+
+
 
 ## Emitted before a tick loop is run.
 signal before_tick_loop()
@@ -492,6 +499,21 @@ func ticks_between(seconds_from: float, seconds_to: float) -> int:
 
 func _ready():
 	_NetfoxLogger.register_tag(func(): return "@%d" % tick, -100)
+	
+	_channel_manager = ChannelManager.new()
+	if _channel_manager.is_enabled():
+		rpc_config("_submit_sync_success", {
+			"rpc_mode": 3,  # MultiplayerAPI.RPC_MODE_ANY_PEER
+			"transfer_mode": 2,  # MultiplayerPeer.TRANSFER_MODE_RELIABLE
+			"call_local": true,
+			"channel": _channel_manager.get_channel()
+		})
+	else:
+		rpc_config("_submit_sync_success", {
+			"rpc_mode": 3,
+			"transfer_mode": 2,
+			"call_local": true,
+		})	
 
 	_tickrate_handshake = NetworkTickrateHandshake.new()
 	add_child(_tickrate_handshake)
@@ -567,7 +589,6 @@ func _notification(what):
 func _is_active() -> bool:
 	return _state == _STATE_ACTIVE
 
-@rpc("any_peer", "reliable", "call_local")
 func _submit_sync_success():
 	var peer_id = multiplayer.get_remote_sender_id()
 	

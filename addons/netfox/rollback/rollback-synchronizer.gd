@@ -325,6 +325,65 @@ func _enter_tree():
 	if not NetworkTime.is_initial_sync_done():
 		# Wait for time sync to complete
 		await NetworkTime.after_sync
+
+	if NetworkTime._channel_manager.is_enabled():
+		rpc_config("_submit_inputs", {
+			"rpc_mode": 3,
+			"transfer_mode": 1,
+			"call_local": false,
+			"channel": NetworkTime._channel_manager.get_channel()
+		})
+		rpc_config("_submit_full_state", {
+			"rpc_mode": 3,
+			"transfer_mode": 2,
+			"call_local": false,
+			"channel": NetworkTime._channel_manager.get_channel()
+		})
+		rpc_config("_submit_diff_state", {
+			"rpc_mode": 3,
+			"transfer_mode": 2,
+			"call_local": false,
+			"channel": NetworkTime._channel_manager.get_channel()
+		})
+		rpc_config("_ack_full_state", {
+			"rpc_mode": 3,
+			"transfer_mode": 0,
+			"call_local": false,
+			"channel": NetworkTime._channel_manager.get_channel()
+		})
+		rpc_config("_ack_diff_state", {
+			"rpc_mode": 3,
+			"transfer_mode": 2,
+			"call_local": false,
+			"channel": NetworkTime._channel_manager.get_channel()
+		})
+	else:
+		rpc_config("_submit_inputs", {
+			"rpc_mode": 3,
+			"transfer_mode": 1,
+			"call_local": false,
+		})
+		rpc_config("_submit_full_state", {
+			"rpc_mode": 3,
+			"transfer_mode": 2,
+			"call_local": false,
+		})
+		rpc_config("_submit_diff_state", {
+			"rpc_mode": 3,
+			"transfer_mode": 2,
+			"call_local": false,
+		})
+		rpc_config("_ack_full_state", {
+			"rpc_mode": 3,
+			"transfer_mode": 0,
+			"call_local": false,
+		})
+		rpc_config("_ack_diff_state", {
+			"rpc_mode": 3,
+			"transfer_mode": 2,
+			"call_local": false,
+		})
+
 	_connect_signals.call_deferred()
 	process_settings.call_deferred()
 
@@ -596,7 +655,6 @@ func _sanitize_by_authority(snapshot: Dictionary, sender: int) -> Dictionary:
 	
 	return sanitized
 
-@rpc("any_peer", "unreliable", "call_remote")
 func _submit_inputs(inputs: Array, tick: int):
 	if not _is_initialized:
 		# Settings not processed yet
@@ -629,7 +687,6 @@ func _submit_inputs(inputs: Array, tick: int):
 		else:
 			_logger.warning("Received invalid input from %s for tick %s for %s" % [sender, tick, root.name])
 
-@rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_full_state(state: Dictionary, tick: int):
 	if not _is_initialized:
 		# Settings not processed yet
@@ -654,7 +711,6 @@ func _submit_full_state(state: Dictionary, tick: int):
 	if NetworkRollback.enable_diff_states:
 		_ack_full_state.rpc_id(sender, tick)
 
-@rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 	if not _is_initialized:
 		# Settings not processed yet
@@ -693,14 +749,12 @@ func _submit_diff_state(diff_state: Dictionary, tick: int, reference_tick: int):
 			_ack_diff_state.rpc_id(sender, tick)
 			_next_diff_ack_tick = tick + diff_ack_interval
 
-@rpc("any_peer", "reliable", "call_remote")
 func _ack_full_state(tick: int):
 	var sender_id := multiplayer.get_remote_sender_id()
 	_ackd_state[sender_id] = tick
 	
 	_logger.trace("Peer %d ack'd full state for tick %d", [sender_id, tick])
 
-@rpc("any_peer", "unreliable_ordered", "call_remote")
 func _ack_diff_state(tick: int):
 	var sender_id := multiplayer.get_remote_sender_id()
 	_ackd_state[sender_id] = tick
