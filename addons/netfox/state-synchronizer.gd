@@ -12,6 +12,10 @@ class_name StateSynchronizer
 ## The root node for resolving node paths in properties.
 @export var root: Node
 
+## Controls how often state updates are sent (0 = every tick). Higher values = less frequent updates.
+@export_range(0, 100,1,"or_greater") var update_frequency_dial: float = 0
+var _tick_counter: int = 0
+
 ## Properties to record and broadcast.
 @export var properties: Array[String]
 
@@ -85,9 +89,11 @@ func _exit_tree():
 
 func _after_tick(_dt, tick):
 	if is_multiplayer_authority():
-		# Submit snapshot
-		var state = PropertySnapshot.extract(_property_entries)
-		_submit_state.rpc(state, tick)
+		_tick_counter += 1
+		if int(update_frequency_dial) == 0 or _tick_counter % int(update_frequency_dial) == 0:
+			# Submit snapshot
+			var state = PropertySnapshot.extract(_property_entries)
+			_submit_state.rpc(state, tick)
 	else:
 		# Apply last received state
 		PropertySnapshot.apply(_last_received_state, _property_cache)
