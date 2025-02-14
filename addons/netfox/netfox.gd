@@ -122,6 +122,19 @@ var SETTINGS = [
 		"name": "netfox/events/enabled",
 		"value": true,
 		"type": TYPE_BOOL
+	},
+	# Channel Manager settings
+	{
+		"name": "netfox/channel_manager/enabled",
+		"value": true,
+		"type": TYPE_BOOL
+	},
+	{
+		"name": "netfox/channel_manager/channel_limit",
+		"value": 50,
+		"type": TYPE_INT,
+		"hint": PROPERTY_HINT_RANGE,
+		"hint_string": "1,100,or_greater"
 	}
 ]
 
@@ -145,6 +158,10 @@ const AUTOLOADS = [
 	{
 		"name": "NetworkPerformance",
 		"path": ROOT + "/network-performance.gd"
+	},
+	{
+		"name": "ChannelManager",
+		"path": ROOT + "/channel-manager.gd"
 	}
 ]
 
@@ -178,6 +195,7 @@ func _enter_tree():
 	
 	for type in TYPES:
 		add_custom_type(type.name, type.base, load(type.script), load(type.icon))
+	
 
 func _exit_tree():
 	if ProjectSettings.get_setting("netfox/general/clear_settings", false):

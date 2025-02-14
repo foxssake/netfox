@@ -73,6 +73,20 @@ func _disconnect_signals():
 func _enter_tree():
 	if Engine.is_editor_hint():
 		return
+	
+	if ChannelManager.is_enabled():
+		rpc_config("_submit_state", {
+			"rpc_mode": 3,
+			"transfer_mode": 2,
+			"call_local": false,
+			"channel": NetworkTime._channel_manager.get_channel()
+		})
+	else:
+		rpc_config("_submit_state", {
+			"rpc_mode": 3,
+			"transfer_mode": 2,
+			"call_local": false,
+		})
 
 	_connect_signals.call_deferred()
 	process_settings.call_deferred()
@@ -99,7 +113,6 @@ func _reprocess_settings():
 	_properties_dirty = false
 	process_settings()
 
-@rpc("authority", "unreliable", "call_remote")
 func _submit_state(state: Dictionary, tick: int):
 	if tick <= _last_received_tick:
 		return

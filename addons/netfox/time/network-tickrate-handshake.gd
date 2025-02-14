@@ -59,6 +59,19 @@ func stop() -> void:
 
 func _ready() -> void:
 	name = "NetworkTickrateHandshake"
+	if NetworkTime._channel_manager.is_enabled():
+		rpc_config("_submit_tickrate", {
+			"rpc_mode": 3,  # MultiplayerAPI.RPC_MODE_AUTHORITY
+			"transfer_mode": 2,  # MultiplayerPeer.TRANSFER_MODE_RELIABLE
+			"call_local": false,
+			"channel": NetworkTime._channel_manager.get_channel()
+		})
+	else:
+		rpc_config("_submit_tickrate", {
+			"rpc_mode": 3,
+			"transfer_mode": 2,
+			"call_local": false,
+		})
 
 func _handle_new_peer(peer: int):
 	if multiplayer.is_server():
@@ -89,7 +102,6 @@ func _handle_tickrate_mismatch(peer: int, tickrate: int) -> void:
 		SIGNAL:
 			on_tickrate_mismatch.emit(peer, tickrate)
 
-@rpc("any_peer", "reliable", "call_remote")
 func _submit_tickrate(tickrate: int) -> void:
 	var sender = multiplayer.get_remote_sender_id()
 	_logger.debug("Received tickrate %d from peer %d", [tickrate, sender])
