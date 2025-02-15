@@ -20,6 +20,9 @@ func set_value(property_path: String, data: Variant):
 func get_value(property_path: String) -> Variant:
 	return _snapshot[property_path]
 
+func properties() -> Array:
+	return _snapshot.keys()
+
 func size() -> int:
 	return _snapshot.size()
 
@@ -51,9 +54,9 @@ func merge(data: _PropertyStoreSnapshot) -> _PropertyStoreSnapshot:
 func make_patch(data: _PropertyStoreSnapshot) -> _PropertyStoreSnapshot:
 	var result: Dictionary = {}
 
-	for property_path in data.as_dictionary():
-		var old_property = _snapshot.get(property_path)
-		var new_property = data.get(property_path)
+	for property_path in data.properties():
+		var old_property = get_value(property_path)
+		var new_property = data.get_value(property_path)
 
 		if old_property != new_property:
 			result[property_path] = new_property

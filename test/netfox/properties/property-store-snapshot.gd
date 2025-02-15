@@ -18,7 +18,7 @@ func test_diff_should_be_empty():
 	var expected := _PropertyStoreSnapshot.from_dictionary({})
 
 	# When
-	var actual := to.make_patch(from)
+	var actual := from.make_patch(to)
 
 	# Then
 	expect_equal(actual.as_dictionary(), expected.as_dictionary())
@@ -39,7 +39,7 @@ func test_diff_should_add_unknown():
 	})
 
 	# When
-	var actual := to.make_patch(from)
+	var actual := from.make_patch(to)
 
 	# Then
 	expect_equal(actual.as_dictionary(), expected.as_dictionary())
@@ -61,7 +61,7 @@ func test_diff_should_add_differing():
 	})
 
 	# When
-	var actual := to.make_patch(from)
+	var actual := from.make_patch(to)
 
 	# Then
 	expect_equal(actual.as_dictionary(), expected.as_dictionary())
@@ -80,7 +80,7 @@ func test_diff_should_exclude_removed():
 	var expected := _PropertyStoreSnapshot.from_dictionary({})
 
 	# When
-	var actual := to.make_patch(from)
+	var actual := from.make_patch(to)
 
 	# Then
 	expect_equal(actual.as_dictionary(), expected.as_dictionary())
