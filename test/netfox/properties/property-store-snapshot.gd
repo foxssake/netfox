@@ -6,13 +6,13 @@ func get_suite_name() -> String:
 func test_diff_should_be_empty():
 	# Given
 	var from := _PropertyStoreSnapshot.from_dictionary({
-		"foo": { 0: "foo", 1: 15 },
-		"bar": { 0: "bar", 1: 18 },
+		"foo": 15,
+		"bar": 18,
 	})
 
 	var to := _PropertyStoreSnapshot.from_dictionary({
-		"foo": { 0: "foo", 1: 15 },
-		"bar": { 0: "bar", 1: 18 },
+		"foo": 15,
+		"bar": 18,
 	})
 
 	var expected := _PropertyStoreSnapshot.from_dictionary({})
@@ -26,16 +26,16 @@ func test_diff_should_be_empty():
 func test_diff_should_add_unknown():
 	# Given
 	var from := _PropertyStoreSnapshot.from_dictionary({
-		"foo": { 0: "foo", 1: 15 }
+		"foo": 15,
 	})
 
 	var to := _PropertyStoreSnapshot.from_dictionary({
-		"foo": { 0: "foo", 1: 15 },
-		"bar": { 0: "bar", 1: 18 },
+		"foo": 15,
+		"bar": 18,
 	})
 
 	var expected := _PropertyStoreSnapshot.from_dictionary({
-		"bar": { 0: "bar", 1: 18 }
+		"bar": 18,
 	})
 
 	# When
@@ -47,17 +47,17 @@ func test_diff_should_add_unknown():
 func test_diff_should_add_differing():
 	# Given
 	var from := _PropertyStoreSnapshot.from_dictionary({
-		"foo": { 0: "foo", 1: 15 },
-		"bar": { 0: "bar", 1: 18 },
+		"foo": 15,
+		"bar": 18,
 	})
 
 	var to := _PropertyStoreSnapshot.from_dictionary({
-		"foo": { 0: "foo", 1: 35 },
-		"bar": { 0: "bar", 1: 18 },
+		"foo": 35,
+		"bar": 18,
 	})
 
 	var expected := _PropertyStoreSnapshot.from_dictionary({
-		"foo": { 0: "foo", 1: 35 },
+		"foo": 35
 	})
 
 	# When
@@ -69,12 +69,12 @@ func test_diff_should_add_differing():
 func test_diff_should_exclude_removed():
 	# Given
 	var from := _PropertyStoreSnapshot.from_dictionary({
-		"foo": { 0: "foo", 1: 15 },
-		"bar": { 0: "bar", 1: 18 },
+		"foo": 15,
+		"bar": 18,
 	})
 
 	var to := _PropertyStoreSnapshot.from_dictionary({
-		"foo": { 0: "foo", 1: 15 },
+		"foo": 15,
 	})
 
 	var expected := _PropertyStoreSnapshot.from_dictionary({})
