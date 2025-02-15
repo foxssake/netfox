@@ -50,23 +50,23 @@ func merge(data: _PropertyStoreSnapshot) -> _PropertyStoreSnapshot:
 
 func make_patch(data: _PropertyStoreSnapshot) -> _PropertyStoreSnapshot:
 	var result: Dictionary = {}
-	
+
 	for property_path in data.as_dictionary():
 		var old_property = _snapshot.get(property_path)
 		var new_property = data.get(property_path)
-		
+
 		if old_property != new_property:
 			result[property_path] = new_property
-	
+
 	return _PropertyStoreSnapshot.from_dictionary(result)
 
 func sanitize(sender: int, property_cache: PropertyCache) -> bool:
 	var sanitized := {}
-	
+
 	for property in _snapshot.keys():
 		var property_entry := property_cache.get_entry(property)
 		var authority = property_entry.node.get_multiplayer_authority()
-		
+
 		if authority == sender:
 			sanitized[property] = _snapshot[property]
 		else:
@@ -74,9 +74,9 @@ func sanitize(sender: int, property_cache: PropertyCache) -> bool:
 				"Received data for property %s, owned by %s, from sender %s",
 				[ property, authority, sender ]
 			)
-	
+
 	if sanitized.is_empty():
 		return false
-		
+
 	_snapshot = sanitized
 	return true
