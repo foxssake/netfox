@@ -20,7 +20,7 @@ var _property_entries: Array[PropertyEntry]
 var _properties_dirty: bool = false
 
 var _last_received_tick: int = -1
-var _last_received_state: _PropertyStoreSnapshot = _PropertyStoreSnapshot.new()
+var _last_received_state: _PropertySnapshot = _PropertySnapshot.new()
 
 ## Process settings.
 ## [br][br]
@@ -86,7 +86,7 @@ func _exit_tree():
 func _after_tick(_dt, tick):
 	if is_multiplayer_authority():
 		# Submit snapshot
-		var state := _PropertyStoreSnapshot.extract(_property_entries)
+		var state := _PropertySnapshot.extract(_property_entries)
 		_submit_state.rpc(state.as_dictionary(), tick)
 	else:
 		# Apply last received state
@@ -104,5 +104,5 @@ func _submit_state(state: Dictionary, tick: int):
 	if tick <= _last_received_tick:
 		return
 
-	_last_received_state = _PropertyStoreSnapshot.from_dictionary(state)
+	_last_received_state = _PropertySnapshot.from_dictionary(state)
 	_last_received_tick = tick

@@ -1,35 +1,86 @@
-extends Object
-class_name PropertySnapshot
+extends RefCounted
+class_name _PropertySnapshot
 
-static func extract(properties: Array[PropertyEntry]) -> Dictionary:
+# Maps property paths to their values
+# Dictionary[String, Variant]
+var _snapshot: Dictionary = {}
+
+static var _logger := _NetfoxLogger.for_netfox("PropertyStoreSnapshot")
+
+func as_dictionary() -> Dictionary:
+	return _snapshot.duplicate()
+
+static func from_dictionary(data: Dictionary) -> _PropertySnapshot:
+	return _PropertySnapshot.new(data)
+
+func set_value(property_path: String, data: Variant):
+	_snapshot[property_path] = data
+
+func get_value(property_path: String) -> Variant:
+	return _snapshot[property_path]
+
+func properties() -> Array:
+	return _snapshot.keys()
+
+func has(property_path: String) -> bool:
+	return _snapshot.has(property_path)
+
+func size() -> int:
+	return _snapshot.size()
+
+func equals(other: _PropertySnapshot):
+	return _snapshot == other._snapshot
+
+func is_empty() -> bool:
+	return _snapshot.is_empty()
+
+static func extract(properties: Array[PropertyEntry]) -> _PropertySnapshot:
 	var result = {}
 	for property in properties:
 		result[property.to_string()] = property.get_value()
-	result.make_read_only()
-	return result
+	return _PropertySnapshot.from_dictionary(result)
 
-static func apply(properties: Dictionary, cache: PropertyCache):
-	for property_path in properties:
+func apply(cache: PropertyCache):
+	for property_path in _snapshot:
 		var property_entry = cache.get_entry(property_path)
-		var value = properties[property_path]
+		var value = _snapshot[property_path]
 		property_entry.set_value(value)
 
-static func merge(a: Dictionary, b: Dictionary) -> Dictionary:
-	var result = {}
-	for key in a:
-		result[key] = a[key]
-	for key in b:
-		result[key] = b[key]
-	return result
+func merge(data: _PropertySnapshot) -> _PropertySnapshot:
+	var result = _snapshot.duplicate()
+	for key in data.as_dictionary():
+		result[key] = data._snapshot[key]
+	#_snapshot = result
+	return _PropertySnapshot.from_dictionary(result)
 
-static func make_patch(a: Dictionary, b: Dictionary) -> Dictionary:
+func make_patch(data: _PropertySnapshot) -> _PropertySnapshot:
 	var result: Dictionary = {}
 
-	for property_path in b:
-		var va = a.get(property_path)
-		var vb = b.get(property_path)
+	for property_path in data.properties():
+		var old_property = get_value(property_path)
+		var new_property = data.get_value(property_path)
 
-		if va != vb:
-			result[property_path] = vb
+		if old_property != new_property:
+			result[property_path] = new_property
 
-	return result
+	return _PropertySnapshot.from_dictionary(result)
+
+func sanitize(sender: int, property_cache: PropertyCache):
+	var sanitized := {}
+
+	for property in _snapshot.keys():
+		var property_entry := property_cache.get_entry(property)
+		var authority = property_entry.node.get_multiplayer_authority()
+
+		if authority == sender:
+			sanitized[property] = _snapshot[property]
+		else:
+			_logger.warning(
+				"Received data for property %s, owned by %s, from sender %s",
+				[ property, authority, sender ]
+			)
+
+	_snapshot = sanitized
+
+func _init(p_snapshot: Dictionary = {}):
+	_snapshot = p_snapshot

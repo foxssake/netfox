@@ -408,7 +408,7 @@ func _process_tick(tick: int):
 func _record_tick(tick: int):
 	# Broadcast state we own
 	if not _auth_state_property_entries.is_empty() and not _is_predicted_tick:
-		var full_state := _PropertyStoreSnapshot.new()
+		var full_state := _PropertySnapshot.new()
 
 		for property in _auth_state_property_entries:
 			if _can_simulate(property.node, tick - 1) \
@@ -480,7 +480,7 @@ func _record_tick(tick: int):
 	# was mutated
 	if not _record_state_property_entries.is_empty() and (tick > _latest_state_tick or is_mutated):
 		if _skipset.is_empty():
-			_states.set_snapshot(tick, _PropertyStoreSnapshot.extract(_record_state_property_entries))
+			_states.set_snapshot(tick, _PropertySnapshot.extract(_record_state_property_entries))
 		else:
 			var record_properties = _record_state_property_entries\
 				.filter(func(pe): return \
@@ -488,7 +488,7 @@ func _record_tick(tick: int):
 					NetworkRollback.is_mutated(pe.node, tick - 1))
 
 			var merge_state = _states.get_history(tick - 1)
-			var record_state = _PropertyStoreSnapshot.extract(record_properties)
+			var record_state = _PropertySnapshot.extract(record_properties)
 
 			_states.set_snapshot(tick, merge_state.merge(record_state))
 
@@ -510,12 +510,12 @@ func _before_tick(_delta, tick):
 func _after_tick(_delta, _tick):
 	# Record input
 	if not _record_input_property_entries.is_empty():
-		var input = _PropertyStoreSnapshot.extract(_record_input_property_entries)
+		var input = _PropertySnapshot.extract(_record_input_property_entries)
 		var input_tick: int = _tick + NetworkRollback.input_delay
 		_inputs.set_snapshot(input_tick, input)
 
 		# Send the last n inputs for each property
-		var inputs: Array[_PropertyStoreSnapshot] = []
+		var inputs: Array[_PropertySnapshot] = []
 		for i in range(0, mini(NetworkRollback.input_redundancy, _inputs.size())):
 			var tick := input_tick - i
 			inputs.append(_inputs.get_snapshot(tick))
@@ -526,7 +526,7 @@ func _after_tick(_delta, _tick):
 	_inputs.trim()
 	_freshness_store.trim()
 
-func _attempt_submit_inputs(inputs: Array[_PropertyStoreSnapshot], input_tick: int):
+func _attempt_submit_inputs(inputs: Array[_PropertySnapshot], input_tick: int):
 
 	var serialized_inputs : Array[Dictionary] = []
 	for input in inputs:
@@ -551,10 +551,10 @@ func _submit_inputs(serialized_inputs: Array, tick: int):
 		# Settings not processed yet
 		return
 
-	var inputs : Array[_PropertyStoreSnapshot] = []
+	var inputs : Array[_PropertySnapshot] = []
 
 	for input in serialized_inputs:
-		inputs.push_back(_PropertyStoreSnapshot.from_dictionary(input))
+		inputs.push_back(_PropertySnapshot.from_dictionary(input))
 
 	var sender = multiplayer.get_remote_sender_id()
 
@@ -585,14 +585,14 @@ func _submit_inputs(serialized_inputs: Array, tick: int):
 			_earliest_input_tick = mini(_earliest_input_tick, input_tick)
 
 
-# `serialized_state` is a serialized _PropertyStoreSnapshot
+# `serialized_state` is a serialized _PropertySnapshot
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_full_state(serialized_state: Dictionary, tick: int):
 	if not _is_initialized:
 		# Settings not processed yet
 		return
 
-	var state := _PropertyStoreSnapshot.from_dictionary(serialized_state)
+	var state := _PropertySnapshot.from_dictionary(serialized_state)
 
 	if tick < NetworkRollback.history_start:
 		# State too old!
@@ -613,14 +613,14 @@ func _submit_full_state(serialized_state: Dictionary, tick: int):
 	if NetworkRollback.enable_diff_states:
 		_ack_full_state.rpc_id(sender, tick)
 
-# State is a serialized _PropertyStoreSnapshot (Dictionary[String, Variant])
+# State is a serialized _PropertySnapshot (Dictionary[String, Variant])
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_diff_state(serialized_diff_state: Dictionary, tick: int, reference_tick: int):
 	if not _is_initialized:
 		# Settings not processed yet
 		return
 
-	var diff_state := _PropertyStoreSnapshot.from_dictionary(serialized_diff_state)
+	var diff_state := _PropertySnapshot.from_dictionary(serialized_diff_state)
 
 	if tick < NetworkTime.tick - NetworkRollback.history_limit:
 		# State too old!

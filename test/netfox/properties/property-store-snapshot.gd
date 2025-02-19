@@ -5,17 +5,17 @@ func get_suite_name() -> String:
 
 func test_diff_should_be_empty():
 	# Given
-	var from := _PropertyStoreSnapshot.from_dictionary({
+	var from := _PropertySnapshot.from_dictionary({
 		"foo": 15,
 		"bar": 18,
 	})
 
-	var to := _PropertyStoreSnapshot.from_dictionary({
+	var to := _PropertySnapshot.from_dictionary({
 		"foo": 15,
 		"bar": 18,
 	})
 
-	var expected := _PropertyStoreSnapshot.from_dictionary({})
+	var expected := _PropertySnapshot.from_dictionary({})
 
 	# When
 	var actual := from.make_patch(to)
@@ -25,16 +25,16 @@ func test_diff_should_be_empty():
 
 func test_diff_should_add_unknown():
 	# Given
-	var from := _PropertyStoreSnapshot.from_dictionary({
+	var from := _PropertySnapshot.from_dictionary({
 		"foo": 15,
 	})
 
-	var to := _PropertyStoreSnapshot.from_dictionary({
+	var to := _PropertySnapshot.from_dictionary({
 		"foo": 15,
 		"bar": 18,
 	})
 
-	var expected := _PropertyStoreSnapshot.from_dictionary({
+	var expected := _PropertySnapshot.from_dictionary({
 		"bar": 18,
 	})
 
@@ -46,17 +46,17 @@ func test_diff_should_add_unknown():
 
 func test_diff_should_add_differing():
 	# Given
-	var from := _PropertyStoreSnapshot.from_dictionary({
+	var from := _PropertySnapshot.from_dictionary({
 		"foo": 15,
 		"bar": 18,
 	})
 
-	var to := _PropertyStoreSnapshot.from_dictionary({
+	var to := _PropertySnapshot.from_dictionary({
 		"foo": 35,
 		"bar": 18,
 	})
 
-	var expected := _PropertyStoreSnapshot.from_dictionary({
+	var expected := _PropertySnapshot.from_dictionary({
 		"foo": 35
 	})
 
@@ -68,16 +68,16 @@ func test_diff_should_add_differing():
 
 func test_diff_should_exclude_removed():
 	# Given
-	var from := _PropertyStoreSnapshot.from_dictionary({
+	var from := _PropertySnapshot.from_dictionary({
 		"foo": 15,
 		"bar": 18,
 	})
 
-	var to := _PropertyStoreSnapshot.from_dictionary({
+	var to := _PropertySnapshot.from_dictionary({
 		"foo": 15,
 	})
 
-	var expected := _PropertyStoreSnapshot.from_dictionary({})
+	var expected := _PropertySnapshot.from_dictionary({})
 
 	# When
 	var actual := from.make_patch(to)

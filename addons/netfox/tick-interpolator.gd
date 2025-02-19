@@ -25,8 +25,8 @@ class_name TickInterpolator
 ## whenever properties are updated.
 @export var enable_recording: bool = true
 
-var _state_from: _PropertyStoreSnapshot
-var _state_to: _PropertyStoreSnapshot
+var _state_from: _PropertySnapshot
+var _state_to: _PropertySnapshot
 var _property_entries: Array[PropertyEntry] = []
 var _properties_dirty: bool = false
 var _interpolators: Dictionary = {}
@@ -42,8 +42,8 @@ func process_settings():
 	_property_entries.clear()
 	_interpolators.clear()
 
-	_state_from = _PropertyStoreSnapshot.new()
-	_state_to = _PropertyStoreSnapshot.new()
+	_state_from = _PropertySnapshot.new()
+	_state_to = _PropertySnapshot.new()
 
 	for property in properties:
 		var property_entry = _property_cache.get_entry(property)
@@ -78,14 +78,14 @@ func can_interpolate() -> bool:
 ## [code]enable_recording[/code] is true.
 func push_state():
 	_state_from = _state_to
-	_state_to = _PropertyStoreSnapshot.extract(_property_entries)
+	_state_to = _PropertySnapshot.extract(_property_entries)
 
 ## Record current state and transition without interpolation.
 func teleport():
 	if _is_teleporting:
 		return
 
-	_state_from = _PropertyStoreSnapshot.extract(_property_entries)
+	_state_from = _PropertySnapshot.extract(_property_entries)
 	_state_to = _state_from
 	_is_teleporting = true
 
@@ -154,7 +154,7 @@ func _after_tick_loop():
 		push_state()
 		_state_from.apply(_property_cache)
 
-func _interpolate(from: _PropertyStoreSnapshot, to: _PropertyStoreSnapshot, f: float):
+func _interpolate(from: _PropertySnapshot, to: _PropertySnapshot, f: float):
 	if not can_interpolate():
 		return
 
