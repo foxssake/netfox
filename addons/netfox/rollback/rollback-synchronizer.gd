@@ -572,9 +572,9 @@ func _submit_inputs(serialized_inputs: Array, tick: int):
 			_logger.error("Null input received for %d, full batch is %s", [input_tick, serialized_inputs])
 			continue
 
-		var sanitize_success := input.sanitize(sender, _property_cache)
+		input.sanitize(sender, _property_cache)
 
-		if not sanitize_success:
+		if input.is_empty():
 			_logger.warning("Received invalid input from %s for tick %s for %s" % [sender, tick, root.name])
 			return
 
@@ -600,9 +600,9 @@ func _submit_full_state(serialized_state: Dictionary, tick: int):
 		return
 
 	var sender = multiplayer.get_remote_sender_id()
-	var sanitize_success := state.sanitize(sender, _property_cache)
+	state.sanitize(sender, _property_cache)
 
-	if not sanitize_success:
+	if state.is_empty():
 		# State is completely invalid
 		_logger.warning("Received invalid state from %s for tick %s", [sender, tick])
 		return
@@ -639,16 +639,16 @@ func _submit_diff_state(serialized_diff_state: Dictionary, tick: int, reference_
 		_latest_state_tick = tick
 		_states.merge(reference_state, tick)
 	else:
-		var sanitize_success := diff_state.sanitize(sender, _property_cache)
+		diff_state.sanitize(sender, _property_cache)
 
-		if sanitize_success:
-			var result_state := reference_state.merge(diff_state)
-			_states.set_snapshot(tick, result_state)
-			_latest_state_tick = tick
-		else:
+		if diff_state.is_empty():
 			# State is completely invalid
 			_logger.warning("Received invalid state from %s for tick %s", [sender, tick])
 			is_valid_state = false
+		else:
+			var result_state := reference_state.merge(diff_state)
+			_states.set_snapshot(tick, result_state)
+			_latest_state_tick = tick
 
 	if NetworkRollback.enable_diff_states:
 		if is_valid_state and diff_ack_interval > 0 and tick > _next_diff_ack_tick:

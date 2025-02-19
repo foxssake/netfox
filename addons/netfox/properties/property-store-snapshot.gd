@@ -1,4 +1,5 @@
-class_name _PropertyStoreSnapshot extends RefCounted
+extends RefCounted
+class_name _PropertyStoreSnapshot
 
 # Maps property paths to their values
 # Dictionary[String, Variant]
@@ -63,7 +64,7 @@ func make_patch(data: _PropertyStoreSnapshot) -> _PropertyStoreSnapshot:
 
 	return _PropertyStoreSnapshot.from_dictionary(result)
 
-func sanitize(sender: int, property_cache: PropertyCache) -> bool:
+func sanitize(sender: int, property_cache: PropertyCache):
 	var sanitized := {}
 
 	for property in _snapshot.keys():
@@ -78,8 +79,4 @@ func sanitize(sender: int, property_cache: PropertyCache) -> bool:
 				[ property, authority, sender ]
 			)
 
-	if sanitized.is_empty():
-		return false
-
 	_snapshot = sanitized
-	return true
