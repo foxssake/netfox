@@ -41,7 +41,7 @@ var full_state_interval: int = 24
 ## more often acknowledging received states. To avoid introducing hickups, these
 ## are sent unreliably.
 ## [br][br]
-## If set to 0, diff states will never be acknowledged. If set to 1, all diff 
+## If set to 0, diff states will never be acknowledged. If set to 1, all diff
 ## states will be acknowledged. If set higher, ack's will be sent regularly, but
 ## not for every diff state.
 ## [br][br]
@@ -108,7 +108,7 @@ func process_settings():
 
 	_nodes.clear()
 	_record_state_property_entries.clear()
-	
+
 	_states.clear()
 	_inputs.clear()
 	_ackd_state.clear()
@@ -129,7 +129,7 @@ func process_settings():
 	for property in state_properties:
 		var property_entry = _property_cache.get_entry(property)
 		_record_state_property_entries.push_back(property_entry)
-	
+
 	process_authority()
 
 	# Gather all rollback-aware nodes to simulate during rollbacks
@@ -137,7 +137,7 @@ func process_settings():
 	_nodes.push_front(root)
 	_nodes = _nodes.filter(func(it): return NetworkRollback.is_rollback_aware(it))
 	_nodes.erase(self)
-	
+
 	_is_initialized = true
 
 ## Process settings based on authority.
@@ -168,7 +168,7 @@ func process_authority():
 ## Add a state property.
 ## [br][br]
 ## Settings will be automatically updated. The [param node] may be a string or
-## [NodePath] pointing to a node, or an actual [Node] instance. If the given 
+## [NodePath] pointing to a node, or an actual [Node] instance. If the given
 ## property is already tracked, this method does nothing.
 func add_state(node: Variant, property: String):
 	var property_path := PropertyEntry.make_path(root, node, property)
@@ -182,7 +182,7 @@ func add_state(node: Variant, property: String):
 ## Add an input property.
 ## [br][br]
 ## Settings will be automatically updated. The [param node] may be a string or
-## [NodePath] pointing to a node, or an actual [Node] instance. If the given 
+## [NodePath] pointing to a node, or an actual [Node] instance. If the given
 ## property is already tracked, this method does nothing.
 func add_input(node: Variant, property: String):
 	var property_path := PropertyEntry.make_path(root, node, property)
@@ -271,8 +271,8 @@ func _ready():
 	# Dummy states to parse for first inputs before our first real input
 	# Empty inputs don't change any properties
 	for i in NetworkRollback.input_delay:
-		_inputs.set_snapshot({}, NetworkTime.tick + i)
-	
+		_inputs.set_snapshot(NetworkTime.tick + i, {})
+
 	process_settings.call_deferred()
 
 func _connect_signals():
@@ -304,24 +304,24 @@ func _get_configuration_warnings():
 	# Explore state and input properties
 	if not root:
 		return ["No valid root node found!"]
-	
+
 	var result = []
 	result.append_array(_NetfoxEditorUtils.gather_properties(root, "_get_rollback_state_properties",
 		func(node, prop):
 			add_state(node, prop)
 	))
-	
+
 	result.append_array(_NetfoxEditorUtils.gather_properties(root, "_get_rollback_input_properties",
 		func(node, prop):
 			add_input(node, prop)
 	))
-	
+
 	return result
 
 func _enter_tree():
 	if Engine.is_editor_hint():
 		return
-	
+
 	if not NetworkTime.is_initial_sync_done():
 		# Wait for time sync to complete
 		await NetworkTime.after_sync
@@ -331,7 +331,7 @@ func _enter_tree():
 func _exit_tree():
 	if Engine.is_editor_hint():
 		return
-	
+
 	_is_initialized = false
 	_disconnect_signals()
 
@@ -350,7 +350,7 @@ func _prepare_tick(tick: int):
 	var retrieved_tick := _inputs.get_closest_tick(tick)
 	var state := _states.get_history(tick)
 	var input := _inputs.get_history(tick)
-	
+
 	state.apply(_property_cache)
 	input.apply(_property_cache)
 
@@ -358,11 +358,11 @@ func _prepare_tick(tick: int):
 	_has_input = retrieved_tick != -1
 	_input_tick = retrieved_tick
 	_is_predicted_tick = not _inputs.has(tick)
-	
+
 	# Reset the set of simulated and ignored nodes
 	_simset.clear()
 	_skipset.clear()
-	
+
 	# Gather nodes that can be simulated
 	for node in _nodes:
 		if _can_simulate(node, tick):
@@ -418,18 +418,18 @@ func _record_tick(tick: int):
 				# NOTE: _can_simulate checks mutations, but to override _skipset
 				# we check a second time
 				full_state.set_value(property.to_string(), property.get_value())
-			
+
 		_on_transmit_state.emit(full_state, tick)
 
 		if full_state.size() > 0:
 			_latest_state_tick = max(_latest_state_tick, tick)
-			
+
 			_states.merge(full_state, tick)
-			
+
 			if not NetworkRollback.enable_diff_states:
 				# Broadcast new full state
 				_submit_full_state.rpc(full_state.as_dictionary(), tick)
-				
+
 				NetworkPerformance.push_full_state_broadcast(full_state.as_dictionary())
 				NetworkPerformance.push_sent_state_broadcast(full_state.as_dictionary())
 			elif full_state_interval > 0 and tick > _next_full_state_tick:
@@ -437,30 +437,30 @@ func _record_tick(tick: int):
 				_logger.trace("Broadcasting full state for tick %d", [tick])
 				_submit_full_state.rpc(full_state.as_dictionary(), tick)
 				_next_full_state_tick = tick + full_state_interval
-				
+
 				NetworkPerformance.push_full_state_broadcast(full_state.as_dictionary())
 				NetworkPerformance.push_sent_state_broadcast(full_state.as_dictionary())
 			else:
 				for peer in multiplayer.get_peers():
 					NetworkPerformance.push_full_state(full_state.as_dictionary())
-					
+
 					# Peer hasn't received a full state yet, can't send diffs
 					if not _ackd_state.has(peer):
 						_submit_full_state.rpc_id(peer, full_state.as_dictionary(), tick)
 						NetworkPerformance.push_sent_state(full_state.as_dictionary())
 						continue
-					
+
 					# History doesn't have reference tick?
 					var reference_tick = _ackd_state[peer]
 					if not _states.has(reference_tick):
 						_submit_full_state.rpc_id(peer, full_state.as_dictionary(), tick)
 						NetworkPerformance.push_sent_state(full_state.as_dictionary())
 						continue
-					
+
 					# Prepare diff and send
 					var reference_state = _states.get_history(reference_tick)
 					var diff_state = reference_state.make_patch(full_state)
-					
+
 					if diff_state.size() == full_state.size():
 						# State is completely different, send full state
 						_submit_full_state.rpc_id(peer, full_state.as_dictionary(), tick)
@@ -471,7 +471,7 @@ func _record_tick(tick: int):
 						NetworkPerformance.push_sent_state(diff_state.as_dictionary())
 
 	# Record state for specified tick ( current + 1 )
-	
+
 	# Check if any of the managed nodes were mutated
 	var is_mutated := _record_state_property_entries.any(func(pe):
 		return NetworkRollback.is_mutated(pe.node, tick - 1))
@@ -480,18 +480,18 @@ func _record_tick(tick: int):
 	# was mutated
 	if not _record_state_property_entries.is_empty() and (tick > _latest_state_tick or is_mutated):
 		if _skipset.is_empty():
-			_states.set_snapshot(_PropertyStoreSnapshot.extract(_record_state_property_entries), tick)
+			_states.set_snapshot(tick, _PropertyStoreSnapshot.extract(_record_state_property_entries))
 		else:
 			var record_properties = _record_state_property_entries\
 				.filter(func(pe): return \
 					not _skipset.has(pe.node) or \
 					NetworkRollback.is_mutated(pe.node, tick - 1))
-			
+
 			var merge_state = _states.get_history(tick - 1)
 			var record_state = _PropertyStoreSnapshot.extract(record_properties)
-			
-			_states.set_snapshot(merge_state.merge(record_state), tick)
-	
+
+			_states.set_snapshot(tick, merge_state.merge(record_state))
+
 	# Push metrics
 	NetworkPerformance.push_rollback_nodes_simulated(_simset.size())
 
@@ -512,7 +512,7 @@ func _after_tick(_delta, _tick):
 	if not _record_input_property_entries.is_empty():
 		var input = _PropertyStoreSnapshot.extract(_record_input_property_entries)
 		var input_tick: int = _tick + NetworkRollback.input_delay
-		_inputs.set_snapshot(input, input_tick)
+		_inputs.set_snapshot(input_tick, input)
 
 		# Send the last n inputs for each property
 		var inputs: Array[_PropertyStoreSnapshot] = []
@@ -527,11 +527,11 @@ func _after_tick(_delta, _tick):
 	_freshness_store.trim()
 
 func _attempt_submit_inputs(inputs: Array[_PropertyStoreSnapshot], input_tick: int):
-	
+
 	var serialized_inputs : Array[Dictionary] = []
 	for input in inputs:
 		serialized_inputs.push_back(input.as_dictionary())
-	
+
 	# TODO: Default to input broadcast in mesh network setups
 	if enable_input_broadcast:
 		_submit_inputs.rpc(serialized_inputs, input_tick)
@@ -550,9 +550,9 @@ func _submit_inputs(serialized_inputs: Array, tick: int):
 	if not _is_initialized:
 		# Settings not processed yet
 		return
-	
+
 	var inputs : Array[_PropertyStoreSnapshot] = []
-	
+
 	for input in serialized_inputs:
 		inputs.push_back(_PropertyStoreSnapshot.from_dictionary(input))
 
@@ -571,17 +571,17 @@ func _submit_inputs(serialized_inputs: Array, tick: int):
 			# We've somehow received a null input - shouldn't happen
 			_logger.error("Null input received for %d, full batch is %s", [input_tick, serialized_inputs])
 			continue
-				
+
 		var sanitize_success := input.sanitize(sender, _property_cache)
-		
+
 		if not sanitize_success:
 			_logger.warning("Received invalid input from %s for tick %s for %s" % [sender, tick, root.name])
 			return
-		
+
 		var known_input := _inputs.get_snapshot(input_tick)
 		if not known_input.equals(input):
 			# Received a new input, save to history
-			_inputs.set_snapshot(input, input_tick)
+			_inputs.set_snapshot(input_tick, input)
 			_earliest_input_tick = mini(_earliest_input_tick, input_tick)
 
 
@@ -591,25 +591,25 @@ func _submit_full_state(serialized_state: Dictionary, tick: int):
 	if not _is_initialized:
 		# Settings not processed yet
 		return
-	
+
 	var state := _PropertyStoreSnapshot.from_dictionary(serialized_state)
-	
+
 	if tick < NetworkRollback.history_start:
 		# State too old!
 		_logger.error("Received full state for %s, rejecting because older than %s frames", [tick, NetworkRollback.history_limit])
 		return
- 
+
 	var sender = multiplayer.get_remote_sender_id()
 	var sanitize_success := state.sanitize(sender, _property_cache)
-	
+
 	if not sanitize_success:
 		# State is completely invalid
 		_logger.warning("Received invalid state from %s for tick %s", [sender, tick])
 		return
-	
+
 	_states.merge(state, tick)
 	_latest_state_tick = tick
-		
+
 	if NetworkRollback.enable_diff_states:
 		_ack_full_state.rpc_id(sender, tick)
 
@@ -619,9 +619,9 @@ func _submit_diff_state(serialized_diff_state: Dictionary, tick: int, reference_
 	if not _is_initialized:
 		# Settings not processed yet
 		return
-	
+
 	var diff_state := _PropertyStoreSnapshot.from_dictionary(serialized_diff_state)
-	
+
 	if tick < NetworkTime.tick - NetworkRollback.history_limit:
 		# State too old!
 		_logger.error("Received diff state for %s, rejecting because older than %s frames", [tick, NetworkRollback.history_limit])
@@ -632,7 +632,7 @@ func _submit_diff_state(serialized_diff_state: Dictionary, tick: int, reference_
 		_logger.warning("Reference tick %d missing for %d", [reference_tick, tick])
 
 	var sender = multiplayer.get_remote_sender_id()
-	var reference_state = _states.get_snapshot(reference_tick, {})
+	var reference_state = _states.get_snapshot(reference_tick)
 	var is_valid_state := true
 
 	if serialized_diff_state.is_empty():
@@ -643,13 +643,13 @@ func _submit_diff_state(serialized_diff_state: Dictionary, tick: int, reference_
 
 		if sanitize_success:
 			var result_state := reference_state.merge(diff_state)
-			_states.set_snapshot(result_state, tick)
+			_states.set_snapshot(tick, result_state)
 			_latest_state_tick = tick
 		else:
 			# State is completely invalid
 			_logger.warning("Received invalid state from %s for tick %s", [sender, tick])
 			is_valid_state = false
-	
+
 	if NetworkRollback.enable_diff_states:
 		if is_valid_state and diff_ack_interval > 0 and tick > _next_diff_ack_tick:
 			_ack_diff_state.rpc_id(sender, tick)
@@ -659,12 +659,12 @@ func _submit_diff_state(serialized_diff_state: Dictionary, tick: int, reference_
 func _ack_full_state(tick: int):
 	var sender_id := multiplayer.get_remote_sender_id()
 	_ackd_state[sender_id] = tick
-	
+
 	_logger.trace("Peer %d ack'd full state for tick %d", [sender_id, tick])
 
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _ack_diff_state(tick: int):
 	var sender_id := multiplayer.get_remote_sender_id()
 	_ackd_state[sender_id] = tick
-	
+
 	_logger.trace("Peer %d ack'd diff state for tick %d", [sender_id, tick])

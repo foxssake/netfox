@@ -1,7 +1,7 @@
 extends VestTest
 
 func get_suite_name() -> String:
-	return "_PropertyStoreSnapshot"
+	return "PropertyStoreSnapshot"
 
 func test_diff_should_be_empty():
 	# Given

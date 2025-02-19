@@ -13,9 +13,9 @@ func test_get_closest_tick_should_return_negative_on_empty():
 func test_get_closest_tick_should_return_earliest():
 	# Given
 	var history_buffer := _HistoryBuffer.new()
-	history_buffer.set_snapshot({}, 2)
-	history_buffer.set_snapshot({}, 4)
-	history_buffer.set_snapshot({}, 6)
+	history_buffer.set_snapshot(2, {})
+	history_buffer.set_snapshot(4, {})
+	history_buffer.set_snapshot(6, {})
 
 	# When + then
 	expect_equal(history_buffer.get_closest_tick(0), 2)
@@ -23,9 +23,9 @@ func test_get_closest_tick_should_return_earliest():
 func test_get_closest_tick_should_return_latest():
 	# Given
 	var history_buffer := _HistoryBuffer.new()
-	history_buffer.set_snapshot({}, 2)
-	history_buffer.set_snapshot({}, 4)
-	history_buffer.set_snapshot({}, 6)
+	history_buffer.set_snapshot(2, {})
+	history_buffer.set_snapshot(4, {})
+	history_buffer.set_snapshot(6, {})
 
 	# When + then
 	expect_equal(history_buffer.get_closest_tick(8), 6)
@@ -33,9 +33,9 @@ func test_get_closest_tick_should_return_latest():
 func test_get_closest_tick_should_return_exact():
 	# Given
 	var history_buffer := _HistoryBuffer.new()
-	history_buffer.set_snapshot({}, 2)
-	history_buffer.set_snapshot({}, 4)
-	history_buffer.set_snapshot({}, 6)
+	history_buffer.set_snapshot(2, {})
+	history_buffer.set_snapshot(4, {})
+	history_buffer.set_snapshot(6, {})
 
 	# When + then
 	expect_equal(history_buffer.get_closest_tick(4), 4)
@@ -43,9 +43,9 @@ func test_get_closest_tick_should_return_exact():
 func test_get_closest_tick_should_return_previous():
 	# Given
 	var history_buffer := _HistoryBuffer.new()
-	history_buffer.set_snapshot({}, 2)
-	history_buffer.set_snapshot({}, 4)
-	history_buffer.set_snapshot({}, 6)
+	history_buffer.set_snapshot(2, {})
+	history_buffer.set_snapshot(4, {})
+	history_buffer.set_snapshot(6, {})
 
 	# When + then
 	expect_equal(history_buffer.get_closest_tick(5), 4)

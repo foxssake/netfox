@@ -169,6 +169,6 @@ func _parse_history(history_string: String) -> _HistoryBuffer:
 	var result := _HistoryBuffer.new()
 	for tick in result_data.keys():
 		var snapshot := _PropertyStoreSnapshot.from_dictionary(result_data[tick])
-		result.set_snapshot(snapshot, tick)
+		result.set_snapshot(tick, snapshot)
 
 	return result
