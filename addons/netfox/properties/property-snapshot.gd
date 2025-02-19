@@ -24,12 +24,12 @@ static func merge(a: Dictionary, b: Dictionary) -> Dictionary:
 
 static func make_patch(a: Dictionary, b: Dictionary) -> Dictionary:
 	var result: Dictionary = {}
-	
+
 	for property_path in b:
 		var va = a.get(property_path)
 		var vb = b.get(property_path)
-		
+
 		if va != vb:
 			result[property_path] = vb
-	
+
 	return result
