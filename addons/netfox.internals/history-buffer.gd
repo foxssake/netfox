@@ -1,21 +1,17 @@
-class_name _HistoryBuffer extends RefCounted
+extends RefCounted
+class_name _HistoryBuffer
 
-# Maps ticks (int) to snapshots (_PropertySnapshot)
+# Maps ticks (int) to arbitrary data
 var _buffer: Dictionary = {}
 
-func get_snapshot(tick: int) -> _PropertySnapshot:
+func get_snapshot(tick: int):
 	if _buffer.has(tick):
 		return _buffer[tick]
 	else:
 		return _PropertySnapshot.new()
 
-# TODO: Swap arg order
 func set_snapshot(tick: int, data):
-	if data is Dictionary:
-		var snapshot := _PropertySnapshot.from_dictionary(data)
-		_buffer[tick] = snapshot
-	elif data is _PropertySnapshot:
-		_buffer[tick] = data
+	_buffer[tick] = data
 
 func get_buffer() -> Dictionary:
 	return _buffer
@@ -41,22 +37,15 @@ func get_closest_tick(tick: int) -> int:
 		.filter(func (key): return key < tick) \
 		.max()
 
-func get_history(tick: int) -> _PropertySnapshot:
+func get_history(tick: int):
 	var closest_tick = get_closest_tick(tick)
+	return _buffer.get(closest_tick)
 
-	if closest_tick == -1:
-		return _PropertySnapshot.new()
-
-	return _buffer[closest_tick]
-
-func trim(earliest_tick_to_keep: int = NetworkRollback.history_start):
+func trim(earliest_tick_to_keep: int):
 	var ticks := _buffer.keys()
 	for tick in ticks:
 		if tick < earliest_tick_to_keep:
 			_buffer.erase(tick)
-
-func merge(data: _PropertySnapshot, tick:int):
-	set_snapshot(tick, get_snapshot(tick).merge(data))
 
 func clear():
 	_buffer.clear()

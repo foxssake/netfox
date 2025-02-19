@@ -75,8 +75,8 @@ var _skipset: _Set = _Set.new()
 
 var _properties_dirty: bool = false
 
-var _states := _HistoryBuffer.new()
-var _inputs := _HistoryBuffer.new()
+var _states := _PropertyHistoryBuffer.new()
+var _inputs := _PropertyHistoryBuffer.new()
 var _latest_state_tick: int
 var _earliest_input_tick: int
 

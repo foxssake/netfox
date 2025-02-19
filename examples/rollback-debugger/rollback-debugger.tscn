@@ -241,5 +241,9 @@ script = ExtResource("4_p1byq")
 [node name="RollbackSynchronizer" type="Node" parent="Subject" node_paths=PackedStringArray("root")]
 script = ExtResource("3_0135o")
 root = NodePath("..")
+enable_prediction = null
 state_properties = Array[String]([":position"])
+full_state_interval = null
+diff_ack_interval = null
 input_properties = Array[String](["Input:movement"])
+enable_input_broadcast = null

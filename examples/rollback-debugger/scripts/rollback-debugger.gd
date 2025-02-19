@@ -152,7 +152,7 @@ func _read_data():
 	rollback_synchronizer._states = _parse_history(state_history_data.text)
 	rollback_synchronizer._inputs = _parse_history(input_history_data.text)
 
-func _serialize_history(history: _HistoryBuffer) -> String:
+func _serialize_history(history: _PropertyHistoryBuffer) -> String:
 	var result = PackedStringArray()
 
 	for tick in history.ticks():
@@ -161,12 +161,12 @@ func _serialize_history(history: _HistoryBuffer) -> String:
 
 	return "{\n%s\n}" % [",\n".join(result)]
 
-func _parse_history(history_string: String) -> _HistoryBuffer:
+func _parse_history(history_string: String) -> _PropertyHistoryBuffer:
 	var result_data = str_to_var(history_string)
 	if not result_data is Dictionary:
-		return _HistoryBuffer.new()
+		return _PropertyHistoryBuffer.new()
 
-	var result := _HistoryBuffer.new()
+	var result := _PropertyHistoryBuffer.new()
 	for tick in result_data.keys():
 		var snapshot := _PropertySnapshot.from_dictionary(result_data[tick])
 		result.set_snapshot(tick, snapshot)
