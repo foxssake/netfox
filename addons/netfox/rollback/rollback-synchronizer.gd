@@ -80,7 +80,7 @@ var _inputs := _HistoryBuffer.new()
 var _latest_state_tick: int
 var _earliest_input_tick: int
 
-# Typed as Dictionary[int, int] (Peer, tick_ackd)
+# Maps peers (int) to acknowledged ticks (int)
 var _ackd_state: Dictionary = {}
 var _next_full_state_tick: int
 var _next_diff_ack_tick: int
@@ -613,7 +613,7 @@ func _submit_full_state(serialized_state: Dictionary, tick: int):
 	if NetworkRollback.enable_diff_states:
 		_ack_full_state.rpc_id(sender, tick)
 
-# state typed as Dictionary[String, Variant]
+# State is a serialized _PropertyStoreSnapshot (Dictionary[String, Variant])
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_diff_state(serialized_diff_state: Dictionary, tick: int, reference_tick: int):
 	if not _is_initialized:

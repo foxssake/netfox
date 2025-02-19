@@ -24,6 +24,9 @@ func get_value(property_path: String) -> Variant:
 func properties() -> Array:
 	return _snapshot.keys()
 
+func has(property_path: String) -> bool:
+	return _snapshot.has(property_path)
+
 func size() -> int:
 	return _snapshot.size()
 

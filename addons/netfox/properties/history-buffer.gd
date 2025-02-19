@@ -1,6 +1,6 @@
 class_name _HistoryBuffer extends RefCounted
 
-# Typed as Dictionary[int, _PropertyStoreSnapshot]
+# Maps ticks (int) to snapshots (_PropertyStoreSnapshot)
 var _buffer: Dictionary = {}
 
 func get_snapshot(tick: int) -> _PropertyStoreSnapshot:
