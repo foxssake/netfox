@@ -5,6 +5,7 @@ theme:
   custom_dir: docs/custom_theme/
 extra_css:
   - css/version-selector.css
+  - css/twemoji.css
 plugins:
   - plantuml:
       puml_url: https://www.plantuml.com/plantuml/
@@ -20,9 +21,13 @@ markdown_extensions:
   - pymdownx.details
   - pymdownx.highlight
   - pymdownx.superfences
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
 nav:
   - 'index.md'
   - 'upgrading.md'
+  - 'made-with-netfox.md'
   - 'press-kit.md'
   - netfox:
     - Tutorials:
