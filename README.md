@@ -136,12 +136,12 @@ Games built with netfox, coming to a Steam near you!
 
 <a href="https://store.steampowered.com/app/3180520/Bubble_Battle/">
 
-![Bubble Battle](./assets/showcase/bubble-battle.jpg)
+![Bubble Battle](docs/assets/showcase/bubble-battle.jpg)
 
 </a>
 <a href="https://store.steampowered.com/app/3423700/PL4noB/">
 
-![PL4no-B](./assets/showcase/pl4nob.jpg)
+![PL4no-B](docs/assets/showcase/pl4nob.jpg)
 
 </a>
 
