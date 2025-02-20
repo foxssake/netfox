@@ -20,7 +20,7 @@ var _property_entries: Array[PropertyEntry]
 var _properties_dirty: bool = false
 
 var _last_received_tick: int = -1
-var _last_received_state: Dictionary = {}
+var _last_received_state: _PropertySnapshot = _PropertySnapshot.new()
 
 ## Process settings.
 ## [br][br]
@@ -36,7 +36,7 @@ func process_settings():
 ## Add a state property.
 ## [br][br]
 ## Settings will be automatically updated. The [param node] may be a string or
-## [NodePath] pointing to a node, or an actual [Node] instance. If the given 
+## [NodePath] pointing to a node, or an actual [Node] instance. If the given
 ## property is already tracked, this method does nothing.
 func add_state(node: Variant, property: String):
 	var property_path := PropertyEntry.make_path(root, node, property)
@@ -58,7 +58,7 @@ func _get_configuration_warnings():
 	# Explore state properties
 	if not root:
 		return ["No valid root node found!"]
-	
+
 	return _NetfoxEditorUtils.gather_properties(root, "_get_synchronized_state_properties",
 		func(node, prop):
 			add_state(node, prop)
@@ -86,11 +86,11 @@ func _exit_tree():
 func _after_tick(_dt, tick):
 	if is_multiplayer_authority():
 		# Submit snapshot
-		var state = PropertySnapshot.extract(_property_entries)
-		_submit_state.rpc(state, tick)
+		var state := _PropertySnapshot.extract(_property_entries)
+		_submit_state.rpc(state.as_dictionary(), tick)
 	else:
 		# Apply last received state
-		PropertySnapshot.apply(_last_received_state, _property_cache)
+		_last_received_state.apply(_property_cache)
 
 func _reprocess_settings():
 	if not _properties_dirty:
@@ -103,6 +103,6 @@ func _reprocess_settings():
 func _submit_state(state: Dictionary, tick: int):
 	if tick <= _last_received_tick:
 		return
-		
-	_last_received_state = state
+
+	_last_received_state = _PropertySnapshot.from_dictionary(state)
 	_last_received_tick = tick

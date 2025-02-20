@@ -16,7 +16,7 @@ var enable_diff_states: bool = ProjectSettings.get_setting("netfox/rollback/enab
 
 ## How many ticks to store as history.
 ## [br][br]
-## The larger the history limit, the further we can roll back into the past, 
+## The larger the history limit, the further we can roll back into the past,
 ## thus the more latency we can manage. The drawback is, with higher history
 ## limit comes more history data stored, thus higher memory usage.
 ## [br][br]
@@ -173,7 +173,7 @@ func notify_resimulation_start(tick: int):
 
 ## Submit node for simulation.
 ##
-## This is used mostly internally by [RollbackSynchronizer]. The idea is to 
+## This is used mostly internally by [RollbackSynchronizer]. The idea is to
 ## submit each affected node while preparing the tick, and then run only the
 ## nodes that need to be resimulated.
 func notify_simulated(node: Node):
@@ -182,7 +182,7 @@ func notify_simulated(node: Node):
 
 ## Check if node was submitted for simulation.
 ##
-## This is used mostly internally by [RollbackSynchronizer]. The idea is to 
+## This is used mostly internally by [RollbackSynchronizer]. The idea is to
 ## submit each affected node while preparing the tick, and then use
 ## [member is_simulated] to run only the nodes that need to be resimulated.
 func is_simulated(node: Node):
@@ -195,7 +195,7 @@ func is_rollback() -> bool:
 ## Checks if a given object is rollback-aware, i.e. has the
 ## [code]_rollback_tick[/code] method implemented.
 ##
-## This is used by [RollbackSynchronizer] to see if it should simulate the 
+## This is used by [RollbackSynchronizer] to see if it should simulate the
 ## given object during rollback.
 func is_rollback_aware(what: Object) -> bool:
 	return what.has_method("_rollback_tick")
@@ -204,7 +204,7 @@ func is_rollback_aware(what: Object) -> bool:
 ## simulation for the given rollback tick.
 ## [br][br]
 ## This is used by [RollbackSynchronizer] to resimulate ticks during rollback.
-## While the [code]_rollback_tick[/code] method could be called directly as 
+## While the [code]_rollback_tick[/code] method could be called directly as
 ## well, this method exists to future-proof the code a bit, so the method name
 ## is not repeated all over the place.
 ## [br][br]
@@ -270,7 +270,7 @@ func _rollback():
 	# Only set _is_rollback *after* emitting before_loop
 	_is_rollback = true
 	_rollback_stage = _STAGE_BEFORE
-	
+
 	# from = Earliest input amongst all rewindables
 	var from = _resim_from
 
@@ -311,7 +311,7 @@ func _rollback():
 		# Record state for tick + 1
 		_rollback_stage = _STAGE_RECORD
 		on_record_tick.emit(tick + 1)
-	
+
 	# Restore display state
 	_rollback_stage = _STAGE_AFTER
 	after_loop.emit()

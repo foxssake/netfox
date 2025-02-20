@@ -100,13 +100,13 @@ func _ready():
 
 	run_nr_tick_button.pressed.connect(func():
 		NetworkRollback.before_loop.emit()
-		
+
 		NetworkRollback.on_prepare_tick.emit(NetworkRollback.tick)
 		NetworkRollback.after_prepare_tick.emit(NetworkRollback.tick)
 		NetworkRollback.on_process_tick.emit(NetworkRollback.tick)
 		NetworkRollback._tick += 1
 		NetworkRollback.on_record_tick.emit(NetworkRollback.tick)
-		
+
 		NetworkRollback.after_loop.emit()
 	)
 
@@ -148,21 +148,27 @@ func _read_data():
 
 	if rollback_tick_data.text.is_valid_int():
 		NetworkRollback._tick = rollback_tick_data.text.to_int()
-	
+
 	rollback_synchronizer._states = _parse_history(state_history_data.text)
 	rollback_synchronizer._inputs = _parse_history(input_history_data.text)
 
-func _serialize_history(history: Dictionary) -> String:
+func _serialize_history(history: _PropertyHistoryBuffer) -> String:
 	var result = PackedStringArray()
 
-	for tick in history.keys():
-		result.append("\t%d: %s" % [tick, var_to_str(history[tick]).replace("\n", "")])
+	for tick in history.ticks():
+		var snapshot := history.get_snapshot(tick)
+		result.append("\t%d: %s" % [tick, var_to_str(snapshot.as_dictionary()).replace("\n", "")])
 
 	return "{\n%s\n}" % [",\n".join(result)]
 
-func _parse_history(history_string: String) -> Dictionary:
-	var result = str_to_var(history_string)
-	if result:
-		return result
-	else:
-		return {}
+func _parse_history(history_string: String) -> _PropertyHistoryBuffer:
+	var result_data = str_to_var(history_string)
+	if not result_data is Dictionary:
+		return _PropertyHistoryBuffer.new()
+
+	var result := _PropertyHistoryBuffer.new()
+	for tick in result_data.keys():
+		var snapshot := _PropertySnapshot.from_dictionary(result_data[tick])
+		result.set_snapshot(tick, snapshot)
+
+	return result
