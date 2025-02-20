@@ -132,7 +132,9 @@ knock eachother off of the map.
 
 ## Built with netfox
 
-Games built with netfox, coming to a Steam near you!
+Games built with netfox, coming to a Steam near you! See the more on the site's
+[Made with netfox](https://foxssake.github.io/netfox/latest/made-with-netfox/)
+page!
 
 <a href="https://store.steampowered.com/app/3180520/Bubble_Battle/">
 
