@@ -132,20 +132,14 @@ knock eachother off of the map.
 
 ## Built with netfox
 
-<table>
-  <thead>
-    <tr>
-      <th>Logo</th>
-      <th>Name</th>
-      <th>Links</th>
-    </tr>
-  </thead>
-  <tr>
-    <td><img src="docs/assets/showcase/placeholder.svg"/></td>
-    <td></td>
-    <td></td>
-  </tr>
-</table>
+Games built with netfox, coming to a Steam near you!
+
+<a href="https://store.steampowered.com/app/3180520/Bubble_Battle/">
+![Bubble Battle](./assets/showcase/bubble-battle.jpg)
+</a>
+<a href="https://store.steampowered.com/app/3423700/PL4noB/">
+![PL4no-B](./assets/showcase/pl4nob.jpg)
+</a>
 
 Building something cool with netfox? Whether it's released or in progress, feel
 free to open a PR, adding your game to the list!
