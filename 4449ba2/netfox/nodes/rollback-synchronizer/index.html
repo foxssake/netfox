@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://foxssake.github.io/netfox/4449ba2/netfox/nodes/rollback-synchronizer/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>RollbackSynchronizer - netfox</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/version-selector.css" rel="stylesheet" />
+        <link href="../../../css/twemoji.css" rel="stylesheet" />
+        <link href="../../../assets/mkdocs_puml/puml.css" rel="stylesheet" />
+        <link href="../../../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "RollbackSynchronizer";
+        var mkdocs_page_input_path = "netfox/nodes/rollback-synchronizer.md";
+        var mkdocs_page_url = "/netfox/4449ba2/netfox/nodes/rollback-synchronizer/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script>
+  <script src="https://giscus.app/client.js"
+          data-repo="foxssake/netfox"
+          data-repo-id="R_kgDOKBON2A"
+          data-category="Docs"
+          data-category-id="DIC_kwDOKBON2M4Clib_"
+          data-mapping="title"
+          data-strict="0"
+          data-reactions-enabled="1"
+          data-emit-metadata="0"
+          data-input-position="top"
+          data-theme="light"
+          data-lang="en"
+          data-loading="lazy"
+          crossorigin="anonymous"
+          async>
+  </script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> netfox
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../upgrading/">Upgrading netfox</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../made-with-netfox/">Made with netfox</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../press-kit/">Press kit</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >Tutorials</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/responsive-player-movement/">Responsive player movement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/predicting-input/">Predicting input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/modifying-objects-during-rollback/">Modifying objects during rollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/configuring-properties-from-code/">Configuring properties from code</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/rollback-caveats/">Rollback caveats</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/interpolation-caveats/">Interpolation caveats</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Concepts</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../concepts/servers-clients-ownership/">Servers, clients, and ownership</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../concepts/authoritative-servers/">Authoritative servers</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/logging/">Logging</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-time/">NetworkTime</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-time-synchronizer/">NetworkTimeSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-events/">NetworkEvents</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/interpolators/">Interpolators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/property-paths/">Property paths</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-rollback/">NetworkRollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-performance/">NetworkPerformance</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/netfox-sharp/">Netfox Sharp</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Nodes</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../tick-interpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">RollbackSynchronizer</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#configuring-state-and-input">Configuring state and input</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#writing-rollback-aware-scripts">Writing rollback-aware scripts</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#single-fire-events">Single fire events</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#changing-configuration">Changing configuration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#changing-ownership">Changing ownership</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#diff-states">Diff states</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../state-synchronizer/">StateSynchronizer</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.noray</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.noray/guides/noray/">Noray</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.noray/guides/packet-handshake/">PacketHandshake</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.extras</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/base-net-input/">BaseNetInput</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/network-weapon/">NetworkWeapon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/rewindable-state-machine/">RewindableStateMachine</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/window-tiler/">WindowTiler</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">netfox</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">netfox</li>
+          <li class="breadcrumb-item">Nodes</li>
+      <li class="breadcrumb-item active">RollbackSynchronizer</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="rollbacksynchronizer">RollbackSynchronizer</h1>
+<p>Manages state during the network rollback loop by hooking into
+<a href="../../guides/network-rollback/">NetworkRollback</a> events. Simulates nodes as required during rollback.</p>
+<p>To read more on best practices, see <a href="../../tutorials/rollback-caveats/">Rollback caveats</a>.</p>
+<h2 id="configuring-state-and-input">Configuring state and input</h2>
+<p>To use <em>RollbackSynchronizer</em>, add it as a child to the target node, specify
+the root node, and configure which properties to manage:</p>
+<p><img alt="RollbackSynchronizer configuration" src="../../assets/rollback-synchronizer-config.png" /></p>
+<p><em>Root</em> specifies the root node for resolving state and input properties. Best
+practice dictates to add <em>RollbackSynchronizer</em> under its target, so <em>Root</em>
+will most often be the <em>RollbackSynchronizer</em>'s parent node.</p>
+<p><em>State properties</em> are recorded for each tick and restored during rollback. For
+state, the server is the ultimate authority. Make sure that nodes containing
+state properties are owned by the server.</p>
+<p><em>Full state interval</em> specifies how many ticks to wait between full states. If
+diff states are enabled, full states are only sent at specific intervals, to
+make sure that peers always have the correct state data. <em>Only considered if
+diff states are enabled.</em></p>
+<p><em>Diff ack interval</em> specifies how many ticks to wait between acknowledging diff
+states. Setting this to lower non-zero values may result in more bandwidth
+savings on non-changing properties, but this can be outweighed by the increased
+number of ack messages. <em>Only considered if diff states are enabled.</em></p>
+<p>See <a href="#diff-states">diff states</a> for more on how the above two settings are
+used.</p>
+<p><em>Input properties</em> are gathered for each player and sent to the server to use
+for simulation. Make sure that nodes containing input properties are owned by
+their respective players.</p>
+<p>See <a href="../../guides/property-paths/">Property paths</a> on how to specify properties.</p>
+<p><em>Enable input broadcast</em> toggles whether input properties are broadcast to all
+peers, or only to the server. The default is <em>true</em> to support legacy
+behaviour. It is recommended to turn this off to lower bandwidth and lessen the
+attack surface for cheating.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>It is not recommended to have both state and input properties on the same
+node. Since nodes with state belong to the server, and nodes with input
+belong to the player, it is difficult to separate ownership on the same
+node.</p>
+</div>
+<h2 id="writing-rollback-aware-scripts">Writing rollback-aware scripts</h2>
+<p>During setup, <em>RollbackSynchronizer</em> finds all the rollback-aware nodes under
+the specified <em>root</em>. During rollback, it will call all the rollback-aware
+nodes to simulate new state.</p>
+<p>To learn about rollback-awareness, see <a href="../../guides/network-rollback/">NetworkRollback</a>.</p>
+<p>In short, implement <code>_rollback_tick</code> in your scripts:</p>
+<div class="highlight"><pre><span></span><code><span class="k">extends</span><span class="w"> </span><span class="n">CharacterBody3D</span>
+
+<span class="err">@</span><span class="k">export</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">speed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">4.0</span>
+<span class="err">@</span><span class="k">export</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="n">PlayerInput</span>
+
+<span class="k">func</span><span class="w"> </span><span class="n">_rollback_tick</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span><span class="w"> </span><span class="n">tick</span><span class="p">,</span><span class="w"> </span><span class="n">is_fresh</span><span class="p">):</span>
+<span class="w">  </span><span class="n">velocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">input</span><span class="o">.</span><span class="n">movement</span><span class="o">.</span><span class="n">normalized</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">speed</span>
+<span class="w">  </span><span class="n">velocity</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="n">NetworkTime</span><span class="o">.</span><span class="n">physics_factor</span>
+
+<span class="w">  </span><span class="n">move_and_slide</span><span class="p">()</span>
+</code></pre></div>
+<h2 id="single-fire-events">Single fire events</h2>
+<p>The first time a rollback tick is processed, the <code>is_fresh</code> parameter is set to
+<code>true</code>. This can be used to trigger animations or sounds without them being
+repeated each rollback event.</p>
+<p>For example to improve the client side experience a spell or weapon can play
+its activating sounds and animation immediately and then proceed to complete
+the action once server confirmation is received.</p>
+<h2 id="changing-configuration">Changing configuration</h2>
+<p><em>RollbackSynchronizer</em> has to do some setup work whenever the state or the
+input properties change.</p>
+<p>By default, this work is done upon instantiation. If you need to change state
+or input properties during runtime, make sure to call <code>process_settings()</code>,
+otherwise <em>RollbackSynchronizer</em> won't apply the changes.</p>
+<p>While changing configuration after instantiation is possible, it is not
+recommended. You may get away with it if the configuration change happens in a
+few ticks after instantiation. For longer periods, experiment at your own risk.</p>
+<h2 id="changing-ownership">Changing ownership</h2>
+<p>The setup work above is also needed whenever the multiplayer authority changes
+of any of the nodes that have a state- or input property.</p>
+<p>Changing authority during gameplay is supported. Make sure to call
+<code>process_authority()</code> on all peers at the same time, to ensure they're on sync
+about ownership.</p>
+<p>This method is called automatically during instantiation and whenever
+<code>process_settings()</code> is called.</p>
+<hr />
+<p>When <em>only</em> multiplayer authority changes, call <code>process_authority()</code>. When the
+configured state- or input properties change ( i.e. different properties need
+to be synced ), call <code>process_settings()</code>.</p>
+<h2 id="diff-states">Diff states</h2>
+<p>When diff states are enabled in the <a href="../../guides/network-rollback/#settings">rollback settings</a>, netfox will attempt to
+save bandwidth by only sending state properties that have changed.</p>
+<p>These changes are always based on a tick that the receiving peer has confirmed
+it already has. Basically we don't want to send changes compared to a tick that
+the peer has no knowledge about.</p>
+<p>Peers notify the host of which ticks they know about by <em>acknowledging</em> ( or
+ack'ing ) ticks. This acknowledging has two flavors.</p>
+<p>The first flavor is <em>full states</em>. These states contain all the state data,
+regardless of what changed and what has stayed the same. These ensure that
+peers have all the state data for a given tick. Once a full state is received,
+the receiving peer acknowledges that tick over a reliable channel.</p>
+<p>The second flavor is <em>diff states</em>. Peers may also acknowledge ticks after
+receiving a diff state, meaning that they have reconstructed the given state
+from a known earlier state and the diff state received. These are acknowledged
+over an unreliable channel. By using an unreliable channel, we can acknowledge
+diff states more often without causing any hiccups in network traffic.</p>
+<p>When diff states are disabled, netfox will always send full state data for all
+ticks.</p>
+              
+            </div>
+          </div>
+  <hr>
+  <h2>User discussion</h2>
+  <div class="giscus" ></div>
+  <hr>
+  <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../tick-interpolator/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../state-synchronizer/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../assets/mkdocs_puml/puml.js"></script>
+      <script src="../../../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
