@@ -5,7 +5,7 @@ class_name _PropertySnapshot
 # Dictionary[String, Variant]
 var _snapshot: Dictionary = {}
 
-static var _logger := _NetfoxLogger.for_netfox("PropertyStoreSnapshot")
+static var _logger := _NetfoxLogger.for_netfox("PropertySnapshot")
 
 func as_dictionary() -> Dictionary:
 	return _snapshot.duplicate()
@@ -17,7 +17,7 @@ func set_value(property_path: String, data: Variant):
 	_snapshot[property_path] = data
 
 func get_value(property_path: String) -> Variant:
-	return _snapshot[property_path]
+	return _snapshot.get(property_path)
 
 func properties() -> Array:
 	return _snapshot.keys()
