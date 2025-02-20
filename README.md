@@ -1,8 +1,4 @@
-<p style="text-align: center">
-  <img src="docs/assets/netfox.svg" />
-</p>
-
-# netfox
+![netfox banner](./assets/press-kit/netfox-banner-hor-alt.svg)
 
 [![License](https://img.shields.io/github/license/foxssake/netfox)](https://github.com/foxssake/netfox/blob/main/LICENSE)
 [![GitHub Release](https://img.shields.io/github/v/release/foxssake/netfox)](https://github.com/foxssake/netfox/releases)

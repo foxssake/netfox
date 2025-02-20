@@ -3,8 +3,8 @@
 Attribution when using *netfox* is optional, but very much appreciated! We love
 seeing games and projects built with netfox in the wild!
 
-If you decide to do so, here are some guidelines and assets to represent
-netfox.
+If you decide to give us a shout-out, here are some guidelines and assets to
+represent netfox.
 
 ## When to use
 
