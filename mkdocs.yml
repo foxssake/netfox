@@ -29,6 +29,7 @@ nav:
   - 'upgrading.md'
   - 'made-with-netfox.md'
   - 'press-kit.md'
+  - 'contributors.md'
   - netfox:
     - Tutorials:
       - 'netfox/tutorials/responsive-player-movement.md'
