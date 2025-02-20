@@ -24,7 +24,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
       - name: Setup mkdocs
-        run: pip install mkdocs && pip install $(mkdocs get-deps)
+        run: pip install mkdocs && pip install $(mkdocs get-deps) && pip install mkdocs-material
       - name: Setup mike
         run: pip install mike
       - name: Build
