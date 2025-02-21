@@ -1,5 +1,8 @@
-![netfox banner](./docs/assets/press-kit/netfox-banner-hor-alt.svg.preview.png#gh-light-mode-only)
-![netfox banner](./docs/assets/press-kit/netfox-banner-hor.svg.preview.png#gh-dark-mode-only)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./docs/assets/press-kit/netfox-banner-hor.svg.preview.png">
+  <source media="(prefers-color-scheme: light)" srcset="./docs/assets/press-kit/netfox-banner-hor-alt.svg.preview.png">
+  <img alt="netfox banner" src="./docs/assets/press-kit/netfox-banner-hor-alt.svg.preview.png">
+</picture>
 
 [![License](https://img.shields.io/github/license/foxssake/netfox)](https://github.com/foxssake/netfox/blob/main/LICENSE)
 [![GitHub Release](https://img.shields.io/github/v/release/foxssake/netfox)](https://github.com/foxssake/netfox/releases)
