@@ -14,13 +14,13 @@ func set_value(value):
 	node.set_indexed(property, value)
 
 func is_valid() -> bool:
-	if node == null:
+	if not node or not is_instance_valid(node):
+		# Node is invalid
 		return false
-		
-	if get_value() == null:
-		return false
-	
-	return true
+
+	# Return true if node has given property
+	return node.get_property_list()\
+		.any(func(it): return it["name"] == property)
 
 func _to_string() -> String:
 	return _path

@@ -21,7 +21,7 @@ var deaths := 0
 func _ready():
 	display_name.text = name
 	hud.hide()
-	
+
 	NetworkTime.on_tick.connect(_tick)
 	NetworkTime.after_tick_loop.connect(_after_tick_loop)
 
@@ -42,7 +42,7 @@ func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 		did_respawn = true
 	else:
 		did_respawn = false
-	
+
 	# Gravity
 	_force_update_is_on_floor()
 	if is_on_floor():
@@ -50,17 +50,17 @@ func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 			velocity.y = jump_strength
 	else:
 		velocity.y -= gravity * delta
-		
+
 	# Handle look left and right
 	rotate_object_local(Vector3(0, 1, 0), input.look_angle.x)
-	
+
 	# Handle look up and down
 	head.rotate_object_local(Vector3(1, 0, 0), input.look_angle.y)
-	
+
 	head.rotation.x = clamp(head.rotation.x, -1.57, 1.57)
 	head.rotation.z = 0
 	head.rotation.y = 0
-	
+
 	# Apply movement
 	var input_dir = input.movement
 	var direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.z)).normalized()
