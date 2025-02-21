@@ -20,8 +20,7 @@ func is_valid() -> bool:
 
 	# Return true if node has given property
 	return node.get_property_list()\
-		.map(func(it): return it["name"])\
-		.any(func(it): return it == property)
+		.any(func(it): return it["name"] == property)
 
 func _to_string() -> String:
 	return _path
