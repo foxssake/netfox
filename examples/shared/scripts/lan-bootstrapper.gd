@@ -20,14 +20,14 @@ func host():
 
 	# Start host
 	print("Starting host on port %s" % port)
-	
+
 	var peer = ENetMultiplayerPeer.new()
 	if peer.create_server(port) != OK:
 		print("Failed to listen on port %s" % port)
 
 	get_tree().get_multiplayer().multiplayer_peer = peer
 	print("Listening on port %s" % port)
-	
+
 	# Wait for server to start
 	await Async.condition(
 		func():
@@ -37,12 +37,12 @@ func host():
 	if peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
 		OS.alert("Failed to start server!")
 		return
-	
+
 	print("Server started")
 	get_tree().get_multiplayer().server_relay = true
-	
+
 	connect_ui.hide()
-	
+
 	# NOTE: This is not needed when using NetworkEvents
 	# However, this script also runs in multiplayer-simple where NetworkEvents
 	# are assumed to be absent, hence starting NetworkTime manually
@@ -52,7 +52,7 @@ func join():
 	var host = _parse_input()
 	if host.size() == 0:
 		return ERR_CANT_RESOLVE
-		
+
 	var address = host.address
 	var port = host.port
 
@@ -65,7 +65,7 @@ func join():
 		return err
 
 	get_tree().get_multiplayer().multiplayer_peer = peer
-	
+
 	# Wait for connection process to conclude
 	await Async.condition(
 		func():
@@ -78,7 +78,7 @@ func join():
 
 	print("Client started")
 	connect_ui.hide()
-	
+
 	# NOTE: This is not needed when using NetworkEvents
 	# However, this script also runs in multiplayer-simple where NetworkEvents
 	# are assumed to be absent, hence starting NetworkTime manually
@@ -88,11 +88,11 @@ func _parse_input() -> Dictionary:
 	# Validate inputs
 	var address = address_input.text
 	var port = port_input.text
-	
+
 	if address == "":
 		OS.alert("No host specified!")
 		return {}
-		
+
 	if not port.is_valid_int():
 		OS.alert("Invalid port!")
 		return {}
