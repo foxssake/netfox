@@ -8,7 +8,7 @@ class_name VestTest
 ## [code]res://test[/code] for test suites.
 ## [br][br]
 ## To run init/teardown logic, override [method before] and [method after], which run before and
-## after the test suite is run, respectively. To implement similar logic for each individual test 
+## after the test suite is run, respectively. To implement similar logic for each individual test
 ## case, override [method before_each] and [method after_each].
 ## [br][br]
 ## To set a custom suite name, override [method get_suite_name].
@@ -16,25 +16,25 @@ class_name VestTest
 ## An example test suite:
 ## [codeblock]
 ## extends VestTest
-## 
+##
 ## var array: Array
-## 
+##
 ## # Override suite name
 ## func get_suite_name():
 ##     return "Example"
-## 
+##
 ## func before_each():
 ##     # Start each test with a clean array
 ##     array = []
-## 
+##
 ## func test_append():
 ##     array.append(2)
 ##     expect_equal(array.size(), 1)
-## 
+##
 ## func test_append_array():
 ##     array.append_array([2, 3])
 ##     expect_equal(array.size(), 2)
-## 
+##
 ## func test_clear():
 ##     array.append_array([2, 3])
 ##     array.clear()
@@ -62,10 +62,10 @@ class Result:
 	var case: Case
 	var status: int
 	var messages: PackedStringArray
-	
+
 	func is_success() -> bool:
 		return status == PASS
-	
+
 	func get_status_string() -> String:
 		return VestTest.status_string(status)
 
