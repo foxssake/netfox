@@ -8,7 +8,7 @@ func get_snapshot(tick: int):
 	if _buffer.has(tick):
 		return _buffer[tick]
 	else:
-		return _PropertySnapshot.new()
+		return null
 
 func set_snapshot(tick: int, data):
 	_buffer[tick] = data

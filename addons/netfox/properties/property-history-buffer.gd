@@ -2,7 +2,10 @@ extends _HistoryBuffer
 class_name _PropertyHistoryBuffer
 
 func get_snapshot(tick: int) -> _PropertySnapshot:
-	return super(tick)
+	if _buffer.has(tick):
+		return _buffer[tick]
+	else:
+		return _PropertySnapshot.new()
 
 func set_snapshot(tick: int, data):
 	if data is Dictionary:
