@@ -47,6 +47,11 @@ static func unregister(callable: Callable):
 	_logger.debug("Freed ID %d", [id])
 
 static func rpc(callable: Callable, args: Array, peer: int = 0, mode: MultiplayerPeer.TransferMode = 2, channel: int = 0) -> Error:
+	# TODO: Handle call_local and call_remote + sending data to self
+	if peer == _multiplayer.get_unique_id():
+		# TODO
+		return ERR_CYCLIC_LINK
+
 	if not _multiplayer:
 		_logger.error("No multiplayer API set, doing nothing!")
 		return ERR_UNCONFIGURED

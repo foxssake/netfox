@@ -18,9 +18,8 @@ signal on_new_snapshot(tick: int)
 
 func push(tick: int):
 	var data := _encode_tick(tick)
-	var target_peer := 0 #if is_broadcast else 1
-	_logger.debug("Pushing tick %d to peer #%d", [tick, target_peer])
-	ORPC.rpc(_submit, [data], target_peer, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
+	var target_peer := 0 if is_broadcast else 1
+	ORPC.rpc(_submit, [tick, data], target_peer, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
 
 func get_redundancy() -> int:
 	return redundancy
