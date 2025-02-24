@@ -21,7 +21,7 @@ static func use(multiplayer: SceneMultiplayer):
 		_multiplayer.peer_packet.disconnect(_handle_packet)
 
 	_multiplayer = multiplayer
-	_multiplayer.peer_packet.connect(_handle_packet)
+	_multiplayer.peer_packet.connect(ORPC._handle_packet)
 
 static func register(callable: Callable, name: String) -> int:
 	if _callable_to_id.has(callable):
@@ -32,6 +32,8 @@ static func register(callable: Callable, name: String) -> int:
 	_id_to_callable[id] = callable
 	_callable_to_id[callable] = id
 
+	_logger.debug("Registered \"%s\" with ID %d", [name, id])
+
 	return id
 
 static func unregister(callable: Callable):
@@ -41,6 +43,8 @@ static func unregister(callable: Callable):
 	var id = _callable_to_id[callable]
 	_id_to_callable.erase(id)
 	_callable_to_id.erase(callable)
+
+	_logger.debug("Freed ID %d", [id])
 
 static func rpc(callable: Callable, args: Array, peer: int = 0, mode: MultiplayerPeer.TransferMode = 2, channel: int = 0) -> Error:
 	if not _multiplayer:

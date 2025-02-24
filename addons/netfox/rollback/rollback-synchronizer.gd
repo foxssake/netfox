@@ -80,6 +80,8 @@ var _inputs := _PropertyHistoryBuffer.new()
 var _latest_state_tick: int
 var _earliest_input_tick: int
 
+var _input_transmitter: RedundancyTransmitter
+
 # Maps peers (int) to acknowledged ticks (int)
 var _ackd_state: Dictionary = {}
 var _next_full_state_tick: int
@@ -274,6 +276,23 @@ func _ready():
 		_inputs.set_snapshot(NetworkTime.tick + i, {})
 
 	process_settings.call_deferred()
+
+	# Setup input transmitter
+	_input_transmitter = RedundancyTransmitter.new(
+		str(get_path()) + "/InputTransmitter", _inputs, _property_cache
+	)
+
+	_input_transmitter.is_broadcast = enable_input_broadcast
+	_input_transmitter.redundancy = NetworkRollback.input_redundancy
+
+	_input_transmitter.on_new_snapshot.connect(func(input_tick: int):
+		_earliest_input_tick = mini(_earliest_input_tick, input_tick)
+	)
+
+	# Ensure ORPCs work
+	# TODO: Move to some central place, or create ticket for a Netfox.start()
+	# style start sequence
+	ORPC.use(get_tree().get_multiplayer())
 
 func _connect_signals():
 	NetworkTime.before_tick.connect(_before_tick)
@@ -514,29 +533,13 @@ func _after_tick(_delta, _tick):
 		var input_tick: int = _tick + NetworkRollback.input_delay
 		_inputs.set_snapshot(input_tick, input)
 
-		# Send the last n inputs for each property
-		var inputs: Array[_PropertySnapshot] = []
-		for i in range(0, mini(NetworkRollback.input_redundancy, _inputs.size())):
-			var tick := input_tick - i
-			inputs.append(_inputs.get_snapshot(tick))
-		_attempt_submit_inputs(inputs, input_tick)
+		# Transmit input
+		_input_transmitter.push(input_tick)
 
 	# Trim history
 	_states.trim()
 	_inputs.trim()
 	_freshness_store.trim()
-
-func _attempt_submit_inputs(inputs: Array[_PropertySnapshot], input_tick: int):
-
-	var serialized_inputs : Array[Dictionary] = []
-	for input in inputs:
-		serialized_inputs.push_back(input.as_dictionary())
-
-	# TODO: Default to input broadcast in mesh network setups
-	if enable_input_broadcast:
-		_submit_inputs.rpc(serialized_inputs, input_tick)
-	elif not multiplayer.is_server():
-		_submit_inputs.rpc_id(1, serialized_inputs, input_tick)
 
 func _reprocess_settings():
 	if not _properties_dirty or Engine.is_editor_hint():
@@ -544,46 +547,6 @@ func _reprocess_settings():
 
 	_properties_dirty = false
 	process_settings()
-
-@rpc("any_peer", "unreliable", "call_remote")
-func _submit_inputs(serialized_inputs: Array, tick: int):
-	if not _is_initialized:
-		# Settings not processed yet
-		return
-
-	var inputs : Array[_PropertySnapshot] = []
-
-	for input in serialized_inputs:
-		inputs.push_back(_PropertySnapshot.from_dictionary(input))
-
-	var sender = multiplayer.get_remote_sender_id()
-
-	for offset in range(inputs.size()):
-		var input_tick := tick - offset
-
-		if input_tick < NetworkRollback.history_start:
-			# Input too old
-			_logger.warning("Received input for %s, rejecting because older than %s frames", [input_tick, NetworkRollback.history_limit])
-			continue
-
-		var input := inputs[offset]
-		if input == null:
-			# We've somehow received a null input - shouldn't happen
-			_logger.error("Null input received for %d, full batch is %s", [input_tick, serialized_inputs])
-			continue
-
-		input.sanitize(sender, _property_cache)
-
-		if input.is_empty():
-			_logger.warning("Received invalid input from %s for tick %s for %s" % [sender, tick, root.name])
-			return
-
-		var known_input := _inputs.get_snapshot(input_tick)
-		if not known_input.equals(input):
-			# Received a new input, save to history
-			_inputs.set_snapshot(input_tick, input)
-			_earliest_input_tick = mini(_earliest_input_tick, input_tick)
-
 
 # `serialized_state` is a serialized _PropertySnapshot
 @rpc("any_peer", "unreliable_ordered", "call_remote")
