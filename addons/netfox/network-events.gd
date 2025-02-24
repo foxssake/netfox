@@ -1,13 +1,13 @@
 extends Node
 ## This class provides convenience signals for multiplayer games.
 ##
-## While the client start/stop and peer join/leave events are trivial, the 
+## While the client start/stop and peer join/leave events are trivial, the
 ## server side has no similar events. This means that if you'd like to add some
 ## funcionality that should happen on server start, you either have to couple
 ## the code ( i.e. call it wherever you start the server ) or introduce a custom
 ## event to decouple your code from your network init code.
 ##
-## By providing these convenience events, you can forego all that and instead 
+## By providing these convenience events, you can forego all that and instead
 ## just listen to a single signal that should work no matter what.
 ##
 ## [i]Note:[/i] This class also manages [NetworkTime] start/stop, so as long as
@@ -39,7 +39,7 @@ signal on_peer_leave(id: int)
 
 ## Whether the events are enabled.
 ##
-## Events are only emitted when it's enabled. Disabling this can free up some 
+## Events are only emitted when it's enabled. Disabling this can free up some
 ## performance, as when enabled, the multiplayer API and the host are
 ## continuously checked for changes.
 ##
@@ -56,20 +56,20 @@ var _enabled = false
 func is_server() -> bool:
 	if multiplayer == null:
 		return false
-	
+
 	var peer = multiplayer.multiplayer_peer
 	if peer == null:
 		return false
-	
+
 	if peer is OfflineMultiplayerPeer:
 		return false
-		
+
 	if peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
 		return false
-	
+
 	if not multiplayer.is_server():
 		return false
-	
+
 	return true
 
 func _ready():
@@ -77,7 +77,7 @@ func _ready():
 
 	enabled = ProjectSettings.get_setting("netfox/events/enabled", true)
 
-	# Automatically start ticking when entering multiplayer and stop when 
+	# Automatically start ticking when entering multiplayer and stop when
 	# leaving multiplayer
 	on_server_start.connect(NetworkTime.start)
 	on_server_stop.connect(NetworkTime.stop)
@@ -88,14 +88,14 @@ func _process(_delta):
 	if multiplayer != _multiplayer:
 		_disconnect_handlers(_multiplayer)
 		_connect_handlers(multiplayer)
-		
+
 		on_multiplayer_change.emit(_multiplayer, multiplayer)
 		_multiplayer = multiplayer
-	
+
 	if not _is_server and is_server():
 		_is_server = true
 		on_server_start.emit()
-	
+
 	if _is_server and not is_server():
 		_is_server = false
 		on_server_stop.emit()

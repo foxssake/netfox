@@ -18,7 +18,8 @@ signal on_new_snapshot(tick: int)
 
 func push(tick: int):
 	var data := _encode_tick(tick)
-	var target_peer := 0 if is_broadcast else 1
+	var target_peer := 0 #if is_broadcast else 1
+	_logger.debug("Pushing tick %d to peer #%d", [tick, target_peer])
 	ORPC.rpc(_submit, [data], target_peer, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
 
 func get_redundancy() -> int:
@@ -50,7 +51,7 @@ func _encode_tick(tick: int) -> Array:
 	var data : Array[Dictionary] = []
 	data.resize(redundancy)
 
-	for i in range(redundancy):
+	for i in range(mini(redundancy, _history.size())):
 		var offset_tick := tick - i
 		data[i] = _history.get_snapshot(offset_tick).as_dictionary()
 
