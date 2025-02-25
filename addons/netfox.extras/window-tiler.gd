@@ -20,7 +20,7 @@ func _ready() -> void:
 	# Cleanup in case some files were left
 	_cleanup()
 
-	# Running embeded in editor
+	# Running embedded in editor
 	if _is_embedded():
 		return
 
