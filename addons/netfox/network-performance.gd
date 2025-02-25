@@ -42,7 +42,7 @@ static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkPerformance
 ## ( see [method OS.is_debug_build] ). [br]
 ## Can be forced on with the [code]netfox_perf[/code] feature tag. [br]
 ## Can be forced off with the [code]netfox_noperf[/code] feature tag.
-func is_enabled():
+func is_enabled() -> bool:
 	if OS.has_feature("netfox_noperf"):
 		return false
 	
@@ -103,19 +103,19 @@ func get_sent_state_props_count() -> int:
 func get_sent_state_props_ratio() -> float:
 	return _sent_state_props / maxf(1., _full_state_props)
 
-func push_full_state(state: Dictionary):
+func push_full_state(state: Dictionary) -> void:
 	_full_state_props_accum += state.size()
 
-func push_full_state_broadcast(state: Dictionary):
+func push_full_state_broadcast(state: Dictionary) -> void:
 	_full_state_props_accum += state.size() * (multiplayer.get_peers().size() - 1)
 
-func push_sent_state(state: Dictionary):
+func push_sent_state(state: Dictionary) -> void:
 	_sent_state_props_accum += state.size()
 
-func push_sent_state_broadcast(state: Dictionary):
+func push_sent_state_broadcast(state: Dictionary) -> void:
 	_sent_state_props_accum += state.size() * (multiplayer.get_peers().size() - 1)
 
-func _ready():
+func _ready() -> void:
 	if not is_enabled():
 		_logger.debug("Network performance disabled")
 		return
@@ -141,14 +141,14 @@ func _ready():
 	NetworkRollback.on_process_tick.connect(_on_rollback_tick)
 	NetworkRollback.after_loop.connect(_after_rollback_loop)
 
-func _before_tick_loop():
+func _before_tick_loop() -> void:
 	_network_loop_start = _time()
 	_network_ticks_accum = 0
 
-func _on_network_tick(_dt, _t):
+func _on_network_tick(_dt, _t) -> void:
 	_network_ticks_accum += 1
 
-func _after_tick_loop():
+func _after_tick_loop() -> void:
 	_network_loop_duration = _time() - _network_loop_start
 	_network_ticks = _network_ticks_accum
 	
@@ -158,15 +158,15 @@ func _after_tick_loop():
 	_sent_state_props = _sent_state_props_accum
 	_sent_state_props_accum = 0
 
-func _before_rollback_loop():
+func _before_rollback_loop() -> void:
 	_rollback_loop_start = _time()
 	_rollback_ticks_accum = 0
 	_rollback_nodes_simulated_accum = 0
 
-func _on_rollback_tick(_t):
+func _on_rollback_tick(_t: int) -> void:
 	_rollback_ticks_accum += 1
 
-func _after_rollback_loop():
+func _after_rollback_loop() -> void:
 	_rollback_loop_duration = _time() - _rollback_loop_start
 	_rollback_ticks = _rollback_ticks_accum
 	_rollback_nodes_simulated = _rollback_nodes_simulated_accum

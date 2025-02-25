@@ -7,7 +7,7 @@ func get_snapshot(tick: int) -> _PropertySnapshot:
 	else:
 		return _PropertySnapshot.new()
 
-func set_snapshot(tick: int, data):
+func set_snapshot(tick: int, data) -> void:
 	if data is Dictionary:
 		var snapshot := _PropertySnapshot.from_dictionary(data)
 		super(tick, snapshot)
@@ -21,8 +21,8 @@ func get_history(tick: int) -> _PropertySnapshot:
 
 	return snapshot if snapshot else _PropertySnapshot.new()
 
-func trim(earliest_tick_to_keep: int = NetworkRollback.history_start):
+func trim(earliest_tick_to_keep: int = NetworkRollback.history_start) -> void:
 	super(earliest_tick_to_keep)
 
-func merge(data: _PropertySnapshot, tick:int):
+func merge(data: _PropertySnapshot, tick:int) -> void:
 	set_snapshot(tick, get_snapshot(tick).merge(data))
