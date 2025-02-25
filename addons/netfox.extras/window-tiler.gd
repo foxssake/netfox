@@ -49,7 +49,16 @@ func _ready() -> void:
 	_logger.debug("Tiling as idx %d / %d - %s in %s", [idx, tile_count, _uid, locks])
 	_tile_window(idx, tile_count)
 
+func _is_embded() -> bool:
+	if Engine.has_method("is_embedded_in_editor"):
+		return Engine.is_embedded_in_editor()
+	return false
+
 func _make_lock(sid: String, uid: String) -> Error:
+
+	if _is_embded():
+		return Error.OK
+
 	var path = "%s/%s-%s-%s" % [OS.get_cache_dir(), _prefix, sid, uid]
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	
@@ -87,6 +96,10 @@ func _get_uid(filename: String) -> String:
 	return filename.substr(_prefix.length() + 1).get_slice("-", 1)
 
 func _tile_window(i: int, total: int) -> void:
+
+	if _is_embded():
+		return
+
 	var screen = ProjectSettings.get_setting("netfox/extras/screen", 0)
 	var screen_rect = DisplayServer.screen_get_usable_rect(screen)
 
