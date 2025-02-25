@@ -7,12 +7,12 @@ class_name _NetworkRollback
 ## @tutorial(Modifying objects during rollback): https://foxssake.github.io/netfox/latest/netfox/tutorials/modifying-objects-during-rollback/
 
 ## Whether rollback is enabled.
-var enabled: bool = ProjectSettings.get_setting("netfox/rollback/enabled", true)
+var enabled: bool = ProjectSettings.get_setting(&"netfox/rollback/enabled", true)
 
 ## Whether diff states are enabled.
 ## [br][br]
 ## Diff states send only the state properties that have changed.
-var enable_diff_states: bool = ProjectSettings.get_setting("netfox/rollback/enable_diff_states", true)
+var enable_diff_states: bool = ProjectSettings.get_setting(&"netfox/rollback/enable_diff_states", true)
 
 ## How many ticks to store as history.
 ## [br][br]
@@ -25,7 +25,7 @@ var enable_diff_states: bool = ProjectSettings.get_setting("netfox/rollback/enab
 ## [i]read-only[/i], you can change this in the project settings
 var history_limit: int:
 	get:
-		return ProjectSettings.get_setting("netfox/rollback/history_limit", 64)
+		return ProjectSettings.get_setting(&"netfox/rollback/history_limit", 64)
 	set(v):
 		push_error("Trying to set read-only variable history_limit")
 
@@ -50,7 +50,7 @@ var history_start: int:
 ## [i]read-only[/i], you can change this in the project settings
 var display_offset: int:
 	get:
-		return ProjectSettings.get_setting("netfox/rollback/display_offset", 0)
+		return ProjectSettings.get_setting(&"netfox/rollback/display_offset", 0)
 	set(v):
 		push_error("Trying to set read-only variable display_offset")
 
@@ -87,7 +87,7 @@ var display_tick: int:
 ## [i]read-only[/i], you can change this in the project settings
 var input_delay: int:
 	get:
-		return ProjectSettings.get_setting("netfox/rollback/input_delay", 0)
+		return ProjectSettings.get_setting(&"netfox/rollback/input_delay", 0)
 	set(v):
 		push_error("Trying to set read-only variable input_delay")
 
@@ -101,7 +101,7 @@ var input_delay: int:
 ## [i]read-only[/i], you can change this in the project settings
 var input_redundancy: int:
 	get:
-		var value = ProjectSettings.get_setting("netfox/rollback/input_redundancy", 3)
+		var value = ProjectSettings.get_setting(&"netfox/rollback/input_redundancy", 3)
 		return max(1, value)
 	set(v):
 		push_error("Trying to set read-only variable input_redundancy")
@@ -168,7 +168,7 @@ static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkRollback")
 ## Submit the resimulation start tick for the current loop.
 ##
 ## This is used to determine the resimulation range during each loop.
-func notify_resimulation_start(tick: int):
+func notify_resimulation_start(tick: int) -> void:
 	_resim_from = min(_resim_from, tick)
 
 ## Submit node for simulation.
@@ -176,7 +176,7 @@ func notify_resimulation_start(tick: int):
 ## This is used mostly internally by [RollbackSynchronizer]. The idea is to
 ## submit each affected node while preparing the tick, and then run only the
 ## nodes that need to be resimulated.
-func notify_simulated(node: Node):
+func notify_simulated(node: Node) -> void:
 	_simulated_nodes[node] = true
 
 
@@ -185,7 +185,7 @@ func notify_simulated(node: Node):
 ## This is used mostly internally by [RollbackSynchronizer]. The idea is to
 ## submit each affected node while preparing the tick, and then use
 ## [member is_simulated] to run only the nodes that need to be resimulated.
-func is_simulated(node: Node):
+func is_simulated(node: Node) -> bool:
 	return _simulated_nodes.has(node)
 
 ## Check if a network rollback is currently active.
@@ -210,7 +210,7 @@ func is_rollback_aware(what: Object) -> bool:
 ## [br][br]
 ## [i]Note:[/i] Make sure to check if the target is rollback-aware, because if
 ## it's not, this method will run into an error.
-func process_rollback(target: Object, delta: float, p_tick: int, is_fresh: bool):
+func process_rollback(target: Object, delta: float, p_tick: int, is_fresh: bool) -> void:
 	target._rollback_tick(delta, p_tick, is_fresh)
 
 ## Marks the target object as mutated.
@@ -259,7 +259,7 @@ func _ready():
 
 	NetworkTime.after_tick_loop.connect(_rollback)
 
-func _rollback():
+func _rollback() -> void:
 	if not enabled:
 		return
 
@@ -272,10 +272,10 @@ func _rollback():
 	_rollback_stage = _STAGE_BEFORE
 
 	# from = Earliest input amongst all rewindables
-	var from = _resim_from
+	var from: int = _resim_from
 
 	# to = Current tick
-	var to = NetworkTime.tick
+	var to: int = NetworkTime.tick
 
 	# Limit number of rollback ticks
 	if to - from > history_limit:
@@ -288,7 +288,7 @@ func _rollback():
 	# for tick in from .. to:
 	_rollback_from = from
 	_rollback_to = to
-	for tick in range(from, to):
+	for tick: int in range(from, to):
 		_tick = tick
 		_simulated_nodes.clear()
 

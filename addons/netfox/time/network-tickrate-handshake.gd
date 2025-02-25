@@ -25,7 +25,7 @@ const SIGNAL := 3
 
 ## Configures what happens on a tickrate mismatch.[br]
 ## Defaults to [constant WARN], based on project settings.
-var mismatch_action: int = ProjectSettings.get_setting("netfox/time/tickrate_mismatch_action", WARN)
+var mismatch_action: int = ProjectSettings.get_setting(&"netfox/time/tickrate_mismatch_action", WARN)
 
 static var _logger := _NetfoxLogger.for_netfox("NetworkTickrateHandshake")
 
@@ -60,7 +60,7 @@ func stop() -> void:
 func _ready() -> void:
 	name = "NetworkTickrateHandshake"
 
-func _handle_new_peer(peer: int):
+func _handle_new_peer(peer: int) -> void:
 	if multiplayer.is_server():
 		_submit_tickrate.rpc_id(peer, NetworkTime.tickrate)
 
@@ -85,13 +85,13 @@ func _handle_tickrate_mismatch(peer: int, tickrate: int) -> void:
 					NetworkTime.tickrate, tickrate
 				])
 				# TODO: Make tickrate mutable at user's digression
-				ProjectSettings.set_setting("netfox/time/tickrate", tickrate)
+				ProjectSettings.set_setting(&"netfox/time/tickrate", tickrate)
 		SIGNAL:
 			on_tickrate_mismatch.emit(peer, tickrate)
 
 @rpc("any_peer", "reliable", "call_remote")
 func _submit_tickrate(tickrate: int) -> void:
-	var sender = multiplayer.get_remote_sender_id()
+	var sender: int = multiplayer.get_remote_sender_id()
 	_logger.debug("Received tickrate %d from peer %d", [tickrate, sender])
 
 	if tickrate != NetworkTime.tickrate:
