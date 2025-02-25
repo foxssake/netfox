@@ -29,7 +29,7 @@ func _ready() -> void:
 		return
 
 	_logger.debug("Tiling with sid: %s, uid: %s", [_sid, _uid])
-	
+
 	var err = _make_lock(_sid, _uid)
 	if err != Error.OK:
 		_logger.warning("Failed to create lock for tiling, reason: %s", [error_string(err)])
@@ -49,40 +49,40 @@ func _ready() -> void:
 
 	var tile_count = locks.size()
 	var idx = locks.find(_uid)
-	
+
 	_logger.debug("Tiling as idx %d / %d - %s in %s", [idx, tile_count, _uid, locks])
 	_tile_window(idx, tile_count)
 
 func _is_embedded() -> bool:
 	if Engine.has_method("is_embedded_in_editor"):
-		return Engine.is_embedded_in_editor()
+		return Engine.call("is_embedded_in_editor")
 	return false
 
 func _make_lock(sid: String, uid: String) -> Error:
 	var path = "%s/%s-%s-%s" % [OS.get_cache_dir(), _prefix, sid, uid]
 	var file := FileAccess.open(path, FileAccess.WRITE)
-	
+
 	if file == null:
 		return FileAccess.get_open_error()
-	
+
 	file.close()
 	return Error.OK
 
 func _list_lock_ids() -> Array[String]:
 	var result: Array[String] = []
 	var dir := DirAccess.open(OS.get_cache_dir())
-	
+
 	if dir:
 		for f in dir.get_files():
 			if f.begins_with(_prefix):
 				result.append(_get_uid(f))
-	
+
 	return result
 
 func _cleanup():
 	var result: Array[String] = []
 	var dir := DirAccess.open(OS.get_cache_dir())
-	
+
 	if dir:
 		for f in dir.get_files():
 			if f.begins_with(_prefix) and _get_sid(f) != _sid:
