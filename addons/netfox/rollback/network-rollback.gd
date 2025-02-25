@@ -101,7 +101,7 @@ var input_delay: int:
 ## [i]read-only[/i], you can change this in the project settings
 var input_redundancy: int:
 	get:
-		var value = ProjectSettings.get_setting(&"netfox/rollback/input_redundancy", 3)
+		var value := ProjectSettings.get_setting(&"netfox/rollback/input_redundancy", 3)
 		return max(1, value)
 	set(v):
 		push_error("Trying to set read-only variable input_redundancy")
@@ -272,10 +272,10 @@ func _rollback() -> void:
 	_rollback_stage = _STAGE_BEFORE
 
 	# from = Earliest input amongst all rewindables
-	var from: int = _resim_from
+	var from := _resim_from
 
 	# to = Current tick
-	var to: int = NetworkTime.tick
+	var to := NetworkTime.tick
 
 	# Limit number of rollback ticks
 	if to - from > history_limit:

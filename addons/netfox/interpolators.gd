@@ -6,7 +6,7 @@ class Interpolator:
 	var apply: Callable
 	
 	static func make(is_applicable: Callable, apply: Callable) -> Interpolator:
-		var result: Interpolator = Interpolator.new()
+		var result := Interpolator.new()
 		result.is_applicable = is_applicable
 		result.apply = apply
 		return result

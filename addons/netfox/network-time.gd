@@ -504,22 +504,22 @@ func _ready() -> void:
 func _loop() -> void:
 	# Adjust local clock
 	_clock.step(_clock_stretch_factor)
-	var clock_diff: float = NetworkTimeSynchronizer.get_time() - _clock.get_time()
+	var clock_diff := NetworkTimeSynchronizer.get_time() - _clock.get_time()
 	
 	# Ignore diffs under 1ms
 	clock_diff = sign(clock_diff) * max(abs(clock_diff) - 0.001, 0.)
 	
-	var clock_stretch_min: float = 1. / clock_stretch_max
+	var clock_stretch_min := 1. / clock_stretch_max
 	# var clock_stretch_f = (1. + clock_diff / (1. * ticktime)) / 2.
-	var clock_stretch_f: float = inverse_lerp(-ticktime, +ticktime, clock_diff)
+	var clock_stretch_f := inverse_lerp(-ticktime, +ticktime, clock_diff)
 	clock_stretch_f = clampf(clock_stretch_f, 0., 1.)
 
-	var previous_stretch_factor: float = _clock_stretch_factor
+	var previous_stretch_factor := _clock_stretch_factor
 	_clock_stretch_factor = lerpf(clock_stretch_min, clock_stretch_max, clock_stretch_f)
 	
 	# Detect editor pause
-	var clock_step: float = _clock.get_time() - _last_process_time
-	var clock_step_raw: float = clock_step / previous_stretch_factor
+	var clock_step := _clock.get_time() - _last_process_time
+	var clock_step_raw := clock_step / previous_stretch_factor
 	if clock_step_raw > stall_threshold:
 			# Game stalled for a while, probably paused, don't run extra ticks
 			# to catch up
@@ -569,7 +569,7 @@ func _is_active() -> bool:
 
 @rpc("any_peer", "reliable", "call_local")
 func _submit_sync_success() -> void:
-	var peer_id: int = multiplayer.get_remote_sender_id()
+	var peer_id := multiplayer.get_remote_sender_id()
 	
 	_logger.trace("Received time sync success from #%s, synced peers: %s", [peer_id, _synced_peers.keys()])
 	

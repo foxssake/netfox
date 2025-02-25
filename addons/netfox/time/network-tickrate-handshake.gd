@@ -91,7 +91,7 @@ func _handle_tickrate_mismatch(peer: int, tickrate: int) -> void:
 
 @rpc("any_peer", "reliable", "call_remote")
 func _submit_tickrate(tickrate: int) -> void:
-	var sender: int = multiplayer.get_remote_sender_id()
+	var sender := multiplayer.get_remote_sender_id()
 	_logger.debug("Received tickrate %d from peer %d", [tickrate, sender])
 
 	if tickrate != NetworkTime.tickrate:

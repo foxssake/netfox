@@ -30,7 +30,7 @@ func process_settings() -> void:
 	_property_entries = []
 
 	for property: String in properties:
-		var property_entry: PropertyEntry = _property_cache.get_entry(property)
+		var property_entry := _property_cache.get_entry(property)
 		_property_entries.push_back(property_entry)
 
 ## Add a state property.

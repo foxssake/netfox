@@ -34,8 +34,8 @@ class SteppingClock:
 		time = p_time
 	
 	func step(p_multiplier: float = 1.) -> void:
-		var current_step: float = get_raw_time()
-		var step_duration: float = current_step - last_step
+		var current_step := get_raw_time()
+		var step_duration := current_step - last_step
 		last_step = current_step
 
 		adjust(step_duration * p_multiplier)

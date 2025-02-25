@@ -127,7 +127,7 @@ func process_settings() -> void:
 
 	# Gather state properties - all state properties are recorded
 	for property: String in state_properties:
-		var property_entry: PropertyEntry = _property_cache.get_entry(property)
+		var property_entry := _property_cache.get_entry(property)
 		_record_state_property_entries.push_back(property_entry)
 
 	process_authority()
@@ -153,14 +153,14 @@ func process_authority() -> void:
 	# Gather state properties that we own
 	# i.e. it's the state of a node that belongs to the local peer
 	for property: String in state_properties:
-		var property_entry: PropertyEntry = _property_cache.get_entry(property)
+		var property_entry := _property_cache.get_entry(property)
 		if property_entry.node.is_multiplayer_authority():
 			_auth_state_property_entries.push_back(property_entry)
 
 	# Gather input properties that we own
 	# Only record input that is our own
 	for property: String in input_properties:
-		var property_entry: PropertyEntry = _property_cache.get_entry(property)
+		var property_entry := _property_cache.get_entry(property)
 		if property_entry.node.is_multiplayer_authority():
 			_auth_input_property_entries.push_back(property_entry)
 			_record_input_property_entries.push_back(property_entry)

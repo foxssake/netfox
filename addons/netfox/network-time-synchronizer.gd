@@ -187,7 +187,7 @@ func _discipline_clock() -> void:
 	
 	# Calculate offset
 	var offset := 0.
-	var offsets: Array = sorted_samples.map(func(it): return it.get_offset())
+	var offsets := sorted_samples.map(func(it): return it.get_offset())
 	var offset_weight: float = 0.
 	for i in range(offsets.size()):
 		var w = log(1 + sorted_samples[i].get_rtt())
@@ -226,7 +226,7 @@ func _send_ping(idx: int) -> void:
 
 @rpc("any_peer", "call_remote", "unreliable")
 func _send_pong(idx: int, ping_received: float, pong_sent: float) -> void:
-	var pong_received: float = _clock.get_time()
+	var pong_received := _clock.get_time()
 	
 	if not _awaiting_samples.has(idx):
 		# Sample was dropped mid-flight during a panic episode
