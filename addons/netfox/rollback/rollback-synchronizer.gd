@@ -80,7 +80,7 @@ var _inputs := _PropertyHistoryBuffer.new()
 var _latest_state_tick: int
 var _earliest_input_tick: int
 
-var _input_transmitter: RedundancyTransmitter
+var _input_encoder := RedundantHistoryEncoder.new(_inputs, _property_cache)
 
 # Maps peers (int) to acknowledged ticks (int)
 var _ackd_state: Dictionary = {}
@@ -91,8 +91,8 @@ var _has_input: bool
 var _input_tick: int
 var _is_predicted_tick: bool
 
-var _property_cache: PropertyCache
-var _freshness_store: RollbackFreshnessStore
+var _property_cache := PropertyCache.new(root)
+var _freshness_store := RollbackFreshnessStore.new()
 
 var _is_initialized: bool = false
 
@@ -105,8 +105,9 @@ signal _on_transmit_state(state: Dictionary, tick: int)
 ## Call this after any change to configuration. Updates based on authority too
 ## ( calls process_authority ).
 func process_settings():
-	_property_cache = PropertyCache.new(root)
-	_freshness_store = RollbackFreshnessStore.new()
+	_property_cache.root = root
+	_property_cache.clear()
+	_freshness_store.clear()
 
 	_nodes.clear()
 	_record_state_property_entries.clear()
@@ -278,21 +279,9 @@ func _ready():
 	process_settings.call_deferred()
 
 	# Setup input transmitter
-	_input_transmitter = RedundancyTransmitter.new(
-		str(get_path()) + "/InputTransmitter", _inputs, _property_cache
-	)
-
-	_input_transmitter.is_broadcast = enable_input_broadcast
-	_input_transmitter.redundancy = NetworkRollback.input_redundancy
-
-	_input_transmitter.on_new_snapshot.connect(func(input_tick: int):
+	_input_encoder.on_new_snapshot.connect(func(input_tick: int):
 		_earliest_input_tick = mini(_earliest_input_tick, input_tick)
 	)
-
-	# Ensure ORPCs work
-	# TODO: Move to some central place, or create ticket for a Netfox.start()
-	# style start sequence
-	ORPC.use(get_tree().get_multiplayer())
 
 func _connect_signals():
 	NetworkTime.before_tick.connect(_before_tick)
@@ -534,7 +523,10 @@ func _after_tick(_delta, _tick):
 		_inputs.set_snapshot(input_tick, input)
 
 		# Transmit input
-		_input_transmitter.push(input_tick)
+		var input_data := _input_encoder.encode(input_tick)
+		var target_peer := 0 if enable_input_broadcast else root.get_multiplayer_authority()
+		if target_peer != multiplayer.get_unique_id():
+			_submit_input.rpc_id(target_peer, input_tick, input_data)
 
 	# Trim history
 	_states.trim()
@@ -547,6 +539,11 @@ func _reprocess_settings():
 
 	_properties_dirty = false
 	process_settings()
+
+@rpc("any_peer", "unreliable", "call_remote")
+func _submit_input(tick: int, data: Array):
+	var snapshots := _input_encoder.decode(data)
+	_input_encoder.apply(tick, snapshots)
 
 # `serialized_state` is a serialized _PropertySnapshot
 @rpc("any_peer", "unreliable_ordered", "call_remote")

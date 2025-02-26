@@ -1,25 +1,18 @@
 extends RefCounted
-class_name RedundancyTransmitter
+class_name RedundantHistoryEncoder
 
 var redundancy: int = 4:
 	get = get_redundancy,
 	set = set_redundancy
 
-var is_broadcast: bool = false
 var sanitize: bool = false
 
-var _name: String = ""
 var _history: _PropertyHistoryBuffer
 var _property_cache: PropertyCache
 
-var _logger: _NetfoxLogger
+var _logger := _NetfoxLogger.for_netfox("RedundantHistoryEncoder")
 
 signal on_new_snapshot(tick: int)
-
-func push(tick: int):
-	var data := _encode_tick(tick)
-	var target_peer := 0 if is_broadcast else 1
-	ORPC.rpc(_submit, [tick, data], target_peer, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
 
 func get_redundancy() -> int:
 	return redundancy
@@ -33,20 +26,7 @@ func set_redundancy(p_redundancy: int):
 
 	redundancy = p_redundancy
 
-func _init(p_name: String, p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache):
-	_name = p_name
-	_history = p_history
-	_property_cache = p_property_cache
-
-	_logger = _NetfoxLogger.for_extras("RedundancyTransmitter/" + _name)
-
-	ORPC.register(_submit, _name + "::_submit")
-
-func _notification(what: int) -> void:
-	if what == NOTIFICATION_PREDELETE:
-		ORPC.unregister(_submit)
-
-func _encode_tick(tick: int) -> Array:
+func encode(tick: int) -> Array:
 	var data : Array[Dictionary] = []
 	data.resize(redundancy)
 
@@ -56,7 +36,7 @@ func _encode_tick(tick: int) -> Array:
 
 	return data
 
-func _decode_tick(data: Array) -> Array[_PropertySnapshot]:
+func decode(data: Array) -> Array[_PropertySnapshot]:
 	var result: Array[_PropertySnapshot] = []
 	result.resize(data.size())
 
@@ -65,10 +45,7 @@ func _decode_tick(data: Array) -> Array[_PropertySnapshot]:
 
 	return result
 
-func _submit(tick: int, data: Array):
-	var snapshots := _decode_tick(data)
-	var sender := ORPC.get_remote_sender_id()
-
+func apply(tick: int, snapshots: Array[_PropertySnapshot], sender: int = 0):
 	for i in range(snapshots.size()):
 		var offset_tick := tick - i
 		var snapshot := snapshots[i]
@@ -80,7 +57,7 @@ func _submit(tick: int, data: Array):
 				[offset_tick, NetworkRollback.history_limit]
 			)
 
-		if sanitize:
+		if sanitize and sender > 0:
 			snapshot.sanitize(sender, _property_cache)
 
 		if snapshot.is_empty():
@@ -93,3 +70,8 @@ func _submit(tick: int, data: Array):
 			# Received a new snapshot, store and emit signal
 			_history.set_snapshot(offset_tick, snapshot)
 			on_new_snapshot.emit(offset_tick)
+
+
+func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache):
+	_history = p_history
+	_property_cache = p_property_cache
