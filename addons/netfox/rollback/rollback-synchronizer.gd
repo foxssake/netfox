@@ -75,12 +75,17 @@ var _skipset: _Set = _Set.new()
 
 var _properties_dirty: bool = false
 
+var _property_cache := PropertyCache.new(root)
+var _freshness_store := RollbackFreshnessStore.new()
+
 var _states := _PropertyHistoryBuffer.new()
 var _inputs := _PropertyHistoryBuffer.new()
 var _latest_state_tick: int
 var _earliest_input_tick: int
 
 var _input_encoder := RedundantHistoryEncoder.new(_inputs, _property_cache)
+var _full_state_encoder := PassthroughHistoryEncoder.new(_states, _property_cache)
+var _diff_state_encoder := DiffHistoryEncoder.new(_states, _property_cache)
 
 # Maps peers (int) to acknowledged ticks (int)
 var _ackd_state: Dictionary = {}
@@ -90,9 +95,6 @@ var _next_diff_ack_tick: int
 var _has_input: bool
 var _input_tick: int
 var _is_predicted_tick: bool
-
-var _property_cache := PropertyCache.new(root)
-var _freshness_store := RollbackFreshnessStore.new()
 
 var _is_initialized: bool = false
 
@@ -279,6 +281,7 @@ func _ready():
 	process_settings.call_deferred()
 
 	# Setup input transmitter
+	# NOTE: Actually this could be moved back to RBS
 	_input_encoder.on_new_snapshot.connect(func(input_tick: int):
 		_earliest_input_tick = mini(_earliest_input_tick, input_tick)
 	)
@@ -436,47 +439,51 @@ func _record_tick(tick: int):
 
 			if not NetworkRollback.enable_diff_states:
 				# Broadcast new full state
-				_submit_full_state.rpc(full_state.as_dictionary(), tick)
+				var full_state_data := _full_state_encoder.encode(tick)
+				_submit_full_state.rpc(full_state_data, tick)
 
-				NetworkPerformance.push_full_state_broadcast(full_state.as_dictionary())
-				NetworkPerformance.push_sent_state_broadcast(full_state.as_dictionary())
+				NetworkPerformance.push_full_state_broadcast(full_state_data)
+				NetworkPerformance.push_sent_state_broadcast(full_state_data)
 			elif full_state_interval > 0 and tick > _next_full_state_tick:
 				# Send full state so we can send deltas from there
 				_logger.trace("Broadcasting full state for tick %d", [tick])
-				_submit_full_state.rpc(full_state.as_dictionary(), tick)
+
+				var full_state_data := _full_state_encoder.encode(tick)
+				_submit_full_state.rpc(full_state_data, tick)
 				_next_full_state_tick = tick + full_state_interval
 
-				NetworkPerformance.push_full_state_broadcast(full_state.as_dictionary())
-				NetworkPerformance.push_sent_state_broadcast(full_state.as_dictionary())
+				NetworkPerformance.push_full_state_broadcast(full_state_data)
+				NetworkPerformance.push_sent_state_broadcast(full_state_data)
 			else:
 				for peer in multiplayer.get_peers():
 					NetworkPerformance.push_full_state(full_state.as_dictionary())
 
 					# Peer hasn't received a full state yet, can't send diffs
 					if not _ackd_state.has(peer):
-						_submit_full_state.rpc_id(peer, full_state.as_dictionary(), tick)
-						NetworkPerformance.push_sent_state(full_state.as_dictionary())
+						var full_state_data := _full_state_encoder.encode(tick)
+						_submit_full_state.rpc_id(peer, full_state_data, tick)
+						NetworkPerformance.push_sent_state(full_state_data)
 						continue
 
 					# History doesn't have reference tick?
 					var reference_tick = _ackd_state[peer]
 					if not _states.has(reference_tick):
-						_submit_full_state.rpc_id(peer, full_state.as_dictionary(), tick)
-						NetworkPerformance.push_sent_state(full_state.as_dictionary())
+						var full_state_data := _full_state_encoder.encode(tick)
+						_submit_full_state.rpc_id(peer, full_state_data, tick)
+						NetworkPerformance.push_sent_state(full_state_data)
 						continue
 
 					# Prepare diff and send
-					var reference_state = _states.get_history(reference_tick)
-					var diff_state = reference_state.make_patch(full_state)
-
-					if diff_state.size() == full_state.size():
+					var diff_state_data := _diff_state_encoder.encode(tick, reference_tick)
+					if diff_state_data.size() == full_state.size():
 						# State is completely different, send full state
-						_submit_full_state.rpc_id(peer, full_state.as_dictionary(), tick)
-						NetworkPerformance.push_sent_state(full_state.as_dictionary())
+						var full_state_data := _full_state_encoder.encode(tick)
+						_submit_full_state.rpc_id(peer, full_state_data, tick)
+						NetworkPerformance.push_sent_state(full_state_data)
 					else:
 						# Send only diff
-						_submit_diff_state.rpc_id(peer, diff_state.as_dictionary(), tick, reference_tick)
-						NetworkPerformance.push_sent_state(diff_state.as_dictionary())
+						_submit_diff_state.rpc_id(peer, diff_state_data, tick, reference_tick)
+						NetworkPerformance.push_sent_state(diff_state_data)
 
 	# Record state for specified tick ( current + 1 )
 
@@ -547,12 +554,10 @@ func _submit_input(tick: int, data: Array):
 
 # `serialized_state` is a serialized _PropertySnapshot
 @rpc("any_peer", "unreliable_ordered", "call_remote")
-func _submit_full_state(serialized_state: Dictionary, tick: int):
+func _submit_full_state(data: Dictionary, tick: int):
 	if not _is_initialized:
 		# Settings not processed yet
 		return
-
-	var state := _PropertySnapshot.from_dictionary(serialized_state)
 
 	if tick < NetworkRollback.history_start:
 		# State too old!
@@ -560,27 +565,22 @@ func _submit_full_state(serialized_state: Dictionary, tick: int):
 		return
 
 	var sender = multiplayer.get_remote_sender_id()
-	state.sanitize(sender, _property_cache)
+	var snapshot := _full_state_encoder.decode(data, sender)
 
-	if state.is_empty():
-		# State is completely invalid
+	if snapshot == null:
+		# TODO: Error
 		_logger.warning("Received invalid state from %s for tick %s", [sender, tick])
 		return
 
-	_states.merge(state, tick)
+	_states.merge(snapshot, tick)
 	_latest_state_tick = tick
-
-	if NetworkRollback.enable_diff_states:
-		_ack_full_state.rpc_id(sender, tick)
 
 # State is a serialized _PropertySnapshot (Dictionary[String, Variant])
 @rpc("any_peer", "unreliable_ordered", "call_remote")
-func _submit_diff_state(serialized_diff_state: Dictionary, tick: int, reference_tick: int):
+func _submit_diff_state(data: Dictionary, tick: int, reference_tick: int):
 	if not _is_initialized:
 		# Settings not processed yet
 		return
-
-	var diff_state := _PropertySnapshot.from_dictionary(serialized_diff_state)
 
 	if tick < NetworkTime.tick - NetworkRollback.history_limit:
 		# State too old!
@@ -592,23 +592,20 @@ func _submit_diff_state(serialized_diff_state: Dictionary, tick: int, reference_
 		_logger.warning("Reference tick %d missing for %d", [reference_tick, tick])
 
 	var sender = multiplayer.get_remote_sender_id()
+	var diff_snapshot := _diff_state_encoder.decode(data, sender)
+
 	var reference_state = _states.get_snapshot(reference_tick)
 	var is_valid_state := true
 
-	if serialized_diff_state.is_empty():
+	if diff_snapshot == null:
+		_logger.warning("Received invalid state from %s for tick %s", [sender, tick])
+		is_valid_state = false
+	elif data.is_empty():
 		_latest_state_tick = tick
 		_states.merge(reference_state, tick)
 	else:
-		diff_state.sanitize(sender, _property_cache)
-
-		if diff_state.is_empty():
-			# State is completely invalid
-			_logger.warning("Received invalid state from %s for tick %s", [sender, tick])
-			is_valid_state = false
-		else:
-			var result_state := reference_state.merge(diff_state)
-			_states.set_snapshot(tick, result_state)
-			_latest_state_tick = tick
+		_states.merge(diff_snapshot, tick)
+		_latest_state_tick = tick
 
 	if NetworkRollback.enable_diff_states:
 		if is_valid_state and diff_ack_interval > 0 and tick > _next_diff_ack_tick:
