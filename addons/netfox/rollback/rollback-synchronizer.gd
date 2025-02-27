@@ -280,12 +280,6 @@ func _ready():
 
 	process_settings.call_deferred()
 
-	# Setup input transmitter
-	# NOTE: Actually this could be moved back to RBS
-	_input_encoder.on_new_snapshot.connect(func(input_tick: int):
-		_earliest_input_tick = mini(_earliest_input_tick, input_tick)
-	)
-
 func _connect_signals():
 	NetworkTime.before_tick.connect(_before_tick)
 	NetworkTime.after_tick.connect(_after_tick)
@@ -550,7 +544,9 @@ func _reprocess_settings():
 @rpc("any_peer", "unreliable", "call_remote")
 func _submit_input(tick: int, data: Array):
 	var snapshots := _input_encoder.decode(data)
-	_input_encoder.apply(tick, snapshots)
+	var earliest_received_input = _input_encoder.apply(tick, snapshots)
+	if earliest_received_input != null:
+		_earliest_input_tick = mini(_earliest_input_tick, earliest_received_input)
 
 # `serialized_state` is a serialized _PropertySnapshot
 @rpc("any_peer", "unreliable_ordered", "call_remote")
@@ -559,21 +555,10 @@ func _submit_full_state(data: Dictionary, tick: int):
 		# Settings not processed yet
 		return
 
-	if tick < NetworkRollback.history_start:
-		# State too old!
-		_logger.error("Received full state for %s, rejecting because older than %s frames", [tick, NetworkRollback.history_limit])
-		return
-
 	var sender = multiplayer.get_remote_sender_id()
-	var snapshot := _full_state_encoder.decode(data, sender)
-
-	if snapshot == null:
-		# TODO: Error
-		_logger.warning("Received invalid state from %s for tick %s", [sender, tick])
-		return
-
-	_states.merge(snapshot, tick)
-	_latest_state_tick = tick
+	var snapshot := _full_state_encoder.decode(data)
+	if _full_state_encoder.apply(tick, snapshot, sender):
+		_latest_state_tick = tick
 
 # State is a serialized _PropertySnapshot (Dictionary[String, Variant])
 @rpc("any_peer", "unreliable_ordered", "call_remote")
@@ -582,33 +567,16 @@ func _submit_diff_state(data: Dictionary, tick: int, reference_tick: int):
 		# Settings not processed yet
 		return
 
-	if tick < NetworkTime.tick - NetworkRollback.history_limit:
-		# State too old!
-		_logger.error("Received diff state for %s, rejecting because older than %s frames", [tick, NetworkRollback.history_limit])
+	var sender = multiplayer.get_remote_sender_id()
+	var diff_snapshot := _diff_state_encoder.decode(data)
+	if not _diff_state_encoder.apply(tick, diff_snapshot, reference_tick, sender):
+		# Invalid data
 		return
 
-	if not _states.has(reference_tick):
-		# Reference tick missing, hope for the best
-		_logger.warning("Reference tick %d missing for %d", [reference_tick, tick])
-
-	var sender = multiplayer.get_remote_sender_id()
-	var diff_snapshot := _diff_state_encoder.decode(data, sender)
-
-	var reference_state = _states.get_snapshot(reference_tick)
-	var is_valid_state := true
-
-	if diff_snapshot == null:
-		_logger.warning("Received invalid state from %s for tick %s", [sender, tick])
-		is_valid_state = false
-	elif data.is_empty():
-		_latest_state_tick = tick
-		_states.merge(reference_state, tick)
-	else:
-		_states.merge(diff_snapshot, tick)
-		_latest_state_tick = tick
+	_latest_state_tick = tick
 
 	if NetworkRollback.enable_diff_states:
-		if is_valid_state and diff_ack_interval > 0 and tick > _next_diff_ack_tick:
+		if diff_ack_interval > 0 and tick > _next_diff_ack_tick:
 			_ack_diff_state.rpc_id(sender, tick)
 			_next_diff_ack_tick = tick + diff_ack_interval
 

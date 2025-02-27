@@ -12,8 +12,6 @@ var _property_cache: PropertyCache
 
 var _logger := _NetfoxLogger.for_netfox("RedundantHistoryEncoder")
 
-signal on_new_snapshot(tick: int)
-
 func get_redundancy() -> int:
 	return redundancy
 
@@ -46,6 +44,8 @@ func decode(data: Array) -> Array[_PropertySnapshot]:
 	return result
 
 func apply(tick: int, snapshots: Array[_PropertySnapshot], sender: int = 0):
+	var earliest_new_tick = null
+
 	for i in range(snapshots.size()):
 		var offset_tick := tick - i
 		var snapshot := snapshots[i]
@@ -56,20 +56,22 @@ func apply(tick: int, snapshots: Array[_PropertySnapshot], sender: int = 0):
 				"Received data for %s, rejecting because older than %s frames",
 				[offset_tick, NetworkRollback.history_limit]
 			)
+			continue
 
 		if sanitize and sender > 0:
 			snapshot.sanitize(sender, _property_cache)
-
-		if snapshot.is_empty():
-			# No valid properties ( probably after sanitize )
-			_logger.warning("Received invalid data from %d for tick %d", [sender, tick])
-			continue
+			if snapshot.is_empty():
+				# No valid properties ( probably after sanitize )
+				_logger.warning("Received invalid data from %d for tick %d", [sender, tick])
+				continue
 
 		var known_snapshot := _history.get_snapshot(offset_tick)
 		if not known_snapshot.equals(snapshot):
 			# Received a new snapshot, store and emit signal
 			_history.set_snapshot(offset_tick, snapshot)
-			on_new_snapshot.emit(offset_tick)
+			earliest_new_tick = offset_tick
+
+	return earliest_new_tick
 
 
 func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache):
