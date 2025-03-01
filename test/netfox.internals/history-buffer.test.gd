@@ -49,3 +49,10 @@ func test_get_closest_tick_should_return_previous():
 
 	# When + then
 	expect_equal(history_buffer.get_closest_tick(5), 4)
+
+func test_get_snapshot_should_return_null_on_unknown():
+	# Given
+	var history_buffer := _HistoryBuffer.new()
+
+	# When + then
+	expect_equal(history_buffer.get_snapshot(1), null)
