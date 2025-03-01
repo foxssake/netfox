@@ -155,6 +155,9 @@ static func debug():
 func _init():
 	Vest._register_scene_tree(self)
 
+	# Wait a frame for autoloads to register
+	await process_frame
+
 	var params := Params.parse(OS.get_cmdline_args())
 	var runner := Runner.new()
 
