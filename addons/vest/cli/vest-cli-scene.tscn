@@ -1,0 +1,22 @@
+[gd_scene load_steps=2 format=3 uid="uid://dopwc3211i1ce"]
+
+[sub_resource type="GDScript" id="GDScript_de1pc"]
+script/source = "extends Node
+
+func _ready():
+	Vest._register_scene_tree(get_tree())
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_MINIMIZED)
+
+	var params := VestCLI.Params.new()
+	params.run_glob = Vest.get_test_glob()
+	params.host = \"0.0.0.0\"
+	params.port = Vest.get_debug_port()
+
+	var runner := VestCLI.Runner.new()
+	var exit_code := await runner.run(params)
+
+	get_tree().quit(exit_code)
+"
+
+[node name="vest-cli-scene" type="Node"]
+script = SubResource("GDScript_de1pc")

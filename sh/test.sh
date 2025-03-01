@@ -11,7 +11,9 @@ godot --headless --import .
 print "::endgroup::"
 
 print "::group::Run vest"
-godot --headless -s "addons/vest/vest-cli.gd" --path "$(pwd)"
+godot --headless -s "addons/vest/cli/vest-cli.gd" \
+      --vest-glob "res://test/*.test.gd" \
+      --vest-report-format tap --vest-report-file "$VEST_LOG"
 print "::endgroup::"
 
 # Check results
