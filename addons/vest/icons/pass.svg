@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="16"
+   height="16"
+   viewBox="0 0 16 16"
+   version="1.1"
+   id="svg1"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1">
+    <mask
+       maskUnits="userSpaceOnUse"
+       id="mask-powermask-path-effect3">
+      <path
+         id="mask-powermask-path-effect3_box"
+         style="fill:#ffffff;fill-opacity:1"
+         d="M -1,-1 H 17 V 17 H -1 Z" />
+      <path
+         style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:6;stroke-dasharray:none;stroke-opacity:1"
+         d="M 3.7573597,9.0606809 5.87868,11.182001 12.24264,4.8180402"
+         id="path3" />
+    </mask>
+    <filter
+       id="mask-powermask-path-effect3_inverse"
+       style="color-interpolation-filters:sRGB"
+       height="100"
+       width="100"
+       x="-50"
+       y="-50">
+      <feColorMatrix
+         id="mask-powermask-path-effect3_primitive1"
+         values="1"
+         type="saturate"
+         result="fbSourceGraphic" />
+      <feColorMatrix
+         id="mask-powermask-path-effect3_primitive2"
+         values="-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 0 0 0 1 0 "
+         in="fbSourceGraphic" />
+    </filter>
+  </defs>
+  <g
+     id="layer1">
+    <path
+       style="fill:#8eef97;fill-opacity:1;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:6"
+       id="path1"
+       mask="url(#mask-powermask-path-effect3)"
+       d="M 16,8 A 8,8 0 0 1 8,16 8,8 0 0 1 0,8 8,8 0 0 1 8,0 8,8 0 0 1 16,8 Z" />
+  </g>
+</svg>

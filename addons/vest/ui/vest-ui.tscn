@@ -1,14 +1,12 @@
-[gd_scene load_steps=3 format=3 uid="uid://bp8g7j7774mwi"]
+[gd_scene load_steps=8 format=3 uid="uid://bp8g7j7774mwi"]
 
 [ext_resource type="Script" path="res://addons/vest/ui/vest-ui.gd" id="1_cct3x"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xpauq"]
-bg_color = Color(0, 0, 0, 0.501961)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_blend = true
+[ext_resource type="Texture2D" uid="uid://r4y6ihamgino" path="res://addons/vest/icons/run.svg" id="2_q3lni"]
+[ext_resource type="Texture2D" uid="uid://dwhlyf5eyiect" path="res://addons/vest/icons/debug.svg" id="3_mcbjt"]
+[ext_resource type="Texture2D" uid="uid://ctdipwc8sklwo" path="res://addons/vest/icons/clear.svg" id="4_rjham"]
+[ext_resource type="Texture2D" uid="uid://dt75n55vr4kq0" path="res://addons/vest/icons/refresh.svg" id="5_k7hxl"]
+[ext_resource type="Texture2D" uid="uid://bmqjme87oq3xx" path="res://addons/vest/icons/pass.svg" id="6_mef67"]
+[ext_resource type="Texture2D" uid="uid://c711af0y1s2ct" path="res://addons/vest/icons/run-save.svg" id="6_wy3v7"]
 
 [node name="Vest UI" type="Control"]
 custom_minimum_size = Vector2(0, 144)
@@ -20,7 +18,20 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_cct3x")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="."]
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+
+[node name="Results Panel" type="Panel" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/Results Panel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -28,63 +39,92 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Controls" type="VBoxContainer" parent="HBoxContainer"]
-layout_mode = 2
-
-[node name="Run All Button" type="Button" parent="HBoxContainer/Controls"]
+[node name="Results Tree" type="Tree" parent="VBoxContainer/Results Panel/PanelContainer"]
 unique_name_in_owner = true
-layout_mode = 2
-text = "Run Tests"
-
-[node name="Run On Save Container" type="HBoxContainer" parent="HBoxContainer/Controls"]
-layout_mode = 2
-
-[node name="Run On Save CheckBox" type="CheckBox" parent="HBoxContainer/Controls/Run On Save Container"]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="Run On Save Label" type="Label" parent="HBoxContainer/Controls/Run On Save Container"]
-layout_mode = 2
-text = "Run on Save"
-
-[node name="Clear Button" type="Button" parent="HBoxContainer/Controls"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Clear"
-
-[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="PanelContainer" type="PanelContainer" parent="HBoxContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_xpauq")
+columns = 2
+hide_root = true
 
-[node name="ScrollContainer" type="ScrollContainer" parent="HBoxContainer/VBoxContainer/PanelContainer"]
+[node name="Bottom Line" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
-size_flags_horizontal = 3
 
-[node name="Results" type="VBoxContainer" parent="HBoxContainer/VBoxContainer/PanelContainer/ScrollContainer"]
+[node name="Run All Button" type="Button" parent="VBoxContainer/Bottom Line"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Run tests"
+text = "      "
+icon = ExtResource("2_q3lni")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Debug Button" type="Button" parent="VBoxContainer/Bottom Line"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Debug tests"
+text = "      "
+icon = ExtResource("3_mcbjt")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Clear Button" type="Button" parent="VBoxContainer/Bottom Line"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Clear results"
+text = "      "
+icon = ExtResource("4_rjham")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Run on Save Button" type="Button" parent="VBoxContainer/Bottom Line"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Run on Save"
+toggle_mode = true
+text = "      "
+icon = ExtResource("6_wy3v7")
+icon_alignment = 1
+expand_icon = true
+
+[node name="VSeparator3" type="VSeparator" parent="VBoxContainer/Bottom Line"]
+layout_mode = 2
+
+[node name="Test Summary Icon" type="TextureRect" parent="VBoxContainer/Bottom Line"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("6_mef67")
+expand_mode = 5
+stretch_mode = 4
+
+[node name="Tests Summary Label" type="Label" parent="VBoxContainer/Bottom Line"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Ran 20 tests in 0.58ms"
+
+[node name="VSeparator2" type="VSeparator" parent="VBoxContainer/Bottom Line"]
+layout_mode = 2
+
+[node name="Glob Label" type="Label" parent="VBoxContainer/Bottom Line"]
+layout_mode = 2
+text = "Test glob:"
+
+[node name="Glob LineEdit" type="LineEdit" parent="VBoxContainer/Bottom Line"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+text = "res://*.test.gd"
 
-[node name="Summary Container" type="HBoxContainer" parent="HBoxContainer/VBoxContainer"]
+[node name="VSeparator4" type="VSeparator" parent="VBoxContainer/Bottom Line"]
 layout_mode = 2
 
-[node name="Tests Summary Label" type="Label" parent="HBoxContainer/VBoxContainer/Summary Container"]
+[node name="Refresh Mixins Button" type="Button" parent="VBoxContainer/Bottom Line"]
 unique_name_in_owner = true
 layout_mode = 2
-
-[node name="VSeparator" type="VSeparator" parent="HBoxContainer/VBoxContainer/Summary Container"]
-layout_mode = 2
-
-[node name="Tests Result Title" type="Label" parent="HBoxContainer/VBoxContainer/Summary Container"]
-layout_mode = 2
-text = "Result:"
-
-[node name="Tests Result Label" type="Label" parent="HBoxContainer/VBoxContainer/Summary Container"]
-unique_name_in_owner = true
-layout_mode = 2
+tooltip_text = "Refresh Mixins"
+text = "      "
+icon = ExtResource("5_k7hxl")
+icon_alignment = 1
+expand_icon = true
