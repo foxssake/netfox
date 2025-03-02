@@ -7,7 +7,7 @@ extends "res://addons/vest/_generated-mixins/1-8182042.gd"
 
 ## Mixin for asserting test requirement
 ##
-## @tutorial(Assertiongs): https://foxssake.github.io/vest/latest/user-guide/assertions/
+## @tutorial(Assertions): https://foxssake.github.io/vest/latest/user-guide/assertions/
 
 ## Expect a [param condition] to be true.
 func expect(condition: bool, p_message: String = "") -> void:
