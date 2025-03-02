@@ -23,7 +23,10 @@ func before_case(__):
 		":scale": Vector3(2.0, 1.0, 1.8)
 	}))
 
-func test_encode_should_return_expected():
+func after_case(__):
+	NetworkTime._tick = 0
+
+func test_encode_should_decode_to_same():
 	# Source encodes a snapshot, and the target decodes it.
 	# The two snapshots should match.
 

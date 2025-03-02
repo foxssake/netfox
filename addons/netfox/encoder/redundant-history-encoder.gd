@@ -1,11 +1,11 @@
 extends RefCounted
-class_name RedundantHistoryEncoder
+class_name _RedundantHistoryEncoder
 
 var redundancy: int = 4:
 	get = get_redundancy,
 	set = set_redundancy
 
-var sanitize: bool = false
+var sanitize: bool = true
 
 var _history: _PropertyHistoryBuffer
 var _property_cache: PropertyCache
@@ -25,11 +25,18 @@ func set_redundancy(p_redundancy: int):
 	redundancy = p_redundancy
 
 func encode(tick: int) -> Array:
+	if _history.is_empty():
+		return []
+
 	var data : Array[Dictionary] = []
 	data.resize(redundancy)
 
 	for i in range(mini(redundancy, _history.size())):
 		var offset_tick := tick - i
+		if offset_tick < _history.get_earliest_tick():
+			data.resize(i)
+			break
+
 		data[i] = _history.get_snapshot(offset_tick).as_dictionary()
 
 	return data
@@ -43,6 +50,7 @@ func decode(data: Array) -> Array[_PropertySnapshot]:
 
 	return result
 
+# Returns earliest new tick as int, or null
 func apply(tick: int, snapshots: Array[_PropertySnapshot], sender: int = 0):
 	var earliest_new_tick = null
 
