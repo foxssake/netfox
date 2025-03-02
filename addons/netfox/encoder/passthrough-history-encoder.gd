@@ -1,12 +1,12 @@
 extends RefCounted
-class_name PassthroughHistoryEncoder
+class_name _PassthroughHistoryEncoder
 
 var sanitize: bool = true
 
 var _history: _PropertyHistoryBuffer
 var _property_cache: PropertyCache
 
-static var _logger := _NetfoxLogger.for_netfox("PassthroughHistoryEncoder")
+static var _logger := _NetfoxLogger.for_netfox("_PassthroughHistoryEncoder")
 
 func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache):
 	_history = p_history
@@ -20,7 +20,7 @@ func decode(data: Dictionary) -> _PropertySnapshot:
 
 	return _PropertySnapshot.from_dictionary(data)
 
-func apply(tick: int, snapshot: _PropertySnapshot, sender: int = -1):
+func apply(tick: int, snapshot: _PropertySnapshot, sender: int = -1) -> bool:
 	if tick < NetworkRollback.history_start:
 		# State too old!
 		_logger.error("Received full snapshot for %s, rejecting because older than %s frames", [tick, NetworkRollback.history_limit])

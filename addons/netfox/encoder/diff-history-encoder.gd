@@ -5,8 +5,6 @@ var full_state_interval: int = 24
 var diff_ack_interval: int = 0
 var sanitize: bool = true
 
-# TODO: Use PassthroughHistoryEncoder for full states
-
 var _history: _PropertyHistoryBuffer
 var _property_cache: PropertyCache
 
