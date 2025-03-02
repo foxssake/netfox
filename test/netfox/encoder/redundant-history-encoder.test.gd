@@ -15,7 +15,7 @@ var target_encoder: _RedundantHistoryEncoder
 
 func before_case(__):
 	# Setup
-	var root_node := Node.new()
+	var root_node := Node3D.new()
 	source_history = _PropertyHistoryBuffer.new()
 	target_history = _PropertyHistoryBuffer.new()
 	property_cache = PropertyCache.new(root_node)
@@ -33,7 +33,7 @@ func before_case(__):
 		source_history.set_snapshot(tick, _make_snapshot_for(tick))
 
 	target_history.set_snapshot(1, _PropertySnapshot.from_dictionary({
-		":target": -Vector3.ONE
+		":position": -Vector3.ONE
 	}))
 
 func after_case(__):
@@ -107,5 +107,5 @@ func test_apply_should_ignore_old_data():
 
 func _make_snapshot_for(tick: int) -> _PropertySnapshot:
 	return _PropertySnapshot.from_dictionary({
-		":target": Vector3.ONE * tick
+		":position": Vector3.ONE * tick
 	})

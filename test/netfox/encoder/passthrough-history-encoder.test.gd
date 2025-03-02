@@ -3,16 +3,24 @@ extends VestTest
 func get_suite_name() -> String:
 	return "PassthroughHistoryEncoder"
 
-var root_node := Node3D.new()
+var source_history: _PropertyHistoryBuffer
+var target_history: _PropertyHistoryBuffer
+var property_cache: PropertyCache
 
-var source_history := _PropertyHistoryBuffer.new()
-var target_history := _PropertyHistoryBuffer.new()
-var property_cache := PropertyCache.new(root_node)
-
-var source_encoder := _PassthroughHistoryEncoder.new(source_history, property_cache)
-var target_encoder := _PassthroughHistoryEncoder.new(target_history, property_cache)
+var source_encoder: _PassthroughHistoryEncoder
+var target_encoder: _PassthroughHistoryEncoder
 
 func before_case(__):
+	# Setup
+	var root_node := Node3D.new()
+	source_history = _PropertyHistoryBuffer.new()
+	target_history = _PropertyHistoryBuffer.new()
+	property_cache = PropertyCache.new(root_node)
+
+	source_encoder = _PassthroughHistoryEncoder.new(source_history, property_cache)
+	target_encoder = _PassthroughHistoryEncoder.new(target_history, property_cache)
+
+	# Set history
 	source_history.set_snapshot(0, _PropertySnapshot.from_dictionary({
 		":position": Vector3.ONE,
 		":scale": Vector3(1.0, 2.0, 0.8)
