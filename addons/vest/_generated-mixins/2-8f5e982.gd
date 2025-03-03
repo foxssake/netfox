@@ -27,11 +27,7 @@ func expect_not(condition: bool, p_message: String = "") -> void:
 ## [br][br]
 ## If [param actual] has an [code]equals()[/code] method, it will be used.
 func expect_equal(actual: Variant, expected: Variant, p_message: String = "Actual value differs from expected!") -> void:
-	var equals = actual == expected
-	if actual is Object and actual.has_method("equals"):
-		equals = actual.equals(expected)
-
-	if equals:
+	if _is_equal(actual, expected):
 		ok()
 	else:
 		fail(p_message, { "expect": expected, "got": actual })
@@ -40,7 +36,7 @@ func expect_equal(actual: Variant, expected: Variant, p_message: String = "Actua
 ## [br][br]
 ## If [param actual] has an [code]equals()[/code] method, it will be used.
 func expect_not_equal(actual: Variant, expected: Variant, p_message: String = "Actual value equals expected!") -> void:
-	if actual == expected:
+	if _is_equal(actual, expected):
 		fail(p_message, { "expect": expected, "got": actual })
 	else:
 		ok()
@@ -117,6 +113,11 @@ func expect_doesnt_contain(object: Variant, item: Variant, p_message: String = "
 			fail("Object has no has() method!", { "object": object })
 		ERR_CANT_RESOLVE:
 			fail("Unknown object, can't be checked if it contains item!", { "object": object })
+
+func _is_equal(actual, expected) -> bool:
+	if actual is Object and actual.has_method("equals"):
+		return actual.equals(expected)
+	return actual == expected
 
 func _is_empty(object: Variant) -> Variant:
 	if object is Array or object is Dictionary:
