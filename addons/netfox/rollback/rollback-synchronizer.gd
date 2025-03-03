@@ -426,6 +426,7 @@ func _record_tick(tick: int):
 
 		_on_transmit_state.emit(full_state, tick)
 
+		# TODO(fix): Full state is used by encoders, not just the auth properties
 		if full_state.size() > 0:
 			_latest_state_tick = max(_latest_state_tick, tick)
 
@@ -433,47 +434,52 @@ func _record_tick(tick: int):
 
 			if not NetworkRollback.enable_diff_states:
 				# Broadcast new full state
-				var full_state_data := _full_state_encoder.encode(tick)
+				var full_state_snapshot := _states.get_snapshot(tick).as_dictionary()
+				var full_state_data := _full_state_encoder.encode(tick, _auth_state_property_entries)
 				_submit_full_state.rpc(full_state_data, tick)
 
-				NetworkPerformance.push_full_state_broadcast(full_state_data)
-				NetworkPerformance.push_sent_state_broadcast(full_state_data)
+				NetworkPerformance.push_full_state_broadcast(full_state_snapshot)
+				NetworkPerformance.push_sent_state_broadcast(full_state_snapshot)
 			elif full_state_interval > 0 and tick > _next_full_state_tick:
 				# Send full state so we can send deltas from there
 				_logger.trace("Broadcasting full state for tick %d", [tick])
 
-				var full_state_data := _full_state_encoder.encode(tick)
+				var full_state_snapshot := _states.get_snapshot(tick).as_dictionary()
+				var full_state_data := _full_state_encoder.encode(tick, _auth_state_property_entries)
 				_submit_full_state.rpc(full_state_data, tick)
 				_next_full_state_tick = tick + full_state_interval
 
-				NetworkPerformance.push_full_state_broadcast(full_state_data)
-				NetworkPerformance.push_sent_state_broadcast(full_state_data)
+				NetworkPerformance.push_full_state_broadcast(full_state_snapshot)
+				NetworkPerformance.push_sent_state_broadcast(full_state_snapshot)
 			else:
 				for peer in multiplayer.get_peers():
 					NetworkPerformance.push_full_state(full_state.as_dictionary())
 
 					# Peer hasn't received a full state yet, can't send diffs
 					if not _ackd_state.has(peer):
-						var full_state_data := _full_state_encoder.encode(tick)
+						var full_state_snapshot := _states.get_snapshot(tick).as_dictionary()
+						var full_state_data := _full_state_encoder.encode(tick, _auth_state_property_entries)
 						_submit_full_state.rpc_id(peer, full_state_data, tick)
-						NetworkPerformance.push_sent_state(full_state_data)
+						NetworkPerformance.push_sent_state(full_state_snapshot)
 						continue
 
 					# History doesn't have reference tick?
 					var reference_tick = _ackd_state[peer]
 					if not _states.has(reference_tick):
-						var full_state_data := _full_state_encoder.encode(tick)
+						var full_state_snapshot := _states.get_snapshot(tick).as_dictionary()
+						var full_state_data := _full_state_encoder.encode(tick, _auth_state_property_entries)
 						_submit_full_state.rpc_id(peer, full_state_data, tick)
-						NetworkPerformance.push_sent_state(full_state_data)
+						NetworkPerformance.push_sent_state(full_state_snapshot)
 						continue
 
 					# Prepare diff and send
 					var diff_state_data := _diff_state_encoder.encode(tick, reference_tick)
 					if diff_state_data.size() == full_state.size():
 						# State is completely different, send full state
-						var full_state_data := _full_state_encoder.encode(tick)
+						var full_state_snapshot := _states.get_snapshot(tick).as_dictionary()
+						var full_state_data := _full_state_encoder.encode(tick, _auth_state_property_entries)
 						_submit_full_state.rpc_id(peer, full_state_data, tick)
-						NetworkPerformance.push_sent_state(full_state_data)
+						NetworkPerformance.push_sent_state(full_state_snapshot)
 					else:
 						# Send only diff
 						_submit_diff_state.rpc_id(peer, diff_state_data, tick, reference_tick)
@@ -550,13 +556,13 @@ func _submit_input(tick: int, data: Array):
 
 # `serialized_state` is a serialized _PropertySnapshot
 @rpc("any_peer", "unreliable_ordered", "call_remote")
-func _submit_full_state(data: Dictionary, tick: int):
+func _submit_full_state(data: Array, tick: int):
 	if not _is_initialized:
 		# Settings not processed yet
 		return
 
 	var sender = multiplayer.get_remote_sender_id()
-	var snapshot := _full_state_encoder.decode(data)
+	var snapshot := _full_state_encoder.decode(data, _auth_state_property_entries)
 	if _full_state_encoder.apply(tick, snapshot, sender):
 		_latest_state_tick = tick
 
