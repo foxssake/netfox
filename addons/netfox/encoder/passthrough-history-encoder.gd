@@ -1,8 +1,6 @@
 extends RefCounted
 class_name _PassthroughHistoryEncoder
 
-var sanitize: bool = true
-
 var _history: _PropertyHistoryBuffer
 var _property_cache: PropertyCache
 
@@ -26,7 +24,7 @@ func apply(tick: int, snapshot: _PropertySnapshot, sender: int = -1) -> bool:
 		_logger.error("Received full snapshot for %s, rejecting because older than %s frames", [tick, NetworkRollback.history_limit])
 		return false
 
-	if sanitize and sender > 0:
+	if sender > 0:
 		snapshot.sanitize(sender, _property_cache)
 		if snapshot.is_empty(): return false
 

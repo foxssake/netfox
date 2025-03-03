@@ -5,8 +5,6 @@ var redundancy: int = 4:
 	get = get_redundancy,
 	set = set_redundancy
 
-var sanitize: bool = true
-
 var _history: _PropertyHistoryBuffer
 var _property_cache: PropertyCache
 
@@ -66,7 +64,7 @@ func apply(tick: int, snapshots: Array[_PropertySnapshot], sender: int = 0):
 			)
 			continue
 
-		if sanitize and sender > 0:
+		if sender > 0:
 			snapshot.sanitize(sender, _property_cache)
 			if snapshot.is_empty():
 				# No valid properties ( probably after sanitize )

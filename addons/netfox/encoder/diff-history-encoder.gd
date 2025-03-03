@@ -1,8 +1,6 @@
 extends RefCounted
 class_name _DiffHistoryEncoder
 
-var sanitize: bool = true
-
 var _history: _PropertyHistoryBuffer
 var _property_cache: PropertyCache
 
@@ -35,7 +33,7 @@ func apply(tick: int, snapshot: _PropertySnapshot, reference_tick: int, sender: 
 	if snapshot.is_empty():
 		return true
 
-	if sanitize and sender > 0:
+	if sender > 0:
 		snapshot.sanitize(sender, _property_cache)
 		if snapshot.is_empty():
 			_logger.warning("Received invalid diff from #%s for @%s", [sender, tick])
