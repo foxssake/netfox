@@ -545,7 +545,7 @@ func _reprocess_settings():
 func _submit_input(tick: int, data: Array):
 	var snapshots := _input_encoder.decode(data)
 	var earliest_received_input = _input_encoder.apply(tick, snapshots)
-	if earliest_received_input != null:
+	if earliest_received_input >= 0:
 		_earliest_input_tick = mini(_earliest_input_tick, earliest_received_input)
 
 # `serialized_state` is a serialized _PropertySnapshot

@@ -48,9 +48,9 @@ func decode(data: Array) -> Array[_PropertySnapshot]:
 
 	return result
 
-# Returns earliest new tick as int, or null
-func apply(tick: int, snapshots: Array[_PropertySnapshot], sender: int = 0):
-	var earliest_new_tick = null
+# Returns earliest new tick as int, or -1 if no new ticks applied
+func apply(tick: int, snapshots: Array[_PropertySnapshot], sender: int = 0) -> int:
+	var earliest_new_tick = -1
 
 	for i in range(snapshots.size()):
 		var offset_tick := tick - i
