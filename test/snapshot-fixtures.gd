@@ -14,6 +14,13 @@ static func input_snapshot(p_movement: Vector3 = Vector3.ONE) -> _PropertySnapsh
 		"Input:is_jumping": false
 	})
 
+static func input_property_entries(root_node: Node) -> Array[PropertyEntry]:
+	var result: Array[PropertyEntry] = []
+	result.append(PropertyEntry.parse(root_node, "Input:movement"))
+	result.append(PropertyEntry.parse(root_node, "Input:is_jumping"))
+
+	return result
+
 static func input_node() -> InputNode:
 	var result := InputNode.new()
 	result.name = "Input"

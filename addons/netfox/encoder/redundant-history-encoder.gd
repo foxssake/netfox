@@ -26,7 +26,7 @@ func encode(tick: int) -> Array:
 	if _history.is_empty():
 		return []
 
-	var data : Array[Dictionary] = []
+	var data : Array[Array] = []
 	data.resize(redundancy)
 
 	for i in range(mini(redundancy, _history.size())):
@@ -35,16 +35,18 @@ func encode(tick: int) -> Array:
 			data.resize(i)
 			break
 
-		data[i] = _history.get_snapshot(offset_tick).as_dictionary()
+		data[i] = _history.get_snapshot(offset_tick).as_dictionary().values()
 
 	return data
 
-func decode(data: Array) -> Array[_PropertySnapshot]:
+func decode(data: Array, property_config: Array[PropertyEntry]) -> Array[_PropertySnapshot]:
 	var result: Array[_PropertySnapshot] = []
 	result.resize(data.size())
 
 	for i in range(data.size()):
-		result[i] = _PropertySnapshot.from_dictionary(data[i])
+		result[i] = _PropertySnapshot.new()
+		for j in range(property_config.size()):
+			result[i].set_value(property_config[j].to_string(), data[i][j])
 
 	return result
 
