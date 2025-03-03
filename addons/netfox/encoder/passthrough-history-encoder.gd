@@ -16,8 +16,6 @@ func encode(tick: int) -> Dictionary:
 	return _history.get_snapshot(tick).as_dictionary()
 
 func decode(data: Dictionary) -> _PropertySnapshot:
-	var snapshot := _PropertySnapshot.from_dictionary(data)
-
 	return _PropertySnapshot.from_dictionary(data)
 
 func apply(tick: int, snapshot: _PropertySnapshot, sender: int = -1) -> bool:
