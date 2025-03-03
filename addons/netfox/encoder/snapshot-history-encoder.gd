@@ -1,10 +1,10 @@
 extends RefCounted
-class_name _PassthroughHistoryEncoder
+class_name _SnapshotHistoryEncoder
 
 var _history: _PropertyHistoryBuffer
 var _property_cache: PropertyCache
 
-static var _logger := _NetfoxLogger.for_netfox("_PassthroughHistoryEncoder")
+static var _logger := _NetfoxLogger.for_netfox("_SnapshotHistoryEncoder")
 
 func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache):
 	_history = p_history

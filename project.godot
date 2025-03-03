@@ -133,4 +133,4 @@ anti_aliasing/quality/screen_space_aa=1
 
 [vest]
 
-general/test_glob="res://test/netfox/encoder/*.test.gd"
+general/test_glob="res://test/*.test.gd"

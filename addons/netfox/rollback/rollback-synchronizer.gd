@@ -84,7 +84,7 @@ var _latest_state_tick: int
 var _earliest_input_tick: int
 
 var _input_encoder := _RedundantHistoryEncoder.new(_inputs, _property_cache)
-var _full_state_encoder := _PassthroughHistoryEncoder.new(_states, _property_cache)
+var _full_state_encoder := _SnapshotHistoryEncoder.new(_states, _property_cache)
 var _diff_state_encoder := _DiffHistoryEncoder.new(_states, _property_cache)
 
 # Maps peers (int) to acknowledged ticks (int)

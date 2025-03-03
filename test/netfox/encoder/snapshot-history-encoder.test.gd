@@ -1,14 +1,14 @@
 extends VestTest
 
 func get_suite_name() -> String:
-	return "PassthroughHistoryEncoder"
+	return "SnapshotHistoryEncoder"
 
 var source_history: _PropertyHistoryBuffer
 var target_history: _PropertyHistoryBuffer
 var property_cache: PropertyCache
 
-var source_encoder: _PassthroughHistoryEncoder
-var target_encoder: _PassthroughHistoryEncoder
+var source_encoder: _SnapshotHistoryEncoder
+var target_encoder: _SnapshotHistoryEncoder
 
 func before_case(__):
 	# Setup
@@ -17,8 +17,8 @@ func before_case(__):
 	target_history = _PropertyHistoryBuffer.new()
 	property_cache = PropertyCache.new(root_node)
 
-	source_encoder = _PassthroughHistoryEncoder.new(source_history, property_cache)
-	target_encoder = _PassthroughHistoryEncoder.new(target_history, property_cache)
+	source_encoder = _SnapshotHistoryEncoder.new(source_history, property_cache)
+	target_encoder = _SnapshotHistoryEncoder.new(target_history, property_cache)
 
 	# Set history
 	source_history.set_snapshot(0, _PropertySnapshot.from_dictionary({
