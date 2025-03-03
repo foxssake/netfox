@@ -21,15 +21,8 @@ func before_case(__):
 	target_encoder = _SnapshotHistoryEncoder.new(target_history, property_cache)
 
 	# Set history
-	source_history.set_snapshot(0, _PropertySnapshot.from_dictionary({
-		":position": Vector3.ONE,
-		":scale": Vector3(1.0, 2.0, 0.8)
-	}))
-
-	target_history.set_snapshot(1, _PropertySnapshot.from_dictionary({
-		":position": Vector3(1.0, 2.0, -1.0),
-		":scale": Vector3(2.0, 1.0, 1.8)
-	}))
+	source_history.set_snapshot(0, SnapshotFixtures.state_snapshot(Vector3(1, 1, 0)))
+	target_history.set_snapshot(1, SnapshotFixtures.state_snapshot(Vector3(0, 1, 0)))
 
 func after_case(__):
 	NetworkTime._tick = 0

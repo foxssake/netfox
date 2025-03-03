@@ -16,6 +16,9 @@ var target_encoder: _RedundantHistoryEncoder
 func before_case(__):
 	# Setup
 	var root_node := Node3D.new()
+	var input_node := SnapshotFixtures.input_node()
+	root_node.add_child(input_node)
+
 	source_history = _PropertyHistoryBuffer.new()
 	target_history = _PropertyHistoryBuffer.new()
 	property_cache = PropertyCache.new(root_node)
@@ -30,11 +33,9 @@ func before_case(__):
 
 	# Set some base data
 	for tick in range(REDUNDANCY):
-		source_history.set_snapshot(tick, _make_snapshot_for(tick))
+		source_history.set_snapshot(tick, SnapshotFixtures.input_snapshot(Vector3(tick, 0, 0)))
 
-	target_history.set_snapshot(1, _PropertySnapshot.from_dictionary({
-		":position": -Vector3.ONE
-	}))
+	target_history.set_snapshot(1, SnapshotFixtures.input_snapshot())
 
 func after_case(__):
 	NetworkTime._tick = 0
@@ -46,11 +47,12 @@ func test_encode_should_decode_to_same():
 	var data := source_encoder.encode(TICK)
 	var snapshots := target_encoder.decode(data)
 
-	var actual := snapshots.map(func(s): return s.as_dictionary())
-	var expected := [_make_snapshot_for(TICK), _make_snapshot_for(TICK - 1), _make_snapshot_for(TICK - 2)]\
-		.map(func(s): return s.as_dictionary())
-
-	expect_equal(actual, expected)
+	for i in range(REDUNDANCY):
+		expect_equal(
+			snapshots[i].as_dictionary(),
+			source_history.get_snapshot(TICK - i).as_dictionary(),
+			"Snapshot %d should equal source!" % [i]
+		)
 
 func test_encode_should_skip_unavailable_ticks():
 	# Encoded data should not contain ticks before the first tick in history
@@ -59,7 +61,7 @@ func test_encode_should_skip_unavailable_ticks():
 	var snapshots := target_encoder.decode(data)
 
 	var actual := snapshots.map(func(s): return s.as_dictionary())
-	var expected := [_make_snapshot_for(0)].map(func(s): return s.as_dictionary())
+	var expected := [SnapshotFixtures.input_snapshot(Vector3.ZERO).as_dictionary()]
 
 	expect_equal(actual, expected)
 
