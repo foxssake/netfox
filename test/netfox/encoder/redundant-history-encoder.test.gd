@@ -91,7 +91,7 @@ func test_apply_should_ignore_unauthorized_data():
 	var snapshots := target_encoder.decode(data)
 	var earliest_new_tick = target_encoder.apply(TICK, snapshots, 2)
 
-	expect_equal(earliest_new_tick, null)
+	expect_equal(earliest_new_tick, -1)
 
 func test_apply_should_ignore_old_data():
 	# Apply should sanitize data and ignore all properties not owned by sender
