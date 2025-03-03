@@ -473,7 +473,7 @@ func _record_tick(tick: int):
 						continue
 
 					# Prepare diff and send
-					var diff_state_data := _diff_state_encoder.encode(tick, reference_tick)
+					var diff_state_data := _diff_state_encoder.encode(tick, reference_tick, _auth_state_property_entries)
 					if diff_state_data.size() == full_state.size():
 						# State is completely different, send full state
 						var full_state_snapshot := _states.get_snapshot(tick).as_dictionary()
@@ -483,7 +483,7 @@ func _record_tick(tick: int):
 					else:
 						# Send only diff
 						_submit_diff_state.rpc_id(peer, diff_state_data, tick, reference_tick)
-						NetworkPerformance.push_sent_state(diff_state_data)
+#						NetworkPerformance.push_sent_state(diff_state_data) # TODO
 
 	# Record state for specified tick ( current + 1 )
 
@@ -568,13 +568,13 @@ func _submit_full_state(data: Array, tick: int):
 
 # State is a serialized _PropertySnapshot (Dictionary[String, Variant])
 @rpc("any_peer", "unreliable_ordered", "call_remote")
-func _submit_diff_state(data: Dictionary, tick: int, reference_tick: int):
+func _submit_diff_state(data: PackedByteArray, tick: int, reference_tick: int):
 	if not _is_initialized:
 		# Settings not processed yet
 		return
 
 	var sender = multiplayer.get_remote_sender_id()
-	var diff_snapshot := _diff_state_encoder.decode(data)
+	var diff_snapshot := _diff_state_encoder.decode(data, _auth_state_property_entries)
 	if not _diff_state_encoder.apply(tick, diff_snapshot, reference_tick, sender):
 		# Invalid data
 		return
