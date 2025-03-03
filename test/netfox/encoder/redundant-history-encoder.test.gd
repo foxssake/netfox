@@ -105,6 +105,14 @@ func test_apply_should_ignore_old_data():
 
 	expect_equal(earliest_new_tick, TICK - 2)
 
+func test_bandwidth():
+	var data := source_encoder.encode(TICK)
+	var bytes_per_snapshot := var_to_bytes(data).size()
+
+	Vest.message("Snapshot size with %d redundancy: %d bytes" % [source_encoder.redundancy, bytes_per_snapshot])
+
+	ok()
+
 func _make_snapshot_for(tick: int) -> _PropertySnapshot:
 	return _PropertySnapshot.from_dictionary({
 		":position": Vector3.ONE * tick

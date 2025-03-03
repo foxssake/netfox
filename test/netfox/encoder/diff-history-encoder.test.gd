@@ -87,3 +87,24 @@ func test_apply_should_continue_without_reference_tick():
 	var success := target_encoder.apply(2, snapshot, 1)
 
 	expect(success, "Snapshot should have been applied!")
+
+func test_bandwidth_on_no_change():
+	# Set first two ticks to equal
+	source_history.set_snapshot(TICK, source_history.get_snapshot(REFERENCE_TICK))
+
+	var data := source_encoder.encode(TICK, REFERENCE_TICK)
+	var bytes_per_snapshot := var_to_bytes(data).size()
+
+	Vest.message("Empty diff size: %d bytes" % [bytes_per_snapshot])
+
+	ok()
+
+func test_bandwidth_on_partial_change():
+	# Partial diff already set up in before_case()
+
+	var data := source_encoder.encode(TICK, REFERENCE_TICK)
+	var bytes_per_snapshot := var_to_bytes(data).size()
+
+	Vest.message("Partial diff size: %d bytes" % [bytes_per_snapshot])
+
+	ok()

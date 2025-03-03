@@ -93,3 +93,12 @@ func test_apply_should_fail_on_unauthorized_data():
 		target_encoder.apply(tick, snapshot, 2),
 		"Snapshot should be rejected!"
 	)
+
+func test_bandwidth():
+	# TODO(vest): Attach custom data to test results and benchmarks
+	var data := source_encoder.encode(0)
+	var bytes_per_snapshot := var_to_bytes(data).size()
+
+	Vest.message("Snapshot size: %d bytes" % [bytes_per_snapshot])
+
+	ok()
