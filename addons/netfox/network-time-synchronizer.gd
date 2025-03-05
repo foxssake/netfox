@@ -180,15 +180,15 @@ func _discipline_clock() -> void:
 	])
 	
 	# Calculate rtt bounds
-	var rtt_min: Variant = sorted_samples.front().get_rtt()
-	var rtt_max: Variant = sorted_samples.back().get_rtt()
+	var rtt_min := sorted_samples.front().get_rtt() as float
+	var rtt_max := sorted_samples.back().get_rtt() as float
 	_rtt = (rtt_max + rtt_min) / 2.
 	_rtt_jitter = (rtt_max - rtt_min) / 2.
 	
 	# Calculate offset
 	var offset := 0.
 	var offsets := sorted_samples.map(func(it): return it.get_offset())
-	var offset_weight: float = 0.
+	var offset_weight := 0.
 	for i in range(offsets.size()):
 		var w = log(1 + sorted_samples[i].get_rtt())
 		offset += offsets[i] * w
@@ -219,8 +219,8 @@ func _discipline_clock() -> void:
 
 @rpc("any_peer", "call_remote", "unreliable")
 func _send_ping(idx: int) -> void:
-	var ping_received: float = _clock.get_time()
-	var sender: int = multiplayer.get_remote_sender_id()
+	var ping_received := _clock.get_time()
+	var sender := multiplayer.get_remote_sender_id()
 
 	_send_pong.rpc_id(sender, idx, ping_received, _clock.get_time())
 
@@ -232,7 +232,7 @@ func _send_pong(idx: int, ping_received: float, pong_sent: float) -> void:
 		# Sample was dropped mid-flight during a panic episode
 		return
 	
-	var sample: NetworkClockSample = _awaiting_samples[idx] as NetworkClockSample
+	var sample := _awaiting_samples[idx] as NetworkClockSample
 	sample.ping_received = ping_received
 	sample.pong_sent = pong_sent
 	sample.pong_received = pong_received

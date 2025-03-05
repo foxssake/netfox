@@ -126,7 +126,7 @@ func process_settings() -> void:
 		_next_diff_ack_tick += hash(name) % maxi(1, diff_ack_interval)
 
 	# Gather state properties - all state properties are recorded
-	for property: String in state_properties:
+	for property in state_properties:
 		var property_entry := _property_cache.get_entry(property)
 		_record_state_property_entries.push_back(property_entry)
 
@@ -152,14 +152,14 @@ func process_authority() -> void:
 
 	# Gather state properties that we own
 	# i.e. it's the state of a node that belongs to the local peer
-	for property: String in state_properties:
+	for property in state_properties:
 		var property_entry := _property_cache.get_entry(property)
 		if property_entry.node.is_multiplayer_authority():
 			_auth_state_property_entries.push_back(property_entry)
 
 	# Gather input properties that we own
 	# Only record input that is our own
-	for property: String in input_properties:
+	for property in input_properties:
 		var property_entry := _property_cache.get_entry(property)
 		if property_entry.node.is_multiplayer_authority():
 			_auth_input_property_entries.push_back(property_entry)
@@ -305,7 +305,7 @@ func _get_configuration_warnings() -> PackedStringArray:
 	if not root:
 		return ["No valid root node found!"]
 
-	var result: PackedStringArray = []
+	var result := PackedStringArray()
 	result.append_array(_NetfoxEditorUtils.gather_properties(root, "_get_rollback_state_properties",
 		func(node, prop):
 			add_state(node, prop)
@@ -364,7 +364,7 @@ func _prepare_tick(tick: int) -> void:
 	_skipset.clear()
 
 	# Gather nodes that can be simulated
-	for node: Node in _nodes:
+	for node in _nodes:
 		if _can_simulate(node, tick):
 			NetworkRollback.notify_simulated(node)
 
@@ -396,7 +396,7 @@ func _process_tick(tick: int) -> void:
 		if not NetworkRollback.is_simulated(node):
 			continue
 
-		var is_fresh: bool = _freshness_store.is_fresh(node, tick)
+		var is_fresh := _freshness_store.is_fresh(node, tick)
 		NetworkRollback.process_rollback(node, NetworkTime.ticktime, tick, is_fresh)
 
 		if _skipset.has(node):
@@ -458,8 +458,8 @@ func _record_tick(tick: int) -> void:
 						continue
 
 					# Prepare diff and send
-					var reference_state: _PropertySnapshot = _states.get_history(reference_tick)
-					var diff_state: _PropertySnapshot = reference_state.make_patch(full_state)
+					var reference_state := _states.get_history(reference_tick)
+					var diff_state := reference_state.make_patch(full_state)
 
 					if diff_state.size() == full_state.size():
 						# State is completely different, send full state
@@ -487,8 +487,8 @@ func _record_tick(tick: int) -> void:
 					not _skipset.has(pe.node) or \
 					NetworkRollback.is_mutated(pe.node, tick - 1))
 
-			var merge_state: _PropertySnapshot = _states.get_history(tick - 1)
-			var record_state: _PropertySnapshot = _PropertySnapshot.extract(record_properties)
+			var merge_state := _states.get_history(tick - 1)
+			var record_state := _PropertySnapshot.extract(record_properties)
 
 			_states.set_snapshot(tick, merge_state.merge(record_state))
 
@@ -499,7 +499,7 @@ func _after_loop() -> void:
 	_earliest_input_tick = NetworkTime.tick
 
 	# Apply display state
-	var display_state: _PropertySnapshot = _states.get_history(NetworkRollback.display_tick)
+	var display_state := _states.get_history(NetworkRollback.display_tick)
 	display_state.apply(_property_cache)
 
 func _before_tick(_delta: float, tick: int) -> void:
@@ -510,7 +510,7 @@ func _before_tick(_delta: float, tick: int) -> void:
 func _after_tick(_delta: float, _tick: int) -> void:
 	# Record input
 	if not _record_input_property_entries.is_empty():
-		var input: _PropertySnapshot = _PropertySnapshot.extract(_record_input_property_entries)
+		var input := _PropertySnapshot.extract(_record_input_property_entries)
 		var input_tick: int = _tick + NetworkRollback.input_delay
 		_inputs.set_snapshot(input_tick, input)
 
@@ -556,7 +556,7 @@ func _submit_inputs(serialized_inputs: Array, tick: int) -> void:
 	for input in serialized_inputs:
 		inputs.push_back(_PropertySnapshot.from_dictionary(input))
 
-	var sender: int = multiplayer.get_remote_sender_id()
+	var sender := multiplayer.get_remote_sender_id()
 
 	for offset in range(inputs.size()):
 		var input_tick := tick - offset
@@ -599,7 +599,7 @@ func _submit_full_state(serialized_state: Dictionary, tick: int) -> void:
 		_logger.error("Received full state for %s, rejecting because older than %s frames", [tick, NetworkRollback.history_limit])
 		return
 
-	var sender: int = multiplayer.get_remote_sender_id()
+	var sender := multiplayer.get_remote_sender_id()
 	state.sanitize(sender, _property_cache)
 
 	if state.is_empty():
@@ -631,8 +631,8 @@ func _submit_diff_state(serialized_diff_state: Dictionary, tick: int, reference_
 		# Reference tick missing, hope for the best
 		_logger.warning("Reference tick %d missing for %d", [reference_tick, tick])
 
-	var sender: int = multiplayer.get_remote_sender_id()
-	var reference_state: _PropertySnapshot = _states.get_snapshot(reference_tick)
+	var sender := multiplayer.get_remote_sender_id()
+	var reference_state := _states.get_snapshot(reference_tick)
 	var is_valid_state := true
 
 	if serialized_diff_state.is_empty():

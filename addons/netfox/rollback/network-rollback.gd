@@ -288,7 +288,7 @@ func _rollback() -> void:
 	# for tick in from .. to:
 	_rollback_from = from
 	_rollback_to = to
-	for tick: int in range(from, to):
+	for tick in range(from, to):
 		_tick = tick
 		_simulated_nodes.clear()
 

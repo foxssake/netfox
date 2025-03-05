@@ -11,7 +11,7 @@ class Interpolator:
 		result.apply = apply
 		return result
 
-static var DEFAULT_INTERPOLATOR: Interpolator = Interpolator.make(
+static var DEFAULT_INTERPOLATOR := Interpolator.make(
 	func (v): return true,
 	func (a, b, f): return a if f < 0.5 else b
 )

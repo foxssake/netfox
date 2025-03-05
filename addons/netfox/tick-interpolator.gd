@@ -45,7 +45,7 @@ func process_settings():
 	_state_from = _PropertySnapshot.new()
 	_state_to = _PropertySnapshot.new()
 
-	for property: String in properties:
+	for property in properties:
 		var property_entry = _property_cache.get_entry(property)
 		_property_entries.push_back(property_entry)
 		_interpolators[property] = Interpolators.find_for(property_entry.get_value())

@@ -533,7 +533,7 @@ func _loop() -> void:
 		_tick = seconds_to_ticks(NetworkTimeSynchronizer.get_time())
 	
 	# Run tick loop if needed
-	var ticks_in_loop: int = 0
+	var ticks_in_loop := 0
 	_last_process_time = _clock.get_time()
 	while _next_tick_time < _last_process_time and ticks_in_loop < max_ticks_per_frame:
 		if ticks_in_loop == 0:

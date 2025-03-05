@@ -57,7 +57,7 @@ func is_server() -> bool:
 	if multiplayer == null:
 		return false
 	
-	var peer: MultiplayerPeer = multiplayer.multiplayer_peer
+	var peer := multiplayer.multiplayer_peer
 	if peer == null:
 		return false
 	

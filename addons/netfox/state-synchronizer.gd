@@ -29,7 +29,7 @@ func process_settings() -> void:
 	_property_cache = PropertyCache.new(root)
 	_property_entries = []
 
-	for property: String in properties:
+	for property in properties:
 		var property_entry := _property_cache.get_entry(property)
 		_property_entries.push_back(property_entry)
 
