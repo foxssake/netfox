@@ -42,7 +42,6 @@ enabled=PackedStringArray("res://addons/netfox.extras/plugin.cfg", "res://addons
 
 [filesystem]
 
-import/blender/enabled=false
 import/fbx/enabled=false
 
 [input]

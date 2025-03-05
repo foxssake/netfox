@@ -34,6 +34,12 @@ func equals(other: _PropertySnapshot):
 func is_empty() -> bool:
 	return _snapshot.is_empty()
 
+static func extract(properties: Array[PropertyEntry]) -> _PropertySnapshot:
+	var result = {}
+	for property in properties:
+		result[property.to_string()] = property.get_value()
+	return _PropertySnapshot.from_dictionary(result)
+
 func apply(cache: PropertyCache):
 	for property_path in _snapshot:
 		var property_entry = cache.get_entry(property_path)
@@ -76,14 +82,5 @@ func sanitize(sender: int, property_cache: PropertyCache):
 
 	_snapshot = sanitized
 
-static func extract(properties: Array[PropertyEntry]) -> _PropertySnapshot:
-	var result = {}
-	for property in properties:
-		result[property.to_string()] = property.get_value()
-	return _PropertySnapshot.from_dictionary(result)
-
 func _init(p_snapshot: Dictionary = {}):
 	_snapshot = p_snapshot
-
-func _to_string():
-	return str(_snapshot)
