@@ -506,7 +506,6 @@ func _after_tick(_delta, _tick):
 		var input_data := _input_encoder.encode(input_tick) # TODO: Encode only owned inputs
 		var target_peer := 0 if enable_input_broadcast else root.get_multiplayer_authority()
 		if target_peer != multiplayer.get_unique_id():
-			_logger.info("Sending input: %s", [input_data])
 			_submit_input.rpc_id(target_peer, input_tick, input_data)
 
 	# Trim history
@@ -535,12 +534,10 @@ func _get_owned_input_props() -> Array[PropertyEntry]:
 
 @rpc("any_peer", "unreliable", "call_remote")
 func _submit_input(tick: int, data: Array):
-	_logger.info("Received input: %s", [data])
 
 	var sender := multiplayer.get_remote_sender_id()
 	var snapshots := _input_encoder.decode(data, _input_property_config.get_properties_owned_by(sender))
 	var earliest_received_input = _input_encoder.apply(tick, snapshots, sender)
-	_logger.info("Received earliest tick %d from snapshots %s", [earliest_received_input, snapshots])
 	if earliest_received_input >= 0:
 		_earliest_input_tick = mini(_earliest_input_tick, earliest_received_input)
 
