@@ -76,12 +76,12 @@ func can_interpolate() -> bool:
 ## Note that this will rotate the states, so the previous target becomes the new
 ## starting point for the interpolation. This is automatically called if
 ## [code]enable_recording[/code] is true.
-func push_state():
+func push_state() -> void:
 	_state_from = _state_to
 	_state_to = _PropertySnapshot.extract(_property_entries)
 
 ## Record current state and transition without interpolation.
-func teleport():
+func teleport() -> void:
 	if _is_teleporting:
 		return
 
@@ -89,11 +89,11 @@ func teleport():
 	_state_to = _state_from
 	_is_teleporting = true
 
-func _notification(what):
+func _notification(what) -> void:
 	if what == NOTIFICATION_EDITOR_PRE_SAVE:
 		update_configuration_warnings()
 
-func _get_configuration_warnings():
+func _get_configuration_warnings() -> PackedStringArray:
 	if not root:
 		root = get_parent()
 
@@ -106,15 +106,15 @@ func _get_configuration_warnings():
 			add_property(node, prop)
 	)
 
-func _connect_signals():
+func _connect_signals() -> void:
 	NetworkTime.before_tick_loop.connect(_before_tick_loop)
 	NetworkTime.after_tick_loop.connect(_after_tick_loop)
 
-func _disconnect_signals():
+func _disconnect_signals() -> void:
 	NetworkTime.before_tick_loop.disconnect(_before_tick_loop)
 	NetworkTime.after_tick_loop.disconnect(_after_tick_loop)
 
-func _enter_tree():
+func _enter_tree() -> void:
 	if Engine.is_editor_hint():
 		return
 
@@ -126,44 +126,44 @@ func _enter_tree():
 		await get_tree().process_frame
 		teleport()
 
-func _exit_tree():
+func _exit_tree() -> void:
 	if Engine.is_editor_hint():
 		return
 
 	_disconnect_signals()
 
-func _process(_delta):
+func _process(_delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
 
 	_interpolate(_state_from, _state_to, NetworkTime.tick_factor)
 
-func _reprocess_settings():
+func _reprocess_settings() -> void:
 	if not _properties_dirty or Engine.is_editor_hint():
 		return
 
 	_properties_dirty = false
 	process_settings()
 
-func _before_tick_loop():
+func _before_tick_loop() -> void:
 	_is_teleporting = false
 	_state_to.apply(_property_cache)
 
-func _after_tick_loop():
+func _after_tick_loop() -> void:
 	if enable_recording and not _is_teleporting:
 		push_state()
 		_state_from.apply(_property_cache)
 
-func _interpolate(from: _PropertySnapshot, to: _PropertySnapshot, f: float):
+func _interpolate(from: _PropertySnapshot, to: _PropertySnapshot, f: float) -> void:
 	if not can_interpolate():
 		return
 
 	for property in from.properties():
 		if not to.has(property): continue
 
-		var property_entry = _property_cache.get_entry(property)
-		var a = from.get_value(property)
-		var b = to.get_value(property)
+		var property_entry := _property_cache.get_entry(property)
+		var a := from.get_value(property)
+		var b := to.get_value(property)
 		var interpolate = _interpolators[property] as Callable
 
 		property_entry.set_value(interpolate.call(a, b, f))

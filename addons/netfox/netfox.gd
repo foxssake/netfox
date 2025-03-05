@@ -1,8 +1,8 @@
 @tool
 extends EditorPlugin
 
-const ROOT = "res://addons/netfox"
-var SETTINGS = [
+const ROOT := "res://addons/netfox"
+var SETTINGS: Array[Dictionary] = [
 	{
 		# Setting this to false will make Netfox keep its settings even when
 		# disabling the plugin. Useful for developing the plugin.
@@ -125,7 +125,7 @@ var SETTINGS = [
 	}
 ]
 
-const AUTOLOADS = [
+const AUTOLOADS: Array[Dictionary] = [
 	{
 		"name": "NetworkTime",
 		"path": ROOT + "/network-time.gd"
@@ -148,7 +148,7 @@ const AUTOLOADS = [
 	}
 ]
 
-const TYPES = [
+const TYPES: Array[Dictionary] = [
 	{
 		"name": "RollbackSynchronizer",
 		"base": "Node",
@@ -179,8 +179,8 @@ func _enter_tree():
 	for type in TYPES:
 		add_custom_type(type.name, type.base, load(type.script), load(type.icon))
 
-func _exit_tree():
-	if ProjectSettings.get_setting("netfox/general/clear_settings", false):
+func _exit_tree() -> void:
+	if ProjectSettings.get_setting(&"netfox/general/clear_settings", false):
 		for setting in SETTINGS:
 			remove_setting(setting)
 	
@@ -190,7 +190,7 @@ func _exit_tree():
 	for type in TYPES:
 		remove_custom_type(type.name)
 
-func add_setting(setting: Dictionary):
+func add_setting(setting: Dictionary) -> void:
 	if ProjectSettings.has_setting(setting.name):
 		return
 
@@ -203,7 +203,7 @@ func add_setting(setting: Dictionary):
 		"hint_string": setting.get("hint_string", "")
 	})
 
-func remove_setting(setting: Dictionary):
+func remove_setting(setting: Dictionary) -> void:
 	if not ProjectSettings.has_setting(setting.name):
 		return
 	
