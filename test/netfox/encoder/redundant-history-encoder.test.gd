@@ -37,7 +37,7 @@ func before_case(__):
 	for tick in range(REDUNDANCY):
 		source_history.set_snapshot(tick, SnapshotFixtures.input_snapshot(Vector3(tick, 0, 0)))
 
-	target_history.set_snapshot(1, SnapshotFixtures.input_snapshot())
+	target_history.set_snapshot(1, SnapshotFixtures.input_snapshot(Vector3.RIGHT))
 
 func after_case(__):
 	NetworkTime._tick = 0
