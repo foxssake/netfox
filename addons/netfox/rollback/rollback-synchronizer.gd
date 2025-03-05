@@ -252,11 +252,6 @@ func _ready():
 		# Wait for time sync to complete
 		await NetworkTime.after_sync
 
-	# Dummy states to parse for first inputs before our first real input
-	# Empty inputs don't change any properties
-	for i in NetworkRollback.input_delay:
-		_inputs.set_snapshot(NetworkTime.tick + i, {})
-
 	process_settings.call_deferred()
 
 func _connect_signals():
@@ -405,7 +400,6 @@ func _record_tick(tick: int):
 
 		_on_transmit_state.emit(full_state, tick)
 
-		# TODO(fix): Full state is used by encoders, not just the auth properties
 		if full_state.size() > 0:
 			_latest_state_tick = max(_latest_state_tick, tick)
 
@@ -509,9 +503,10 @@ func _after_tick(_delta, _tick):
 		_inputs.set_snapshot(input_tick, input)
 
 		# Transmit input
-		var input_data := _input_encoder.encode(input_tick)
+		var input_data := _input_encoder.encode(input_tick) # TODO: Encode only owned inputs
 		var target_peer := 0 if enable_input_broadcast else root.get_multiplayer_authority()
 		if target_peer != multiplayer.get_unique_id():
+			_logger.info("Sending input: %s", [input_data])
 			_submit_input.rpc_id(target_peer, input_tick, input_data)
 
 	# Trim history
@@ -540,8 +535,11 @@ func _get_owned_input_props() -> Array[PropertyEntry]:
 
 @rpc("any_peer", "unreliable", "call_remote")
 func _submit_input(tick: int, data: Array):
-	var snapshots := _input_encoder.decode(data, _get_recorded_input_props())
-	var earliest_received_input = _input_encoder.apply(tick, snapshots)
+	_logger.info("Received input: %s", [data])
+
+	var sender := multiplayer.get_remote_sender_id()
+	var snapshots := _input_encoder.decode(data, _input_property_config.get_properties_owned_by(sender))
+	var earliest_received_input = _input_encoder.apply(tick, snapshots, sender)
 	_logger.info("Received earliest tick %d from snapshots %s", [earliest_received_input, snapshots])
 	if earliest_received_input >= 0:
 		_earliest_input_tick = mini(_earliest_input_tick, earliest_received_input)
@@ -554,7 +552,7 @@ func _submit_full_state(data: Array, tick: int):
 		return
 
 	var sender = multiplayer.get_remote_sender_id()
-	var snapshot := _full_state_encoder.decode(data, _get_owned_state_props())
+	var snapshot := _full_state_encoder.decode(data, _state_property_config.get_properties_owned_by(sender))
 	if _full_state_encoder.apply(tick, snapshot, sender):
 		_latest_state_tick = tick
 
@@ -566,7 +564,7 @@ func _submit_diff_state(data: PackedByteArray, tick: int, reference_tick: int):
 		return
 
 	var sender = multiplayer.get_remote_sender_id()
-	var diff_snapshot := _diff_state_encoder.decode(data, _get_owned_state_props())
+	var diff_snapshot := _diff_state_encoder.decode(data, _state_property_config.get_properties_owned_by(sender))
 	if not _diff_state_encoder.apply(tick, diff_snapshot, reference_tick, sender):
 		# Invalid data
 		return

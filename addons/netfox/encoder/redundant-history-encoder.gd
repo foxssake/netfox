@@ -45,6 +45,10 @@ func decode(data: Array, property_config: Array[PropertyEntry]) -> Array[_Proper
 
 	for i in range(data.size()):
 		result[i] = _PropertySnapshot.new()
+
+		if data[i].is_empty():
+			continue
+
 		for j in range(property_config.size()):
 			result[i].set_value(property_config[j].to_string(), data[i][j])
 
