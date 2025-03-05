@@ -23,6 +23,3 @@ func properties() -> Array:
 	# See: https://github.com/godotengine/godot/issues/72627
 	result.assign(_cache.values())
 	return result
-
-func clear():
-	_cache.clear()

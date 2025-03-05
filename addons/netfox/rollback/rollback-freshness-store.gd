@@ -4,7 +4,6 @@ class_name RollbackFreshnessStore
 ## This class tracks nodes and whether they have processed any given tick during
 ## a rollback.
 
-# TODO: _Set
 var _data: Dictionary = {}
 
 func is_fresh(node: Node, tick: int) -> bool:
@@ -29,6 +28,3 @@ func trim():
 			_data.erase(earliest_tick)
 		else:
 			break
-
-func clear():
-	_data.clear()
