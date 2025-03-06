@@ -7,12 +7,15 @@ var source_history: _PropertyHistoryBuffer
 var target_history: _PropertyHistoryBuffer
 var property_cache: PropertyCache
 
+var property_entries: Array[PropertyEntry]
 var source_encoder: _SnapshotHistoryEncoder
 var target_encoder: _SnapshotHistoryEncoder
 
 func before_case(__):
 	# Setup
-	var root_node := Node3D.new()
+	var root_node := SnapshotFixtures.state_node()
+	property_entries = SnapshotFixtures.state_propery_entries(root_node)
+
 	source_history = _PropertyHistoryBuffer.new()
 	target_history = _PropertyHistoryBuffer.new()
 	property_cache = PropertyCache.new(root_node)
@@ -32,8 +35,8 @@ func test_encode_should_decode_to_same():
 	# The two snapshots should match.
 
 	var tick := 0
-	var data := source_encoder.encode(tick)
-	var snapshot := target_encoder.decode(data)
+	var data := source_encoder.encode(tick, property_entries)
+	var snapshot := target_encoder.decode(data, property_entries)
 
 	# TODO: Better support for custom types in vest
 	expect_equal(
@@ -46,8 +49,8 @@ func test_apply_should_update_history():
 	# Histories should be in sync for the affected tick.
 
 	var tick := 0
-	var data := source_encoder.encode(tick)
-	var snapshot := target_encoder.decode(data)
+	var data := source_encoder.encode(tick, property_entries)
+	var snapshot := target_encoder.decode(data, property_entries)
 
 	var success := target_encoder.apply(tick, snapshot)
 
@@ -62,8 +65,8 @@ func test_apply_should_fail_on_old_data():
 	# Apply fails because the snapshot is too old.
 
 	var tick := 0
-	var data := source_encoder.encode(tick)
-	var snapshot := target_encoder.decode(data)
+	var data := source_encoder.encode(tick, property_entries)
+	var snapshot := target_encoder.decode(data, property_entries)
 
 	NetworkTime._tick = tick + NetworkRollback.history_limit + 2
 
@@ -77,8 +80,8 @@ func test_apply_should_fail_on_unauthorized_data():
 	# Apply fails because none of the properties are owned by the sender
 
 	var tick := 0
-	var data := source_encoder.encode(tick)
-	var snapshot := target_encoder.decode(data)
+	var data := source_encoder.encode(tick, property_entries)
+	var snapshot := target_encoder.decode(data, property_entries)
 
 	NetworkTime._tick = tick + NetworkRollback.history_limit + 2
 
@@ -89,9 +92,10 @@ func test_apply_should_fail_on_unauthorized_data():
 
 func test_bandwidth():
 	# TODO(vest): Attach custom data to test results and benchmarks
-	var data := source_encoder.encode(0)
+	var data := source_encoder.encode(0, property_entries)
 	var bytes_per_snapshot := var_to_bytes(data).size()
 
+	# Went from 104 to 48
 	Vest.message("Snapshot size: %d bytes" % [bytes_per_snapshot])
 
 	ok()
