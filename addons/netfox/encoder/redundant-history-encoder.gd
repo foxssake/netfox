@@ -22,7 +22,7 @@ func set_redundancy(p_redundancy: int):
 
 	redundancy = p_redundancy
 
-func encode(tick: int) -> Array:
+func encode(tick: int, properties: Array[PropertyEntry]) -> Array:
 	if _history.is_empty():
 		return []
 
@@ -35,7 +35,12 @@ func encode(tick: int) -> Array:
 			data.resize(i)
 			break
 
-		data[i] = _history.get_snapshot(offset_tick).as_dictionary().values()
+		var offset_data := []
+		var snapshot := _history.get_snapshot(offset_tick)
+		for property in properties:
+			offset_data.append(snapshot.get_value(property.to_string()))
+
+		data[i] = offset_data
 
 	return data
 

@@ -503,7 +503,7 @@ func _after_tick(_delta, _tick):
 		_inputs.set_snapshot(input_tick, input)
 
 		# Transmit input
-		var input_data := _input_encoder.encode(input_tick) # TODO: Encode only owned inputs
+		var input_data := _input_encoder.encode(input_tick, _get_owned_input_props())
 		var target_peer := 0 if enable_input_broadcast else root.get_multiplayer_authority()
 		if target_peer != multiplayer.get_unique_id():
 			_submit_input.rpc_id(target_peer, input_tick, input_data)
