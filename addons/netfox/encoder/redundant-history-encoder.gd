@@ -26,36 +26,34 @@ func encode(tick: int, properties: Array[PropertyEntry]) -> Array:
 	if _history.is_empty():
 		return []
 
-	var data : Array[Array] = []
-	data.resize(redundancy)
+	var data : Array = []
 
 	for i in range(mini(redundancy, _history.size())):
 		var offset_tick := tick - i
 		if offset_tick < _history.get_earliest_tick():
-			data.resize(i)
 			break
 
-		var offset_data := []
 		var snapshot := _history.get_snapshot(offset_tick)
 		for property in properties:
-			offset_data.append(snapshot.get_value(property.to_string()))
-
-		data[i] = offset_data
+			data.append(snapshot.get_value(property.to_string()))
 
 	return data
 
 func decode(data: Array, property_config: Array[PropertyEntry]) -> Array[_PropertySnapshot]:
+	if data.is_empty() or property_config.is_empty():
+		return []
+	
 	var result: Array[_PropertySnapshot] = []
-	result.resize(data.size())
+	var redundancy := data.size() / property_config.size()
+	result.assign(range(redundancy)
+		.map(func(__): return _PropertySnapshot.new())
+	)
 
 	for i in range(data.size()):
-		result[i] = _PropertySnapshot.new()
+		var offset_idx := i / property_config.size()
+		var prop_idx := i % property_config.size()
 
-		if data[i].is_empty():
-			continue
-
-		for j in range(property_config.size()):
-			result[i].set_value(property_config[j].to_string(), data[i][j])
+		result[offset_idx].set_value(property_config[prop_idx].to_string(), data[i])
 
 	return result
 

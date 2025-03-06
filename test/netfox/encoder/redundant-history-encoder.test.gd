@@ -113,7 +113,7 @@ func test_bandwidth():
 	var data := source_encoder.encode(TICK, property_entries)
 	var bytes_per_snapshot := var_to_bytes(data).size()
 
-	# 248 to 104
+	# 248 to 104 to 80
 	Vest.message("Snapshot size with %d redundancy: %d bytes" % [source_encoder.redundancy, bytes_per_snapshot])
 
 	ok()
