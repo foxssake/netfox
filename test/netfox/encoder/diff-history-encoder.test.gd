@@ -99,7 +99,7 @@ func test_bandwidth_on_partial_change():
 	var data := source_encoder.encode(TICK, REFERENCE_TICK, property_entries)
 	var bytes_per_snapshot := var_to_bytes(data).size()
 
-	# Went from 44 to 28 to 32?
+	# Went from 44 to 32
 	Vest.message("Partial diff size: %d bytes" % [bytes_per_snapshot])
 
 	ok()
