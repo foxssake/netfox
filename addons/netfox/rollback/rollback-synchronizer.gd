@@ -127,6 +127,7 @@ func process_settings():
 		_next_full_state_tick += hash(name) % maxi(1, full_state_interval)
 		_next_diff_ack_tick += hash(name) % maxi(1, diff_ack_interval)
 
+	_input_encoder.add_properties(input_properties)
 	process_authority()
 
 	# Gather all rollback-aware nodes to simulate during rollbacks

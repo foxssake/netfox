@@ -27,6 +27,9 @@ func before_case(__):
 	source_encoder = _DiffHistoryEncoder.new(source_history, property_cache)
 	target_encoder = _DiffHistoryEncoder.new(target_history, property_cache)
 
+	source_encoder.add_properties(property_entries)
+	target_encoder.add_properties(property_entries)
+
 	# Set history
 	source_history.set_snapshot(0, SnapshotFixtures.state_snapshot(Vector3(1, 1, 1)))
 	source_history.set_snapshot(1, SnapshotFixtures.state_snapshot(Vector3(2, 1, 1)))
@@ -96,7 +99,7 @@ func test_bandwidth_on_partial_change():
 	var data := source_encoder.encode(TICK, REFERENCE_TICK, property_entries)
 	var bytes_per_snapshot := var_to_bytes(data).size()
 
-	# Went from 44 to 28
+	# Went from 44 to 28 to 32?
 	Vest.message("Partial diff size: %d bytes" % [bytes_per_snapshot])
 
 	ok()

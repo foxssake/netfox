@@ -4,11 +4,17 @@ class_name _DiffHistoryEncoder
 var _history: _PropertyHistoryBuffer
 var _property_cache: PropertyCache
 
+var _property_indexes := _BiMap.new()
+
 static var _logger := _NetfoxLogger.for_netfox("DiffHistoryEncoder")
 
 func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache):
 	_history = p_history
 	_property_cache = p_property_cache
+
+func add_properties(properties: Array[PropertyEntry]) -> void:
+	for property_entry in properties:
+		_ensure_property_idx(property_entry.to_string())
 
 func encode(tick: int, reference_tick: int, properties: Array[PropertyEntry]) -> PackedByteArray:
 	assert(properties.size() <= 255, "Property indices may not fit into bytes!")
@@ -25,11 +31,9 @@ func encode(tick: int, reference_tick: int, properties: Array[PropertyEntry]) ->
 	var buffer := StreamPeerBuffer.new()
 
 	for property in diff_snapshot.properties():
-		var property_idx := property_strings.find(property)
-		if property_idx < 0:
-			continue
-
+		var property_idx := _property_indexes.get_key(property) as int
 		var property_value = diff_snapshot.get_value(property)
+
 		buffer.put_u8(property_idx)
 		buffer.put_var(property_value)
 
@@ -47,9 +51,12 @@ func decode(data: PackedByteArray, properties: Array[PropertyEntry]) -> _Propert
 	while buffer.get_available_bytes() > 0:
 		var property_idx := buffer.get_u8()
 		var property_value := buffer.get_var()
-		var property_entry := properties[property_idx]
+		if not _property_indexes.has_key(property_idx):
+			_logger.warning("Received unknown property index %d, ignoring!", [property_idx])
+			continue
 
-		result.set_value(property_entry.to_string(), property_value)
+		var property_entry := _property_indexes.get_value(property_idx)
+		result.set_value(property_entry, property_value)
 
 	return result
 
@@ -78,3 +85,13 @@ func apply(tick: int, snapshot: _PropertySnapshot, reference_tick: int, sender: 
 	var reference_snapshot := _history.get_snapshot(reference_tick)
 	_history.set_snapshot(tick, reference_snapshot.merge(snapshot))
 	return true
+
+func _ensure_property_idx(property: String):
+	if _property_indexes.has_value(property):
+		return
+
+	assert(_property_indexes.size() < 256, "Property index map is full, can't add new property!")
+	var idx := hash(property) % 256
+	while _property_indexes.has_key(idx):
+		idx = hash(idx + 1) % 256
+	_property_indexes.put(idx, property)
