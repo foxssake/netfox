@@ -9,7 +9,7 @@ func suite():
 		bimap.put(1, "foo")
 		bimap.put(2, "bar")
 
-		expect_equal(bimap.get_value(1), "foo")
+		expect_equal(bimap.get_by_key(1), "foo")
 	)
 
 	test("should return by value", func():
@@ -17,7 +17,7 @@ func suite():
 		bimap.put(1, "foo")
 		bimap.put(2, "bar")
 
-		expect_equal(bimap.get_key("foo"), 1)
+		expect_equal(bimap.get_by_value("foo"), 1)
 	)
 
 	test("should return null on unknown key", func():
@@ -25,7 +25,7 @@ func suite():
 		bimap.put(1, "foo")
 		bimap.put(2, "bar")
 
-		expect_equal(bimap.get_value(3), null)
+		expect_equal(bimap.get_by_key(3), null)
 	)
 
 	test("should return null on unknown value", func():
@@ -33,7 +33,7 @@ func suite():
 		bimap.put(1, "foo")
 		bimap.put(2, "bar")
 
-		expect_equal(bimap.get_key("quix"), null)
+		expect_equal(bimap.get_by_value("quix"), null)
 	)
 
 	test("should rewrite on known key", func():
@@ -43,8 +43,8 @@ func suite():
 
 		bimap.put(1, "quix")
 
-		expect_equal(bimap.get_value(1), "quix")
-		expect_equal(bimap.get_key("foo"), null)
+		expect_equal(bimap.get_by_key(1), "quix")
+		expect_equal(bimap.get_by_value("foo"), null)
 	)
 
 	test("should rewrite on known value", func():
@@ -54,6 +54,6 @@ func suite():
 
 		bimap.put(1, "quix")
 
-		expect_equal(bimap.get_key("quix"), 1)
-		expect_equal(bimap.get_key("foo"), null)
+		expect_equal(bimap.get_by_value("quix"), 1)
+		expect_equal(bimap.get_by_value("foo"), null)
 	)

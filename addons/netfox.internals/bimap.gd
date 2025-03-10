@@ -16,10 +16,10 @@ func put(key: Variant, value: Variant) -> void:
 	_keys_to_values[key] = value
 	_values_to_keys[value] = key
 
-func get_value(key: Variant) -> Variant:
+func get_by_key(key: Variant) -> Variant:
 	return _keys_to_values.get(key)
 
-func get_key(value: Variant) -> Variant:
+func get_by_value(value: Variant) -> Variant:
 	return _values_to_keys.get(value)
 
 func has_key(key: Variant) -> bool:
@@ -32,7 +32,7 @@ func erase_key(key: Variant) -> bool:
 	if not has_key(key):
 		return false
 
-	var value = get_value(key)
+	var value = get_by_key(key)
 	_values_to_keys.erase(value)
 	_keys_to_values.erase(key)
 	return true
@@ -41,7 +41,7 @@ func erase_value(value: Variant) -> bool:
 	if not has_value(value):
 		return false
 
-	var key = get_key(value)
+	var key = get_by_value(value)
 	_values_to_keys.erase(value)
 	_keys_to_values.erase(key)
 	return true

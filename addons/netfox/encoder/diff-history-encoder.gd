@@ -31,7 +31,7 @@ func encode(tick: int, reference_tick: int, properties: Array[PropertyEntry]) ->
 	var buffer := StreamPeerBuffer.new()
 
 	for property in diff_snapshot.properties():
-		var property_idx := _property_indexes.get_key(property) as int
+		var property_idx := _property_indexes.get_by_value(property) as int
 		var property_value = diff_snapshot.get_value(property)
 
 		buffer.put_u8(property_idx)
@@ -55,7 +55,7 @@ func decode(data: PackedByteArray, properties: Array[PropertyEntry]) -> _Propert
 			_logger.warning("Received unknown property index %d, ignoring!", [property_idx])
 			continue
 
-		var property_entry := _property_indexes.get_value(property_idx)
+		var property_entry := _property_indexes.get_by_key(property_idx)
 		result.set_value(property_entry, property_value)
 
 	return result
