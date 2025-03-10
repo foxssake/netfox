@@ -3,20 +3,24 @@ class_name _BiMap
 
 # Maps one-to-one associations in a bidirectional way
 
-# TODO: Tests
-
 var _keys_to_values := {}
 var _values_to_keys := {}
 
 func put(key: Variant, value: Variant) -> void:
+	var old_value = _keys_to_values.get(key)
+	var old_key = _values_to_keys.get(value)
+
+	if old_value != null: _values_to_keys.erase(old_value)
+	if old_key != null: _keys_to_values.erase(old_key)
+
 	_keys_to_values[key] = value
 	_values_to_keys[value] = key
 
 func get_value(key: Variant) -> Variant:
-	return _keys_to_values[key]
+	return _keys_to_values.get(key)
 
 func get_key(value: Variant) -> Variant:
-	return _values_to_keys[value]
+	return _values_to_keys.get(value)
 
 func has_key(key: Variant) -> bool:
 	return _keys_to_values.has(key)
