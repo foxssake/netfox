@@ -39,21 +39,21 @@ func encode(tick: int, properties: Array[PropertyEntry]) -> Array:
 
 	return data
 
-func decode(data: Array, property_config: Array[PropertyEntry]) -> Array[_PropertySnapshot]:
-	if data.is_empty() or property_config.is_empty():
+func decode(data: Array, properties: Array[PropertyEntry]) -> Array[_PropertySnapshot]:
+	if data.is_empty() or properties.is_empty():
 		return []
 	
 	var result: Array[_PropertySnapshot] = []
-	var redundancy := data.size() / property_config.size()
+	var redundancy := data.size() / properties.size()
 	result.assign(range(redundancy)
 		.map(func(__): return _PropertySnapshot.new())
 	)
 
 	for i in range(data.size()):
-		var offset_idx := i / property_config.size()
-		var prop_idx := i % property_config.size()
+		var offset_idx := i / properties.size()
+		var prop_idx := i % properties.size()
 
-		result[offset_idx].set_value(property_config[prop_idx].to_string(), data[i])
+		result[offset_idx].set_value(properties[prop_idx].to_string(), data[i])
 
 	return result
 

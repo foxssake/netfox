@@ -10,11 +10,11 @@ func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache):
 	_history = p_history
 	_property_cache = p_property_cache
 
-func encode(tick: int, reference_tick: int, property_entries: Array[PropertyEntry]) -> PackedByteArray:
-	assert(property_entries.size() <= 255, "Property indices may not fit into bytes!")
+func encode(tick: int, reference_tick: int, properties: Array[PropertyEntry]) -> PackedByteArray:
+	assert(properties.size() <= 255, "Property indices may not fit into bytes!")
 
 	var snapshot := _history.get_snapshot(tick)
-	var property_strings := property_entries.map(func(it): return it.to_string())
+	var property_strings := properties.map(func(it): return it.to_string())
 
 	var reference_snapshot := _history.get_history(reference_tick)
 	var diff_snapshot := reference_snapshot.make_patch(snapshot)
@@ -35,7 +35,7 @@ func encode(tick: int, reference_tick: int, property_entries: Array[PropertyEntr
 
 	return buffer.data_array
 
-func decode(data: PackedByteArray, property_entries: Array[PropertyEntry]) -> _PropertySnapshot:
+func decode(data: PackedByteArray, properties: Array[PropertyEntry]) -> _PropertySnapshot:
 	var result := _PropertySnapshot.new()
 
 	if data.is_empty():
@@ -47,7 +47,7 @@ func decode(data: PackedByteArray, property_entries: Array[PropertyEntry]) -> _P
 	while buffer.get_available_bytes() > 0:
 		var property_idx := buffer.get_u8()
 		var property_value := buffer.get_var()
-		var property_entry := property_entries[property_idx]
+		var property_entry := properties[property_idx]
 
 		result.set_value(property_entry.to_string(), property_value)
 

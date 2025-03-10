@@ -10,20 +10,20 @@ func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache):
 	_history = p_history
 	_property_cache = p_property_cache
 
-func encode(tick: int, property_config: Array[PropertyEntry]) -> Array:
+func encode(tick: int, properties: Array[PropertyEntry]) -> Array:
 	var snapshot := _history.get_snapshot(tick)
 	var data := []
-	data.resize(property_config.size())
+	data.resize(properties.size())
 
-	for i in range(property_config.size()):
-		data[i] = snapshot.get_value(property_config[i].to_string())
+	for i in range(properties.size()):
+		data[i] = snapshot.get_value(properties[i].to_string())
 
 	return data
 
-func decode(data: Array, property_config: Array[PropertyEntry]) -> _PropertySnapshot:
+func decode(data: Array, properties: Array[PropertyEntry]) -> _PropertySnapshot:
 	var result := _PropertySnapshot.new()
-	for i in range(property_config.size()):
-		result.set_value(property_config[i].to_string(), data[i])
+	for i in range(properties.size()):
+		result.set_value(properties[i].to_string(), data[i])
 	return result
 
 func apply(tick: int, snapshot: _PropertySnapshot, sender: int = -1) -> bool:
