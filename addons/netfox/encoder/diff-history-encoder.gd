@@ -19,9 +19,10 @@ func encode(tick: int, reference_tick: int, property_entries: Array[PropertyEntr
 	var reference_snapshot := _history.get_history(reference_tick)
 	var diff_snapshot := reference_snapshot.make_patch(snapshot)
 
-	var result := PackedByteArray()
 	if diff_snapshot.is_empty():
-		return result
+		return PackedByteArray()
+
+	var buffer := StreamPeerBuffer.new()
 
 	for property in diff_snapshot.properties():
 		var property_idx := property_strings.find(property)
@@ -29,14 +30,10 @@ func encode(tick: int, reference_tick: int, property_entries: Array[PropertyEntr
 			continue
 
 		var property_value = diff_snapshot.get_value(property)
-		var property_buffer := PackedByteArray()
-		property_buffer.resize(1)
-		property_buffer.encode_u8(0, property_idx)
-		property_buffer.append_array(var_to_bytes(property_value))
+		buffer.put_u8(property_idx)
+		buffer.put_var(property_value)
 
-		result.append_array(property_buffer)
-
-	return result
+	return buffer.data_array
 
 func decode(data: PackedByteArray, property_entries: Array[PropertyEntry]) -> _PropertySnapshot:
 	var result := _PropertySnapshot.new()
@@ -44,17 +41,15 @@ func decode(data: PackedByteArray, property_entries: Array[PropertyEntry]) -> _P
 	if data.is_empty():
 		return result
 
-	var at := 0
-	while at < data.size():
-		var property_idx := data.decode_u8(at)
-		var property_value := data.decode_var(at + 1)
-		var property_size := data.decode_var_size(at + 1)
-
+	var buffer := StreamPeerBuffer.new()
+	buffer.data_array = data
+	
+	while buffer.get_available_bytes() > 0:
+		var property_idx := buffer.get_u8()
+		var property_value := buffer.get_var()
 		var property_entry := property_entries[property_idx]
 
 		result.set_value(property_entry.to_string(), property_value)
-
-		at += property_size + 1
 
 	return result
 
