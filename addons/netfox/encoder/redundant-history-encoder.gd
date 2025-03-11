@@ -26,7 +26,7 @@ func encode(tick: int, properties: Array[PropertyEntry]) -> Array:
 	if _history.is_empty():
 		return []
 
-	var data : Array = []
+	var data := []
 
 	for i in range(mini(redundancy, _history.size())):
 		var offset_tick := tick - i
