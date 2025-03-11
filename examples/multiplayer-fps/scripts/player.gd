@@ -18,13 +18,21 @@ var respawn_position: Vector3
 var did_respawn := false
 var deaths := 0
 
+# Track deaths and *acknowledged* deaths
+# Acknowledge the number of deaths on tick loop start
+# If the value changes by the end of the loop, that means the player has
+# respawned, and needs to `teleport()`
 var _ackd_deaths := 0
 
 func _ready():
 	display_name.text = name
 	hud.hide()
 
+	NetworkTime.before_tick_loop.connect(_before_tick_loop)
 	NetworkTime.after_tick_loop.connect(_after_tick_loop)
+
+func _before_tick_loop():
+	_ackd_deaths = deaths
 
 func _after_tick_loop():
 	if _ackd_deaths != deaths:
