@@ -10,11 +10,21 @@ func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache):
 	_history = p_history
 	_property_cache = p_property_cache
 
-func encode(tick: int) -> Dictionary:
-	return _history.get_snapshot(tick).as_dictionary()
+func encode(tick: int, properties: Array[PropertyEntry]) -> Array:
+	var snapshot := _history.get_snapshot(tick)
+	var data := []
+	data.resize(properties.size())
 
-func decode(data: Dictionary) -> _PropertySnapshot:
-	return _PropertySnapshot.from_dictionary(data)
+	for i in range(properties.size()):
+		data[i] = snapshot.get_value(properties[i].to_string())
+
+	return data
+
+func decode(data: Array, properties: Array[PropertyEntry]) -> _PropertySnapshot:
+	var result := _PropertySnapshot.new()
+	for i in range(properties.size()):
+		result.set_value(properties[i].to_string(), data[i])
+	return result
 
 func apply(tick: int, snapshot: _PropertySnapshot, sender: int = -1) -> bool:
 	if tick < NetworkRollback.history_start:
