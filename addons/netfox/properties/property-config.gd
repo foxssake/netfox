@@ -2,9 +2,9 @@ extends RefCounted
 class_name _PropertyConfig
 
 var _properties: Array[PropertyEntry] = []
-var _auth_properties: Dictionary = {} # Peer to owned properties
+var _auth_properties: Dictionary = {} # Peer (int) to owned properties (Array[PropertyEntry])
 
-var local_peer_id: int # TODO: NetworkEvents or similar to get local peer id?
+var local_peer_id: int
 
 func set_properties(p_properties: Array[PropertyEntry]) -> void:
 	_properties.assign(p_properties)
