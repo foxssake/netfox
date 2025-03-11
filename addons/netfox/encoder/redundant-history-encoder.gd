@@ -22,29 +22,38 @@ func set_redundancy(p_redundancy: int):
 
 	redundancy = p_redundancy
 
-func encode(tick: int) -> Array:
+func encode(tick: int, properties: Array[PropertyEntry]) -> Array:
 	if _history.is_empty():
 		return []
 
-	var data : Array[Dictionary] = []
-	data.resize(redundancy)
+	var data := []
 
 	for i in range(mini(redundancy, _history.size())):
 		var offset_tick := tick - i
 		if offset_tick < _history.get_earliest_tick():
-			data.resize(i)
 			break
 
-		data[i] = _history.get_snapshot(offset_tick).as_dictionary()
+		var snapshot := _history.get_snapshot(offset_tick)
+		for property in properties:
+			data.append(snapshot.get_value(property.to_string()))
 
 	return data
 
-func decode(data: Array) -> Array[_PropertySnapshot]:
+func decode(data: Array, properties: Array[PropertyEntry]) -> Array[_PropertySnapshot]:
+	if data.is_empty() or properties.is_empty():
+		return []
+	
 	var result: Array[_PropertySnapshot] = []
-	result.resize(data.size())
+	var redundancy := data.size() / properties.size()
+	result.assign(range(redundancy)
+		.map(func(__): return _PropertySnapshot.new())
+	)
 
 	for i in range(data.size()):
-		result[i] = _PropertySnapshot.from_dictionary(data[i])
+		var offset_idx := i / properties.size()
+		var prop_idx := i % properties.size()
+
+		result[offset_idx].set_value(properties[prop_idx].to_string(), data[i])
 
 	return result
 
