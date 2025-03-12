@@ -1,6 +1,11 @@
 extends Node
 class_name RewindableAction
 
+# TODO: Icon
+
+## Represents actions that may or may not happen, in a way compatible with
+## rollback.
+
 # Status enum
 enum {
 	INACTIVE,
@@ -22,9 +27,6 @@ var _mutated_objects: _Set = _Set.new()
 
 var _logger := _NetfoxLogger.for_netfox("RewindableAction")
 
-signal on_confirm
-signal on_cancel
-
 # Process:
 #	@0:	Client sends an input with fire	@0
 #		Client toggles action to true	@0
@@ -36,6 +38,7 @@ signal on_cancel
 #		Other clients receive toggle	@0
 #		Other clients show effect		@0
 
+## Returns the [param status] enum as string
 static func status_string(status: int) -> String:
 	match status:
 		INACTIVE: return "INACTIVE"
@@ -44,6 +47,7 @@ static func status_string(status: int) -> String:
 		CANCELLING: return "CANCELLING"
 		_: return "?"
 
+## Toggles the action for a given [param tick]
 func toggle(state: bool, tick: int = NetworkRollback.tick) -> void:
 	_last_set_tick = tick
 
@@ -54,16 +58,24 @@ func toggle(state: bool, tick: int = NetworkRollback.tick) -> void:
 	if tick: _active_ticks.add(tick)
 	else: _active_ticks.erase(tick)
 
-	# Fire event
-	if state: on_confirm.emit()
-	else: on_cancel.emit()
-
 	# Save changes for a single loop
 	_state_changes[tick] = state
 
+## Check if the action is happening for the given [param tick]
 func is_active(tick: int = NetworkRollback.tick) -> bool:
 	return _active_ticks.has(tick)
 
+## Check the action's status for the given [param tick]
+## [br][br]
+## Returns [constant ACTIVE] if the action is happening.[br]
+## Returns [constant INACTIVE] if the action is not happening.[br]
+## Returns [constant CONFIRMING] if the action was previously known as not
+## happening, but now it is.[br]
+## Returns [constant CANCELLING] if the action was previously known to be
+## happening, but now it is not.[br]
+## [br]
+## The [constant CONFIRMING] and [constant CANCELLING] statuses may occur if the
+## action was just toggled, or data was received from the action's authority.
 func get_status(tick: int = NetworkRollback.tick) -> int:
 	var currently_active := is_active(tick)
 	var state_change = _state_changes.get(tick)
@@ -75,30 +87,47 @@ func get_status(tick: int = NetworkRollback.tick) -> int:
 		return CONFIRMING if state_change else CANCELLING
 	return ACTIVE if currently_active else INACTIVE
 
+## Returns true if the action has been in [constant CONFIRMING] status during
+## the last tick loop
 func has_confirmed() -> bool:
 	return _has_confirmed
 
+## Returns true if the action has been in [constant CANCELLING] status during
+## the last tick loop
 func has_cancelled() -> bool:
 	return _has_cancelled
 
+## Get the action's current status as a string
+## [br][br]
+## See also: [member get_status]
 func get_status_string(tick: int = NetworkRollback.tick) -> String:
 	return status_string(get_status(tick))
 
+## Returns true if the action has any stored context for the given [param tick]
 func has_context(tick: int = NetworkRollback.tick) -> bool:
 	return _context.has(tick)
 
+## Get the context stored for the given [param tick], or null
 func get_context(tick: int = NetworkRollback.tick) -> Variant:
 	return _context.get(tick)
 
+## Store [param value] as the context for the given [param tick]
 func set_context(value: Variant, tick: int = NetworkRollback.tick) -> void:
 	_context[tick] = value
 
+## Erase the context for the given [param tick]
 func erase_context(tick: int = NetworkRollback.tick) -> void:
 	_context.erase(tick)
 
+## Whenever the action happens, mutate the [param target] object
+## [br][br]
+## See also: [method _NetworkRollback.mutate]
 func mutate(target: Object) -> void:
 	_mutated_objects.add(target)
 
+## Remove the [param target] object from the list of objects to [method mutate]
+## [br][br]
+## See also: [method _NetworkRollback.mutate]
 func dont_mutate(target: Object) -> void:
 	_mutated_objects.erase(target)
 
