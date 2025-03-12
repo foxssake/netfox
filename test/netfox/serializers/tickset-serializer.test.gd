@@ -43,3 +43,15 @@ func test_should_fail_on_earliest_after_latest():
 	var bytes = _TicksetSerializer.serialize(earliest_tick, latest_tick, active_ticks)
 
 	expect(bytes.is_empty())
+
+func test_bandwidth():
+	var earliest_tick = 15
+	var latest_tick = 35
+	var active_ticks = _Set.of([15, 16, 20, 24])
+
+	var empty_buffer := _TicksetSerializer.serialize(earliest_tick, latest_tick, _Set.of([]))
+	var buffer := _TicksetSerializer.serialize(earliest_tick, latest_tick, active_ticks)
+
+	Vest.message("Data usage with empty tickset: %d bytes" % [empty_buffer.size()])
+	Vest.message("Data usage with %d active ticks: %d bytes" % [active_ticks.size(), buffer.size()])
+	ok()
