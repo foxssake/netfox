@@ -24,6 +24,8 @@ var deaths := 0
 # respawned, and needs to `teleport()`
 var _ackd_deaths := 0
 
+var _was_hit := false
+
 func _ready():
 	display_name.text = name
 	hud.hide()
@@ -39,6 +41,10 @@ func _after_tick_loop():
 		tick_interpolator.teleport()
 		$DieSFX.play()
 		_ackd_deaths = deaths
+
+	if _was_hit:
+		$HitSFX.play()
+		_was_hit = false
 
 func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 	# Handle respawn
@@ -94,8 +100,11 @@ func _force_update_is_on_floor():
 	move_and_slide()
 	velocity = old_velocity
 
-func damage():
-	# $HitSFX.play() # TODO
+func damage(is_new_hit: bool = false):
+	# Queue hit sound
+	if is_new_hit:
+		_was_hit = true
+
 	health -= 34
 	_logger.info("%s HP now at %s", [name, health])
 

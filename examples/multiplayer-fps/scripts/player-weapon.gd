@@ -64,12 +64,14 @@ func _raycast() -> Dictionary:
 	return space.intersect_ray(query)
 
 func _on_hit(result: Dictionary):
+	var is_new_hit := false
 	if not fire_action.has_context():
 		bullethole.action(result)
 		fire_action.set_context(true)
+		is_new_hit = true
 
 	if result.collider.has_method("damage"):
-		result.collider.damage()
+		result.collider.damage(is_new_hit)
 		NetworkRollback.mutate(result.collider)
 
 func _on_cancel_hit():
