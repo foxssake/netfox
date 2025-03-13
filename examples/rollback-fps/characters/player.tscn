@@ -1,0 +1,96 @@
+[gd_scene load_steps=17 format=3 uid="uid://dw3xd5a7xnse7"]
+
+[ext_resource type="Script" path="res://examples/rollback-fps/scripts/player.gd" id="1_bww6v"]
+[ext_resource type="Script" path="res://examples/rollback-fps/scripts/player-weapon.gd" id="2_qyetr"]
+[ext_resource type="AudioStream" uid="uid://cope814m1d7p6" path="res://examples/multiplayer-fps/sounds/fire.mp3" id="3_kq0j8"]
+[ext_resource type="Script" path="res://addons/netfox/rewindable-action.gd" id="6_pks3d"]
+[ext_resource type="Script" path="res://examples/rollback-fps/scripts/player-input.gd" id="7_2i3bi"]
+[ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="9_vik3r"]
+[ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="10_4mqhe"]
+[ext_resource type="AudioStream" uid="uid://q7ql86p7flj" path="res://examples/multiplayer-fps/sounds/hit.wav" id="15_1n4tg"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_6kydi"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2gc5u"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_xnks4"]
+material = SubResource("StandardMaterial3D_2gc5u")
+
+[sub_resource type="BoxMesh" id="BoxMesh_qmeb2"]
+size = Vector3(0.4, 0.25, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xx8rr"]
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_0vqha"]
+material = SubResource("StandardMaterial3D_xx8rr")
+size = Vector3(0.2, 0.2, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_khk4l"]
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_wqpqp"]
+material = SubResource("StandardMaterial3D_khk4l")
+size = Vector3(0.2, 0.2, 1)
+
+[node name="player" type="CharacterBody3D"]
+script = ExtResource("1_bww6v")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_6kydi")
+
+[node name="Body" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_xnks4")
+
+[node name="Head" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.705698, 0)
+
+[node name="Camera3D" type="Camera3D" parent="Head"]
+
+[node name="Nose" type="MeshInstance3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.25)
+mesh = SubResource("BoxMesh_qmeb2")
+
+[node name="PlayerFPSWeapon" type="Node3D" parent="Head"]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0)
+script = ExtResource("2_qyetr")
+
+[node name="TinyGun" type="MeshInstance3D" parent="Head/PlayerFPSWeapon"]
+transform = Transform3D(0.15, 0, 0, 0, 0.15, 0, 0, 0, 0.15, 0.09, -0.18, -0.3)
+mesh = SubResource("BoxMesh_0vqha")
+
+[node name="Fire Action" type="Node" parent="Head/PlayerFPSWeapon"]
+script = ExtResource("6_pks3d")
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="Head/PlayerFPSWeapon"]
+transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 0, -0.705698, 0)
+stream = ExtResource("3_kq0j8")
+
+[node name="BigGun" type="MeshInstance3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.439686, -0.406913, -0.200588)
+mesh = SubResource("BoxMesh_wqpqp")
+
+[node name="DisplayNameLabel3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.30427, 0)
+pixel_size = 0.002
+billboard = 1
+fixed_size = true
+font_size = 16
+
+[node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
+unique_name_in_owner = true
+script = ExtResource("9_vik3r")
+root = NodePath("..")
+state_properties = Array[String]([":transform", ":velocity", ":health", ":deaths", "Head:transform", "Head/PlayerFPSWeapon:last_fire"])
+input_properties = Array[String](["Input:movement", "Input:jump", "Input:fire", "Input:look_angle"])
+
+[node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("10_4mqhe")
+root = NodePath("..")
+properties = Array[String]([":transform", "Head:transform"])
+
+[node name="Input" type="Node" parent="."]
+script = ExtResource("7_2i3bi")
+
+[node name="Hit SFX" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("15_1n4tg")
