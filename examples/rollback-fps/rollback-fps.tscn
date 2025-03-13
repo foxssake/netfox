@@ -1,6 +1,6 @@
 [gd_scene load_steps=11 format=3 uid="uid://dc73d71dasnjj"]
 
-[ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/player-spawner.gd" id="1_02lpx"]
+[ext_resource type="Script" path="res://examples/rollback-fps/scripts/player-spawner.gd" id="1_ayh10"]
 [ext_resource type="PackedScene" uid="uid://dw3xd5a7xnse7" path="res://examples/rollback-fps/characters/player.tscn" id="2_a4siq"]
 [ext_resource type="PackedScene" uid="uid://badtpsxn5lago" path="res://examples/shared/ui/network-popup.tscn" id="3_1bl75"]
 [ext_resource type="Script" path="res://examples/shared/scripts/simple-time-display.gd" id="4_ivl41"]
@@ -48,7 +48,7 @@ environment = SubResource("Environment_xhc6u")
 [node name="Network" type="Node" parent="."]
 
 [node name="Player Spawner" type="Node" parent="Network" node_paths=PackedStringArray("spawn_points")]
-script = ExtResource("1_02lpx")
+script = ExtResource("1_ayh10")
 player_scene = ExtResource("2_a4siq")
 spawn_points = [NodePath("../../Spawn Points/Marker3D"), NodePath("../../Spawn Points/Marker3D2"), NodePath("../../Spawn Points/Marker3D3"), NodePath("../../Spawn Points/Marker3D4"), NodePath("../../Spawn Points/Marker3D5")]
 
