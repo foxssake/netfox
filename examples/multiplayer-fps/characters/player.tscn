@@ -7,7 +7,6 @@
 [ext_resource type="AudioStream" uid="uid://cope814m1d7p6" path="res://examples/multiplayer-fps/sounds/fire.mp3" id="5_14ltm"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/bullethole.gd" id="6_f1qm8"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/ui/projection3d.gd" id="6_sv41w"]
-[ext_resource type="Script" path="res://addons/netfox/rewindable-action.gd" id="6_t4cp5"]
 [ext_resource type="Texture2D" uid="uid://b8r41bt6ft8jt" path="res://examples/multiplayer-fps/textures/bullet_hole.png" id="7_sxhbg"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/player-input.gd" id="10_50d5g"]
 [ext_resource type="Script" path="res://examples/multiplayer-fps/scripts/ui/window-size-connector.gd" id="13_mlcnx"]
@@ -22,7 +21,6 @@ size = Vector3(0.4, 0.25, 0.5)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_faajq"]
 transparency = 1
-albedo_color = Color(1, 1, 1, 0.25098)
 albedo_texture = ExtResource("7_sxhbg")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xx8rr"]
@@ -52,6 +50,20 @@ bg_color = Color(0.811765, 0.0823529, 0, 1)
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_xnks4"]
 material = SubResource("StandardMaterial3D_2gc5u")
 
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_70css"]
+properties/0/path = NodePath(".:health")
+properties/0/spawn = true
+properties/0/sync = false
+properties/0/watch = true
+properties/1/path = NodePath(".:death_tick")
+properties/1/spawn = true
+properties/1/sync = false
+properties/1/watch = true
+properties/2/path = NodePath(".:respawn_position")
+properties/2/spawn = true
+properties/2/sync = false
+properties/2/watch = true
+
 [node name="player" type="CharacterBody3D"]
 script = ExtResource("1_mk8qw")
 
@@ -65,7 +77,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.25)
 mesh = SubResource("BoxMesh_qmeb2")
 
 [node name="PlayerFPSWeapon" type="Node3D" parent="Head"]
-transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0)
 script = ExtResource("3_4j0gy")
 
 [node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="Head/PlayerFPSWeapon"]
@@ -78,9 +89,6 @@ material = SubResource("StandardMaterial3D_faajq")
 [node name="TinyGun" type="MeshInstance3D" parent="Head/PlayerFPSWeapon"]
 transform = Transform3D(0.15, 0, 0, 0, 0.15, 0, 0, 0, 0.15, 0.09, -0.18, -0.3)
 mesh = SubResource("BoxMesh_0vqha")
-
-[node name="Fire Action" type="Node" parent="Head/PlayerFPSWeapon"]
-script = ExtResource("6_t4cp5")
 
 [node name="BigGun" type="MeshInstance3D" parent="Head"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.439686, -0.406913, -0.200588)
@@ -120,11 +128,13 @@ shape = SubResource("CapsuleShape3D_6kydi")
 mesh = SubResource("CapsuleMesh_xnks4")
 
 [node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
-unique_name_in_owner = true
 script = ExtResource("1_g0p7o")
 root = NodePath("..")
-state_properties = Array[String]([":transform", ":velocity", ":health", ":deaths", "Head:transform", "Head/PlayerFPSWeapon:last_fire"])
+state_properties = Array[String]([":transform", ":velocity", ":did_respawn", "Head:transform"])
 input_properties = Array[String](["Input:movement", "Input:jump", "Input:fire", "Input:look_angle"])
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_70css")
 
 [node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("2_3rc26")

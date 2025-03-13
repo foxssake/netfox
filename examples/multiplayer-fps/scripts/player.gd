@@ -18,33 +18,22 @@ var respawn_position: Vector3
 var did_respawn := false
 var deaths := 0
 
-# Track deaths and *acknowledged* deaths
-# Acknowledge the number of deaths on tick loop start
-# If the value changes by the end of the loop, that means the player has
-# respawned, and needs to `teleport()`
-var _ackd_deaths := 0
-
-var _was_hit := false
-
 func _ready():
 	display_name.text = name
 	hud.hide()
 
-	NetworkTime.before_tick_loop.connect(_before_tick_loop)
+	NetworkTime.on_tick.connect(_tick)
 	NetworkTime.after_tick_loop.connect(_after_tick_loop)
 
-func _before_tick_loop():
-	_ackd_deaths = deaths
+func _tick(dt: float, tick: int):
+	if health <= 0:
+		$DieSFX.play()
+		deaths += 1
+		die()
 
 func _after_tick_loop():
-	if _ackd_deaths != deaths:
+	if did_respawn:
 		tick_interpolator.teleport()
-		$DieSFX.play()
-		_ackd_deaths = deaths
-
-	if _was_hit:
-		$HitSFX.play()
-		_was_hit = false
 
 func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 	# Handle respawn
@@ -88,25 +77,27 @@ func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 	move_and_slide()
 	velocity /= NetworkTime.physics_factor
 
-	# Handle death
-	if health <= 0:
-		deaths += 1
-		global_position = get_parent().get_next_spawn_point(get_player_id(), deaths)
-		health = 100
-
 func _force_update_is_on_floor():
 	var old_velocity = velocity
 	velocity = Vector3.ZERO
 	move_and_slide()
 	velocity = old_velocity
 
-func damage(is_new_hit: bool = false):
-	# Queue hit sound
-	if is_new_hit:
-		_was_hit = true
+func damage():
+	$HitSFX.play()
+	if is_multiplayer_authority():
+		health -= 34
+		_logger.warning("%s HP now at %s", [name, health])
 
-	health -= 34
-	_logger.info("%s HP now at %s", [name, health])
+func die():
+	if not is_multiplayer_authority():
+		return
+
+	_logger.warning("%s died", [name])
+	respawn_position = get_parent().get_next_spawn_point(get_player_id(), deaths)
+	death_tick = NetworkTime.tick
+
+	health = 100
 
 func get_player_id() -> int:
 	return input.get_multiplayer_authority()
