@@ -1,5 +1,4 @@
 extends BaseNetInput
-class_name PlayerInputFPS
 
 @export var mouse_sensitivity: float = 1.0
 var override_mouse: bool = false

@@ -1,5 +1,4 @@
 extends Node3D
-class_name PlayerFPSWeapon
 
 @export var fire_cooldown: float = 0.25
 @export var damage: int = 35
