@@ -167,6 +167,12 @@ const TYPES = [
 		"script": ROOT + "/tick-interpolator.gd",
 		"icon": ROOT + "/icons/tick-interpolator.svg"
 	},
+	{
+		"name": "RewindableAction",
+		"base": "Node",
+		"script": ROOT + "/rewindable-action.gd",
+		"icon": ROOT + "/icons/rewindable-action.svg"
+	},
 ]
 
 func _enter_tree():

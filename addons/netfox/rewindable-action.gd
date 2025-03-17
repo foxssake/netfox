@@ -1,8 +1,6 @@
 extends Node
 class_name RewindableAction
 
-# TODO: Icon
-
 ## Represents actions that may or may not happen, in a way compatible with
 ## rollback.
 ## 
