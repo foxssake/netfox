@@ -32,7 +32,6 @@ func _rollback_tick(_dt, tick: int, _if):
 func _after_loop():
 	if fire_action.has_confirmed():
 		sound.play()
-		pass
 
 func _can_fire() -> bool:
 	return NetworkTime.seconds_between(last_fire, NetworkRollback.tick) >= fire_cooldown
