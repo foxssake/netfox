@@ -50,7 +50,7 @@ static func make_setting(name: String) -> Dictionary:
 		"hint_string": "All,Trace,Debug,Info,Warning,Error,None"
 	}
 
-static func register_tag(tag: Callable, priority: int = 0):
+static func register_tag(tag: Callable, priority: int = 0) -> void:
 	# Save tag
 	if not _tags.has(priority):
 		_tags[priority] = [tag]

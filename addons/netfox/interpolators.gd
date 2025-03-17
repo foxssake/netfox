@@ -6,12 +6,12 @@ class Interpolator:
 	var apply: Callable
 	
 	static func make(is_applicable: Callable, apply: Callable) -> Interpolator:
-		var result = Interpolator.new()
+		var result := Interpolator.new()
 		result.is_applicable = is_applicable
 		result.apply = apply
 		return result
 
-static var DEFAULT_INTERPOLATOR = Interpolator.make(
+static var DEFAULT_INTERPOLATOR := Interpolator.make(
 	func (v): return true,
 	func (a, b, f): return a if f < 0.5 else b
 )
@@ -24,7 +24,7 @@ static var default_apply: Callable = func(a, b, f): a if f < 0.5 else b
 ## New interpolators are pushed to the front of the list, making them have 
 ## precedence over existing ones. This can be useful in case you want to override
 ## the built-in interpolators.
-static func register(is_applicable: Callable, apply: Callable):
+static func register(is_applicable: Callable, apply: Callable) -> void:
 	interpolators.push_front(Interpolator.make(is_applicable, apply))
 
 ## Find the appropriate interpolator for the given value.
@@ -45,7 +45,7 @@ static func find_for(value) -> Callable:
 static func interpolate(a, b, f: float):
 	return find_for(a).call(a, b, f)
 
-static func _static_init():
+static func _static_init() -> void:
 	# Register built-in interpolators
 	# Float
 	register(

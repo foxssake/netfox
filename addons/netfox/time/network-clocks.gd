@@ -10,10 +10,10 @@ class SystemClock:
 	func get_time() -> float:
 		return get_raw_time() + offset
 	
-	func adjust(p_offset: float):
+	func adjust(p_offset: float) -> void:
 		offset += p_offset
 	
-	func set_time(p_time: float):
+	func set_time(p_time: float) -> void:
 		offset = p_time - get_raw_time()
 
 class SteppingClock:
@@ -26,16 +26,16 @@ class SteppingClock:
 	func get_time() -> float:
 		return time
 	
-	func adjust(p_offset: float):
+	func adjust(p_offset: float) -> void:
 		time += p_offset
 	
-	func set_time(p_time: float):
+	func set_time(p_time: float) -> void:
 		last_step = get_raw_time()
 		time = p_time
 	
-	func step(p_multiplier: float = 1.):
-		var current_step = get_raw_time()
-		var step_duration = current_step - last_step
+	func step(p_multiplier: float = 1.) -> void:
+		var current_step := get_raw_time()
+		var step_duration := current_step - last_step
 		last_step = current_step
 
 		adjust(step_duration * p_multiplier)
