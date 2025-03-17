@@ -5,6 +5,7 @@ class_name RewindableAction
 ## rollback.
 ## 
 ## @experimental: This class is experimental!
+## @tutorial(RewindableAction Guide): https://foxssake.github.io/netfox/latest/netfox/nodes/rewindable-action/
 
 # Status enum
 enum {
