@@ -55,6 +55,7 @@ nav:
       - 'netfox/nodes/tick-interpolator.md'
       - 'netfox/nodes/rollback-synchronizer.md'
       - 'netfox/nodes/state-synchronizer.md'
+      - 'netfox/nodes/rewindable-action.md'
   - netfox.noray:
     - Guides:
       - 'netfox.noray/guides/noray.md'

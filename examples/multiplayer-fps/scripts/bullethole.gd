@@ -1,5 +1,7 @@
+extends Node3D
+class_name BulletHole
+
 ## Spawns a bullethole
-class_name BulletHole extends Node3D
 
 ## A StandardMaterial3D to use as the bullethole decal.
 @export var material: StandardMaterial3D

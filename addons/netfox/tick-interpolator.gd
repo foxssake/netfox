@@ -4,7 +4,7 @@ class_name TickInterpolator
 
 ## Interpolates between network ticks for smooth motion.
 ## [br][br]
-## @tutorial(TickInterpolator Guide): https://foxssake.github.io/netfox/netfox/nodes/tick-interpolator/
+## @tutorial(TickInterpolator Guide): https://foxssake.github.io/netfox/latest/netfox/nodes/tick-interpolator/
 
 ## The root node for resolving node paths in properties.
 @export var root: Node
