@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://foxssake.github.io/netfox/latest/netfox/nodes/rewindable-action/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>RewindableAction - netfox</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/version-selector.css" rel="stylesheet" />
+        <link href="../../../css/twemoji.css" rel="stylesheet" />
+        <link href="../../../assets/mkdocs_puml/puml.css" rel="stylesheet" />
+        <link href="../../../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "RewindableAction";
+        var mkdocs_page_input_path = "netfox/nodes/rewindable-action.md";
+        var mkdocs_page_url = "/netfox/latest/netfox/nodes/rewindable-action/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script>
+  <script src="https://giscus.app/client.js"
+          data-repo="foxssake/netfox"
+          data-repo-id="R_kgDOKBON2A"
+          data-category="Docs"
+          data-category-id="DIC_kwDOKBON2M4Clib_"
+          data-mapping="title"
+          data-strict="0"
+          data-reactions-enabled="1"
+          data-emit-metadata="0"
+          data-input-position="top"
+          data-theme="light"
+          data-lang="en"
+          data-loading="lazy"
+          crossorigin="anonymous"
+          async>
+  </script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> netfox
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../upgrading/">Upgrading netfox</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../made-with-netfox/">Made with netfox</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../press-kit/">Press kit</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../contributors/">Contributors</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >Tutorials</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/responsive-player-movement/">Responsive player movement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/predicting-input/">Predicting input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/modifying-objects-during-rollback/">Modifying objects during rollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/configuring-properties-from-code/">Configuring properties from code</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/rollback-caveats/">Rollback caveats</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/interpolation-caveats/">Interpolation caveats</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Concepts</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../concepts/servers-clients-ownership/">Servers, clients, and ownership</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../concepts/authoritative-servers/">Authoritative servers</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/logging/">Logging</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-time/">NetworkTime</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-time-synchronizer/">NetworkTimeSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-events/">NetworkEvents</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/interpolators/">Interpolators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/property-paths/">Property paths</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-rollback/">NetworkRollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-performance/">NetworkPerformance</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/netfox-sharp/">Netfox Sharp</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Nodes</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../tick-interpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../rollback-synchronizer/">RollbackSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../state-synchronizer/">StateSynchronizer</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">RewindableAction</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#using-rewindableactions">Using RewindableActions</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#predicting-events">Predicting events</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#performing-events">Performing events</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#reacting-to-status-changes">Reacting to status changes</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#remembering-things-between-tick-loops">Remembering things between tick loops</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#handling-visuals-and-effects">Handling visuals and effects</a>
+    </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.noray</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.noray/guides/noray/">Noray</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.noray/guides/packet-handshake/">PacketHandshake</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.extras</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/base-net-input/">BaseNetInput</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/network-weapon/">NetworkWeapon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/rewindable-state-machine/">RewindableStateMachine</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/window-tiler/">WindowTiler</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">netfox</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">netfox</li>
+          <li class="breadcrumb-item">Nodes</li>
+      <li class="breadcrumb-item active">RewindableAction</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="rewindableaction">RewindableAction</h1>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>RewindableActions are <em>experimental</em>, meaning the API may change in
+breaking ways, and may be less stable than other features.</p>
+<p>Once the class matures and finds its final form, the <em>experimental</em> mark
+will be removed. Feedback is welcome in the meanwhile!</p>
+</div>
+<p>Synchronizes events that happen over the network, by letting peers predict the
+event happening, and then adjusting the game based on the host's response.</p>
+<p>For example, <em>RewindableActions</em> could be use to synchronize gun shots
+implemented as part of the rollback tick loop. This is implemented in the
+<a href="https://github.com/foxssake/netfox/tree/main/examples/rollback-fps">rollback-fps</a> example.</p>
+<h2 id="using-rewindableactions">Using RewindableActions</h2>
+<p>To use <em>RewindableActions</em>, add them as nodes to your scenes. Once that's done,
+grab a reference to them from your scripts as you would for any other node -
+e.g. by using its NodePath, or by @export-ing it as a variable:</p>
+<div class="highlight"><pre><span></span><code><span class="err">@</span><span class="k">onready</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">rewindable_action</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="o">$</span><span class="n">RewindableAction</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">RewindableAction</span>
+<span class="err">@</span><span class="k">export</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">rewindable_action</span><span class="p">:</span><span class="w"> </span><span class="n">RewindableAction</span>
+</code></pre></div>
+<h3 id="predicting-events">Predicting events</h3>
+<p>All peers ( both hosts and clients ) should run the same simulation in their
+<code>_rollback_tick</code> implementations. During the rollback tick, peers should
+determine whether they think an event happens by calling
+<code>RewindableAction.set_active()</code> - e.g. if they think the gun was fired they should
+call <code>RewindableAction.set_active(true)</code>, otherwise call
+<code>RewindableAction.set_active(false)</code>.</p>
+<p>The <em>RewindableAction</em> will keep track of the changes caused by <code>set_active()</code>.
+Clients ( i.e. peers <em>not</em> owning the <em>RewindableAction</em> ) will wait for the
+host ( i.e. peer owning the <em>RewindableAction</em> ) to broadcast the ground truth,
+noting when did the event happen, and when did it not.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Not calling <code>set_active()</code> on a specific tick means no prediction for that tick
+will be synchronized, potentially leading to desyncs.</p>
+</div>
+<h3 id="performing-events">Performing events</h3>
+<p>With the above, <em>RewindableAction</em> will synchronize <em>when</em> something happens,
+but <em>what</em> should happen is up to the game logic.</p>
+<p>For each rollback tick, to figure out what should happen, the <code>get_status()</code>
+method will return one of the following values:</p>
+<dl>
+<dt><code>RewindableAction.INACTIVE</code></dt>
+<dd>The event hasn't happened yet.</dd>
+<dt><code>RewindableAction.ACTIVE</code></dt>
+<dd>The event has already happened, and this is not the first time its logic
+will run.</dd>
+<dt><code>RewindableAction.CONFIRMING</code></dt>
+<dd>The event was just set to active in this tick.</dd>
+<dt><code>RewindableAction.CANCELLING</code></dt>
+<dd>The event was just set to inactive in this tick.</dd>
+</dl>
+<p>See the following graph for a better understanding of how a <em>RewindableAction</em>
+transitions from one state to another:</p>
+<div class='puml-container'><div class="puml light" style="display: block"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" data-diagram-type="STATE" height="524px" preserveAspectRatio="xMidYMid meet" style="width:393px;height:524px;background:#FFFFFF;" version="1.1" viewBox="0 0 393 524" width="393px" zoomAndPan="magnify" class="diagram"><defs/><g><ellipse cx="166.46" cy="16" fill="#222222" rx="10" ry="10" style="stroke:#222222;stroke-width:1;"/><g id="INACTIVE"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="85.0576" x="123.93" y="87"/><line style="stroke:#181818;stroke-width:0.5;" x1="123.93" x2="208.9876" y1="113.2969" y2="113.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="65.0576" x="133.93" y="104.9951">INACTIVE</text></g><g id="CONFIRMING"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="110.7061" x="22.11" y="214"/><line style="stroke:#181818;stroke-width:0.5;" x1="22.11" x2="132.8161" y1="240.2969" y2="240.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="90.7061" x="32.11" y="231.9951">CONFIRMING</text></g><g id="ACTIVE"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="70.4561" x="42.24" y="341"/><line style="stroke:#181818;stroke-width:0.5;" x1="42.24" x2="112.6961" y1="367.2969" y2="367.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="50.4561" x="52.24" y="358.9951">ACTIVE</text></g><g id="CANCELLING"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="109.4961" x="114.72" y="468"/><line style="stroke:#181818;stroke-width:0.5;" x1="114.72" x2="224.2161" y1="494.2969" y2="494.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="89.4961" x="124.72" y="485.9951">CANCELLING</text></g><g class="link" data-entity-1="*start*" data-entity-2="INACTIVE" data-source-line="1" data-uid="lnk4" id="link_*start*_INACTIVE"><path d="M166.46,26.36 C166.46,40.29 166.46,60.95 166.46,80.65" fill="none" id="*start*-to-INACTIVE" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="166.46,86.65,170.46,77.65,166.46,81.65,162.46,77.65,166.46,86.65" style="stroke:#181818;stroke-width:1;"/></g><g class="link" data-entity-1="INACTIVE" data-entity-2="CONFIRMING" data-source-line="2" data-uid="lnk6" id="link_INACTIVE_CONFIRMING"><path d="M123.73,115.91 C89.26,120.77 42.81,133.56 19.46,167 C8.17,183.18 16.7436,196.5909 33.4136,209.9909" fill="none" id="INACTIVE-to-CONFIRMING" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="38.09,213.75,33.5814,204.9937,34.193,210.6174,28.5693,211.229,38.09,213.75" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="102.7051" x="20.46" y="180.0669">set_active(true)</text></g><g class="link" data-entity-1="INACTIVE" data-entity-2="CONFIRMING" data-source-line="3" data-uid="lnk7" id="link_INACTIVE_CONFIRMING"><path d="M155.02,137.22 C147.89,151.37 138.07,169.28 127.46,184 C120.07,194.26 115.0386,200.3063 106.5986,209.2063" fill="none" id="INACTIVE-to-CONFIRMING-1" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="102.47,213.56,111.5654,209.7819,105.9105,209.932,105.7605,204.2771,102.47,213.56" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="90.0415" x="138.46" y="180.0669">Host confirms</text></g><g class="link" data-entity-1="CONFIRMING" data-entity-2="ACTIVE" data-source-line="4" data-uid="lnk9" id="link_CONFIRMING_ACTIVE"><path d="M77.46,264.4 C77.46,286.42 77.46,312.66 77.46,334.66" fill="none" id="CONFIRMING-to-ACTIVE" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="77.46,340.66,81.46,331.66,77.46,335.66,73.46,331.66,77.46,340.66" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="106.5962" x="78.46" y="307.0669">Tick is ran again</text></g><g class="link" data-entity-1="ACTIVE" data-entity-2="CANCELLING" data-source-line="5" data-uid="lnk11" id="link_ACTIVE_CANCELLING"><path d="M42.03,387.74 C23.09,401.53 6,420.31 18.46,438 C40.03,468.61 74.6962,480.9566 108.3662,486.7266" fill="none" id="ACTIVE-to-CANCELLING" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="114.28,487.74,106.0849,482.2773,109.3518,486.8955,104.7337,490.1624,114.28,487.74" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="106.9517" x="19.46" y="434.0669">set_active(false)</text></g><g class="link" data-entity-1="ACTIVE" data-entity-2="CANCELLING" data-source-line="6" data-uid="lnk12" id="link_ACTIVE_CANCELLING"><path d="M104.06,391.24 C113.02,400.12 122.71,410.56 130.46,421 C141.29,435.56 148.4213,448.1112 155.5013,462.3012" fill="none" id="ACTIVE-to-CANCELLING-1" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="158.18,467.67,157.7411,457.8309,155.9477,463.196,150.5827,461.4026,158.18,467.67" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="87.3628" x="142.46" y="434.0669">Host declines</text></g><g class="link" data-entity-1="CANCELLING" data-entity-2="INACTIVE" data-source-line="7" data-uid="lnk13" id="link_CANCELLING_INACTIVE"><path d="M212.75,467.75 C223.07,459.71 232.73,449.76 238.46,438 C291.22,329.72 291.18,274.8 237.46,167 C231.25,154.53 225.461,147.7083 214.301,139.4883" fill="none" id="CANCELLING-to-INACTIVE" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="209.47,135.93,214.3443,144.4881,213.4958,138.8953,219.0887,138.0468,209.47,135.93" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="106.5962" x="278.46" y="307.0669">Tick is ran again</text></g></g></svg></div></div>
+
+<p>Keeping with the gunfire example, if the status is <code>ACTIVE</code> or <code>CONFIRMING</code>,
+make sure to perform the firing logic - e.g. do a hitscan, and decrease the
+health of the player hit. In other words, make sure to update the <em>game state</em>.</p>
+<p>If the state is <code>CONFIRMING</code>, implement logic that may spawn other objects (
+e.g. a bullet hole when hitting a wall ).</p>
+<p>If the state is <code>CANCELLING</code>, undo any logic ran in <code>CONFIRMING</code>.</p>
+<p>Usually no extra code is necessary for <code>INACTIVE</code>, since the game state update
+can simply be skipped, and other related code is ran in
+<code>CONFIRMING</code>/<code>CANCELLING</code>.</p>
+<h3 id="reacting-to-status-changes">Reacting to status changes</h3>
+<p>Without <a href="../../tutorials/modifying-objects-during-rollback/">mutations</a>, nodes are not always re-ran for every tick during
+rollback. To make sure that rollback code is ran when the <em>RewindableAction</em>'s
+status changes, use <code>mutate()</code> to register the appropriate nodes to be
+<em>mutated</em> if the action's status changes, e.g.:</p>
+<div class="highlight"><pre><span></span><code><span class="err">@</span><span class="k">onready</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">rewindable_action</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="o">$</span><span class="n">RewindableAction</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">RewindableAction</span>
+
+<span class="k">func</span><span class="w"> </span><span class="n">_ready</span><span class="p">():</span>
+<span class="w">  </span><span class="n">rewindable_action</span><span class="o">.</span><span class="n">mutate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+<span class="k">func</span><span class="w"> </span><span class="n">_rollback_tick</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span><span class="w"> </span><span class="n">tick</span><span class="p">,</span><span class="w"> </span><span class="n">is_fresh</span><span class="p">):</span>
+<span class="w">  </span><span class="n">rewindable_action</span><span class="o">.</span><span class="n">set_active</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="remembering-things-between-tick-loops">Remembering things between tick loops</h3>
+<p><em>RewindableActions</em> also provide the concept of <em>context</em>. This is any
+arbitrary value that the <em>RewindableAction</em> will remember for the given tick,
+even throughout tick loops.</p>
+<p>The <em>context</em> value can be set and retrieved by the user.</p>
+<p>For example, <em>context</em> can be used for weapons to remember the projectile they
+have spawned. If the action transitions to <code>CANCELLING</code>, the <em>context</em> can be
+used to remember which projectile was spawned in that tick, and in turn, which
+projectile needs to be destroyed.</p>
+<p>Use <code>has_context()</code> to check if there's any context set, <code>get_context()</code> to
+retrieve it, <code>set_context()</code> to update the <em>context</em> value, and
+<code>erase_context()</code> to forget it.</p>
+<h2 id="handling-visuals-and-effects">Handling visuals and effects</h2>
+<p>Performing events ( e.g. a gunshot ) often includes not just updates to the
+game state ( like decreasing health ), but also visual- and audio effects to
+communicate what's happening to the player.</p>
+<p>Since a rollback tick loop may run multiple ticks in a single frame, simply
+playing sounds and other effects from the rollback tick loop can end up
+spamming particles and playing the same sound effects many times on the same
+frame.</p>
+<p>Instead, one approach would be to check whether the event has happened at the
+end of each tick loop, and if so, play the appropriate sounds and run the
+appropriate effects.</p>
+<p>Use <code>has_confirmed()</code> to check if the action has been confirmed since the
+beginning of the last tick loop ( i.e. had the <code>CONFIRMING</code> status ), and
+<code>has_cancelled()</code> to check if the action has been cancelled.</p>
+<p>For example:</p>
+<div class="highlight"><pre><span></span><code><span class="err">@</span><span class="k">onready</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">fire_action</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="o">$</span><span class="s2">&quot;Fire Action&quot;</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">RewindableAction</span>
+
+<span class="k">func</span><span class="w"> </span><span class="n">_ready</span><span class="p">():</span>
+<span class="w">    </span><span class="n">NetworkTime</span><span class="o">.</span><span class="n">after_tick_loop</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">_after_loop</span><span class="p">)</span>
+<span class="w">    </span><span class="c1"># ...</span>
+
+<span class="k">func</span><span class="w"> </span><span class="n">_after_loop</span><span class="p">():</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">fire_action</span><span class="o">.</span><span class="n">has_confirmed</span><span class="p">():</span>
+<span class="w">        </span><span class="n">sound</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+</code></pre></div>
+              
+            </div>
+          </div>
+  <hr>
+  <h2>User discussion</h2>
+  <div class="giscus" ></div>
+  <hr>
+  <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../state-synchronizer/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../../netfox.noray/guides/noray/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../assets/mkdocs_puml/puml.js"></script>
+      <script src="../../../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
