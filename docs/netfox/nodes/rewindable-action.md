@@ -30,17 +30,17 @@ e.g. by using its NodePath, or by @export-ing it as a variable:
 All peers ( both hosts and clients ) should run the same simulation in their
 `_rollback_tick` implementations. During the rollback tick, peers should
 determine whether they think an event happens by calling
-`RewindableAction.toggle()` - e.g. if they think the gun was fired they should
-call `RewindableAction.toggle(true)`, otherwise call
-`RewindableAction.toggle(false)`.
+`RewindableAction.set_active()` - e.g. if they think the gun was fired they should
+call `RewindableAction.set_active(true)`, otherwise call
+`RewindableAction.set_active(false)`.
 
-The *RewindableAction* will keep track of the changes caused by `toggle()`.
+The *RewindableAction* will keep track of the changes caused by `set_active()`.
 Clients ( i.e. peers *not* owning the *RewindableAction* ) will wait for the
 host ( i.e. peer owning the *RewindableAction* ) to broadcast the ground truth,
 noting when did the event happen, and when did it not.
 
 !!!note
-    Not calling `toggle()` on a specific tick means no prediction for that tick
+    Not calling `set_active()` on a specific tick means no prediction for that tick
     will be synchronized, potentially leading to desyncs.
 
 ### Performing events
@@ -59,10 +59,10 @@ method will return one of the following values:
     will run.
 
 `RewindableAction.CONFIRMING`
-:   The event was just toggled to happened in this tick.
+:   The event was just set to active in this tick.
 
 `RewindableAction.CANCELLING`
-:   The event was just toggled to not happened in this tick.
+:   The event was just set to inactive in this tick.
 
 See the following graph for a better understanding of how a *RewindableAction*
 transitions from one state to another:
@@ -71,10 +71,10 @@ transitions from one state to another:
 @startuml
 
 [*] --> INACTIVE
-INACTIVE --> CONFIRMING: toggle(true)
+INACTIVE --> CONFIRMING: set_active(true)
 INACTIVE --> CONFIRMING: Host confirms
 CONFIRMING --> ACTIVE: Tick is ran again
-ACTIVE --> CANCELLING: toggle(false)
+ACTIVE --> CANCELLING: set_active(false)
 ACTIVE --> CANCELLING: Host declines
 CANCELLING --> INACTIVE: Tick is ran again
 
@@ -108,7 +108,7 @@ func _ready():
   rewindable_action.mutate(self)
 
 func _rollback_tick(delta, tick, is_fresh):
-  rewindable_action.toggle(...)
+  rewindable_action.set_active(...)
 ```
 
 ### Remembering things between tick loops
