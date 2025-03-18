@@ -17,12 +17,16 @@ enum {
 
 var _active_ticks: _Set = _Set.new()
 var _last_set_tick: int = -1
+
+# Maps the set of changed ticks ( int ) to their state ( active / inactive )
 var _state_changes: Dictionary = {}
+# Maps the set of ticks queued for change ( int ) to their state ( active / inactive )
 var _queued_changes: Dictionary = {}
 
 var _has_confirmed: bool = false
 var _has_cancelled: bool = false
 
+# Maps ticks ( int ) to context values ( any type )
 var _context: Dictionary = {}
 var _mutated_objects: _Set = _Set.new()
 
@@ -49,18 +53,18 @@ static func status_string(status: int) -> String:
 		_: return "?"
 
 ## Toggles the action for a given [param tick]
-func toggle(state: bool, tick: int = NetworkRollback.tick) -> void:
+func set_active(active: bool, tick: int = NetworkRollback.tick) -> void:
 	_last_set_tick = tick
 
-	if is_active(tick) == state:
+	if is_active(tick) == active:
 		return
 
 	# Update local state
-	if tick: _active_ticks.add(tick)
+	if active: _active_ticks.add(tick)
 	else: _active_ticks.erase(tick)
 
 	# Save changes for a single loop
-	_state_changes[tick] = state
+	_state_changes[tick] = active
 
 ## Check if the action is happening for the given [param tick]
 func is_active(tick: int = NetworkRollback.tick) -> bool:
@@ -168,7 +172,7 @@ func _before_rollback_loop() -> void:
 
 func _process_tick(tick: int) -> void:
 	if _queued_changes.has(tick):
-		toggle(_queued_changes[tick])
+		set_active(_queued_changes[tick])
 
 func _after_tick_loop() -> void:
 	# Trim history

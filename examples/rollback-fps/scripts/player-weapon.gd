@@ -20,7 +20,7 @@ func _rollback_tick(_dt, tick: int, _if):
 	if rollback_synchronizer.is_predicting():
 		return
 
-	fire_action.toggle(input.fire and _can_fire())
+	fire_action.set_active(input.fire and _can_fire())
 	match fire_action.get_status():
 		RewindableAction.CONFIRMING, RewindableAction.ACTIVE:
 			# Fire if action has just activated or is active
