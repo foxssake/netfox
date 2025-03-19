@@ -491,7 +491,7 @@ func ticks_between(seconds_from: float, seconds_to: float) -> int:
 	return seconds_to_ticks(seconds_to - seconds_from)
 
 func _ready() -> void:
-	_NetfoxLogger.register_tag(func(): return "@%d" % tick, -100)
+	_NetfoxLogger.register_tag(_get_tick_tag, -100)
 
 	_tickrate_handshake = NetworkTickrateHandshake.new()
 	add_child(_tickrate_handshake)
@@ -500,6 +500,12 @@ func _ready() -> void:
 	_tickrate_handshake.on_tickrate_mismatch.connect(func(peer, tickrate):
 		on_tickrate_mismatch.emit(peer, tickrate)
 	)
+
+func _exit_tree() -> void:
+	_NetfoxLogger.free_tag(_get_tick_tag)
+
+func _get_tick_tag() -> String:
+	return "@%d" % tick
 
 func _loop() -> void:
 	# Adjust local clock

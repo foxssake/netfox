@@ -249,15 +249,17 @@ func is_just_mutated(target: Object, p_tick: int = tick) -> bool:
 		return false
 
 func _ready():
-	_NetfoxLogger.register_tag(
-		func():
-			if _is_rollback:
-				return "%s@%d|%d>%d" % [_rollback_stage, _tick, _rollback_from, _rollback_to]
-			else:
-				return "_"
-	)
-
+	_NetfoxLogger.register_tag(_get_rollback_tag)
 	NetworkTime.after_tick_loop.connect(_rollback)
+
+func _exit_tree():
+	_NetfoxLogger.free_tag(_get_rollback_tag)
+
+func _get_rollback_tag() -> String:
+	if _is_rollback:
+		return "%s@%d|%d>%d" % [_rollback_stage, _tick, _rollback_from, _rollback_to]
+	else:
+		return "_"
 
 func _rollback() -> void:
 	if not enabled:
