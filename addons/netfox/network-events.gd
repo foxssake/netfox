@@ -73,7 +73,7 @@ func is_server() -> bool:
 	return true
 
 func _ready() -> void:
-	_NetfoxLogger.register_tag(func(): return "#%d" % multiplayer.get_unique_id(), -99)
+	_NetfoxLogger.register_tag(_get_peer_id_tag, -99)
 
 	enabled = ProjectSettings.get_setting(&"netfox/events/enabled", true)
 
@@ -83,6 +83,12 @@ func _ready() -> void:
 	on_server_stop.connect(NetworkTime.stop)
 	on_client_start.connect(func(id): NetworkTime.start())
 	on_client_stop.connect(NetworkTime.stop)
+
+func _exit_tree() -> void:
+	_NetfoxLogger.free_tag(_get_peer_id_tag)
+
+func _get_peer_id_tag() -> String:
+	return "#%d" % multiplayer.get_unique_id()
 
 func _process(_delta: float) -> void:
 	if multiplayer != _multiplayer:
