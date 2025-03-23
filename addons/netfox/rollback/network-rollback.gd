@@ -223,6 +223,8 @@ func process_rollback(target: Object, delta: float, p_tick: int, is_fresh: bool)
 ## needs to be specified.
 ## [br][br]
 ## Note that registering a mutation into the past will yield a warning.
+## [br][br]
+## @experimental: The Mutations API is experimental!
 func mutate(target: Object, p_tick: int = tick) -> void:
 	_mutated_nodes[target] = mini(p_tick, _mutated_nodes.get(target, p_tick))
 
@@ -234,6 +236,8 @@ func mutate(target: Object, p_tick: int = tick) -> void:
 
 ## Check whether the target object was mutated in or after the given tick via
 ## [method mutate].
+## [br][br]
+## @experimental: The Mutations API is experimental!
 func is_mutated(target: Object, p_tick: int = tick) -> bool:
 	if _mutated_nodes.has(target):
 		return p_tick >= _mutated_nodes.get(target)
@@ -242,6 +246,8 @@ func is_mutated(target: Object, p_tick: int = tick) -> bool:
 
 ## Check whether the target object was mutated specifically in the given tick
 ## via [method mutate].
+## [br][br]
+## @experimental: The Mutations API is experimental!
 func is_just_mutated(target: Object, p_tick: int = tick) -> bool:
 	if _mutated_nodes.has(target):
 		return _mutated_nodes.get(target) == p_tick

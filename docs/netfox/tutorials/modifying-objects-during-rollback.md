@@ -11,6 +11,13 @@ rollback. For example:
 
 ## Using Mutations
 
+!!!warning
+    Mutations are *experimental*, meaning the API may change in breaking ways,
+    and may be less stable than other features.
+
+    Once the API matures and finds its final form, the *experimental* mark will
+    be removed. Feedback is welcome in the meanwhile!
+
 Mutations enable modifying objects during rollback, in a way that is taken into
 account by netfox.
 
