@@ -209,6 +209,13 @@ rollback. For example:</p>
   rollback</li>
 </ul>
 <h2 id="using-mutations">Using Mutations</h2>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Mutations are <em>experimental</em>, meaning the API may change in breaking ways,
+and may be less stable than other features.</p>
+<p>Once the API matures and finds its final form, the <em>experimental</em> mark will
+be removed. Feedback is welcome in the meanwhile!</p>
+</div>
 <p>Mutations enable modifying objects during rollback, in a way that is taken into
 account by netfox.</p>
 <p>When an object is modified during rollback, call <code>NetworkRollback.mutate()</code>,
