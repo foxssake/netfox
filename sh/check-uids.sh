@@ -10,9 +10,15 @@ if ! godot --version | grep ^4.4; then
   # exit 1;
 fi
 
+print "::group::Import project"
 godot --headless --import .
-if [[ $(git ls-files --others --exclude-standard) ]]; then
-  print "Import produced new files!"
-  git ls-files --others --exclude-standard
+print "::endgroup::"
+
+UNTRACKED_FILES="$(git ls-files --others --exclude-standard)"
+if [[ "$UNTRACKED_FILES" ]]; then
+  print "Missing UIDs detected!"
+  echo "$UNTRACKED_FILES"
   exit 1
+else
+  print "All UIDs are present!"
 fi
