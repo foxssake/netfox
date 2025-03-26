@@ -1,0 +1,27 @@
+name: Check UIDs
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Check UIDs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v2
+      - name: Setup Godot
+        uses: chickensoft-games/setup-godot@v1
+        with:
+          version: 4.4.0
+          use-dotnet: false
+          include-templates: false
+      - name: Verify setup
+        run: godot --version
+      - name: Check UIDs
+        run: sh/check-uids.sh
+
