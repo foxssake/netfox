@@ -14,6 +14,8 @@ var snapshots: Dictionary = {}
 @export var physics_factor: int = 1
 
 func _ready() -> void:
+	_init_physics_space()
+
 	#regular ticks
 	NetworkTime.before_tick.connect(before_tick)
 	NetworkTime.after_tick_loop.connect(after_tick_loop)
