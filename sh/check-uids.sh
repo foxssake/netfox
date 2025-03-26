@@ -7,7 +7,7 @@ source sh/shared.sh
 if ! godot --version | grep ^4.4; then
   print "Wrong Godot version!"
   godot --version
-  # exit 1;
+  exit 1;
 fi
 
 print "::group::Import project"
