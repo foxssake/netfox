@@ -114,11 +114,11 @@ func _disconnect_signals() -> void:
 	NetworkTime.before_tick_loop.disconnect(_before_tick_loop)
 	NetworkTime.after_tick_loop.disconnect(_after_tick_loop)
 
-func _ready() -> void:
+func _enter_tree() -> void:
 	if Engine.is_editor_hint():
 		return
 
-	process_settings()
+	process_settings.call_deferred()
 	_connect_signals.call_deferred()
 
 	# Wait a frame for any initial setup before recording first state
