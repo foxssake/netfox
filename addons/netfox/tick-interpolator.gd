@@ -118,7 +118,7 @@ func _enter_tree() -> void:
 	if Engine.is_editor_hint():
 		return
 
-	process_settings()
+	process_settings.call_deferred()
 	_connect_signals.call_deferred()
 
 	# Wait a frame for any initial setup before recording first state
