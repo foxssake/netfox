@@ -1,10 +1,9 @@
 extends Node
 
-class_name RapierDriver
+class_name PhysicsDriver
 
-# Rapier Physics driver based on netfox ticks
+# Physics driver based on netfox ticks
 # Step physics in time with netfox and participates in rollback
-# Requires Rapier Physics Addon - https://godotengine.org/asset-library/asset?filter=rapier+physics
 
 var physics_space: RID
 var snapshots: Dictionary = {}
@@ -50,6 +49,7 @@ func after_tick_loop() -> void:
 func step_physics(_delta: float) -> void:
 	for i in range(physics_factor):
 		_physics_step(_delta / physics_factor)
+
 
 # Stops physics engine from auto-stepping and takes control of physics loop
 func _init_physics_space() -> void:

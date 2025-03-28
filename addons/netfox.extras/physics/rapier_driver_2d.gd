@@ -1,4 +1,4 @@
-extends RapierDriver
+extends PhysicsDriver
 
 class_name RapierDriver2D
 
