@@ -17,11 +17,10 @@ class PhysicsDriverToggle:
 
 	func toggle() -> Array[String]:
 		var errors := get_error_messages()
-#		if not errors.is_empty():
-#			return errors
+		if not errors.is_empty():
+			return errors
 
 		var enable := not is_enabled()
-		errors.clear()
 		
 		var uid_files := get_files().map(func(it): return it + ".uid")
 		var renames = (get_files() + uid_files).map(func(it):
