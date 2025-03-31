@@ -1,12 +1,12 @@
 extends PhysicsDriver
-
 class_name PhysicsDriver3D
 
 # Physics driver based on netfox ticks
 # Requires a custom build of Godot with https://github.com/godotengine/godot/pull/76462
 
+# Maps ticks ( int ) to global snapshots ( Dictionary<RID, Array> )
+var collision_objects_snapshots: Dictionary = {}
 var scene_collision_objects: Array = []
-var collision_objects_snapshots: Dictionary[int, Dictionary] = {}
 
 func _init_physics_space() -> void:
 	physics_space = get_viewport().world_3d.space
@@ -21,7 +21,8 @@ func _physics_step(delta) -> void:
 	PhysicsServer3D.space_flush_queries(physics_space)
 	
 func _snapshot_space(tick: int) -> void:
-	var rid_states: Dictionary[RID, Array] = {}
+	# Maps RIDs to physics state ( Array )
+	var rid_states := {}
 	for element in scene_collision_objects:
 		var rid = element.get_rid()
 		rid_states[rid] = get_body_states(rid)
