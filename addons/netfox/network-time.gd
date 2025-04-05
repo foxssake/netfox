@@ -8,12 +8,14 @@ class_name _NetworkTime
 ## Number of ticks per second.
 ##
 ## [i]read-only[/i], you can change this in the project settings
+var _tickrate: int = ProjectSettings.get_setting(&"netfox/time/tickrate", 30)
+
 var tickrate: int:
 	get:
 		if sync_to_physics:
 			return Engine.physics_ticks_per_second
 		else:
-			return ProjectSettings.get_setting(&"netfox/time/tickrate", 30)
+			return _tickrate
 	set(v):
 		push_error("Trying to set read-only variable tickrate")
 
@@ -23,9 +25,11 @@ var tickrate: int:
 ## and the network tick loop will be run inside the physics update process.
 ##
 ## [i]read-only[/i], you can change this in the project settings
+var _sync_to_physics: bool = ProjectSettings.get_setting(&"netfox/time/sync_to_physics", false)
+
 var sync_to_physics: bool:
 	get:
-		return ProjectSettings.get_setting(&"netfox/time/sync_to_physics", false)
+		return _sync_to_physics
 	set(v):
 		push_error("Trying to set read-only variable sync_to_physics")
 
@@ -38,9 +42,11 @@ var sync_to_physics: bool:
 ## many ticks can be simulated in a single go.
 ##
 ## [i]read-only[/i], you can change this in the project settings
+var _max_ticks_per_frame: int = ProjectSettings.get_setting(&"netfox/time/max_ticks_per_frame", 8)
+
 var max_ticks_per_frame: int:
 	get:
-		return ProjectSettings.get_setting(&"netfox/time/max_ticks_per_frame", 8)
+		return _max_ticks_per_frame
 	set(v):
 		push_error("Trying to set read-only variable max_ticks_per_frame")
 

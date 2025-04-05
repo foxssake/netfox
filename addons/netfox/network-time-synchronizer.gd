@@ -17,10 +17,12 @@ const MIN_SYNC_INTERVAL := 0.1
 ## Cannot be less than [member MIN_SYNC_INTERVAL]
 ## [br][br]
 ## [i]read-only[/i], you can change this in the Netfox project settings
+var _sync_interval: float = ProjectSettings.get_setting(&"netfox/time/sync_interval", 0.25)
+
 var sync_interval: float:
 	get:
 		return maxf(
-			ProjectSettings.get_setting(&"netfox/time/sync_interval", 0.25),
+			_sync_interval,
 			MIN_SYNC_INTERVAL
 		)
 	set(v):
@@ -29,9 +31,11 @@ var sync_interval: float:
 ## Number of measurements ( samples ) to use for time synchronization.
 ## [br][br]
 ## [i]read-only[/i], you can change this in the Netfox project settings
+var _sync_samples: int = ProjectSettings.get_setting(&"netfox/time/sync_samples", 8)
+
 var sync_samples: int:
 	get:
-		return ProjectSettings.get_setting(&"netfox/time/sync_samples", 8)
+		return _sync_samples
 	set(v):
 		push_error("Trying to set read-only variable sync_samples")
 
@@ -42,9 +46,11 @@ var sync_samples: int:
 ## too slowly.
 ## [br][br]
 ## [i]read-only[/i], you can change this in the Netfox project settings
+var _adjust_steps: int =ProjectSettings.get_setting(&"netfox/time/sync_adjust_steps", 8)
+
 var adjust_steps: int:
 	get:
-		return ProjectSettings.get_setting(&"netfox/time/sync_adjust_steps", 8)
+		return _adjust_steps
 	set(v):
 		push_error("Trying to set read-only variable adjust_steps")
 
@@ -54,9 +60,11 @@ var adjust_steps: int:
 ## value, and the nudge process will start from scratch.
 ## [br][br]
 ## [i]read-only[/i], you can change this in the Netfox project settings
+var _panic_threshold: float = ProjectSettings.get_setting(&"netfox/time/recalibrate_threshold", 2.)
+
 var panic_threshold: float:
 	get:
-		return ProjectSettings.get_setting(&"netfox/time/recalibrate_threshold", 2.)
+		return _panic_threshold
 	set(v):
 		push_error("Trying to set read-only variable panic_threshold")
 

@@ -23,9 +23,11 @@ var enable_diff_states: bool = ProjectSettings.get_setting(&"netfox/rollback/ena
 ## Rollback won't go further than this limit, regardless of inputs received.
 ## [br][br]
 ## [i]read-only[/i], you can change this in the project settings
+var _history_limit: int = ProjectSettings.get_setting(&"netfox/rollback/history_limit", 64)
+
 var history_limit: int:
 	get:
-		return ProjectSettings.get_setting(&"netfox/rollback/history_limit", 64)
+		return _history_limit
 	set(v):
 		push_error("Trying to set read-only variable history_limit")
 
@@ -48,9 +50,11 @@ var history_start: int:
 ## state to arrive before we try to display it.
 ## [br][br]
 ## [i]read-only[/i], you can change this in the project settings
+var _display_offset: int = ProjectSettings.get_setting(&"netfox/rollback/display_offset", 0)
+
 var display_offset: int:
 	get:
-		return ProjectSettings.get_setting(&"netfox/rollback/display_offset", 0)
+		return _display_offset
 	set(v):
 		push_error("Trying to set read-only variable display_offset")
 
@@ -85,9 +89,11 @@ var display_tick: int:
 ## with input latency higher than network latency.
 ## [br][br]
 ## [i]read-only[/i], you can change this in the project settings
+var _input_delay: int = ProjectSettings.get_setting(&"netfox/rollback/input_delay", 0)
+
 var input_delay: int:
 	get:
-		return ProjectSettings.get_setting(&"netfox/rollback/input_delay", 0)
+		return _input_delay
 	set(v):
 		push_error("Trying to set read-only variable input_delay")
 
@@ -99,10 +105,11 @@ var input_delay: int:
 ## in transmission, the next (n-1) packets will contain the data for it.
 ## [br][br]
 ## [i]read-only[/i], you can change this in the project settings
+var _input_redundancy: int = ProjectSettings.get_setting(&"netfox/rollback/input_redundancy", 3)
+
 var input_redundancy: int:
 	get:
-		var value := ProjectSettings.get_setting(&"netfox/rollback/input_redundancy", 3)
-		return max(1, value)
+		return max(1, _input_redundancy)
 	set(v):
 		push_error("Trying to set read-only variable input_redundancy")
 
@@ -198,7 +205,7 @@ func is_rollback() -> bool:
 ## This is used by [RollbackSynchronizer] to see if it should simulate the
 ## given object during rollback.
 func is_rollback_aware(what: Object) -> bool:
-	return what.has_method("_rollback_tick")
+	return what.has_method(&"_rollback_tick")
 
 ## Calls the [code]_rollback_tick[/code] method on the target, running its
 ## simulation for the given rollback tick.
