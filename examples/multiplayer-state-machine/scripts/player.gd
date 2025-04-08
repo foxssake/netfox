@@ -13,7 +13,7 @@ var _color: Color = Color.WHITE
 var _material: StandardMaterial3D = StandardMaterial3D.new()
 
 # Get the gravity from the project settings to be synced with RigidBody nodes.
-var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
+var gravity = ProjectSettings.get_setting(&"physics/3d/default_gravity")
 
 func _ready():
 	# Set spawn position

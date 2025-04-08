@@ -23,8 +23,6 @@ var enable_diff_states: bool = ProjectSettings.get_setting(&"netfox/rollback/ena
 ## Rollback won't go further than this limit, regardless of inputs received.
 ## [br][br]
 ## [i]read-only[/i], you can change this in the project settings
-var _history_limit: int = ProjectSettings.get_setting(&"netfox/rollback/history_limit", 64)
-
 var history_limit: int:
 	get:
 		return _history_limit
@@ -50,8 +48,6 @@ var history_start: int:
 ## state to arrive before we try to display it.
 ## [br][br]
 ## [i]read-only[/i], you can change this in the project settings
-var _display_offset: int = ProjectSettings.get_setting(&"netfox/rollback/display_offset", 0)
-
 var display_offset: int:
 	get:
 		return _display_offset
@@ -89,7 +85,6 @@ var display_tick: int:
 ## with input latency higher than network latency.
 ## [br][br]
 ## [i]read-only[/i], you can change this in the project settings
-var _input_delay: int = ProjectSettings.get_setting(&"netfox/rollback/input_delay", 0)
 
 var input_delay: int:
 	get:
@@ -105,7 +100,6 @@ var input_delay: int:
 ## in transmission, the next (n-1) packets will contain the data for it.
 ## [br][br]
 ## [i]read-only[/i], you can change this in the project settings
-var _input_redundancy: int = ProjectSettings.get_setting(&"netfox/rollback/input_redundancy", 3)
 
 var input_redundancy: int:
 	get:
@@ -153,16 +147,24 @@ signal on_record_tick(tick: int)
 ## Event emitted after running the network rollback loop
 signal after_loop()
 
+# Settings
+var _history_limit: int = ProjectSettings.get_setting(&"netfox/rollback/history_limit", 64)
+var _display_offset: int = ProjectSettings.get_setting(&"netfox/rollback/display_offset", 0)
+var _input_delay: int = ProjectSettings.get_setting(&"netfox/rollback/input_delay", 0)
+var _input_redundancy: int = ProjectSettings.get_setting(&"netfox/rollback/input_redundancy", 3)
+
+# Timing
 var _tick: int = 0
 var _resim_from: int
-
-var _is_rollback: bool = false
-var _simulated_nodes: Dictionary = {}
-var _mutated_nodes: Dictionary = {}
 
 var _rollback_from: int = -1
 var _rollback_to: int = -1
 var _rollback_stage: String = ""
+
+# Resim + mutations
+var _is_rollback: bool = false
+var _simulated_nodes: Dictionary = {}
+var _mutated_nodes: Dictionary = {}
 
 const _STAGE_BEFORE := "B"
 const _STAGE_PREPARE := "P"

@@ -30,7 +30,7 @@ var player_name: String = "":
 var player_id: int = -1
 var last_hit_player: BrawlerController
 var last_hit_tick: int = -1
-var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
+var gravity = ProjectSettings.get_setting(&"physics/3d/default_gravity")
 var respawn_tick: int = -1
 var respawn_count: int = 0
 

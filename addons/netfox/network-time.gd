@@ -8,8 +8,6 @@ class_name _NetworkTime
 ## Number of ticks per second.
 ##
 ## [i]read-only[/i], you can change this in the project settings
-var _tickrate: int = ProjectSettings.get_setting(&"netfox/time/tickrate", 30)
-
 var tickrate: int:
 	get:
 		if sync_to_physics:
@@ -25,8 +23,6 @@ var tickrate: int:
 ## and the network tick loop will be run inside the physics update process.
 ##
 ## [i]read-only[/i], you can change this in the project settings
-var _sync_to_physics: bool = ProjectSettings.get_setting(&"netfox/time/sync_to_physics", false)
-
 var sync_to_physics: bool:
 	get:
 		return _sync_to_physics
@@ -42,8 +38,6 @@ var sync_to_physics: bool:
 ## many ticks can be simulated in a single go.
 ##
 ## [i]read-only[/i], you can change this in the project settings
-var _max_ticks_per_frame: int = ProjectSettings.get_setting(&"netfox/time/max_ticks_per_frame", 8)
-
 var max_ticks_per_frame: int:
 	get:
 		return _max_ticks_per_frame
@@ -106,7 +100,7 @@ var tick: int:
 ## @deprecated: Use [member _NetworkTimeSynchronizer.panic_threshold] instead.
 var recalibrate_threshold: float:
 	get:
-		return ProjectSettings.get_setting(&"netfox/time/recalibrate_threshold", 8.0)
+		return _recalibrate_threshold
 	set(v):
 		push_error("Trying to set read-only variable recalibrate_threshold")
 
@@ -119,7 +113,7 @@ var recalibrate_threshold: float:
 ## against.
 var stall_threshold: float:
 	get:
-		return ProjectSettings.get_setting(&"netfox/time/stall_threshold", 1.0)
+		return _stall_threshold
 	set(v):
 		push_error("Trying to set read-only variable stall_threshold")
 
@@ -272,7 +266,7 @@ var physics_factor: float:
 ## [i]read-only[/i], you can change this in the project settings
 var clock_stretch_max: float:
 	get:
-		return ProjectSettings.get_setting(&"netfox/time/max_time_stretch", 1.25)
+		return _clock_stretch_max
 	set(v):
 		push_error("Trying to set read-only variable stretch_max")
 
@@ -280,7 +274,7 @@ var clock_stretch_max: float:
 ## active.
 var suppress_offline_peer_warning: bool:
 	get:
-		return ProjectSettings.get_setting(&"netfox/time/suppress_offline_peer_warning", false)
+		return _suppress_offline_peer_warning
 	set(v):
 		push_error("Trying to set read-only variable suppress_offline_peer_warning")
 
@@ -370,8 +364,18 @@ const _STATE_INACTIVE := 0
 const _STATE_SYNCING := 1
 const _STATE_ACTIVE := 2
 
+# Settings
+var _tickrate: int = ProjectSettings.get_setting(&"netfox/time/tickrate", 30)
+var _sync_to_physics: bool = ProjectSettings.get_setting(&"netfox/time/sync_to_physics", false)
+var _max_ticks_per_frame: int = ProjectSettings.get_setting(&"netfox/time/max_ticks_per_frame", 8)
+var _recalibrate_threshold: float = ProjectSettings.get_setting(&"netfox/time/recalibrate_threshold", 8.0)
+var _stall_threshold: float = ProjectSettings.get_setting(&"netfox/time/stall_threshold", 1.0)
+var _clock_stretch_max: float = ProjectSettings.get_setting(&"netfox/time/max_time_stretch", 1.25)
+var _suppress_offline_peer_warning: bool = ProjectSettings.get_setting(&"netfox/time/suppress_offline_peer_warning", false)
+
 var _state: int = _STATE_INACTIVE
 
+# Timing
 var _tick: int = 0
 var _was_paused: bool = false
 var _initial_sync_done = false
