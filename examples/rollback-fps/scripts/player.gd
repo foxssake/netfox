@@ -12,7 +12,7 @@ extends CharacterBody3D
 
 static var _logger := _NetfoxLogger.new("game", "Player")
 
-var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
+var gravity = ProjectSettings.get_setting(&"physics/3d/default_gravity")
 var health: int = 100
 var death_tick: int = -1
 var respawn_position: Vector3

@@ -4,7 +4,7 @@ extends CharacterBody3D
 @export var input: PlayerInput
 
 # Get the gravity from the project settings to be synced with RigidBody nodes.
-var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
+var gravity = ProjectSettings.get_setting(&"physics/3d/default_gravity")
 
 func _ready():
 	position = Vector3(0, 4, 0)

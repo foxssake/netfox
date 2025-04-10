@@ -29,6 +29,6 @@ func _target_nodes_changed(new_value: Array[Node]):
 		return
 
 	_on_window_resized(Vector2(
-		ProjectSettings.get_setting("display/window/size/viewport_width"),
-		ProjectSettings.get_setting("display/window/size/viewport_height")
+		ProjectSettings.get_setting(&"display/window/size/viewport_width"),
+		ProjectSettings.get_setting(&"display/window/size/viewport_height")
 	))

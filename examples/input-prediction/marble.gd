@@ -10,7 +10,7 @@ var is_reversing := false
 @onready var _rollback_synchronizer := $RollbackSynchronizer as RollbackSynchronizer
 @onready var input := $Input as Node
 
-var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
+var gravity: float = ProjectSettings.get_setting(&"physics/3d/default_gravity")
 
 func _ready():
 	position = Vector3(0, 4, 0)
