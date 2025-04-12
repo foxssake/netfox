@@ -369,6 +369,11 @@ func _prepare_tick(tick: int) -> void:
 			NetworkRollback.notify_simulated(node)
 
 func _can_simulate(node: Node, tick: int) -> bool:
+	if input_properties.is_empty() and node.is_multiplayer_authority():
+		# If running without inputs, simulate everything on server
+		# TODO: Don't resim all the frames
+		return true
+
 	if not enable_prediction and not _inputs.has(tick):
 		# Don't simulate if prediction is not allowed and input is unknown
 		return false
