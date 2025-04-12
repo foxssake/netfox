@@ -36,9 +36,9 @@ shape = SubResource("CapsuleShape3D_2yxbx")
 [node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("2_a8m5g")
 root = NodePath("..")
-state_properties = Array[String]([":transform", ":velocity"])
+state_properties = Array[String]([":position", ":velocity"])
 
 [node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("3_ql8cj")
 root = NodePath("..")
-properties = Array[String]([":transform"])
+properties = Array[String]([":position"])

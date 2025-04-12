@@ -369,26 +369,25 @@ func _prepare_tick(tick: int) -> void:
 			NetworkRollback.notify_simulated(node)
 
 func _can_simulate(node: Node, tick: int) -> bool:
-	if input_properties.is_empty() and node.is_multiplayer_authority():
-		# If running without inputs, simulate everything on server
-		# TODO: Don't resim all the frames
-		return true
-
-	if not enable_prediction and not _inputs.has(tick):
+	if not enable_prediction and _is_predicted_tick:
 		# Don't simulate if prediction is not allowed and input is unknown
 		return false
 	if NetworkRollback.is_mutated(node, tick):
 		# Mutated nodes are always resimulated
 		return true
+	if input_properties.is_empty() and node.is_multiplayer_authority():
+		# If running without inputs, simulate everything on server
+		# TODO: Don't resim all the frames
+		return true
 	if node.is_multiplayer_authority():
 		# Simulate from earliest input
 		# Don't simulate frames we don't have input for
-		return tick >= _earliest_input_tick
+		return tick >= _earliest_input_tick and _inputs.has(tick)
 	else:
 		# Simulate ONLY if we have state from server
 		# Simulate from latest authorative state - anything the server confirmed we don't rerun
 		# Don't simulate frames we don't have input for
-		return tick >= _latest_state_tick
+		return tick >= _latest_state_tick and _inputs.has(tick)
 
 func _process_tick(tick: int) -> void:
 	# Simulate rollback tick

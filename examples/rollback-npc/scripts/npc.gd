@@ -7,17 +7,19 @@ extends CharacterBody3D
 # Get the gravity from the project settings to be synced with RigidBody nodes.
 var gravity = ProjectSettings.get_setting(&"physics/3d/default_gravity")
 
-var _sensor_shape := SphereShape3D.new()
+var _last_simulated_tick := 0
+
+static var _logger := _NetfoxLogger.new("npc", "npc")
 
 func _get_rollback_state_properties() -> Array:
 	return [
-		"transform",
+		"position",
 		"velocity"
 	]
 
 func _get_interpolated_properties() -> Array:
 	return [
-		"transform"
+		"position"
 	]
 
 func _rollback_tick(dt, _tick, _is_fresh: bool):
@@ -43,20 +45,22 @@ func _rollback_tick(dt, _tick, _is_fresh: bool):
 	move_and_slide()
 	velocity /= NetworkTime.physics_factor
 
+#	_logger.info("Ran rollback tick, owner is %d", [get_multiplayer_authority()])
+
 func _find_nearby_player() -> Node3D:
-	var space := get_world_3d().direct_space_state
-	_sensor_shape.radius = sensor_radius
-
-	var query := PhysicsShapeQueryParameters3D.new()
-	query.collision_mask = 0x1 # Players should be on layer 1
-	query.shape = _sensor_shape
-	query.transform = global_transform
-
-	var hits := space.intersect_shape(query)
-	if hits.is_empty():
+	var players := get_tree().get_nodes_in_group(&"Players")
+	if players.is_empty():
 		return null
 
-	return hits[0]["collider"] as Node3D
+	var closest_player: Node3D = null
+	var closest_distance := INF
+	for player in players:
+		var distance := global_position.distance_squared_to(player.global_position)
+		if distance < closest_distance and distance < pow(sensor_radius, 2.0):
+			closest_distance = distance
+			closest_player = player
+
+	return closest_player
 
 func _force_update_is_on_floor():
 	var old_velocity = velocity

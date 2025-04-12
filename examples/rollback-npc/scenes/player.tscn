@@ -12,7 +12,7 @@ material = SubResource("StandardMaterial3D_bmc6p")
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1dm6n"]
 
-[node name="Player" type="CharacterBody3D"]
+[node name="Player" type="CharacterBody3D" groups=["Players"]]
 collision_mask = 3
 script = ExtResource("1_d0kje")
 
