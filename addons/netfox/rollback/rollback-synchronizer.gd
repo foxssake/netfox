@@ -357,7 +357,7 @@ func _prepare_tick(tick: int) -> void:
 	# Save data for input prediction
 	_has_input = retrieved_tick != -1
 	_input_tick = retrieved_tick
-	_is_predicted_tick = not _inputs.has(tick)
+	_is_predicted_tick = not _inputs.has(tick) and not input_properties.is_empty()
 
 	# Reset the set of simulated and ignored nodes
 	_simset.clear()
