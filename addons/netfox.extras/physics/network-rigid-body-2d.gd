@@ -34,3 +34,9 @@ func set_state(remote_state: Array) -> void:
 	direct_state.linear_velocity = remote_state[LIN_VEL]
 	direct_state.angular_velocity = remote_state[ANG_VEL]
 	direct_state.sleeping = remote_state[SLEEPING]
+	_rigid_rollback_tick(NetworkTime.ticktime, NetworkRollback.tick)
+
+## Override and apply any logic, forces or impulses to the rigid body.
+## The physics engine will run its simulation during rollback_tick with other nodes
+func _rigid_rollback_tick(delta, tick):
+	pass

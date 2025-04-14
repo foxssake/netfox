@@ -2,6 +2,9 @@ extends RigidBody3D
 
 class_name NetworkRigidBody3D
 
+## A rollback / state synchronizer class for RigidBody3D.
+## Set state property path to physics_state to synchronize the state of this body.
+
 @onready var direct_state = PhysicsServer3D.body_get_direct_state(get_rid())
 
 var physics_state: Array:
@@ -31,3 +34,9 @@ func set_state(remote_state: Array) -> void:
 	direct_state.linear_velocity = remote_state[LIN_VEL]
 	direct_state.angular_velocity = remote_state[ANG_VEL]
 	direct_state.sleeping = remote_state[SLEEPING]
+	_rigid_rollback_tick(NetworkTime.ticktime, NetworkRollback.tick)
+
+## Override and apply any logic, forces or impulses to the rigid body.
+## The physics engine will run its simulation during rollback_tick with other nodes
+func _rigid_rollback_tick(delta, tick):
+	pass
