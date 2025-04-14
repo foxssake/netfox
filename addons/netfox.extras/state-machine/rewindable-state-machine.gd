@@ -86,13 +86,19 @@ func transition(new_state_name: StringName) -> void:
 func _notification(what: int):
 	# Use notification instead of _ready, so users can write their own _ready
 	# callback without having to call super()
-	if what == NOTIFICATION_READY:
-		# Gather known states
-		for child in find_children("*", "RewindableState", false):
-			_available_states[child.name] = child
+	if Engine.is_editor_hint(): return
+
+	if what == NOTIFICATION_ENTER_TREE:
+		# Gather known states if we haven't yet
+		if _available_states.is_empty():
+			for child in find_children("*", "RewindableState", false):
+				_available_states[child.name] = child
 
 		# Compare states after tick loop
 		NetworkTime.after_tick_loop.connect(_after_tick_loop)
+	elif what == NOTIFICATION_EXIT_TREE:
+		# Disconnect handlers
+		NetworkTime.after_tick_loop.disconnect(_after_tick_loop)
 
 func _get_configuration_warnings():
 	const MISSING_SYNCHRONIZER_ERROR := \
