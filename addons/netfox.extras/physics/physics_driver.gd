@@ -11,6 +11,8 @@ var snapshots: Dictionary = {}
 
 # Number of physics steps to take per tick
 @export var physics_factor: int = 1
+# Snapshot and Rollback entire physics space. Can be costly and unnnecessary.
+@export var rollback_physics_space: bool = false
 
 func _ready() -> void:
 	_init_physics_space()
@@ -20,8 +22,9 @@ func _ready() -> void:
 	NetworkTime.after_tick_loop.connect(after_tick_loop)
 
 	#rollback ticks
-	NetworkRollback.on_prepare_tick.connect(on_prepare_tick)
-	NetworkRollback.after_prepare_tick.connect(after_prepare_tick)
+	if rollback_physics_space:
+		NetworkRollback.on_prepare_tick.connect(on_prepare_tick)
+	NetworkRollback.on_process_tick.connect(on_process_tick)
 
 # Emitted before a tick is run.
 func before_tick(_delta: float, tick: int) -> void:
@@ -36,9 +39,9 @@ func on_prepare_tick(tick: int) -> void:
 		# Subsequent ticks are re-writing history.
 		_snapshot_space(tick)
 
-func after_prepare_tick(_tick: int) -> void:
+func on_process_tick(_tick: int) -> void:
 	step_physics(NetworkTime.ticktime)
-
+		
 func after_tick_loop() -> void:
 	#remove old snapshots
 	for i in snapshots.keys():
@@ -50,16 +53,20 @@ func step_physics(_delta: float) -> void:
 	for i in range(physics_factor):
 		_physics_step(_delta / physics_factor)
 
-
-# Stops physics engine from auto-stepping and takes control of physics loop
+## Override this method to initialize the physics space.
 func _init_physics_space() -> void:
 	pass
 
+## Override this method to take one step in the physics space.
+## [br][br]
+## It should also flush and update all Godot nodes
 func _physics_step(_delta) -> void:
 	pass
-	
+
+## Override this method to record the current state of the physics space.
 func _snapshot_space(_tick: int) -> void:
 	pass
 
+## Override this method to restore the physics space to a previous state.
 func _rollback_space(_tick) -> void:
 	pass
