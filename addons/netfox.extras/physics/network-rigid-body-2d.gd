@@ -38,5 +38,5 @@ func set_state(remote_state: Array) -> void:
 
 ## Override and apply any logic, forces or impulses to the rigid body.
 ## The physics engine will run its simulation during rollback_tick with other nodes
-func _rigid_rollback_tick(delta, tick):
+func _rigid_rollback_tick(_delta, _tick):
 	pass
