@@ -12,8 +12,6 @@ bubbles before they burst yours. Collect powerups and out-maneuver opponents
 for fast-paced, addictive fun!
 
 [:simple-steam: Steam](https://store.steampowered.com/app/3180520/Bubble_Battle/) | 
-[:simple-itchdotio: Demo on itch.io](https://pondersoft.itch.io/bubble-battle) | 
-[:simple-youtube: Trailer](https://www.youtube.com/watch?v=AScmJUMOdIk)
 
 ## PL4no-B
 
