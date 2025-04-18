@@ -379,11 +379,14 @@ func _can_simulate(node: Node, tick: int) -> bool:
 	# 	- If node is not owned, simulate as predicted if there's no received state
 	# Record if node was simulated and owned
 	
-	if not enable_prediction and _is_predicted_tick:
-		# Don't simulate if prediction is not allowed and input is unknown
+	if not enable_prediction and _is_predicted_tick_for(node, tick):
+		# Don't simulate if prediction is not allowed and tick is predicted
 		return false
 	if NetworkRollback.is_mutated(node, tick):
 		# Mutated nodes are always resimulated
+		return true
+	if input_properties.is_empty() and node.is_multiplayer_authority():
+		# If we're running inputless and own the node, simulate it if we haven't
 		return true
 	if node.is_multiplayer_authority():
 		# Simulate from earliest input
@@ -394,6 +397,15 @@ func _can_simulate(node: Node, tick: int) -> bool:
 		# Simulate from latest authorative state - anything the server confirmed we don't rerun
 		# Don't simulate frames we don't have input for
 		return tick >= _latest_state_tick and _inputs.has(tick)
+
+func _is_predicted_tick_for(node: Node, tick: int) -> bool:
+	if input_properties.is_empty():
+		# We're running without inputs
+		# It's only predicted if we don't own the node
+		return not node.is_multiplayer_authority()
+	else:
+		# We have input properties, it's only predicted if we don't have the input for the tick
+		return not _inputs.has(tick)
 
 func _process_tick(tick: int) -> void:
 	# Simulate rollback tick

@@ -17,6 +17,7 @@ height = 1.5
 collision_layer = 2
 collision_mask = 3
 script = ExtResource("1_6wds5")
+min_radius = null
 
 [node name="Mesh" type="Node3D" parent="."]
 

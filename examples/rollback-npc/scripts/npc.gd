@@ -3,6 +3,7 @@ extends CharacterBody3D
 
 @export var speed: float = 2.0
 @export var sensor_radius: float = 4.0
+@export var min_radius: float = 1.5
 
 # Get the gravity from the project settings to be synced with RigidBody nodes.
 var gravity = ProjectSettings.get_setting(&"physics/3d/default_gravity")
@@ -36,8 +37,8 @@ func _rollback_tick(dt, _tick, _is_fresh: bool):
 
 		target_motion = target_motion.normalized() * speed
 
-	velocity.x = move_toward(velocity.x, target_motion.x, speed / 0.15 * dt)
-	velocity.z = move_toward(velocity.z, target_motion.z, speed / 0.15 * dt)
+	velocity.x = move_toward(velocity.x, target_motion.x, speed / 0.35 * dt)
+	velocity.z = move_toward(velocity.z, target_motion.z, speed / 0.35 * dt)
 
 	# move_and_slide assumes physics delta
 	# multiplying velocity by NetworkTime.physics_factor compensates for it
@@ -45,18 +46,23 @@ func _rollback_tick(dt, _tick, _is_fresh: bool):
 	move_and_slide()
 	velocity /= NetworkTime.physics_factor
 
-#	_logger.info("Ran rollback tick, owner is %d", [get_multiplayer_authority()])
-
 func _find_nearby_player() -> Node3D:
 	var players := get_tree().get_nodes_in_group(&"Players")
 	if players.is_empty():
 		return null
 
+	var sensor_radius_squared := pow(sensor_radius, 2.0)
+	var min_radius_squared := pow(min_radius, 2.0)
+
 	var closest_player: Node3D = null
 	var closest_distance := INF
 	for player in players:
 		var distance := global_position.distance_squared_to(player.global_position)
-		if distance < closest_distance and distance < pow(sensor_radius, 2.0):
+
+		if distance >= sensor_radius_squared or distance <= min_radius_squared:
+			continue
+
+		if distance < closest_distance:
 			closest_distance = distance
 			closest_player = player
 
