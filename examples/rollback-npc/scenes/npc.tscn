@@ -17,7 +17,6 @@ height = 1.5
 collision_layer = 2
 collision_mask = 3
 script = ExtResource("1_6wds5")
-min_radius = null
 
 [node name="Mesh" type="Node3D" parent="."]
 
@@ -43,3 +42,9 @@ state_properties = Array[String]([":position", ":velocity"])
 script = ExtResource("3_ql8cj")
 root = NodePath("..")
 properties = Array[String]([":position"])
+
+[node name="Label3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+billboard = 1
+text = "NPC"
+font_size = 96

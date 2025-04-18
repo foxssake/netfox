@@ -5,6 +5,9 @@ extends CharacterBody3D
 @export var sensor_radius: float = 4.0
 @export var min_radius: float = 1.5
 
+@onready var label := $Label3D as Label3D
+@onready var rbs := $RollbackSynchronizer as RollbackSynchronizer
+
 # Get the gravity from the project settings to be synced with RigidBody nodes.
 var gravity = ProjectSettings.get_setting(&"physics/3d/default_gravity")
 
@@ -24,6 +27,8 @@ func _get_interpolated_properties() -> Array:
 	]
 
 func _rollback_tick(dt, _tick, _is_fresh: bool):
+	label.text = "pre" if rbs.is_predicting() else "sim"
+
 	# Add gravity
 	_force_update_is_on_floor()
 	if not is_on_floor():

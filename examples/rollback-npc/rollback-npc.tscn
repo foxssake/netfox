@@ -35,4 +35,3 @@ offset_bottom = 120.0
 
 [node name="NPC" parent="." instance=ExtResource("6_3tc5x")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 1, -6)
-min_radius = null
