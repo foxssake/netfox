@@ -79,6 +79,7 @@ var _states := _PropertyHistoryBuffer.new()
 var _inputs := _PropertyHistoryBuffer.new()
 var _latest_state_tick: int
 var _earliest_input_tick: int
+var _last_simulated_tick: int
 
 # Maps peers (int) to acknowledged ticks (int)
 var _ackd_state: Dictionary = {}
@@ -112,8 +113,11 @@ func process_settings() -> void:
 	_states.clear()
 	_inputs.clear()
 	_ackd_state.clear()
+
 	_latest_state_tick = NetworkTime.tick - 1
 	_earliest_input_tick = NetworkTime.tick
+	_last_simulated_tick = NetworkTime.tick - 1
+
 	_next_full_state_tick = NetworkTime.tick
 	_next_diff_ack_tick = NetworkTime.tick
 
@@ -358,11 +362,6 @@ func _prepare_tick(tick: int) -> void:
 	_has_input = retrieved_tick != -1
 	_input_tick = retrieved_tick
 
-	if input_properties.is_empty():
-		_is_predicted_tick = false
-	else:
-		_is_predicted_tick = not _inputs.has(tick)
-
 	# Reset the set of simulated and ignored nodes
 	_simset.clear()
 	_skipset.clear()
@@ -388,8 +387,7 @@ func _can_simulate(node: Node, tick: int) -> bool:
 	if input_properties.is_empty():
 		# If we're running inputless and own the node, simulate it if we haven't
 		if node.is_multiplayer_authority():
-			# TODO: Only resim new ticks
-			return true
+			return tick > _last_simulated_tick
 		# If we're running inputless and don't own the node, only run as prediction
 		return enable_prediction
 	if node.is_multiplayer_authority():
@@ -423,7 +421,7 @@ func _process_tick(tick: int) -> void:
 			continue
 
 		var is_fresh := _freshness_store.is_fresh(node, tick)
-		_is_predicted_tick = _is_predicted_tick_for(node, tick) # TODO
+		_is_predicted_tick = _is_predicted_tick_for(node, tick)
 		NetworkRollback.process_rollback(node, NetworkTime.ticktime, tick, is_fresh)
 
 		if _skipset.has(node):
@@ -519,6 +517,9 @@ func _record_tick(tick: int) -> void:
 			var record_state := _PropertySnapshot.extract(record_properties)
 
 			_states.set_snapshot(tick, merge_state.merge(record_state))
+
+	# Ack simulation for tick
+	_last_simulated_tick = maxi(_last_simulated_tick, tick - 1)
 
 	# Push metrics
 	NetworkPerformance.push_rollback_nodes_simulated(_simset.size())
