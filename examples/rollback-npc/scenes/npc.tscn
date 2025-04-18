@@ -1,0 +1,51 @@
+[gd_scene load_steps=7 format=3 uid="uid://n5t5ahafwaln"]
+
+[ext_resource type="Script" path="res://examples/rollback-npc/scripts/npc.gd" id="1_6wds5"]
+[ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="2_a8m5g"]
+[ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="3_ql8cj"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_3ov8j"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_tsqs5"]
+top_radius = 0.0
+height = 0.5
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_2yxbx"]
+height = 1.5
+
+[node name="NPC" type="CharacterBody3D"]
+collision_layer = 2
+collision_mask = 3
+script = ExtResource("1_6wds5")
+
+[node name="Mesh" type="Node3D" parent="."]
+
+[node name="Body" type="MeshInstance3D" parent="Mesh"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+mesh = SubResource("SphereMesh_3ov8j")
+skeleton = NodePath("../..")
+
+[node name="Hat" type="MeshInstance3D" parent="Mesh"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("CylinderMesh_tsqs5")
+skeleton = NodePath("../..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_2yxbx")
+
+[node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("2_a8m5g")
+root = NodePath("..")
+enable_prediction = true
+state_properties = Array[String]([":position", ":velocity"])
+
+[node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("3_ql8cj")
+root = NodePath("..")
+properties = Array[String]([":position"])
+
+[node name="Label3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+billboard = 1
+text = "NPC"
+font_size = 96

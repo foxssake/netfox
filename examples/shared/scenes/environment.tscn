@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3 uid="uid://cncdbq72u50j3"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_bioft"]
+
+[sub_resource type="Sky" id="Sky_n7qj2"]
+sky_material = SubResource("ProceduralSkyMaterial_bioft")
+
+[sub_resource type="Environment" id="Environment_ge6yj"]
+background_mode = 2
+sky = SubResource("Sky_n7qj2")
+
+[node name="Environment" type="Node"]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.5, 0.612372, -0.612372, 0, 0.707107, 0.707107, 0.866025, -0.353553, 0.353553, -6.7361, 8.77817, 3.88909)
+shadow_enabled = true
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.5, 0.866025, 0, -0.866025, 0.5, 0, 14.3564, 8.86602)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_ge6yj")
