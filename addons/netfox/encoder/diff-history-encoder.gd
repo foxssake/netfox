@@ -4,6 +4,9 @@ class_name _DiffHistoryEncoder
 var _history: _PropertyHistoryBuffer
 var _property_cache: PropertyCache
 
+var _full_snapshot := {}
+var _encoded_snapshot := {}
+
 var _property_indexes := _BiMap.new()
 
 static var _logger := _NetfoxLogger.for_netfox("DiffHistoryEncoder")
@@ -24,6 +27,9 @@ func encode(tick: int, reference_tick: int, properties: Array[PropertyEntry]) ->
 
 	var reference_snapshot := _history.get_history(reference_tick)
 	var diff_snapshot := reference_snapshot.make_patch(snapshot)
+
+	_full_snapshot = snapshot.as_dictionary()
+	_encoded_snapshot = diff_snapshot.as_dictionary()
 
 	if diff_snapshot.is_empty():
 		return PackedByteArray()
@@ -85,6 +91,13 @@ func apply(tick: int, snapshot: _PropertySnapshot, reference_tick: int, sender: 
 	var reference_snapshot := _history.get_snapshot(reference_tick)
 	_history.set_snapshot(tick, reference_snapshot.merge(snapshot))
 	return true
+
+# TODO: Rework metrics so these are not needed
+func get_encoded_snapshot() -> Dictionary:
+	return _encoded_snapshot
+
+func get_full_snapshot() -> Dictionary:
+	return _full_snapshot
 
 func _ensure_property_idx(property: String):
 	if _property_indexes.has_value(property):

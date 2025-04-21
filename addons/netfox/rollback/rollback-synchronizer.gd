@@ -262,6 +262,7 @@ func _connect_signals() -> void:
 	NetworkRollback.before_loop.connect(_before_loop)
 	NetworkRollback.on_prepare_tick.connect(_prepare_tick)
 	NetworkRollback.on_process_tick.connect(_process_tick)
+	NetworkRollback.on_record_tick.connect(_broadcast_tick)
 	NetworkRollback.on_record_tick.connect(_record_tick)
 	NetworkRollback.after_loop.connect(_after_loop)
 
@@ -271,6 +272,7 @@ func _disconnect_signals() -> void:
 	NetworkRollback.before_loop.disconnect(_before_loop)
 	NetworkRollback.on_prepare_tick.disconnect(_prepare_tick)
 	NetworkRollback.on_process_tick.disconnect(_process_tick)
+	NetworkRollback.on_record_tick.disconnect(_broadcast_tick)
 	NetworkRollback.on_record_tick.disconnect(_record_tick)
 	NetworkRollback.after_loop.disconnect(_after_loop)
 
@@ -403,81 +405,81 @@ func _process_tick(tick: int) -> void:
 		_freshness_store.notify_processed(node, tick)
 		_simset.add(node)
 
-func _record_tick(tick: int) -> void:
-	# Broadcast state we own
-	if not _get_owned_state_props().is_empty():
-		var full_state := _PropertySnapshot.new()
+func _broadcast_tick(tick: int):
+	if _get_owned_state_props().is_empty() or _is_predicted_tick:
+		return
 
-		for property in _get_owned_state_props():
-			if _can_simulate(property.node, tick - 1) \
-				and not _skipset.has(property.node) \
-				and not _is_predicted_tick_for(property.node, tick - 1) \
-				or NetworkRollback.is_mutated(property.node, tick - 1):
-				# Only broadcast if we've simulated the node
-				# NOTE: _can_simulate checks mutations, but to override _skipset
-				# we check a second time
-				full_state.set_value(property.to_string(), property.get_value())
+	# Record properties we own
+	var full_state := _PropertySnapshot.new()
 
-		_on_transmit_state.emit(full_state, tick)
+	for property in _get_owned_state_props():
+		if _can_simulate(property.node, tick - 1) \
+			and not _skipset.has(property.node) \
+			and not _is_predicted_tick_for(property.node, tick - 1) \
+			or NetworkRollback.is_mutated(property.node, tick - 1):
+			# Only broadcast if we've simulated the node
+			# NOTE: _can_simulate checks mutations, but to override _skipset
+			# we check a second time
+			full_state.set_value(property.to_string(), property.get_value())
 
-		if full_state.size() > 0:
-			_latest_state_tick = max(_latest_state_tick, tick)
+	_on_transmit_state.emit(full_state, tick)
 
-			_states.merge(full_state, tick)
+	# No properties to send?
+	if full_state.is_empty():
+		return
 
-			if not NetworkRollback.enable_diff_states:
-				# Broadcast new full state
-				var full_state_snapshot := _states.get_snapshot(tick).as_dictionary()
-				var full_state_data := _full_state_encoder.encode(tick, _get_owned_state_props())
-				_submit_full_state.rpc(full_state_data, tick)
+	_latest_state_tick = max(_latest_state_tick, tick)
+	_states.merge(full_state, tick)
 
-				NetworkPerformance.push_full_state_broadcast(full_state_snapshot)
-				NetworkPerformance.push_sent_state_broadcast(full_state_snapshot)
-			elif full_state_interval > 0 and tick > _next_full_state_tick:
-				# Send full state so we can send deltas from there
-				_logger.trace("Broadcasting full state for tick %d", [tick])
+	var is_sending_diffs := NetworkRollback.enable_diff_states
+	var is_full_state_tick := not is_sending_diffs or (full_state_interval > 0 and tick > _next_full_state_tick)
 
-				var full_state_snapshot := _states.get_snapshot(tick).as_dictionary()
-				var full_state_data := _full_state_encoder.encode(tick, _get_owned_state_props())
-				_submit_full_state.rpc(full_state_data, tick)
-				_next_full_state_tick = tick + full_state_interval
+	if is_full_state_tick:
+		# Broadcast new full state
+		_send_full_state(tick)
 
-				NetworkPerformance.push_full_state_broadcast(full_state_snapshot)
-				NetworkPerformance.push_sent_state_broadcast(full_state_snapshot)
+		# Adjust next full state if sending diffs
+		if is_sending_diffs:
+			_next_full_state_tick = tick + full_state_interval
+	else:
+		# Send diffs to each peer
+		for peer in multiplayer.get_peers():
+			var reference_tick := _ackd_state.get(peer, -1) as int
+			if reference_tick < 0 or not _states.has(reference_tick):
+				# Peer hasn't ack'd any tick, or we don't have the ack'd tick
+				# Send full state
+				_send_full_state(tick, peer)
+				continue
+
+			# Prepare diff
+			var diff_state_data := _diff_state_encoder.encode(tick, reference_tick, _get_owned_state_props())
+			if diff_state_data.size() == full_state.size():
+				# State is completely different, send full state
+				_send_full_state(tick, peer)
 			else:
-				for peer in multiplayer.get_peers():
-					NetworkPerformance.push_full_state(full_state.as_dictionary())
+				# Send only diff
+				_submit_diff_state.rpc_id(peer, diff_state_data, tick, reference_tick)
 
-					# Peer hasn't received a full state yet, can't send diffs
-					if not _ackd_state.has(peer):
-						var full_state_snapshot := _states.get_snapshot(tick).as_dictionary()
-						var full_state_data := _full_state_encoder.encode(tick, _get_owned_state_props())
-						_submit_full_state.rpc_id(peer, full_state_data, tick)
-						NetworkPerformance.push_sent_state(full_state_snapshot)
-						continue
+				# Push metrics
+				NetworkPerformance.push_full_state(_diff_state_encoder.get_full_snapshot())
+				NetworkPerformance.push_sent_state(_diff_state_encoder.get_encoded_snapshot())
 
-					# History doesn't have reference tick?
-					var reference_tick = _ackd_state[peer]
-					if not _states.has(reference_tick):
-						var full_state_snapshot := _states.get_snapshot(tick).as_dictionary()
-						var full_state_data := _full_state_encoder.encode(tick, _get_owned_state_props())
-						_submit_full_state.rpc_id(peer, full_state_data, tick)
-						NetworkPerformance.push_sent_state(full_state_snapshot)
-						continue
+func _send_full_state(tick: int, peer: int = 0) -> void:
+	var full_state_snapshot := _states.get_snapshot(tick).as_dictionary()
+	var full_state_data := _full_state_encoder.encode(tick, _get_owned_state_props())
 
-					# Prepare diff and send
-					var diff_state_data := _diff_state_encoder.encode(tick, reference_tick, _get_owned_state_props())
-					if diff_state_data.size() == full_state.size():
-						# State is completely different, send full state
-						var full_state_snapshot := _states.get_snapshot(tick).as_dictionary()
-						var full_state_data := _full_state_encoder.encode(tick, _get_owned_state_props())
-						_submit_full_state.rpc_id(peer, full_state_data, tick)
-						NetworkPerformance.push_sent_state(full_state_snapshot)
-					else:
-						# Send only diff
-						_submit_diff_state.rpc_id(peer, diff_state_data, tick, reference_tick)
-#						NetworkPerformance.push_sent_state(diff_state_data) # TODO
+	if peer == 0:
+		_submit_full_state.rpc(full_state_data, tick)
 
+		NetworkPerformance.push_full_state_broadcast(full_state_snapshot)
+		NetworkPerformance.push_sent_state_broadcast(full_state_snapshot)
+	else:
+		_submit_full_state.rpc_id(peer, full_state_data, tick)
+
+		NetworkPerformance.push_full_state(full_state_snapshot)
+		NetworkPerformance.push_sent_state(full_state_snapshot)
+
+func _record_tick(tick: int):
 	# Record state for specified tick ( current + 1 )
 
 	# Check if any of the managed nodes were mutated
