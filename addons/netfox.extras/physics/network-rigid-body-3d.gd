@@ -35,7 +35,7 @@ func set_state(remote_state: Array) -> void:
 	direct_state.angular_velocity = remote_state[ANG_VEL]
 	direct_state.sleeping = remote_state[SLEEPING]
 
-	if NetworkRollback._rollback_stage == "P":
+	if NetworkRollback._rollback_stage == NetworkRollback._STAGE_PREPARE:
 		_rigid_rollback_tick(NetworkTime.ticktime, NetworkRollback.tick)
 
 ## Override and apply any logic, forces or impulses to the rigid body.

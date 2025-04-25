@@ -17,8 +17,8 @@ func _init_physics_space() -> void:
 	scan_tree()
 
 func _physics_step(delta) -> void:
-	PhysicsServer3D.space_step(physics_space, delta)
 	PhysicsServer3D.space_flush_queries(physics_space)
+	PhysicsServer3D.space_step(physics_space, delta)
 	
 func _snapshot_space(tick: int) -> void:
 	# Maps RIDs to physics state ( Array )
