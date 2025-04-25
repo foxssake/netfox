@@ -32,7 +32,7 @@ class PhysicsDriverToggle:
 			var result := DirAccess.rename_absolute(rename[0], rename[1])
 			if result != OK:
 				errors.append(
-					"Failed rename \"%s\" -> \"%s\"; reason: %s" % 
+					"Failed rename \"%s\" -> \"%s\"; reason: %s" %
 					[rename[0], rename[1], error_string(result)]
 				)
 		return errors
@@ -58,11 +58,12 @@ class GodotPhysicsDriverToggle extends PhysicsDriverToggle:
 
 	func get_files() -> Array[String]:
 		return [
-			"res://addons/netfox.extras/physics/godot_driver_3d.gd"
+			"res://addons/netfox.extras/physics/godot_driver_3d.gd",
+			"res://addons/netfox.extras/physics/godot_driver_2d.gd"
 		]
 
 	func get_error_messages() -> Array[String]:
-		if not PhysicsServer3D.has_method("space_step"):
+		if not PhysicsServer3D.has_method("space_step") or not PhysicsServer2D.has_method("space_step"):
 			return ["Physics stepping is not available! Is this the right Godot build?"]
 		return []
 
