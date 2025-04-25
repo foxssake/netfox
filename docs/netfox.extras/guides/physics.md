@@ -30,7 +30,12 @@ Rollback Physics Space - Will rollback all objects in the scene tree. Depending 
 
 RigidBodies can be used with [RollbackSynchronizer] or [StateSynchronizer] using NetworkRigidBody2/3D Nodes. They are a direct drop in replacement and will keep clients in sync with the server's simulation.
 
-The only configuration required is to add `physics_state` as a State Property in the synchronizer.
+To make use of NetworkRigidBody you need to:
+
+1. Add `physics_state` as a State Property in the synchronizer.
+2. Move logic normally in `physics_process` to `_physics_rollback_tick`
+
+
 
 
 ![[network-rigid-body.png]]

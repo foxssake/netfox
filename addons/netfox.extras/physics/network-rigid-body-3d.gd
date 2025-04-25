@@ -19,6 +19,10 @@ enum {
 	SLEEPING
 }
 
+func _notification(notification: int):
+	if notification == NOTIFICATION_READY:
+		add_to_group("network_rigid_body")
+
 func get_state() -> Array:
 	var body_state: Array = [Vector3.ZERO, Quaternion.IDENTITY, Vector3.ZERO, Vector3.ZERO, false]
 	body_state[ORIGIN] = direct_state.transform.origin
@@ -35,10 +39,8 @@ func set_state(remote_state: Array) -> void:
 	direct_state.angular_velocity = remote_state[ANG_VEL]
 	direct_state.sleeping = remote_state[SLEEPING]
 
-	if NetworkRollback._rollback_stage == NetworkRollback._STAGE_PREPARE:
-		_rigid_rollback_tick(NetworkTime.ticktime, NetworkRollback.tick)
 
-## Override and apply any logic, forces or impulses to the rigid body.
+## Override and apply any logic, forces or impulses to the rigid body as you would in physics_process
 ## The physics engine will run its simulation during rollback_tick with other nodes
-func _rigid_rollback_tick(_delta, _tick):
+func _physics_rollback_tick(_delta, _tick):
 	pass

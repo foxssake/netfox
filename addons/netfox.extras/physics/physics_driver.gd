@@ -9,10 +9,10 @@ var physics_space: RID
 var snapshots: Dictionary = {}
 #var snapshots: Dictionary[int, PackedByteArray] = {}
 
-# Number of physics steps to take per tick
-@export var physics_factor: int = 1
-# Snapshot and Rollback entire physics space. Can be costly and unnnecessary.
-@export var rollback_physics_space: bool = false
+# Number of physics steps to take per network tick
+@export var physics_factor: int = 2
+# Snapshot and Rollback entire physics space.
+@export var rollback_physics_space: bool = true
 
 func _ready() -> void:
 	_init_physics_space()
@@ -48,10 +48,14 @@ func after_tick_loop() -> void:
 		if i < NetworkRollback.history_start:
 			snapshots.erase(i)
 
-# Break up physics into smaller steps if needed
 func step_physics(_delta: float) -> void:
+	# Break up physics into smaller steps if needed
+	var frac_delta = _delta / physics_factor
 	for i in range(physics_factor):
-		_physics_step(_delta / physics_factor)
+		for net_rigid_body in get_tree().get_nodes_in_group("network_rigid_body"):
+			net_rigid_body._physics_rollback_tick(frac_delta, NetworkTime.tick)
+
+		_physics_step(frac_delta)
 
 ## Override this method to initialize the physics space.
 func _init_physics_space() -> void:
