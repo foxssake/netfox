@@ -10,7 +10,7 @@ At the time of writing official Godot releases have no support for manually step
 
 ## Enabling Physics Engine Rollback
 
-To enable physics rollback, add the appropriate physics driver node to the root of your scene tree based on your physics engine. Because methods are unavailable in default Godot the classes are hidden by default. You will need to enable them in the editor by going to Project -> Tools
+To enable physics rollback, add the appropriate physics driver node to the root of your scene tree based on your physics engine. Because stepping methods are unavailable in standard Godot the classes are hidden to avoid compile errors. You will need to enable them in the editor by going to Project -> Tools -> Enable physics driver
 
 - PhysicsDriver2D or PhysicsDriver3D for Godot’s default physics or Blazium.
 - RapierPhysicsDriver2D or RapierPhysicsDriver3D for the Rapier Physics Addon.
@@ -19,11 +19,11 @@ These nodes disable Godot’s default physics processing and step the physics si
 
 ![[physics-enable.png]]
 
-## Configuration Options
+## Physics Driver Configuration
 
-**Physics Factor**: Controls the number of physics steps per network tick. For example, if your network tick rate is 30 Hz (one tick every ~33ms) but you need a 60 Hz physics simulation for smoother collisions, set this to 2 to run two physics steps per tick. Configurable in the physics driver node’s properties.
+**Physics Factor** -  Controls the number of physics steps per network tick. For example, if your network tick rate is 30 Hz (one tick every ~33ms) but you need a 60 Hz physics simulation for smoother collisions, set this to 2 to run two physics steps per tick. 
 
-Rollback Physics Space - When enabled, rolls back all physics objects in the scene tree. Depending on how complex your scene tree is you may wish to only rollback specific nodes for performance rather than the entire simulation space.
+**Rollback Physics Space** - When enabled, rolls back all physics objects in the scene tree. Depending on how complex your scene tree is you may wish to only rollback specific nodes for performance rather than the entire simulation space.
 
 ## NetworkRigidBody
 
