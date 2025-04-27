@@ -1,0 +1,37 @@
+[gd_scene load_steps=7 format=3 uid="uid://cg0vfsftxxwv0"]
+
+[ext_resource type="PackedScene" uid="uid://cngy6hs8ohodj" path="res://examples/shared/scenes/map-square.tscn" id="1_os5l0"]
+[ext_resource type="PackedScene" uid="uid://cncdbq72u50j3" path="res://examples/shared/scenes/environment.tscn" id="2_and7e"]
+[ext_resource type="Script" path="res://examples/shared/scripts/player-spawner.gd" id="3_1ga2x"]
+[ext_resource type="PackedScene" uid="uid://badtpsxn5lago" path="res://examples/shared/ui/network-popup.tscn" id="3_1tn81"]
+[ext_resource type="PackedScene" uid="uid://bl30av5bcvd4d" path="res://examples/rollback-npc/scenes/player.tscn" id="4_pr3ur"]
+[ext_resource type="PackedScene" uid="uid://n5t5ahafwaln" path="res://examples/rollback-npc/scenes/npc.tscn" id="6_3tc5x"]
+
+[node name="rollback-npc" type="Node3D"]
+
+[node name="Square Map" parent="." instance=ExtResource("1_os5l0")]
+
+[node name="Environment" parent="." instance=ExtResource("2_and7e")]
+
+[node name="Player Spawner" type="Node" parent="." node_paths=PackedStringArray("spawn_root")]
+script = ExtResource("3_1ga2x")
+player_scene = ExtResource("4_pr3ur")
+spawn_root = NodePath(".")
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Network Popup" parent="UI" instance=ExtResource("3_1tn81")]
+layout_mode = 1
+offset_left = -180.0
+offset_top = -120.0
+offset_right = 180.0
+offset_bottom = 120.0
+
+[node name="NPC" parent="." instance=ExtResource("6_3tc5x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 1, -6)

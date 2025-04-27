@@ -1,0 +1,37 @@
+[gd_scene load_steps=8 format=3 uid="uid://bl30av5bcvd4d"]
+
+[ext_resource type="Script" path="res://examples/rollback-npc/scripts/player.gd" id="1_d0kje"]
+[ext_resource type="Script" path="res://examples/rollback-npc/scripts/player-input.gd" id="2_us2sq"]
+[ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="3_bf3yl"]
+[ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="4_4lenk"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bmc6p"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_t0alo"]
+material = SubResource("StandardMaterial3D_bmc6p")
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1dm6n"]
+
+[node name="Player" type="CharacterBody3D" groups=["Players"]]
+collision_mask = 3
+script = ExtResource("1_d0kje")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_t0alo")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_1dm6n")
+
+[node name="Input" type="Node" parent="."]
+script = ExtResource("2_us2sq")
+
+[node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("3_bf3yl")
+root = NodePath("..")
+state_properties = Array[String]([":transform", ":velocity"])
+input_properties = Array[String](["Input:movement"])
+
+[node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("4_4lenk")
+root = NodePath("..")
+properties = Array[String]([":transform"])
