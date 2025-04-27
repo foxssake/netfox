@@ -32,7 +32,7 @@ func before_tick(_delta: float, tick: int) -> void:
 	step_physics(_delta)
 
 func on_prepare_tick(tick: int) -> void:
-	if NetworkRollback._rollback_stage == NetworkRollback._STAGE_PREPARE:
+	if NetworkRollback._rollback_from == tick:
 		# First tick of rollback loop, rewind
 		_rollback_space(tick)
 	else:

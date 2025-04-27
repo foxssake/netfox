@@ -27,11 +27,17 @@ These nodes disable Godot’s default physics processing and step the physics si
 
 ## NetworkRigidBody
 
-NetworkRigidBody2D and NetworkRigidBody3D nodes enable RigidBody synchronization with RollbackSynchronizer or StateSynchronizer, keeping clients in sync with the server’s physics simulation. These nodes can replace standard RigidBody nodes with some minor setup.
+NetworkRigidBody2D and NetworkRigidBody3D nodes enable RigidBody synchronization with RollbackSynchronizer, keeping clients in sync with the server’s physics simulation. These nodes can replace standard RigidBody nodes with some minor setup.
+
+[!NOTE]
+
+> Avoid using StateSyncronizer with NetworkRigidBody, as it doesn't participate in rollback it will end up stepping faster than other nodes.
+
+
 
 To make use of NetworkRigidBody you need to:
 
-1. Configure your RollbackSynchronizer or StateSynchronizer to include the NetworkRIgidBodies `physics_state` as a state property.
+1. Configure your RollbackSynchronizer to include the NetworkRIgidBodies `physics_state` as a state property.
 2. Move physics-related logic from `_physics_process` to `_physics_rollback_tick`.
 
 ![[network-rigid-body.png]]
