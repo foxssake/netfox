@@ -79,6 +79,7 @@ var _states := _PropertyHistoryBuffer.new()
 var _inputs := _PropertyHistoryBuffer.new()
 var _latest_state_tick: int
 var _earliest_input_tick: int
+var _last_simulated_tick: int
 
 # Maps peers (int) to acknowledged ticks (int)
 var _ackd_state: Dictionary = {}
@@ -112,8 +113,11 @@ func process_settings() -> void:
 	_states.clear()
 	_inputs.clear()
 	_ackd_state.clear()
+
 	_latest_state_tick = NetworkTime.tick - 1
 	_earliest_input_tick = NetworkTime.tick
+	_last_simulated_tick = NetworkTime.tick - 1
+
 	_next_full_state_tick = NetworkTime.tick
 	_next_diff_ack_tick = NetworkTime.tick
 
@@ -357,7 +361,6 @@ func _prepare_tick(tick: int) -> void:
 	# Save data for input prediction
 	_has_input = retrieved_tick != -1
 	_input_tick = retrieved_tick
-	_is_predicted_tick = not _inputs.has(tick)
 
 	# Reset the set of simulated and ignored nodes
 	_simset.clear()
@@ -369,21 +372,36 @@ func _prepare_tick(tick: int) -> void:
 			NetworkRollback.notify_simulated(node)
 
 func _can_simulate(node: Node, tick: int) -> bool:
-	if not enable_prediction and not _inputs.has(tick):
-		# Don't simulate if prediction is not allowed and input is unknown
+	if not enable_prediction and _is_predicted_tick_for(node, tick):
+		# Don't simulate if prediction is not allowed and tick is predicted
 		return false
 	if NetworkRollback.is_mutated(node, tick):
 		# Mutated nodes are always resimulated
 		return true
+	if input_properties.is_empty():
+		# If we're running inputless and own the node, simulate it if we haven't
+		if node.is_multiplayer_authority():
+			return tick > _last_simulated_tick
+		# If we're running inputless and don't own the node, only run as prediction
+		return enable_prediction
 	if node.is_multiplayer_authority():
 		# Simulate from earliest input
 		# Don't simulate frames we don't have input for
-		return tick >= _earliest_input_tick
+		return tick >= _earliest_input_tick and _inputs.has(tick)
 	else:
 		# Simulate ONLY if we have state from server
 		# Simulate from latest authorative state - anything the server confirmed we don't rerun
 		# Don't simulate frames we don't have input for
-		return tick >= _latest_state_tick
+		return tick >= _latest_state_tick and _inputs.has(tick)
+
+func _is_predicted_tick_for(node: Node, tick: int) -> bool:
+	if input_properties.is_empty():
+		# We're running without inputs
+		# It's only predicted if we don't own the node
+		return not node.is_multiplayer_authority()
+	else:
+		# We have input properties, it's only predicted if we don't have the input for the tick
+		return not _inputs.has(tick)
 
 func _process_tick(tick: int) -> void:
 	# Simulate rollback tick
@@ -397,6 +415,7 @@ func _process_tick(tick: int) -> void:
 			continue
 
 		var is_fresh := _freshness_store.is_fresh(node, tick)
+		_is_predicted_tick = _is_predicted_tick_for(node, tick)
 		NetworkRollback.process_rollback(node, NetworkTime.ticktime, tick, is_fresh)
 
 		if _skipset.has(node):
@@ -407,12 +426,13 @@ func _process_tick(tick: int) -> void:
 
 func _record_tick(tick: int) -> void:
 	# Broadcast state we own
-	if not _auth_state_property_entries.is_empty() and not _is_predicted_tick:
+	if not _auth_state_property_entries.is_empty():
 		var full_state := _PropertySnapshot.new()
 
 		for property in _auth_state_property_entries:
 			if _can_simulate(property.node, tick - 1) \
 				and not _skipset.has(property.node) \
+				and not _is_predicted_tick_for(property.node, tick - 1) \
 				or NetworkRollback.is_mutated(property.node, tick - 1):
 				# Only broadcast if we've simulated the node
 				# NOTE: _can_simulate checks mutations, but to override _skipset
@@ -491,6 +511,9 @@ func _record_tick(tick: int) -> void:
 			var record_state := _PropertySnapshot.extract(record_properties)
 
 			_states.set_snapshot(tick, merge_state.merge(record_state))
+
+	# Ack simulation for tick
+	_last_simulated_tick = maxi(_last_simulated_tick, tick - 1)
 
 	# Push metrics
 	NetworkPerformance.push_rollback_nodes_simulated(_simset.size())
