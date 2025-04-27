@@ -30,7 +30,7 @@ func _snapshot_space(tick: int) -> void:
 	collision_objects_snapshots[tick] = rid_states
 
 func _rollback_space(tick) -> void:
-	if snapshots.has(tick):
+	if collision_objects_snapshots.has(tick):
 		var rid_states = collision_objects_snapshots[tick]
 		for rid in rid_states.keys():
 			set_body_states(rid, rid_states[rid])
