@@ -11,10 +11,6 @@ extends CharacterBody3D
 # Get the gravity from the project settings to be synced with RigidBody nodes.
 var gravity = ProjectSettings.get_setting(&"physics/3d/default_gravity")
 
-var _last_simulated_tick := 0
-
-static var _logger := _NetfoxLogger.new("npc", "npc")
-
 func _get_rollback_state_properties() -> Array:
 	return [
 		"position",

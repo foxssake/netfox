@@ -372,12 +372,6 @@ func _prepare_tick(tick: int) -> void:
 			NetworkRollback.notify_simulated(node)
 
 func _can_simulate(node: Node, tick: int) -> bool:
-	# TODO:
-	# - If inputless
-	# 	- If node is owned, simulate if there's no recorded state
-	# 	- If node is not owned, simulate as predicted if there's no received state
-	# Record if node was simulated and owned
-	
 	if not enable_prediction and _is_predicted_tick_for(node, tick):
 		# Don't simulate if prediction is not allowed and tick is predicted
 		return false
