@@ -5,7 +5,6 @@ class_name PhysicsDriver3D
 # Requires a custom build of Godot with https://github.com/godotengine/godot/pull/76462
 
 # Maps ticks ( int ) to global snapshots ( Dictionary<RID, Array> )
-var collision_objects_snapshots: Dictionary = {}
 var scene_collision_objects: Array = []
 
 func _init_physics_space() -> void:
@@ -27,11 +26,11 @@ func _snapshot_space(tick: int) -> void:
 		var rid = element.get_rid()
 		rid_states[rid] = get_body_states(rid)
 
-	collision_objects_snapshots[tick] = rid_states
+	snapshots[tick] = rid_states
 
 func _rollback_space(tick) -> void:
-	if collision_objects_snapshots.has(tick):
-		var rid_states = collision_objects_snapshots[tick]
+	if snapshots.has(tick):
+		var rid_states = snapshots[tick]
 		for rid in rid_states.keys():
 			set_body_states(rid, rid_states[rid])
 
@@ -56,13 +55,13 @@ func scan_tree():
 
 func get_all_children(in_node: Node) -> Array:
 	var nodes = []
-	nodes = in_node.find_children("*", "CollisionObject3D", true, false)
+	nodes = in_node.find_children("*", "PhysicsBody3D", true, false)
 	return nodes
 
 func node_added(node: Node) -> void:
-	if node is CollisionObject3D:
+	if node is PhysicsBody3D:
 		scene_collision_objects.append(node)
 
 func node_removed(node: Node) -> void:
-	if node is CollisionObject3D:
+	if node is PhysicsBody3D:
 		scene_collision_objects.erase(node)

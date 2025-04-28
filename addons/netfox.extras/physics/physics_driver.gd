@@ -7,7 +7,6 @@ class_name PhysicsDriver
 
 var physics_space: RID
 var snapshots: Dictionary = {}
-#var snapshots: Dictionary[int, PackedByteArray] = {}
 
 # Number of physics steps to take per network tick
 @export var physics_factor: int = 2
