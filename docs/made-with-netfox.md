@@ -11,7 +11,7 @@ arcade classics. Players fly around with one simple objective: burst opponentsâ€
 bubbles before they burst yours. Collect powerups and out-maneuver opponents
 for fast-paced, addictive fun!
 
-[:simple-steam: Steam](https://store.steampowered.com/app/3180520/Bubble_Battle/) | 
+[:simple-steam: Steam](https://store.steampowered.com/app/3180520/Bubble_Battle/)
 
 ## PL4no-B
 
