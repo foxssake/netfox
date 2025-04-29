@@ -1,4 +1,4 @@
-# Input gathering tips and trick
+# Input gathering tips and tricks
 
 In the [Responsive player movement] tutorial, we've seen a basic example on how
 to gather input. This tutorial will elaborate on how input gathering works
@@ -58,20 +58,12 @@ visualize one such case on a timeline:
 
 concise "Player Input" as P
 
-@0
-P is Empty
-
-@1
-P is Up
-
-@3
-P is Right: Tick
-
-@4
-P is Up
-
-@6
-P is Right: Tick
+@P
+0 is Empty
+1 is Up
+3 is Right: Tick
+4 is Up
+6 is Right: Tick
 ```
 
 Even though the player alternated between pressing Up and Right, only Right was
