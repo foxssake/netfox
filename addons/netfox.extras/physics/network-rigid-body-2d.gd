@@ -26,7 +26,7 @@ func _notification(notification: int):
 func get_state() -> Array:
 	var body_state: Array = [Vector3.ZERO, Quaternion.IDENTITY, Vector3.ZERO, Vector3.ZERO, false]
 	body_state[ORIGIN] = direct_state.transform.origin
-	body_state[QUAT] = direct_state.transform.basis.get_rotation_quaternion()
+	body_state[ROT] = direct_state.transform.get_rotation()
 	body_state[LIN_VEL] = direct_state.linear_velocity
 	body_state[ANG_VEL] = direct_state.angular_velocity
 	body_state[SLEEPING] = direct_state.sleeping
