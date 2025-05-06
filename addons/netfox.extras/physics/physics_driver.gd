@@ -43,15 +43,19 @@ func on_process_tick(_tick: int) -> void:
 		
 func after_tick_loop() -> void:
 	#remove old snapshots
+	snapshots.sort()
 	for i in snapshots.keys():
 		if i < NetworkRollback.history_start:
 			snapshots.erase(i)
+		else:
+			break
 
 func step_physics(_delta: float) -> void:
 	# Break up physics into smaller steps if needed
 	var frac_delta = _delta / physics_factor
+	var rollback_participants = get_tree().get_nodes_in_group("network_rigid_body")
 	for i in range(physics_factor):
-		for net_rigid_body in get_tree().get_nodes_in_group("network_rigid_body"):
+		for net_rigid_body in rollback_participants:
 			net_rigid_body._physics_rollback_tick(frac_delta, NetworkTime.tick)
 
 		_physics_step(frac_delta)
