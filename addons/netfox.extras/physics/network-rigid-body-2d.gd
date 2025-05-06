@@ -33,8 +33,7 @@ func get_state() -> Array:
 	return body_state
 
 func set_state(remote_state: Array) -> void:
-	direct_state.transform.origin = remote_state[ORIGIN]
-	direct_state.transform.basis = Basis(remote_state[QUAT])
+	direct_state.transform = Transform2D(remote_state[ROT], remote_state[ORIGIN])
 	direct_state.linear_velocity = remote_state[LIN_VEL]
 	direct_state.angular_velocity = remote_state[ANG_VEL]
 	direct_state.sleeping = remote_state[SLEEPING]
