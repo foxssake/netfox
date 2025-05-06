@@ -6,9 +6,6 @@ under the hood, and how that affects some common input patterns in games.
 
 ## Understanding input gathering
 
-A brief explanation is included here, but make sure to read about the [network
-tick loop] for a full understanding.
-
 To have a shared notion of time, *netfox* provides its own time synchronization
 and a *tick loop*. The *tick loop* will check how much time has passed since
 the last network tick, and will run as many ticks as needed to catch up. Most
@@ -24,6 +21,8 @@ run one after the other.
 
 Instead, ticks are gathered *before* each tick loop. This explains why special
 measures need to be taken in some cases.
+
+To read more about *netfox*'s *tick loop*, see [network tick loop].
 
 ## Continuous inputs
 
@@ -59,8 +58,7 @@ visualize one such case on a timeline:
 concise "Player Input" as P
 
 @P
-0 is Empty
-1 is Up
+0 is Up
 3 is Right: Tick
 4 is Up
 6 is Right: Tick
@@ -123,7 +121,9 @@ These are considered *one-off inputs*.
 
 Godot provides methods such as [Input.is_action_just_pressed()] to check if a
 given input was just pressed. Counterintuitively, this does not work as
-expected - let's see it on a timeline:
+expected - the method recognizes the current frame ( `_process` ) or physics
+tick ( `_physics_process` ), but not *netfox* ticks. Let's see it on a
+timeline:
 
 ```puml
 @startuml
@@ -221,6 +221,10 @@ func _reset(_dt: float, _t: int) -> void:
 By resetting the action after every tick, the `is_jumping` variable will be
 true for *at most* a single tick, when the player pressed the appropriate
 button.
+
+!!!tip
+    The same principle of using buffer variables and accumulating input samples
+    can be implemented in the `_input()` callback as well.
 
 
 [Responsive player movement]: ./responsive-player-movement.md
