@@ -9,7 +9,7 @@ var scene_collision_objects: Array = []
 var collision_objects_snapshots: Dictionary[int, Dictionary] = {}
 
 func _init_physics_space() -> void:
-	physics_space = get_viewport().world_2D.space
+	physics_space = get_viewport().world_2d.space
 	PhysicsServer2D.space_set_active(physics_space, false)
 
 	get_tree().node_added.connect(node_added)
