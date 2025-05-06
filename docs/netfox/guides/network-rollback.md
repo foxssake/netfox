@@ -101,6 +101,11 @@ stop
 @enduml
 ```
 
+The rollback tick loop is triggered in the `NetworkTime.after_tick_loop`
+signal. Since the rollback tick loop is the first thing connected to it, in
+practice the rollback will run *before* any user code connected to the
+`after_tick_loop` signal.
+
 ## Conditional simulation
 
 During rollback, *NetworkRollback* loops over the full range of ticks to
