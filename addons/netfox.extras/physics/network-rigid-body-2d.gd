@@ -13,7 +13,7 @@ var physics_state: Array:
 
 enum {
 	ORIGIN,
-	QUAT,
+	ROT,
 	LIN_VEL,
 	ANG_VEL,
 	SLEEPING
