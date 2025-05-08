@@ -33,6 +33,10 @@ func _rollback_space(tick) -> void:
 		var rid_states = snapshots[tick]
 		for rid in rid_states.keys():
 			set_body_states(rid, rid_states[rid])
+		
+		for body in scene_collision_objects:
+			if body is CharacterBody3D:
+				body.force_update_transform()
 
 
 func get_body_states(rid: RID) -> Array:
