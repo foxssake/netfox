@@ -23,9 +23,11 @@ func _physics_step(delta) -> void:
 func _snapshot_space(tick: int) -> void:
 	var rid_states: Dictionary[RID, Array] = {}
 	for element in scene_collision_objects:
+		if element is CharacterBody2D:
+			element.force_update_transform() # force colliders to update
+		
 		var rid = element.get_rid()
 		rid_states[rid] = get_body_states(rid)
-
 	snapshots[tick] = rid_states
 
 func _rollback_space(tick) -> void:
