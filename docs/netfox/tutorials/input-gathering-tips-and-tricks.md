@@ -19,10 +19,11 @@ Since multiple ticks may be ran in a single tick loop, it makes no sense to
 gather input for each tick - the hardware wouldn't update, since the ticks are
 run one after the other.
 
-Instead, ticks are gathered *before* each tick loop. This explains why special
-measures need to be taken in some cases.
+Instead, input is gathered *before* each tick loop, and then reused for each
+tick in the loop. This explains why special measures need to be taken in some
+cases.
 
-To read more about *netfox*'s *tick loop*, see [network tick loop].
+To read more about *netfox*'s *tick loop*, see the [Network tick loop].
 
 ## Continuous inputs
 
@@ -141,26 +142,6 @@ Even though the input was pressed on frame 2, input gathering only ran on frame
 *just pressed* check will only register if the player manages to press the
 button on the exact same frame as the input gathering is running.
 
-This can be solved by sampling the input on each `_process()`, and setting the
-corresponding variable to true:
-
-```gdscript
-extends BaseNetInput
-class_name PlayerInput
-
-var is_jumping: bool = false
-
-var _jumping_buffer: bool = false
-
-func _process(_dt: float) -> void:
-  if Input.is_action_just_pressed("move_jump"):
-    _jumping_buffer = true
-
-func _gather() -> void:
-  is_jumping = _jumping_buffer
-  _jumping_buffer = false
-```
-
 A different issue pops up when the game slows down a bit, and *netfox* needs to
 run multiple ticks in a single loop to catch up. Let's visualize this with a
 timeline, showing both the user input in real-time, and what netfox records as
@@ -192,35 +173,32 @@ single recorded input was used for each tick in the tick loop. Resulting in the
 player trying to jump for multiple ticks, even though they pressed the button
 only on a single frame.
 
-To make sure that one-off actions are really just one-off, their corresponding
-input can be reset after each network tick:
+To solve both of these issues, *one-off inputs* can be buffered similarly to
+*continuous inputs*. The difference is that we reset the input value after it's
+gathered - this way, the input will be true for *at most* a single tick:
 
 ```gdscript
 extends BaseNetInput
 class_name PlayerInput
 
 var is_jumping: bool = false
+var _is_jumping_buffer: bool = false
 
-var _jumping_buffer: bool = false
-
-func _ready() -> void:
-  NetworkTime.after_tick.connect(_reset, CONNECT_DEFERRED) # TODO: Check if deferred is needed
+func _ready():
+  super()
+  NetworkTime.after_tick.connect(func(_dt, _t): _reset())
 
 func _process(_dt: float) -> void:
   if Input.is_action_just_pressed("move_jump"):
-    _jumping_buffer = true
+    _is_jumping_buffer = true
 
-func _gather() -> void:
-  is_jumping = _jumping_buffer
-  _jumping_buffer = false
+func _gather():
+  is_jumping = _is_jumping_buffer
+  _is_jumping_buffer = false
 
-func _reset(_dt: float, _t: int) -> void:
+func _reset():
   is_jumping = false
 ```
-
-By resetting the action after every tick, the `is_jumping` variable will be
-true for *at most* a single tick, when the player pressed the appropriate
-button.
 
 !!!tip
     The same principle of using buffer variables and accumulating input samples
@@ -228,6 +206,6 @@ button.
 
 
 [Responsive player movement]: ./responsive-player-movement.md
-[network tick loop]: ../guides/network-time.md#network-tick-loop
+[Network tick loop]: ../guides/network-time.md#network-tick-loop
 [Input.is_action_just_pressed()]: https://docs.godotengine.org/en/stable/classes/class_input.html#class-input-method-is-action-just-pressed
 
