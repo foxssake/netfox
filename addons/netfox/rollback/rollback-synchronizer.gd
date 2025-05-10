@@ -361,6 +361,7 @@ func _prepare_tick(tick: int) -> void:
 	# Save data for input prediction
 	_has_input = retrieved_tick != -1
 	_input_tick = retrieved_tick
+	_is_predicted_tick = _is_predicted_tick_for(null, tick)
 
 	# Reset the set of simulated and ignored nodes
 	_simset.clear()
@@ -394,8 +395,9 @@ func _can_simulate(node: Node, tick: int) -> bool:
 		# Don't simulate frames we don't have input for
 		return tick >= _latest_state_tick and _inputs.has(tick)
 
+# `node` can be set to null, in case we're not simulating a specific node
 func _is_predicted_tick_for(node: Node, tick: int) -> bool:
-	if input_properties.is_empty():
+	if input_properties.is_empty() and node != null:
 		# We're running without inputs
 		# It's only predicted if we don't own the node
 		return not node.is_multiplayer_authority()
