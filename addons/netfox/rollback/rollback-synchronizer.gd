@@ -409,14 +409,11 @@ func _broadcast_tick(tick: int):
 	if _get_owned_state_props().is_empty() or _is_predicted_tick:
 		return
 
-	# Record properties we own
+	# Include properties we own
 	var full_state := _PropertySnapshot.new()
 
 	for property in _get_owned_state_props():
-		if _can_simulate(property.node, tick - 1) \
-			and not _skipset.has(property.node) \
-			and not _is_predicted_tick_for(property.node, tick - 1) \
-			or NetworkRollback.is_mutated(property.node, tick - 1):
+		if _should_broadcast(property, tick):
 			# Only broadcast if we've simulated the node
 			# NOTE: _can_simulate checks mutations, but to override _skipset
 			# we check a second time
@@ -464,6 +461,15 @@ func _broadcast_tick(tick: int):
 				NetworkPerformance.push_full_state(_diff_state_encoder.get_full_snapshot())
 				NetworkPerformance.push_sent_state(_diff_state_encoder.get_encoded_snapshot())
 
+func _should_broadcast(property: PropertyEntry, tick: int) -> bool:
+	if NetworkRollback.is_mutated(property.node, tick - 1):
+		return true
+	if _skipset.has(property.node):
+		return false
+	if _is_predicted_tick_for(property.node, tick - 1):
+		return false
+	return _can_simulate(property.node, tick - 1)
+
 func _send_full_state(tick: int, peer: int = 0) -> void:
 	var full_state_snapshot := _states.get_snapshot(tick).as_dictionary()
 	var full_state_data := _full_state_encoder.encode(tick, _get_owned_state_props())
@@ -479,6 +485,26 @@ func _send_full_state(tick: int, peer: int = 0) -> void:
 		NetworkPerformance.push_full_state(full_state_snapshot)
 		NetworkPerformance.push_sent_state(full_state_snapshot)
 
+func _should_record_tick(tick: int) -> bool:
+	if _get_recorded_state_props().is_empty():
+		# Don't record tick if there's no props to record
+		return false
+
+	if _get_recorded_state_props().any(func(pe):
+		return NetworkRollback.is_mutated(pe.node, tick - 1)):
+		# If there's any node that was mutated, there's something to record
+		return true
+
+	# Otherwise, record only if we don't have authoritative state for the tick
+	return tick > _latest_state_tick
+
+func _should_record_property(property_entry: PropertyEntry) -> bool:
+	if NetworkRollback.is_mutated(property_entry.node):
+		return true
+	if _skipset.has(property_entry.node):
+		return false
+	return true
+
 func _record_tick(tick: int):
 	# Record state for specified tick ( current + 1 )
 
@@ -486,24 +512,27 @@ func _record_tick(tick: int):
 	var is_mutated := _get_recorded_state_props().any(func(pe):
 		return NetworkRollback.is_mutated(pe.node, tick - 1))
 
-	# Record if there's any properties to record and we're past the latest known state OR something
-	# was mutated
-	if not _get_recorded_state_props().is_empty() and (tick > _latest_state_tick or is_mutated):
-		if _skipset.is_empty():
-			_states.set_snapshot(tick, _PropertySnapshot.extract(_get_recorded_state_props()))
-		else:
-			var record_properties = _get_recorded_state_props()\
-				.filter(func(pe): return \
-					not _skipset.has(pe.node) or \
-					NetworkRollback.is_mutated(pe.node, tick - 1))
-
-			var merge_state := _states.get_history(tick - 1)
-			var record_state := _PropertySnapshot.extract(record_properties)
-
-			_states.set_snapshot(tick, merge_state.merge(record_state))
+	var record_state := _PropertySnapshot.extract(_get_state_props_to_record(tick))
+	if record_state.size():
+		var merge_state := _states.get_history(tick - 1)
+		_states.set_snapshot(tick, merge_state.merge(record_state))
 
 	# Push metrics
 	NetworkPerformance.push_rollback_nodes_simulated(_simset.size())
+
+func _get_state_props_to_record(tick: int) -> Array[PropertyEntry]:
+	if not _should_record_tick(tick):
+		return []
+	if _skipset.is_empty():
+		return _get_recorded_state_props()
+
+	var result: Array[PropertyEntry] = []
+	for property_entry in _get_recorded_state_props():
+		if NetworkRollback.is_mutated(property_entry.node, tick - 1):
+			result.append(property_entry)
+		elif not _skipset.has(property_entry.node):
+			result.append(property_entry)
+	return _get_recorded_state_props().filter(func(pe): return _should_record_property(pe))
 
 func _after_loop() -> void:
 	_earliest_input_tick = NetworkTime.tick

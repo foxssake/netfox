@@ -1,6 +1,15 @@
 extends RefCounted
 
 var enable_prediction: bool = false
+var input_properties: Array[String]
+
+var _last_simulated_tick: int = 0
+var _earliest_input_tick: int = 0
+var _latest_state_tick: int = 0
+
+var _skipset: _Set = _Set.new()
+
+var _inputs := _PropertyHistoryBuffer.new()
 
 func should_simulate(node: Node, tick: int) -> bool:
 	if not enable_prediction and _is_predicted_tick_for(node, tick):
