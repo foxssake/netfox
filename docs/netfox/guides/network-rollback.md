@@ -82,16 +82,17 @@ start
 while (Ticks to simulate)  is (>0)
   :NetworkTime.before_tick;
   :NetworkTime.on_tick;
-  :NetworkRollback.before_loop;
-  while(Rollback)
-    :NetworkRollback.on_prepare_tick;
-    :NetworkRollback.after_prepare_tick;
-    :NetworkRollback.on_process_tick;
-    :NetworkRollback.on_record_tick;
-  endwhile
-  :NetworkRollback.after_loop;
   :NetworkTime.after_tick;
-endwhile (0)
+endwhile
+
+:NetworkRollback.before_loop;
+while(Rollback)
+  :NetworkRollback.on_prepare_tick;
+  :NetworkRollback.after_prepare_tick;
+  :NetworkRollback.on_process_tick;
+  :NetworkRollback.on_record_tick;
+endwhile
+:NetworkRollback.after_loop;
 
 :NetworkTime.after_tick_loop;
 
@@ -99,6 +100,11 @@ stop
 
 @enduml
 ```
+
+The rollback tick loop is triggered in the `NetworkTime.after_tick_loop`
+signal. Since the rollback tick loop is the first thing connected to it, in
+practice the rollback will run *before* any user code connected to the
+`after_tick_loop` signal.
 
 ## Conditional simulation
 
