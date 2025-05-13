@@ -33,14 +33,13 @@ func _update_bodies(tick: int):
 	
 	var prev: Array = _overlapping_bodies.get_snapshot(tick - 1)
 	
-	if current.hash() != prev.hash():
-		for body in current:
-			if not prev.has(body):
-				rollback_body_entered.emit(body, tick)
-		
-		for body in prev:
-			if not current.has(body):
-				rollback_body_exited.emit(body, tick)
+	for body in current:
+		if not prev.has(body):
+			rollback_body_entered.emit(body, tick)
+	
+	for body in prev:
+		if not current.has(body):
+			rollback_body_exited.emit(body, tick)
 	
 	_overlapping_bodies.trim(NetworkRollback.history_start)
 
@@ -56,13 +55,12 @@ func _update_areas(tick: int):
 	
 	var prev: Array = _overlapping_areas.get_snapshot(tick - 1)
 	
-	if current.hash() != prev.hash():
-		for body in current:
-			if not prev.has(body):
-				rollback_area_entered.emit(body, tick)
-		
-		for body in prev:
-			if not current.has(body):
-				rollback_area_exited.emit(body, tick)
+	for body in current:
+		if not prev.has(body):
+			rollback_area_entered.emit(body, tick)
+	
+	for body in prev:
+		if not current.has(body):
+			rollback_area_exited.emit(body, tick)
 	
 	_overlapping_areas.trim(NetworkRollback.history_start)
