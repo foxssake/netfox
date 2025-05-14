@@ -15,27 +15,27 @@ var _overlapping_bodies := _HistoryBuffer.new()
 var _overlapping_areas := _HistoryBuffer.new()
 
 
-## Returns the result of [code]Area3D.get_overlapping_areas()[/code] for [param tick]
+## Returns the result of [method Area3D.get_overlapping_areas] at [param tick]
 func rollback_get_overlapping_areas(tick: int) -> Array[Area3D]:
 	return _overlapping_areas.get_snapshot(tick) if _overlapping_areas.has(tick) else []
 
-## Returns the result of [code]Area3D.get_overlapping_bodies()[/code] for [param tick]
+## Returns the result of [method Area3D.get_overlapping_bodies] at [param tick]
 func rollback_get_overlapping_bodies(tick: int) -> Array[Node3D]:
 	return _overlapping_bodies.get_snapshot(tick) if _overlapping_bodies.has(tick) else []
 
-## Returns the result of [code]Area3D.has_overlapping_areas()[/code] for [param tick]
+## Returns the result of [method Area3D.has_overlapping_areas] at [param tick]
 func rollback_has_overlapping_areas(tick: int) -> bool:
 	return rollback_get_overlapping_areas(tick).size() > 0
 
-## Returns the result of [code]Area3D.has_overlapping_bodies()[/code] for [param tick]
+## Returns the result of [method Area3D.has_overlapping_bodies] at [param tick]
 func rollback_has_overlapping_bodies(tick: int) -> bool:
 	return rollback_get_overlapping_bodies(tick).size() > 0
 
-## Returns the result of [code]Area3D.overlaps_area(area)[/code] for [param tick]
+## Returns the result of [method Area3D.overlaps_area] at [param tick]
 func rollback_overlaps_area(area: Area3D, tick: int) -> bool:
 	return rollback_get_overlapping_areas(tick).has(area)
 
-## Returns the result of [code]Area3D.overlaps_body(body)[/code] for [param tick]
+## Returns the result of [method Area3D.overlaps_body] at [param tick]
 func rollback_overlaps_body(body: Node3D, tick: int) -> bool:
 	return rollback_get_overlapping_bodies(tick).has(body)
 
