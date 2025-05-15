@@ -414,9 +414,6 @@ func _broadcast_tick(tick: int):
 
 	for property in _get_owned_state_props():
 		if _should_broadcast(property, tick):
-			# Only broadcast if we've simulated the node
-			# NOTE: _can_simulate checks mutations, but to override _skipset
-			# we check a second time
 			full_state.set_value(property.to_string(), property.get_value())
 
 	_on_transmit_state.emit(full_state, tick)
@@ -462,6 +459,9 @@ func _broadcast_tick(tick: int):
 				NetworkPerformance.push_sent_state(_diff_state_encoder.get_encoded_snapshot())
 
 func _should_broadcast(property: PropertyEntry, tick: int) -> bool:
+	# Only broadcast if we've simulated the node
+	# NOTE: _can_simulate checks mutations, but to override _skipset
+	# we check first
 	if NetworkRollback.is_mutated(property.node, tick - 1):
 		return true
 	if _skipset.has(property.node):
