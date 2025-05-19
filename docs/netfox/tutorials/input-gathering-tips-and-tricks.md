@@ -197,7 +197,7 @@ func _gather():
   _is_jumping_buffer = false
 
 func _reset():
-  is_jumping = false
+  _is_jumping_buffer = false
 ```
 
 !!!tip
