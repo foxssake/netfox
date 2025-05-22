@@ -77,18 +77,18 @@ func _update_areas(tick: int):
 	_overlapping_areas.set_snapshot(tick, current)
 	
 	if not _overlapping_areas.has(tick - 1):
-		for body in current:
-			rollback_body_entered.emit(body, tick)
+		for area in current:
+			rollback_area_entered.emit(area, tick)
 		return
 	
 	var prev: Array = _overlapping_areas.get_snapshot(tick - 1)
 	
-	for body in current:
-		if not prev.has(body):
-			rollback_area_entered.emit(body, tick)
+	for area in current:
+		if not prev.has(area):
+			rollback_area_entered.emit(area, tick)
 	
-	for body in prev:
-		if not current.has(body):
-			rollback_area_exited.emit(body, tick)
+	for area in prev:
+		if not current.has(area):
+			rollback_area_exited.emit(area, tick)
 	
 	_overlapping_areas.trim(NetworkRollback.history_start)
