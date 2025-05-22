@@ -41,6 +41,8 @@ func rollback_overlaps_body(body: Node2D, tick: int) -> bool:
 
 
 func _notification(what: int):
+	# Use notification instead of _ready, so users can write their own _ready 
+	# callback without having to call super()
 	if what == NOTIFICATION_READY:
 		NetworkTime.on_tick.connect(_tick)
 
