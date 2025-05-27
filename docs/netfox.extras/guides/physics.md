@@ -4,7 +4,7 @@ At the time of writing official Godot releases have no support for manually step
 
 ## Known Options
 
-- **Godot with Stepping PR**: Build Godot manually with [this pull request](https://github.com/godotengine/godot/pull/76462) applied. See the [Godot documentation](https://docs.godotengine.org/en/stable/contributing/development/compiling/index.html) for compilation instructions.
+- **Godot with Stepping PR**: Build the Godot editor and relevant export templates manually with [this pull request](https://github.com/godotengine/godot/pull/76462) applied. See the [Godot documentation](https://docs.godotengine.org/en/stable/contributing/development/compiling/index.html) for compilation instructions.
 - **Rapier Physics Addon**: A third-party 2D/3D physics engine for Godot with stepping support. Visit [godot.rapier.rs](https://godot.rapier.rs/) for details.
 - **Blazium Fork**: A Godot fork with enhanced physics features, including stepping. Learn more at [blazium.app](https://blazium.app/).
 
