@@ -238,7 +238,54 @@ considered a <em>continuous</em> input.</p>
 </code></pre></div>
 <p>However, consider what happens if inputs change between two ticks. Let's
 visualize one such case on a timeline:</p>
-<div class='puml-container'><div class="puml light" style="display: block"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" data-diagram-type="TIMING" height="109px" preserveAspectRatio="xMidYMid meet" style="width:387px;height:109px;background:#FFFFFF;" version="1.1" viewBox="0 0 387 109" width="387px" zoomAndPan="magnify" class="diagram"><defs/><g><line style="stroke:#333333;stroke-width:0.5;" x1="10" x2="10" y1="10" y2="80.2656"/><line style="stroke:#333333;stroke-width:0.5;" x1="370" x2="370" y1="10" y2="80.2656"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3.0,5.0;" x1="15" x2="15" y1="10" y2="80.2656"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3.0,5.0;" x1="65" x2="65" y1="10" y2="80.2656"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3.0,5.0;" x1="115" x2="115" y1="10" y2="80.2656"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3.0,5.0;" x1="165" x2="165" y1="10" y2="80.2656"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3.0,5.0;" x1="215" x2="215" y1="10" y2="80.2656"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3.0,5.0;" x1="265" x2="265" y1="10" y2="80.2656"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3.0,5.0;" x1="315" x2="315" y1="10" y2="80.2656"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3.0,5.0;" x1="365" x2="365" y1="10" y2="80.2656"/><line style="stroke:#333333;stroke-width:0.5;" x1="10" x2="370" y1="10" y2="10"/><text fill="#333333" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="96.7627" x="15" y="22.9951">Player Input</text><line style="stroke:#333333;stroke-width:0.5;" x1="10" x2="112.7627" y1="27.2969" y2="27.2969"/><line style="stroke:#333333;stroke-width:0.5;" x1="112.7627" x2="122.7627" y1="27.2969" y2="10"/><polygon fill="#E2E2F0" points="27,46.2656,153,46.2656,165,58.2656,153,70.2656,27,70.2656,15,58.2656" style="stroke:#006400;stroke-width:1.5;"/><polygon fill="#E2E2F0" points="177,46.2656,203,46.2656,215,58.2656,203,70.2656,177,70.2656,165,58.2656" style="stroke:#006400;stroke-width:1.5;"/><polygon fill="#E2E2F0" points="227,46.2656,303,46.2656,315,58.2656,303,70.2656,227,70.2656,215,58.2656" style="stroke:#006400;stroke-width:1.5;"/><polygon fill="#E2E2F0" points="327,46.2656,365,46.2656,365,70.2656,327,70.2656,315,58.2656" style="stroke:#E2E2F0;stroke-width:1.5;"/><path d="M365,46.2656 L327,46.2656 L315,58.2656 L327,70.2656 L365,70.2656" fill="#E2E2F0" style="stroke:#006400;stroke-width:1.5;"/><text fill="#333333" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="18.334" x="80.833" y="62.4199">Up</text><text fill="#333333" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="36.2227" x="171.8887" y="62.4199">Right</text><text fill="#333333" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="27.3926" x="177" y="43.4355">Tick</text><text fill="#333333" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="18.334" x="255.833" y="62.4199">Up</text><text fill="#333333" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="36.2227" x="327" y="62.4199">Right</text><text fill="#333333" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="27.3926" x="327" y="43.4355">Tick</text><line style="stroke:#333333;stroke-width:2;" x1="15" x2="15" y1="80.2656" y2="85.2656"/><line style="stroke:#333333;stroke-width:2;" x1="65" x2="65" y1="80.2656" y2="85.2656"/><line style="stroke:#333333;stroke-width:2;" x1="115" x2="115" y1="80.2656" y2="85.2656"/><line style="stroke:#333333;stroke-width:2;" x1="165" x2="165" y1="80.2656" y2="85.2656"/><line style="stroke:#333333;stroke-width:2;" x1="215" x2="215" y1="80.2656" y2="85.2656"/><line style="stroke:#333333;stroke-width:2;" x1="265" x2="265" y1="80.2656" y2="85.2656"/><line style="stroke:#333333;stroke-width:2;" x1="315" x2="315" y1="80.2656" y2="85.2656"/><line style="stroke:#333333;stroke-width:2;" x1="365" x2="365" y1="80.2656" y2="85.2656"/><line style="stroke:#333333;stroke-width:2;" x1="15" x2="365" y1="80.2656" y2="80.2656"/><text fill="#333333" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="6.9985" x="11.5007" y="96.4761">0</text><text fill="#333333" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="6.9985" x="161.5007" y="96.4761">3</text><text fill="#333333" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="6.9985" x="211.5007" y="96.4761">4</text><text fill="#333333" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="6.9985" x="311.5007" y="96.4761">6</text></g></svg></div></div>
+<div class='puml-container'><div class="puml light" style="display: block">520. 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Origin Error</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            position: relative;
+        }
+        h1 {
+            color: #5ca731;
+            text-align: left;
+            margin-left: 20px;
+        }
+        .error-info {
+            text-align: left;
+            margin-left: 20px;
+        }
+        .error-info p:first-child {
+            margin-bottom: 75px;
+        }
+        footer {
+            position: absolute;
+            bottom: 10px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <h1>Origin Unreachable</h1>
+    <div class="error-info">
+        <p>Sorry, we are unable to reach the origin server at the moment. Please try again later.</p>
+        <p><strong>Error ID</strong>: f6449ff6-a994-4ec8-9a40-4945dff31dea</p>
+        <p><strong>Timestamp</strong>: 2025-05-27 14:14:00</p>
+        
+    </div>
+    <footer>Powered by Ezoic</footer>
+</body>
+</html>
+</div></div>
 
 <p>Even though the player alternated between pressing Up and Right, only Right was
 recorded as an input. This is gets worse considering that the player was
@@ -300,7 +347,54 @@ button on the exact same frame as the input gathering is running.</p>
 run multiple ticks in a single loop to catch up. Let's visualize this with a
 timeline, showing both the user input in real-time, and what netfox records as
 input:</p>
-<div class='puml-container'><div class="puml light" style="display: block"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" data-diagram-type="TIMING" height="166px" preserveAspectRatio="xMidYMid meet" style="width:397px;height:166px;background:#FFFFFF;" version="1.1" viewBox="0 0 397 166" width="397px" zoomAndPan="magnify" class="diagram"><defs/><g><line style="stroke:#333333;stroke-width:0.5;" x1="10" x2="10" y1="10" y2="136.5625"/><line style="stroke:#333333;stroke-width:0.5;" x1="370" x2="370" y1="10" y2="136.5625"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3.0,5.0;" x1="15" x2="15" y1="10" y2="136.5625"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3.0,5.0;" x1="65" x2="65" y1="10" y2="136.5625"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3.0,5.0;" x1="115" x2="115" y1="10" y2="136.5625"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3.0,5.0;" x1="165" x2="165" y1="10" y2="136.5625"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3.0,5.0;" x1="215" x2="215" y1="10" y2="136.5625"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3.0,5.0;" x1="265" x2="265" y1="10" y2="136.5625"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3.0,5.0;" x1="315" x2="315" y1="10" y2="136.5625"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3.0,5.0;" x1="365" x2="365" y1="10" y2="136.5625"/><line style="stroke:#333333;stroke-width:0.5;" x1="10" x2="370" y1="10" y2="10"/><text fill="#333333" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="96.7627" x="15" y="22.9951">Player Input</text><line style="stroke:#333333;stroke-width:0.5;" x1="10" x2="112.7627" y1="27.2969" y2="27.2969"/><line style="stroke:#333333;stroke-width:0.5;" x1="112.7627" x2="122.7627" y1="27.2969" y2="10"/><polygon fill="#E2E2F0" points="27,32.2969,153,32.2969,165,44.2969,153,56.2969,27,56.2969,15,44.2969" style="stroke:#006400;stroke-width:1.5;"/><polygon fill="#E2E2F0" points="177,32.2969,203,32.2969,215,44.2969,203,56.2969,177,56.2969,165,44.2969" style="stroke:#006400;stroke-width:1.5;"/><polygon fill="#E2E2F0" points="227,32.2969,365,32.2969,365,56.2969,227,56.2969,215,44.2969" style="stroke:#E2E2F0;stroke-width:1.5;"/><path d="M365,32.2969 L227,32.2969 L215,44.2969 L227,56.2969 L365,56.2969" fill="#E2E2F0" style="stroke:#006400;stroke-width:1.5;"/><text fill="#333333" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="42.8496" x="68.5752" y="48.4512">Empty</text><text fill="#333333" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="34.1016" x="172.9492" y="48.4512">Jump</text><text fill="#333333" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="42.8496" x="227" y="48.4512">Empty</text><line style="stroke:#333333;stroke-width:0.5;" x1="10" x2="370" y1="66.2969" y2="66.2969"/><text fill="#333333" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="121.3652" x="15" y="79.292">Recorded Input</text><line style="stroke:#333333;stroke-width:0.5;" x1="10" x2="137.3652" y1="83.5938" y2="83.5938"/><line style="stroke:#333333;stroke-width:0.5;" x1="137.3652" x2="147.3652" y1="83.5938" y2="66.2969"/><polygon fill="#E2E2F0" points="27,102.5625,153,102.5625,165,114.5625,153,126.5625,27,126.5625,15,114.5625" style="stroke:#006400;stroke-width:1.5;"/><polygon fill="#E2E2F0" points="177,102.5625,303,102.5625,315,114.5625,303,126.5625,177,126.5625,165,114.5625" style="stroke:#006400;stroke-width:1.5;"/><polygon fill="#E2E2F0" points="327,102.5625,365,102.5625,365,126.5625,327,126.5625,315,114.5625" style="stroke:#E2E2F0;stroke-width:1.5;"/><path d="M365,102.5625 L327,102.5625 L315,114.5625 L327,126.5625 L365,126.5625" fill="#E2E2F0" style="stroke:#006400;stroke-width:1.5;"/><text fill="#333333" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="42.8496" x="68.5752" y="118.7168">Empty</text><text fill="#333333" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="34.1016" x="222.9492" y="118.7168">Jump</text><text fill="#333333" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="67.5" x="177" y="99.7324">Start loop</text><text fill="#333333" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="42.8496" x="327" y="118.7168">Empty</text><text fill="#333333" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="58.6992" x="327" y="99.7324">End loop</text><line style="stroke:#333333;stroke-width:2;" x1="15" x2="15" y1="136.5625" y2="141.5625"/><line style="stroke:#333333;stroke-width:2;" x1="65" x2="65" y1="136.5625" y2="141.5625"/><line style="stroke:#333333;stroke-width:2;" x1="115" x2="115" y1="136.5625" y2="141.5625"/><line style="stroke:#333333;stroke-width:2;" x1="165" x2="165" y1="136.5625" y2="141.5625"/><line style="stroke:#333333;stroke-width:2;" x1="215" x2="215" y1="136.5625" y2="141.5625"/><line style="stroke:#333333;stroke-width:2;" x1="265" x2="265" y1="136.5625" y2="141.5625"/><line style="stroke:#333333;stroke-width:2;" x1="315" x2="315" y1="136.5625" y2="141.5625"/><line style="stroke:#333333;stroke-width:2;" x1="365" x2="365" y1="136.5625" y2="141.5625"/><line style="stroke:#333333;stroke-width:2;" x1="15" x2="365" y1="136.5625" y2="136.5625"/><text fill="#333333" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="6.9985" x="11.5007" y="152.7729">0</text><text fill="#333333" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="6.9985" x="161.5007" y="152.7729">3</text><text fill="#333333" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="6.9985" x="211.5007" y="152.7729">4</text><text fill="#333333" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="6.9985" x="311.5007" y="152.7729">6</text></g></svg></div></div>
+<div class='puml-container'><div class="puml light" style="display: block">520. 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Origin Error</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            position: relative;
+        }
+        h1 {
+            color: #5ca731;
+            text-align: left;
+            margin-left: 20px;
+        }
+        .error-info {
+            text-align: left;
+            margin-left: 20px;
+        }
+        .error-info p:first-child {
+            margin-bottom: 75px;
+        }
+        footer {
+            position: absolute;
+            bottom: 10px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <h1>Origin Unreachable</h1>
+    <div class="error-info">
+        <p>Sorry, we are unable to reach the origin server at the moment. Please try again later.</p>
+        <p><strong>Error ID</strong>: d872b383-1905-4792-b1e5-26902f649ce6</p>
+        <p><strong>Timestamp</strong>: 2025-05-27 14:14:00</p>
+        
+    </div>
+    <footer>Powered by Ezoic</footer>
+</body>
+</html>
+</div></div>
 
 <p>The player pressed Jump on a single frame, which was recorded. Then, this
 single recorded input was used for each tick in the tick loop. Resulting in the
