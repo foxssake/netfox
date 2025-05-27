@@ -35,7 +35,7 @@ func _rollback_space(tick) -> void:
 			set_body_states(rid, rid_states[rid])
 		
 		for body in scene_collision_objects:
-			if body is CharacterBody3D:
+			if body is CharacterBody3D or body is AnimatableBody3D:
 				body.force_update_transform()
 
 
