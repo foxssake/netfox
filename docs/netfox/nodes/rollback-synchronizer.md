@@ -68,10 +68,14 @@ extends CharacterBody3D
 
 func _rollback_tick(delta, tick, is_fresh):
   velocity = input.movement.normalized() * speed
-  velocity *= NetworkTime.physics_factor
 
+  velocity *= NetworkTime.physics_factor
   move_and_slide()
+  velocity /= NetworkTime.physics_factor
 ```
+
+Note the usage of `physics_factor` - this is explained in [Rollback caveats].
+
 
 ## Single fire events
 
