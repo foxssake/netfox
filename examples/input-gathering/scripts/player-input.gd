@@ -36,7 +36,6 @@ func _gather() -> void:
 
 	# Jumping
 	is_jumping = _is_jumping_buffer
-	_is_jumping_buffer = false
 
 func _reset():
 	_is_jumping_buffer = false

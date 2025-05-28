@@ -4,6 +4,9 @@ In the [Responsive player movement] tutorial, we've seen a basic example on how
 to gather input. This tutorial will elaborate on how input gathering works
 under the hood, and how that affects some common input patterns in games.
 
+!!!note
+    You can find the full project [in the repository].
+
 ## Understanding input gathering
 
 To have a shared notion of time, *netfox* provides its own time synchronization
@@ -194,7 +197,6 @@ func _process(_dt: float) -> void:
 
 func _gather():
   is_jumping = _is_jumping_buffer
-  _is_jumping_buffer = false
 
 func _reset():
   _is_jumping_buffer = false
@@ -205,6 +207,7 @@ func _reset():
     can be implemented in the `_input()` callback as well.
 
 
+[in the repository]: https://github.com/foxssake/netfox/tree/main/examples/input-gathering
 [Responsive player movement]: ./responsive-player-movement.md
 [Network tick loop]: ../guides/network-time.md#network-tick-loop
 [Input.is_action_just_pressed()]: https://docs.godotengine.org/en/stable/classes/class_input.html#class-input-method-is-action-just-pressed
