@@ -42,13 +42,10 @@ func on_process_tick(_tick: int) -> void:
 	step_physics(NetworkTime.ticktime)
 		
 func after_tick_loop() -> void:
-	#remove old snapshots
-	snapshots.sort()
+	# Remove old snapshots
 	for i in snapshots.keys():
 		if i < NetworkRollback.history_start:
 			snapshots.erase(i)
-		else:
-			break
 
 func step_physics(_delta: float) -> void:
 	# Break up physics into smaller steps if needed
