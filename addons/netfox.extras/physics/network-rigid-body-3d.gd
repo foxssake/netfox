@@ -1,5 +1,5 @@
+@icon("res://addons/netfox.extras/physics/network-rigid-body-3d.gd")
 extends RigidBody3D
-
 class_name NetworkRigidBody3D
 
 ## A rollback / state synchronizer class for RigidBody3D.

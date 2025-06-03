@@ -1,5 +1,5 @@
+@icon("res://addons/netfox.extras/icons/network-rigid-body-2d.svg")
 extends RigidBody2D
-
 class_name NetworkRigidBody2D
 
 ## A rollback / state synchronizer class for RigidBody2D.

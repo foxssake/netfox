@@ -31,6 +31,33 @@ const AUTOLOADS = [
 	}
 ]
 
+const TYPES: Array[Dictionary] = [
+	{
+		"name": "RewindableStateMachine",
+		"base": "Node",
+		"script": ROOT + "/state-machine/rewindable-state-machine.gd",
+		"icon": ROOT + "/icons/rewindable-state-machine.svg"
+	},
+	{
+		"name": "RewindableState",
+		"base": "Node",
+		"script": ROOT + "/state-machine/rewindable-state.gd",
+		"icon": ROOT + "/icons/rewindable-state.svg"
+	},
+	{
+		"name": "NetworkRigidBody2D",
+		"base": "RigidBody2D",
+		"script": ROOT + "/physics/network-rigid-body-2d.gd",
+		"icon": ROOT + "/icons/network-rigid-body-2d.svg"
+	},
+	{
+		"name": "NetworkRigidBody3D",
+		"base": "RigidBody3D",
+		"script": ROOT + "/physics/network-rigid-body-3d.gd",
+		"icon": ROOT + "/icons/network-rigid-body-3d.svg"
+	},
+]
+
 const PhysicsDriverToggles := preload("res://addons/netfox.extras/physics/physics-driver-toggles.gd")
 
 var _tool_menu_items := [] as Array[String]
@@ -41,6 +68,9 @@ func _enter_tree():
 
 	for autoload in AUTOLOADS:
 		add_autoload_singleton(autoload.name, autoload.path)
+	
+	for type in TYPES:
+		add_custom_type(type.name, type.base, load(type.script), load(type.icon))
 
 	_render_tool_menu()
 
@@ -51,6 +81,9 @@ func _exit_tree():
 
 	for autoload in AUTOLOADS:
 		remove_autoload_singleton(autoload.name)
+	
+	for type in TYPES:
+		remove_custom_type(type.name)
 
 	_free_tool_menu()
 
