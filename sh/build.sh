@@ -7,6 +7,17 @@ ROOT="$(pwd)"
 BUILD="$ROOT/build"
 TMP="$ROOT/buildtmp"
 
+declare -a OFF_FILES=(
+  "addons/netfox.extras/physics/godot_driver_2d.gd"
+  "addons/netfox.extras/physics/godot_driver_2d.gd.uid"
+  "addons/netfox.extras/physics/godot_driver_3d.gd"
+  "addons/netfox.extras/physics/godot_driver_3d.gd.uid"
+  "addons/netfox.extras/physics/rapier_driver_2d.gd"
+  "addons/netfox.extras/physics/rapier_driver_2d.gd.uid"
+  "addons/netfox.extras/physics/rapier_driver_3d.gd"
+  "addons/netfox.extras/physics/rapier_driver_3d.gd.uid"
+)
+
 # Assume we're running from project root
 source sh/shared.sh
 
@@ -25,8 +36,35 @@ rm -rf "$BUILD"
 mkdir -p "$BUILD"
 rm -rf "$TMP"
 
+# Disable scripts
+print "::group::Disabling optional scripts"
+has_missing_offs="false"
+
+for file in "${OFF_FILES[@]}"; do
+  has_source=$(test -f "$file" && echo "true" || echo "false")
+  has_off=$(test -f "$file.off" && echo "true" || echo "false")
+
+  if [[ $has_source == "false" && $has_off == "false" ]]; then
+    print "::error::Registered optional script doesn't exist: $file"
+    has_missing_offs="true"
+  fi
+
+  if [[ $has_source == "true" ]]; then
+    mv "$file" "$file.off"
+    print "Disabled optional script: $file"
+  fi
+done
+
+if [[ $has_missing_offs == "true" ]]; then
+  print "::error::Found missing optional scripts!"
+  print "::endgroup::"
+  exit 1;
+fi;
+print "::endgroup::"
+
+# Bundle addons
 for addon in ${addons[@]}; do
-    print "Packing addon ${addon}"
+    print "::group::Packing addon ${addon}"
 
     addon_tmp="$TMP/${addon}.v${version}/addons"
     addon_src="$ROOT/addons/${addon}"
@@ -52,6 +90,7 @@ for addon in ${addons[@]}; do
 
     cd "$ROOT"
     rm -rf "$TMP"
+    print "::endgroup::"
 done
 
 # Build example game

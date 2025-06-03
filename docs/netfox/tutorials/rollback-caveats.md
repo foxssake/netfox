@@ -72,6 +72,10 @@ i.e.
 * ChacacterBody (2D and 3D) - [move_and_collide()] ( which has a test only
   mode )
 
+!!!tip
+    The *netfox.extras* addon provides optional support for physics simulation
+    with rollback. See [Physics](../../netfox.extras/guides/physics.md)
+
 ### State Machines
 
 State machines don't usually expect to be updated multiple times in a single
@@ -85,6 +89,11 @@ frame or be snapped back to a previous point in time. Be cautious of:
 The key concept to keep in mind is that netfox stores the configured states for
 each processed tick. When it rolls back everything is snapped back to that
 point in time and then played forward to the present in a single frame.
+
+!!!tip
+    The *netfox.extras* module provides an implementation of state machines
+    compatible with rollback. See
+    [RewindableStateMachine](../../netfox.extras/guides/rewindable-state-machine.md)
 
 
 [force_shapecast_update()]: https://docs.godotengine.org/en/stable/classes/class_shapecast3d.html#class-shapecast3d-method-force-shapecast-update
