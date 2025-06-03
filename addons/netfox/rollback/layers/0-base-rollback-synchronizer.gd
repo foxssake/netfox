@@ -2,6 +2,7 @@ extends Node
 
 ## The root node for resolving node paths in properties. Defaults to the parent
 ## node.
+@export_category("Rollback Synchronizer")
 @export var root: Node = get_parent()
 
 var _states := _PropertyHistoryBuffer.new()

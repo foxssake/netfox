@@ -1,5 +1,7 @@
 extends "res://addons/netfox/rollback/layers/3-snapshot-rollback-layer.gd"
 
+@export_category("Rollback Synchronizer")
+
 ## Ticks to wait between sending full states.
 ## [br][br]
 ## If set to 0, full states will never be sent. If set to 1, only full states

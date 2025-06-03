@@ -1,5 +1,7 @@
 extends "res://addons/netfox/rollback/layers/1-configurable-rollback-layer.gd"
 
+@export_category("Rollback Synchronizer")
+
 @export var enable_prediction: bool
 
 var _simset: _Set = _Set.new()
