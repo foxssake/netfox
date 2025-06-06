@@ -1,0 +1,33 @@
+[gd_scene load_steps=7 format=3 uid="uid://b5qybas0mp0nd"]
+
+[ext_resource type="Script" path="res://examples/input-gathering/scripts/player.gd" id="1_rea48"]
+[ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="2_axq31"]
+[ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="3_hhcvm"]
+[ext_resource type="Script" path="res://examples/input-gathering/scripts/player-input.gd" id="4_kgt2r"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_t2650"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_vogks"]
+
+[node name="Player" type="CharacterBody3D"]
+script = ExtResource("1_rea48")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_t2650")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_vogks")
+
+[node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("2_axq31")
+root = NodePath("..")
+state_properties = Array[String]([":position", ":velocity"])
+input_properties = Array[String](["Input:movement", "Input:is_jumping"])
+
+[node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("3_hhcvm")
+root = NodePath("..")
+properties = Array[String]([":position"])
+
+[node name="Input" type="Node" parent="."]
+script = ExtResource("4_kgt2r")

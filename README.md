@@ -119,6 +119,7 @@ and netfox.
 
 #### Feature examples
 
+* [Input gathering](examples/input-gathering)
 * [State machines](examples/multiplayer-state-machine)
 * [Multiplayer FPS](examples/multiplayer-fps)
 * [Rollback Debugger](examples/rollback-debugger)
