@@ -1,5 +1,5 @@
 extends RefCounted
-class_name RollbackHistoryManager
+class_name RollbackHistoryRecorder
 
 # Provided externally by RBS
 var _state_history: _PropertyHistoryBuffer
@@ -124,4 +124,3 @@ func _get_recorded_input_props() -> Array[PropertyEntry]:
 
 func _get_owned_input_props() -> Array[PropertyEntry]:
 	return _input_property_config.get_owned_properties()
-
