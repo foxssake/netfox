@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://wi4owat0bml3"]
+[gd_scene load_steps=29 format=3 uid="uid://wi4owat0bml3"]
 
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/brawler-controller.gd" id="1_np8na"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/brawler-input.gd" id="2_m3v43"]
@@ -12,6 +12,7 @@
 [ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="7_cmfmx"]
 [ext_resource type="PackedScene" uid="uid://fctd5hkxnf2y" path="res://examples/forest-brawl/models/player/bomber-guy.glb" id="7_ij3cr"]
 [ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="8_pj7o0"]
+[ext_resource type="Script" path="res://addons/netfox/rollback/layered-rollback-synchronizer.gd" id="13_kbgwx"]
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_gdp4i"]
 animation = &"Float"
@@ -159,3 +160,6 @@ replication_config = SubResource("SceneReplicationConfig_4cjl8")
 script = ExtResource("8_pj7o0")
 root = NodePath("..")
 properties = Array[String]([":transform"])
+
+[node name="LayeredRollbackSynchronizer" type="Node" parent="."]
+script = ExtResource("13_kbgwx")
