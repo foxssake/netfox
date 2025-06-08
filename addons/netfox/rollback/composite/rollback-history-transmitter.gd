@@ -44,6 +44,12 @@ func get_earliest_input_tick() -> int:
 func get_latest_state_tick() -> int:
 	return _latest_state_tick
 
+func sync_settings(p_root: Node, p_enable_input_broadcast: bool, p_full_state_interval: int, p_diff_ack_interval: int) -> void:
+	root = p_root
+	enable_input_broadcast = p_enable_input_broadcast
+	full_state_interval = p_full_state_interval
+	diff_ack_interval = p_diff_ack_interval
+
 func configure(
 		p_state_history: _PropertyHistoryBuffer, p_input_history: _PropertyHistoryBuffer,
 		p_state_property_config: _PropertyConfig, p_input_property_config: _PropertyConfig,

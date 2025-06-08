@@ -113,6 +113,7 @@ func process_settings() -> void:
 	_nodes = _nodes.filter(func(it): return NetworkRollback.is_rollback_aware(it))
 	_nodes.erase(self)
 
+	_history_transmitter.sync_settings(root, enable_input_broadcast, full_state_interval, diff_ack_interval)
 	_history_transmitter.configure(_states, _inputs, _state_property_config, _input_property_config, _property_cache, _skipset)
 	_history_recorder.configure(_states, _inputs, _freshness_store, _state_property_config, _input_property_config, _property_cache, _skipset)
 
@@ -285,7 +286,7 @@ func _enter_tree() -> void:
 
 	if _history_transmitter == null:
 		_history_transmitter = _RollbackHistoryTransmitter.new()
-		add_child(_history_transmitter)
+		add_child(_history_transmitter, true)
 	if _history_recorder == null:
 		_history_recorder = _RollbackHistoryRecorder.new()
 
@@ -325,7 +326,6 @@ func _prepare_tick_process(tick: int) -> void:
 	# Reset the set of simulated and ignored nodes
 	_simset.clear()
 	_skipset.clear()
-	_history_transmitter.flush_queue()
 
 	# Gather nodes that can be simulated
 	for node in _nodes:
@@ -386,7 +386,7 @@ func _process_tick(tick: int) -> void:
 		_freshness_store.notify_processed(node, tick)
 		_simset.add(node)
 
-func _push_simset_metrics():
+func _push_simset_metrics(_t: int):
 	# Push metrics
 	NetworkPerformance.push_rollback_nodes_simulated(_simset.size())
 
