@@ -287,6 +287,7 @@ func _enter_tree() -> void:
 	if _history_transmitter == null:
 		_history_transmitter = _RollbackHistoryTransmitter.new()
 		add_child(_history_transmitter, true)
+		_history_transmitter.set_multiplayer_authority(get_multiplayer_authority())
 	if _history_recorder == null:
 		_history_recorder = _RollbackHistoryRecorder.new()
 
@@ -312,13 +313,15 @@ func _notify_resim() -> void:
 		NetworkRollback.notify_resimulation_start(_history_transmitter.get_latest_state_tick())
 
 func _prepare_tick_process(tick: int) -> void:
+	_history_recorder.set_latest_state_tick(_history_transmitter._latest_state_tick)
+
 	# Save data for input prediction
 	var retrieved_tick := _inputs.get_closest_tick(tick)
-	
+
 	# These are used as input for input age ( i.e. do we even have input, and if so, how old? )
 	_has_input = retrieved_tick != -1
 	_input_tick = retrieved_tick
-	
+
 	# Used to explicitly determine if this is a predicted tick
 	# ( even if we could grab *some* input )
 	_is_predicted_tick = _is_predicted_tick_for(null, tick)

@@ -95,13 +95,6 @@ func _should_record_tick(tick: int) -> bool:
 	# Otherwise, record only if we don't have authoritative state for the tick
 	return tick > _latest_state_tick
 
-func _should_record_property(property_entry: PropertyEntry) -> bool:
-	if NetworkRollback.is_mutated(property_entry.node):
-		return true
-	if _skipset.has(property_entry.node):
-		return false
-	return true
-
 func _record_tick(tick: int):
 	# Record state for specified tick ( current + 1 )
 
@@ -120,13 +113,14 @@ func _get_state_props_to_record(tick: int) -> Array[PropertyEntry]:
 	if _skipset.is_empty():
 		return _get_recorded_state_props()
 
-	var result: Array[PropertyEntry] = []
-	for property_entry in _get_recorded_state_props():
-		if NetworkRollback.is_mutated(property_entry.node, tick - 1):
-			result.append(property_entry)
-		elif not _skipset.has(property_entry.node):
-			result.append(property_entry)
-	return _get_recorded_state_props().filter(func(pe): return _should_record_property(pe))
+	return _get_recorded_state_props().filter(func(pe): return _should_record_property(pe, tick))
+
+func _should_record_property(property_entry: PropertyEntry, tick: int) -> bool:
+	if NetworkRollback.is_mutated(property_entry.node, tick - 1):
+		return true
+	if _skipset.has(property_entry.node):
+		return false
+	return true
 
 # =============================================================================
 # Shared utils, extract later
