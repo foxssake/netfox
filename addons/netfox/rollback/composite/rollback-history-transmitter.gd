@@ -1,5 +1,5 @@
 extends Node # TODO: Not node
-class_name RollbackHistoryTransmitter
+class_name _RollbackHistoryTransmitter
 
 var root: Node
 var enable_input_broadcast: bool = true
@@ -9,7 +9,6 @@ var diff_ack_interval: int
 # Provided externally by RBS
 var _state_history: _PropertyHistoryBuffer
 var _input_history: _PropertyHistoryBuffer
-var _freshness_store: RollbackFreshnessStore
 
 var _state_property_config: _PropertyConfig
 var _input_property_config: _PropertyConfig
@@ -17,34 +16,81 @@ var _input_property_config: _PropertyConfig
 var _property_cache: PropertyCache
 
 # Collaborators
-var _input_encoder := _RedundantHistoryEncoder.new(_input_history, _property_cache)
-var _full_state_encoder := _SnapshotHistoryEncoder.new(_state_history, _property_cache)
-var _diff_state_encoder := _DiffHistoryEncoder.new(_state_history, _property_cache)
+var _input_encoder: _RedundantHistoryEncoder
+var _full_state_encoder: _SnapshotHistoryEncoder
+var _diff_state_encoder: _DiffHistoryEncoder
 
 # State
 var _ackd_state: Dictionary = {}
 var _next_full_state_tick: int
 var _next_diff_ack_tick: int
 
+var _earliest_input_tick: int # Expose as state?
+var _latest_state_tick: int # Expose as state?
+
 # Signals
 signal _on_transmit_state(state: Dictionary, tick: int)
 
 # idk?
 var _is_predicted_tick: bool
-var _skipset: _Set
-var _earliest_input_tick: int # Expose as state?
-var _latest_state_tick: int # Expose as state?
-var _is_initialized: bool
+var _skipset: _Set # config
+var _is_initialized: bool # config
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("RollbackHistoryTransmitter")
 
-func _connect_signals() -> void:
+func get_earliest_input_tick() -> int:
+	return _earliest_input_tick
+
+func get_latest_state_tick() -> int:
+	return _latest_state_tick
+
+func configure(
+		p_state_history: _PropertyHistoryBuffer, p_input_history: _PropertyHistoryBuffer,
+		p_state_property_config: _PropertyConfig, p_input_property_config: _PropertyConfig,
+		p_property_cache: PropertyCache,
+		p_skipset: _Set
+	) -> void:
+	_state_history = p_state_history
+	_input_history = p_input_history
+	_state_property_config = p_state_property_config
+	_input_property_config = p_input_property_config
+	_property_cache = p_property_cache
+	_skipset = p_skipset
+
+	_input_encoder = _RedundantHistoryEncoder.new(_input_history, _property_cache)
+	_full_state_encoder = _SnapshotHistoryEncoder.new(_state_history, _property_cache)
+	_diff_state_encoder = _DiffHistoryEncoder.new(_state_history, _property_cache)
+
+	_is_initialized = true
+
+	reset()
+
+func reset() -> void:
+	_ackd_state.clear()
+	_latest_state_tick = NetworkTime.tick - 1
+	_earliest_input_tick = NetworkTime.tick
+	_next_full_state_tick = NetworkTime.tick
+	_next_diff_ack_tick = NetworkTime.tick
+
+	# Scatter full state sends, so not all nodes send at the same tick
+	if is_inside_tree():
+		_next_full_state_tick += hash(root.get_path()) % maxi(1, full_state_interval)
+		_next_diff_ack_tick += hash(root.get_path()) % maxi(1, diff_ack_interval)
+	else:
+		_next_full_state_tick += hash(root.name) % maxi(1, full_state_interval)
+		_next_diff_ack_tick += hash(root.name) % maxi(1, diff_ack_interval)
+
+	_diff_state_encoder.add_properties(_state_property_config.get_properties())
+
+func connect_signals() -> void:
 	NetworkTime.after_tick.connect(_transmit_input)
 	NetworkRollback.on_record_tick.connect(_broadcast_tick)
+	NetworkRollback.after_loop.connect(_reset_resim)
 
-func _disconnect_signals() -> void:
+func disconnect_signals() -> void:
 	NetworkTime.after_tick.disconnect(_transmit_input)
 	NetworkRollback.on_record_tick.disconnect(_broadcast_tick)
+	NetworkRollback.after_loop.disconnect(_reset_resim)
 
 func _transmit_input(_dt: float, tick: int) -> void:
 	# Transmit input
@@ -72,7 +118,7 @@ func _broadcast_tick(tick: int):
 	if full_state.is_empty():
 		return
 
-	# _latest_state_tick = max(_latest_state_tick, tick) # TODO: Simulator
+	_latest_state_tick = max(_latest_state_tick, tick) # TODO: Consider in simulator?
 	_state_history.merge(full_state, tick)
 
 	var is_sending_diffs := NetworkRollback.enable_diff_states
@@ -116,9 +162,7 @@ func _should_broadcast(property: PropertyEntry, tick: int) -> bool:
 		return true
 	if _skipset.has(property.node):
 		return false
-	if _is_predicted_tick_for(property.node, tick - 1):
-		return false
-	return _can_simulate(property.node, tick - 1)
+	return NetworkRollback.is_simulated(property.node)
 
 func _send_full_state(tick: int, peer: int = 0) -> void:
 	var full_state_snapshot := _state_history.get_snapshot(tick).as_dictionary()
@@ -135,6 +179,9 @@ func _send_full_state(tick: int, peer: int = 0) -> void:
 		NetworkPerformance.push_full_state(full_state_snapshot)
 		NetworkPerformance.push_sent_state(full_state_snapshot)
 
+# TODO: Reconsider name
+func _reset_resim() -> void:
+	_earliest_input_tick = NetworkTime.tick
 
 @rpc("any_peer", "unreliable", "call_remote")
 func _submit_input(tick: int, data: Array) -> void:
@@ -205,11 +252,3 @@ func _get_recorded_input_props() -> Array[PropertyEntry]:
 
 func _get_owned_input_props() -> Array[PropertyEntry]:
 	return _input_property_config.get_owned_properties()
-
-# =============================================================================
-# idk?
-func _is_predicted_tick_for(node: Node, tick: int) -> bool:
-	return false
-
-func _can_simulate(node: Node, tick: int) -> bool:
-	return false

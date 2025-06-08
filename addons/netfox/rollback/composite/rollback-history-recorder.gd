@@ -1,10 +1,10 @@
 extends RefCounted
-class_name RollbackHistoryRecorder
+class_name _RollbackHistoryRecorder
 
 # Provided externally by RBS
 var _state_history: _PropertyHistoryBuffer
 var _input_history: _PropertyHistoryBuffer
-var _freshness_store: RollbackFreshnessStore
+var _freshness_store: RollbackFreshnessStore # TODO: Maybe move to sim?
 
 var _state_property_config: _PropertyConfig
 var _input_property_config: _PropertyConfig
@@ -12,10 +12,28 @@ var _input_property_config: _PropertyConfig
 var _property_cache: PropertyCache
 
 # idk?
-var _skipset: _Set
-var _latest_state_tick: int
+var _skipset: _Set # configured
+var _latest_state_tick: int # provided externally
 
-func _connect_signals() -> void:
+func configure(
+		p_state_history: _PropertyHistoryBuffer, p_input_history: _PropertyHistoryBuffer,
+		p_freshness_store: RollbackFreshnessStore,
+		p_state_property_config: _PropertyConfig, p_input_property_config: _PropertyConfig,
+		p_property_cache: PropertyCache,
+		p_skipset: _Set
+	) -> void:
+	_state_history = p_state_history
+	_input_history = p_input_history
+	_freshness_store = p_freshness_store
+	_state_property_config = p_state_property_config
+	_input_property_config = p_input_property_config
+	_property_cache = p_property_cache
+	_skipset = p_skipset
+
+func set_latest_state_tick(p_latest_state_tick: int) -> void:
+	_latest_state_tick = p_latest_state_tick
+
+func connect_signals() -> void:
 	NetworkTime.before_tick.connect(_apply_tick_state) # History
 	NetworkTime.after_tick.connect(_record_input) # History
 	NetworkTime.after_tick.connect(_trim_history) # History
@@ -23,7 +41,7 @@ func _connect_signals() -> void:
 	NetworkRollback.on_record_tick.connect(_record_tick) # History
 	NetworkRollback.after_loop.connect(_apply_display_state) # History
 
-func _disconnect_signals() -> void:
+func disconnect_signals() -> void:
 	NetworkTime.before_tick.disconnect(_apply_tick_state)
 	NetworkTime.after_tick.disconnect(_record_input)
 	NetworkTime.after_tick.disconnect(_trim_history)

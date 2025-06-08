@@ -78,18 +78,7 @@ var _freshness_store := RollbackFreshnessStore.new()
 
 var _states := _PropertyHistoryBuffer.new()
 var _inputs := _PropertyHistoryBuffer.new()
-var _latest_state_tick: int
-var _earliest_input_tick: int
 var _last_simulated_tick: int
-
-var _input_encoder := _RedundantHistoryEncoder.new(_inputs, _property_cache)
-var _full_state_encoder := _SnapshotHistoryEncoder.new(_states, _property_cache)
-var _diff_state_encoder := _DiffHistoryEncoder.new(_states, _property_cache)
-
-# Maps peers (int) to acknowledged ticks (int)
-var _ackd_state: Dictionary = {}
-var _next_full_state_tick: int
-var _next_diff_ack_tick: int
 
 var _has_input: bool
 var _input_tick: int
@@ -99,7 +88,9 @@ var _is_initialized: bool = false
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("CompositeRollbackSynchronizer")
 
-signal _on_transmit_state(state: Dictionary, tick: int)
+# Composition
+var _history_transmitter: _RollbackHistoryTransmitter
+var _history_recorder: _RollbackHistoryRecorder
 
 ## Process settings.
 ##
@@ -114,21 +105,6 @@ func process_settings() -> void:
 
 	_states.clear()
 	_inputs.clear()
-	_ackd_state.clear()
-	_latest_state_tick = NetworkTime.tick - 1
-	_earliest_input_tick = NetworkTime.tick
-	_next_full_state_tick = NetworkTime.tick
-	_next_diff_ack_tick = NetworkTime.tick
-
-	# Scatter full state sends, so not all nodes send at the same tick
-	if is_inside_tree():
-		_next_full_state_tick += hash(get_path()) % maxi(1, full_state_interval)
-		_next_diff_ack_tick += hash(get_path()) % maxi(1, diff_ack_interval)
-	else:
-		_next_full_state_tick += hash(name) % maxi(1, full_state_interval)
-		_next_diff_ack_tick += hash(name) % maxi(1, diff_ack_interval)
-
-	_diff_state_encoder.add_properties(_state_property_config.get_properties())
 	process_authority()
 
 	# Gather all rollback-aware nodes to simulate during rollbacks
@@ -136,6 +112,9 @@ func process_settings() -> void:
 	_nodes.push_front(root)
 	_nodes = _nodes.filter(func(it): return NetworkRollback.is_rollback_aware(it))
 	_nodes.erase(self)
+
+	_history_transmitter.configure(_states, _inputs, _state_property_config, _input_property_config, _property_cache, _skipset)
+	_history_recorder.configure(_states, _inputs, _freshness_store, _state_property_config, _input_property_config, _property_cache, _skipset)
 
 	_is_initialized = true
 
@@ -244,7 +223,8 @@ func get_last_known_state() -> int:
 	# If we own state, this will be updated when recording and broadcasting
 	# state, this will be the current tick
 	# If we don't own state, this will be updated when state data is received
-	return _latest_state_tick
+	# TODO: What if we own state
+	return _history_transmitter.get_latest_state_tick()
 
 func _ready() -> void:
 	if Engine.is_editor_hint():
@@ -257,17 +237,22 @@ func _ready() -> void:
 	process_settings.call_deferred()
 
 func _connect_signals() -> void:
+	_history_recorder.connect_signals()
+	_history_transmitter.connect_signals()
+	
 	NetworkRollback.before_loop.connect(_notify_resim) # Simulate
 	NetworkRollback.on_prepare_tick.connect(_prepare_tick_process) # Simulate
 	NetworkRollback.on_process_tick.connect(_process_tick) # Simulate
 	NetworkRollback.on_process_tick.connect(_push_simset_metrics) # Simulate ( post-process )
 
 func _disconnect_signals() -> void:
+	_history_recorder.disconnect_signals()
+	_history_transmitter.disconnect_signals()
+	
 	NetworkRollback.before_loop.disconnect(_notify_resim)
 	NetworkRollback.on_prepare_tick.disconnect(_prepare_tick_process)
 	NetworkRollback.on_process_tick.disconnect(_process_tick)
 	NetworkRollback.on_process_tick.disconnect(_push_simset_metrics)
-	NetworkRollback.after_loop.disconnect(_reset_resim)
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_EDITOR_PRE_SAVE:
@@ -298,6 +283,12 @@ func _enter_tree() -> void:
 	if Engine.is_editor_hint():
 		return
 
+	if _history_transmitter == null:
+		_history_transmitter = _RollbackHistoryTransmitter.new()
+		add_child(_history_transmitter)
+	if _history_recorder == null:
+		_history_recorder = _RollbackHistoryRecorder.new()
+
 	if not NetworkTime.is_initial_sync_done():
 		# Wait for time sync to complete
 		await NetworkTime.after_sync
@@ -314,10 +305,10 @@ func _exit_tree() -> void:
 func _notify_resim() -> void:
 	if _get_owned_input_props().is_empty():
 		# We don't have any inputs we own, simulate from earliest we've received
-		NetworkRollback.notify_resimulation_start(_earliest_input_tick)
+		NetworkRollback.notify_resimulation_start(_history_transmitter.get_earliest_input_tick())
 	else:
 		# We own inputs, simulate from latest authorative state
-		NetworkRollback.notify_resimulation_start(_latest_state_tick)
+		NetworkRollback.notify_resimulation_start(_history_transmitter.get_latest_state_tick())
 
 func _prepare_tick_process(tick: int) -> void:
 	# Save data for input prediction
@@ -334,6 +325,7 @@ func _prepare_tick_process(tick: int) -> void:
 	# Reset the set of simulated and ignored nodes
 	_simset.clear()
 	_skipset.clear()
+	_history_transmitter.flush_queue()
 
 	# Gather nodes that can be simulated
 	for node in _nodes:
@@ -356,12 +348,12 @@ func _can_simulate(node: Node, tick: int) -> bool:
 	if node.is_multiplayer_authority():
 		# Simulate from earliest input
 		# Don't simulate frames we don't have input for
-		return tick >= _earliest_input_tick
+		return tick >= _history_transmitter.get_earliest_input_tick()
 	else:
 		# Simulate ONLY if we have state from server
 		# Simulate from latest authorative state - anything the server confirmed we don't rerun
 		# Don't simulate frames we don't have input for
-		return tick >= _latest_state_tick
+		return tick >= _history_transmitter.get_latest_state_tick()
 
 # `node` can be set to null, in case we're not simulating a specific node
 func _is_predicted_tick_for(node: Node, tick: int) -> bool:
@@ -397,9 +389,6 @@ func _process_tick(tick: int) -> void:
 func _push_simset_metrics():
 	# Push metrics
 	NetworkPerformance.push_rollback_nodes_simulated(_simset.size())
-
-func _reset_resim() -> void:
-	_earliest_input_tick = NetworkTime.tick
 
 func _reprocess_settings() -> void:
 	if not _properties_dirty or Engine.is_editor_hint():
