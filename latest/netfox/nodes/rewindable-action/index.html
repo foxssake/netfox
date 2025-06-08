@@ -260,7 +260,54 @@ will run.</dd>
 </dl>
 <p>See the following graph for a better understanding of how a <em>RewindableAction</em>
 transitions from one state to another:</p>
-<div class='puml-container'><div class="puml light" style="display: block"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" data-diagram-type="STATE" height="524px" preserveAspectRatio="xMidYMid meet" style="width:393px;height:524px;background:#FFFFFF;" version="1.1" viewBox="0 0 393 524" width="393px" zoomAndPan="magnify" class="diagram"><defs/><g><ellipse cx="166.46" cy="16" fill="#222222" rx="10" ry="10" style="stroke:#222222;stroke-width:1;"/><g id="INACTIVE"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="85.0576" x="123.93" y="87"/><line style="stroke:#181818;stroke-width:0.5;" x1="123.93" x2="208.9876" y1="113.2969" y2="113.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="65.0576" x="133.93" y="104.9951">INACTIVE</text></g><g id="CONFIRMING"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="110.7061" x="22.11" y="214"/><line style="stroke:#181818;stroke-width:0.5;" x1="22.11" x2="132.8161" y1="240.2969" y2="240.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="90.7061" x="32.11" y="231.9951">CONFIRMING</text></g><g id="ACTIVE"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="70.4561" x="42.24" y="341"/><line style="stroke:#181818;stroke-width:0.5;" x1="42.24" x2="112.6961" y1="367.2969" y2="367.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="50.4561" x="52.24" y="358.9951">ACTIVE</text></g><g id="CANCELLING"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="109.4961" x="114.72" y="468"/><line style="stroke:#181818;stroke-width:0.5;" x1="114.72" x2="224.2161" y1="494.2969" y2="494.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="89.4961" x="124.72" y="485.9951">CANCELLING</text></g><g class="link" data-entity-1="*start*" data-entity-2="INACTIVE" data-source-line="1" data-uid="lnk4" id="link_*start*_INACTIVE"><path d="M166.46,26.36 C166.46,40.29 166.46,60.95 166.46,80.65" fill="none" id="*start*-to-INACTIVE" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="166.46,86.65,170.46,77.65,166.46,81.65,162.46,77.65,166.46,86.65" style="stroke:#181818;stroke-width:1;"/></g><g class="link" data-entity-1="INACTIVE" data-entity-2="CONFIRMING" data-source-line="2" data-uid="lnk6" id="link_INACTIVE_CONFIRMING"><path d="M123.73,115.91 C89.26,120.77 42.81,133.56 19.46,167 C8.17,183.18 16.7436,196.5909 33.4136,209.9909" fill="none" id="INACTIVE-to-CONFIRMING" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="38.09,213.75,33.5814,204.9937,34.193,210.6174,28.5693,211.229,38.09,213.75" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="102.7051" x="20.46" y="180.0669">set_active(true)</text></g><g class="link" data-entity-1="INACTIVE" data-entity-2="CONFIRMING" data-source-line="3" data-uid="lnk7" id="link_INACTIVE_CONFIRMING"><path d="M155.02,137.22 C147.89,151.37 138.07,169.28 127.46,184 C120.07,194.26 115.0386,200.3063 106.5986,209.2063" fill="none" id="INACTIVE-to-CONFIRMING-1" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="102.47,213.56,111.5654,209.7819,105.9105,209.932,105.7605,204.2771,102.47,213.56" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="90.0415" x="138.46" y="180.0669">Host confirms</text></g><g class="link" data-entity-1="CONFIRMING" data-entity-2="ACTIVE" data-source-line="4" data-uid="lnk9" id="link_CONFIRMING_ACTIVE"><path d="M77.46,264.4 C77.46,286.42 77.46,312.66 77.46,334.66" fill="none" id="CONFIRMING-to-ACTIVE" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="77.46,340.66,81.46,331.66,77.46,335.66,73.46,331.66,77.46,340.66" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="106.5962" x="78.46" y="307.0669">Tick is ran again</text></g><g class="link" data-entity-1="ACTIVE" data-entity-2="CANCELLING" data-source-line="5" data-uid="lnk11" id="link_ACTIVE_CANCELLING"><path d="M42.03,387.74 C23.09,401.53 6,420.31 18.46,438 C40.03,468.61 74.6962,480.9566 108.3662,486.7266" fill="none" id="ACTIVE-to-CANCELLING" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="114.28,487.74,106.0849,482.2773,109.3518,486.8955,104.7337,490.1624,114.28,487.74" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="106.9517" x="19.46" y="434.0669">set_active(false)</text></g><g class="link" data-entity-1="ACTIVE" data-entity-2="CANCELLING" data-source-line="6" data-uid="lnk12" id="link_ACTIVE_CANCELLING"><path d="M104.06,391.24 C113.02,400.12 122.71,410.56 130.46,421 C141.29,435.56 148.4213,448.1112 155.5013,462.3012" fill="none" id="ACTIVE-to-CANCELLING-1" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="158.18,467.67,157.7411,457.8309,155.9477,463.196,150.5827,461.4026,158.18,467.67" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="87.3628" x="142.46" y="434.0669">Host declines</text></g><g class="link" data-entity-1="CANCELLING" data-entity-2="INACTIVE" data-source-line="7" data-uid="lnk13" id="link_CANCELLING_INACTIVE"><path d="M212.75,467.75 C223.07,459.71 232.73,449.76 238.46,438 C291.22,329.72 291.18,274.8 237.46,167 C231.25,154.53 225.461,147.7083 214.301,139.4883" fill="none" id="CANCELLING-to-INACTIVE" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="209.47,135.93,214.3443,144.4881,213.4958,138.8953,219.0887,138.0468,209.47,135.93" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="106.5962" x="278.46" y="307.0669">Tick is ran again</text></g></g></svg></div></div>
+<div class='puml-container'><div class="puml light" style="display: block">520. 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Origin Error</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            position: relative;
+        }
+        h1 {
+            color: #5ca731;
+            text-align: left;
+            margin-left: 20px;
+        }
+        .error-info {
+            text-align: left;
+            margin-left: 20px;
+        }
+        .error-info p:first-child {
+            margin-bottom: 75px;
+        }
+        footer {
+            position: absolute;
+            bottom: 10px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <h1>Origin Unreachable</h1>
+    <div class="error-info">
+        <p>Sorry, we are unable to reach the origin server at the moment. Please try again later.</p>
+        <p><strong>Error ID</strong>: afb717dd-d292-47df-8bb1-80a5780837f9</p>
+        <p><strong>Timestamp</strong>: 2025-06-08 10:53:11</p>
+        
+    </div>
+    <footer>Powered by Ezoic</footer>
+</body>
+</html>
+</div></div>
 
 <p>Keeping with the gunfire example, if the status is <code>ACTIVE</code> or <code>CONFIRMING</code>,
 make sure to perform the firing logic - e.g. do a hitscan, and decrease the

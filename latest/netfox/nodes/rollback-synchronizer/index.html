@@ -256,10 +256,12 @@ nodes to simulate new state.</p>
 
 <span class="k">func</span><span class="w"> </span><span class="n">_rollback_tick</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span><span class="w"> </span><span class="n">tick</span><span class="p">,</span><span class="w"> </span><span class="n">is_fresh</span><span class="p">):</span>
 <span class="w">  </span><span class="n">velocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">input</span><span class="o">.</span><span class="n">movement</span><span class="o">.</span><span class="n">normalized</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">speed</span>
-<span class="w">  </span><span class="n">velocity</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="n">NetworkTime</span><span class="o">.</span><span class="n">physics_factor</span>
 
+<span class="w">  </span><span class="n">velocity</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="n">NetworkTime</span><span class="o">.</span><span class="n">physics_factor</span>
 <span class="w">  </span><span class="n">move_and_slide</span><span class="p">()</span>
+<span class="w">  </span><span class="n">velocity</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">NetworkTime</span><span class="o">.</span><span class="n">physics_factor</span>
 </code></pre></div>
+<p>Note the usage of <code>physics_factor</code> - this is explained in <a href="../../tutorials/rollback-caveats/">Rollback caveats</a>.</p>
 <h2 id="single-fire-events">Single fire events</h2>
 <p>The first time a rollback tick is processed, the <code>is_fresh</code> parameter is set to
 <code>true</code>. This can be used to trigger animations or sounds without them being
