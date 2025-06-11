@@ -14,6 +14,7 @@ var _state_property_config: _PropertyConfig
 var _input_property_config: _PropertyConfig
 
 var _property_cache: PropertyCache
+var _skipset: _Set
 
 # Collaborators
 var _input_encoder: _RedundantHistoryEncoder
@@ -25,16 +26,14 @@ var _ackd_state: Dictionary = {}
 var _next_full_state_tick: int
 var _next_diff_ack_tick: int
 
-var _earliest_input_tick: int # Expose as state?
-var _latest_state_tick: int # Expose as state?
+var _earliest_input_tick: int
+var _latest_state_tick: int
+
+var _is_predicted_tick: bool # TODO!!
+var _is_initialized: bool
 
 # Signals
 signal _on_transmit_state(state: Dictionary, tick: int)
-
-# idk?
-var _is_predicted_tick: bool
-var _skipset: _Set # config
-var _is_initialized: bool # config
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("RollbackHistoryTransmitter")
 
@@ -88,18 +87,10 @@ func reset() -> void:
 
 	_diff_state_encoder.add_properties(_state_property_config.get_properties())
 
-func connect_signals() -> void:
-	NetworkTime.after_tick.connect(_transmit_input)
-	NetworkRollback.on_record_tick.connect(_broadcast_tick)
-	NetworkRollback.after_loop.connect(_reset_resim)
+func conclude_tick_loop() -> void:
+	_earliest_input_tick = NetworkTime.tick
 
-func disconnect_signals() -> void:
-	NetworkTime.after_tick.disconnect(_transmit_input)
-	NetworkRollback.on_record_tick.disconnect(_broadcast_tick)
-	NetworkRollback.after_loop.disconnect(_reset_resim)
-
-func _transmit_input(_dt: float, tick: int) -> void:
-	# Transmit input
+func transmit_input(tick: int) -> void:
 	if not _get_owned_input_props().is_empty():
 		var input_tick: int = tick + NetworkRollback.input_delay
 		var input_data := _input_encoder.encode(input_tick, _get_owned_input_props())
@@ -107,7 +98,7 @@ func _transmit_input(_dt: float, tick: int) -> void:
 		if target_peer != multiplayer.get_unique_id():
 			_submit_input.rpc_id(target_peer, input_tick, input_data)
 
-func _broadcast_tick(tick: int):
+func transmit_state(tick: int) -> void:
 	if _get_owned_state_props().is_empty() or _is_predicted_tick:
 		return
 
@@ -185,12 +176,11 @@ func _send_full_state(tick: int, peer: int = 0) -> void:
 		NetworkPerformance.push_full_state(full_state_snapshot)
 		NetworkPerformance.push_sent_state(full_state_snapshot)
 
-# TODO: Reconsider name
-func _reset_resim() -> void:
-	_earliest_input_tick = NetworkTime.tick
-
 @rpc("any_peer", "unreliable", "call_remote")
 func _submit_input(tick: int, data: Array) -> void:
+	if not _is_initialized:
+		# Settings not processed yet
+		return
 
 	var sender := multiplayer.get_remote_sender_id()
 	var snapshots := _input_encoder.decode(data, _input_property_config.get_properties_owned_by(sender))

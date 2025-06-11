@@ -11,9 +11,8 @@ var _input_property_config: _PropertyConfig
 
 var _property_cache: PropertyCache
 
-# idk?
-var _skipset: _Set # configured
-var _latest_state_tick: int # provided externally
+var _latest_state_tick: int
+var _skipset: _Set
 
 func configure(
 		p_state_history: _PropertyHistoryBuffer, p_input_history: _PropertyHistoryBuffer,
@@ -33,54 +32,44 @@ func configure(
 func set_latest_state_tick(p_latest_state_tick: int) -> void:
 	_latest_state_tick = p_latest_state_tick
 
-func connect_signals() -> void:
-	NetworkTime.before_tick.connect(_apply_tick_state) # History
-	NetworkTime.after_tick.connect(_record_input) # History
-	NetworkTime.after_tick.connect(_trim_history) # History
-	NetworkRollback.on_prepare_tick.connect(_restore_rollback_tick) # History
-	NetworkRollback.on_record_tick.connect(_record_tick) # History
-	NetworkRollback.after_loop.connect(_apply_display_state) # History
-
-func disconnect_signals() -> void:
-	NetworkTime.before_tick.disconnect(_apply_tick_state)
-	NetworkTime.after_tick.disconnect(_record_input)
-	NetworkTime.after_tick.disconnect(_trim_history)
-	NetworkRollback.on_prepare_tick.disconnect(_restore_rollback_tick)
-	NetworkRollback.on_record_tick.disconnect(_record_tick)
-	NetworkRollback.after_loop.disconnect(_apply_display_state)
-
-func _apply_tick_state(_delta: float, tick: int) -> void:
+func apply_state(tick: int) -> void:
 	# Apply state for tick
 	var state = _state_history.get_history(tick)
 	state.apply(_property_cache)
 
-func _record_input(_dt: float, tick: int) -> void:
-	# Record input
-	if not _get_recorded_input_props().is_empty():
-		var input = _PropertySnapshot.extract(_get_recorded_input_props())
-		var input_tick: int = tick + NetworkRollback.input_delay
-		_input_history.set_snapshot(input_tick, input)
+func apply_display_state() -> void:
+	apply_state(NetworkRollback.display_tick)
 
-func _trim_history(_dt: float, _t: int) -> void:
-	# Trim history
-	_state_history.trim()
-	_input_history.trim()
-	_freshness_store.trim()
-
-func _restore_rollback_tick(tick: int) -> void:
-	# Prepare state
-	#	Done individually by Rewindables ( usually Rollback Synchronizers )
-	#	Restore input and state for tick
+func apply_tick(tick: int) -> void:
 	var state := _state_history.get_history(tick)
 	var input := _input_history.get_history(tick)
 
 	state.apply(_property_cache)
 	input.apply(_property_cache)
 
-func _apply_display_state() -> void:
-	# Apply display state
-	var display_state := _state_history.get_history(NetworkRollback.display_tick)
-	display_state.apply(_property_cache)
+func trim_history() -> void:
+	# Trim history
+	_state_history.trim()
+	_input_history.trim()
+	_freshness_store.trim()
+
+func record_input(tick: int) -> void:
+	# Record input
+	if not _get_recorded_input_props().is_empty():
+		var input = _PropertySnapshot.extract(_get_recorded_input_props())
+		var input_tick: int = tick + NetworkRollback.input_delay
+		_input_history.set_snapshot(input_tick, input)
+
+func record_state(tick: int) -> void:
+	# Record state for specified tick ( current + 1 )
+	# Check if any of the managed nodes were mutated
+	var is_mutated := _get_recorded_state_props().any(func(pe):
+		return NetworkRollback.is_mutated(pe.node, tick - 1))
+
+	var record_state := _PropertySnapshot.extract(_get_state_props_to_record(tick))
+	if record_state.size():
+		var merge_state := _state_history.get_history(tick - 1)
+		_state_history.set_snapshot(tick, merge_state.merge(record_state))
 
 func _should_record_tick(tick: int) -> bool:
 	if _get_recorded_state_props().is_empty():
@@ -94,18 +83,6 @@ func _should_record_tick(tick: int) -> bool:
 
 	# Otherwise, record only if we don't have authoritative state for the tick
 	return tick > _latest_state_tick
-
-func _record_tick(tick: int):
-	# Record state for specified tick ( current + 1 )
-
-	# Check if any of the managed nodes were mutated
-	var is_mutated := _get_recorded_state_props().any(func(pe):
-		return NetworkRollback.is_mutated(pe.node, tick - 1))
-
-	var record_state := _PropertySnapshot.extract(_get_state_props_to_record(tick))
-	if record_state.size():
-		var merge_state := _state_history.get_history(tick - 1)
-		_state_history.set_snapshot(tick, merge_state.merge(record_state))
 
 func _get_state_props_to_record(tick: int) -> Array[PropertyEntry]:
 	if not _should_record_tick(tick):

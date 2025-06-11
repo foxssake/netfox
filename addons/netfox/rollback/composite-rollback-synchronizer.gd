@@ -84,8 +84,6 @@ var _has_input: bool
 var _input_tick: int
 var _is_predicted_tick: bool
 
-var _is_initialized: bool = false
-
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("CompositeRollbackSynchronizer")
 
 # Composition
@@ -116,8 +114,6 @@ func process_settings() -> void:
 	_history_transmitter.sync_settings(root, enable_input_broadcast, full_state_interval, diff_ack_interval)
 	_history_transmitter.configure(_states, _inputs, _state_property_config, _input_property_config, _property_cache, _skipset)
 	_history_recorder.configure(_states, _inputs, _freshness_store, _state_property_config, _input_property_config, _property_cache, _skipset)
-
-	_is_initialized = true
 
 ## Process settings based on authority.
 ##
@@ -238,22 +234,53 @@ func _ready() -> void:
 	process_settings.call_deferred()
 
 func _connect_signals() -> void:
-	_history_recorder.connect_signals()
-	_history_transmitter.connect_signals()
-	
-	NetworkRollback.before_loop.connect(_notify_resim) # Simulate
-	NetworkRollback.on_prepare_tick.connect(_prepare_tick_process) # Simulate
-	NetworkRollback.on_process_tick.connect(_process_tick) # Simulate
-	NetworkRollback.on_process_tick.connect(_push_simset_metrics) # Simulate ( post-process )
+	NetworkTime.before_tick.connect(_before_tick)
+	NetworkTime.after_tick.connect(_after_tick)
+
+	NetworkRollback.on_prepare_tick.connect(_on_prepare_tick)
+	NetworkRollback.on_process_tick.connect(_process_tick)
+	NetworkRollback.on_record_tick.connect(_on_record_tick)
+
+	NetworkRollback.before_loop.connect(_before_rollback_loop)
+	NetworkRollback.after_loop.connect(_after_rollback_loop)
 
 func _disconnect_signals() -> void:
-	_history_recorder.disconnect_signals()
-	_history_transmitter.disconnect_signals()
-	
-	NetworkRollback.before_loop.disconnect(_notify_resim)
-	NetworkRollback.on_prepare_tick.disconnect(_prepare_tick_process)
+	NetworkTime.before_tick.disconnect(_before_tick)
+	NetworkTime.after_tick.disconnect(_after_tick)
+
+	NetworkRollback.on_prepare_tick.disconnect(_on_prepare_tick)
 	NetworkRollback.on_process_tick.disconnect(_process_tick)
-	NetworkRollback.on_process_tick.disconnect(_push_simset_metrics)
+	NetworkRollback.on_record_tick.disconnect(_on_record_tick)
+
+	NetworkRollback.before_loop.disconnect(_before_rollback_loop)
+	NetworkRollback.after_loop.disconnect(_after_rollback_loop)
+
+func _before_tick(_dt: float, tick: int) -> void:
+	_history_recorder.apply_state(tick)
+
+func _after_tick(_dt: float, tick: int) -> void:
+	_history_recorder.record_input(tick)
+	_history_transmitter.transmit_input(tick)
+	_history_recorder.trim_history()
+
+func _before_rollback_loop() -> void:
+	_notify_resim()
+
+func _on_prepare_tick(tick: int) -> void:
+	_history_recorder.apply_tick(tick)
+	_prepare_tick_process(tick)
+
+func _process_tick(tick: int) -> void:
+	_run_rollback_tick(tick)
+	_push_simset_metrics()
+
+func _on_record_tick(tick: int) -> void:
+	_history_recorder.record_state(tick)
+	_history_transmitter.transmit_state(tick)
+
+func _after_rollback_loop() -> void:
+	_history_recorder.apply_display_state()
+	_history_transmitter.conclude_tick_loop()
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_EDITOR_PRE_SAVE:
@@ -288,6 +315,7 @@ func _enter_tree() -> void:
 		_history_transmitter = _RollbackHistoryTransmitter.new()
 		add_child(_history_transmitter, true)
 		_history_transmitter.set_multiplayer_authority(get_multiplayer_authority())
+
 	if _history_recorder == null:
 		_history_recorder = _RollbackHistoryRecorder.new()
 
@@ -301,7 +329,6 @@ func _exit_tree() -> void:
 	if Engine.is_editor_hint():
 		return
 
-	_is_initialized = false
 	_disconnect_signals()
 
 func _notify_resim() -> void:
@@ -368,7 +395,7 @@ func _is_predicted_tick_for(node: Node, tick: int) -> bool:
 		# We have input properties, it's only predicted if we don't have the input for the tick
 		return not _inputs.has(tick)
 
-func _process_tick(tick: int) -> void:
+func _run_rollback_tick(tick: int) -> void:
 	# Simulate rollback tick
 	#	Method call on rewindables
 	#	Rollback synchronizers go through each node they manage
@@ -389,7 +416,7 @@ func _process_tick(tick: int) -> void:
 		_freshness_store.notify_processed(node, tick)
 		_simset.add(node)
 
-func _push_simset_metrics(_t: int):
+func _push_simset_metrics():
 	# Push metrics
 	NetworkPerformance.push_rollback_nodes_simulated(_simset.size())
 
