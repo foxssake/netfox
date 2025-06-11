@@ -13,7 +13,7 @@ class_name BrawlerController
 
 # Dependencies
 @onready var input := $Input as BrawlerInput
-@onready var rollback_synchronizer := $CompositeRollbackSynchronizer as CompositeRollbackSynchronizer
+@onready var rollback_synchronizer := $RollbackSynchronizer as RollbackSynchronizer
 @onready var animation_tree := $AnimationTree as AnimationTree
 @onready var weapon := $Weapon as BrawlerWeapon
 @onready var mesh := $"bomber-guy/rig/Skeleton3D/Cube_008" as MeshInstance3D
