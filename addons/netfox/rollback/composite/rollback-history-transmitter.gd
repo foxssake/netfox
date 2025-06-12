@@ -118,7 +118,7 @@ func transmit_state(tick: int) -> void:
 	if full_state.is_empty():
 		return
 
-	_latest_state_tick = max(_latest_state_tick, tick) # TODO: Consider in simulator?
+	_latest_state_tick = max(_latest_state_tick, tick)
 	_state_history.merge(full_state, tick)
 
 	var is_sending_diffs := NetworkRollback.enable_diff_states

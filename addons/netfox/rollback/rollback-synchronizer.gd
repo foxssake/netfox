@@ -220,7 +220,6 @@ func get_last_known_state() -> int:
 	# If we own state, this will be updated when recording and broadcasting
 	# state, this will be the current tick
 	# If we don't own state, this will be updated when state data is received
-	# TODO: What if we own state
 	return _history_transmitter.get_latest_state_tick()
 
 func _ready() -> void:
