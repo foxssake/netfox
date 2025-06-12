@@ -163,7 +163,7 @@ var _rollback_stage: String = ""
 
 # Resim + mutations
 var _is_rollback: bool = false
-var _simulated_nodes: Dictionary = {}
+var _simulated_nodes: _Set = _Set.new()
 var _mutated_nodes: Dictionary = {}
 
 const _STAGE_BEFORE := "B"
@@ -186,7 +186,7 @@ func notify_resimulation_start(tick: int) -> void:
 ## submit each affected node while preparing the tick, and then run only the
 ## nodes that need to be resimulated.
 func notify_simulated(node: Node) -> void:
-	_simulated_nodes[node] = true
+	_simulated_nodes.add(node)
 
 
 ## Check if node was submitted for simulation.
