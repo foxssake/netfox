@@ -84,7 +84,7 @@ var _has_input: bool
 var _input_tick: int
 var _is_predicted_tick: bool
 
-static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("CompositeRollbackSynchronizer")
+static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("RollbackSynchronizer")
 
 # Composition
 var _history_transmitter: _RollbackHistoryTransmitter
@@ -113,7 +113,7 @@ func process_settings() -> void:
 
 	_history_transmitter.sync_settings(root, enable_input_broadcast, full_state_interval, diff_ack_interval)
 	_history_transmitter.configure(_states, _inputs, _state_property_config, _input_property_config, _property_cache, _skipset)
-	_history_recorder.configure(_states, _inputs, _freshness_store, _state_property_config, _input_property_config, _property_cache, _skipset)
+	_history_recorder.configure(_states, _inputs, _state_property_config, _input_property_config, _property_cache, _skipset)
 
 ## Process settings based on authority.
 ##
@@ -262,6 +262,7 @@ func _after_tick(_dt: float, tick: int) -> void:
 	_history_recorder.record_input(tick)
 	_history_transmitter.transmit_input(tick)
 	_history_recorder.trim_history()
+	_freshness_store.trim()
 
 func _before_rollback_loop() -> void:
 	_notify_resim()
@@ -352,6 +353,7 @@ func _prepare_tick_process(tick: int) -> void:
 	# Used to explicitly determine if this is a predicted tick
 	# ( even if we could grab *some* input )
 	_is_predicted_tick = _is_predicted_tick_for(null, tick)
+	_history_transmitter.set_predicted_tick(_is_predicted_tick)
 
 	# Reset the set of simulated and ignored nodes
 	_simset.clear()

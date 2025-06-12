@@ -4,7 +4,6 @@ class_name _RollbackHistoryRecorder
 # Provided externally by RBS
 var _state_history: _PropertyHistoryBuffer
 var _input_history: _PropertyHistoryBuffer
-var _freshness_store: RollbackFreshnessStore # TODO: Maybe move to sim?
 
 var _state_property_config: _PropertyConfig
 var _input_property_config: _PropertyConfig
@@ -16,14 +15,12 @@ var _skipset: _Set
 
 func configure(
 		p_state_history: _PropertyHistoryBuffer, p_input_history: _PropertyHistoryBuffer,
-		p_freshness_store: RollbackFreshnessStore,
 		p_state_property_config: _PropertyConfig, p_input_property_config: _PropertyConfig,
 		p_property_cache: PropertyCache,
 		p_skipset: _Set
 	) -> void:
 	_state_history = p_state_history
 	_input_history = p_input_history
-	_freshness_store = p_freshness_store
 	_state_property_config = p_state_property_config
 	_input_property_config = p_input_property_config
 	_property_cache = p_property_cache
@@ -51,7 +48,6 @@ func trim_history() -> void:
 	# Trim history
 	_state_history.trim()
 	_input_history.trim()
-	_freshness_store.trim()
 
 func record_input(tick: int) -> void:
 	# Record input

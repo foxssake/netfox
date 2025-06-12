@@ -1,4 +1,4 @@
-extends Node # TODO: Not node
+extends Node
 class_name _RollbackHistoryTransmitter
 
 var root: Node
@@ -29,7 +29,7 @@ var _next_diff_ack_tick: int
 var _earliest_input_tick: int
 var _latest_state_tick: int
 
-var _is_predicted_tick: bool # TODO!!
+var _is_predicted_tick: bool
 var _is_initialized: bool
 
 # Signals
@@ -42,6 +42,9 @@ func get_earliest_input_tick() -> int:
 
 func get_latest_state_tick() -> int:
 	return _latest_state_tick
+
+func set_predicted_tick(p_is_predicted_tick) -> void:
+	_is_predicted_tick = p_is_predicted_tick
 
 func sync_settings(p_root: Node, p_enable_input_broadcast: bool, p_full_state_interval: int, p_diff_ack_interval: int) -> void:
 	root = p_root
