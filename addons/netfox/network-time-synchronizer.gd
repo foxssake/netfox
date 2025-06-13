@@ -200,7 +200,12 @@ func _discipline_clock() -> void:
 		offset += offsets[i] * w
 		offset_weight += w
 	
-	offset /= offset_weight
+	if not is_zero_approx(offset_weight):
+		offset /= offset_weight
+	else:
+		# RTT is so good it's basically zero, which means offset_weight is zero
+		# Use a simple average instead
+		offset /= sorted_samples.size()
 	
 	# Panic / Adjust
 	if abs(offset) > panic_threshold:
