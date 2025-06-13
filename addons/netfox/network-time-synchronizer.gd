@@ -174,6 +174,10 @@ func _loop() -> void:
 
 func _discipline_clock() -> void:
 	var sorted_samples := _sample_buffer.get_data()
+	if sorted_samples.is_empty():
+		# Should never happen
+		_logger.warning("Trying to discipline the clock with no samples available!")
+		return
 	
 	# Sort samples by latency
 	sorted_samples.sort_custom(
