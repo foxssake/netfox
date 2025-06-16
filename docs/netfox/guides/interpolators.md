@@ -1,6 +1,6 @@
 # Interpolators
 
-Tracks interpolators for various data types. Provided as an autoload.
+Tracks interpolators for various data types. Provided as a static class.
 
 To smooth out motion between network ticks, [TickInterpolator] interpolates
 nodes' state properties between the current and the previous tick. The type of
