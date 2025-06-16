@@ -5,6 +5,10 @@ stepping physics simulations. As such if you want to use physics nodes with
 rollback such as RigidBody you will need to run either a fork that supports
 stepping or use an alternate physics addon that exposes stepping.
 
+!!!tip
+    An example game demonstrating physics and rollback is available: [Godot
+    Rocket League].
+
 ## Known Options
 
 - **Godot with Stepping PR**: Build the Godot editor and relevant export
@@ -54,8 +58,6 @@ with some minor setup.
     Avoid using StateSyncronizer with NetworkRigidBody, as it doesn't participate
     in rollback it will end up stepping faster than other nodes.
 
-
-
 To make use of NetworkRigidBody you need to:
 
 1. Configure your RollbackSynchronizer to include the NetworkRigidBody's
@@ -66,6 +68,7 @@ To make use of NetworkRigidBody you need to:
 ![State configuration for NetworkRigidBody](../assets/network-rigid-body.png)
 
 
+[Godot Rocket League]: https://github.com/albertok/godot-rocket-league
 [physics stepping PR]: https://github.com/godotengine/godot/pull/76462
 [Godot documentation]: https://docs.godotengine.org/en/stable/contributing/development/compiling/index.html
 [godot.rapier.rs]: https://godot.rapier.rs/
