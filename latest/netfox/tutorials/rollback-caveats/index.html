@@ -164,6 +164,8 @@
               <ul>
                   <li class="toctree-l1"><a class="reference internal" >Guides</a>
     <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/physics/">Physics</a>
+                </li>
                 <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/base-net-input/">BaseNetInput</a>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/network-weapon/">NetworkWeapon</a>
@@ -258,6 +260,11 @@ i.e.</p>
 <li>ChacacterBody (2D and 3D) - <a href="https://docs.godotengine.org/en/stable/classes/class_physicsbody3d.html#class-physicsbody3d-method-move-and-collide">move_and_collide()</a> ( which has a test only
   mode )</li>
 </ul>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>The <em>netfox.extras</em> addon provides optional support for physics simulation
+with rollback. See <a href="../../../netfox.extras/guides/physics/">Physics</a></p>
+</div>
 <h3 id="state-machines">State Machines</h3>
 <p>State machines don't usually expect to be updated multiple times in a single
 frame or be snapped back to a previous point in time. Be cautious of:</p>
@@ -270,6 +277,12 @@ frame or be snapped back to a previous point in time. Be cautious of:</p>
 <p>The key concept to keep in mind is that netfox stores the configured states for
 each processed tick. When it rolls back everything is snapped back to that
 point in time and then played forward to the present in a single frame.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>The <em>netfox.extras</em> module provides an implementation of state machines
+compatible with rollback. See
+<a href="../../../netfox.extras/guides/rewindable-state-machine/">RewindableStateMachine</a></p>
+</div>
               
             </div>
           </div>
