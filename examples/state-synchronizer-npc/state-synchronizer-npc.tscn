@@ -1,0 +1,58 @@
+[gd_scene load_steps=5 format=3 uid="uid://cl3qmgo4c2nfh"]
+
+[ext_resource type="PackedScene" uid="uid://cngy6hs8ohodj" path="res://examples/shared/scenes/map-square.tscn" id="1_mm3em"]
+[ext_resource type="PackedScene" uid="uid://cncdbq72u50j3" path="res://examples/shared/scenes/environment.tscn" id="2_ykbn6"]
+[ext_resource type="PackedScene" uid="uid://badtpsxn5lago" path="res://examples/shared/ui/network-popup.tscn" id="3_mhiy8"]
+[ext_resource type="PackedScene" uid="uid://ru7kvgw7wjew" path="res://examples/state-synchronizer-npc/scenes/wanderer.tscn" id="4_47wiq"]
+
+[node name="state-synchronizer-npc" type="Node3D"]
+
+[node name="Square Map" parent="." instance=ExtResource("1_mm3em")]
+
+[node name="Environment" parent="." instance=ExtResource("2_ykbn6")]
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Network Popup" parent="UI" instance=ExtResource("3_mhiy8")]
+layout_mode = 1
+offset_left = -180.0
+offset_top = -120.0
+offset_right = 180.0
+offset_bottom = 120.0
+
+[node name="NPCs" type="Node" parent="."]
+
+[node name="Wanderer" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.57406, 0.999999, -6.52385)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer2" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.42594, 0.999999, -6.52385)
+acceleration_time = 0.35
+rest_time_min = 2.0
+rest_time_max = 4.0
+wander_dst_min = 4.0
+wander_dst_max = 8.0
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer3" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.57406, 0.999999, 6.47615)
+move_speed = 4.5
+acceleration_time = 0.05
+rest_time_max = 1.0
+wander_dst_min = 3.0
+wander_dst_max = 6.0
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer4" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.42594, 0.999999, 6.47615)
+acceleration_time = 0.2
+rest_time_min = 2.0
+rest_time_max = 3.0
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)

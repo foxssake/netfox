@@ -125,6 +125,7 @@ and netfox.
 * [Property Configuration](examples/property-configuration)
 * [Input prediction](examples/input-prediction)
 * [NPCs with rollback](examples/rollback-npc)
+* [NPCs with StateSynchronizer](examples/state-synchronizer-npc)
 
 #### Example game
 
