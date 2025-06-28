@@ -23,7 +23,7 @@ class_name StateSynchronizer
 ## [br][br]
 ## Only considered if [member _NetworkRollback.enable_diff_states] is true.
 @export_range(0, 128, 1, "or_greater")
-var full_state_interval: int = 24 # TODO: Don't tie to a network rollback setting
+var full_state_interval: int = 24 # TODO: Don't tie to a network rollback setting?
 
 ## Ticks to wait between unreliably acknowledging diff states.
 ## [br][br]
@@ -40,7 +40,7 @@ var full_state_interval: int = 24 # TODO: Don't tie to a network rollback settin
 ## [br][br]
 ## Only considered if [member _NetworkRollback.enable_diff_states] is true.
 @export_range(0, 128, 1, "or_greater")
-var diff_ack_interval: int = 0 # TODO: Don't tie to a network rollback setting
+var diff_ack_interval: int = 0 # TODO: Don't tie to a network rollback setting?
 
 var _property_cache: PropertyCache
 var _property_config: _PropertyConfig = _PropertyConfig.new()
@@ -149,7 +149,7 @@ func _after_tick(_dt: float, tick: int) -> void:
 		state.apply(_property_cache)
 
 func _after_loop() -> void:
-	_state_history.trim(NetworkTime.tick - NetworkRollback.history_limit) # TODO: Don't tie to rollback
+	_state_history.trim(NetworkTime.tick - NetworkRollback.history_limit) # TODO: Don't tie to rollback?
 
 func _reprocess_settings() -> void:
 	if not _properties_dirty:
@@ -159,7 +159,7 @@ func _reprocess_settings() -> void:
 	process_settings()
 
 func _broadcast_state(tick: int, state: _PropertySnapshot) -> void:
-	var is_sending_diffs := NetworkRollback.enable_diff_states # TODO: Don't tie to a rollback setting
+	var is_sending_diffs := NetworkRollback.enable_diff_states # TODO: Don't tie to a rollback setting?
 	var is_full_state_tick := not is_sending_diffs or (full_state_interval > 0 and tick > _next_full_state_tick)
 
 	if is_full_state_tick:
