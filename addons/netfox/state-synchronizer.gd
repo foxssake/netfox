@@ -176,7 +176,7 @@ func _broadcast_state(tick: int, state: _PropertySnapshot) -> void:
 			if reference_tick < 0 or not _state_history.has(reference_tick):
 				# Peer hasn't ack'd any tick, or we don't have the ack'd tick
 				# Send full state
-				_logger.debug("Reference tick @%d not found for peer #%s, sending full tick", [reference_tick, peer])
+				_logger.trace("Reference tick @%d not found for peer #%s, sending full tick", [reference_tick, peer])
 				_send_full_state(tick, peer)
 				continue
 
