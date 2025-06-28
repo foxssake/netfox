@@ -22,9 +22,8 @@ class_name StateSynchronizer
 ## for every tick.
 ## [br][br]
 ## Only considered if [member _NetworkRollback.enable_diff_states] is true.
-# TODO: Don't tie to a network rollback setting
 @export_range(0, 128, 1, "or_greater")
-var full_state_interval: int = 24
+var full_state_interval: int = 24 # TODO: Don't tie to a network rollback setting
 
 ## Ticks to wait between unreliably acknowledging diff states.
 ## [br][br]
@@ -40,27 +39,25 @@ var full_state_interval: int = 24
 ## reduced.
 ## [br][br]
 ## Only considered if [member _NetworkRollback.enable_diff_states] is true.
-# TODO: Don't tie to a network rollback setting
 @export_range(0, 128, 1, "or_greater")
-var diff_ack_interval: int = 0
+var diff_ack_interval: int = 0 # TODO: Don't tie to a network rollback setting
 
 var _property_cache: PropertyCache
-var _property_config: _PropertyConfig
+var _property_config: _PropertyConfig = _PropertyConfig.new()
 var _properties_dirty: bool = false
-
-var _last_received_tick: int = -1
-var _last_received_state: _PropertySnapshot = _PropertySnapshot.new()
 
 var _state_history := _PropertyHistoryBuffer.new()
 
 # Collaborators
-var _full_state_encoder := _SnapshotHistoryEncoder.new(_state_history, _property_cache)
-var _diff_state_encoder := _DiffHistoryEncoder.new(_state_history, _property_cache)
+var _full_state_encoder: _SnapshotHistoryEncoder
+var _diff_state_encoder: _DiffHistoryEncoder
 
 # State
 var _ackd_state: Dictionary = {}
 var _next_full_state_tick: int
 var _next_diff_ack_tick: int
+
+var _is_initialized: bool = false
 
 ## Process settings.
 ## [br][br]
@@ -68,6 +65,9 @@ var _next_diff_ack_tick: int
 func process_settings() -> void:
 	_property_cache = PropertyCache.new(root)
 	_property_config.set_properties_from_paths(properties, _property_cache)
+
+	_full_state_encoder = _SnapshotHistoryEncoder.new(_state_history, _property_cache)
+	_diff_state_encoder = _DiffHistoryEncoder.new(_state_history, _property_cache)
 
 	_next_full_state_tick = NetworkTime.tick
 	_next_diff_ack_tick = NetworkTime.tick
@@ -79,6 +79,8 @@ func process_settings() -> void:
 	else:
 		_next_full_state_tick += hash(root.name) % maxi(1, full_state_interval)
 		_next_diff_ack_tick += hash(root.name) % maxi(1, diff_ack_interval)
+
+	_is_initialized = true
 
 ## Add a state property.
 ## [br][br]
@@ -138,9 +140,9 @@ func _after_tick(_dt: float, tick: int) -> void:
 		var state := _PropertySnapshot.extract(_property_config.get_properties())
 		_state_history.set_snapshot(tick, state)
 		_broadcast_state(tick, state)
-	else:
-		# Apply last received state
-		_last_received_state.apply(_property_cache)
+	elif not _state_history.is_empty():
+		var state := _state_history.get_history(tick)
+		state.apply(_property_cache)
 
 func _after_loop() -> void:
 	_state_history.trim(NetworkTime.tick - NetworkRollback.history_limit) # TODO: Don't tie to rollback
@@ -202,6 +204,8 @@ func _send_full_state(tick: int, peer: int = 0) -> void:
 # `serialized_state` is a serialized _PropertySnapshot
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_full_state(data: Array, tick: int) -> void:
+	if not _is_initialized: return
+
 	var sender := multiplayer.get_remote_sender_id()
 	var snapshot := _full_state_encoder.decode(data, _property_config.get_properties_owned_by(sender))
 	_full_state_encoder.apply(tick, snapshot, sender)
@@ -209,6 +213,8 @@ func _submit_full_state(data: Array, tick: int) -> void:
 # State is a serialized _PropertySnapshot (Dictionary[String, Variant])
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_diff_state(data: PackedByteArray, tick: int, reference_tick: int) -> void:
+	if not _is_initialized: return
+
 	var sender = multiplayer.get_remote_sender_id()
 	var diff_snapshot := _diff_state_encoder.decode(data, _property_config.get_properties_owned_by(sender))
 	if not _diff_state_encoder.apply(tick, diff_snapshot, reference_tick, sender):
@@ -222,5 +228,7 @@ func _submit_diff_state(data: PackedByteArray, tick: int, reference_tick: int) -
 
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _ack_diff_state(tick: int) -> void:
+	if not _is_initialized: return
+
 	var sender_id := multiplayer.get_remote_sender_id()
 	_ackd_state[sender_id] = tick
