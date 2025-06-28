@@ -29,6 +29,7 @@ mesh = SubResource("SphereMesh_lew78")
 script = ExtResource("1_dmbj5")
 root = NodePath("..")
 properties = Array[String]([":position", ":rotation", ":scale"])
+full_state_interval = 72
 
 [node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("3_nyirf")

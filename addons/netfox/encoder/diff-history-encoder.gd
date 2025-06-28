@@ -86,7 +86,7 @@ func apply(tick: int, snapshot: _PropertySnapshot, reference_tick: int, sender: 
 
 	if not _history.has(reference_tick):
 		# Reference tick missing, hope for the best
-		_logger.warning("Reference tick %d missing for applying %d", [reference_tick, tick])
+		_logger.warning("Reference tick %d missing for #%s applying %d", [reference_tick, sender, tick])
 
 	var reference_snapshot := _history.get_snapshot(reference_tick)
 	_history.set_snapshot(tick, reference_snapshot.merge(snapshot))

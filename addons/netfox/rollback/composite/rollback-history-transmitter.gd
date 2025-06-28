@@ -202,8 +202,13 @@ func _submit_full_state(data: Array, tick: int) -> void:
 
 	var sender := multiplayer.get_remote_sender_id()
 	var snapshot := _full_state_encoder.decode(data, _state_property_config.get_properties_owned_by(sender))
-	if _full_state_encoder.apply(tick, snapshot, sender):
-		_latest_state_tick = tick
+	if not _full_state_encoder.apply(tick, snapshot, sender):
+		# Invalid data
+		return
+
+	_latest_state_tick = tick
+	if NetworkRollback.enable_diff_states:
+		_ack_full_state.rpc_id(sender, tick)
 
 # State is a serialized _PropertySnapshot (Dictionary[String, Variant])
 @rpc("any_peer", "unreliable_ordered", "call_remote")

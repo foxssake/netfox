@@ -59,6 +59,8 @@ var _next_diff_ack_tick: int
 
 var _is_initialized: bool = false
 
+static var _logger := _NetfoxLogger.for_netfox("StateSynchronizer")
+
 ## Process settings.
 ## [br][br]
 ## Call this after any change to configuration.
@@ -68,6 +70,8 @@ func process_settings() -> void:
 
 	_full_state_encoder = _SnapshotHistoryEncoder.new(_state_history, _property_cache)
 	_diff_state_encoder = _DiffHistoryEncoder.new(_state_history, _property_cache)
+
+	_diff_state_encoder.add_properties(_property_config.get_properties())
 
 	_next_full_state_tick = NetworkTime.tick
 	_next_diff_ack_tick = NetworkTime.tick
@@ -172,6 +176,7 @@ func _broadcast_state(tick: int, state: _PropertySnapshot) -> void:
 			if reference_tick < 0 or not _state_history.has(reference_tick):
 				# Peer hasn't ack'd any tick, or we don't have the ack'd tick
 				# Send full state
+				_logger.debug("Reference tick @%d not found for peer #%s, sending full tick", [reference_tick, peer])
 				_send_full_state(tick, peer)
 				continue
 
@@ -208,7 +213,13 @@ func _submit_full_state(data: Array, tick: int) -> void:
 
 	var sender := multiplayer.get_remote_sender_id()
 	var snapshot := _full_state_encoder.decode(data, _property_config.get_properties_owned_by(sender))
-	_full_state_encoder.apply(tick, snapshot, sender)
+	
+	if not _full_state_encoder.apply(tick, snapshot, sender):
+		# Invalid data
+		return
+
+	if NetworkRollback.enable_diff_states:
+		_ack_full_state.rpc_id(sender, tick)
 
 # State is a serialized _PropertySnapshot (Dictionary[String, Variant])
 @rpc("any_peer", "unreliable_ordered", "call_remote")
@@ -221,10 +232,17 @@ func _submit_diff_state(data: PackedByteArray, tick: int, reference_tick: int) -
 		# Invalid data
 		return
 
-	if NetworkRollback.enable_diff_state_history:
+	if NetworkRollback.enable_diff_states:
 		if diff_ack_interval > 0 and tick > _next_diff_ack_tick:
 			_ack_diff_state.rpc_id(sender, tick)
 			_next_diff_ack_tick = tick + diff_ack_interval
+
+@rpc("any_peer", "reliable", "call_remote")
+func _ack_full_state(tick: int) -> void:
+	var sender_id := multiplayer.get_remote_sender_id()
+	_ackd_state[sender_id] = tick
+
+	_logger.trace("Peer %d ack'd full state for tick %d", [sender_id, tick])
 
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _ack_diff_state(tick: int) -> void:
@@ -232,3 +250,5 @@ func _ack_diff_state(tick: int) -> void:
 
 	var sender_id := multiplayer.get_remote_sender_id()
 	_ackd_state[sender_id] = tick
+
+	_logger.trace("Peer %d ack'd diff state for tick %d", [sender_id, tick])
