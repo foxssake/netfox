@@ -183,13 +183,16 @@ func _broadcast_state(tick: int, state: _PropertySnapshot) -> void:
 			# Prepare diff
 			var diff_state_data := _diff_state_encoder.encode(tick, reference_tick, _property_config.get_properties())
 			
-			# TODO: Check if diff state spares any props, and if so, send full tick
-			# Send only diff
-			_submit_diff_state.rpc_id(peer, diff_state_data, tick, reference_tick)
+			if _diff_state_encoder.get_full_snapshot().size() == _diff_state_encoder.get_encoded_snapshot().size():
+				# State is completely different, send full state
+				_send_full_state(tick, peer)
+			else:
+				# Send only diff
+				_submit_diff_state.rpc_id(peer, diff_state_data, tick, reference_tick)
 
-			# Push metrics
-			NetworkPerformance.push_full_state(_diff_state_encoder.get_full_snapshot())
-			NetworkPerformance.push_sent_state(_diff_state_encoder.get_encoded_snapshot())
+				# Push metrics
+				NetworkPerformance.push_full_state(_diff_state_encoder.get_full_snapshot())
+				NetworkPerformance.push_sent_state(_diff_state_encoder.get_encoded_snapshot())
 
 func _send_full_state(tick: int, peer: int = 0) -> void:
 	var full_state_snapshot := _state_history.get_snapshot(tick).as_dictionary()

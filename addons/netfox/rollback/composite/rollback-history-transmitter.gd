@@ -144,8 +144,7 @@ func transmit_state(tick: int) -> void:
 			# Prepare diff
 			var diff_state_data := _diff_state_encoder.encode(tick, reference_tick, _get_owned_state_props())
 			
-			# BUG: diff_state_data is a buffer, full_state is a snapshot - size() will never match
-			if diff_state_data.size() == full_state.size():
+			if _diff_state_encoder.get_full_snapshot().size() == _diff_state_encoder.get_encoded_snapshot().size():
 				# State is completely different, send full state
 				_send_full_state(tick, peer)
 			else:
@@ -225,7 +224,7 @@ func _submit_diff_state(data: PackedByteArray, tick: int, reference_tick: int) -
 
 	_latest_state_tick = tick
 
-	if NetworkRollback.enable_diff_state_history:
+	if NetworkRollback.enable_diff_states:
 		if diff_ack_interval > 0 and tick > _next_diff_ack_tick:
 			_ack_diff_state.rpc_id(sender, tick)
 			_next_diff_ack_tick = tick + diff_ack_interval
