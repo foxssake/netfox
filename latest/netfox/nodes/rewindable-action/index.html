@@ -262,7 +262,130 @@ will run.</dd>
 </dl>
 <p>See the following graph for a better understanding of how a <em>RewindableAction</em>
 transitions from one state to another:</p>
-<div class='puml-container'><div class="puml light" style="display: block"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" data-diagram-type="STATE" height="524px" preserveAspectRatio="xMidYMid meet" style="width:393px;height:524px;background:#FFFFFF;" version="1.1" viewBox="0 0 393 524" width="393px" zoomAndPan="magnify" class="diagram"><defs/><g><ellipse cx="166.46" cy="16" fill="#222222" rx="10" ry="10" style="stroke:#222222;stroke-width:1;"/><g id="INACTIVE"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="85.0576" x="123.93" y="87"/><line style="stroke:#181818;stroke-width:0.5;" x1="123.93" x2="208.9876" y1="113.2969" y2="113.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="65.0576" x="133.93" y="104.9951">INACTIVE</text></g><g id="CONFIRMING"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="110.7061" x="22.11" y="214"/><line style="stroke:#181818;stroke-width:0.5;" x1="22.11" x2="132.8161" y1="240.2969" y2="240.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="90.7061" x="32.11" y="231.9951">CONFIRMING</text></g><g id="ACTIVE"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="70.4561" x="42.24" y="341"/><line style="stroke:#181818;stroke-width:0.5;" x1="42.24" x2="112.6961" y1="367.2969" y2="367.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="50.4561" x="52.24" y="358.9951">ACTIVE</text></g><g id="CANCELLING"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="109.4961" x="114.72" y="468"/><line style="stroke:#181818;stroke-width:0.5;" x1="114.72" x2="224.2161" y1="494.2969" y2="494.2969"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="89.4961" x="124.72" y="485.9951">CANCELLING</text></g><g class="link" data-entity-1=".start." data-entity-2="INACTIVE" data-source-line="1" data-uid="lnk4" id="link_.start._INACTIVE"><path d="M166.46,26.36 C166.46,40.29 166.46,60.95 166.46,80.65" fill="none" id="*start*-to-INACTIVE" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="166.46,86.65,170.46,77.65,166.46,81.65,162.46,77.65,166.46,86.65" style="stroke:#181818;stroke-width:1;"/></g><g class="link" data-entity-1="INACTIVE" data-entity-2="CONFIRMING" data-source-line="2" data-uid="lnk6" id="link_INACTIVE_CONFIRMING"><path d="M123.73,115.91 C89.26,120.77 42.81,133.56 19.46,167 C8.17,183.18 16.7436,196.5909 33.4136,209.9909" fill="none" id="INACTIVE-to-CONFIRMING" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="38.09,213.75,33.5814,204.9937,34.193,210.6174,28.5693,211.229,38.09,213.75" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="102.7051" x="20.46" y="180.0669">set_active(true)</text></g><g class="link" data-entity-1="INACTIVE" data-entity-2="CONFIRMING" data-source-line="3" data-uid="lnk7" id="link_INACTIVE_CONFIRMING"><path d="M155.02,137.22 C147.89,151.37 138.07,169.28 127.46,184 C120.07,194.26 115.0386,200.3063 106.5986,209.2063" fill="none" id="INACTIVE-to-CONFIRMING-1" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="102.47,213.56,111.5654,209.7819,105.9105,209.932,105.7605,204.2771,102.47,213.56" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="90.0415" x="138.46" y="180.0669">Host confirms</text></g><g class="link" data-entity-1="CONFIRMING" data-entity-2="ACTIVE" data-source-line="4" data-uid="lnk9" id="link_CONFIRMING_ACTIVE"><path d="M77.46,264.4 C77.46,286.42 77.46,312.66 77.46,334.66" fill="none" id="CONFIRMING-to-ACTIVE" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="77.46,340.66,81.46,331.66,77.46,335.66,73.46,331.66,77.46,340.66" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="106.5962" x="78.46" y="307.0669">Tick is ran again</text></g><g class="link" data-entity-1="ACTIVE" data-entity-2="CANCELLING" data-source-line="5" data-uid="lnk11" id="link_ACTIVE_CANCELLING"><path d="M42.03,387.74 C23.09,401.53 6,420.31 18.46,438 C40.03,468.61 74.6962,480.9566 108.3662,486.7266" fill="none" id="ACTIVE-to-CANCELLING" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="114.28,487.74,106.0849,482.2773,109.3518,486.8955,104.7337,490.1624,114.28,487.74" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="106.9517" x="19.46" y="434.0669">set_active(false)</text></g><g class="link" data-entity-1="ACTIVE" data-entity-2="CANCELLING" data-source-line="6" data-uid="lnk12" id="link_ACTIVE_CANCELLING"><path d="M104.06,391.24 C113.02,400.12 122.71,410.56 130.46,421 C141.29,435.56 148.4213,448.1112 155.5013,462.3012" fill="none" id="ACTIVE-to-CANCELLING-1" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="158.18,467.67,157.7411,457.8309,155.9477,463.196,150.5827,461.4026,158.18,467.67" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="87.3628" x="142.46" y="434.0669">Host declines</text></g><g class="link" data-entity-1="CANCELLING" data-entity-2="INACTIVE" data-source-line="7" data-uid="lnk13" id="link_CANCELLING_INACTIVE"><path d="M212.75,467.75 C223.07,459.71 232.73,449.76 238.46,438 C291.22,329.72 291.18,274.8 237.46,167 C231.25,154.53 225.461,147.7083 214.301,139.4883" fill="none" id="CANCELLING-to-INACTIVE" style="stroke:#181818;stroke-width:1;"/><polygon fill="#181818" points="209.47,135.93,214.3443,144.4881,213.4958,138.8953,219.0887,138.0468,209.47,135.93" style="stroke:#181818;stroke-width:1;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="106.5962" x="278.46" y="307.0669">Tick is ran again</text></g></g></svg></div></div>
+<div class='puml-container'><div class="puml light" style="display: block">520. <!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en-US"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en-US"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en-US"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en-US"> <!--<![endif]-->
+<head>
+
+<title>plantuml.com | 520: Web server is returning an unknown error</title>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="stylesheet" id="cf_styles-css" href="/cdn-cgi/styles/main.css" />
+</head>
+<body>
+<div id="cf-wrapper">
+    <div id="cf-error-details" class="p-0">
+        <header class="mx-auto pt-10 lg:pt-6 lg:px-8 w-240 lg:w-full mb-8">
+            <h1 class="inline-block sm:block sm:mb-2 font-light text-60 lg:text-4xl text-black-dark leading-tight mr-2">
+                <span class="inline-block">Web server is returning an unknown error</span>
+                <span class="code-label">Error code 520</span>
+            </h1>
+            <div>
+                Visit <a href="https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_520&utm_campaign=www.plantuml.com" target="_blank" rel="noopener noreferrer">cloudflare.com</a> for more information.
+            </div>
+            <div class="mt-3">2025-07-23 22:58:51 UTC</div>
+        </header>
+        <div class="my-8 bg-gradient-gray">
+            <div class="w-240 lg:w-full mx-auto">
+                <div class="clearfix md:px-8">
+                    <div id="cf-browser-status" class=" relative w-1/3 md:w-full py-15 md:p-0 md:py-8 md:text-left md:border-solid md:border-0 md:border-b md:border-gray-400 overflow-hidden float-left md:float-none text-center">
+  <div class="relative mb-10 md:m-0">
+    
+    <span class="cf-icon-browser block md:hidden h-20 bg-center bg-no-repeat"></span>
+    <span class="cf-icon-ok w-12 h-12 absolute left-1/2 md:left-auto md:right-0 md:top-0 -ml-6 -bottom-4"></span>
+    
+  </div>
+  <span class="md:block w-full truncate">You</span>
+  <h3 class="md:inline-block mt-3 md:mt-0 text-2xl text-gray-600 font-light leading-1.3">
+  
+    Browser
+  
+  </h3>
+  
+  <span class="leading-1.3 text-2xl text-green-success">Working</span>
+  
+</div>
+                    <div id="cf-cloudflare-status" class=" relative w-1/3 md:w-full py-15 md:p-0 md:py-8 md:text-left md:border-solid md:border-0 md:border-b md:border-gray-400 overflow-hidden float-left md:float-none text-center">
+  <div class="relative mb-10 md:m-0">
+    <a href="https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_520&#38;utm_campaign=www.plantuml.com" target="_blank" rel="noopener noreferrer">
+    <span class="cf-icon-cloud block md:hidden h-20 bg-center bg-no-repeat"></span>
+    <span class="cf-icon-ok w-12 h-12 absolute left-1/2 md:left-auto md:right-0 md:top-0 -ml-6 -bottom-4"></span>
+    </a>
+  </div>
+  <span class="md:block w-full truncate">San Jose</span>
+  <h3 class="md:inline-block mt-3 md:mt-0 text-2xl text-gray-600 font-light leading-1.3">
+  <a href="https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_520&utm_campaign=www.plantuml.com" target="_blank" rel="noopener noreferrer">
+    Cloudflare
+  </a>
+  </h3>
+  
+  <span class="leading-1.3 text-2xl text-green-success">Working</span>
+  
+</div>
+                    <div id="cf-host-status" class="cf-error-source relative w-1/3 md:w-full py-15 md:p-0 md:py-8 md:text-left md:border-solid md:border-0 md:border-b md:border-gray-400 overflow-hidden float-left md:float-none text-center">
+  <div class="relative mb-10 md:m-0">
+    
+    <span class="cf-icon-server block md:hidden h-20 bg-center bg-no-repeat"></span>
+    <span class="cf-icon-error w-12 h-12 absolute left-1/2 md:left-auto md:right-0 md:top-0 -ml-6 -bottom-4"></span>
+    
+  </div>
+  <span class="md:block w-full truncate">www.plantuml.com</span>
+  <h3 class="md:inline-block mt-3 md:mt-0 text-2xl text-gray-600 font-light leading-1.3">
+  
+    Host
+  
+  </h3>
+  
+  <span class="leading-1.3 text-2xl text-red-error">Error</span>
+  
+</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-240 lg:w-full mx-auto mb-8 lg:px-8">
+            <div class="clearfix">
+                <div class="w-1/2 md:w-full float-left pr-6 md:pb-10 md:pr-0 leading-relaxed">
+                    <h2 class="text-3xl font-normal leading-1.3 mb-4">What happened?</h2>
+                    <p>There is an unknown connection issue between Cloudflare and the origin web server. As a result, the web page can not be displayed.</p>
+                </div>
+                <div class="w-1/2 md:w-full float-left leading-relaxed">
+                    <h2 class="text-3xl font-normal leading-1.3 mb-4">What can I do?</h2>
+                    
+                <h3 class="text-15 font-semibold mb-2">If you are a visitor of this website:</h3>
+                <p class="mb-6">Please try again in a few minutes.</p>
+
+                <h3 class="text-15 font-semibold mb-2">If you are the owner of this website:</h3>
+                <p><span>There is an issue between Cloudflare's cache and your origin web server. Cloudflare monitors for these errors and automatically investigates the cause. To help support the investigation, you can pull the corresponding error log from your web server and submit it our support team.  Please include the Ray ID (which is at the bottom of this error page).</span> <a rel="noopener noreferrer" href=   "https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-5xx-errors/error-520/">Additional troubleshooting resources</a>.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="cf-error-footer cf-wrapper w-240 lg:w-full py-10 sm:py-4 sm:px-8 mx-auto text-center sm:text-left border-solid border-0 border-t border-gray-300">
+    <p class="text-13">
+      <span class="cf-footer-item sm:block sm:mb-1">Cloudflare Ray ID: <strong class="font-semibold">963ec8dcf918f983</strong></span>
+      <span class="cf-footer-separator sm:hidden">&bull;</span>
+      <span id="cf-footer-item-ip" class="cf-footer-item hidden sm:block sm:mb-1">
+        Your IP:
+        <button type="button" id="cf-footer-ip-reveal" class="cf-footer-ip-reveal-btn">Click to reveal</button>
+        <span class="hidden" id="cf-footer-ip">13.83.161.18</span>
+        <span class="cf-footer-separator sm:hidden">&bull;</span>
+      </span>
+      <span class="cf-footer-item sm:block sm:mb-1"><span>Performance &amp; security by</span> <a rel="noopener noreferrer" href="https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_520&#38;utm_campaign=www.plantuml.com" id="brand_link" target="_blank">Cloudflare</a></span>
+      
+    </p>
+    <script>(function(){function d(){var b=a.getElementById("cf-footer-item-ip"),c=a.getElementById("cf-footer-ip-reveal");b&&"classList"in b&&(b.classList.remove("hidden"),c.addEventListener("click",function(){c.classList.add("hidden");a.getElementById("cf-footer-ip").classList.remove("hidden")}))}var a=document;document.addEventListener&&a.addEventListener("DOMContentLoaded",d)})();</script>
+  </div><!-- /.error-footer -->
+
+    </div>
+</div>
+</body>
+</html></div></div>
 
 <p>Keeping with the gunfire example, if the status is <code>ACTIVE</code> or <code>CONFIRMING</code>,
 make sure to perform the firing logic - e.g. do a hitscan, and decrease the

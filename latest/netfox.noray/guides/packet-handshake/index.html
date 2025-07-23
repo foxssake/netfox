@@ -246,7 +246,130 @@ is prepended with a dollar sign. For example:</p>
 <li><em>$rwx</em> means that the <em>read</em>, <em>write</em>, and <em>duplex</em> flags are all set</li>
 </ul>
 <p>Here's the handshake process illustrated:</p>
-<div class='puml-container'><div class="puml light" style="display: block"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" data-diagram-type="SEQUENCE" height="567px" preserveAspectRatio="xMidYMid meet" style="width:369px;height:567px;background:#FFFFFF;" version="1.1" viewBox="0 0 369 567" width="369px" zoomAndPan="magnify" class="diagram"><defs/><g><g><title>Player A</title><rect fill="#000000" fill-opacity="0.00000" height="405.5938" width="8" x="32.7964" y="81.2969"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="36" x2="36" y1="81.2969" y2="486.8906"/></g><g><title>Router A</title><rect fill="#000000" fill-opacity="0.00000" height="405.5938" width="8" x="108.1187" y="81.2969"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="111.5928" x2="111.5928" y1="81.2969" y2="486.8906"/></g><g><title>Internet</title><rect fill="#000000" fill-opacity="0.00000" height="405.5938" width="8" x="182.5625" y="81.2969"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="185.6445" x2="185.6445" y1="81.2969" y2="486.8906"/></g><g><title>Router B</title><rect fill="#000000" fill-opacity="0.00000" height="405.5938" width="8" x="257.02" y="81.2969"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="260.4805" x2="260.4805" y1="81.2969" y2="486.8906"/></g><g><title>Player B</title><rect fill="#000000" fill-opacity="0.00000" height="405.5938" width="8" x="332.3696" y="81.2969"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="335.5596" x2="335.5596" y1="81.2969" y2="486.8906"/></g><g class="participant participant-head" data-participant="A"><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="57.5928" x="5" y="77.9951">Player A</text><ellipse cx="36.7964" cy="13.5" fill="#E2E2F0" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M36.7964,21.5 L36.7964,48.5 M23.7964,29.5 L49.7964,29.5 M36.7964,48.5 L23.7964,63.5 M36.7964,48.5 L49.7964,63.5" fill="none" style="stroke:#181818;stroke-width:0.5;"/></g><g class="participant participant-tail" data-participant="A"><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="57.5928" x="5" y="498.8857">Player A</text><ellipse cx="36.7964" cy="510.6875" fill="#E2E2F0" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M36.7964,518.6875 L36.7964,545.6875 M23.7964,526.6875 L49.7964,526.6875 M36.7964,545.6875 L23.7964,560.6875 M36.7964,545.6875 L49.7964,560.6875" fill="none" style="stroke:#181818;stroke-width:0.5;"/></g><g class="participant participant-head" data-participant="RA"><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="61.0518" x="78.5928" y="77.9951">Router A</text><ellipse cx="112.1187" cy="49" fill="#E2E2F0" rx="12" ry="12" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="100.1187" x2="124.1187" y1="63" y2="63"/></g><g class="participant participant-tail" data-participant="RA"><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="61.0518" x="78.5928" y="498.8857">Router A</text><ellipse cx="112.1187" cy="518.1875" fill="#E2E2F0" rx="12" ry="12" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="100.1187" x2="124.1187" y1="532.1875" y2="532.1875"/></g><g class="participant participant-head" data-participant="Net"><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="55.8359" x="155.6445" y="77.9951">Internet</text><path d="M166.0625,37 L166.0625,61 M166.0625,49 L183.0625,49" fill="none" style="stroke:#181818;stroke-width:0.5;"/><ellipse cx="195.0625" cy="49" fill="#E2E2F0" rx="12" ry="12" style="stroke:#181818;stroke-width:0.5;"/></g><g class="participant participant-tail" data-participant="Net"><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="55.8359" x="155.6445" y="498.8857">Internet</text><path d="M166.0625,506.1875 L166.0625,530.1875 M166.0625,518.1875 L183.0625,518.1875" fill="none" style="stroke:#181818;stroke-width:0.5;"/><ellipse cx="195.0625" cy="518.1875" fill="#E2E2F0" rx="12" ry="12" style="stroke:#181818;stroke-width:0.5;"/></g><g class="participant participant-head" data-participant="RB"><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="61.0791" x="227.4805" y="77.9951">Router B</text><ellipse cx="261.02" cy="49" fill="#E2E2F0" rx="12" ry="12" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="249.02" x2="273.02" y1="63" y2="63"/></g><g class="participant participant-tail" data-participant="RB"><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="61.0791" x="227.4805" y="498.8857">Router B</text><ellipse cx="261.02" cy="518.1875" fill="#E2E2F0" rx="12" ry="12" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="249.02" x2="273.02" y1="532.1875" y2="532.1875"/></g><g class="participant participant-head" data-participant="B"><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="57.6201" x="304.5596" y="77.9951">Player B</text><ellipse cx="336.3696" cy="13.5" fill="#E2E2F0" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M336.3696,21.5 L336.3696,48.5 M323.3696,29.5 L349.3696,29.5 M336.3696,48.5 L323.3696,63.5 M336.3696,48.5 L349.3696,63.5" fill="none" style="stroke:#181818;stroke-width:0.5;"/></g><g class="participant participant-tail" data-participant="B"><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="57.6201" x="304.5596" y="498.8857">Player B</text><ellipse cx="336.3696" cy="510.6875" fill="#E2E2F0" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M336.3696,518.6875 L336.3696,545.6875 M323.3696,526.6875 L349.3696,526.6875 M336.3696,545.6875 L323.3696,560.6875 M336.3696,545.6875 L349.3696,560.6875" fill="none" style="stroke:#181818;stroke-width:0.5;"/></g><g class="message" data-participant-1="A" data-participant-2="RB"><line style="stroke:#181818;stroke-width:2;" x1="243.02" x2="253.02" y1="107.4297" y2="117.4297"/><line style="stroke:#181818;stroke-width:2;" x1="243.02" x2="253.02" y1="117.4297" y2="107.4297"/><line style="stroke:#181818;stroke-width:1;" x1="36.7964" x2="248.02" y1="112.4297" y2="112.4297"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="28.2852" x="43.7964" y="107.3638">$-w-</text></g><path d="M204,125.4297 L204,150.4297 L317,150.4297 L317,135.4297 L307,125.4297 L204,125.4297" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M307,125.4297 L307,135.4297 L317,135.4297 L307,125.4297" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="92.0601" x="210" y="142.4966">Packet denied</text><g class="message" data-participant-1="B" data-participant-2="RA"><line style="stroke:#181818;stroke-width:2;" x1="119.1187" x2="129.1187" y1="171.6953" y2="181.6953"/><line style="stroke:#181818;stroke-width:2;" x1="119.1187" x2="129.1187" y1="181.6953" y2="171.6953"/><line style="stroke:#181818;stroke-width:1;" x1="124.1187" x2="335.3696" y1="176.6953" y2="176.6953"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="28.2852" x="129.1187" y="171.6294">$-w-</text></g><path d="M55,189.6953 L55,214.6953 L168,214.6953 L168,199.6953 L158,189.6953 L55,189.6953" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M158,189.6953 L158,199.6953 L168,199.6953 L158,189.6953" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="92.0601" x="61" y="206.7622">Packet denied</text><path d="M62,224.8281 L62,249.8281 L309,249.8281 L309,234.8281 L299,224.8281 L62,224.8281" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M299,224.8281 L299,234.8281 L309,234.8281 L299,224.8281" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="226.6875" x="68" y="241.895">NAT table updated on both routers</text><g class="message" data-participant-1="A" data-participant-2="B"><polygon fill="#181818" points="324.3696,272.0938,334.3696,276.0938,324.3696,280.0938,328.3696,276.0938" style="stroke:#181818;stroke-width:1;"/><line style="stroke:#181818;stroke-width:1;" x1="36.7964" x2="330.3696" y1="276.0938" y2="276.0938"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="28.2852" x="43.7964" y="271.0278">$-w-</text></g><path d="M200,289.0938 L200,314.0938 L321,314.0938 L321,299.0938 L311,289.0938 L200,289.0938" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M311,289.0938 L311,299.0938 L321,299.0938 L311,289.0938" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="100.8896" x="206" y="306.1606">Packed allowed</text><g class="message" data-participant-1="B" data-participant-2="A"><polygon fill="#181818" points="47.7964,336.3594,37.7964,340.3594,47.7964,344.3594,43.7964,340.3594" style="stroke:#181818;stroke-width:1;"/><line style="stroke:#181818;stroke-width:1;" x1="41.7964" x2="335.3696" y1="340.3594" y2="340.3594"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="28.2852" x="53.7964" y="335.2935">$-w-</text></g><path d="M200,353.3594 L200,378.3594 L321,378.3594 L321,363.3594 L311,353.3594 L200,353.3594" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M311,353.3594 L311,363.3594 L321,363.3594 L311,353.3594" fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="100.8896" x="206" y="370.4263">Packed allowed</text><g class="message" data-participant-1="A" data-participant-2="B"><polygon fill="#181818" points="324.3696,400.625,334.3696,404.625,324.3696,408.625,328.3696,404.625" style="stroke:#181818;stroke-width:1;"/><line style="stroke:#181818;stroke-width:1;" x1="36.7964" x2="330.3696" y1="404.625" y2="404.625"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="31.9414" x="43.7964" y="399.5591">$rwx</text></g><g class="message" data-participant-1="B" data-participant-2="A"><polygon fill="#181818" points="47.7964,429.7578,37.7964,433.7578,47.7964,437.7578,43.7964,433.7578" style="stroke:#181818;stroke-width:1;"/><line style="stroke:#181818;stroke-width:1;" x1="41.7964" x2="335.3696" y1="433.7578" y2="433.7578"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="31.9414" x="53.7964" y="428.6919">$rwx</text></g><path d="M99,446.7578 L99,471.7578 L272,471.7578 L272,456.7578 L262,446.7578 L99,446.7578" fill="#90EE90" style="stroke:#181818;stroke-width:0.5;"/><path d="M262,446.7578 L262,456.7578 L272,456.7578 L262,446.7578" fill="#90EE90" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="152.2612" x="105" y="463.8247">Connection established</text></g></svg></div></div>
+<div class='puml-container'><div class="puml light" style="display: block">520. <!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en-US"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en-US"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en-US"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en-US"> <!--<![endif]-->
+<head>
+
+<title>plantuml.com | 520: Web server is returning an unknown error</title>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="stylesheet" id="cf_styles-css" href="/cdn-cgi/styles/main.css" />
+</head>
+<body>
+<div id="cf-wrapper">
+    <div id="cf-error-details" class="p-0">
+        <header class="mx-auto pt-10 lg:pt-6 lg:px-8 w-240 lg:w-full mb-8">
+            <h1 class="inline-block sm:block sm:mb-2 font-light text-60 lg:text-4xl text-black-dark leading-tight mr-2">
+                <span class="inline-block">Web server is returning an unknown error</span>
+                <span class="code-label">Error code 520</span>
+            </h1>
+            <div>
+                Visit <a href="https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_520&utm_campaign=www.plantuml.com" target="_blank" rel="noopener noreferrer">cloudflare.com</a> for more information.
+            </div>
+            <div class="mt-3">2025-07-23 22:58:51 UTC</div>
+        </header>
+        <div class="my-8 bg-gradient-gray">
+            <div class="w-240 lg:w-full mx-auto">
+                <div class="clearfix md:px-8">
+                    <div id="cf-browser-status" class=" relative w-1/3 md:w-full py-15 md:p-0 md:py-8 md:text-left md:border-solid md:border-0 md:border-b md:border-gray-400 overflow-hidden float-left md:float-none text-center">
+  <div class="relative mb-10 md:m-0">
+    
+    <span class="cf-icon-browser block md:hidden h-20 bg-center bg-no-repeat"></span>
+    <span class="cf-icon-ok w-12 h-12 absolute left-1/2 md:left-auto md:right-0 md:top-0 -ml-6 -bottom-4"></span>
+    
+  </div>
+  <span class="md:block w-full truncate">You</span>
+  <h3 class="md:inline-block mt-3 md:mt-0 text-2xl text-gray-600 font-light leading-1.3">
+  
+    Browser
+  
+  </h3>
+  
+  <span class="leading-1.3 text-2xl text-green-success">Working</span>
+  
+</div>
+                    <div id="cf-cloudflare-status" class=" relative w-1/3 md:w-full py-15 md:p-0 md:py-8 md:text-left md:border-solid md:border-0 md:border-b md:border-gray-400 overflow-hidden float-left md:float-none text-center">
+  <div class="relative mb-10 md:m-0">
+    <a href="https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_520&#38;utm_campaign=www.plantuml.com" target="_blank" rel="noopener noreferrer">
+    <span class="cf-icon-cloud block md:hidden h-20 bg-center bg-no-repeat"></span>
+    <span class="cf-icon-ok w-12 h-12 absolute left-1/2 md:left-auto md:right-0 md:top-0 -ml-6 -bottom-4"></span>
+    </a>
+  </div>
+  <span class="md:block w-full truncate">San Jose</span>
+  <h3 class="md:inline-block mt-3 md:mt-0 text-2xl text-gray-600 font-light leading-1.3">
+  <a href="https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_520&utm_campaign=www.plantuml.com" target="_blank" rel="noopener noreferrer">
+    Cloudflare
+  </a>
+  </h3>
+  
+  <span class="leading-1.3 text-2xl text-green-success">Working</span>
+  
+</div>
+                    <div id="cf-host-status" class="cf-error-source relative w-1/3 md:w-full py-15 md:p-0 md:py-8 md:text-left md:border-solid md:border-0 md:border-b md:border-gray-400 overflow-hidden float-left md:float-none text-center">
+  <div class="relative mb-10 md:m-0">
+    
+    <span class="cf-icon-server block md:hidden h-20 bg-center bg-no-repeat"></span>
+    <span class="cf-icon-error w-12 h-12 absolute left-1/2 md:left-auto md:right-0 md:top-0 -ml-6 -bottom-4"></span>
+    
+  </div>
+  <span class="md:block w-full truncate">www.plantuml.com</span>
+  <h3 class="md:inline-block mt-3 md:mt-0 text-2xl text-gray-600 font-light leading-1.3">
+  
+    Host
+  
+  </h3>
+  
+  <span class="leading-1.3 text-2xl text-red-error">Error</span>
+  
+</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-240 lg:w-full mx-auto mb-8 lg:px-8">
+            <div class="clearfix">
+                <div class="w-1/2 md:w-full float-left pr-6 md:pb-10 md:pr-0 leading-relaxed">
+                    <h2 class="text-3xl font-normal leading-1.3 mb-4">What happened?</h2>
+                    <p>There is an unknown connection issue between Cloudflare and the origin web server. As a result, the web page can not be displayed.</p>
+                </div>
+                <div class="w-1/2 md:w-full float-left leading-relaxed">
+                    <h2 class="text-3xl font-normal leading-1.3 mb-4">What can I do?</h2>
+                    
+                <h3 class="text-15 font-semibold mb-2">If you are a visitor of this website:</h3>
+                <p class="mb-6">Please try again in a few minutes.</p>
+
+                <h3 class="text-15 font-semibold mb-2">If you are the owner of this website:</h3>
+                <p><span>There is an issue between Cloudflare's cache and your origin web server. Cloudflare monitors for these errors and automatically investigates the cause. To help support the investigation, you can pull the corresponding error log from your web server and submit it our support team.  Please include the Ray ID (which is at the bottom of this error page).</span> <a rel="noopener noreferrer" href=   "https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-5xx-errors/error-520/">Additional troubleshooting resources</a>.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="cf-error-footer cf-wrapper w-240 lg:w-full py-10 sm:py-4 sm:px-8 mx-auto text-center sm:text-left border-solid border-0 border-t border-gray-300">
+    <p class="text-13">
+      <span class="cf-footer-item sm:block sm:mb-1">Cloudflare Ray ID: <strong class="font-semibold">963ec8dcff5517e6</strong></span>
+      <span class="cf-footer-separator sm:hidden">&bull;</span>
+      <span id="cf-footer-item-ip" class="cf-footer-item hidden sm:block sm:mb-1">
+        Your IP:
+        <button type="button" id="cf-footer-ip-reveal" class="cf-footer-ip-reveal-btn">Click to reveal</button>
+        <span class="hidden" id="cf-footer-ip">13.83.161.18</span>
+        <span class="cf-footer-separator sm:hidden">&bull;</span>
+      </span>
+      <span class="cf-footer-item sm:block sm:mb-1"><span>Performance &amp; security by</span> <a rel="noopener noreferrer" href="https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_520&#38;utm_campaign=www.plantuml.com" id="brand_link" target="_blank">Cloudflare</a></span>
+      
+    </p>
+    <script>(function(){function d(){var b=a.getElementById("cf-footer-item-ip"),c=a.getElementById("cf-footer-ip-reveal");b&&"classList"in b&&(b.classList.remove("hidden"),c.addEventListener("click",function(){c.classList.add("hidden");a.getElementById("cf-footer-ip").classList.remove("hidden")}))}var a=document;document.addEventListener&&a.addEventListener("DOMContentLoaded",d)})();</script>
+  </div><!-- /.error-footer -->
+
+    </div>
+</div>
+</body>
+</html></div></div>
 
 <h2 id="handshake-over-packetpeer">Handshake over PacketPeer</h2>
 <p>To run the handshake over raw UDP, call <code>PacketHandshake.over_packet_peer</code>. The
