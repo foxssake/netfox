@@ -26,6 +26,23 @@ unlock features, and invade other players’ bases for endless fun!
 
 [:simple-steam: Steam](https://store.steampowered.com/app/3423700/PL4noB/)
 
+## Chrome Carnage
+
+<a href="https://store.steampowered.com/app/3204000/Chrome_Carnage/">
+![Chrome Carnage](./assets/showcase/chrome-carnage.jpg)
+</a>
+
+Machines took all jobs but one - urban blood sport. Chrome Carnage is a
+multiplayer top down shooter set in vibrant chaotic cyberpunk cities. 
+
+*Chrome Carnage* is a top-down shooter drenched in the glow of cyberpunk
+dystopia, where hope is scarcer than a working vending machine. Rising sea
+levels have forced humanity into overcrowded platform cities.
+
+With everyone on basic welfare a mysterious underground app has the desperate
+masses hooked: win brutal street tournaments, score hectic amounts of crypto,
+and maybe—just maybe—eat something that doesn’t squeak.
+
 ## Your game here!
 
 Building something cool with *netfox*? Whether it's a game, an app, tool, or

@@ -149,9 +149,16 @@ page!
 ![Bubble Battle](docs/assets/showcase/bubble-battle.jpg)
 
 </a>
+
 <a href="https://store.steampowered.com/app/3423700/PL4noB/">
 
 ![PL4no-B](docs/assets/showcase/pl4nob.jpg)
+
+</a>
+
+<a href="https://store.steampowered.com/app/3204000/Chrome_Carnage/">
+
+![Chrome Carnage](docs/assets/showcase/chrome-carnage.jpg)
 
 </a>
 
