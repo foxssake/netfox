@@ -84,6 +84,7 @@ while (Ticks to simulate)  is (>0)
   :NetworkTime.on_tick;
   :NetworkTime.after_tick;
 endwhile
+:NetworkTime.after_tick_loop;
 
 :NetworkRollback.before_loop;
 while(Rollback)
@@ -93,8 +94,6 @@ while(Rollback)
   :NetworkRollback.on_record_tick;
 endwhile
 :NetworkRollback.after_loop;
-
-:NetworkTime.after_tick_loop;
 
 stop
 
