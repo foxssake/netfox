@@ -4,6 +4,7 @@ class_name NetworkSimulator
 
 ## Network Simulator 
 ## Auto connects launched instances and simulates network conditions like latency and packet loss
+## To use simply add this node to your scene tree and hook up the signals:
 
 ## Signal emitted on instance that successfully started a server
 ## Initialize your server from this signal
