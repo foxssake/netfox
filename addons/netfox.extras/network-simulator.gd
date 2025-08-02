@@ -4,7 +4,6 @@ class_name NetworkSimulator
 
 ## Network Simulator 
 ## Auto connects launched instances and simulates network conditions like latency and packet loss
-## To use simply add this node to your scene tree and hook up the signals:
 
 ## Signal emitted on instance that successfully started a server
 ## Initialize your server from this signal
@@ -27,12 +26,14 @@ signal client_connected
 ## Simulated packet loss percentage
 @export_range(0, 100) var packet_loss_percent: float = 0.0
 
+static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkSimulator")
+
 var enet_peer: ENetMultiplayerPeer = ENetMultiplayerPeer.new()
 
 # UDP proxy
 var proxy_thread: Thread
 var udp_proxy_server: PacketPeerUDP
-var udp_proxy_port: int = 9998
+var udp_proxy_port: int
 var rng_packet_loss: RandomNumberGenerator = RandomNumberGenerator.new()
 
 # Connection tracking
@@ -59,6 +60,7 @@ func _ready() -> void:
 		if status == Error.ERR_CANT_CREATE:
 			try_and_join()
 		
+		enet_peer.host.compress(ENetConnection.COMPRESS_RANGE_CODER)
 		multiplayer.multiplayer_peer = enet_peer
 
 func try_and_host() -> Error:
@@ -87,7 +89,7 @@ func start_udp_proxy() -> void:
 	
 	var bind_status = udp_proxy_server.bind(udp_proxy_port, hostname)
 	if bind_status != OK:
-		push_error("Failed to bind UDP proxy port: ", bind_status)
+		_logger.error("Failed to bind UDP proxy port: ", bind_status)
 		return
 	
 	proxy_thread.start(process_packets)
@@ -95,6 +97,11 @@ func start_udp_proxy() -> void:
 
 func process_packets() -> void:
 	while true:
+		var wait_backoff: int = 1
+		while not _is_data_available():
+			OS.delay_msec(wait_backoff)
+			wait_backoff = clamp(wait_backoff + 1, 1, 10)
+
 		var current_time: int = Time.get_ticks_msec()
 		var send_threshold: int = current_time - latency_ms
 		
@@ -105,13 +112,16 @@ func process_packets() -> void:
 			_read_server_to_client_packets(current_time)
 			_process_server_to_client_queue(send_threshold)
 
+func _is_data_available() -> bool:
+	return udp_proxy_server.get_available_packet_count() > 0 or not server_to_client_queue.is_empty()
+
 func _read_client_to_server_packets(current_time: int) -> void:
 	while udp_proxy_server.get_available_packet_count() > 0:
 		var packet = udp_proxy_server.get_packet()
 		var err = udp_proxy_server.get_packet_error()
 		
 		if err != OK:
-			push_error("UDP proxy incoming packet error: ", err)
+			_logger.error("UDP proxy incoming packet error: ", err)
 			continue
 		
 		var from_port = udp_proxy_server.get_packet_port()
@@ -146,7 +156,7 @@ func _read_server_to_client_packets(current_time: int) -> void:
 			var err = client_peer.get_packet_error()
 			
 			if err != OK:
-				push_error("UDP proxy server-to-client packet error from port ", client_port, ": ", err)
+				_logger.error("UDP proxy server-to-client packet error from port %s : %s", [client_port, err])
 				continue
 			
 			server_to_client_queue.push_back(QueueEntry.new(packet, current_time, client_port))
