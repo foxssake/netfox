@@ -29,7 +29,7 @@ signal client_connected
 ## Simulated packet loss percentage
 @export_range(0, 100) var packet_loss_percent: float = 0.0
 
-static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkSimulator")
+static var _logger: _NetfoxLogger = _NetfoxLogger.for_extras("NetworkSimulator")
 
 var enet_peer: ENetMultiplayerPeer = ENetMultiplayerPeer.new()
 
@@ -62,6 +62,9 @@ func _ready() -> void:
 		var status = try_and_host()
 		if status == Error.ERR_CANT_CREATE:
 			try_and_join()
+		elif status != OK:
+			_logger.error("Auto connecting failed with error - %s", [error_string(status)])
+
 
 		if use_compression:
 			enet_peer.host.compress(ENetConnection.COMPRESS_RANGE_CODER)
@@ -74,6 +77,7 @@ func try_and_host() -> Error:
 		if is_proxy_required():
 			start_udp_proxy()
 		server_created.emit()
+		_logger.info("Server started on port %s", [server_port])
 	return status
 
 func try_and_join() -> Error:
@@ -83,6 +87,7 @@ func try_and_join() -> Error:
 	var status = enet_peer.create_client(hostname, connect_port)
 	if status == OK:
 		client_connected.emit()
+		_logger.info("Client connected to %s:%s", [hostname, connect_port])
 	return status
 
 # Starts a UDP proxy server to simulate network conditions
@@ -104,7 +109,6 @@ func process_packets() -> void:
 	while true:
 		var wait_backoff: int = 1
 		while not _is_data_available():
-			_logger.debug("UDP Proxy waiting for data, backoff at %s ms", [wait_backoff])
 			OS.delay_msec(wait_backoff)
 			wait_backoff = clamp(wait_backoff + 1, 1, 10)
 
