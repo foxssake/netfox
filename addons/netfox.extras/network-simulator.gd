@@ -20,6 +20,9 @@ signal client_connected
 ## Server port to listen on, udp proxy will use port + 1 if simulating latency or packet loss
 @export var server_port: int = 9999
 
+## Use ENet's built-in range encoding for compression
+@export var use_compression: bool = true
+
 @export_category("Network Settings")
 ## Simulated latency in milliseconds. Total ping time will be double this value (to and from).
 @export_range(0, 200) var latency_ms: int = 0
@@ -37,19 +40,19 @@ var udp_proxy_port: int
 var rng_packet_loss: RandomNumberGenerator = RandomNumberGenerator.new()
 
 # Connection tracking
-var client_queues: Dictionary = {} # port to data stream  - Array[QueueEntry]
 var client_peers: Dictionary = {} # port to PacketPeerUDP
+var client_to_server_queue: Array[QueueEntry] = []
 var server_to_client_queue: Array[QueueEntry] = []
 
 class QueueEntry:
 	var packet_data: PackedByteArray
 	var queued_at: int
-	var target_port: int
+	var source_port: int # Which client port this came from
 	
-	func _init(packet: PackedByteArray, timestamp: int, port: int = -1) -> void:
+	func _init(packet: PackedByteArray, timestamp: int, port: int) -> void:
 		self.packet_data = packet
 		self.queued_at = timestamp
-		self.target_port = port
+		self.source_port = port
 
 func _ready() -> void:
 	await get_tree().process_frame
@@ -59,8 +62,10 @@ func _ready() -> void:
 		var status = try_and_host()
 		if status == Error.ERR_CANT_CREATE:
 			try_and_join()
-		
-		enet_peer.host.compress(ENetConnection.COMPRESS_RANGE_CODER)
+
+		if use_compression:
+			enet_peer.host.compress(ENetConnection.COMPRESS_RANGE_CODER)
+
 		multiplayer.multiplayer_peer = enet_peer
 
 func try_and_host() -> Error:
@@ -99,6 +104,7 @@ func process_packets() -> void:
 	while true:
 		var wait_backoff: int = 1
 		while not _is_data_available():
+			_logger.debug("UDP Proxy waiting for data, backoff at %s ms", [wait_backoff])
 			OS.delay_msec(wait_backoff)
 			wait_backoff = clamp(wait_backoff + 1, 1, 10)
 
@@ -106,14 +112,25 @@ func process_packets() -> void:
 		var send_threshold: int = current_time - latency_ms
 		
 		_read_client_to_server_packets(current_time)
-		_process_client_packets(send_threshold)
+		_process_client_to_server_packets(send_threshold)
 
-		if not client_queues.is_empty():
+		if not client_peers.is_empty():
 			_read_server_to_client_packets(current_time)
 			_process_server_to_client_queue(send_threshold)
 
 func _is_data_available() -> bool:
-	return udp_proxy_server.get_available_packet_count() > 0 or not server_to_client_queue.is_empty()
+	if udp_proxy_server.get_available_packet_count() > 0:
+		return true
+	
+	if not client_to_server_queue.is_empty() or not server_to_client_queue.is_empty():
+		return true
+	
+	# Check if any client peers have packets waiting
+	for client_peer in client_peers.values():
+		if client_peer.get_available_packet_count() > 0:
+			return true
+	
+	return false
 
 func _read_client_to_server_packets(current_time: int) -> void:
 	while udp_proxy_server.get_available_packet_count() > 0:
@@ -127,28 +144,32 @@ func _read_client_to_server_packets(current_time: int) -> void:
 		var from_port = udp_proxy_server.get_packet_port()
 		_register_client_if_new(from_port)
 		
-		var client_queue = client_queues[from_port] as Array[QueueEntry]
-		client_queue.push_back(QueueEntry.new(packet, current_time))
+		client_to_server_queue.push_back(QueueEntry.new(packet, current_time, from_port))
 
 func _register_client_if_new(port: int) -> void:
-	if client_queues.has(port):
+	if client_peers.has(port):
 		return
 
-	client_queues[port] = [] as Array[QueueEntry]
-
-	# Assign a new peer for this client
+	# Create a dedicated peer for this client
 	var client_peer = PacketPeerUDP.new()
 	client_peer.set_dest_address(hostname, server_port)
 	client_peers[port] = client_peer
 
-func _process_client_packets(send_threshold: int) -> void:
-	for client_port in client_queues.keys():
-		var queue = client_queues[client_port] as Array[QueueEntry]
-		var peer = client_peers[client_port] as PacketPeerUDP
-		_process_queue_to_peer(queue, peer, send_threshold)
+func _process_client_to_server_packets(send_threshold: int) -> void:
+	var packets_to_keep: Array[QueueEntry] = []
+	
+	for entry in client_to_server_queue:
+		if send_threshold < entry.queued_at:
+			packets_to_keep.append(entry)
+		else:
+			if _should_send_packet():
+				var peer = client_peers[entry.source_port] as PacketPeerUDP
+				peer.put_packet(entry.packet_data)
+	
+	client_to_server_queue = packets_to_keep
 
 func _read_server_to_client_packets(current_time: int) -> void:
-	for client_port in client_queues.keys():
+	for client_port in client_peers.keys():
 		var client_peer = client_peers[client_port] as PacketPeerUDP
 		
 		while client_peer.get_available_packet_count() > 0:
@@ -169,22 +190,10 @@ func _process_server_to_client_queue(send_threshold: int) -> void:
 			packets_to_keep.append(entry)
 		else:
 			if _should_send_packet():
-				udp_proxy_server.set_dest_address(hostname, entry.target_port)
+				udp_proxy_server.set_dest_address(hostname, entry.source_port)
 				udp_proxy_server.put_packet(entry.packet_data)
 	
 	server_to_client_queue = packets_to_keep
-
-func _process_queue_to_peer(queue: Array[QueueEntry], peer: PacketPeerUDP, send_threshold: int) -> void:
-	var packets_to_keep: Array[QueueEntry] = []
-	
-	for entry in queue:
-		if send_threshold < entry.queued_at:
-			packets_to_keep.append(entry)
-		else:
-			if _should_send_packet():
-				peer.put_packet(entry.packet_data)
-	
-	queue.assign(packets_to_keep)
 
 # Send packet or simulate loss
 func _should_send_packet() -> bool:
