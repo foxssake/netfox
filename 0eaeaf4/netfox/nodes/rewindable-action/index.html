@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://foxssake.github.io/netfox/0eaeaf4/netfox/nodes/rewindable-action/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>RewindableAction - netfox</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/version-selector.css" rel="stylesheet" />
+        <link href="../../../css/twemoji.css" rel="stylesheet" />
+        <link href="../../../assets/mkdocs_puml/puml.css" rel="stylesheet" />
+        <link href="../../../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "RewindableAction";
+        var mkdocs_page_input_path = "netfox/nodes/rewindable-action.md";
+        var mkdocs_page_url = "/netfox/0eaeaf4/netfox/nodes/rewindable-action/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script>
+  <script src="https://giscus.app/client.js"
+          data-repo="foxssake/netfox"
+          data-repo-id="R_kgDOKBON2A"
+          data-category="Docs"
+          data-category-id="DIC_kwDOKBON2M4Clib_"
+          data-mapping="title"
+          data-strict="0"
+          data-reactions-enabled="1"
+          data-emit-metadata="0"
+          data-input-position="top"
+          data-theme="light"
+          data-lang="en"
+          data-loading="lazy"
+          crossorigin="anonymous"
+          async>
+  </script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> netfox
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../upgrading/">Upgrading netfox</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../made-with-netfox/">Made with netfox</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../press-kit/">Press kit</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../contributors/">Contributors</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >Tutorials</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/responsive-player-movement/">Responsive player movement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/input-gathering-tips-and-tricks/">Input gathering tips and tricks</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/predicting-input/">Predicting input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/modifying-objects-during-rollback/">Modifying objects during rollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/configuring-properties-from-code/">Configuring properties from code</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/rollback-caveats/">Rollback caveats</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/interpolation-caveats/">Interpolation caveats</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Concepts</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../concepts/servers-clients-ownership/">Servers, clients, and ownership</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../concepts/authoritative-servers/">Authoritative servers</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/logging/">Logging</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-time/">NetworkTime</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-time-synchronizer/">NetworkTimeSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-events/">NetworkEvents</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/interpolators/">Interpolators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/property-paths/">Property paths</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-rollback/">NetworkRollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-performance/">NetworkPerformance</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/netfox-sharp/">Netfox Sharp</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Nodes</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../tick-interpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../rollback-synchronizer/">RollbackSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../state-synchronizer/">StateSynchronizer</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">RewindableAction</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#using-rewindableactions">Using RewindableActions</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#predicting-events">Predicting events</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#performing-events">Performing events</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#reacting-to-status-changes">Reacting to status changes</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#remembering-things-between-tick-loops">Remembering things between tick loops</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#handling-visuals-and-effects">Handling visuals and effects</a>
+    </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.noray</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.noray/guides/noray/">Noray</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.noray/guides/packet-handshake/">PacketHandshake</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.extras</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/physics/">Physics</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/base-net-input/">BaseNetInput</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/network-weapon/">NetworkWeapon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/rewindable-state-machine/">RewindableStateMachine</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/window-tiler/">WindowTiler</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">netfox</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">netfox</li>
+          <li class="breadcrumb-item">Nodes</li>
+      <li class="breadcrumb-item active">RewindableAction</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="rewindableaction">RewindableAction</h1>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>RewindableActions are <em>experimental</em>, meaning the API may change in
+breaking ways, and may be less stable than other features.</p>
+<p>Once the class matures and finds its final form, the <em>experimental</em> mark
+will be removed. Feedback is welcome in the meanwhile!</p>
+</div>
+<p>Synchronizes events that happen over the network, by letting peers predict the
+event happening, and then adjusting the game based on the host's response.</p>
+<p>For example, <em>RewindableActions</em> could be use to synchronize gun shots
+implemented as part of the rollback tick loop. This is implemented in the
+<a href="https://github.com/foxssake/netfox/tree/main/examples/rollback-fps">rollback-fps</a> example.</p>
+<h2 id="using-rewindableactions">Using RewindableActions</h2>
+<p>To use <em>RewindableActions</em>, add them as nodes to your scenes. Once that's done,
+grab a reference to them from your scripts as you would for any other node -
+e.g. by using its NodePath, or by @export-ing it as a variable:</p>
+<div class="highlight"><pre><span></span><code><span class="err">@</span><span class="k">onready</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">rewindable_action</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="o">$</span><span class="n">RewindableAction</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">RewindableAction</span>
+<span class="err">@</span><span class="k">export</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">rewindable_action</span><span class="p">:</span><span class="w"> </span><span class="n">RewindableAction</span>
+</code></pre></div>
+<h3 id="predicting-events">Predicting events</h3>
+<p>All peers ( both hosts and clients ) should run the same simulation in their
+<code>_rollback_tick</code> implementations. During the rollback tick, peers should
+determine whether they think an event happens by calling
+<code>RewindableAction.set_active()</code> - e.g. if they think the gun was fired they should
+call <code>RewindableAction.set_active(true)</code>, otherwise call
+<code>RewindableAction.set_active(false)</code>.</p>
+<p>The <em>RewindableAction</em> will keep track of the changes caused by <code>set_active()</code>.
+Clients ( i.e. peers <em>not</em> owning the <em>RewindableAction</em> ) will wait for the
+host ( i.e. peer owning the <em>RewindableAction</em> ) to broadcast the ground truth,
+noting when did the event happen, and when did it not.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Not calling <code>set_active()</code> on a specific tick means no prediction for that tick
+will be synchronized, potentially leading to desyncs.</p>
+</div>
+<h3 id="performing-events">Performing events</h3>
+<p>With the above, <em>RewindableAction</em> will synchronize <em>when</em> something happens,
+but <em>what</em> should happen is up to the game logic.</p>
+<p>For each rollback tick, to figure out what should happen, the <code>get_status()</code>
+method will return one of the following values:</p>
+<dl>
+<dt><code>RewindableAction.INACTIVE</code></dt>
+<dd>The event hasn't happened yet.</dd>
+<dt><code>RewindableAction.ACTIVE</code></dt>
+<dd>The event has already happened, and this is not the first time its logic
+will run.</dd>
+<dt><code>RewindableAction.CONFIRMING</code></dt>
+<dd>The event was just set to active in this tick.</dd>
+<dt><code>RewindableAction.CANCELLING</code></dt>
+<dd>The event was just set to inactive in this tick.</dd>
+</dl>
+<p>See the following graph for a better understanding of how a <em>RewindableAction</em>
+transitions from one state to another:</p>
+<div class='puml-container'><div class="puml light" style="display: block"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" data-diagram-type="STATE" height="206px" preserveAspectRatio="xMidYMid meet" style="width:303px;height:206px;background:#FFFFFF;" version="1.1" viewBox="0 0 303 206" width="303px" zoomAndPan="magnify" class="diagram"><defs/><g><text fill="#33FF02" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="264.9541" x="5" y="19">Dot Executable: /opt/local/bin/dot</text><text fill="#33FF02" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="236.2637" x="5" y="35.2969">Dot executable does not exist</text><text fill="#33FF02" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="291.5869" x="5" y="51.5938">Cannot find Graphviz. You should try</text><text fill="#33FF02" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="4.874" x="5" y="67.8906"> </text><text fill="#33FF02" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="81.4229" x="5" y="84.1875">@startuml</text><text fill="#33FF02" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="57.5449" x="5" y="100.4844">testdot</text><text fill="#33FF02" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="72.8369" x="5" y="116.7813">@enduml</text><text fill="#33FF02" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="4.874" x="5" y="133.0781"> </text><text fill="#33FF02" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="16.5225" x="9.874" y="149.375">or</text><text fill="#33FF02" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="4.874" x="5" y="165.6719"> </text><text fill="#33FF02" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="234.5068" x="5" y="181.9688">java -jar plantuml.jar -testdot</text><text fill="#33FF02" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="4.874" x="5" y="198.2656"> </text></g></svg></div></div>
+
+<p>Keeping with the gunfire example, if the status is <code>ACTIVE</code> or <code>CONFIRMING</code>,
+make sure to perform the firing logic - e.g. do a hitscan, and decrease the
+health of the player hit. In other words, make sure to update the <em>game state</em>.</p>
+<p>If the state is <code>CONFIRMING</code>, implement logic that may spawn other objects (
+e.g. a bullet hole when hitting a wall ).</p>
+<p>If the state is <code>CANCELLING</code>, undo any logic ran in <code>CONFIRMING</code>.</p>
+<p>Usually no extra code is necessary for <code>INACTIVE</code>, since the game state update
+can simply be skipped, and other related code is ran in
+<code>CONFIRMING</code>/<code>CANCELLING</code>.</p>
+<h3 id="reacting-to-status-changes">Reacting to status changes</h3>
+<p>Without <a href="../../tutorials/modifying-objects-during-rollback/">mutations</a>, nodes are not always re-ran for every tick during
+rollback. To make sure that rollback code is ran when the <em>RewindableAction</em>'s
+status changes, use <code>mutate()</code> to register the appropriate nodes to be
+<em>mutated</em> if the action's status changes, e.g.:</p>
+<div class="highlight"><pre><span></span><code><span class="err">@</span><span class="k">onready</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">rewindable_action</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="o">$</span><span class="n">RewindableAction</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">RewindableAction</span>
+
+<span class="k">func</span><span class="w"> </span><span class="n">_ready</span><span class="p">():</span>
+<span class="w">  </span><span class="n">rewindable_action</span><span class="o">.</span><span class="n">mutate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+<span class="k">func</span><span class="w"> </span><span class="n">_rollback_tick</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span><span class="w"> </span><span class="n">tick</span><span class="p">,</span><span class="w"> </span><span class="n">is_fresh</span><span class="p">):</span>
+<span class="w">  </span><span class="n">rewindable_action</span><span class="o">.</span><span class="n">set_active</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="remembering-things-between-tick-loops">Remembering things between tick loops</h3>
+<p><em>RewindableActions</em> also provide the concept of <em>context</em>. This is any
+arbitrary value that the <em>RewindableAction</em> will remember for the given tick,
+even throughout tick loops.</p>
+<p>The <em>context</em> value can be set and retrieved by the user.</p>
+<p>For example, <em>context</em> can be used for weapons to remember the projectile they
+have spawned. If the action transitions to <code>CANCELLING</code>, the <em>context</em> can be
+used to remember which projectile was spawned in that tick, and in turn, which
+projectile needs to be destroyed.</p>
+<p>Use <code>has_context()</code> to check if there's any context set, <code>get_context()</code> to
+retrieve it, <code>set_context()</code> to update the <em>context</em> value, and
+<code>erase_context()</code> to forget it.</p>
+<h2 id="handling-visuals-and-effects">Handling visuals and effects</h2>
+<p>Performing events ( e.g. a gunshot ) often includes not just updates to the
+game state ( like decreasing health ), but also visual- and audio effects to
+communicate what's happening to the player.</p>
+<p>Since a rollback tick loop may run multiple ticks in a single frame, simply
+playing sounds and other effects from the rollback tick loop can end up
+spamming particles and playing the same sound effects many times on the same
+frame.</p>
+<p>Instead, one approach would be to check whether the event has happened at the
+end of each tick loop, and if so, play the appropriate sounds and run the
+appropriate effects.</p>
+<p>Use <code>has_confirmed()</code> to check if the action has been confirmed since the
+beginning of the last tick loop ( i.e. had the <code>CONFIRMING</code> status ), and
+<code>has_cancelled()</code> to check if the action has been cancelled.</p>
+<p>For example:</p>
+<div class="highlight"><pre><span></span><code><span class="err">@</span><span class="k">onready</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">fire_action</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="o">$</span><span class="s2">&quot;Fire Action&quot;</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">RewindableAction</span>
+
+<span class="k">func</span><span class="w"> </span><span class="n">_ready</span><span class="p">():</span>
+<span class="w">    </span><span class="n">NetworkTime</span><span class="o">.</span><span class="n">after_tick_loop</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">_after_loop</span><span class="p">)</span>
+<span class="w">    </span><span class="c1"># ...</span>
+
+<span class="k">func</span><span class="w"> </span><span class="n">_after_loop</span><span class="p">():</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">fire_action</span><span class="o">.</span><span class="n">has_confirmed</span><span class="p">():</span>
+<span class="w">        </span><span class="n">sound</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+</code></pre></div>
+              
+            </div>
+          </div>
+  <hr>
+  <h2>User discussion</h2>
+  <div class="giscus" ></div>
+  <hr>
+  <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../state-synchronizer/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../../netfox.noray/guides/noray/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../assets/mkdocs_puml/puml.js"></script>
+      <script src="../../../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
