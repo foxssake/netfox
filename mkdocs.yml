@@ -8,7 +8,7 @@ extra_css:
   - css/twemoji.css
 plugins:
   - plantuml:
-      puml_url: https://www.plantuml.com/plantuml/
+      puml_url: !ENV [PLANTUML_URL, "http://www.plantuml.com/plantuml/"]
       theme:
         enabled: false
       interaction:
