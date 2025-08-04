@@ -23,6 +23,11 @@ jobs:
         uses: actions/configure-pages@v3
       - name: Setup Python
         uses: actions/setup-python@v5
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
       - name: Setup mkdocs
         run: pip install mkdocs && pip install $(mkdocs get-deps) && pip install mkdocs-material
       - name: Setup mike
