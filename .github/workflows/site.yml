@@ -27,5 +27,7 @@ jobs:
         run: pip install mkdocs && pip install $(mkdocs get-deps) && pip install mkdocs-material
       - name: Setup mike
         run: pip install mike
+      - name: Start PlantUML server
+        run: sh/setup-plantuml.sh
       - name: Build
-        run: sh/push-docs.sh
+        run: PLANTUML_URL=http://localhost:8080/ sh/push-docs.sh
