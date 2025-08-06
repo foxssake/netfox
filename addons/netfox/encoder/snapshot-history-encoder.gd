@@ -5,7 +5,7 @@ var _history: _PropertyHistoryBuffer
 var _property_cache: PropertyCache
 var _properties: Array[PropertyEntry]
 
-var _version := 0
+var _version := -1
 var _has_received := false
 
 static var _logger := _NetfoxLogger.for_netfox("_SnapshotHistoryEncoder")
@@ -24,15 +24,15 @@ func encode(tick: int, properties: Array[PropertyEntry]) -> Array:
 	var data := []
 	data.resize(properties.size() + 1)
 
-	data[0] = _version
 	for i in range(properties.size()):
-		data[i + 1] = snapshot.get_value(properties[i].to_string())
+		data[i] = snapshot.get_value(properties[i].to_string())
+	data.append(_version)
 
 	return data
 
 func decode(data: Array, properties: Array[PropertyEntry]) -> _PropertySnapshot:
 	var result := _PropertySnapshot.new()
-	var packet_version = data[0]
+	var packet_version = data.pop_back()
 
 	if packet_version != _version:
 		if not _has_received:
@@ -43,8 +43,8 @@ func decode(data: Array, properties: Array[PropertyEntry]) -> _PropertySnapshot:
 			_logger.warning("Version mismatch! own: %d, received: %s", [_version, packet_version])
 			return result
 
-	for i in range(1, properties.size()):
-		result.set_value(properties[i - 1].to_string(), data[i])
+	for i in range(0, properties.size()):
+		result.set_value(properties[i].to_string(), data[i])
 
 	_has_received = true
 

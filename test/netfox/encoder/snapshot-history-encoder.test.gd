@@ -23,6 +23,9 @@ func before_case(__):
 	source_encoder = _SnapshotHistoryEncoder.new(source_history, property_cache)
 	target_encoder = _SnapshotHistoryEncoder.new(target_history, property_cache)
 
+	source_encoder.set_properties(property_entries)
+	target_encoder.set_properties(property_entries)
+
 	# Set history
 	source_history.set_snapshot(0, SnapshotFixtures.state_snapshot(Vector3(1, 1, 0)))
 	target_history.set_snapshot(1, SnapshotFixtures.state_snapshot(Vector3(0, 1, 0)))
@@ -38,7 +41,6 @@ func test_encode_should_decode_to_same():
 	var data := source_encoder.encode(tick, property_entries)
 	var snapshot := target_encoder.decode(data, property_entries)
 
-	# TODO: Better support for custom types in vest
 	expect_equal(
 		snapshot.as_dictionary(),
 		source_history.get_snapshot(tick).as_dictionary()

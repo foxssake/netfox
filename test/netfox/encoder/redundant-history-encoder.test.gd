@@ -33,6 +33,9 @@ func before_case(__):
 	source_encoder.redundancy = REDUNDANCY
 	target_encoder.redundancy = 1
 
+	source_encoder.set_properties(property_entries)
+	target_encoder.set_properties(property_entries)
+
 	# Set some base data
 	for tick in range(REDUNDANCY):
 		source_history.set_snapshot(tick, SnapshotFixtures.input_snapshot(Vector3(tick, 0, 0)))
