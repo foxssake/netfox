@@ -6,7 +6,11 @@ var redundancy: int = 4:
 	set = set_redundancy
 
 var _history: _PropertyHistoryBuffer
+var _properties: Array[PropertyEntry]
 var _property_cache: PropertyCache
+
+var _version := 0
+var _has_received := false
 
 var _logger := _NetfoxLogger.for_netfox("RedundantHistoryEncoder")
 
@@ -22,10 +26,14 @@ func set_redundancy(p_redundancy: int):
 
 	redundancy = p_redundancy
 
+func set_properties(properties: Array[PropertyEntry]) -> void:
+	if _properties != properties:
+		_version = (_version + 1) % 256
+		_properties = properties.duplicate()
+
 func encode(tick: int, properties: Array[PropertyEntry]) -> Array:
 	if _history.is_empty():
 		return []
-
 	var data := []
 
 	for i in range(mini(redundancy, _history.size())):
@@ -37,11 +45,23 @@ func encode(tick: int, properties: Array[PropertyEntry]) -> Array:
 		for property in properties:
 			data.append(snapshot.get_value(property.to_string()))
 
+	data.append(_version)
 	return data
 
 func decode(data: Array, properties: Array[PropertyEntry]) -> Array[_PropertySnapshot]:
 	if data.is_empty() or properties.is_empty():
 		return []
+	
+	var packet_version := data.pop_back() as int
+
+	if packet_version != _version:
+		if not _has_received:
+			# First packet, assume version is OK
+			_version = packet_version
+		else:
+			# Version mismatch, can't parse
+			_logger.warning("Version mismatch! own: %d, received: %s", [_version, packet_version])
+			return []
 	
 	var result: Array[_PropertySnapshot] = []
 	var redundancy := data.size() / properties.size()
@@ -54,6 +74,8 @@ func decode(data: Array, properties: Array[PropertyEntry]) -> Array[_PropertySna
 		var prop_idx := i % properties.size()
 
 		result[offset_idx].set_value(properties[prop_idx].to_string(), data[i])
+
+	_has_received = true
 
 	return result
 
