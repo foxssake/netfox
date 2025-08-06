@@ -90,7 +90,7 @@ note over Net #lightgreen: Connection established
 
 ## Handshake over PacketPeer
 
-To run the handshake over raw UDP, call `PacketHandshake.over_packet_peer`. The
+To run the handshake over raw UDP, call `PacketHandshake.over_packet_peer()`. The
 specified PacketPeer will be used to send data until two-way connectivity is
 confirmed or the timeout is reached. Between every packet sent, it takes a
 short pause.
@@ -98,10 +98,12 @@ short pause.
 !!!note
     The PacketPeer must already be configured with a target address.
 
-## Handshake over ENetConnection
+## Handshake over ENet
 
 If the game is already running, the handshake must be done over the already
-active connection. For this case, use `PacketHandshake.over_enet`.
+active connection. For this case, use `PacketHandshake.over_enet_peer()`. If
+the [ENetMultiplayerPeer] is not accessible from where you want to do the
+handshake, use `PacketHandshake.over_enet()`.
 
 This connection can't be used to receive custom packets, only to send them. So
 the target address will be spammed with traffic confirming two-way connectivity
@@ -111,3 +113,4 @@ If the connectivity exists, players will simply connect. Otherwise,
 connectivity will fail as expected, regardless of the handshake results.
 
 [Network address translation]: https://en.wikipedia.org/wiki/Network_address_translation
+[ENetMultiplayerPeer]: https://docs.godotengine.org/en/4.1/classes/class_enetmultiplayerpeer.html
