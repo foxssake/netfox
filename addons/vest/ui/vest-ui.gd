@@ -1,5 +1,6 @@
 @tool
 extends Control
+class_name VestUI
 
 @onready var run_all_button := %"Run All Button" as Button
 @onready var debug_button := %"Debug Button" as Button
@@ -13,7 +14,14 @@ extends Control
 
 var _run_on_save: bool = false
 
-signal on_debug()
+static var _icon_size := 16
+static var _instance: VestUI
+
+static func get_icon_size() -> int:
+	return _icon_size
+
+static func _get_ui() -> VestUI:
+	return _instance
 
 func handle_resource_saved(resource: Resource):
 	if not resource is Script or not visible:
@@ -25,6 +33,10 @@ func handle_resource_saved(resource: Resource):
 func run_all(is_debug: bool = false):
 	Vest._register_scene_tree(get_tree())
 	var runner := VestDaemonRunner.new()
+
+	var test_glob := glob_line_edit.text
+	Vest.__.LocalSettings.test_glob = test_glob
+	Vest.__.LocalSettings.flush()
 
 	clear_results()
 	_set_placeholder_text("Waiting for results...")
@@ -39,10 +51,32 @@ func run_all(is_debug: bool = false):
 	var test_duration := Vest.time() - test_start
 
 	# Render individual results
+	ingest_results(results, test_duration)
+
+func run_script(script: Script, is_debug: bool = false) -> void:
+	Vest._register_scene_tree(get_tree())
+	var runner := VestDaemonRunner.new()
+
+	clear_results()
+	_set_placeholder_text("Waiting for results...")
+
+	var test_start := Vest.time()
+	var results: VestResult.Suite
+	if not is_debug:
+		results = await runner.run_script(script)
+	else:
+		results = await runner.with_debug().run_script(script)
+
+	var test_duration := Vest.time() - test_start
+
+	# Render individual results
+	ingest_results(results, test_duration)
+
+func ingest_results(results: VestResult.Suite, duration: float = -1.) -> void:
 	clear_results()
 	if results:
 		_render_result(results, results_tree)
-		_render_summary(results, test_duration)
+		_render_summary(results, duration)
 	else:
 		_set_placeholder_text("Test run failed!")
 
@@ -62,16 +96,15 @@ func _ready():
 	clear_button.pressed.connect(clear_results)
 	refresh_mixins_button.pressed.connect(func(): VestMixins.refresh())
 
-	glob_line_edit.text = Vest.get_test_glob()
+	glob_line_edit.text = Vest.__.LocalSettings.test_glob
 	glob_line_edit.text_changed.connect(func(text: String):
-		Vest.set_test_glob(text)
+		Vest.__.LocalSettings.test_glob = text
 	)
 
 	debug_button.pressed.connect(func(): run_all(true))
 
-func _notification(what):
-	if what == NOTIFICATION_DRAW:
-		glob_line_edit.text = Vest.get_test_glob()
+	_icon_size = int(16. * Vest._get_editor_interface().get_editor_scale())
+	_instance = self
 
 func _render_result(what: Object, tree: Tree, parent: TreeItem = null):
 	if what is VestResult.Suite:
@@ -80,7 +113,7 @@ func _render_result(what: Object, tree: Tree, parent: TreeItem = null):
 		item.set_text(1, what.get_aggregate_status_string().capitalize())
 
 		item.set_icon(0, _get_status_icon(what))
-		item.set_icon_max_width(0, tree.get_theme_font_size(""))
+		item.set_icon_max_width(0, VestUI.get_icon_size())
 
 		tree.item_activated.connect(func():
 			if tree.get_selected() == item:
@@ -98,7 +131,7 @@ func _render_result(what: Object, tree: Tree, parent: TreeItem = null):
 		item.collapsed = what.status == VestResult.TEST_PASS
 
 		item.set_icon(0, _get_status_icon(what))
-		item.set_icon_max_width(0, tree.get_theme_font_size(""))
+		item.set_icon_max_width(0, VestUI.get_icon_size())
 
 		_render_data(what, tree, item)
 
@@ -110,10 +143,13 @@ func _render_result(what: Object, tree: Tree, parent: TreeItem = null):
 		push_error("Rendering unknown object: %s" % [what])
 
 func _render_summary(results: VestResult.Suite, test_duration: float):
-	summary_label.text = "Ran %d tests in %.2fms" % [results.size(), test_duration * 1000.]
+	if test_duration > 0:
+		summary_label.text = "Ran %d tests in %.2fms" % [results.size(), test_duration * 1000.]
+	else:
+		summary_label.text = "Ran %d tests" % [results.size()]
 	summary_icon.visible = true
 	summary_icon.texture = _get_status_icon(results)
-	summary_icon.custom_minimum_size = Vector2i.ONE * get_theme_font("").get_height(get_theme_font_size(""))
+	summary_icon.custom_minimum_size = Vector2i.ONE * VestUI.get_icon_size() # TODO: Check
 
 func _render_data(case: VestResult.Case, tree: Tree, parent: TreeItem):
 	var data := case.data.duplicate()
@@ -124,6 +160,7 @@ func _render_data(case: VestResult.Case, tree: Tree, parent: TreeItem):
 
 		tree.item_activated.connect(func():
 			if tree.get_selected() == item:
+				# TODO: popup_dialog()
 				add_child(VestMessagePopup.of(case.message).window)
 		)
 
@@ -146,7 +183,7 @@ func _render_data(case: VestResult.Case, tree: Tree, parent: TreeItem):
 		for benchmark in data["benchmarks"]:
 			var benchmark_item = tree.create_item(header_item)
 			benchmark_item.set_text(0, benchmark["name"])
-			benchmark_item.set_text(1, benchmark["duration"])
+			if benchmark.has("duration"): benchmark_item.set_text(1, benchmark["duration"])
 
 			for measurement in benchmark.keys():
 				if measurement == "name": continue
@@ -170,6 +207,7 @@ func _render_data(case: VestResult.Case, tree: Tree, parent: TreeItem):
 		comparison_item.set_text(1, expect_string)
 
 		tree.item_activated.connect(func():
+			# TODO: popup_dialog()
 			if tree.get_selected() in [header_item, comparison_item]:
 				add_child(VestComparisonPopup.of(expect_string, got_string).window)
 		)
@@ -196,19 +234,16 @@ func _get_status_icon(what: Variant) -> Texture2D:
 	elif what is VestResult.Case:
 		if what.data.has("benchmarks"):
 			if what.status == VestResult.TEST_FAIL:
-				return preload("res://addons/vest/icons/benchmark-fail.svg")
+				return Vest.Icons.benchmark_fail
 			else:
-				return preload("res://addons/vest/icons/benchmark.svg")
+				return Vest.Icons.benchmark
 		else:
 			return _get_status_icon(what.status)
 	elif what is int:
 		match(what):
-			VestResult.TEST_VOID: return preload("res://addons/vest/icons/void.svg") as Texture2D
-			VestResult.TEST_TODO: return preload("res://addons/vest/icons/todo.svg") as Texture2D
-			VestResult.TEST_SKIP: return preload("res://addons/vest/icons/skip.svg") as Texture2D
-			VestResult.TEST_FAIL: return preload("res://addons/vest/icons/fail.svg") as Texture2D
-			VestResult.TEST_PASS: return preload("res://addons/vest/icons/pass.svg") as Texture2D
+			VestResult.TEST_VOID: return Vest.Icons.result_void
+			VestResult.TEST_TODO: return Vest.Icons.result_todo
+			VestResult.TEST_SKIP: return Vest.Icons.result_skip
+			VestResult.TEST_FAIL: return Vest.Icons.result_fail
+			VestResult.TEST_PASS: return Vest.Icons.result_pass
 	return null
-
-func _get_benchmark_icon() -> Texture2D:
-	return preload("res://addons/vest/icons/benchmark.svg") as Texture2D

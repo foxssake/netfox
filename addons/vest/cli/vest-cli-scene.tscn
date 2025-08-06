@@ -7,10 +7,7 @@ func _ready():
 	Vest._register_scene_tree(get_tree())
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_MINIMIZED)
 
-	var params := VestCLI.Params.new()
-	params.run_glob = Vest.get_test_glob()
-	params.host = \"0.0.0.0\"
-	params.port = Vest.get_debug_port()
+	var params := Vest.__.LocalSettings.run_params
 
 	var runner := VestCLI.Runner.new()
 	var exit_code := await runner.run(params)
