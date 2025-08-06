@@ -118,7 +118,8 @@ static func _get_generated_mixin_path(script: Script, idx: int) -> String:
 static func _get_builtin_mixins() -> Array[Script]:
 	return [
 		preload("res://addons/vest/test/mixins/gather-suite-mixin.gd"),
-		preload("res://addons/vest/test/mixins/assert-mixin.gd"),
+		preload("res://addons/vest/test/mixins/expect-mixin.gd"),
+		preload("res://addons/vest/test/mixins/assert-that-mixin.gd"),
 		preload("res://addons/vest/test/mixins/mock-mixin.gd"),
 		preload("res://addons/vest/test/mixins/capture-signal-mixin.gd"),
 		preload("res://addons/vest/test/mixins/logging-mixin.gd")

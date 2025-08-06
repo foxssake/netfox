@@ -20,11 +20,11 @@ var _got: String = ""
 
 # NOTE: This class may be rewritten, as we went from supporting 4.0.4 to 4.1.4
 
-static func of(expected: String, got: String):
+static func of(p_expected: String, p_got: String):
 	var popup_scene := (load("res://addons/vest/ui/comparison-popup.tscn") as PackedScene).instantiate(PackedScene.GEN_EDIT_STATE_MAIN)
 	var popup := VestComparisonPopup.new(popup_scene)
 
-	popup.set_contents(expected, got)
+	popup.set_contents(p_expected, p_got)
 
 	return popup
 
