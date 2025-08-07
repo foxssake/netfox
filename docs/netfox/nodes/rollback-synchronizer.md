@@ -92,9 +92,10 @@ By default, this work is done upon instantiation. If you need to change state
 or input properties during runtime, make sure to call `process_settings()`,
 otherwise *RollbackSynchronizer* won't apply the changes.
 
-While changing configuration after instantiation is possible, it is not
-recommended. You may get away with it if the configuration change happens in a
-few ticks after instantiation. For longer periods, experiment at your own risk.
+!!! warning
+    While changing configuration after instantiation is possible, it is not
+    recommended. You may get away with it if the configuration change happens in a
+    few ticks after instantiation. For longer periods, experiment at your own risk.
 
 ## Changing ownership
 
