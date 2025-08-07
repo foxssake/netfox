@@ -46,6 +46,20 @@ func test_encode_should_decode_to_same():
 		source_history.get_snapshot(tick).as_dictionary()
 	)
 
+func test_decode_should_fail_on_version_mismatch():
+	var tick := 0
+	var new_properties := property_entries.slice(0, 1)
+
+	# Transmit first tick to match versions
+	target_encoder.decode(source_encoder.encode(tick, property_entries), property_entries)
+
+	# Change property config for second transmit
+	source_encoder.set_properties(new_properties)
+	var encoded := source_encoder.encode(tick, new_properties)
+	var decoded := target_encoder.decode(encoded, property_entries)
+
+	expect_empty(decoded)
+
 func test_apply_should_update_history():
 	# Source encodes a snapshot, the target decodes and applies it.
 	# Histories should be in sync for the affected tick.

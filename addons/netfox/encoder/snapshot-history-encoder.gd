@@ -43,7 +43,10 @@ func decode(data: Array, properties: Array[PropertyEntry]) -> _PropertySnapshot:
 			_logger.warning("Version mismatch! own: %d, received: %s", [_version, packet_version])
 			return result
 
-	for i in range(0, properties.size()):
+	if properties.size() != data.size():
+		_logger.warning("Received snapshot with %d entries, with %d known - parsing as much as possible", [data.size(), properties.size()])
+
+	for i in range(0, mini(data.size(), properties.size())):
 		result.set_value(properties[i].to_string(), data[i])
 
 	_has_received = true
