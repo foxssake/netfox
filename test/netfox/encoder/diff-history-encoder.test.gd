@@ -15,9 +15,11 @@ var property_entries: Array[PropertyEntry]
 var source_encoder: _DiffHistoryEncoder
 var target_encoder: _DiffHistoryEncoder
 
+var root_node: SnapshotFixtures.StateNode 
+
 func before_case(__):
 	# Setup
-	var root_node := SnapshotFixtures.state_node()
+	root_node = SnapshotFixtures.state_node()
 	property_entries = SnapshotFixtures.state_propery_entries(root_node)
 
 	source_history = _PropertyHistoryBuffer.new()
@@ -80,6 +82,20 @@ func test_apply_should_continue_without_reference_tick():
 	var success := target_encoder.apply(2, snapshot, 1)
 
 	expect(success, "Snapshot should have been applied!")
+
+func test_decode_known_on_version_mismatch():
+	var new_properties := property_entries.duplicate()
+	new_properties.append(PropertyEntry.parse(root_node, ":quaternion"))
+
+	# Transmit first tick to match versions
+	target_encoder.decode(source_encoder.encode(2, 1, property_entries), property_entries)
+
+	# Change property config for second transmit
+	source_encoder.add_properties(new_properties)
+	var encoded := source_encoder.encode(2, 1, new_properties)
+	var decoded := target_encoder.decode(encoded, property_entries)
+
+	expect_not_empty(decoded)
 
 func test_bandwidth_on_no_change():
 	# Set first two ticks to equal

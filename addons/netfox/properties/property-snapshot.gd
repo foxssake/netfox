@@ -34,7 +34,6 @@ func equals(other: _PropertySnapshot):
 func is_empty() -> bool:
 	return _snapshot.is_empty()
 
-
 func apply(cache: PropertyCache) -> void:
 	for property_path in _snapshot:
 		var property_entry := cache.get_entry(property_path)

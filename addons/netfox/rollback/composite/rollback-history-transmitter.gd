@@ -89,6 +89,8 @@ func reset() -> void:
 		_next_diff_ack_tick += hash(root.name) % maxi(1, diff_ack_interval)
 
 	_diff_state_encoder.add_properties(_state_property_config.get_properties())
+	_full_state_encoder.set_properties(_get_owned_state_props())
+	_input_encoder.set_properties(_get_owned_input_props())
 
 func conclude_tick_loop() -> void:
 	_earliest_input_tick = NetworkTime.tick

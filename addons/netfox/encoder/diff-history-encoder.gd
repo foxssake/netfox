@@ -9,6 +9,9 @@ var _encoded_snapshot := {}
 
 var _property_indexes := _BiMap.new()
 
+var _version := 0
+var _has_received := false
+
 static var _logger := _NetfoxLogger.for_netfox("DiffHistoryEncoder")
 
 func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache):
@@ -16,8 +19,15 @@ func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache):
 	_property_cache = p_property_cache
 
 func add_properties(properties: Array[PropertyEntry]) -> void:
+	var has_new_properties := false
+
 	for property_entry in properties:
-		_ensure_property_idx(property_entry.to_string())
+		var is_new := _ensure_property_idx(property_entry.to_string())
+		has_new_properties = has_new_properties or is_new
+
+	# If we added any new properties, increment version
+	if has_new_properties:
+		_version = (_version + 1) % 256
 
 func encode(tick: int, reference_tick: int, properties: Array[PropertyEntry]) -> PackedByteArray:
 	assert(properties.size() <= 255, "Property indices may not fit into bytes!")
@@ -35,6 +45,7 @@ func encode(tick: int, reference_tick: int, properties: Array[PropertyEntry]) ->
 		return PackedByteArray()
 
 	var buffer := StreamPeerBuffer.new()
+	buffer.put_u8(_version)
 
 	for property in diff_snapshot.properties():
 		var property_idx := _property_indexes.get_by_value(property) as int
@@ -53,7 +64,20 @@ func decode(data: PackedByteArray, properties: Array[PropertyEntry]) -> _Propert
 
 	var buffer := StreamPeerBuffer.new()
 	buffer.data_array = data
-	
+
+	var packet_version := buffer.get_u8()
+	if packet_version != _version:
+		if not _has_received:
+			# This is the first time we receive data
+			# Assume the version is OK
+			_version = packet_version
+		else:
+			# Since we don't remove entries, only add, we can still parse what
+			# we can
+			_logger.warning("Property config version mismatch - own %d != received %d", [_version, packet_version])
+
+	_has_received = true
+
 	while buffer.get_available_bytes() > 0:
 		var property_idx := buffer.get_u8()
 		var property_value := buffer.get_var()
@@ -99,12 +123,14 @@ func get_encoded_snapshot() -> Dictionary:
 func get_full_snapshot() -> Dictionary:
 	return _full_snapshot
 
-func _ensure_property_idx(property: String):
+func _ensure_property_idx(property: String) -> bool:
 	if _property_indexes.has_value(property):
-		return
+		return false
 
 	assert(_property_indexes.size() < 256, "Property index map is full, can't add new property!")
 	var idx := hash(property) % 256
 	while _property_indexes.has_key(idx):
 		idx = hash(idx + 1) % 256
 	_property_indexes.put(idx, property)
+
+	return true
