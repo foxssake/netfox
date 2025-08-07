@@ -32,6 +32,9 @@ necessary - it will be called automatically.
     synchronized automatically! You, the developer, must ensure that
     configuration changes happen on all peers, at the same time.
 
+    Changing state- and input property configurations is not recommended during
+    gameplay.
+
 ## Adding properties automatically, in the editor
 
 You can ensure that certain properties are added to netfox's nodes'
