@@ -13,10 +13,13 @@ func _process(_delta):
 	text += "\nFactor: %.2f" % [NetworkTime.tick_factor]
 	text += "\nFPS: %s" % [Engine.get_frames_per_second()]
 
-	if not get_tree().get_multiplayer().is_server():
+	var has_connection = multiplayer.has_multiplayer_peer() \
+		and multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
+
+	if has_connection and not multiplayer.is_server():
 		# Grab latency to server and display
 		var enet = get_tree().get_multiplayer().multiplayer_peer as ENetMultiplayerPeer
-		if enet == null:
+		if enet == null or enet.get_peer(1) == null:
 			return
 			
 		var server = enet.get_peer(1)

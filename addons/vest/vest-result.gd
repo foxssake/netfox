@@ -100,7 +100,7 @@ class Case:
 			"case": case._to_wire(),
 			"status": status,
 			"message": message,
-			"data": data,
+			"data": Vest.__.Serializer.serialize(data),
 			"assert_file": assert_file,
 			"assert_line": assert_line
 		}

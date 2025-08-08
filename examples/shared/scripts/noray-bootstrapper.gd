@@ -170,7 +170,7 @@ func _handle_connect(address: String, port: int) -> Error:
 		# We should already have the connection configured, only thing to do is a handshake
 		var peer = get_tree().get_multiplayer().multiplayer_peer as ENetMultiplayerPeer
 		
-		err = await PacketHandshake.over_enet(peer.host, address, port)
+		err = await PacketHandshake.over_enet_peer(peer, address, port)
 		
 		if err != OK:
 			print("Handshake to %s:%s failed: %s" % [address, port, error_string(err)])

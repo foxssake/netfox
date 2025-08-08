@@ -28,15 +28,21 @@ class Answer:
 	func _is_answering(method: Callable, args: Array) -> bool:
 		if method != expected_method:
 			return false
+		if method.get_object() != expected_method.get_object():
+			return false
 		if expected_args.is_empty():
 			return true
 		if args.size() != expected_args.size():
 			return false
 		if args == expected_args:
+			print("Arg match!")
 			return true
-		if str(args) == str(expected_args):
-			# Do a lenient check, so users don't trip on unexpected diffs, like
-			# [2, 4] != [2., 4.]
+
+		# Do a lenient check, so users don't trip on unexpected diffs, like
+		# [2, 4] != [2., 4.]
+		var lenient_actual := args.map(func(it): return _map_lenient(it))
+		var lenient_expected := expected_args.map(func(it): return _map_lenient(it))
+		if lenient_actual == lenient_expected:
 			return true
 		return false
 
@@ -45,6 +51,14 @@ class Answer:
 			return _answer_method.call(args)
 		else:
 			return _answer_value
+
+	func _map_lenient(value: Variant) -> String:
+		if typeof(value) == TYPE_INT or typeof(value) == TYPE_FLOAT:
+			return "%.8f" % [value]
+		return str(value)
+
+	func _to_string() -> String:
+		return "Answer { %s.%s(%s) }" % [expected_method.get_object(), expected_method.get_method(), expected_args]
 
 ## A recorded method call
 class Call:

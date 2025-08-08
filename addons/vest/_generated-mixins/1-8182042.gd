@@ -56,12 +56,12 @@ func _get_suite() -> VestDefs.Suite:
 		elif method["name"].begins_with("test"):
 			case_methods.append(method)
 
-	return define(_get_suite_name(), func():
+	return await define(_get_suite_name(), func():
 		for method in define_methods:
-			call(method["name"])
+			await call(method["name"])
 
 		for method in case_methods:
-			test(method["name"].trim_prefix("test").capitalize(), func(): call(method["name"]))
+			test(method["name"].trim_prefix("test").capitalize(), func(): await call(method["name"]))
 
 		for method in parametric_methods:
 			var param_provider_name := method["default_args"][0] as String
@@ -71,7 +71,7 @@ func _get_suite() -> VestDefs.Suite:
 					[method["name"], param_provider_name]
 				)
 
-			var params = call(param_provider_name)
+			var params = await call(param_provider_name)
 			if not params is Array or not params.all(func(it): return it is Array):
 				push_warning(
 					"Can't run parametrized test \"%s\", provider \"%s\" didn't return array or arrays: %s" % \
@@ -81,6 +81,6 @@ func _get_suite() -> VestDefs.Suite:
 			for i in range(params.size()):
 				test(
 					"%s#%d %s" % [method["name"].trim_prefix("test").capitalize(), i+1, params[i]],
-					func(): callv(method["name"], params[i])
+					func(): await callv(method["name"], params[i])
 				)
 	)

@@ -61,6 +61,10 @@ func over_packet_peer(peer: PacketPeer, timeout: float = 8.0, frequency: float =
 
 ## Conduct handshake over an [ENetConnection].
 ##
+## If the connection is closed during the handshake, errors will be printed
+## until the end of the timeout. To avoid errors, use [method over_enet_peer]
+## when possible.
+##
 ## [i]Note[/i] that this is not a full-fledged handshake, since we can't receive
 ## data over the connection. Instead, we just pretend that the handshake is 
 ## successful on our end and blast that status for a given time.
@@ -76,6 +80,36 @@ func over_enet(connection: ENetConnection, address: String, port: int, timeout: 
 	while timeout >= 0:
 		# Send our state
 		connection.socket_send(address, port, status.to_string().to_ascii_buffer())
+		
+		await get_tree().create_timer(frequency).timeout
+		timeout -= frequency
+	
+	return result
+
+## Conduct handshake over an [ENetMultiplayerPeer].
+##
+## Compared to [method over_enet], using an [ENetMultiplayerPeer] allows
+## checking for closed connections. If the peer is closed during the handshake,
+## this method will gracefully fail.
+##
+## [i]Note[/i] that this is not a full-fledged handshake, since we can't receive
+## data over the connection. Instead, we just pretend that the handshake is 
+## successful on our end and blast that status for a given time.
+func over_enet_peer(peer: ENetMultiplayerPeer, address: String, port: int, timeout: float = 8.0, frequency: float = 0.1) -> Error:
+	var result = OK
+	var status = HandshakeStatus.new()
+
+	# Pretend this is a perfectly healthy handshake, since we can't receive data here
+	status.did_write = true
+	status.did_read = true
+	status.did_handshake = true
+	
+	while timeout >= 0:
+		if peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
+			return ERR_CONNECTION_ERROR
+			
+		# Send our state
+		peer.host.socket_send(address, port, status.to_string().to_ascii_buffer())
 		
 		await get_tree().create_timer(frequency).timeout
 		timeout -= frequency

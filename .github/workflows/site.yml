@@ -23,9 +23,16 @@ jobs:
         uses: actions/configure-pages@v3
       - name: Setup Python
         uses: actions/setup-python@v5
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
       - name: Setup mkdocs
         run: pip install mkdocs && pip install $(mkdocs get-deps) && pip install mkdocs-material
       - name: Setup mike
         run: pip install mike
+      - name: Start PlantUML server
+        run: sh/setup-plantuml.sh
       - name: Build
-        run: sh/push-docs.sh
+        run: PLANTUML_URL=http://localhost:8080/ sh/push-docs.sh
