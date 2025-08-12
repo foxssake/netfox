@@ -277,9 +277,12 @@ input properties change.</p>
 <p>By default, this work is done upon instantiation. If you need to change state
 or input properties during runtime, make sure to call <code>process_settings()</code>,
 otherwise <em>RollbackSynchronizer</em> won't apply the changes.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
 <p>While changing configuration after instantiation is possible, it is not
 recommended. You may get away with it if the configuration change happens in a
 few ticks after instantiation. For longer periods, experiment at your own risk.</p>
+</div>
 <h2 id="changing-ownership">Changing ownership</h2>
 <p>The setup work above is also needed whenever the multiplayer authority changes
 of any of the nodes that have a state- or input property.</p>
