@@ -31,33 +31,31 @@ func run_glob(glob: String) -> VestResult.Suite:
 	return await _run_with_params(params)
 
 func _run_with_params(params: VestCLI.Params) -> VestResult.Suite:
-	var is_debug = _is_debug_run
-	_is_debug_run = false
+	var timeout := Vest.timeout(Vest.get_runner_timeout())
 
 	# Start host
-	var port := Vest.get_debug_port() if is_debug else -1
-	if _start(port) != OK:
+	if _start(-1) != OK:
 		push_error("Couldn't start vest host!")
 		return null
 
 	# Start process
 	params.host = "0.0.0.0"
 	params.port = _port
-	if not is_debug:
+	if not _is_debug_run:
 		VestCLI.run(params)
 	else:
-		VestCLI.debug()
+		_is_debug_run = false
+		VestCLI.debug(params)
 
 	# Wait for agent to connect
-	if await Vest.until(func(): return _server.is_connection_available()) != OK:
+	if await timeout.until(func(): return _server.is_connection_available()) != OK:
 		push_error("Agent didn't connect in time!")
 		return null
 
 	_peer = _server.take_connection()
 
 	# Take results
-	# TODO: Configurable timeouts
-	if await Vest.until(func(): return _peer.get_available_bytes() > 0) != OK:
+	if await timeout.until(func(): return _peer.get_available_bytes() > 0) != OK:
 		push_error("Didn't receive results in time! Available bytes: %d" % [_peer.get_available_bytes()])
 		_stop()
 		return null

@@ -8,7 +8,7 @@ extra_css:
   - css/twemoji.css
 plugins:
   - plantuml:
-      puml_url: https://www.plantuml.com/plantuml/
+      puml_url: !ENV [PLANTUML_URL, "http://www.plantuml.com/plantuml/"]
       theme:
         enabled: false
       interaction:
@@ -63,6 +63,7 @@ nav:
       - 'netfox.noray/guides/packet-handshake.md'
   - netfox.extras:
     - Guides:
+      - 'netfox.extras/guides/physics.md'
       - 'netfox.extras/guides/base-net-input.md'
       - 'netfox.extras/guides/network-weapon.md'
       - 'netfox.extras/guides/rewindable-state-machine.md'

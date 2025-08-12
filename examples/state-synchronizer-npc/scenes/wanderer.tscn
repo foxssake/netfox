@@ -1,0 +1,36 @@
+[gd_scene load_steps=7 format=3 uid="uid://ru7kvgw7wjew"]
+
+[ext_resource type="Script" path="res://addons/netfox/state-synchronizer.gd" id="1_dmbj5"]
+[ext_resource type="Script" path="res://examples/state-synchronizer-npc/scripts/wanderer.gd" id="1_pvikn"]
+[ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="3_nyirf"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_0ixcg"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_b1vv8"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_lew78"]
+radius = 0.25
+height = 0.5
+
+[node name="Wanderer" type="CharacterBody3D"]
+script = ExtResource("1_pvikn")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_0ixcg")
+
+[node name="Body" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_b1vv8")
+
+[node name="Nose" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0.5)
+mesh = SubResource("SphereMesh_lew78")
+
+[node name="StateSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("1_dmbj5")
+root = NodePath("..")
+properties = Array[String]([":position", ":rotation", ":scale"])
+
+[node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("3_nyirf")
+root = NodePath("..")
+properties = Array[String]([":transform"])

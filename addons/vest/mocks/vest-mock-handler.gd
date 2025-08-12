@@ -38,4 +38,5 @@ func _handle(method: Callable, args: Array):
 
 	var answer := possible_answers.front() as VestMockDefs.Answer
 	_calls.append(call_data)
+
 	return answer._get_answer(args)

@@ -23,3 +23,5 @@ mono_crash.*.json
 build
 buildtmp
 vest.log
+
+plantuml-*.jar

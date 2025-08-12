@@ -1,11 +1,5 @@
 extends Label
 
-func _ready():
-	NetworkTime.on_tick.connect(_tick)
-
-func _tick(_delta: float, _t: int):
-	pass
-	
 func _process(_delta):
 	text = "Time: %.2f at tick #%d, clock at %.2f%%" % [NetworkTime.time, NetworkTime.tick, NetworkTime.clock_stretch_factor * 100.]
 	text += "\nClock offset: %.2fms, Remote offset: %.2fms" % [NetworkTime.clock_offset * 1000., NetworkTime.remote_clock_offset * 1000.]
@@ -13,13 +7,19 @@ func _process(_delta):
 	text += "\nFactor: %.2f" % [NetworkTime.tick_factor]
 	text += "\nFPS: %s" % [Engine.get_frames_per_second()]
 
-	if not get_tree().get_multiplayer().is_server():
+	var has_connection = multiplayer.has_multiplayer_peer() \
+		and multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
+
+	if has_connection and not multiplayer.is_server():
 		# Grab latency to server and display
 		var enet = get_tree().get_multiplayer().multiplayer_peer as ENetMultiplayerPeer
-		if enet == null:
+		if enet == null or enet.get_peer(1) == null:
 			return
-			
+
 		var server = enet.get_peer(1)
+		if server == null:
+			return
+
 		var last_rtt = server.get_statistic(ENetPacketPeer.PEER_LAST_ROUND_TRIP_TIME)
 		var last_variance = server.get_statistic(ENetPacketPeer.PEER_LAST_ROUND_TRIP_TIME_VARIANCE)
 		var mean_rtt = server.get_statistic(ENetPacketPeer.PEER_ROUND_TRIP_TIME)

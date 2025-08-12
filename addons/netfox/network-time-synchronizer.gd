@@ -174,6 +174,10 @@ func _loop() -> void:
 
 func _discipline_clock() -> void:
 	var sorted_samples := _sample_buffer.get_data()
+	if sorted_samples.is_empty():
+		# Should never happen
+		_logger.warning("Trying to discipline the clock with no samples available!")
+		return
 	
 	# Sort samples by latency
 	sorted_samples.sort_custom(
@@ -200,7 +204,12 @@ func _discipline_clock() -> void:
 		offset += offsets[i] * w
 		offset_weight += w
 	
-	offset /= offset_weight
+	if not is_zero_approx(offset_weight):
+		offset /= offset_weight
+	else:
+		# RTT is so good it's basically zero, which means offset_weight is zero
+		# Use a simple average instead
+		offset /= sorted_samples.size()
 	
 	# Panic / Adjust
 	if abs(offset) > panic_threshold:

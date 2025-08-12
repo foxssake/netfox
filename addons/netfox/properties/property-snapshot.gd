@@ -34,12 +34,6 @@ func equals(other: _PropertySnapshot):
 func is_empty() -> bool:
 	return _snapshot.is_empty()
 
-static func extract(properties: Array[PropertyEntry]) -> _PropertySnapshot:
-	var result = {}
-	for property in properties:
-		result[property.to_string()] = property.get_value()
-	return _PropertySnapshot.from_dictionary(result)
-
 func apply(cache: PropertyCache) -> void:
 	for property_path in _snapshot:
 		var property_entry := cache.get_entry(property_path)
@@ -57,8 +51,8 @@ func make_patch(data: _PropertySnapshot) -> _PropertySnapshot:
 	var result := {}
 
 	for property_path in data.properties():
-		var old_property := get_value(property_path)
-		var new_property := data.get_value(property_path)
+		var old_property = get_value(property_path)
+		var new_property = data.get_value(property_path)
 
 		if old_property != new_property:
 			result[property_path] = new_property
@@ -81,6 +75,12 @@ func sanitize(sender: int, property_cache: PropertyCache) -> void:
 			)
 
 	_snapshot = sanitized
+
+static func extract(properties: Array[PropertyEntry]) -> _PropertySnapshot:
+	var result = {}
+	for property in properties:
+		result[property.to_string()] = property.get_value()
+	return _PropertySnapshot.from_dictionary(result)
 
 func _init(p_snapshot: Dictionary = {}) -> void:
 	_snapshot = p_snapshot
