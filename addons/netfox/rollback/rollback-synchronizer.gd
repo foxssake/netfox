@@ -17,6 +17,9 @@ class_name RollbackSynchronizer
 ## [member root] even if there's no current input available for the tick.
 @export var enable_prediction: bool = false
 
+@export var public_visibility: bool = true
+@export var visibility_update_mode: int = 0 # TODO: Enum
+
 @export_group("State")
 ## Properties that define the game state.
 ## [br][br]
