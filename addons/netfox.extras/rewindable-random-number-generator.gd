@@ -44,7 +44,5 @@ func _ensure_state() -> void:
 	else:
 		_rng.state = hash([_rng.seed, NetworkTime.tick])
 
-	_logger.info("Reset state for ticks @%d/@%d to state=hash(%d, %d)=%d", [NetworkTime.tick, NetworkRollback.tick, _rng.seed, NetworkRollback.tick])
-
 	_last_reset_rollback_tick = NetworkRollback.tick
 	_last_reset_tick = NetworkTime.tick
