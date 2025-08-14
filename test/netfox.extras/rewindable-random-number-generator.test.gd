@@ -3,12 +3,6 @@ extends VestTest
 func get_suite_name():
 	return "RewindableRandomNumberGenerator"
 
-func before_case(__) -> void:
-	NetworkRollback._is_rollback = true # Mock rollback
-
-func after_case(__) -> void:
-	NetworkRollback._is_rollback = false # Reset
-
 func suite():
 	test("should generate the same numbers for the same rollback tick in different loop", func():
 		NetworkMocks.in_rollback(func():
