@@ -7,7 +7,7 @@ class_name StateSynchronizer
 ## Similar to Godot's [MultiplayerSynchronizer], but is tied to the network tick loop. Works well
 ## with [TickInterpolator].
 ## [br][br]
-## @tutorial(StateSynchronizer Guide): https://foxssake.github.io/netfox/netfox/nodes/state-synchronizer/
+## @tutorial(StateSynchronizer Guide): https://foxssake.github.io/netfox/latest/netfox/nodes/state-synchronizer/
 
 ## The root node for resolving node paths in properties.
 @export var root: Node

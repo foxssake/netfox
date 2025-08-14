@@ -13,6 +13,8 @@ class_name RewindableRandomNumberGenerator
 ## [br][br]
 ## The seed must be provided on instantiation, and must be the same on all peers
 ## for the random number generator to work properly.
+##
+## @tutorial(RewindableRandomNumberGenerator Guide): https://foxssake.github.io/netfox/latest/netfox.extras/guides/rewindable-random-number-generator/
 
 var _rng: RandomNumberGenerator
 var _last_reset_tick := -1

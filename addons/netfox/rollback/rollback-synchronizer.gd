@@ -5,7 +5,7 @@ class_name RollbackSynchronizer
 ## Similar to [MultiplayerSynchronizer], this class is responsible for
 ## synchronizing data between players, but with support for rollback.
 ## [br][br]
-## @tutorial(RollbackSynchronizer Guide): https://foxssake.github.io/netfox/netfox/nodes/rollback-synchronizer/
+## @tutorial(RollbackSynchronizer Guide): https://foxssake.github.io/netfox/latest/netfox/nodes/rollback-synchronizer/
 
 ## The root node for resolving node paths in properties. Defaults to the parent
 ## node.
