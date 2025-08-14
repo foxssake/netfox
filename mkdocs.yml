@@ -67,5 +67,6 @@ nav:
       - 'netfox.extras/guides/base-net-input.md'
       - 'netfox.extras/guides/network-weapon.md'
       - 'netfox.extras/guides/rewindable-state-machine.md'
+      - 'netfox.extras/guides/rewindable-random-number-generator.md'
       - 'netfox.extras/guides/window-tiler.md'
 
