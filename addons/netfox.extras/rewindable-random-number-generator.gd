@@ -31,9 +31,6 @@ func randi_range(from: int, to: int) -> int:
 	_ensure_state()
 	return _rng.randi_range(from, to)
 
-func randomize() -> void:
-	_logger.error("Can't randomize a rewindable RNG - set `seed` to a fixed value instead")
-
 func _ensure_state() -> void:
 	if NetworkTime.tick == _last_reset_tick and NetworkRollback.tick == _last_reset_rollback_tick:
 		# State already has been set
