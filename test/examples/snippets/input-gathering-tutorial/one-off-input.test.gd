@@ -28,7 +28,7 @@ func suite():
 		# Start tick loop
 		NetworkMocks.in_network_tick_loop(func():
 			# Single tick
-			NetworkMocks.in_network_tick()
+			NetworkMocks.run_network_tick()
 
 			# Check for result
 			expect_true(input.is_jumping)
@@ -46,11 +46,11 @@ func suite():
 		# Start tick loop
 		NetworkMocks.in_network_tick_loop(func():
 			# First tick
-			NetworkMocks.in_network_tick()
+			NetworkMocks.run_network_tick()
 			expect_true(input.is_jumping, "First tick should have input!")
 
 			# Second tick
-			NetworkMocks.in_network_tick()
+			NetworkMocks.run_network_tick()
 			expect_false(input.is_jumping, "Second tick should not have input!")
 		)
 	)

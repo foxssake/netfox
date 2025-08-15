@@ -25,7 +25,7 @@ static func in_network_tick_loop(callback: Callable) -> void:
 	NetworkTime.after_tick_loop.emit()
 
 ## Runs [param]callback[/param] as part of a network tick
-static func in_network_tick(callback: Callable = NOOP) -> void:
+static func in_network_tick(callback: Callable) -> void:
 	NetworkTime.before_tick.emit(NetworkTime.ticktime, NetworkTime.tick)
 	NetworkTime.on_tick.emit(NetworkTime.ticktime, NetworkTime.tick)
 	callback.call()
@@ -35,4 +35,4 @@ static func in_network_tick(callback: Callable = NOOP) -> void:
 
 ## Runs a single network tick
 static func run_network_tick() -> void:
-	in_network_tick()
+	in_network_tick(NOOP)
