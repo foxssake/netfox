@@ -22,7 +22,7 @@ func set_properties(properties: Array[PropertyEntry]) -> void:
 func encode(tick: int, properties: Array[PropertyEntry]) -> Array:
 	var snapshot := _history.get_snapshot(tick)
 	var data := []
-	data.resize(properties.size() + 1)
+	data.resize(properties.size())
 
 	for i in range(properties.size()):
 		data[i] = snapshot.get_value(properties[i].to_string())

@@ -99,7 +99,7 @@ func test_apply_should_fail_on_unauthorized_data():
 	var data := source_encoder.encode(tick, property_entries)
 	var snapshot := target_encoder.decode(data, property_entries)
 
-	NetworkTime._tick = tick + NetworkRollback.history_limit + 2
+	NetworkTime._tick = tick
 
 	expect_false(
 		target_encoder.apply(tick, snapshot, 2),
