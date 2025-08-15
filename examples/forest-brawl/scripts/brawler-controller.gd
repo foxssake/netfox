@@ -48,7 +48,7 @@ func shove(motion: Vector3):
 func _ready():
 	if not input:
 		input = $Input
-	
+
 	_snap_to_spawn()
 
 	GameEvents.on_brawler_spawn.emit(self)

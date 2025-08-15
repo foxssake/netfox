@@ -10,7 +10,7 @@ class_name RewindableState
 ## [br][br]
 ## Must have a [RewindableStateMachine] as a parent.
 ##
-## @tutorial(RewindableStateMachine Guide): https://foxssake.github.io/netfox/netfox.extras/guides/rewindable-state-machine/
+## @tutorial(RewindableStateMachine Guide): https://foxssake.github.io/netfox/latest/netfox.extras/guides/rewindable-state-machine/
 
 ## The [RewindableStateMachine] this state belongs to.
 ## [br][br]

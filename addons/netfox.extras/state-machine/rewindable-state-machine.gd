@@ -16,7 +16,7 @@ class_name RewindableStateMachine
 ## To implement states, extend the [RewindableState] class and add it as a child
 ## node.
 ##
-## @tutorial(RewindableStateMachine Guide): https://foxssake.github.io/netfox/netfox.extras/guides/rewindable-state-machine/
+## @tutorial(RewindableStateMachine Guide): https://foxssake.github.io/netfox/latest/netfox.extras/guides/rewindable-state-machine/
 
 ## Name of the current state.
 ##
