@@ -10,6 +10,7 @@ func suite():
 	var input := OneOffInput.new()
 
 	# TODO(vest): Some good way to add nodes to the tree
+	await NetworkTime.get_tree().process_frame
 	NetworkTime.get_tree().root.add_child(input)
 
 	test("should return false with no input", func():
