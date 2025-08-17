@@ -30,9 +30,9 @@ To read more about *netfox*'s *tick loop*, see the [Network tick loop].
 
 ## Continuous inputs
 
-Consider player movement - if the player holds up, the character will move
-north, right for east, down for south, left for west. If the player holds two
-directions, the character will move diagonally.
+Consider player movement - if the player holds the button *up*, the character
+will move north, right for east, *down* for south, *left* for west. If the
+player holds two directions, the character will move diagonally.
 
 Since the player needs to *hold* the buttons for movement to happen, it is
 considered a *continuous* input.
@@ -76,32 +76,7 @@ The solution is to sample player input on every `_process()` frame, and average
 the samples collected before each tick loop.
 
 ```gdscript
-extends BaseNetInput
-class_name PlayerInput
-
-var movement: Vector3 = Vector3.ZERO
-
-var _movement_buffer: Vector3 = Vector3.ZERO
-var _movement_samples: int = 0
-
-func _process(_dt: float) -> void:
-  _movement_buffer += Vector3(
-    Input.get_axis("move_west", "move_east"),
-    Input.get_action_strength("move_jump"),
-    Input.get_axis("move_north", "move_south")
-  )
-  _movement_samples += 1
-
-func _gather() -> void:
-  # Average samples
-  if _movement_samples > 0:
-    movement = _movement_buffer / _movement_samples
-  else:
-    movement = Vector3.ZERO
-
-  # Reset buffer
-  _movement_buffer = Vector3.ZERO
-  _movement_samples = 0
+--8<-- "examples/snippets/input-gathering-tutorial/continuous-sampled-input.gd"
 ```
 
 This way, every known input is taken into account.
