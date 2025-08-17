@@ -17,7 +17,7 @@ var _visibility_overrides: Dictionary = {}
 var _update_mode: UpdateMode = UpdateMode.ON_PEER
 
 var _visible_peers: Array[int] = []
-var _iter_idx: int = -1
+var _rpc_target_peers: Array[int] = []
 
 func add_visibility_filter(filter: Callable) -> void:
 	if not _visibility_filters.has(filter):
@@ -45,13 +45,35 @@ func unset_visibility_for(peer: int) -> void:
 	_visibility_overrides.erase(peer)
 
 func update_visibility(peers: Array[int] = multiplayer.get_peers()) -> void:
+	# Find visible peers
 	_visible_peers.clear()
 	for peer in peers:
 		if get_visibility_for(peer):
 			_visible_peers.append(peer)
 
+	# Decide how many RPC calls are needed to cover visible peers
+	if _visible_peers.size() == peers.size():
+		# Everyone is visible -> broadcast
+		_rpc_target_peers = [MultiplayerPeer.TARGET_PEER_BROADCAST]
+	elif _visible_peers.size() == peers.size() - 1:
+		# Only a single peer is missing, exclude that
+		var excluded_peer := -1
+		for peer in peers:
+			if not _visible_peers.has(peer):
+				_rpc_target_peers = [-peer]
+				break
+	else:
+		# Custom list, can't optimize RPC call count
+		_rpc_target_peers = _visible_peers
+		# Don't include self in RPC target list
+		# TODO: Make this configurable via flag
+		_rpc_target_peers.erase(multiplayer.get_unique_id())
+
 func get_visible_peers() -> Array[int]:
 	return _visible_peers
+
+func get_rpc_target_peers() -> Array[int]:
+	return _rpc_target_peers
 
 func set_update_mode(mode: UpdateMode) -> void:
 	_disconnect_update_handlers(_update_mode)
@@ -95,22 +117,3 @@ func _handle_peer_disconnect(__):
 
 func _handle_tick(_dt, _t):
 	update_visibility()
-
-func _iter_init(arg) -> bool:
-	update_visibility()
-
-	_iter_idx = 0
-	return _can_iterate()
-
-func _iter_next(arg) -> bool:
-	_iter_idx += 1
-	return _can_iterate()
-
-func _iter_get(arg):
-	return _visible_peers[_iter_idx]
-
-func _can_iterate() -> bool:
-	if _visible_peers.is_empty() or _iter_idx >= _visible_peers.size():
-		_iter_idx = -1
-		return false
-	return true

@@ -17,9 +17,6 @@ class_name RollbackSynchronizer
 ## [member root] even if there's no current input available for the tick.
 @export var enable_prediction: bool = false
 
-@export var public_visibility: bool = true
-@export var visibility_update_mode: int = 0 # TODO: Enum
-
 @export_group("State")
 ## Properties that define the game state.
 ## [br][br]
@@ -66,6 +63,9 @@ var diff_ack_interval: int = 0
 ## sending it to the server only. Turning this off is recommended to save
 ## bandwidth and reduce cheating risks.
 @export var enable_input_broadcast: bool = true
+
+# Make sure this exists from the get-go, just not in the scene tree
+var visibility_filter := _PeerVisibilityFilter.new()
 
 var _state_property_config: _PropertyConfig = _PropertyConfig.new()
 var _input_property_config: _PropertyConfig = _PropertyConfig.new()
@@ -115,7 +115,7 @@ func process_settings() -> void:
 	_nodes.erase(self)
 
 	_history_transmitter.sync_settings(root, enable_input_broadcast, full_state_interval, diff_ack_interval)
-	_history_transmitter.configure(_states, _inputs, _state_property_config, _input_property_config, _property_cache, _skipset)
+	_history_transmitter.configure(_states, _inputs, _state_property_config, _input_property_config, visibility_filter, _property_cache, _skipset)
 	_history_recorder.configure(_states, _inputs, _state_property_config, _input_property_config, _property_cache, _skipset)
 
 ## Process settings based on authority.
@@ -313,6 +313,12 @@ func _get_configuration_warnings() -> PackedStringArray:
 func _enter_tree() -> void:
 	if Engine.is_editor_hint():
 		return
+
+	if visibility_filter == null:
+		visibility_filter = _PeerVisibilityFilter.new()
+
+	if not visibility_filter.is_inside_tree():
+		add_child(visibility_filter)
 
 	if _history_transmitter == null:
 		_history_transmitter = _RollbackHistoryTransmitter.new()
