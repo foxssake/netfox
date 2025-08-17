@@ -314,10 +314,10 @@ func _enter_tree() -> void:
 	if Engine.is_editor_hint():
 		return
 
-	if visibility_filter == null:
+	if not visibility_filter:
 		visibility_filter = _PeerVisibilityFilter.new()
 
-	if not visibility_filter.is_inside_tree():
+	if not visibility_filter.get_parent():
 		add_child(visibility_filter)
 
 	if _history_transmitter == null:
