@@ -1,11 +1,20 @@
 extends Node
 class_name _PeerVisibilityFilter
 
+enum UpdateMode {
+	NEVER,
+	ON_PEER,
+	PER_TICK_LOOP,
+	PER_TICK
+}
+
 var default_visibility: bool = true
-var visibility_update_mode: int = 0 # TODO: Enum, cache visible peers?
+var update_mode: UpdateMode:
+	get = get_update_mode, set = set_update_mode
 
 var _visibility_filters: Array[Callable] = []
 var _visibility_overrides: Dictionary = {}
+var _update_mode: UpdateMode = UpdateMode.ON_PEER
 
 var _visible_peers: Array[int] = []
 var _iter_idx: int = -1
@@ -43,6 +52,49 @@ func update_visibility(peers: Array[int] = multiplayer.get_peers()) -> void:
 
 func get_visible_peers() -> Array[int]:
 	return _visible_peers
+
+func set_update_mode(mode: UpdateMode) -> void:
+	_disconnect_update_handlers(_update_mode)
+	_connect_update_handlers(mode)
+	_update_mode = mode
+
+func get_update_mode() -> UpdateMode:
+	return UpdateMode.NEVER
+
+func _disconnect_update_handlers(mode: UpdateMode):
+	match mode:
+		UpdateMode.NEVER: pass
+		UpdateMode.ON_PEER:
+			multiplayer.peer_connected.disconnect(_handle_peer_connect)
+			multiplayer.peer_disconnected.disconnect(_handle_peer_disconnect)
+		UpdateMode.PER_TICK_LOOP:
+			NetworkTime.before_tick_loop.disconnect(update_visibility)
+		UpdateMode.PER_TICK:
+			NetworkTime.before_tick.disconnect(_handle_tick)
+		_:
+			assert(false, "Unhandled update mode! %d" % [update_mode])
+
+func _connect_update_handlers(mode: UpdateMode):
+	match mode:
+		UpdateMode.NEVER: pass
+		UpdateMode.ON_PEER:
+			multiplayer.peer_connected.connect(_handle_peer_connect)
+			multiplayer.peer_disconnected.connect(_handle_peer_disconnect)
+		UpdateMode.PER_TICK_LOOP:
+			NetworkTime.before_tick_loop.connect(update_visibility)
+		UpdateMode.PER_TICK:
+			NetworkTime.before_tick.connect(_handle_tick)
+		_:
+			assert(false, "Unhandled update mode! %d" % [update_mode])
+
+func _handle_peer_connect(__):
+	update_visibility()
+
+func _handle_peer_disconnect(__):
+	update_visibility()
+
+func _handle_tick(_dt, _t):
+	update_visibility()
 
 func _iter_init(arg) -> bool:
 	update_visibility()
