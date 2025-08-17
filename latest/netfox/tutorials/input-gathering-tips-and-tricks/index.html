@@ -226,9 +226,9 @@ tick in the loop. This explains why special measures need to be taken in some
 cases.</p>
 <p>To read more about <em>netfox</em>'s <em>tick loop</em>, see the <a href="../../guides/network-time/#network-tick-loop">Network tick loop</a>.</p>
 <h2 id="continuous-inputs">Continuous inputs</h2>
-<p>Consider player movement - if the player holds up, the character will move
-north, right for east, down for south, left for west. If the player holds two
-directions, the character will move diagonally.</p>
+<p>Consider player movement - if the player holds the button <em>up</em>, the character
+will move north, right for east, <em>down</em> for south, <em>left</em> for west. If the
+player holds two directions, the character will move diagonally.</p>
 <p>Since the player needs to <em>hold</em> the buttons for movement to happen, it is
 considered a <em>continuous</em> input.</p>
 <p>Checking the inputs pressed at the point of gather works:</p>
@@ -254,7 +254,6 @@ pressing Up <em>the majority of the time</em>.</p>
 <p>The solution is to sample player input on every <code>_process()</code> frame, and average
 the samples collected before each tick loop.</p>
 <div class="highlight"><pre><span></span><code><span class="k">extends</span><span class="w"> </span><span class="n">BaseNetInput</span>
-<span class="k">class_name</span><span class="w"> </span><span class="n">PlayerInput</span>
 
 <span class="k">var</span><span class="w"> </span><span class="n">movement</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">Vector3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb nb-Type">Vector3</span><span class="o">.</span><span class="n">ZERO</span>
 
@@ -262,23 +261,23 @@ the samples collected before each tick loop.</p>
 <span class="k">var</span><span class="w"> </span><span class="n">_movement_samples</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
 
 <span class="k">func</span><span class="w"> </span><span class="n">_process</span><span class="p">(</span><span class="n">_dt</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">void</span><span class="p">:</span>
-<span class="w">  </span><span class="n">_movement_buffer</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="nb nb-Type">Vector3</span><span class="p">(</span>
-<span class="w">    </span><span class="n">Input</span><span class="o">.</span><span class="n">get_axis</span><span class="p">(</span><span class="s2">&quot;move_west&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;move_east&quot;</span><span class="p">),</span>
-<span class="w">    </span><span class="n">Input</span><span class="o">.</span><span class="n">get_action_strength</span><span class="p">(</span><span class="s2">&quot;move_jump&quot;</span><span class="p">),</span>
-<span class="w">    </span><span class="n">Input</span><span class="o">.</span><span class="n">get_axis</span><span class="p">(</span><span class="s2">&quot;move_north&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;move_south&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="p">)</span>
-<span class="w">  </span><span class="n">_movement_samples</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">    </span><span class="n">_movement_buffer</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="nb nb-Type">Vector3</span><span class="p">(</span>
+<span class="w">        </span><span class="n">Input</span><span class="o">.</span><span class="n">get_axis</span><span class="p">(</span><span class="s2">&quot;move_west&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;move_east&quot;</span><span class="p">),</span>
+<span class="w">        </span><span class="n">Input</span><span class="o">.</span><span class="n">get_action_strength</span><span class="p">(</span><span class="s2">&quot;move_jump&quot;</span><span class="p">),</span>
+<span class="w">        </span><span class="n">Input</span><span class="o">.</span><span class="n">get_axis</span><span class="p">(</span><span class="s2">&quot;move_north&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;move_south&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="w">    </span><span class="n">_movement_samples</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span>
 
 <span class="k">func</span><span class="w"> </span><span class="n">_gather</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">void</span><span class="p">:</span>
-<span class="w">  </span><span class="c1"># Average samples</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="n">_movement_samples</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">:</span>
-<span class="w">    </span><span class="n">movement</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_movement_buffer</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">_movement_samples</span>
-<span class="w">  </span><span class="k">else</span><span class="p">:</span>
-<span class="w">    </span><span class="n">movement</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb nb-Type">Vector3</span><span class="o">.</span><span class="n">ZERO</span>
+<span class="w">    </span><span class="c1"># Average samples</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">_movement_samples</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">:</span>
+<span class="w">        </span><span class="n">movement</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_movement_buffer</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">_movement_samples</span>
+<span class="w">    </span><span class="k">else</span><span class="p">:</span>
+<span class="w">        </span><span class="n">movement</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb nb-Type">Vector3</span><span class="o">.</span><span class="n">ZERO</span>
 
-<span class="w">  </span><span class="c1"># Reset buffer</span>
-<span class="w">  </span><span class="n">_movement_buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb nb-Type">Vector3</span><span class="o">.</span><span class="n">ZERO</span>
-<span class="w">  </span><span class="n">_movement_samples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">    </span><span class="c1"># Reset buffer</span>
+<span class="w">    </span><span class="n">_movement_buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb nb-Type">Vector3</span><span class="o">.</span><span class="n">ZERO</span>
+<span class="w">    </span><span class="n">_movement_samples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
 </code></pre></div>
 <p>This way, every known input is taken into account.</p>
 <p>This method shines the best in cases where the network tickrate is considerably
@@ -318,24 +317,21 @@ only on a single frame.</p>
 <em>continuous inputs</em>. The difference is that we reset the input value after it's
 gathered - this way, the input will be true for <em>at most</em> a single tick:</p>
 <div class="highlight"><pre><span></span><code><span class="k">extends</span><span class="w"> </span><span class="n">BaseNetInput</span>
-<span class="k">class_name</span><span class="w"> </span><span class="n">PlayerInput</span>
 
 <span class="k">var</span><span class="w"> </span><span class="n">is_jumping</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">false</span>
 <span class="k">var</span><span class="w"> </span><span class="n">_is_jumping_buffer</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">false</span>
 
 <span class="k">func</span><span class="w"> </span><span class="n">_ready</span><span class="p">():</span>
-<span class="w">  </span><span class="n">super</span><span class="p">()</span>
-<span class="w">  </span><span class="n">NetworkTime</span><span class="o">.</span><span class="n">after_tick</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">func</span><span class="p">(</span><span class="n">_dt</span><span class="p">,</span><span class="w"> </span><span class="n">_t</span><span class="p">):</span><span class="w"> </span><span class="n">_reset</span><span class="p">())</span>
+<span class="w">    </span><span class="n">super</span><span class="p">()</span>
+<span class="w">    </span><span class="n">NetworkTime</span><span class="o">.</span><span class="n">after_tick</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">func</span><span class="p">(</span><span class="n">_dt</span><span class="p">,</span><span class="w"> </span><span class="n">_t</span><span class="p">):</span><span class="w"> </span><span class="n">_gather_always</span><span class="p">())</span>
 
 <span class="k">func</span><span class="w"> </span><span class="n">_process</span><span class="p">(</span><span class="n">_dt</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">void</span><span class="p">:</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="n">Input</span><span class="o">.</span><span class="n">is_action_just_pressed</span><span class="p">(</span><span class="s2">&quot;move_jump&quot;</span><span class="p">):</span>
-<span class="w">    </span><span class="n">_is_jumping_buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">true</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">Input</span><span class="o">.</span><span class="n">is_action_just_pressed</span><span class="p">(</span><span class="s2">&quot;move_jump&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="n">_is_jumping_buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">true</span>
 
-<span class="k">func</span><span class="w"> </span><span class="n">_gather</span><span class="p">():</span>
-<span class="w">  </span><span class="n">is_jumping</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_is_jumping_buffer</span>
-
-<span class="k">func</span><span class="w"> </span><span class="n">_reset</span><span class="p">():</span>
-<span class="w">  </span><span class="n">_is_jumping_buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">false</span>
+<span class="k">func</span><span class="w"> </span><span class="n">_gather_always</span><span class="p">():</span>
+<span class="w">    </span><span class="n">is_jumping</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_is_jumping_buffer</span>
+<span class="w">    </span><span class="n">_is_jumping_buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">false</span>
 </code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
