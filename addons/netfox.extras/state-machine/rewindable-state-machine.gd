@@ -75,13 +75,20 @@ func transition(new_state_name: StringName) -> void:
 	if _state_object:
 		if !new_state.can_enter(_state_object):
 			return
-
+		
+		new_state._transition_prevented = false
 		_state_object.exit(new_state, NetworkRollback.tick)
+		_state_object.state_exit.emit(new_state, NetworkRollback.tick)
+		# NOTE: assuming that we call prevent_transition() in exit
+		# since we should call prevent_transition() for new_state
+		if new_state._transition_prevented:
+			return
 
 	var _previous_state: RewindableState = _state_object
 	_state_object = new_state
 	on_state_changed.emit(_previous_state, new_state)
 	_state_object.enter(_previous_state, NetworkRollback.tick)
+	_state_object.state_enter.emit(_previous_state, NetworkRollback.tick)
 
 func _notification(what: int):
 	# Use notification instead of _ready, so users can write their own _ready
@@ -133,6 +140,7 @@ func _get_configuration_warnings():
 func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 	if _state_object:
 		_state_object.tick(delta, tick, is_fresh)
+		_state_object.state_tick.emit(delta, tick, is_fresh)
 
 func _after_tick_loop():
 	if _state_object != _previous_state_object:
