@@ -5,7 +5,8 @@ enum UpdateMode {
 	NEVER,
 	ON_PEER,
 	PER_TICK_LOOP,
-	PER_TICK
+	PER_TICK,
+	PER_ROLLBACK_TICK
 }
 
 var default_visibility: bool = true
@@ -83,7 +84,7 @@ func set_update_mode(mode: UpdateMode) -> void:
 func get_update_mode() -> UpdateMode:
 	return UpdateMode.NEVER
 
-func _disconnect_update_handlers(mode: UpdateMode):
+func _disconnect_update_handlers(mode: UpdateMode) -> void:
 	match mode:
 		UpdateMode.NEVER: pass
 		UpdateMode.ON_PEER:
@@ -93,10 +94,12 @@ func _disconnect_update_handlers(mode: UpdateMode):
 			NetworkTime.before_tick_loop.disconnect(update_visibility)
 		UpdateMode.PER_TICK:
 			NetworkTime.before_tick.disconnect(_handle_tick)
+		UpdateMode.PER_ROLLBACK_TICK:
+			NetworkRollback.after_process_tick.disconnect(_handle_rollback_tick)
 		_:
 			assert(false, "Unhandled update mode! %d" % [update_mode])
 
-func _connect_update_handlers(mode: UpdateMode):
+func _connect_update_handlers(mode: UpdateMode) -> void:
 	match mode:
 		UpdateMode.NEVER: pass
 		UpdateMode.ON_PEER:
@@ -106,14 +109,19 @@ func _connect_update_handlers(mode: UpdateMode):
 			NetworkTime.before_tick_loop.connect(update_visibility)
 		UpdateMode.PER_TICK:
 			NetworkTime.before_tick.connect(_handle_tick)
+		UpdateMode.PER_ROLLBACK_TICK:
+			NetworkRollback.after_process_tick.connect(_handle_rollback_tick)
 		_:
 			assert(false, "Unhandled update mode! %d" % [update_mode])
 
-func _handle_peer_connect(__):
+func _handle_peer_connect(__) -> void:
 	update_visibility()
 
-func _handle_peer_disconnect(__):
+func _handle_peer_disconnect(__) -> void:
 	update_visibility()
 
-func _handle_tick(_dt, _t):
+func _handle_tick(_dt, _t) -> void:
+	update_visibility()
+
+func _handle_rollback_tick(__) -> void:
 	update_visibility()

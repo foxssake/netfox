@@ -138,6 +138,9 @@ signal after_prepare_tick(tick: int)
 ## tick phase ).
 signal on_process_tick(tick: int)
 
+# TODO: Docs
+signal after_process_tick(tick: int)
+
 ## Event emitted to record the given rollback tick.
 ## [br][br]
 ## By this time, the tick is advanced from the simulation, handlers should save
@@ -324,6 +327,7 @@ func _rollback() -> void:
 		#		If not: Latest input >= tick >= Earliest input
 		_rollback_stage = _STAGE_SIMULATE
 		on_process_tick.emit(tick)
+		after_process_tick.emit(tick)
 
 		# Record state for tick + 1
 		_rollback_stage = _STAGE_RECORD
