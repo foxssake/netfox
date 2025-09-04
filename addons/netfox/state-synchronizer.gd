@@ -42,7 +42,8 @@ var full_state_interval: int = 24 # TODO: Don't tie to a network rollback settin
 @export_range(0, 128, 1, "or_greater")
 var diff_ack_interval: int = 0 # TODO: Don't tie to a network rollback setting?
 
-var visibility_filter := _PeerVisibilityFilter.new()
+## Decides which peers will receive updates
+var visibility_filter := PeerVisibilityFilter.new()
 
 var _property_cache: PropertyCache
 var _property_config: _PropertyConfig = _PropertyConfig.new()
@@ -132,7 +133,7 @@ func _enter_tree() -> void:
 		return
 
 	if not visibility_filter:
-		visibility_filter = _PeerVisibilityFilter.new()
+		visibility_filter = PeerVisibilityFilter.new()
 	if not visibility_filter.get_parent():
 		add_child(visibility_filter)
 

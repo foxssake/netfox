@@ -9,7 +9,7 @@ var diff_ack_interval: int
 # Provided externally by RBS
 var _state_history: _PropertyHistoryBuffer
 var _input_history: _PropertyHistoryBuffer
-var _visibility_filter: _PeerVisibilityFilter
+var _visibility_filter: PeerVisibilityFilter
 
 var _state_property_config: _PropertyConfig
 var _input_property_config: _PropertyConfig
@@ -56,7 +56,7 @@ func sync_settings(p_root: Node, p_enable_input_broadcast: bool, p_full_state_in
 func configure(
 		p_state_history: _PropertyHistoryBuffer, p_input_history: _PropertyHistoryBuffer,
 		p_state_property_config: _PropertyConfig, p_input_property_config: _PropertyConfig,
-		p_visibility_filter: _PeerVisibilityFilter,
+		p_visibility_filter: PeerVisibilityFilter,
 		p_property_cache: PropertyCache,
 		p_skipset: _Set
 	) -> void:

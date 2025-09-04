@@ -8,7 +8,7 @@ func suite():
 
 	define("Visibility override", func():
 		test("should return all peers on default visibility", func():
-			var filter := _PeerVisibilityFilter.new()
+			var filter := PeerVisibilityFilter.new()
 			filter.default_visibility = true
 			filter.update_visibility(peers)
 
@@ -17,7 +17,7 @@ func suite():
 		)
 
 		test("should return no peers on default invisibility", func():
-			var filter := _PeerVisibilityFilter.new()
+			var filter := PeerVisibilityFilter.new()
 			filter.default_visibility = false
 			filter.update_visibility(peers)
 
@@ -26,7 +26,7 @@ func suite():
 		)
 
 		test("should return force-visible peers on default invisibility", func():
-			var filter := _PeerVisibilityFilter.new()
+			var filter := PeerVisibilityFilter.new()
 			filter.default_visibility = false
 			filter.set_visibility_for(2, true)
 			filter.update_visibility(peers)
@@ -38,7 +38,7 @@ func suite():
 		)
 
 		test("should return force-invisible peers on default visibility", func():
-			var filter := _PeerVisibilityFilter.new()
+			var filter := PeerVisibilityFilter.new()
 			filter.default_visibility = true
 			filter.set_visibility_for(2, false)
 			filter.update_visibility(peers)
@@ -50,7 +50,7 @@ func suite():
 		)
 		
 		test("should return peers with multiple excludes", func():
-			var filter := _PeerVisibilityFilter.new()
+			var filter := PeerVisibilityFilter.new()
 			filter.default_visibility = true
 			filter.set_visibility_for(2, false)
 			filter.set_visibility_for(4, false)
@@ -65,7 +65,7 @@ func suite():
 
 	define("Visibility filters", func():
 		test("should pass through on true", func():
-			var filter := _PeerVisibilityFilter.new()
+			var filter := PeerVisibilityFilter.new()
 			filter.default_visibility = true
 			filter.add_visibility_filter(func(peer: int): return true)
 
@@ -75,7 +75,7 @@ func suite():
 		)
 
 		test("should exclude on false", func(): 
-			var filter := _PeerVisibilityFilter.new()
+			var filter := PeerVisibilityFilter.new()
 			filter.default_visibility = true
 			filter.add_visibility_filter(func(peer: int): return false)
 
@@ -85,7 +85,7 @@ func suite():
 		)
 
 		test("should exclude if any returns false", func():
-			var filter := _PeerVisibilityFilter.new()
+			var filter := PeerVisibilityFilter.new()
 			filter.default_visibility = true
 			filter.add_visibility_filter(func(peer: int): return true)
 			filter.add_visibility_filter(func(peer: int): return false)
@@ -98,7 +98,7 @@ func suite():
 
 	test("filter should have precendence over override", func():
 		var excluded_peer := 2
-		var filter := _PeerVisibilityFilter.new()
+		var filter := PeerVisibilityFilter.new()
 		filter.default_visibility = false
 		filter.set_visibility_for(excluded_peer, true)
 		filter.add_visibility_filter(func(peer: int):

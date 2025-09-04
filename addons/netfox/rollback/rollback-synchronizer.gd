@@ -65,7 +65,8 @@ var diff_ack_interval: int = 0
 @export var enable_input_broadcast: bool = true
 
 # Make sure this exists from the get-go, just not in the scene tree
-var visibility_filter := _PeerVisibilityFilter.new()
+## Decides which peers will receive updates
+var visibility_filter := PeerVisibilityFilter.new()
 
 var _state_property_config: _PropertyConfig = _PropertyConfig.new()
 var _input_property_config: _PropertyConfig = _PropertyConfig.new()
@@ -315,7 +316,7 @@ func _enter_tree() -> void:
 		return
 
 	if not visibility_filter:
-		visibility_filter = _PeerVisibilityFilter.new()
+		visibility_filter = PeerVisibilityFilter.new()
 
 	if not visibility_filter.get_parent():
 		add_child(visibility_filter)
