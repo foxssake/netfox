@@ -10,7 +10,7 @@ enum UpdateMode {
 }
 
 var default_visibility: bool = true
-var update_mode: UpdateMode:
+var update_mode: UpdateMode = UpdateMode.NEVER:
 	get = get_update_mode, set = set_update_mode
 
 var _visibility_filters: Array[Callable] = []
@@ -82,7 +82,7 @@ func set_update_mode(mode: UpdateMode) -> void:
 	_update_mode = mode
 
 func get_update_mode() -> UpdateMode:
-	return UpdateMode.NEVER
+	return _update_mode
 
 func _disconnect_update_handlers(mode: UpdateMode) -> void:
 	match mode:
