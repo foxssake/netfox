@@ -63,5 +63,49 @@ func suite():
 		)
 	)
 
-	# TODO: Filter tests
+	define("Visibility filters", func():
+		test("should pass through on true", func():
+			var filter := _PeerVisibilityFilter.new()
+			filter.default_visibility = true
+			filter.add_visibility_filter(func(peer: int): return true)
 
+			filter.update_visibility(peers)
+
+			assert_that(filter.get_visible_peers()).is_equal_to(peers)
+		)
+
+		test("should exclude on false", func(): 
+			var filter := _PeerVisibilityFilter.new()
+			filter.default_visibility = true
+			filter.add_visibility_filter(func(peer: int): return false)
+
+			filter.update_visibility(peers)
+
+			assert_that(filter.get_visible_peers()).is_empty()
+		)
+
+		test("should exclude if any returns false", func():
+			var filter := _PeerVisibilityFilter.new()
+			filter.default_visibility = true
+			filter.add_visibility_filter(func(peer: int): return true)
+			filter.add_visibility_filter(func(peer: int): return false)
+
+			filter.update_visibility(peers)
+
+			assert_that(filter.get_visible_peers()).is_empty()
+		)
+	)
+
+	test("filter should have precendence over override", func():
+		var excluded_peer := 2
+		var filter := _PeerVisibilityFilter.new()
+		filter.default_visibility = false
+		filter.set_visibility_for(excluded_peer, true)
+		filter.add_visibility_filter(func(peer: int):
+			if peer == excluded_peer: return false
+			else: return true
+		)
+
+		filter.update_visibility(peers)
+		assert_that(filter.get_visible_peers()).is_empty()
+	)
