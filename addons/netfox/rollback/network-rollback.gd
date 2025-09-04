@@ -117,7 +117,7 @@ var tick: int:
 	set(v):
 		push_error("Trying to set read-only variable tick")
 
-## Event emitted before running the network rollback loop
+## Event emitted before running the network rollback loop.
 signal before_loop()
 
 ## Event emitted in preparation of each rollback tick.
@@ -138,7 +138,7 @@ signal after_prepare_tick(tick: int)
 ## tick phase ).
 signal on_process_tick(tick: int)
 
-# TODO: Docs
+## Event emitted after the given rollback tick was processed.
 signal after_process_tick(tick: int)
 
 ## Event emitted to record the given rollback tick.
@@ -147,7 +147,7 @@ signal after_process_tick(tick: int)
 ## their resulting states for the given tick.
 signal on_record_tick(tick: int)
 
-## Event emitted after running the network rollback loop
+## Event emitted after running the network rollback loop.
 signal after_loop()
 
 # Settings

@@ -99,7 +99,6 @@ func update_visibility(peers: Array[int] = multiplayer.get_peers()) -> void:
 		_rpc_target_peers = [MultiplayerPeer.TARGET_PEER_BROADCAST]
 	elif _visible_peers.size() == peers.size() - 1:
 		# Only a single peer is missing, exclude that
-		var excluded_peer := -1
 		for peer in peers:
 			if not _visible_peers.has(peer):
 				_rpc_target_peers = [-peer]
@@ -108,7 +107,6 @@ func update_visibility(peers: Array[int] = multiplayer.get_peers()) -> void:
 		# Custom list, can't optimize RPC call count
 		_rpc_target_peers = _visible_peers
 		# Don't include self in RPC target list
-		# TODO: Make this configurable via flag
 		_rpc_target_peers.erase(multiplayer.get_unique_id())
 
 ## Return a list of visible peers
@@ -124,6 +122,8 @@ func get_visible_peers() -> Array[int]:
 ## RPC target peer rules to produce a shorter list if possible. For example, if
 ## all peers are visible, it will simply return [code][0][/code], indicating
 ## a broadcast.
+## [br][br]
+## This list will never explicitly include the local peer.
 func get_rpc_target_peers() -> Array[int]:
 	return _rpc_target_peers
 
