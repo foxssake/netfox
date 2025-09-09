@@ -31,6 +31,7 @@ script = ExtResource("3_bp1im")
 root = NodePath("..")
 state_properties = Array[String]([":transform", ":velocity"])
 input_properties = Array[String](["Input:movement", "Input:is_jumping"])
+enable_input_broadcast = false
 
 [node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("4_ykfui")

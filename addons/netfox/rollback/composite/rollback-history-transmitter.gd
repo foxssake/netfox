@@ -135,7 +135,6 @@ func transmit_state(tick: int) -> void:
 
 	if is_full_state_tick:
 		# Broadcast new full state
-		_logger.info("Transmitting full state to %s", [_visibility_filter.get_rpc_target_peers()])
 		for peer in _visibility_filter.get_rpc_target_peers():
 			_send_full_state(tick, peer)
 
@@ -144,7 +143,6 @@ func transmit_state(tick: int) -> void:
 			_next_full_state_tick = tick + full_state_interval
 	else:
 		# Send diffs to each peer
-		_logger.info("Transmitting diff state to %s", [_visibility_filter.get_visible_peers()])
 		for peer in _visibility_filter.get_visible_peers():
 			var reference_tick := _ackd_state.get(peer, -1) as int
 			if reference_tick < 0 or not _state_history.has(reference_tick):
