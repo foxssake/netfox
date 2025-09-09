@@ -86,7 +86,7 @@ func unset_visibility_for(peer: int) -> void:
 	_visibility_overrides.erase(peer)
 
 ## Recalculate visibility for each known peer
-func update_visibility(peers: Array[int] = multiplayer.get_peers()) -> void:
+func update_visibility(peers: PackedInt32Array = multiplayer.get_peers()) -> void:
 	# Find visible peers
 	_visible_peers.clear()
 	for peer in peers:
@@ -107,7 +107,8 @@ func update_visibility(peers: Array[int] = multiplayer.get_peers()) -> void:
 		# Custom list, can't optimize RPC call count
 		_rpc_target_peers = _visible_peers
 		# Don't include self in RPC target list
-		_rpc_target_peers.erase(multiplayer.get_unique_id())
+		if multiplayer:
+			_rpc_target_peers.erase(multiplayer.get_unique_id())
 
 ## Return a list of visible peers
 ## [br][br]
@@ -125,6 +126,7 @@ func get_visible_peers() -> Array[int]:
 ## [br][br]
 ## This list will never explicitly include the local peer.
 func get_rpc_target_peers() -> Array[int]:
+	return [0]
 	return _rpc_target_peers
 
 ## Set update mode
@@ -136,6 +138,12 @@ func set_update_mode(mode: UpdateMode) -> void:
 ## Return the update mode
 func get_update_mode() -> UpdateMode:
 	return _update_mode
+
+func _enter_tree():
+	_connect_update_handlers(update_mode)
+
+func _exit_tree():
+	_disconnect_update_handlers(update_mode)
 
 func _disconnect_update_handlers(mode: UpdateMode) -> void:
 	match mode:
