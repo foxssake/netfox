@@ -13,6 +13,7 @@
 [node name="CSGCombiner3D" type="CSGCombiner3D" parent="Map"]
 use_collision = true
 collision_layer = 2
+collision_mask = 3
 
 [node name="CSGFloor" type="CSGBox3D" parent="Map/CSGCombiner3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
@@ -67,7 +68,7 @@ script = ExtResource("2_7yqbt")
 player_scene = ExtResource("3_ohgyy")
 spawn_root = NodePath(".")
 
-[node name="Visibility Manager" type="Node" parent="."]
+[node name="Visibility Manager" type="Node3D" parent="."]
 script = ExtResource("4_jies5")
 
 [node name="UI" type="Control" parent="."]

@@ -1,7 +1,8 @@
 @tool
 extends CharacterBody3D
 
-@export var speed = 5.0
+@export var speed := 4.0
+@export var jump_velocity := 8.0
 @export var input: Node
 
 # Get the gravity from the project settings to be synced with RigidBody nodes.
@@ -50,6 +51,10 @@ func _rollback_tick(dt, _tick, _is_fresh: bool):
 	else:
 		velocity.x = move_toward(velocity.x, 0, speed)
 		velocity.z = move_toward(velocity.z, 0, speed)
+
+	# Jump
+	if input.is_jumping and is_on_floor():
+		velocity.y = jump_velocity
 
 	# move_and_slide assumes physics delta
 	# multiplying velocity by NetworkTime.physics_factor compensates for it

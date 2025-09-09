@@ -126,7 +126,6 @@ func get_visible_peers() -> Array[int]:
 ## [br][br]
 ## This list will never explicitly include the local peer.
 func get_rpc_target_peers() -> Array[int]:
-	return [0]
 	return _rpc_target_peers
 
 ## Set update mode

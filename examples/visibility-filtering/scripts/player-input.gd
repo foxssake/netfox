@@ -2,10 +2,12 @@
 extends BaseNetInput
 
 var movement: Vector3
+var is_jumping: bool
 
 func _get_rollback_input_properties() -> Array:
 	return [
-		"movement"
+		"movement",
+		"is_jumping"
 	]
 
 func _gather():
@@ -14,3 +16,5 @@ func _gather():
 		0.0,
 		Input.get_axis("move_north", "move_south")
 	)
+
+	is_jumping = Input.is_action_pressed("move_jump")
