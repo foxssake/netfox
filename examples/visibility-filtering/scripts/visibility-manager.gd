@@ -1,7 +1,5 @@
 extends Node3D
 
-static var _logger := _NetfoxLogger.new("", "Visibility Manager")
-
 func _ready() -> void:
 	NetworkRollback.on_process_tick.connect(_rollback_tick)
 
