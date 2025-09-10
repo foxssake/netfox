@@ -9,6 +9,7 @@ var diff_ack_interval: int
 # Provided externally by RBS
 var _state_history: _PropertyHistoryBuffer
 var _input_history: _PropertyHistoryBuffer
+var _visibility_filter: PeerVisibilityFilter
 
 var _state_property_config: _PropertyConfig
 var _input_property_config: _PropertyConfig
@@ -55,6 +56,7 @@ func sync_settings(p_root: Node, p_enable_input_broadcast: bool, p_full_state_in
 func configure(
 		p_state_history: _PropertyHistoryBuffer, p_input_history: _PropertyHistoryBuffer,
 		p_state_property_config: _PropertyConfig, p_input_property_config: _PropertyConfig,
+		p_visibility_filter: PeerVisibilityFilter,
 		p_property_cache: PropertyCache,
 		p_skipset: _Set
 	) -> void:
@@ -62,6 +64,7 @@ func configure(
 	_input_history = p_input_history
 	_state_property_config = p_state_property_config
 	_input_property_config = p_input_property_config
+	_visibility_filter = p_visibility_filter
 	_property_cache = p_property_cache
 	_skipset = p_skipset
 
@@ -99,9 +102,13 @@ func transmit_input(tick: int) -> void:
 	if not _get_owned_input_props().is_empty():
 		var input_tick: int = tick + NetworkRollback.input_delay
 		var input_data := _input_encoder.encode(input_tick, _get_owned_input_props())
-		var target_peer := 0 if enable_input_broadcast else root.get_multiplayer_authority()
-		if target_peer != multiplayer.get_unique_id():
-			_submit_input.rpc_id(target_peer, input_tick, input_data)
+		var state_owning_peer := root.get_multiplayer_authority()
+
+		if enable_input_broadcast:
+			for peer in _visibility_filter.get_rpc_target_peers():
+				_submit_input.rpc_id(peer, input_tick, input_data)
+		elif state_owning_peer != multiplayer.get_unique_id():
+			_submit_input.rpc_id(state_owning_peer, input_tick, input_data)
 
 func transmit_state(tick: int) -> void:
 	if _get_owned_state_props().is_empty() or _is_predicted_tick:
@@ -128,14 +135,15 @@ func transmit_state(tick: int) -> void:
 
 	if is_full_state_tick:
 		# Broadcast new full state
-		_send_full_state(tick)
+		for peer in _visibility_filter.get_rpc_target_peers():
+			_send_full_state(tick, peer)
 
 		# Adjust next full state if sending diffs
 		if is_sending_diffs:
 			_next_full_state_tick = tick + full_state_interval
 	else:
 		# Send diffs to each peer
-		for peer in multiplayer.get_peers():
+		for peer in _visibility_filter.get_visible_peers():
 			var reference_tick := _ackd_state.get(peer, -1) as int
 			if reference_tick < 0 or not _state_history.has(reference_tick):
 				# Peer hasn't ack'd any tick, or we don't have the ack'd tick
@@ -171,14 +179,12 @@ func _send_full_state(tick: int, peer: int = 0) -> void:
 	var full_state_snapshot := _state_history.get_snapshot(tick).as_dictionary()
 	var full_state_data := _full_state_encoder.encode(tick, _get_owned_state_props())
 
-	if peer == 0:
-		_submit_full_state.rpc(full_state_data, tick)
+	_submit_full_state.rpc_id(peer, full_state_data, tick)
 
+	if peer <= 0:
 		NetworkPerformance.push_full_state_broadcast(full_state_snapshot)
 		NetworkPerformance.push_sent_state_broadcast(full_state_snapshot)
 	else:
-		_submit_full_state.rpc_id(peer, full_state_data, tick)
-
 		NetworkPerformance.push_full_state(full_state_snapshot)
 		NetworkPerformance.push_sent_state(full_state_snapshot)
 
