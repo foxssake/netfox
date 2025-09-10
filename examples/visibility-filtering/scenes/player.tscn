@@ -5,10 +5,11 @@
 [ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="3_bp1im"]
 [ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="4_ykfui"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bmc6p"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s18dy"]
+transparency = 4
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_t0alo"]
-material = SubResource("StandardMaterial3D_bmc6p")
+material = SubResource("StandardMaterial3D_s18dy")
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1dm6n"]
 
@@ -17,7 +18,8 @@ collision_mask = 3
 script = ExtResource("1_25yu8")
 jump_velocity = 5.0
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="Body Mesh" type="MeshInstance3D" parent="."]
+transparency = 0.5
 mesh = SubResource("CapsuleMesh_t0alo")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]

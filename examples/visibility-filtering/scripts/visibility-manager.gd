@@ -18,7 +18,7 @@ func _rollback_tick(_t: int) -> void:
 		player_synchronizers[peer] = rbs
 
 	for peer in player_synchronizers:
-		var node := player_nodes[peer] as Node3D
+		var node := player_nodes[peer] as ExampleVisibilityFiltering.Player
 		var rbs := player_synchronizers[peer] as RollbackSynchronizer
 		
 		# We don't own state
@@ -28,20 +28,8 @@ func _rollback_tick(_t: int) -> void:
 		for other_peer in player_synchronizers:
 			if other_peer == peer: continue
 
-			var other_node := player_nodes[other_peer] as Node3D
-			var can_see := _check_line_of_sight(node, other_node)
+			var other_node := player_nodes[other_peer] as ExampleVisibilityFiltering.Player
+			var can_see := node.can_see(other_node)
 			rbs.visibility_filter.set_visibility_for(other_peer, can_see)
 
 		rbs.visibility_filter.update_visibility()
-
-func _check_line_of_sight(from: Node3D, to: Node3D) -> bool:
-	var space := get_world_3d().direct_space_state
-	
-	var query := PhysicsRayQueryParameters3D.new()
-	query.collide_with_areas = false
-	query.collide_with_bodies = true
-	query.collision_mask = 2 # Only collide with level geometry
-	query.from = from.global_position
-	query.to = to.global_position
-	
-	return space.intersect_ray(query).is_empty()
