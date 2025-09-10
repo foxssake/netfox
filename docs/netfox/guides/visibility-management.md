@@ -16,6 +16,12 @@ Both [RollbackSynchronizer] and [StateSynchronizer] supports visibility
 filtering. They expose a `visibility_filter` property that can be used to
 configure filtering.
 
+!!!warning
+    When using visibility filtering with [RollbackSynchronizer] nodes, make
+    sure to disable input broadcast. Otherwise, peers might receive input data
+    from the player, but no state data from the server, leading to nodes being
+    simulated without up-to-date state data.
+
 ## Default visibility
 
 If there's no settings configured, the visibility filter falls back to the
