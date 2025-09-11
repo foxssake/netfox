@@ -65,6 +65,7 @@ nav:
   - netfox.extras:
     - Guides:
       - 'netfox.extras/guides/physics.md'
+      - 'netfox.extras/guides/network-simulator.md'
       - 'netfox.extras/guides/base-net-input.md'
       - 'netfox.extras/guides/network-weapon.md'
       - 'netfox.extras/guides/rewindable-state-machine.md'
