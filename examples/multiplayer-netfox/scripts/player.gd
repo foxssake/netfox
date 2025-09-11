@@ -1,6 +1,6 @@
 extends CharacterBody3D
 
-@export var speed = 5.0
+@export var speed := 5.0
 @export var input: PlayerInput
 
 # Get the gravity from the project settings to be synced with RigidBody nodes.
