@@ -1,21 +1,25 @@
 extends Node
-
 class_name NetworkSimulator
 
 ## Network Simulator 
-## Auto connects launched instances and simulates network conditions like latency and packet loss
-## To use simply add this node to your scene tree and hook up the signals:
+##
+## Auto connects launched instances and simulates network conditions like
+## latency and packet loss. To use simply add this node to your scene tree and
+## hook up the signals.
 
-## Signal emitted on instance that successfully started a server
-## Initialize your server from this signal
+## Signal emitted on the instance that successfully started a server.
+## Can be used for custom initialization logic, e.g. automatic login during
+## testing.
 signal server_created
 
-## Signal emitted on instance that successfully connected as a client
-## Initialize your clients from this signal
+## Signal emitted on instances that successfully connected as a client.
+## Can be used for custom initialization logic, e.g. automatic login during
+## testing.
 signal client_connected
 
 @export_category("Server")
-## Server listening address. 127.0.0.1 for localhost, use * for all interfaces.
+## Server listening address. Use * for all interfaces, or [code]127.0.0.1[/code]
+## for localhost.
 @export var hostname: String = "127.0.0.1"
 
 ## Server port to listen on, udp proxy will use port + 1 if simulating latency or packet loss
