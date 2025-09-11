@@ -72,7 +72,6 @@ func _ready() -> void:
 		elif status != OK:
 			_logger.error("Auto connecting failed with error - %s", [error_string(status)])
 
-
 		if use_compression:
 			_enet_peer.host.compress(ENetConnection.COMPRESS_RANGE_CODER)
 
@@ -106,30 +105,29 @@ func try_and_join() -> Error:
 func start_udp_proxy() -> void:
 	_proxy_thread = Thread.new()
 	_udp_proxy_server = PacketPeerUDP.new()
-	
+
 	var bind_status = _udp_proxy_server.bind(_udp_proxy_port, hostname)
 	if bind_status != OK:
 		_logger.error("Failed to bind UDP proxy port: ", bind_status)
 		return
-	
-	_proxy_thread.start(process_packets)
+
+	_proxy_thread.start(_process_loop)
 
 func process_packets() -> void:
+	var current_time: int = Time.get_ticks_msec()
+	var send_threshold: int = current_time - latency_ms
+
+	_read_client_to_server_packets(current_time)
+	_process_client_to_server_packets(send_threshold)
+
+	if not _client_peers.is_empty():
+		_read_server_to_client_packets(current_time)
+		_process_server_to_client_queue(send_threshold)
+
+func _process_loop():
 	while true:
-		var wait_backoff: int = 1
-		while not _is_data_available():
-			OS.delay_msec(wait_backoff)
-			wait_backoff = clamp(wait_backoff + 1, 1, 10)
-
-		var current_time: int = Time.get_ticks_msec()
-		var send_threshold: int = current_time - latency_ms
-		
-		_read_client_to_server_packets(current_time)
-		_process_client_to_server_packets(send_threshold)
-
-		if not _client_peers.is_empty():
-			_read_server_to_client_packets(current_time)
-			_process_server_to_client_queue(send_threshold)
+		process_packets()
+		OS.delay_msec(1)
 
 func _is_data_available() -> bool:
 	if _udp_proxy_server.get_available_packet_count() > 0:
