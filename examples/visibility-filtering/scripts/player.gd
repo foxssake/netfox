@@ -87,6 +87,8 @@ func _rollback_tick(dt, _tick, _is_fresh: bool):
 	velocity /= NetworkTime.physics_factor
 
 func _physics_process(dt: float):
+	if Engine.is_editor_hint(): return
+	
 	# Determine visibility
 	var is_visible := true
 	if not is_local():
