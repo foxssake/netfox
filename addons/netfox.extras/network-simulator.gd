@@ -1,5 +1,4 @@
 extends Node
-class_name NetworkSimulator
 
 ## Network Simulator 
 ##
@@ -18,6 +17,8 @@ signal server_created
 signal client_connected
 
 @export_category("Server")
+## Enable to automatically host and connect on start
+@export var enabled: bool = false
 ## Server listening address. Use [code]*[/code] for all interfaces, or
 #3 [code]127.0.0.1[/code] for localhost.
 @export var hostname: String = "127.0.0.1"
@@ -62,20 +63,28 @@ class QueueEntry:
 		self.source_port = port
 
 func _ready() -> void:
+	if not OS.has_feature("editor"):
+		_logger.debug("Running outside editor, disabling")
+		return
+
+	_load_project_settings()
+	if not enabled:
+		_logger.debug("Feature disabled")
+		return
+
 	await get_tree().process_frame
 	_udp_proxy_port = server_port + 1
 	
-	if OS.has_feature("editor"):
-		var status = try_and_host()
-		if status == Error.ERR_CANT_CREATE:
-			try_and_join()
-		elif status != OK:
-			_logger.error("Auto connecting failed with error - %s", [error_string(status)])
+	var status = try_and_host()
+	if status == Error.ERR_CANT_CREATE:
+		try_and_join()
+	elif status != OK:
+		_logger.error("Autoconnect failed with error - %s", [error_string(status)])
 
-		if use_compression:
-			_enet_peer.host.compress(ENetConnection.COMPRESS_RANGE_CODER)
+	if use_compression:
+		_enet_peer.host.compress(ENetConnection.COMPRESS_RANGE_CODER)
 
-		multiplayer.multiplayer_peer = _enet_peer
+	multiplayer.multiplayer_peer = _enet_peer
 
 func is_proxy_required() -> bool:
 	return latency_ms > 0 or packet_loss_percent > 0.0
@@ -128,6 +137,14 @@ func _process_loop():
 	while true:
 		process_packets()
 		OS.delay_msec(1)
+
+func _load_project_settings() -> void:
+	enabled = ProjectSettings.get_setting(&"netfox/extras/autoconnect_enabled", false)
+	hostname = ProjectSettings.get_setting(&"netfox/extras/autoconnect_host", "127.0.0.1")
+	server_port = ProjectSettings.get_setting(&"netfox/extras/autoconnect_port", 9999)
+	use_compression = ProjectSettings.get_setting(&"netfox/extras/autoconnect_use_compression", false)
+	latency_ms = ProjectSettings.get_setting(&"netfox/extras/autoconnect_simulated_latency_ms", 0)
+	packet_loss_percent = ProjectSettings.get_setting(&"netfox/extras/autoconnect_simulated_packet_loss_chance", 0.0)
 
 func _is_data_available() -> bool:
 	if _udp_proxy_server.get_available_packet_count() > 0:
