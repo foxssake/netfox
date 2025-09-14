@@ -6,7 +6,7 @@ const ROOT = "res://addons/netfox.extras"
 var SETTINGS = [
 	_NetfoxLogger.make_setting("netfox/logging/netfox_extras_log_level"),
 	
-	#Window Tiler Settings
+	# Window Tiler Settings
 	{
 		"name": "netfox/extras/auto_tile_windows",
 		"value": false,
@@ -22,12 +22,54 @@ var SETTINGS = [
 		"value": false,
 		"type": TYPE_BOOL
 	},
+	
+	# Autoconnect settings
+	{
+		"name": "netfox/autoconnect/enabled",
+		"value": false,
+		"type": TYPE_BOOL
+	},
+	{
+		"name": "netfox/autoconnect/host",
+		"value": "127.0.0.1",
+		"type": TYPE_STRING
+	},
+	{
+		"name": "netfox/autoconnect/port",
+		"value": 9999,
+		"type": TYPE_INT,
+		"hint": PROPERTY_HINT_RANGE,
+		"hint_string": "1,65535,hide_slider"
+	},
+	{
+		"name": "netfox/autoconnect/use_compression",
+		"value": false,
+		"type": TYPE_BOOL
+	},
+	{
+		"name": "netfox/autoconnect/simulated_latency_ms",
+		"value": 0.0,
+		"type": TYPE_INT,
+		"hint": PROPERTY_HINT_RANGE,
+		"hint_string": "0,200,or_greater"
+	},
+	{
+		"name": "netfox/autoconnect/simulated_packet_loss_chance",
+		"value": 0.0,
+		"type": TYPE_FLOAT,
+		"hint": PROPERTY_HINT_RANGE,
+		"hint_string": "0,1"
+	}
 ]
 
 const AUTOLOADS = [
 	{
 		"name": "WindowTiler",
 		"path": ROOT + "/window-tiler.gd"
+	},
+	{
+		"name": "NetworkSimulator",
+		"path": ROOT + "/network-simulator.gd"
 	}
 ]
 
