@@ -74,7 +74,7 @@ func _ready() -> void:
 
 	await get_tree().process_frame
 	_udp_proxy_port = server_port + 1
-	
+
 	var status = try_and_host()
 	if status == Error.ERR_CANT_CREATE:
 		try_and_join()
