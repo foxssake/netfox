@@ -139,12 +139,12 @@ func _process_loop():
 		OS.delay_msec(1)
 
 func _load_project_settings() -> void:
-	enabled = ProjectSettings.get_setting(&"netfox/extras/autoconnect_enabled", false)
-	hostname = ProjectSettings.get_setting(&"netfox/extras/autoconnect_host", "127.0.0.1")
-	server_port = ProjectSettings.get_setting(&"netfox/extras/autoconnect_port", 9999)
-	use_compression = ProjectSettings.get_setting(&"netfox/extras/autoconnect_use_compression", false)
-	latency_ms = ProjectSettings.get_setting(&"netfox/extras/autoconnect_simulated_latency_ms", 0)
-	packet_loss_percent = ProjectSettings.get_setting(&"netfox/extras/autoconnect_simulated_packet_loss_chance", 0.0)
+	enabled = ProjectSettings.get_setting(&"netfox/autoconnect/enabled", false)
+	hostname = ProjectSettings.get_setting(&"netfox/autoconnect/host", "127.0.0.1")
+	server_port = ProjectSettings.get_setting(&"netfox/autoconnect/port", 9999)
+	use_compression = ProjectSettings.get_setting(&"netfox/autoconnect/use_compression", false)
+	latency_ms = ProjectSettings.get_setting(&"netfox/autoconnect/simulated_latency_ms", 0)
+	packet_loss_percent = ProjectSettings.get_setting(&"netfox/autoconnect/simulated_packet_loss_chance", 0.0)
 
 func _is_data_available() -> bool:
 	if _udp_proxy_server.get_available_packet_count() > 0:

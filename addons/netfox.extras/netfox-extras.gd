@@ -25,36 +25,36 @@ var SETTINGS = [
 	
 	# Autoconnect settings
 	{
-		"name": "netfox/extras/autoconnect_enabled",
+		"name": "netfox/autoconnect/enabled",
 		"value": false,
 		"type": TYPE_BOOL
 	},
 	{
-		"name": "netfox/extras/autoconnect_host",
+		"name": "netfox/autoconnect/host",
 		"value": "127.0.0.1",
 		"type": TYPE_STRING
 	},
 	{
-		"name": "netfox/extras/autoconnect_port",
+		"name": "netfox/autoconnect/port",
 		"value": 9999,
 		"type": TYPE_INT,
 		"hint": PROPERTY_HINT_RANGE,
 		"hint_string": "1,65535,hide_slider"
 	},
 	{
-		"name": "netfox/extras/autoconnect_use_compression",
+		"name": "netfox/autoconnect/use_compression",
 		"value": false,
 		"type": TYPE_BOOL
 	},
 	{
-		"name": "netfox/extras/autoconnect_simulated_latency_ms",
+		"name": "netfox/autoconnect/simulated_latency_ms",
 		"value": 0.0,
 		"type": TYPE_INT,
 		"hint": PROPERTY_HINT_RANGE,
 		"hint_string": "0,200,or_greater"
 	},
 	{
-		"name": "netfox/extras/autoconnect_simulated_packet_loss_chance",
+		"name": "netfox/autoconnect/simulated_packet_loss_chance",
 		"value": 0.0,
 		"type": TYPE_FLOAT,
 		"hint": PROPERTY_HINT_RANGE,
