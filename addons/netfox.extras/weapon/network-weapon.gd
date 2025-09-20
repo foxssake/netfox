@@ -10,11 +10,23 @@ var _reconcile_buffer: Array = []
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var _fired_tick: int = -1
 
+## Decides which peers will spawn weapons projectile.
+var visibility_filter := PeerVisibilityFilter.new()
+
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_extras("NetworkWeapon")
 
 func _ready():
 	_rng.randomize()
 	NetworkTime.before_tick_loop.connect(_before_tick_loop)
+
+func _enter_tree() -> void:
+	if Engine.is_editor_hint():
+		return
+	
+	if not visibility_filter:
+		visibility_filter = PeerVisibilityFilter.new()
+	if not visibility_filter.get_parent():
+		add_child(visibility_filter)
 
 ## Check whether this weapon can be fired.
 func can_fire() -> bool:
@@ -35,7 +47,8 @@ func fire() -> Node:
 	if not is_multiplayer_authority():
 		_request_projectile.rpc_id(get_multiplayer_authority(), id, NetworkTime.tick, data)
 	else:
-		_accept_projectile.rpc(id, NetworkTime.tick, data)
+		for peer in visibility_filter.get_visible_peers():
+			_accept_projectile.rpc_id(peer, id, NetworkTime.tick, data)
 
 	_logger.debug("Calling after fire hook for %s", [projectile.name])
 	_fired_tick = NetworkTime.tick
@@ -187,7 +200,10 @@ func _request_projectile(id: String, tick: int, request_data: Dictionary):
 		return
 	
 	_save_projectile(projectile, id, local_data)
-	_accept_projectile.rpc(id, tick, local_data)
+	
+	for peer in visibility_filter.get_visible_peers():
+		_accept_projectile.rpc_id(peer, id, tick, local_data)
+	
 	_after_fire(projectile)
 
 @rpc("authority", "reliable", "call_local")
