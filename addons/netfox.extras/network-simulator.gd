@@ -81,9 +81,9 @@ func _ready() -> void:
 	await get_tree().process_frame
 	_udp_proxy_port = server_port + 1
 
-	var status = try_and_host()
+	var status = _try_and_host()
 	if status == Error.ERR_CANT_CREATE:
-		try_and_join()
+		_try_and_join()
 	elif status != OK:
 		_logger.error("Autoconnect failed with error - %s", [error_string(status)])
 
@@ -92,21 +92,21 @@ func _ready() -> void:
 
 	multiplayer.multiplayer_peer = _enet_peer
 
-func is_proxy_required() -> bool:
+func _is_proxy_required() -> bool:
 	return latency_ms > 0 or packet_loss_percent > 0.0
 
-func try_and_host() -> Error:
+func _try_and_host() -> Error:
 	var status = _enet_peer.create_server(server_port)
 	if status == OK:
-		if is_proxy_required():
-			start_udp_proxy()
+		if _is_proxy_required():
+			_start_udp_proxy()
 		server_created.emit()
 		_logger.info("Server started on port %s", [server_port])
 	return status
 
-func try_and_join() -> Error:
+func _try_and_join() -> Error:
 	var connect_port = server_port
-	if is_proxy_required():
+	if _is_proxy_required():
 		connect_port = _udp_proxy_port
 	var status = _enet_peer.create_client(hostname, connect_port)
 	if status == OK:
@@ -117,7 +117,7 @@ func try_and_join() -> Error:
 # Starts a UDP proxy server to simulate network conditions
 # This will listen on _udp_proxy_port and forward packets to the server_port
 # Runs on its own thread to avoid blocking the main thread
-func start_udp_proxy() -> void:
+func _start_udp_proxy() -> void:
 	_proxy_thread = Thread.new()
 	_udp_proxy_server = PacketPeerUDP.new()
 
@@ -128,7 +128,7 @@ func start_udp_proxy() -> void:
 
 	_proxy_thread.start(_process_loop)
 
-func process_packets() -> void:
+func _process_packets() -> void:
 	var current_time: int = Time.get_ticks_msec()
 	var send_threshold: int = current_time - latency_ms
 
@@ -141,7 +141,7 @@ func process_packets() -> void:
 
 func _process_loop():
 	while true:
-		process_packets()
+		_process_packets()
 		OS.delay_msec(1)
 
 func _load_project_settings() -> void:
