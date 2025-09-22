@@ -22,6 +22,12 @@ func _ready() -> void:
 	if DisplayServer.get_name() == "headless":
 		return
 
+	# Running in CI
+	for env_var in ["CI", "NETFOX_CI"]:
+		if OS.get_environment(env_var) != "":
+			_logger.debug("Environment variable %s set, disabling", [env_var])
+			return
+
 	# Cleanup in case some files were left
 	_cleanup()
 

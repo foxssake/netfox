@@ -63,6 +63,7 @@ class QueueEntry:
 		self.source_port = port
 
 func _ready() -> void:
+	# Check if enabled
 	if not OS.has_feature("editor"):
 		_logger.debug("Running outside editor, disabling")
 		return
@@ -71,6 +72,11 @@ func _ready() -> void:
 	if not enabled:
 		_logger.debug("Feature disabled")
 		return
+
+	for env_var in ["CI", "NETFOX_CI", "NETFOX_NO_AUTOSTART"]:
+		if OS.get_environment(env_var) != "":
+			_logger.debug("Environment variable %s set, disabling", [env_var])
+			return
 
 	await get_tree().process_frame
 	_udp_proxy_port = server_port + 1
