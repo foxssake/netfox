@@ -73,7 +73,7 @@ func _ready() -> void:
 		_logger.debug("Feature disabled")
 		return
 
-	for env_var in ["CI", "NETFOX_CI", "NETFOX_NO_AUTOSTART"]:
+	for env_var in ["CI", "NETFOX_CI", "NETFOX_NO_AUTOCONNECT"]:
 		if OS.get_environment(env_var) != "":
 			_logger.debug("Environment variable %s set, disabling", [env_var])
 			return
