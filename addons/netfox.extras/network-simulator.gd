@@ -16,26 +16,24 @@ signal server_created
 ## testing.
 signal client_connected
 
-@export_category("Server")
 ## Enable to automatically host and connect on start
-@export var enabled: bool = false
+var enabled: bool = false
 ## Server listening address. Use [code]*[/code] for all interfaces, or
 #3 [code]127.0.0.1[/code] for localhost.
-@export var hostname: String = "127.0.0.1"
+var hostname: String = "127.0.0.1"
 
 ## Server port to listen on, UDP proxy will use port + 1 if simulating latency
 ## or packet loss
-@export var server_port: int = 9999
+var server_port: int = 9999
 
 ## Use ENet's built-in range encoding for compression
-@export var use_compression: bool = true
+var use_compression: bool = true
 
-@export_category("Network Settings")
 ## Simulated latency in milliseconds. Total ping time will be double this value
 ## (to and from)
-@export_range(0, 200) var latency_ms: int = 0
+var latency_ms: int = 0
 ## Simulated packet loss percentage
-@export_range(0, 100) var packet_loss_percent: float = 0.0
+var packet_loss_percent: float = 0.0
 
 static var _logger: _NetfoxLogger = _NetfoxLogger.for_extras("NetworkSimulator")
 
