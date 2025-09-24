@@ -84,6 +84,15 @@ func join():
 	# are assumed to be absent, hence starting NetworkTime manually
 	NetworkTime.start()
 
+func _enter_tree():
+	# Hide and show UI as appropriate
+	# These handlers are necessary, since the game could have started via
+	# autoconnect, or any other method
+	NetworkEvents.on_client_start.connect(func(__): connect_ui.hide())
+	NetworkEvents.on_server_start.connect(func(): connect_ui.hide())
+	NetworkEvents.on_client_stop.connect(func(): connect_ui.show())
+	NetworkEvents.on_server_stop.connect(func(): connect_ui.show())
+
 func _parse_input() -> Dictionary:
 	# Validate inputs
 	var address = address_input.text
