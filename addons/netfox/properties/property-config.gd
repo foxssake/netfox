@@ -6,12 +6,16 @@ var _auth_properties: Dictionary = {} # Peer (int) to owned properties (Array[Pr
 
 var local_peer_id: int
 
-func set_properties(p_properties: Array[PropertyEntry]) -> void:
-	_properties.assign(p_properties)
+func clear() -> void:
+	_properties.clear()
 	_auth_properties.clear()
 
+func set_properties(p_properties: Array[PropertyEntry]) -> void:
+	clear()
+	_properties.assign(p_properties)
+
 func set_properties_from_paths(property_paths: Array[String], property_cache: PropertyCache) -> void:
-	_properties.clear()
+	clear()
 	for path in property_paths:
 		_properties.append(property_cache.get_entry(path))
 
