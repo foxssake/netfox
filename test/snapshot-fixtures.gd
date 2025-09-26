@@ -8,12 +8,19 @@ static func state_snapshot(p_position: Vector3 = Vector3.ONE) -> _PropertySnapsh
 		":health": 100.
 	})
 
+static func state_properties() -> Array[String]:
+	var result: Array[String] = [
+		":position",
+		":velocity",
+		":health"
+	]
+	return result
+
 static func state_propery_entries(root_node: Node) -> Array[PropertyEntry]:
 	var result: Array[PropertyEntry] = []
-	result.append(PropertyEntry.parse(root_node, ":position"))
-	result.append(PropertyEntry.parse(root_node, ":velocity"))
-	result.append(PropertyEntry.parse(root_node, ":health"))
-
+	result.assign(state_properties().map(func(path):
+		return PropertyEntry.parse(root_node, path)
+	))
 	return result
 
 static func state_node() -> StateNode:
