@@ -37,18 +37,31 @@ class PhysicsDriverToggle:
 				)
 		return errors
 
-class RapierPhysicsDriverToggle extends PhysicsDriverToggle:
+class Rapier2DPhysicsDriverToggle extends PhysicsDriverToggle:
 	func get_name() -> String:
-		return "Rapier"
+		return "Rapier2D"
 
 	func get_files() -> Array[String]:
 		return [
 			"res://addons/netfox.extras/physics/rapier_driver_2d.gd",
+		]
+
+	func get_error_messages() -> Array[String]:
+		if not ClassDB.class_exists("RapierPhysicsServer2D"):
+			return ["Rapier physics is not available! Is the extension installed?"]
+		return []
+
+class Rapier3DPhysicsDriverToggle extends PhysicsDriverToggle:
+	func get_name() -> String:
+		return "Rapier3D"
+
+	func get_files() -> Array[String]:
+		return [
 			"res://addons/netfox.extras/physics/rapier_driver_3d.gd",
 		]
 
 	func get_error_messages() -> Array[String]:
-		if not ClassDB.class_exists("RapierPhysicsServer2D") or not ClassDB.class_exists("RapierPhysicsServer3D"):
+		if not ClassDB.class_exists("RapierPhysicsServer3D"):
 			return ["Rapier physics is not available! Is the extension installed?"]
 		return []
 
@@ -69,6 +82,7 @@ class GodotPhysicsDriverToggle extends PhysicsDriverToggle:
 
 static func all() -> Array[PhysicsDriverToggle]:
 	return [
-		RapierPhysicsDriverToggle.new(),
+		Rapier2DPhysicsDriverToggle.new(),
+		Rapier3DPhysicsDriverToggle.new(),
 		GodotPhysicsDriverToggle.new()
 	]
