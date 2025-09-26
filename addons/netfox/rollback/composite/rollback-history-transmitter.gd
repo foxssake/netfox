@@ -111,7 +111,13 @@ func transmit_input(tick: int) -> void:
 			_submit_input.rpc_id(state_owning_peer, input_tick, input_data)
 
 func transmit_state(tick: int) -> void:
-	if _get_owned_state_props().is_empty() or _is_predicted_tick:
+	if _get_owned_state_props().is_empty():
+		# We don't own state, don't transmit anything
+		return
+
+	if _is_predicted_tick and not _input_property_config.get_properties().is_empty():
+		# Don't transmit anything if we're predicting
+		# EXCEPT when we're running inputless
 		return
 
 	# Include properties we own
@@ -173,7 +179,11 @@ func _should_broadcast(property: PropertyEntry, tick: int) -> bool:
 		return true
 	if _skipset.has(property.node):
 		return false
-	return NetworkRollback.is_simulated(property.node)
+	if NetworkRollback.is_rollback_aware(property.node):
+		return NetworkRollback.is_simulated(property.node)
+
+	# Node is not rollback-aware, broadcast updates only if we own it
+	return property.node.is_multiplayer_authority()
 
 func _send_full_state(tick: int, peer: int = 0) -> void:
 	var full_state_snapshot := _state_history.get_snapshot(tick).as_dictionary()
