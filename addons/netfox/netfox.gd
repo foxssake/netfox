@@ -145,7 +145,11 @@ const AUTOLOADS: Array[Dictionary] = [
 	{
 		"name": "NetworkPerformance",
 		"path": ROOT + "/network-performance.gd"
-	}
+	},
+	{
+		"name": "NetworkSceneSpawner",
+		"path": ROOT + "/network-scene-spawner.gd"
+	},
 ]
 
 const TYPES: Array[Dictionary] = [
@@ -172,6 +176,12 @@ const TYPES: Array[Dictionary] = [
 		"base": "Node",
 		"script": ROOT + "/rewindable-action.gd",
 		"icon": ROOT + "/icons/rewindable-action.svg"
+	},
+	{
+		"name": "SceneSpawner",
+		"base": "Node",
+		"script": ROOT + "/scene-spawner.gd",
+		"icon": ROOT + "/icons/scene-spawner.svg"
 	},
 ]
 
