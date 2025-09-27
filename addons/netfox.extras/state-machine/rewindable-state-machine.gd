@@ -102,8 +102,11 @@ func transition(new_state_name: StringName) -> bool:
 
 	return true
 
+## Update the internal cache of known states
+## [br][br]
+## Automatically called on ready and when a child node is added or removed. Call
+## manually to force an update.
 func update_states() -> void:
-	var children := find_children("*", "RewindableState", false)
 	_available_states.clear()
 	
 	for child in find_children("*", "RewindableState", false):
