@@ -35,14 +35,24 @@ RewindableStateMachine.
 
 States react to the game world using the following callbacks:
 
-* `tick(delta, tick, is_fresh)` is called for every rollback tick.
-* `enter(previous_state, tick)` is called when entering the state.
-* `exit(next_state, tick)` is called when exiting the state.
-* `can_enter(previous_state)` is called before entering the state. The state is
-  only entered if this method returns true.
-* `display_enter(previous_state, tick)` is called before displaying the state.
-* `display_exit(next_state, tick)` is called before displaying a different
-  state.
+`tick(delta, tick, is_fresh)`
+: Called for every rollback tick the state is active.
+
+`enter(previous_state, tick)`
+: Called when entering the state.
+
+`exit(next_state, tick)`
+: Called when exiting the state.
+
+`can_enter(previous_state)`
+: Called before entering the state. The state is only entered if this method
+  returns true.
+
+`display_enter(previous_state, tick)`
+: Called before displaying the state.
+
+`display_exit(next_state, tick)`
+: Called before displaying a different state.
 
 You can override any of these callbacks to implement your custom behaviors.
 
@@ -68,6 +78,28 @@ transition to a state node called *Move*.
 machine](../assets/rewindable-state-children.png)
 
 States must be added as children under a RewindableStateMachine to work.
+
+## Using signals instead of classes
+
+*RewindableState* nodes also emit signals during their lifetime. This enables
+an alternate style of implementing states, by connecting handlers to different
+signals. This can be useful if you want to keep all your logic in a single
+script, among others.
+
+Each of these signals correspond to a callback explained above:
+
+* `on_enter()` → `enter()`
+* `on_tick()` → `tick()`
+* `on_exit()` → `exit()`
+* `on_display_enter()` → `display_enter()`
+* `on_display_exit()` → `display_exit()`
+
+## Adding states
+
+Once implemented, add the state nodes as children of the
+*RewindableStateMachine* in the Scene Tree. When doing this programmatically,
+make sure to set the state's `owner` to the target *RewindableStateMachine*.
+Without the owner set, the *RewindableStateMachine* won't recognize the state.
 
 ## Display State vs State
 
@@ -109,10 +141,10 @@ P is Idle
 
 This will trigger the following state changes:
 
-* Tick@1: Idle -> Moving
-* Tick@3: Moving -> Jumping
-* Tick@5: Jumping -> Moving
-* Tick@8: Moving -> Idle
+* Tick@1: Idle → Moving
+* Tick@3: Moving → Jumping
+* Tick@5: Jumping → Moving
+* Tick@8: Moving → Idle
 
 For each of the above, the `on_state_changed` signal will be emitted, and the
 `enter()`/`exit()` callbacks will be triggered.
