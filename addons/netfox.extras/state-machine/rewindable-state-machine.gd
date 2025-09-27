@@ -50,8 +50,10 @@ static var _logger: _NetfoxLogger = _NetfoxLogger.for_extras("RewindableStateMac
 var _state_object: RewindableState = null
 var _previous_state_object: RewindableState = null
 var _available_states: Dictionary = {}
+var _prevent_transition: bool = false
 
-## Transition to a new state specified by [param new_state_name].
+## Transition to a new state specified by [param new_state_name] and return
+## true.
 ##
 ## Finds the given state by name and transitions to it if possible. The new
 ## state's [method RewindableState.can_enter] callback decides if it can be
@@ -63,56 +65,66 @@ var _available_states: Dictionary = {}
 ## [br][br]
 ## Does nothing if transitioning to the currently active state. Emits a warning
 ## and does nothing when transitioning to an unknown state.
-func transition(new_state_name: StringName) -> void:
+func transition(new_state_name: StringName) -> bool:
 	# Check if target state is valid
 	if state == new_state_name:
-		return
+		return false
 
 	if not _available_states.has(new_state_name):
 		_logger.warning("Attempted to transition from state '%s' into unknown state '%s'", [state, new_state_name])
-		return
+		return false
 
 	var from_state = _state_object
 	var new_state: RewindableState = _available_states[new_state_name]
-	var is_prevented := false
-	var prevent_callable := func(): is_prevented = true
+	_prevent_transition = false
+	var prevent_callable := func():
+		_prevent_transition = true
 
 	# Validate transition
 	if from_state:
 		if !new_state.can_enter(_state_object):
-			return
+			return false
 		
 		# Emit exit signal, allow handlers to prevent transition
 		_state_object.on_exit.emit(new_state, NetworkRollback.tick, prevent_callable)
-		if is_prevented: return
+		if _prevent_transition: return false
 
 	new_state.on_enter.emit(from_state, NetworkRollback.tick, prevent_callable)
-	if is_prevented: return
+	if _prevent_transition: return false
 	
 	# Transition valid, run callbacks
-	from_state.exit(new_state, NetworkRollback.tick)
+	if is_instance_valid(from_state):
+		from_state.exit(new_state, NetworkRollback.tick)
 	new_state.enter(from_state, NetworkRollback.tick)
 
 	# Set new state
 	_state_object = new_state
 	on_state_changed.emit(from_state, new_state)
 
+	return true
+
+func update_states() -> void:
+	var children := find_children("*", "RewindableState", false)
+	_available_states.clear()
+	
+	for child in find_children("*", "RewindableState", false):
+		_available_states[child.name] = child
+
 func _notification(what: int):
 	# Use notification instead of _ready, so users can write their own _ready
 	# callback without having to call super()
 	if Engine.is_editor_hint(): return
 
-	if what == NOTIFICATION_ENTER_TREE:
-		# Gather known states if we haven't yet
-		if _available_states.is_empty():
-			for child in find_children("*", "RewindableState", false):
-				_available_states[child.name] = child
-
-		# Compare states after tick loop
-		NetworkTime.after_tick_loop.connect(_after_tick_loop)
-	elif what == NOTIFICATION_EXIT_TREE:
-		# Disconnect handlers
-		NetworkTime.after_tick_loop.disconnect(_after_tick_loop)
+	match what:
+		NOTIFICATION_CHILD_ORDER_CHANGED:
+			update_states()
+		NOTIFICATION_ENTER_TREE:
+			# Compare states after tick loop
+			NetworkTime.after_tick_loop.connect(_after_tick_loop)
+			update_states()
+		NOTIFICATION_EXIT_TREE:
+			# Disconnect handlers
+			NetworkTime.after_tick_loop.disconnect(_after_tick_loop)
 
 func _get_configuration_warnings():
 	const MISSING_SYNCHRONIZER_ERROR := \
@@ -147,7 +159,10 @@ func _get_configuration_warnings():
 func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 	if _state_object:
 		_state_object.tick(delta, tick, is_fresh)
-		_state_object.state_tick.emit(delta, tick, is_fresh)
+		
+		print((_state_object.get_script() as Script).source_code)
+		print(_state_object.get_signal_list().map(func(it): return it["name"]))
+		_state_object.on_tick.emit(delta, tick, is_fresh)
 
 func _after_tick_loop():
 	if _state_object != _previous_state_object:
