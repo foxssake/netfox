@@ -51,6 +51,7 @@ var _state_object: RewindableState = null
 var _previous_state_object: RewindableState = null
 var _available_states: Dictionary = {}
 var _prevent_transition: bool = false
+var _prevent_callable: Callable = func(): _prevent_transition = true
 
 ## Transition to a new state specified by [param new_state_name] and return
 ## true.
@@ -77,8 +78,6 @@ func transition(new_state_name: StringName) -> bool:
 	var from_state = _state_object
 	var new_state: RewindableState = _available_states[new_state_name]
 	_prevent_transition = false
-	var prevent_callable := func():
-		_prevent_transition = true
 
 	# Validate transition
 	if from_state:
@@ -86,10 +85,10 @@ func transition(new_state_name: StringName) -> bool:
 			return false
 		
 		# Emit exit signal, allow handlers to prevent transition
-		_state_object.on_exit.emit(new_state, NetworkRollback.tick, prevent_callable)
+		_state_object.on_exit.emit(new_state, NetworkRollback.tick, _prevent_callable)
 		if _prevent_transition: return false
 
-	new_state.on_enter.emit(from_state, NetworkRollback.tick, prevent_callable)
+	new_state.on_enter.emit(from_state, NetworkRollback.tick, _prevent_callable)
 	if _prevent_transition: return false
 	
 	# Transition valid, run callbacks
@@ -159,9 +158,6 @@ func _get_configuration_warnings():
 func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 	if _state_object:
 		_state_object.tick(delta, tick, is_fresh)
-		
-		print((_state_object.get_script() as Script).source_code)
-		print(_state_object.get_signal_list().map(func(it): return it["name"]))
 		_state_object.on_tick.emit(delta, tick, is_fresh)
 
 func _after_tick_loop():
