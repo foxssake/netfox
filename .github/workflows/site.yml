@@ -33,7 +33,7 @@ jobs:
       - name: Setup mike
         run: pip install mike
       - name: Setup graphviz
-        run: apt install graphviz
+        run: sudo apt install graphviz
       - name: Start PlantUML server
         run: sh/setup-plantuml.sh
       - name: Build
