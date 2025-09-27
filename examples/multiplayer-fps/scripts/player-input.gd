@@ -27,8 +27,8 @@ func _input(event: InputEvent) -> void:
 	if !is_multiplayer_authority(): return
 	
 	if event is InputEventMouseMotion:
-		mouse_rotation.y = event.relative.x * mouse_sensitivity
-		mouse_rotation.x = event.relative.y * mouse_sensitivity
+		mouse_rotation.y += event.relative.x * mouse_sensitivity
+		mouse_rotation.x += event.relative.y * mouse_sensitivity
 		
 	if event.is_action_pressed("escape"):
 		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
@@ -51,7 +51,7 @@ func _gather():
 		look_angle = Vector2.ZERO
 		mouse_rotation = Vector2.ZERO
 	else:
-		look_angle = Vector2(-mouse_rotation.y * NetworkTime.ticktime, -mouse_rotation.x * NetworkTime.ticktime)
+		look_angle = Vector2(-mouse_rotation.y, -mouse_rotation.x)
 		mouse_rotation = Vector2.ZERO
 
 func setup():

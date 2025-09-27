@@ -91,6 +91,7 @@ properties = Array[String]([":transform", "Head:transform"])
 
 [node name="Input" type="Node" parent="."]
 script = ExtResource("7_2i3bi")
+mouse_sensitivity = 0.005
 
 [node name="Hit SFX" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("15_1n4tg")
