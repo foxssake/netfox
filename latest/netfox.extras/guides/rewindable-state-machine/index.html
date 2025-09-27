@@ -170,6 +170,10 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#implementing-states">Implementing states</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#using-signals-instead-of-classes">Using signals instead of classes</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#adding-states">Adding states</a>
+    </li>
     <li class="toctree-l3"><a class="reference internal" href="#display-state-vs-state">Display State vs State</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#caveats">Caveats</a>
@@ -235,16 +239,21 @@ RewindableStateMachine, and having its <code>state</code> property configured.</
 be an extension of the RewindableState class, and added as a child to the
 RewindableStateMachine.</p>
 <p>States react to the game world using the following callbacks:</p>
-<ul>
-<li><code>tick(delta, tick, is_fresh)</code> is called for every rollback tick.</li>
-<li><code>enter(previous_state, tick)</code> is called when entering the state.</li>
-<li><code>exit(next_state, tick)</code> is called when exiting the state.</li>
-<li><code>can_enter(previous_state)</code> is called before entering the state. The state is
-  only entered if this method returns true.</li>
-<li><code>display_enter(previous_state, tick)</code> is called before displaying the state.</li>
-<li><code>display_exit(next_state, tick)</code> is called before displaying a different
-  state.</li>
-</ul>
+<dl>
+<dt><code>tick(delta, tick, is_fresh)</code></dt>
+<dd>Called for every rollback tick the state is active.</dd>
+<dt><code>enter(previous_state, tick)</code></dt>
+<dd>Called when entering the state.</dd>
+<dt><code>exit(next_state, tick)</code></dt>
+<dd>Called when exiting the state.</dd>
+<dt><code>can_enter(previous_state)</code></dt>
+<dd>Called before entering the state. The state is only entered if this method
+  returns true.</dd>
+<dt><code>display_enter(previous_state, tick)</code></dt>
+<dd>Called before displaying the state.</dd>
+<dt><code>display_exit(next_state, tick)</code></dt>
+<dd>Called before displaying a different state.</dd>
+</dl>
 <p>You can override any of these callbacks to implement your custom behaviors.</p>
 <p>For example, the snippet below implements an idle state, that transitions to
 other states based on movement inputs:</p>
@@ -263,6 +272,24 @@ transition to a state node called <em>Move</em>. </p>
 <p><img alt="RewindableStates under a state
 machine" src="../../assets/rewindable-state-children.png" /></p>
 <p>States must be added as children under a RewindableStateMachine to work.</p>
+<h2 id="using-signals-instead-of-classes">Using signals instead of classes</h2>
+<p><em>RewindableState</em> nodes also emit signals during their lifetime. This enables
+an alternate style of implementing states, by connecting handlers to different
+signals. This can be useful if you want to keep all your logic in a single
+script, among others.</p>
+<p>Each of these signals correspond to a callback explained above:</p>
+<ul>
+<li><code>on_enter()</code> → <code>enter()</code></li>
+<li><code>on_tick()</code> → <code>tick()</code></li>
+<li><code>on_exit()</code> → <code>exit()</code></li>
+<li><code>on_display_enter()</code> → <code>display_enter()</code></li>
+<li><code>on_display_exit()</code> → <code>display_exit()</code></li>
+</ul>
+<h2 id="adding-states">Adding states</h2>
+<p>Once implemented, add the state nodes as children of the
+<em>RewindableStateMachine</em> in the Scene Tree. When doing this programmatically,
+make sure to set the state's <code>owner</code> to the target <em>RewindableStateMachine</em>.
+Without the owner set, the <em>RewindableStateMachine</em> won't recognize the state.</p>
 <h2 id="display-state-vs-state">Display State vs State</h2>
 <p>There's two sets of callbacks for state transition - <code>enter()</code>/<code>exit()</code> and
 <code>display_enter()</code>/<code>display_exit()</code>.</p>
@@ -277,10 +304,10 @@ performs a jump, and then stops after moving a bit more:</p>
 
 <p>This will trigger the following state changes:</p>
 <ul>
-<li>Tick@1: Idle -&gt; Moving</li>
-<li>Tick@3: Moving -&gt; Jumping</li>
-<li>Tick@5: Jumping -&gt; Moving</li>
-<li>Tick@8: Moving -&gt; Idle</li>
+<li>Tick@1: Idle → Moving</li>
+<li>Tick@3: Moving → Jumping</li>
+<li>Tick@5: Jumping → Moving</li>
+<li>Tick@8: Moving → Idle</li>
 </ul>
 <p>For each of the above, the <code>on_state_changed</code> signal will be emitted, and the
 <code>enter()</code>/<code>exit()</code> callbacks will be triggered.</p>
