@@ -119,6 +119,8 @@ and netfox.
 
 #### Feature examples
 
+Each of these examples give a starting point to a specific feature:
+
 * [Input gathering](examples/input-gathering)
 * [State machines](examples/multiplayer-state-machine)
 * [Multiplayer FPS](examples/multiplayer-fps)
@@ -127,17 +129,24 @@ and netfox.
 * [Input prediction](examples/input-prediction)
 * [NPCs with rollback](examples/rollback-npc)
 * [NPCs with StateSynchronizer](examples/state-synchronizer-npc)
-* [Godot Rocket League](https://github.com/albertok/godot-rocket-league)
+* [Visibility filtering](examples/visibility-filtering)
 
-#### Example game
+#### Example games
 
-* [Forest Brawl]
+##### Forest Brawl
 
 To provide examples of netfox usage in an actual game, [Forest Brawl] was
 created and included specifically for this purpose.
 
 It's a party game where an arbitrary amount of players compete by trying to
 knock eachother off of the map.
+
+##### Godot Rocket League
+
+Play soccer with cars, in Godot, with [Godot Rocket League](https://github.com/albertok/godot-rocket-league)!
+
+Demonstrates *netfox*'s physics rollback capabilities, ensuring smooth and
+responsive physics-based gameplay.
 
 ## Built with netfox
 

@@ -64,6 +64,10 @@ var diff_ack_interval: int = 0
 ## bandwidth and reduce cheating risks.
 @export var enable_input_broadcast: bool = true
 
+# Make sure this exists from the get-go, just not in the scene tree
+## Decides which peers will receive updates
+var visibility_filter := PeerVisibilityFilter.new()
+
 var _state_property_config: _PropertyConfig = _PropertyConfig.new()
 var _input_property_config: _PropertyConfig = _PropertyConfig.new()
 var _nodes: Array[Node] = []
@@ -112,7 +116,7 @@ func process_settings() -> void:
 	_nodes.erase(self)
 
 	_history_transmitter.sync_settings(root, enable_input_broadcast, full_state_interval, diff_ack_interval)
-	_history_transmitter.configure(_states, _inputs, _state_property_config, _input_property_config, _property_cache, _skipset)
+	_history_transmitter.configure(_states, _inputs, _state_property_config, _input_property_config, visibility_filter, _property_cache, _skipset)
 	_history_recorder.configure(_states, _inputs, _state_property_config, _input_property_config, _property_cache, _skipset)
 
 ## Process settings based on authority.
@@ -310,6 +314,12 @@ func _get_configuration_warnings() -> PackedStringArray:
 func _enter_tree() -> void:
 	if Engine.is_editor_hint():
 		return
+
+	if not visibility_filter:
+		visibility_filter = PeerVisibilityFilter.new()
+
+	if not visibility_filter.get_parent():
+		add_child(visibility_filter)
 
 	if _history_transmitter == null:
 		_history_transmitter = _RollbackHistoryTransmitter.new()

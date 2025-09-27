@@ -1,0 +1,87 @@
+[gd_scene load_steps=6 format=3 uid="uid://dliw6lntsr5ce"]
+
+[ext_resource type="PackedScene" uid="uid://cncdbq72u50j3" path="res://examples/shared/scenes/environment.tscn" id="1_vhod1"]
+[ext_resource type="Script" path="res://examples/shared/scripts/player-spawner.gd" id="2_7yqbt"]
+[ext_resource type="PackedScene" uid="uid://bd40plic1m6fb" path="res://examples/visibility-filtering/scenes/player.tscn" id="3_ohgyy"]
+[ext_resource type="Script" path="res://examples/visibility-filtering/scripts/visibility-manager.gd" id="4_jies5"]
+[ext_resource type="PackedScene" uid="uid://badtpsxn5lago" path="res://examples/shared/ui/network-popup.tscn" id="4_ujnwk"]
+
+[node name="Visibility Filtering Example" type="Node3D"]
+
+[node name="Map" type="Node3D" parent="."]
+
+[node name="CSGCombiner3D" type="CSGCombiner3D" parent="Map"]
+use_collision = true
+collision_layer = 2
+collision_mask = 3
+
+[node name="CSGFloor" type="CSGBox3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+size = Vector3(16, 0.5, 16)
+
+[node name="CSGWall" type="CSGBox3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 8)
+size = Vector3(16, 2, 1)
+
+[node name="CSGWall2" type="CSGBox3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -8)
+size = Vector3(16, 2, 1)
+
+[node name="CSGWall3" type="CSGBox3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 1, 0)
+size = Vector3(1, 2, 16)
+
+[node name="CSGWall4" type="CSGBox3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1, 0)
+size = Vector3(1, 2, 16)
+
+[node name="CSGWall5" type="CSGBox3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -5)
+size = Vector3(1, 2, 6)
+
+[node name="CSGWall6" type="CSGBox3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 5)
+size = Vector3(1, 2, 6)
+
+[node name="CSGCorner" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 1, 8)
+
+[node name="CSGCorner2" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 1, -8)
+
+[node name="CSGCorner3" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1, -8)
+
+[node name="CSGCorner4" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1, 8)
+
+[node name="CSGCorner5" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -2)
+
+[node name="CSGCorner6" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 2)
+
+[node name="Environment" parent="." instance=ExtResource("1_vhod1")]
+
+[node name="Player Spawner" type="Node" parent="." node_paths=PackedStringArray("spawn_root")]
+script = ExtResource("2_7yqbt")
+player_scene = ExtResource("3_ohgyy")
+spawn_root = NodePath(".")
+
+[node name="Visibility Manager" type="Node3D" parent="."]
+script = ExtResource("4_jies5")
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Network Popup" parent="UI" instance=ExtResource("4_ujnwk")]
+layout_mode = 1
+offset_left = -180.0
+offset_top = -120.0
+offset_right = 180.0
+offset_bottom = 120.0

@@ -42,6 +42,9 @@ var full_state_interval: int = 24 # TODO: Don't tie to a network rollback settin
 @export_range(0, 128, 1, "or_greater")
 var diff_ack_interval: int = 0 # TODO: Don't tie to a network rollback setting?
 
+## Decides which peers will receive updates
+var visibility_filter := PeerVisibilityFilter.new()
+
 var _property_cache: PropertyCache
 var _property_config: _PropertyConfig = _PropertyConfig.new()
 var _properties_dirty: bool = false
@@ -129,6 +132,11 @@ func _enter_tree() -> void:
 	if Engine.is_editor_hint():
 		return
 
+	if not visibility_filter:
+		visibility_filter = PeerVisibilityFilter.new()
+	if not visibility_filter.get_parent():
+		add_child(visibility_filter)
+
 	_connect_signals.call_deferred()
 	process_settings.call_deferred()
 
@@ -164,14 +172,15 @@ func _broadcast_state(tick: int, state: _PropertySnapshot) -> void:
 
 	if is_full_state_tick:
 		# Broadcast new full state
-		_send_full_state(tick)
+		for peer in visibility_filter.get_rpc_target_peers():
+			_send_full_state(tick, peer)
 
 		# Adjust next full state if sending diffs
 		if is_sending_diffs:
 			_next_full_state_tick = tick + full_state_interval
 	else:
 		# Send diffs to each peer
-		for peer in multiplayer.get_peers():
+		for peer in visibility_filter.get_visible_peers():
 			var reference_tick := _ackd_state.get(peer, -1) as int
 			if reference_tick < 0 or not _state_history.has(reference_tick):
 				# Peer hasn't ack'd any tick, or we don't have the ack'd tick
@@ -198,14 +207,12 @@ func _send_full_state(tick: int, peer: int = 0) -> void:
 	var full_state_snapshot := _state_history.get_snapshot(tick).as_dictionary()
 	var full_state_data := _full_state_encoder.encode(tick, _property_config.get_properties())
 
-	if peer == 0:
-		_submit_full_state.rpc(full_state_data, tick)
+	_submit_full_state.rpc_id(peer, full_state_data, tick)
 
+	if peer <= 0:
 		NetworkPerformance.push_full_state_broadcast(full_state_snapshot)
 		NetworkPerformance.push_sent_state_broadcast(full_state_snapshot)
 	else:
-		_submit_full_state.rpc_id(peer, full_state_data, tick)
-
 		NetworkPerformance.push_full_state(full_state_snapshot)
 		NetworkPerformance.push_sent_state(full_state_snapshot)
 

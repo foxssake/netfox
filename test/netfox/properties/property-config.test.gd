@@ -32,6 +32,25 @@ func suite():
 		expect_empty(config.get_properties_owned_by(LOCAL_PEER))
 	)
 
+	test("should get remote owned properties after ownership change", func():
+		var properties := SnapshotFixtures.state_properties()
+		var cache := PropertyCache.new(remote_node)
+		var config := _PropertyConfig.new()
+		config.set_properties_from_paths(SnapshotFixtures.state_properties(), cache)
+		config.local_peer_id = LOCAL_PEER
+
+		expect_empty(config.get_owned_properties())
+
+		# Update ownership
+		remote_node.set_multiplayer_authority(1)
+		config.set_properties_from_paths(SnapshotFixtures.state_properties(), cache)
+
+		# Convert to a list of property paths for easier comparison
+		var owned_properties := config.get_owned_properties()\
+			.map(func(it): return str(it))
+		expect_equal(owned_properties, properties)
+	)
+
 	on_finish.connect(func():
 		local_node.queue_free()
 		remote_node.queue_free()
