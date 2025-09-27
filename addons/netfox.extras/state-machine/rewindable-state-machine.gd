@@ -64,6 +64,7 @@ var _available_states: Dictionary = {}
 ## Does nothing if transitioning to the currently active state. Emits a warning
 ## and does nothing when transitioning to an unknown state.
 func transition(new_state_name: StringName) -> void:
+	# Check if target state is valid
 	if state == new_state_name:
 		return
 
@@ -71,24 +72,30 @@ func transition(new_state_name: StringName) -> void:
 		_logger.warning("Attempted to transition from state '%s' into unknown state '%s'", [state, new_state_name])
 		return
 
+	var from_state = _state_object
 	var new_state: RewindableState = _available_states[new_state_name]
-	if _state_object:
+	var is_prevented := false
+	var prevent_callable := func(): is_prevented = true
+
+	# Validate transition
+	if from_state:
 		if !new_state.can_enter(_state_object):
 			return
 		
-		new_state._transition_prevented = false
-		_state_object.exit(new_state, NetworkRollback.tick)
-		_state_object.state_exit.emit(new_state, NetworkRollback.tick)
-		# NOTE: assuming that we call prevent_transition() in exit
-		# since we should call prevent_transition() for new_state
-		if new_state._transition_prevented:
-			return
+		# Emit exit signal, allow handlers to prevent transition
+		_state_object.on_exit.emit(new_state, NetworkRollback.tick, prevent_callable)
+		if is_prevented: return
 
-	var _previous_state: RewindableState = _state_object
+	new_state.on_enter.emit(from_state, NetworkRollback.tick, prevent_callable)
+	if is_prevented: return
+	
+	# Transition valid, run callbacks
+	from_state.exit(new_state, NetworkRollback.tick)
+	new_state.enter(from_state, NetworkRollback.tick)
+
+	# Set new state
 	_state_object = new_state
-	on_state_changed.emit(_previous_state, new_state)
-	_state_object.enter(_previous_state, NetworkRollback.tick)
-	_state_object.state_enter.emit(_previous_state, NetworkRollback.tick)
+	on_state_changed.emit(from_state, new_state)
 
 func _notification(what: int):
 	# Use notification instead of _ready, so users can write their own _ready

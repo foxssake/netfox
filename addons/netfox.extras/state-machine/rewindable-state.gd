@@ -3,15 +3,6 @@
 extends Node
 class_name RewindableState
 
-## Emitted when the state is entered.
-signal state_enter(previous_state: RewindableState, tick: int)
- 
-## Emitted every tick while the state is active.
-signal state_tick(delta: float, tick: int, is_fresh: bool)
- 
-## Emitted when the state is exited.
-signal state_exit(next_state: RewindableState, tick: int)
-
 ## Base class for states to be used with [RewindableStateMachine].
 ##
 ## Provides multiple callback methods for a state's lifecycle, which can be 
@@ -21,6 +12,15 @@ signal state_exit(next_state: RewindableState, tick: int)
 ##
 ## @tutorial(RewindableStateMachine Guide): https://foxssake.github.io/netfox/latest/netfox.extras/guides/rewindable-state-machine/
 
+## Emitted when entering the state
+signal on_enter(previous_state: RewindableState, tick: int, prevent: Callable)
+ 
+## Emitted on every rollback tick while the state is active
+signal on_tick(delta: float, tick: int, is_fresh: bool)
+ 
+## Emitted when exiting the state
+signal on_exit(next_state: RewindableState, tick: int, prevent: Callable)
+
 ## The [RewindableStateMachine] this state belongs to.
 ## [br][br]
 ## [i]read-only[/i]
@@ -28,11 +28,6 @@ var state_machine: RewindableStateMachine:
 	get: return _state_machine
 
 var _state_machine: RewindableStateMachine
-
-var _transition_prevented: bool = false
-# NOTE: call this function in state_exit / exit
-func prevent_transition() -> void:
-	_transition_prevented = true
 
 ## Callback to run a single tick.
 ##
