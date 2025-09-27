@@ -169,7 +169,10 @@ func _after_tick_loop():
 		on_display_state_changed.emit(_previous_state_object, _state_object)
 
 		if _previous_state_object:
+			_previous_state_object.on_display_exit.emit(_state_object, NetworkTime.tick)
 			_previous_state_object.display_exit(_state_object, NetworkTime.tick)
+
+		_state_object.on_display_enter.emit(_previous_state_object, NetworkTime.tick)
 		_state_object.display_enter(_previous_state_object, NetworkTime.tick)
 
 		_previous_state_object = _state_object

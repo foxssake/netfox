@@ -21,6 +21,12 @@ signal on_tick(delta: float, tick: int, is_fresh: bool)
 ## Emitted when exiting the state
 signal on_exit(next_state: RewindableState, tick: int, prevent: Callable)
 
+## Emitted before displaying this state
+signal on_display_enter(previous_state: RewindableState, tick: int)
+
+## Emitted before displaying another state
+signal on_display_exit(next_state: RewindableState, tick: int)
+
 ## The [RewindableStateMachine] this state belongs to.
 ## [br][br]
 ## [i]read-only[/i]
