@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://foxssake.github.io/netfox/5448041/netfox/guides/netfox-sharp/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Netfox Sharp - netfox</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/version-selector.css" rel="stylesheet" />
+        <link href="../../../css/twemoji.css" rel="stylesheet" />
+        <link href="../../../assets/mkdocs_puml/puml.css" rel="stylesheet" />
+        <link href="../../../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Netfox Sharp";
+        var mkdocs_page_input_path = "netfox/guides/netfox-sharp.md";
+        var mkdocs_page_url = "/netfox/5448041/netfox/guides/netfox-sharp/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script>
+  <script src="https://giscus.app/client.js"
+          data-repo="foxssake/netfox"
+          data-repo-id="R_kgDOKBON2A"
+          data-category="Docs"
+          data-category-id="DIC_kwDOKBON2M4Clib_"
+          data-mapping="title"
+          data-strict="0"
+          data-reactions-enabled="1"
+          data-emit-metadata="0"
+          data-input-position="top"
+          data-theme="light"
+          data-lang="en"
+          data-loading="lazy"
+          crossorigin="anonymous"
+          async>
+  </script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> netfox
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../upgrading/">Upgrading netfox</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../made-with-netfox/">Made with netfox</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../press-kit/">Press kit</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../contributors/">Contributors</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >Tutorials</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/responsive-player-movement/">Responsive player movement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/input-gathering-tips-and-tricks/">Input gathering tips and tricks</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/predicting-input/">Predicting input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/modifying-objects-during-rollback/">Modifying objects during rollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/configuring-properties-from-code/">Configuring properties from code</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/rollback-caveats/">Rollback caveats</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/interpolation-caveats/">Interpolation caveats</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Concepts</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../concepts/servers-clients-ownership/">Servers, clients, and ownership</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../concepts/authoritative-servers/">Authoritative servers</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Guides</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../logging/">Logging</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../network-time/">NetworkTime</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../network-time-synchronizer/">NetworkTimeSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../network-events/">NetworkEvents</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../interpolators/">Interpolators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../property-paths/">Property paths</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../network-rollback/">NetworkRollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../network-performance/">NetworkPerformance</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../visibility-management/">Visibility Management</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Netfox Sharp</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#what-netfox-sharp-is">What Netfox Sharp Is</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#what-netfox-sharp-isnt">What Netfox Sharp Isn't</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#getting-started">Getting Started</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#differences-between-netfox-and-netfox-sharp">Differences Between Netfox And Netfox Sharp</a>
+    </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Nodes</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../nodes/tick-interpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../nodes/rollback-synchronizer/">RollbackSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../nodes/state-synchronizer/">StateSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../nodes/rewindable-action/">RewindableAction</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.noray</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.noray/guides/noray/">Noray</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.noray/guides/packet-handshake/">PacketHandshake</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.extras</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/physics/">Physics</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/network-simulator/">NetworkSimulator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/base-net-input/">BaseNetInput</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/network-weapon/">NetworkWeapon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/rewindable-state-machine/">RewindableStateMachine</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/rewindable-random-number-generator/">RewindableRandomNumberGenerator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/window-tiler/">WindowTiler</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">netfox</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">netfox</li>
+          <li class="breadcrumb-item">Guides</li>
+      <li class="breadcrumb-item active">Netfox Sharp</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="netfox-sharp">Netfox Sharp</h1>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong><a href="https://github.com/CyFurStudios/NetfoxSharp/">Netfox Sharp</a> is currently an experimental build and not ready for
+production. During this time, breaking changes may be introduced at any
+time.</strong></p>
+</div>
+<p>The <a href="https://github.com/CyFurStudios/NetfoxSharp/">Netfox Sharp</a> addon is designed to bridge the gap between GDScript and C#
+by allowing core netfox features to be accessed in C# without having to worry
+about <a href="https://docs.godotengine.org/en/stable/tutorials/scripting/cross_language_scripting.html">Cross-Language Scripting</a> with GDScript directly.</p>
+<h3 id="what-netfox-sharp-is">What Netfox Sharp Is</h3>
+<ul>
+<li>A wrapper for netfox that uses the existing netfox codebase for its logic.</li>
+<li>A way to more conveniently call netfox logic in a C# environment.</li>
+<li>Partially compatible with existing codebases that use GDScript.</li>
+</ul>
+<h3 id="what-netfox-sharp-isnt">What Netfox Sharp Isn't</h3>
+<ul>
+<li>A standalone addon written entirely in C#.</li>
+<li>A perfect 1:1 translation. Due to quirks of netfox, some code will differ,
+  detailed below.</li>
+<li>A wrapper for netfox.noray or netfox.extras. Support for either of those
+  currently isn't planned, but may be considered based on interest.</li>
+</ul>
+<h2 id="getting-started">Getting Started</h2>
+<ul>
+<li>Download the <a href="https://github.com/CyFurStudios/NetfoxSharp/">Netfox Sharp</a> repo, and move the <code>netfox_sharp</code> and
+  <code>netfox_sharp_internals</code> folders into the addons of a C#-enabled Godot
+  project using the .NET version of Godot 4.x.</li>
+<li>Install the netfox addon. See the Netfox Sharp repo for details on which
+  version of netfox you need.</li>
+<li>Build your project, then enable netfox and Netfox Sharp in your project
+  settings.</li>
+<li>Restart Godot, and you've successfully set up Netfox Sharp!</li>
+</ul>
+<h2 id="differences-between-netfox-and-netfox-sharp">Differences Between Netfox And Netfox Sharp</h2>
+<p>Existing documentation for netfox should be easily translatable to Netfox Sharp
+by following the below differences.</p>
+<ul>
+<li>Most changes follow Godot's rules for <a href="https://docs.godotengine.org/en/stable/tutorials/scripting/cross_language_scripting.html">Cross-Language Scripting</a>, taking
+  netfox as the base. In netfox, consider the following:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># The following example is a snippet of netfox code</span>
+<span class="k">func</span><span class="w"> </span><span class="n">_ready</span><span class="p">():</span>
+<span class="w">    </span><span class="n">NetworkTime</span><span class="o">.</span><span class="n">before_tick_loop</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">_gather</span><span class="p">)</span>
+
+<span class="k">func</span><span class="w"> </span><span class="n">_gather</span><span class="p">():</span>
+<span class="w">    </span><span class="c1"># Input gathering here</span>
+<span class="w">    </span><span class="k">pass</span>
+
+<span class="k">func</span><span class="w"> </span><span class="n">_rollback_tick</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span><span class="w"> </span><span class="n">tick</span><span class="p">,</span><span class="w"> </span><span class="n">is_fresh</span><span class="p">):</span>
+<span class="w">    </span><span class="c1"># Rollback logic here</span>
+<span class="w">    </span><span class="k">pass</span>
+</code></pre></div>
+<p>Whereas in Netfox Sharp:</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// This is functionally identical Netfox Sharp code</span>
+<span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">_Ready</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// All netfox autoloads like NetworkTime are accessed through static members</span>
+<span class="w">    </span><span class="c1">// in NetfoxSharp, to save on GetNode() calls and reduce clutter in the</span>
+<span class="w">    </span><span class="c1">// project settings.</span>
+
+<span class="w">    </span><span class="c1">// All members like BeforeTickLoop are in PascalCase, similar to Godot&#39;s C#</span>
+<span class="w">    </span><span class="n">NetfoxSharp</span><span class="p">.</span><span class="n">NetworkTime</span><span class="p">.</span><span class="n">BeforeTickLoop</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">Gather</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// As Gather is linked to a signal, it can be any naming convention.</span>
+<span class="k">private</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Gather</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// Input gathering here</span>
+<span class="p">}</span>
+
+<span class="c1">// Since _rollback_tick isn&#39;t connected to a signal and is instead handled by</span>
+<span class="c1">// netfox internally, netfox&#39;s naming convention must be followed.</span>
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">_rollback_tick</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">delta</span><span class="p">,</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">tick</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">isFresh</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">   </span><span class="c1">// Rollback logic here</span>
+<span class="p">}</span>
+</code></pre></div>
+<ul>
+<li>Nodes in the add mode menu have similar names to the GDScript version, but
+  with 'Sharp' affixed, IE <code>RollbackSynchronizerSharp</code>. The GDScript versions
+  of the nodes are also present in the add node menu. This is a limitation of
+  how netfox interacts with Godot and cannot be removed.</li>
+</ul>
+<h1 id="other-notes">Other Notes</h1>
+<ul>
+<li><code>RollbackSynchronizerSharp</code>, <code>StateSynchronizerSharp</code>, and
+  <code>TickInterpolatorSharp</code> create their own respective GDScript nodes, which are
+  instanced as internal children nodes and should not be accessed.</li>
+</ul>
+              
+            </div>
+          </div>
+  <hr>
+  <h2>User discussion</h2>
+  <div class="giscus" ></div>
+  <hr>
+  <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../visibility-management/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../nodes/tick-interpolator/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../assets/mkdocs_puml/puml.js"></script>
+      <script src="../../../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

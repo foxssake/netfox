@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="272"
+   height="128"
+   viewBox="0 0 71.966666 33.866666"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4 (e7c3feb100, 2024-10-09)"
+   sodipodi:docname="netfox-banner-hor-alt.svg"
+   inkscape:export-filename="netfox-banner.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#bfbfbf"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="px"
+     inkscape:zoom="2.8284272"
+     inkscape:cx="112.78353"
+     inkscape:cy="52.3259"
+     inkscape:window-width="2560"
+     inkscape:window-height="1048"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g1-5" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g1">
+      <path
+         id="rect1"
+         style="fill:#ff8100;fill-opacity:1;stroke:none;stroke-width:0.822685;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.33"
+         d="m 0,0 12.009119,12.009119 h 23.87646 v -24.018238 l -17.92507,-5.95139 z"
+         transform="rotate(45)"
+         sodipodi:nodetypes="cccccc" />
+      <path
+         d="M 16.93334,0 8.4666699,16.93334 0,0 Z"
+         fill="#5fff97"
+         id="path1"
+         style="stroke-width:4.23333" />
+      <path
+         d="M 33.866666,16.93334 25.399996,0 16.93334,16.93334 Z"
+         fill="#ff5f5f"
+         id="path2"
+         style="stroke-width:4.23333" />
+      <rect
+         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.33"
+         id="rect2"
+         width="3.6265092"
+         height="3.6265092"
+         x="17.96052"
+         y="5.9868398"
+         transform="rotate(45)" />
+      <rect
+         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.33"
+         id="rect3"
+         width="3.6265092"
+         height="3.6265092"
+         x="29.934195"
+         y="-5.9868345"
+         transform="rotate(45)" />
+      <rect
+         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.33"
+         id="rect4"
+         width="3.6265092"
+         height="3.6265092"
+         x="32.259071"
+         y="8.3826094"
+         transform="rotate(45)" />
+    </g>
+    <g
+       id="g1-5"
+       transform="matrix(0.26458333,0,0,0.26458333,-190.26843,-380.00464)">
+      <text
+         id="netfox"
+         class="cls-1"
+         x="851.6261"
+         y="1516.0247"
+         style="font-weight:300;font-size:42.6667px;font-family:Oxanium;fill:#ff8100">net<tspan
+   class="cls-2"
+   id="tspan1"
+   style="font-size:42.6667px;fill:#000000;fill-opacity:1">fox</tspan></text>
+    </g>
+  </g>
+</svg>
