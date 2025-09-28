@@ -1,8 +1,11 @@
 source sh/shared.sh
 
-if ! java -v; then
+if ! which java > /dev/null; then
   print "Java not found!"
+  exit 1;
 fi;
+
+java -version
 
 print "Downloading plantuml"
 curl -LO https://github.com/plantuml/plantuml/releases/download/v1.2025.4/plantuml-mit-1.2025.4.jar
