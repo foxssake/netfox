@@ -11,6 +11,9 @@ print "Downloading plantuml"
 curl -LO https://github.com/plantuml/plantuml/releases/download/v1.2025.4/plantuml-mit-1.2025.4.jar
 
 print "Starting server"
-if ! java -jar ./plantuml-mit-1.2025.4.jar -picoweb:8080:127.0.0.1 &; then
+java -jar ./plantuml-mit-1.2025.4.jar -picoweb:8080:127.0.0.1 &
+if [ $? -ne 0 ]; then
   print "Server failed!"
-fi;
+else
+  print "Server PID:" $!
+fi
