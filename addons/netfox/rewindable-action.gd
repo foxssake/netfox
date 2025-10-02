@@ -221,7 +221,7 @@ func _submit_state(bytes: PackedByteArray) -> void:
 	# Don't compare past last event, as to not cancel events the host simply doesn't know about
 	var latest_tick = maxi(last_known_tick, NetworkRollback.history_start)
 
-	for tick in range(earliest_tick, latest_tick):
+	for tick in range(earliest_tick, latest_tick + 1):
 		var is_tick_active = active_ticks.has(tick)
 		if is_tick_active != is_active(tick):
 			_queued_changes[tick] = is_tick_active
