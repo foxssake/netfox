@@ -10,7 +10,7 @@ var _is_jumping_buffer: bool = false
 
 func _ready():
 	super()
-	NetworkTime.after_tick.connect(func(_dt, _t): _reset())
+	NetworkTime.after_tick.connect(func(_dt, _t): _gather_always())
 
 func _process(_dt: float) -> void:
 	_movement_buffer += Vector3(
@@ -34,8 +34,7 @@ func _gather() -> void:
 	_movement_buffer = Vector3.ZERO
 	_movement_samples = 0
 
+func _gather_always():
 	# Jumping
 	is_jumping = _is_jumping_buffer
-
-func _reset():
 	_is_jumping_buffer = false

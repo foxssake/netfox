@@ -29,6 +29,7 @@ NetworkRollback="*res://addons/netfox/rollback/network-rollback.gd"
 NetworkEvents="*res://addons/netfox/network-events.gd"
 NetworkPerformance="*res://addons/netfox/network-performance.gd"
 WindowTiler="*res://addons/netfox.extras/window-tiler.gd"
+NetworkSimulator="*res://addons/netfox.extras/network-simulator.gd"
 
 [display]
 
@@ -125,8 +126,14 @@ escape={
 general/clear_settings=false
 time/tickrate=24
 extras/auto_tile_windows=true
+autoconnect/enabled=false
 
 [rendering]
 
 lights_and_shadows/directional_shadow/soft_shadow_filter_quality=3
 anti_aliasing/quality/screen_space_aa=1
+
+[vest]
+
+tests_root="res://test/"
+new_test_location=2

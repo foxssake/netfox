@@ -19,6 +19,12 @@ stepping or use an alternate physics addon that exposes stepping.
 - **Blazium Fork**: A Godot fork with enhanced physics features, including
   stepping. Learn more at [blazium.app].
 
+!!!tip
+    For using Godot with the Stepping Physics PR applied, a [community run
+    repository] is available with a custom build. Note that this repository and
+    its builds are provided as-is, and are not associated with Godot nor the PR's
+    author.
+
 ## Enabling Physics Engine Rollback
 
 To enable physics rollback, add the appropriate physics driver node to the root
@@ -69,6 +75,7 @@ To make use of NetworkRigidBody you need to:
 
 
 [Godot Rocket League]: https://github.com/albertok/godot-rocket-league
+[community run repository]: https://github.com/albertok/godot/releases
 [physics stepping PR]: https://github.com/godotengine/godot/pull/76462
 [Godot documentation]: https://docs.godotengine.org/en/stable/contributing/development/compiling/index.html
 [godot.rapier.rs]: https://godot.rapier.rs/
