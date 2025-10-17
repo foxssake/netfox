@@ -168,6 +168,7 @@ var _rollback_stage: String = ""
 var _is_rollback: bool = false
 var _simulated_nodes: _Set = _Set.new()
 var _mutated_nodes: Dictionary = {}
+var _input_submissions: Dictionary = {}
 
 const _STAGE_BEFORE := "B"
 const _STAGE_PREPARE := "P"
@@ -265,6 +266,27 @@ func is_just_mutated(target: Object, p_tick: int = tick) -> bool:
 		return _mutated_nodes.get(target) == p_tick
 	else:
 		return false
+
+## Register that a node has submitted its input for a specific tick
+func register_input_submission(root_node: Node, tick: int) -> void:
+	if not _input_submissions.has(root_node):
+		_input_submissions[root_node] = tick
+	else:
+		_input_submissions[root_node] = maxi(_input_submissions[root_node], tick)
+
+## Get the latest input tick submitted by a specific root node
+func get_latest_input_tick(root_node: Node) -> int:
+	if _input_submissions.has(root_node):
+		return _input_submissions[root_node]
+	return -1
+
+## Get all root nodes that have submitted input
+func get_input_submissions() -> Dictionary:
+	return _input_submissions
+
+## Check if a node has submitted input for a specific tick (or later)
+func has_input_for_tick(root_node: Node, tick: int) -> bool:
+	return _input_submissions.has(root_node) and _input_submissions[root_node] >= tick
 
 func _ready():
 	_NetfoxLogger.register_tag(_get_rollback_tag)

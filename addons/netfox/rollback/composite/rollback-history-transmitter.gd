@@ -103,6 +103,7 @@ func transmit_input(tick: int) -> void:
 		var input_tick: int = tick + NetworkRollback.input_delay
 		var input_data := _input_encoder.encode(input_tick, _get_owned_input_props())
 		var state_owning_peer := root.get_multiplayer_authority()
+		NetworkRollback.register_input_submission(root, tick)
 
 		if enable_input_broadcast:
 			for peer in _visibility_filter.get_rpc_target_peers():
@@ -209,6 +210,7 @@ func _submit_input(tick: int, data: Array) -> void:
 	var earliest_received_input = _input_encoder.apply(tick, snapshots, sender)
 	if earliest_received_input >= 0:
 		_earliest_input_tick = mini(_earliest_input_tick, earliest_received_input)
+		NetworkRollback.register_input_submission(root, tick)
 
 # `serialized_state` is a serialized _PropertySnapshot
 @rpc("any_peer", "unreliable_ordered", "call_remote")
