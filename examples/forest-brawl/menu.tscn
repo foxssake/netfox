@@ -2,51 +2,306 @@
 
 [ext_resource type="Texture2D" uid="uid://cdb8di7e1p6h6" path="res://icon.png" id="1_6gbgt"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/random-name-input.gd" id="1_h5ah4"]
+[ext_resource type="Theme" uid="uid://cg8p4yow3i3ly" path="res://examples/forest-brawl/ui/menu-theme.tres" id="1_xmgyy"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/settings/fullscreen-checkbutton.gd" id="2_llkcl"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/settings/vsync-checkbutton.gd" id="3_amefg"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/settings/confine-mouse-checkbutton.gd" id="4_s5qgy"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/settings/volume-slider.gd" id="5_5ifsx"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wbjcp"]
-bg_color = Color(0.25, 0.25, 0.25, 0.752941)
-corner_radius_top_left = 2
-corner_radius_top_right = 2
-corner_radius_bottom_right = 2
-corner_radius_bottom_left = 2
+[sub_resource type="GDScript" id="GDScript_jmdql"]
+script/source = "extends Control
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_1tayi"]
+@onready var quick_play_button := $\"Quick Play Button\" as Button
+@onready var find_game_button := $\"Find a Game Button\" as Button
+@onready var play_lan_button := $\"Play LAN Button\" as Button
+@onready var settings_button := $\"Settings Button\" as Button
+@onready var quit_button := $\"Quit Button\" as Button
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_2kkly"]
+@onready var quick_play_menu := %\"Quick Play Menu\" as Control
+@onready var games_menu := %\"Games Menu\" as Control
+@onready var settings_menu := %\"Settings Menu\" as Control
 
-[sub_resource type="Theme" id="Theme_87epe"]
-EmbossLabel/styles/normal = SubResource("StyleBoxFlat_wbjcp")
-MainMenuButton/base_type = &"Button"
-MainMenuButton/colors/font_color = Color(1, 1, 1, 0.752941)
-MainMenuButton/colors/font_focus_color = Color(1, 1, 1, 0.878431)
-MainMenuButton/colors/font_hover_color = Color(1, 1, 1, 0.878431)
-MainMenuButton/colors/font_hover_pressed_color = Color(1, 1, 1, 1)
-MainMenuButton/font_sizes/font_size = 48
-MainMenuButton/styles/focus = SubResource("StyleBoxEmpty_1tayi")
-MainMenuButton/styles/pressed = SubResource("StyleBoxEmpty_2kkly")
-MarginContainer/constants/margin_bottom = 4
-MarginContainer/constants/margin_left = 4
-MarginContainer/constants/margin_right = 4
-MarginContainer/constants/margin_top = 4
+func _ready() -> void:
+	quick_play_button.pressed.connect(_quick_play)
+	find_game_button.pressed.connect(_find_game)
+	play_lan_button.pressed.connect(_play_lan)
+	settings_button.pressed.connect(_settings)
+	quit_button.pressed.connect(_quit)
 
-[sub_resource type="GDScript" id="GDScript_43xrg"]
-script/source = "extends Button
+func _quick_play() -> void:
+	_switch_to(quick_play_menu)
 
-@onready var target: Control = self.get_parent_control().get_child(0)
-@onready var panel: Control = self.get_node(\"../..\")
+func _find_game() -> void:
+	_switch_to(games_menu)
 
-func _pressed():
-	if target.visible:
-		target.hide()
-		text = \">\"
+func _play_lan() -> void:
+	pass
+
+func _settings() -> void:
+	_switch_to(settings_menu)
+
+func _quit() -> void:
+	get_tree().quit()
+
+# TODO: Deduplicate?
+func _switch_to(menu: Control) -> void:
+	menu.show()
+	hide()
+"
+
+[sub_resource type="GDScript" id="GDScript_pewsl"]
+script/source = "extends Control
+
+@onready var label := $Label as Label
+@onready var back_button := $\"HBoxContainer/Back Button\" as Button
+@onready var host_button := $\"HBoxContainer/Host Button\" as Button
+
+@onready var main_menu := %\"Main Menu\" as Control
+
+func _ready() -> void:
+	visibility_changed.connect(func():
+		if visible: _execute()
+		else: _cancel()
+	)
+	
+	back_button.pressed.connect(_back)
+	host_button.pressed.connect(_host)
+
+func _execute() -> void:
+	pass # TODO
+
+func _cancel() -> void:
+	pass # TODO
+
+func _back() -> void:
+	_switch_to(main_menu)
+
+func _host() -> void:
+	pass # TODO
+
+# TODO: Deduplicate?
+func _switch_to(menu: Control) -> void:
+	menu.show()
+	hide()
+"
+
+[sub_resource type="GDScript" id="GDScript_2payw"]
+script/source = "extends Control
+
+class Preset:
+	var name: String
+	var noray_address: String
+	var nohub_address: String
+
+	func _init(p_name: String, p_noray_address: String, p_nohub_address: String):
+		name = p_name
+		noray_address = p_noray_address
+		nohub_address = p_nohub_address
+
+@onready var presets_option := $\"MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer/Presets Option\" as OptionButton
+@onready var noray_input := $\"MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer/noray Input\" as LineEdit
+@onready var nohub_input := $\"MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer/nohub Input\" as LineEdit
+@onready var connect_button := $\"MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer/Connect Button\" as Button
+@onready var status_label := $\"MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer/Status Label\" as Label
+@onready var dock_button := $\"MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/Dock Button\" as Button
+
+@onready var lobbies_container := $\"MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/ScrollContainer/Lobbies Container\" as GridContainer
+@onready var lobby_name_input := $\"MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/GridContainer/Lobby Name Input\" as LineEdit
+@onready var lobby_player_limit_input := $\"MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/GridContainer/Lobby Player Limit Input\" as LineEdit
+@onready var back_button := $\"MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/HBoxContainer/Back Button\" as Button
+@onready var host_button := $\"MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/HBoxContainer/Host Button\" as Button
+
+@onready var dock_container := $MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer as Control
+@onready var dock_panel := $MarginContainer/HBoxContainer/PanelContainer
+
+@onready var main_menu := %\"Main Menu\" as Control
+
+var presets: Array[Preset] = [
+	Preset.new(\"foxssake.studio\", \"foxssake.studio:8890\", \"foxssake.studio:12980\"),
+	Preset.new(\"localhost\", \"localhost:8890\", \"localhost:9980\")
+]
+
+var _nohub_peer: StreamPeerTCP
+var _nohub_client: NohubClient
+var _poll_interval := 2.
+var _poll_wait := 0.
+
+var _nohub_game_id := \"WK6koYfZ7cEMjcsba3ovxQF1lM9XjkWh\"
+
+func _ready() -> void:
+	# TODO: Deduplicate?
+	visibility_changed.connect(func():
+		if visible: _execute()
+		else: _cancel()
+	)
+	
+	presets_option.item_selected.connect(_select_preset)
+	connect_button.pressed.connect(_connect)
+	dock_button.pressed.connect(_dock)
+	back_button.pressed.connect(_back)
+	host_button.pressed.connect(_host)
+	
+	# Populate presets
+	presets_option.clear()
+	for preset in presets:
+		presets_option.add_item(preset.name)
+	presets_option.select(0)
+	_select_preset(0)
+
+func _process(dt: float) -> void:
+	# Update status
+	if _nohub_peer == null:
+		status_label.text = \"Offline\"
 	else:
-		target.show()
-		text = \"<\"
-	panel.size_flags_horizontal ^= Control.SIZE_EXPAND
+		_nohub_peer.poll()
+		match _nohub_peer.get_status():
+			StreamPeerTCP.STATUS_CONNECTED: status_label.text = \"Online\"
+			StreamPeerTCP.STATUS_CONNECTING: status_label.text = \"Connecting...\"
+			StreamPeerTCP.STATUS_ERROR: status_label.text = \"Error\"
+
+	_poll_wait -= dt
+	if _nohub_client:
+		_nohub_client.poll()
+		if _poll_wait < 0.:
+			print(\"Listing lobbies...\")
+			_poll_wait = _poll_interval
+			var response := await _nohub_client.list_lobbies()
+			if not response.is_success():
+				print(\"Failed listing lobbies: %s\" % [response])
+			else:
+				print(\"Found lobbies: %s\" % [response.value()])
+				_render_lobbies(response.value())
+
+func _execute() -> void:
+	_connect.call_deferred()
+
+func _cancel() -> void:
+	_disconnect.call_deferred()
+	_render_lobbies([])
+
+func _select_preset(idx: int) -> void:
+	var preset := presets[idx]
+	noray_input.text = preset.noray_address
+	nohub_input.text = preset.nohub_address
+
+func _connect() -> void:
+	_disconnect()
+
+	var noray_address = _parse_address(noray_input.text, 8890)
+	var nohub_address = _parse_address(nohub_input.text, 12980)
+
+	# Connect to noray
+	print(\"Connecting to noray at %s:%d...\" % [noray_address[0], noray_address[1]])
+	var err := await Noray.connect_to_host(noray_address[0], noray_address[1])
+	if err != OK:
+		print(\"Failed to connect to noray: %s\" % [error_string(err)])
+		return
+	print(\"Success!\")
+
+	# Connect to nohub
+	print(\"Connecting to nohub at %s:%d...\" % [noray_address[0], noray_address[1]])
+	var peer := StreamPeerTCP.new()
+	peer.connect_to_host(nohub_address[0], nohub_address[1])
+	while true:
+		peer.poll()
+		match peer.get_status():
+			StreamPeerTCP.STATUS_CONNECTED:
+				print(\"Success!\")
+				break
+			StreamPeerTCP.STATUS_ERROR:
+				print(\"Failed to connect!\")
+				return
+		await get_tree().process_frame
+
+	_nohub_peer = peer
+	_nohub_client = NohubClient.new(peer)
+
+	var response := await _nohub_client.set_game(_nohub_game_id)
+	if not response.is_success():
+		print(\"Failed to set game ID! %s\" % [response])
+		_disconnect()
+		return
+
+func _disconnect() -> void:
+	_render_lobbies([])
+
+	if Noray.is_connected_to_host():
+		Noray.disconnect_from_host()
+	
+	if _nohub_peer != null:
+		_nohub_peer.disconnect_from_host()
+		_nohub_peer = null
+		_nohub_client = null
+
+func _dock() -> void:
+	if dock_container.visible:
+		dock_container.hide()
+		dock_button.text = \">\"
+	else:
+		dock_container.show()
+		dock_button.text = \"<\"
+	dock_panel.size_flags_horizontal ^= Control.SIZE_EXPAND
+
+func _back() -> void:
+	_switch_to(main_menu)
+
+func _host() -> void:
+	pass # TODO
+
+# TODO: Deduplicate?
+func _switch_to(menu: Control) -> void:
+	menu.show()
+	hide()
+
+func _render_lobbies(lobbies: Array[NohubLobby]) -> void:
+	# Clear container, retain header
+	var children := lobbies_container.get_children()
+	for i in range(lobbies_container.columns, lobbies_container.get_child_count()):
+		children[i].queue_free()
+
+	# Render list
+	for lobby in lobbies:
+		var name_label := Label.new()
+		name_label.text = lobby.data.get(\"name\", \"???\")
+
+		var players_label := Label.new()
+		players_label.text = \"%s / %s\" % [lobby.data.get(\"player-count\", \"?\"), lobby.data.get(\"player-capacity\", \"?\")]
+
+		var join_button := Button.new()
+		join_button.text = \">\"
+		join_button.tooltip_text = \"Join this lobby\"
+
+		lobbies_container.add_child(name_label)
+		lobbies_container.add_child(players_label)
+		lobbies_container.add_child(join_button)
+
+func _parse_address(address: String, default_port: int = 0) -> Array:
+	var result = [\"\", default_port]
+	if address.contains(\":\"):
+		var idx := address.rfind(\":\")
+		result[0] = address.substr(0, idx)
+		result[1] = int(address.substr(idx + 1))
+	else:
+		result[0] = address
+	return result
+"
+
+[sub_resource type="GDScript" id="GDScript_xlfi6"]
+script/source = "extends Control
+
+@onready var confirm_button := $\"MarginContainer/Settings VBox/HBoxContainer/Confirm Button\" as Button
+@onready var main_menu := %\"Main Menu\" as Control
+
+func _ready() -> void:
+	confirm_button.pressed.connect(_confirm)
+
+func _confirm() -> void:
+	_switch_to(main_menu)
+
+# TODO: Deduplicate?
+func _switch_to(menu: Control) -> void:
+	menu.show()
+	hide()
 "
 
 [node name="Menu" type="Control"]
@@ -56,9 +311,11 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = SubResource("Theme_87epe")
+theme = ExtResource("1_xmgyy")
 
-[node name="Main" type="VBoxContainer" parent="."]
+[node name="Main Menu" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -66,32 +323,40 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 alignment = 1
+script = SubResource("GDScript_jmdql")
 
-[node name="Quick Play Button" type="Button" parent="Main"]
+[node name="Quick Play Button" type="Button" parent="Main Menu"]
 layout_mode = 2
 theme_type_variation = &"MainMenuButton"
 text = "Quick Play"
 flat = true
 
-[node name="Find a Game Button" type="Button" parent="Main"]
+[node name="Find a Game Button" type="Button" parent="Main Menu"]
 layout_mode = 2
 theme_type_variation = &"MainMenuButton"
 text = "Find a Game"
 flat = true
 
-[node name="Settings Button" type="Button" parent="Main"]
+[node name="Play LAN Button" type="Button" parent="Main Menu"]
+layout_mode = 2
+theme_type_variation = &"MainMenuButton"
+text = "Play on LAN"
+flat = true
+
+[node name="Settings Button" type="Button" parent="Main Menu"]
 layout_mode = 2
 theme_type_variation = &"MainMenuButton"
 text = "Settings"
 flat = true
 
-[node name="Quit Button" type="Button" parent="Main"]
+[node name="Quit Button" type="Button" parent="Main Menu"]
 layout_mode = 2
 theme_type_variation = &"MainMenuButton"
 text = "Quit"
 flat = true
 
-[node name="Quick Play" type="VBoxContainer" parent="."]
+[node name="Quick Play Menu" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -100,20 +365,35 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 alignment = 1
+script = SubResource("GDScript_pewsl")
 
-[node name="Label" type="Label" parent="Quick Play"]
+[node name="Label" type="Label" parent="Quick Play Menu"]
 layout_mode = 2
 theme_type_variation = &"HeaderLarge"
 text = "Searching..."
 horizontal_alignment = 1
 
-[node name="Spinner" type="TextureRect" parent="Quick Play"]
+[node name="Spinner" type="TextureRect" parent="Quick Play Menu"]
 layout_mode = 2
 texture = ExtResource("1_6gbgt")
 stretch_mode = 5
 
-[node name="Games" type="Control" parent="."]
-visible = false
+[node name="HBoxContainer" type="HBoxContainer" parent="Quick Play Menu"]
+layout_mode = 2
+alignment = 1
+
+[node name="Back Button" type="Button" parent="Quick Play Menu/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+text = "Back"
+
+[node name="Host Button" type="Button" parent="Quick Play Menu/HBoxContainer"]
+layout_mode = 2
+text = "Host"
+
+[node name="Games Menu" type="Control" parent="."]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(960, 540)
 layout_mode = 1
 anchors_preset = 8
@@ -127,8 +407,9 @@ offset_right = 20.0
 offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
+script = SubResource("GDScript_2payw")
 
-[node name="MarginContainer" type="MarginContainer" parent="Games"]
+[node name="MarginContainer" type="MarginContainer" parent="Games Menu"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -136,150 +417,138 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Games/MarginContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Games Menu/MarginContainer"]
 layout_mode = 2
 
-[node name="PanelContainer" type="PanelContainer" parent="Games/MarginContainer/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="HBoxContainer" type="HBoxContainer" parent="Games/MarginContainer/HBoxContainer/PanelContainer"]
-layout_mode = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="Games/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer"]
+[node name="PanelContainer" type="PanelContainer" parent="Games Menu/MarginContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="VBoxContainer2" type="GridContainer" parent="Games/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="GridContainer" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer"]
 layout_mode = 2
 columns = 2
 
-[node name="Label3" type="Label" parent="Games/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer2"]
+[node name="Presets Label" type="Label" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
 text = "Presets:"
 
-[node name="OptionButton" type="OptionButton" parent="Games/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer2"]
+[node name="Presets Option" type="OptionButton" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
-item_count = 1
-selected = 0
-popup/item_0/text = "foxssake.studio"
-popup/item_0/id = 0
+allow_reselect = true
 
-[node name="Label" type="Label" parent="Games/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer2"]
+[node name="noray Label" type="Label" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
 text = "noray:"
 
-[node name="LineEdit" type="LineEdit" parent="Games/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer2"]
+[node name="noray Input" type="LineEdit" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "foxssake.studio:8890"
 
-[node name="Label2" type="Label" parent="Games/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer2"]
+[node name="nohub Label" type="Label" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
 text = "nohub:"
 
-[node name="LineEdit2" type="LineEdit" parent="Games/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer2"]
+[node name="nohub Input" type="LineEdit" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
-text = "foxssake.studio:12980"
 
-[node name="Button" type="Button" parent="Games/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer2"]
+[node name="Connect Button" type="Button" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
 text = "Connect"
 
-[node name="Button" type="Button" parent="Games/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer"]
+[node name="Status Label" type="Label" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Status: "
+
+[node name="Dock Button" type="Button" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer"]
 layout_mode = 2
 text = "<"
-script = SubResource("GDScript_43xrg")
 
-[node name="PanelContainer2" type="PanelContainer" parent="Games/MarginContainer/HBoxContainer"]
+[node name="PanelContainer2" type="PanelContainer" parent="Games Menu/MarginContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 2.0
 
-[node name="MarginContainer2" type="MarginContainer" parent="Games/MarginContainer/HBoxContainer/PanelContainer2"]
+[node name="MarginContainer2" type="MarginContainer" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Title Label" type="Label" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer"]
+[node name="Title Label" type="Label" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer"]
 layout_mode = 2
 theme_type_variation = &"HeaderMedium"
 text = "Games"
 horizontal_alignment = 1
 
-[node name="ScrollContainer" type="ScrollContainer" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer"]
+[node name="ScrollContainer" type="ScrollContainer" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Lobbies Container" type="GridContainer" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/ScrollContainer"]
+[node name="Lobbies Container" type="GridContainer" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 columns = 3
 
-[node name="Name Header" type="Label" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/ScrollContainer/Lobbies Container"]
+[node name="Name Header" type="Label" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/ScrollContainer/Lobbies Container"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_type_variation = &"EmbossLabel"
 text = "Name"
 
-[node name="Players Header" type="Label" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/ScrollContainer/Lobbies Container"]
+[node name="Players Header" type="Label" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/ScrollContainer/Lobbies Container"]
 layout_mode = 2
 theme_type_variation = &"EmbossLabel"
 text = "Players"
 
-[node name="Tail Header" type="Label" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/ScrollContainer/Lobbies Container"]
+[node name="Tail Header" type="Label" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/ScrollContainer/Lobbies Container"]
+custom_minimum_size = Vector2(32, 0)
 layout_mode = 2
 theme_type_variation = &"EmbossLabel"
 text = " "
 
-[node name="Label" type="Label" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/ScrollContainer/Lobbies Container"]
-layout_mode = 2
-text = "Cool Lobby"
-
-[node name="Label2" type="Label" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/ScrollContainer/Lobbies Container"]
-layout_mode = 2
-text = "8 / 16"
-
-[node name="Button" type="Button" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/ScrollContainer/Lobbies Container"]
-layout_mode = 2
-text = "Join"
-
-[node name="GridContainer" type="GridContainer" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer"]
+[node name="GridContainer" type="GridContainer" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer"]
 layout_mode = 2
 columns = 2
 
-[node name="Name Label" type="Label" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/GridContainer"]
+[node name="Name Label" type="Label" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/GridContainer"]
 layout_mode = 2
 text = "Lobby name"
 
-[node name="Player Limit Label" type="Label" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/GridContainer"]
+[node name="Player Limit Label" type="Label" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/GridContainer"]
 layout_mode = 2
 text = "Player Limit"
 
-[node name="Lobby Name Input" type="LineEdit" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/GridContainer"]
+[node name="Lobby Name Input" type="LineEdit" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/GridContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Lobby Player Limit Input" type="LineEdit" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/GridContainer"]
+[node name="Lobby Player Limit Input" type="LineEdit" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/GridContainer"]
 layout_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 
-[node name="Back Button" type="Button" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/HBoxContainer"]
+[node name="Back Button" type="Button" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 text = "Back"
 
-[node name="Host Button" type="Button" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/HBoxContainer"]
+[node name="Host Button" type="Button" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 text = "Host Game"
 
-[node name="Settings" type="PanelContainer" parent="."]
+[node name="Settings Menu" type="PanelContainer" parent="."]
+unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(640, 360)
 layout_mode = 1
@@ -290,75 +559,76 @@ anchor_right = 0.5
 anchor_bottom = 0.5
 grow_horizontal = 2
 grow_vertical = 2
+script = SubResource("GDScript_xlfi6")
 
-[node name="MarginContainer" type="MarginContainer" parent="Settings"]
+[node name="MarginContainer" type="MarginContainer" parent="Settings Menu"]
 layout_mode = 2
 
-[node name="Settings VBox" type="VBoxContainer" parent="Settings/MarginContainer"]
+[node name="Settings VBox" type="VBoxContainer" parent="Settings Menu/MarginContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Player Name" type="HBoxContainer" parent="Settings/MarginContainer/Settings VBox"]
+[node name="Player Name" type="HBoxContainer" parent="Settings Menu/MarginContainer/Settings VBox"]
 layout_mode = 2
 
-[node name="Player Name Label" type="Label" parent="Settings/MarginContainer/Settings VBox/Player Name"]
+[node name="Player Name Label" type="Label" parent="Settings Menu/MarginContainer/Settings VBox/Player Name"]
 layout_mode = 2
 text = "Player Name:"
 
-[node name="Player Name Input" type="LineEdit" parent="Settings/MarginContainer/Settings VBox/Player Name"]
+[node name="Player Name Input" type="LineEdit" parent="Settings Menu/MarginContainer/Settings VBox/Player Name"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Nameless Brawler"
 clear_button_enabled = true
 script = ExtResource("1_h5ah4")
 
-[node name="Button" type="Button" parent="Settings/MarginContainer/Settings VBox/Player Name"]
+[node name="Button" type="Button" parent="Settings Menu/MarginContainer/Settings VBox/Player Name"]
 layout_mode = 2
 text = "RNG"
 
-[node name="HSeparator" type="HSeparator" parent="Settings/MarginContainer/Settings VBox"]
+[node name="HSeparator" type="HSeparator" parent="Settings Menu/MarginContainer/Settings VBox"]
 layout_mode = 2
 
-[node name="GridContainer" type="GridContainer" parent="Settings/MarginContainer/Settings VBox"]
+[node name="GridContainer" type="GridContainer" parent="Settings Menu/MarginContainer/Settings VBox"]
 layout_mode = 2
 columns = 8
 
-[node name="Fullscreen Label" type="Label" parent="Settings/MarginContainer/Settings VBox/GridContainer"]
+[node name="Fullscreen Label" type="Label" parent="Settings Menu/MarginContainer/Settings VBox/GridContainer"]
 layout_mode = 2
 text = "Fullscreen:"
 
-[node name="Fullscreen CheckButton" type="CheckButton" parent="Settings/MarginContainer/Settings VBox/GridContainer"]
+[node name="Fullscreen CheckButton" type="CheckButton" parent="Settings Menu/MarginContainer/Settings VBox/GridContainer"]
 layout_mode = 2
 script = ExtResource("2_llkcl")
 
-[node name="V-Sync Label" type="Label" parent="Settings/MarginContainer/Settings VBox/GridContainer"]
+[node name="V-Sync Label" type="Label" parent="Settings Menu/MarginContainer/Settings VBox/GridContainer"]
 layout_mode = 2
 text = "V-Sync:"
 
-[node name="V-Sync CheckButton" type="CheckButton" parent="Settings/MarginContainer/Settings VBox/GridContainer"]
+[node name="V-Sync CheckButton" type="CheckButton" parent="Settings Menu/MarginContainer/Settings VBox/GridContainer"]
 layout_mode = 2
 script = ExtResource("3_amefg")
 
-[node name="Confine Mouse Label" type="Label" parent="Settings/MarginContainer/Settings VBox/GridContainer"]
+[node name="Confine Mouse Label" type="Label" parent="Settings Menu/MarginContainer/Settings VBox/GridContainer"]
 layout_mode = 2
 text = "Confine mouse:"
 
-[node name="Confine Mouse CheckButton" type="CheckButton" parent="Settings/MarginContainer/Settings VBox/GridContainer"]
+[node name="Confine Mouse CheckButton" type="CheckButton" parent="Settings Menu/MarginContainer/Settings VBox/GridContainer"]
 layout_mode = 2
 script = ExtResource("4_s5qgy")
 
-[node name="HSeparator2" type="HSeparator" parent="Settings/MarginContainer/Settings VBox"]
+[node name="HSeparator2" type="HSeparator" parent="Settings Menu/MarginContainer/Settings VBox"]
 layout_mode = 2
 
-[node name="Volume" type="HBoxContainer" parent="Settings/MarginContainer/Settings VBox"]
+[node name="Volume" type="HBoxContainer" parent="Settings Menu/MarginContainer/Settings VBox"]
 layout_mode = 2
 
-[node name="Volume Label" type="Label" parent="Settings/MarginContainer/Settings VBox/Volume"]
+[node name="Volume Label" type="Label" parent="Settings Menu/MarginContainer/Settings VBox/Volume"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Volume:"
 
-[node name="Volume Slider" type="HSlider" parent="Settings/MarginContainer/Settings VBox/Volume"]
+[node name="Volume Slider" type="HSlider" parent="Settings Menu/MarginContainer/Settings VBox/Volume"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
@@ -366,15 +636,11 @@ size_flags_stretch_ratio = 3.0
 value = 100.0
 script = ExtResource("5_5ifsx")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Settings/MarginContainer/Settings VBox"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Settings Menu/MarginContainer/Settings VBox"]
 layout_mode = 2
 size_flags_vertical = 10
 alignment = 1
 
-[node name="Save Button" type="Button" parent="Settings/MarginContainer/Settings VBox/HBoxContainer"]
+[node name="Confirm Button" type="Button" parent="Settings Menu/MarginContainer/Settings VBox/HBoxContainer"]
 layout_mode = 2
-text = "Save"
-
-[node name="Cancel Button" type="Button" parent="Settings/MarginContainer/Settings VBox/HBoxContainer"]
-layout_mode = 2
-text = "Cancel"
+text = "Confirm"

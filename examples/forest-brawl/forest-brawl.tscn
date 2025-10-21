@@ -6,7 +6,6 @@
 [ext_resource type="PackedScene" uid="uid://wi4owat0bml3" path="res://examples/forest-brawl/scenes/brawler.tscn" id="7_tcy3g"]
 [ext_resource type="PackedScene" uid="uid://bpf1jdr255nr0" path="res://examples/shared/ui/time-display.tscn" id="9_d2tot"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/score-manager.gd" id="9_vxjwh"]
-[ext_resource type="LabelSettings" uid="uid://b4u1aluftkajy" path="res://examples/forest-brawl/ui-settings/player-stat-label.tres" id="10_0ix7v"]
 [ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="10_ld676"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/settings/vsync-checkbutton.gd" id="11_4x74a"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/random-name-input.gd" id="11_cf8pu"]
@@ -18,6 +17,7 @@
 [ext_resource type="PackedScene" uid="uid://ojh5xofoserg" path="res://examples/forest-brawl/scenes/score_screen.tscn" id="14_85lvt"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/settings/fullscreen-checkbutton.gd" id="14_h1iqv"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/settings/volume-slider.gd" id="16_6pky3"]
+[ext_resource type="LabelSettings" uid="uid://b4u1aluftkajy" path="res://examples/forest-brawl/ui/player-stat-label.tres" id="17_48up8"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_l686d"]
 font_size = 64
@@ -322,13 +322,13 @@ layout_mode = 2
 [node name="Score Label" type="Label" parent="UI/Player stats/VBoxContainer/Score HBox"]
 layout_mode = 2
 text = "Score:"
-label_settings = ExtResource("10_0ix7v")
+label_settings = ExtResource("17_48up8")
 
 [node name="Score Value" type="Label" parent="UI/Player stats/VBoxContainer/Score HBox"]
 layout_mode = 2
 text = "8
 "
-label_settings = ExtResource("10_0ix7v")
+label_settings = ExtResource("17_48up8")
 
 [node name="Joining Screen" type="Control" parent="UI"]
 visible = false
