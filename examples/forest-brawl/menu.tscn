@@ -1,0 +1,380 @@
+[gd_scene load_steps=12 format=3 uid="uid://dbnx63lgo7288"]
+
+[ext_resource type="Texture2D" uid="uid://cdb8di7e1p6h6" path="res://icon.png" id="1_6gbgt"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/random-name-input.gd" id="1_h5ah4"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/settings/fullscreen-checkbutton.gd" id="2_llkcl"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/settings/vsync-checkbutton.gd" id="3_amefg"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/settings/confine-mouse-checkbutton.gd" id="4_s5qgy"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/settings/volume-slider.gd" id="5_5ifsx"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wbjcp"]
+bg_color = Color(0.25, 0.25, 0.25, 0.752941)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_1tayi"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_2kkly"]
+
+[sub_resource type="Theme" id="Theme_87epe"]
+EmbossLabel/styles/normal = SubResource("StyleBoxFlat_wbjcp")
+MainMenuButton/base_type = &"Button"
+MainMenuButton/colors/font_color = Color(1, 1, 1, 0.752941)
+MainMenuButton/colors/font_focus_color = Color(1, 1, 1, 0.878431)
+MainMenuButton/colors/font_hover_color = Color(1, 1, 1, 0.878431)
+MainMenuButton/colors/font_hover_pressed_color = Color(1, 1, 1, 1)
+MainMenuButton/font_sizes/font_size = 48
+MainMenuButton/styles/focus = SubResource("StyleBoxEmpty_1tayi")
+MainMenuButton/styles/pressed = SubResource("StyleBoxEmpty_2kkly")
+MarginContainer/constants/margin_bottom = 4
+MarginContainer/constants/margin_left = 4
+MarginContainer/constants/margin_right = 4
+MarginContainer/constants/margin_top = 4
+
+[sub_resource type="GDScript" id="GDScript_43xrg"]
+script/source = "extends Button
+
+@onready var target: Control = self.get_parent_control().get_child(0)
+@onready var panel: Control = self.get_node(\"../..\")
+
+func _pressed():
+	if target.visible:
+		target.hide()
+		text = \">\"
+	else:
+		target.show()
+		text = \"<\"
+	panel.size_flags_horizontal ^= Control.SIZE_EXPAND
+"
+
+[node name="Menu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_87epe")
+
+[node name="Main" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="Quick Play Button" type="Button" parent="Main"]
+layout_mode = 2
+theme_type_variation = &"MainMenuButton"
+text = "Quick Play"
+flat = true
+
+[node name="Find a Game Button" type="Button" parent="Main"]
+layout_mode = 2
+theme_type_variation = &"MainMenuButton"
+text = "Find a Game"
+flat = true
+
+[node name="Settings Button" type="Button" parent="Main"]
+layout_mode = 2
+theme_type_variation = &"MainMenuButton"
+text = "Settings"
+flat = true
+
+[node name="Quit Button" type="Button" parent="Main"]
+layout_mode = 2
+theme_type_variation = &"MainMenuButton"
+text = "Quit"
+flat = true
+
+[node name="Quick Play" type="VBoxContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="Quick Play"]
+layout_mode = 2
+theme_type_variation = &"HeaderLarge"
+text = "Searching..."
+horizontal_alignment = 1
+
+[node name="Spinner" type="TextureRect" parent="Quick Play"]
+layout_mode = 2
+texture = ExtResource("1_6gbgt")
+stretch_mode = 5
+
+[node name="Games" type="Control" parent="."]
+visible = false
+custom_minimum_size = Vector2(960, 540)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Games"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Games/MarginContainer"]
+layout_mode = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="Games/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Games/MarginContainer/HBoxContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Games/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer2" type="GridContainer" parent="Games/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="Label3" type="Label" parent="Games/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer2"]
+layout_mode = 2
+text = "Presets:"
+
+[node name="OptionButton" type="OptionButton" parent="Games/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer2"]
+layout_mode = 2
+item_count = 1
+selected = 0
+popup/item_0/text = "foxssake.studio"
+popup/item_0/id = 0
+
+[node name="Label" type="Label" parent="Games/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer2"]
+layout_mode = 2
+text = "noray:"
+
+[node name="LineEdit" type="LineEdit" parent="Games/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "foxssake.studio:8890"
+
+[node name="Label2" type="Label" parent="Games/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer2"]
+layout_mode = 2
+text = "nohub:"
+
+[node name="LineEdit2" type="LineEdit" parent="Games/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer2"]
+layout_mode = 2
+text = "foxssake.studio:12980"
+
+[node name="Button" type="Button" parent="Games/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer2"]
+layout_mode = 2
+text = "Connect"
+
+[node name="Button" type="Button" parent="Games/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer"]
+layout_mode = 2
+text = "<"
+script = SubResource("GDScript_43xrg")
+
+[node name="PanelContainer2" type="PanelContainer" parent="Games/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+
+[node name="MarginContainer2" type="MarginContainer" parent="Games/MarginContainer/HBoxContainer/PanelContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Title Label" type="Label" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"HeaderMedium"
+text = "Games"
+horizontal_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Lobbies Container" type="GridContainer" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+columns = 3
+
+[node name="Name Header" type="Label" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/ScrollContainer/Lobbies Container"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"EmbossLabel"
+text = "Name"
+
+[node name="Players Header" type="Label" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/ScrollContainer/Lobbies Container"]
+layout_mode = 2
+theme_type_variation = &"EmbossLabel"
+text = "Players"
+
+[node name="Tail Header" type="Label" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/ScrollContainer/Lobbies Container"]
+layout_mode = 2
+theme_type_variation = &"EmbossLabel"
+text = " "
+
+[node name="Label" type="Label" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/ScrollContainer/Lobbies Container"]
+layout_mode = 2
+text = "Cool Lobby"
+
+[node name="Label2" type="Label" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/ScrollContainer/Lobbies Container"]
+layout_mode = 2
+text = "8 / 16"
+
+[node name="Button" type="Button" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/ScrollContainer/Lobbies Container"]
+layout_mode = 2
+text = "Join"
+
+[node name="GridContainer" type="GridContainer" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="Name Label" type="Label" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Lobby name"
+
+[node name="Player Limit Label" type="Label" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Player Limit"
+
+[node name="Lobby Name Input" type="LineEdit" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Lobby Player Limit Input" type="LineEdit" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/GridContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Back Button" type="Button" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Back"
+
+[node name="Host Button" type="Button" parent="Games/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Host Game"
+
+[node name="Settings" type="PanelContainer" parent="."]
+visible = false
+custom_minimum_size = Vector2(640, 360)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Settings"]
+layout_mode = 2
+
+[node name="Settings VBox" type="VBoxContainer" parent="Settings/MarginContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Player Name" type="HBoxContainer" parent="Settings/MarginContainer/Settings VBox"]
+layout_mode = 2
+
+[node name="Player Name Label" type="Label" parent="Settings/MarginContainer/Settings VBox/Player Name"]
+layout_mode = 2
+text = "Player Name:"
+
+[node name="Player Name Input" type="LineEdit" parent="Settings/MarginContainer/Settings VBox/Player Name"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Nameless Brawler"
+clear_button_enabled = true
+script = ExtResource("1_h5ah4")
+
+[node name="Button" type="Button" parent="Settings/MarginContainer/Settings VBox/Player Name"]
+layout_mode = 2
+text = "RNG"
+
+[node name="HSeparator" type="HSeparator" parent="Settings/MarginContainer/Settings VBox"]
+layout_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="Settings/MarginContainer/Settings VBox"]
+layout_mode = 2
+columns = 8
+
+[node name="Fullscreen Label" type="Label" parent="Settings/MarginContainer/Settings VBox/GridContainer"]
+layout_mode = 2
+text = "Fullscreen:"
+
+[node name="Fullscreen CheckButton" type="CheckButton" parent="Settings/MarginContainer/Settings VBox/GridContainer"]
+layout_mode = 2
+script = ExtResource("2_llkcl")
+
+[node name="V-Sync Label" type="Label" parent="Settings/MarginContainer/Settings VBox/GridContainer"]
+layout_mode = 2
+text = "V-Sync:"
+
+[node name="V-Sync CheckButton" type="CheckButton" parent="Settings/MarginContainer/Settings VBox/GridContainer"]
+layout_mode = 2
+script = ExtResource("3_amefg")
+
+[node name="Confine Mouse Label" type="Label" parent="Settings/MarginContainer/Settings VBox/GridContainer"]
+layout_mode = 2
+text = "Confine mouse:"
+
+[node name="Confine Mouse CheckButton" type="CheckButton" parent="Settings/MarginContainer/Settings VBox/GridContainer"]
+layout_mode = 2
+script = ExtResource("4_s5qgy")
+
+[node name="HSeparator2" type="HSeparator" parent="Settings/MarginContainer/Settings VBox"]
+layout_mode = 2
+
+[node name="Volume" type="HBoxContainer" parent="Settings/MarginContainer/Settings VBox"]
+layout_mode = 2
+
+[node name="Volume Label" type="Label" parent="Settings/MarginContainer/Settings VBox/Volume"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Volume:"
+
+[node name="Volume Slider" type="HSlider" parent="Settings/MarginContainer/Settings VBox/Volume"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+size_flags_stretch_ratio = 3.0
+value = 100.0
+script = ExtResource("5_5ifsx")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Settings/MarginContainer/Settings VBox"]
+layout_mode = 2
+size_flags_vertical = 10
+alignment = 1
+
+[node name="Save Button" type="Button" parent="Settings/MarginContainer/Settings VBox/HBoxContainer"]
+layout_mode = 2
+text = "Save"
+
+[node name="Cancel Button" type="Button" parent="Settings/MarginContainer/Settings VBox/HBoxContainer"]
+layout_mode = 2
+text = "Cancel"
