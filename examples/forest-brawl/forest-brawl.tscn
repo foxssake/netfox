@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://cwh2p0qb5872o"]
+[gd_scene load_steps=21 format=3 uid="uid://cwh2p0qb5872o"]
 
 [ext_resource type="PackedScene" uid="uid://d1544gxqaoptc" path="res://examples/forest-brawl/maps/three-peaks.tscn" id="1_xksrt"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/brawler-spawner.gd" id="5_qv1fx"]
@@ -16,6 +16,7 @@
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/settings/confine-mouse-checkbutton.gd" id="13_ujuuj"]
 [ext_resource type="PackedScene" uid="uid://ojh5xofoserg" path="res://examples/forest-brawl/scenes/score_screen.tscn" id="14_85lvt"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/settings/fullscreen-checkbutton.gd" id="14_h1iqv"]
+[ext_resource type="PackedScene" uid="uid://dbnx63lgo7288" path="res://examples/forest-brawl/menu.tscn" id="16_3ljtn"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/settings/volume-slider.gd" id="16_6pky3"]
 [ext_resource type="LabelSettings" uid="uid://b4u1aluftkajy" path="res://examples/forest-brawl/ui/player-stat-label.tres" id="17_48up8"]
 
@@ -78,6 +79,7 @@ grow_vertical = 1
 horizontal_alignment = 2
 
 [node name="Network Popup" type="TabContainer" parent="UI"]
+visible = false
 custom_minimum_size = Vector2(320, 240)
 layout_mode = 1
 anchors_preset = 8
@@ -297,6 +299,9 @@ noray_address_input = NodePath("../Noray/Noray Address Row/Address LineEdit")
 oid_input = NodePath("../Noray/OID Row/OID Value")
 host_oid_input = NodePath("../Noray/Connect Host Row/Host LineEdit")
 force_relay_check = NodePath("../Noray/Connect Actions Row/Force Relay Checkbox")
+
+[node name="Menu" parent="UI" instance=ExtResource("16_3ljtn")]
+layout_mode = 1
 
 [node name="Player stats" type="Control" parent="UI" node_paths=PackedStringArray("score_label", "score_manager")]
 visible = false

@@ -1,11 +1,13 @@
-[gd_scene load_steps=12 format=3 uid="uid://dbnx63lgo7288"]
+[gd_scene load_steps=17 format=3 uid="uid://dbnx63lgo7288"]
 
 [ext_resource type="Texture2D" uid="uid://cdb8di7e1p6h6" path="res://icon.png" id="1_6gbgt"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/random-name-input.gd" id="1_h5ah4"]
 [ext_resource type="Theme" uid="uid://cg8p4yow3i3ly" path="res://examples/forest-brawl/ui/menu-theme.tres" id="1_xmgyy"]
+[ext_resource type="Texture2D" uid="uid://4vyxbqthy3nf" path="res://examples/forest-brawl/ui/gauss-bg.png" id="2_f45cx"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/settings/fullscreen-checkbutton.gd" id="2_llkcl"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/settings/vsync-checkbutton.gd" id="3_amefg"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/settings/confine-mouse-checkbutton.gd" id="4_s5qgy"]
+[ext_resource type="Texture2D" uid="uid://c6bp4x3j4l27k" path="res://examples/forest-brawl/ui/die-icon.svg" id="4_w03d4"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/settings/volume-slider.gd" id="5_5ifsx"]
 
 [sub_resource type="GDScript" id="GDScript_jmdql"]
@@ -19,6 +21,7 @@ script/source = "extends Control
 
 @onready var quick_play_menu := %\"Quick Play Menu\" as Control
 @onready var games_menu := %\"Games Menu\" as Control
+@onready var lan_menu := %\"LAN Menu\" as Control
 @onready var settings_menu := %\"Settings Menu\" as Control
 
 func _ready() -> void:
@@ -35,7 +38,7 @@ func _find_game() -> void:
 	_switch_to(games_menu)
 
 func _play_lan() -> void:
-	pass
+	_switch_to(lan_menu)
 
 func _settings() -> void:
 	_switch_to(settings_menu)
@@ -85,6 +88,29 @@ func _switch_to(menu: Control) -> void:
 	hide()
 "
 
+[sub_resource type="Animation" id="Animation_7nw6r"]
+resource_name = "spin"
+length = 1.5
+loop_mode = 1
+step = 0.0416667
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:modulate")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.75, 1.5),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0.501961), Color(1, 1, 1, 1), Color(1, 1, 1, 0.501961)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_dy8vn"]
+_data = {
+"spin": SubResource("Animation_7nw6r")
+}
+
 [sub_resource type="GDScript" id="GDScript_2payw"]
 script/source = "extends Control
 
@@ -121,6 +147,9 @@ var presets: Array[Preset] = [
 	Preset.new(\"localhost\", \"localhost:8890\", \"localhost:9980\")
 ]
 
+var _noray_address := \"\"
+var _nohub_address := \"\"
+
 var _nohub_peer: StreamPeerTCP
 var _nohub_client: NohubClient
 var _poll_interval := 2.
@@ -151,13 +180,13 @@ func _ready() -> void:
 func _process(dt: float) -> void:
 	# Update status
 	if _nohub_peer == null:
-		status_label.text = \"Offline\"
+		status_label.text = \"Status: Offline\"
 	else:
 		_nohub_peer.poll()
 		match _nohub_peer.get_status():
-			StreamPeerTCP.STATUS_CONNECTED: status_label.text = \"Online\"
-			StreamPeerTCP.STATUS_CONNECTING: status_label.text = \"Connecting...\"
-			StreamPeerTCP.STATUS_ERROR: status_label.text = \"Error\"
+			StreamPeerTCP.STATUS_CONNECTED: status_label.text = \"Status: Online\"
+			StreamPeerTCP.STATUS_CONNECTING: status_label.text = \"Status: Connecting...\"
+			StreamPeerTCP.STATUS_ERROR: status_label.text = \"Status: Error\"
 
 	_poll_wait -= dt
 	if _nohub_client:
@@ -195,6 +224,7 @@ func _connect() -> void:
 	var err := await Noray.connect_to_host(noray_address[0], noray_address[1])
 	if err != OK:
 		print(\"Failed to connect to noray: %s\" % [error_string(err)])
+		_disconnect()
 		return
 	print(\"Success!\")
 
@@ -210,28 +240,46 @@ func _connect() -> void:
 				break
 			StreamPeerTCP.STATUS_ERROR:
 				print(\"Failed to connect!\")
+				_disconnect()
 				return
 		await get_tree().process_frame
 
 	_nohub_peer = peer
 	_nohub_client = NohubClient.new(peer)
 
+	# Register with noray
+	Noray.register_host()
+	await Noray.on_pid
+
+	err = await Noray.register_remote()
+	if err != OK:
+		print(\"Failed to register with noray: %s\" % error_string(err))
+		_disconnect()
+		return
+
+	# Set GameID in nohub
 	var response := await _nohub_client.set_game(_nohub_game_id)
 	if not response.is_success():
 		print(\"Failed to set game ID! %s\" % [response])
 		_disconnect()
 		return
 
+	# Success
+	_noray_address = \"%s:%d\" % noray_address
+	_nohub_address = \"%s:%d\" % nohub_address
+
 func _disconnect() -> void:
 	_render_lobbies([])
 
 	if Noray.is_connected_to_host():
 		Noray.disconnect_from_host()
+		_noray_address = \"\"
 	
 	if _nohub_peer != null:
 		_nohub_peer.disconnect_from_host()
 		_nohub_peer = null
 		_nohub_client = null
+		_nohub_address = \"\"
 
 func _dock() -> void:
 	if dock_container.visible:
@@ -246,7 +294,42 @@ func _back() -> void:
 	_switch_to(main_menu)
 
 func _host() -> void:
-	pass # TODO
+	if not _nohub_client:
+		return
+
+	var lobby_name := lobby_name_input.text
+	var lobby_limit := lobby_player_limit_input.text
+	
+	if not lobby_name:
+		print(\"Lobby name can't be empty!\")
+	elif not lobby_limit.is_valid_int():
+		print(\"Player limit is not a number!\")
+	elif int(lobby_limit) <= 0:
+		print(\"Invalid player limit!\")
+	else:
+		var player_limit := int(lobby_limit)
+		var address := \"noray://%s/%s\" % [_noray_address, Noray.oid]
+		var data := { \"name\": lobby_name, \"player-count\": \"0\", \"player-capacity\": str(player_limit)}
+		var response := await _nohub_client.create_lobby(address, data)
+		if not response.is_success():
+			print(\"Failed to create lobby!\", response)
+		else:
+			print(\"Created lobby!\", response.value())
+			_poll_wait = -1.
+	# TODO: Start game
+
+func _join(lobby_id: String) -> void:
+	if not _nohub_client:
+		return
+
+	var response := await _nohub_client.join_lobby(lobby_id)
+	if not response.is_success():
+		print(\"Failed to join lobby %s: %s\" % [lobby_id, response])
+		return
+
+	var address := response.value()
+	OS.alert(address)
+	# TODO: Start game
 
 # TODO: Deduplicate?
 func _switch_to(menu: Control) -> void:
@@ -270,6 +353,7 @@ func _render_lobbies(lobbies: Array[NohubLobby]) -> void:
 		var join_button := Button.new()
 		join_button.text = \">\"
 		join_button.tooltip_text = \"Join this lobby\"
+		join_button.pressed.connect(func(): _join(lobby.id))
 
 		lobbies_container.add_child(name_label)
 		lobbies_container.add_child(players_label)
@@ -284,6 +368,30 @@ func _parse_address(address: String, default_port: int = 0) -> Array:
 	else:
 		result[0] = address
 	return result
+"
+
+[sub_resource type="GDScript" id="GDScript_u7g6r"]
+script/source = "extends Control
+
+@onready var main_menu := %\"Main Menu\" as Control
+
+@onready var host_input := $\"MarginContainer/VBoxContainer/GridContainer/Host Input\" as LineEdit
+@onready var port_input := $\"MarginContainer/VBoxContainer/GridContainer/Port Input\" as LineEdit
+
+@onready var back_button := $\"MarginContainer/VBoxContainer/HBoxContainer/Back Button\" as Button
+@onready var connect_button := $\"MarginContainer/VBoxContainer/HBoxContainer/Connect Button\" as Button
+@onready var host_button := $\"MarginContainer/VBoxContainer/HBoxContainer/Host Button\" as Button
+
+func _ready():
+	back_button.pressed.connect(_back)
+
+func _back():
+	_switch_to(main_menu)
+
+# TODO: Deduplicate?
+func _switch_to(menu: Control) -> void:
+	menu.show()
+	hide()
 "
 
 [sub_resource type="GDScript" id="GDScript_xlfi6"]
@@ -313,9 +421,19 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("1_xmgyy")
 
+[node name="TextureRect" type="TextureRect" parent="."]
+modulate = Color(0, 0, 0, 0.501961)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_f45cx")
+stretch_mode = 6
+
 [node name="Main Menu" type="VBoxContainer" parent="."]
 unique_name_in_owner = true
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -374,9 +492,16 @@ text = "Searching..."
 horizontal_alignment = 1
 
 [node name="Spinner" type="TextureRect" parent="Quick Play Menu"]
+modulate = Color(1, 1, 1, 0.501961)
 layout_mode = 2
 texture = ExtResource("1_6gbgt")
 stretch_mode = 5
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Quick Play Menu/Spinner"]
+autoplay = "spin"
+libraries = {
+"": SubResource("AnimationLibrary_dy8vn")
+}
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Quick Play Menu"]
 layout_mode = 2
@@ -394,6 +519,7 @@ text = "Host"
 
 [node name="Games Menu" type="Control" parent="."]
 unique_name_in_owner = true
+visible = false
 custom_minimum_size = Vector2(960, 540)
 layout_mode = 1
 anchors_preset = 8
@@ -547,10 +673,79 @@ text = "Back"
 layout_mode = 2
 text = "Host Game"
 
+[node name="LAN Menu" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(480, 320)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_u7g6r")
+
+[node name="MarginContainer" type="MarginContainer" parent="LAN Menu"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="LAN Menu/MarginContainer"]
+layout_mode = 2
+
+[node name="Title Label" type="Label" parent="LAN Menu/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"HeaderMedium"
+text = "Play on LAN"
+horizontal_alignment = 1
+
+[node name="GridContainer" type="GridContainer" parent="LAN Menu/MarginContainer/VBoxContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="Host Label" type="Label" parent="LAN Menu/MarginContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Host: "
+
+[node name="Host Input" type="LineEdit" parent="LAN Menu/MarginContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "localhost"
+
+[node name="Port Label" type="Label" parent="LAN Menu/MarginContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Port: "
+
+[node name="Port Input" type="LineEdit" parent="LAN Menu/MarginContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "16384"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="LAN Menu/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 10
+alignment = 1
+
+[node name="Back Button" type="Button" parent="LAN Menu/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Back"
+
+[node name="Connect Button" type="Button" parent="LAN Menu/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Connect"
+
+[node name="Host Button" type="Button" parent="LAN Menu/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Host"
+
 [node name="Settings Menu" type="PanelContainer" parent="."]
 unique_name_in_owner = true
 visible = false
-custom_minimum_size = Vector2(640, 360)
+custom_minimum_size = Vector2(480, 320)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -568,6 +763,12 @@ layout_mode = 2
 layout_mode = 2
 size_flags_vertical = 3
 
+[node name="Title Label" type="Label" parent="Settings Menu/MarginContainer/Settings VBox"]
+layout_mode = 2
+theme_type_variation = &"HeaderMedium"
+text = "Settings"
+horizontal_alignment = 1
+
 [node name="Player Name" type="HBoxContainer" parent="Settings Menu/MarginContainer/Settings VBox"]
 layout_mode = 2
 
@@ -582,9 +783,12 @@ text = "Nameless Brawler"
 clear_button_enabled = true
 script = ExtResource("1_h5ah4")
 
-[node name="Button" type="Button" parent="Settings Menu/MarginContainer/Settings VBox/Player Name"]
+[node name="Randomize Button" type="Button" parent="Settings Menu/MarginContainer/Settings VBox/Player Name"]
+custom_minimum_size = Vector2(32, 0)
 layout_mode = 2
-text = "RNG"
+icon = ExtResource("4_w03d4")
+icon_alignment = 1
+expand_icon = true
 
 [node name="HSeparator" type="HSeparator" parent="Settings Menu/MarginContainer/Settings VBox"]
 layout_mode = 2
