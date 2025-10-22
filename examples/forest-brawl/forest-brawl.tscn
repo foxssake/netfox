@@ -1,6 +1,7 @@
-[gd_scene load_steps=21 format=3 uid="uid://cwh2p0qb5872o"]
+[gd_scene load_steps=22 format=3 uid="uid://cwh2p0qb5872o"]
 
 [ext_resource type="PackedScene" uid="uid://d1544gxqaoptc" path="res://examples/forest-brawl/maps/three-peaks.tscn" id="1_xksrt"]
+[ext_resource type="Script" path="res://examples/forest-brawl/forest-brawl-connector.gd" id="2_wafqi"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/brawler-spawner.gd" id="5_qv1fx"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/following-camera.gd" id="5_yxhn7"]
 [ext_resource type="PackedScene" uid="uid://wi4owat0bml3" path="res://examples/forest-brawl/scenes/brawler.tscn" id="7_tcy3g"]
@@ -28,6 +29,9 @@ font_size = 64
 [node name="Three Peaks Map" parent="." instance=ExtResource("1_xksrt")]
 
 [node name="Network" type="Node" parent="."]
+
+[node name="ForestBrawlConnector" type="Node" parent="Network"]
+script = ExtResource("2_wafqi")
 
 [node name="Brawler Spawner" type="Node" parent="Network" node_paths=PackedStringArray("spawn_root", "camera", "joining_screen", "name_input")]
 unique_name_in_owner = true

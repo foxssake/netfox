@@ -1,7 +1,6 @@
 [gd_scene load_steps=17 format=3 uid="uid://dbnx63lgo7288"]
 
 [ext_resource type="Texture2D" uid="uid://cdb8di7e1p6h6" path="res://icon.png" id="1_6gbgt"]
-[ext_resource type="Script" path="res://examples/forest-brawl/scripts/random-name-input.gd" id="1_h5ah4"]
 [ext_resource type="Theme" uid="uid://cg8p4yow3i3ly" path="res://examples/forest-brawl/ui/menu-theme.tres" id="1_xmgyy"]
 [ext_resource type="Texture2D" uid="uid://4vyxbqthy3nf" path="res://examples/forest-brawl/ui/gauss-bg.png" id="2_f45cx"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/settings/fullscreen-checkbutton.gd" id="2_llkcl"]
@@ -9,6 +8,19 @@
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/settings/confine-mouse-checkbutton.gd" id="4_s5qgy"]
 [ext_resource type="Texture2D" uid="uid://c6bp4x3j4l27k" path="res://examples/forest-brawl/ui/die-icon.svg" id="4_w03d4"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/settings/volume-slider.gd" id="5_5ifsx"]
+
+[sub_resource type="GDScript" id="GDScript_hv8dj"]
+script/source = "extends Control
+
+func _ready():
+	# Hide when game starts
+	NetworkEvents.on_client_start.connect(func(__): hide())
+	NetworkEvents.on_server_start.connect(func(): hide())
+	
+	# Show when game ends
+	NetworkEvents.on_client_stop.connect(func(__): show())
+	NetworkEvents.on_server_stop.connect(func(): show())
+"
 
 [sub_resource type="GDScript" id="GDScript_jmdql"]
 script/source = "extends Control
@@ -114,16 +126,6 @@ _data = {
 [sub_resource type="GDScript" id="GDScript_2payw"]
 script/source = "extends Control
 
-class Preset:
-	var name: String
-	var noray_address: String
-	var nohub_address: String
-
-	func _init(p_name: String, p_noray_address: String, p_nohub_address: String):
-		name = p_name
-		noray_address = p_noray_address
-		nohub_address = p_nohub_address
-
 @onready var presets_option := $\"MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer/Presets Option\" as OptionButton
 @onready var noray_input := $\"MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer/noray Input\" as LineEdit
 @onready var nohub_input := $\"MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer/nohub Input\" as LineEdit
@@ -142,27 +144,17 @@ class Preset:
 
 @onready var main_menu := %\"Main Menu\" as Control
 
-var presets: Array[Preset] = [
-	Preset.new(\"foxssake.studio\", \"foxssake.studio:8890\", \"foxssake.studio:12980\"),
-	Preset.new(\"localhost\", \"localhost:8890\", \"localhost:9980\")
-]
-
-var _noray_address := \"\"
-var _nohub_address := \"\"
-
-var _nohub_peer: StreamPeerTCP
-var _nohub_client: NohubClient
 var _poll_interval := 2.
 var _poll_wait := 0.
 
-var _nohub_game_id := \"WK6koYfZ7cEMjcsba3ovxQF1lM9XjkWh\"
+var _is_hosting := false
 
 func _ready() -> void:
 	# TODO: Deduplicate?
 	visibility_changed.connect(func():
-		if visible: _execute()
+		if is_visible_in_tree(): _execute()
 		else: _cancel()
-	)
+	, CONNECT_DEFERRED)
 	
 	presets_option.item_selected.connect(_select_preset)
 	connect_button.pressed.connect(_connect)
@@ -172,114 +164,52 @@ func _ready() -> void:
 	
 	# Populate presets
 	presets_option.clear()
-	for preset in presets:
-		presets_option.add_item(preset.name)
+	for hosts in ForestBrawlConnector.known_service_hosts:
+		presets_option.add_item(hosts.name)
 	presets_option.select(0)
 	_select_preset(0)
 
 func _process(dt: float) -> void:
-	# Update status
-	if _nohub_peer == null:
-		status_label.text = \"Status: Offline\"
-	else:
-		_nohub_peer.poll()
-		match _nohub_peer.get_status():
-			StreamPeerTCP.STATUS_CONNECTED: status_label.text = \"Status: Online\"
-			StreamPeerTCP.STATUS_CONNECTING: status_label.text = \"Status: Connecting...\"
-			StreamPeerTCP.STATUS_ERROR: status_label.text = \"Status: Error\"
-
+	# Poll lobbies
 	_poll_wait -= dt
-	if _nohub_client:
-		_nohub_client.poll()
-		if _poll_wait < 0.:
-			print(\"Listing lobbies...\")
-			_poll_wait = _poll_interval
-			var response := await _nohub_client.list_lobbies()
-			if not response.is_success():
-				print(\"Failed listing lobbies: %s\" % [response])
-			else:
-				print(\"Found lobbies: %s\" % [response.value()])
-				_render_lobbies(response.value())
+	if _poll_wait < 0.0 and ForestBrawlConnector.is_connected_to_services():
+		print(\"Listing lobbies...\")
+		_poll_wait = _poll_interval
+		var response := await ForestBrawlConnector.nohub().list_lobbies()
+		if not response.is_success():
+			print(\"Failed listing lobbies: %s\" % [response])
+		else:
+			print(\"Found lobbies: %s\" % [response.value()])
+			_render_lobbies(response.value())
 
 func _execute() -> void:
-	_connect.call_deferred()
+	_connect()
 
 func _cancel() -> void:
-	_disconnect.call_deferred()
+	_disconnect()
 	_render_lobbies([])
 
 func _select_preset(idx: int) -> void:
-	var preset := presets[idx]
+	var preset := ForestBrawlConnector.known_service_hosts[idx]
 	noray_input.text = preset.noray_address
 	nohub_input.text = preset.nohub_address
 
 func _connect() -> void:
 	_disconnect()
 
-	var noray_address = _parse_address(noray_input.text, 8890)
-	var nohub_address = _parse_address(nohub_input.text, 12980)
-
-	# Connect to noray
-	print(\"Connecting to noray at %s:%d...\" % [noray_address[0], noray_address[1]])
-	var err := await Noray.connect_to_host(noray_address[0], noray_address[1])
+	status_label.text = \"Status: Connecting...\"
+	var err := await ForestBrawlConnector.connect_to_services(noray_input.text, nohub_input.text)
 	if err != OK:
-		print(\"Failed to connect to noray: %s\" % [error_string(err)])
+		print(\"Failed to connect to services: \", error_string(err))
 		_disconnect()
-		return
-	print(\"Success!\")
-
-	# Connect to nohub
-	print(\"Connecting to nohub at %s:%d...\" % [noray_address[0], noray_address[1]])
-	var peer := StreamPeerTCP.new()
-	peer.connect_to_host(nohub_address[0], nohub_address[1])
-	while true:
-		peer.poll()
-		match peer.get_status():
-			StreamPeerTCP.STATUS_CONNECTED:
-				print(\"Success!\")
-				break
-			StreamPeerTCP.STATUS_ERROR:
-				print(\"Failed to connect!\")
-				_disconnect()
-				return
-		await get_tree().process_frame
-
-	_nohub_peer = peer
-	_nohub_client = NohubClient.new(peer)
-
-	# Register with noray
-	Noray.register_host()
-	await Noray.on_pid
-
-	err = await Noray.register_remote()
-	if err != OK:
-		print(\"Failed to register with noray: %s\" % error_string(err))
-		_disconnect()
-		return
-
-	# Set GameID in nohub
-	var response := await _nohub_client.set_game(_nohub_game_id)
-	if not response.is_success():
-		print(\"Failed to set game ID! %s\" % [response])
-		_disconnect()
-		return
-
-	# Success
-	_noray_address = \"%s:%d\" % noray_address
-	_nohub_address = \"%s:%d\" % nohub_address
+	else:
+		status_label.text = \"Status: Online\"
 
 func _disconnect() -> void:
-	_render_lobbies([])
-
-	if Noray.is_connected_to_host():
-		Noray.disconnect_from_host()
-		_noray_address = \"\"
-	
-	if _nohub_peer != null:
-		_nohub_peer.disconnect_from_host()
-		_nohub_peer = null
-		_nohub_client = null
-		_nohub_address = \"\"
+	if not _is_hosting:
+		ForestBrawlConnector.disconnect_from_services()
+	status_label.text = \"Status: Offline\"
+	_is_hosting = false
 
 func _dock() -> void:
 	if dock_container.visible:
@@ -294,11 +224,14 @@ func _back() -> void:
 	_switch_to(main_menu)
 
 func _host() -> void:
-	if not _nohub_client:
+	if not ForestBrawlConnector.is_connected_to_services():
 		return
 
 	var lobby_name := lobby_name_input.text
 	var lobby_limit := lobby_player_limit_input.text
+
+	var noray_address := ForestBrawlConnector.noray_address()
+	var nohub := ForestBrawlConnector.nohub()
 	
 	if not lobby_name:
 		print(\"Lobby name can't be empty!\")
@@ -308,28 +241,43 @@ func _host() -> void:
 		print(\"Invalid player limit!\")
 	else:
 		var player_limit := int(lobby_limit)
-		var address := \"noray://%s/%s\" % [_noray_address, Noray.oid]
+		var address := \"noray://%s/%s\" % [noray_address, Noray.oid]
 		var data := { \"name\": lobby_name, \"player-count\": \"0\", \"player-capacity\": str(player_limit)}
-		var response := await _nohub_client.create_lobby(address, data)
+		var response := await nohub.create_lobby(address, data)
 		if not response.is_success():
 			print(\"Failed to create lobby!\", response)
 		else:
 			print(\"Created lobby!\", response.value())
 			_poll_wait = -1.
-	# TODO: Start game
-
-func _join(lobby_id: String) -> void:
-	if not _nohub_client:
+	
+	var err := await ForestBrawlConnector.host_noray()
+	if err != OK:
+		prints(\"Failed to host game:\", error_string(err))
 		return
 
-	var response := await _nohub_client.join_lobby(lobby_id)
+	# Success!
+	_is_hosting = true
+
+func _join(lobby_id: String) -> void:
+	if not ForestBrawlConnector.is_connected_to_services():
+		return
+
+	print(\"Attempting to join lobby #%s\" % [lobby_id])
+	var response := await ForestBrawlConnector.nohub().join_lobby(lobby_id)
 	if not response.is_success():
 		print(\"Failed to join lobby %s: %s\" % [lobby_id, response])
 		return
 
 	var address := response.value()
-	OS.alert(address)
-	# TODO: Start game
+	print(\"Received address: %s\" % address)
+	var uri := _parse_uri(address)
+	if uri.is_empty() or uri[\"protocol\"] != \"noray\":
+		prints(\"Invalid address!\", address, uri)
+		return
+	print(\"Parsed OID: %s\" % [uri[\"path\"]])
+
+	# TODO: Connect to noray instance if it's on a different one
+	ForestBrawlConnector.join_noray(uri[\"path\"])
 
 # TODO: Deduplicate?
 func _switch_to(menu: Control) -> void:
@@ -359,15 +307,18 @@ func _render_lobbies(lobbies: Array[NohubLobby]) -> void:
 		lobbies_container.add_child(players_label)
 		lobbies_container.add_child(join_button)
 
-func _parse_address(address: String, default_port: int = 0) -> Array:
-	var result = [\"\", default_port]
-	if address.contains(\":\"):
-		var idx := address.rfind(\":\")
-		result[0] = address.substr(0, idx)
-		result[1] = int(address.substr(idx + 1))
-	else:
-		result[0] = address
-	return result
+func _parse_uri(uri: String) -> Dictionary:
+	var pattern := RegEx.create_from_string(\"([a-zA-Z0-9]+)://([^/:]+):?([0-9]+)?/(.*)\")
+	var hit := pattern.search(uri)
+	if not hit: return {}
+
+	return {
+		\"uri\": uri,
+		\"protocol\": hit.strings[1],
+		\"host\": hit.strings[2],
+		\"port\": hit.strings[3],
+		\"path\": hit.strings[4]
+	}
 "
 
 [sub_resource type="GDScript" id="GDScript_u7g6r"]
@@ -442,8 +393,17 @@ script/source = "extends Control
 @onready var confirm_button := $\"MarginContainer/Settings VBox/HBoxContainer/Confirm Button\" as Button
 @onready var main_menu := %\"Main Menu\" as Control
 
+@onready var player_name_input := $\"MarginContainer/Settings VBox/Player Name/Player Name Input\" as LineEdit
+@onready var randomize_button := $\"MarginContainer/Settings VBox/Player Name/Randomize Button\" as Button
+
 func _ready() -> void:
 	confirm_button.pressed.connect(_confirm)
+	randomize_button.pressed.connect(_randomize_name)
+
+	_randomize_name()
+
+func _randomize_name():
+	player_name_input.text = NameProvider.name()
 
 func _confirm() -> void:
 	_switch_to(main_menu)
@@ -462,6 +422,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("1_xmgyy")
+script = SubResource("GDScript_hv8dj")
 
 [node name="TextureRect" type="TextureRect" parent="."]
 modulate = Color(0, 0, 0, 0.501961)
@@ -823,7 +784,6 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Nameless Brawler"
 clear_button_enabled = true
-script = ExtResource("1_h5ah4")
 
 [node name="Randomize Button" type="Button" parent="Settings Menu/MarginContainer/Settings VBox/Player Name"]
 custom_minimum_size = Vector2(32, 0)
