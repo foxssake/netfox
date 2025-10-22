@@ -20,6 +20,13 @@ func _ready():
 	# Show when game ends
 	NetworkEvents.on_client_stop.connect(func(__): show())
 	NetworkEvents.on_server_stop.connect(func(): show())
+
+	# Make sure the main menu is visible by default
+	for child in get_children():
+		child.hide()
+
+	for i in range(2):
+		get_child(i).show()
 "
 
 [sub_resource type="GDScript" id="GDScript_jmdql"]
@@ -73,9 +80,12 @@ script/source = "extends Control
 
 @onready var main_menu := %\"Main Menu\" as Control
 
+func is_active() -> bool:
+	return is_visible_in_tree()
+
 func _ready() -> void:
 	visibility_changed.connect(func():
-		if visible: _execute()
+		if is_visible_in_tree(): _execute()
 		else: _cancel()
 	)
 	
@@ -83,7 +93,53 @@ func _ready() -> void:
 	host_button.pressed.connect(_host)
 
 func _execute() -> void:
-	pass # TODO
+	label.text = \"Connecting to services...\"
+	var err := await ForestBrawlConnector.connect_to_any_service_host()
+	if err != OK:
+		label.text = \"Connection failed: %s\" % [error_string(err)]
+		return
+
+	label.text = \"Looking for games...\"
+	var expanded_search := false
+	var search_time := 0.0
+	var lobby: NohubLobby
+
+	while is_active():
+		await get_tree().create_timer(1.0).timeout
+		search_time += 1.0
+		
+		var response := await ForestBrawlConnector.nohub().list_lobbies()
+		if not response.is_success():
+			label.text = \"nohub error: %s\" % [response.error().message]
+		
+		# Only consider quick-play lobbies
+		var lobbies := response.value()\\
+			.filter(func (it: NohubLobby):
+				return it.data.get(\"quick-play\", \"\") == \"enabled\" or expanded_search
+				)
+
+		if not lobbies.is_empty():
+			# TODO: More advanced strategies?
+			lobby = lobbies.pick_random()
+			break
+
+		if search_time > 5.0 and not expanded_search:
+			label.text = \"Expanding search...\"
+			expanded_search = true
+
+	if not is_active():
+		return
+
+	label.text = \"Joining...\"
+	var response := await ForestBrawlConnector.nohub().join_lobby(lobby.id)
+	if not response.is_success():
+		label.text = \"nohub error: %s\" % [response.error().message]
+
+	var address := response.value()
+	print(\"Joining address: %s\" % [address])
+	err = ForestBrawlConnector.join(address)
+	if err != OK:
+		label.text = \"Couldn't join %s: %s\" % [address, error_string(err)]
 
 func _cancel() -> void:
 	pass # TODO
@@ -92,7 +148,29 @@ func _back() -> void:
 	_switch_to(main_menu)
 
 func _host() -> void:
-	pass # TODO
+	label.text = \"Creating lobby...\"
+	
+	# Create lobby
+	var lobby_name := \"Quick Play #%x\" % [randi_range(0x10000000, 0xFFFFFFFF)]
+	var player_capacity := 8
+	var address := \"noray://%s/%s\" % [ForestBrawlConnector.noray_address(), Noray.oid]
+	# TODO(nohub.gd): Stringify data values
+	var data := {
+		\"name\": lobby_name,
+		\"player-count\": \"0\",
+		\"player-capacity\": str(player_capacity),
+		\"quick-play\": \"enabled\"
+	}
+	
+	var response := await ForestBrawlConnector.nohub().create_lobby(address, data)
+	if not response.is_success():
+		label.text = \"Lobby fail: %s\" % [response.error().message]
+	
+	# Start game
+	label.text = \"Starting...\"
+	var err := await ForestBrawlConnector.host_noray()
+	if err != OK:
+		label.text = \"Fail: %s\" % [error_string(err)]
 
 # TODO: Deduplicate?
 func _switch_to(menu: Control) -> void:
@@ -270,14 +348,7 @@ func _join(lobby_id: String) -> void:
 
 	var address := response.value()
 	print(\"Received address: %s\" % address)
-	var uri := _parse_uri(address)
-	if uri.is_empty() or uri[\"protocol\"] != \"noray\":
-		prints(\"Invalid address!\", address, uri)
-		return
-	print(\"Parsed OID: %s\" % [uri[\"path\"]])
-
-	# TODO: Connect to noray instance if it's on a different one
-	ForestBrawlConnector.join_noray(uri[\"path\"])
+	ForestBrawlConnector.join(address)
 
 # TODO: Deduplicate?
 func _switch_to(menu: Control) -> void:
@@ -306,19 +377,6 @@ func _render_lobbies(lobbies: Array[NohubLobby]) -> void:
 		lobbies_container.add_child(name_label)
 		lobbies_container.add_child(players_label)
 		lobbies_container.add_child(join_button)
-
-func _parse_uri(uri: String) -> Dictionary:
-	var pattern := RegEx.create_from_string(\"([a-zA-Z0-9]+)://([^/:]+):?([0-9]+)?/(.*)\")
-	var hit := pattern.search(uri)
-	if not hit: return {}
-
-	return {
-		\"uri\": uri,
-		\"protocol\": hit.strings[1],
-		\"host\": hit.strings[2],
-		\"port\": hit.strings[3],
-		\"path\": hit.strings[4]
-	}
 "
 
 [sub_resource type="GDScript" id="GDScript_u7g6r"]
@@ -437,6 +495,7 @@ stretch_mode = 6
 
 [node name="Main Menu" type="VBoxContainer" parent="."]
 unique_name_in_owner = true
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -478,7 +537,6 @@ flat = true
 
 [node name="Quick Play Menu" type="VBoxContainer" parent="."]
 unique_name_in_owner = true
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

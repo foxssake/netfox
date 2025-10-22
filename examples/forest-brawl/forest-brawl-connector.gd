@@ -61,6 +61,10 @@ static func is_connected_to_services() -> bool:
 	if not _instance: return false
 	return _instance._is_connected_to_services()
 
+static func join(address: String) -> Error:
+	assert(_instance, "ForestBrawlConnector instance missing from Scene Tree!")
+	return _instance._join(address)
+
 static func join_noray(oid: String) -> Error:
 	assert(_instance, "ForestBrawlConnector instance missing from Scene Tree!")
 	return _instance._join_noray(oid)
@@ -147,6 +151,19 @@ func _disconnect_from_services() -> void:
 func _is_connected_to_services() -> bool:
 	return Noray.is_connected_to_host() and _nohub_peer != null and _nohub_peer.get_status() == StreamPeerTCP.STATUS_CONNECTED
 
+func _join(address: String) -> Error:
+	var uri := _parse_uri(address)
+	if uri.is_empty():
+		return ERR_PARSE_ERROR
+	
+	if uri["protocol"] == "noray":
+		# TODO: Support different hosts
+		var oid := uri["path"] as String
+		return _join_noray(oid)
+	
+	print("Unknown schema: %s" % [uri["protocol"]])
+	return ERR_UNAVAILABLE
+
 func _join_noray(oid: String) -> Error:
 	return _noray_connector.join(oid)
 
@@ -178,3 +195,16 @@ func _parse_address(address: String, default_port: int = 0) -> Array:
 	else:
 		result[0] = address
 	return result
+
+func _parse_uri(uri: String) -> Dictionary:
+	var pattern := RegEx.create_from_string("([a-zA-Z0-9]+)://([^/:]+):?([0-9]+)?/(.*)")
+	var hit := pattern.search(uri)
+	if not hit: return {}
+
+	return {
+		"uri": uri,
+		"protocol": hit.strings[1],
+		"host": hit.strings[2],
+		"port": hit.strings[3],
+		"path": hit.strings[4]
+	}
