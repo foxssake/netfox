@@ -82,7 +82,8 @@ func _spawn(id: int) -> BrawlerController:
 		GameEvents.on_own_brawler_spawn.emit(avatar)
 		
 		# Submit name
-		var player_name = ForestBrawlSettings.get_active().player_name
+		var settings := ForestBrawlSettings.get_active()
+		var player_name = NameProvider.name() if settings.randomize_name else settings.player_name
 		print("Submitting player name " + player_name)
 		_submit_name.rpc(player_name)
 	

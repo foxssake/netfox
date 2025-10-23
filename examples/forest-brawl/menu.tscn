@@ -451,6 +451,8 @@ script/source = "extends Control
 
 @onready var player_name_input := $\"MarginContainer/Settings VBox/Player Name/Player Name Input\" as LineEdit
 @onready var randomize_button := $\"MarginContainer/Settings VBox/Player Name/Randomize Button\" as Button
+@onready var always_randomize_checkbox := $\"MarginContainer/Settings VBox/Always Randomize CheckBox\" as CheckBox
+@onready var force_relay_checkbox := $\"MarginContainer/Settings VBox/Force relay CheckBox\"
 @onready var fullscreen_toggle := $\"MarginContainer/Settings VBox/GridContainer/Fullscreen CheckButton\" as CheckButton
 @onready var vsync_toggle := $\"MarginContainer/Settings VBox/GridContainer/V-Sync CheckButton\" as CheckButton
 @onready var confine_mouse_toggle := $\"MarginContainer/Settings VBox/GridContainer/Confine Mouse CheckButton\" as CheckButton
@@ -468,6 +470,8 @@ func _ready() -> void:
 	_apply_settings(_settings)
 	
 	player_name_input.text_changed.connect(func(__): _on_change())
+	always_randomize_checkbox.toggled.connect(func(__): _on_change())
+	force_relay_checkbox.toggled.connect(func(__): _on_change())
 	fullscreen_toggle.toggled.connect(func(__): _on_change())
 	vsync_toggle.toggled.connect(func(__): _on_change())
 	confine_mouse_toggle.toggled.connect(func(__): _on_change())
@@ -484,6 +488,7 @@ func _cancel() -> void:
 	if _settings:
 		_settings.save()
 		ForestBrawlSettings.set_active(_settings)
+		print(\"Saved settings: %s\" % _settings.serialize())
 
 func _randomize_name():
 	player_name_input.text = NameProvider.name()
@@ -497,6 +502,8 @@ func _on_change() -> void:
 
 func _render_settings(settings: ForestBrawlSettings) -> void:
 	player_name_input.text = settings.player_name
+	always_randomize_checkbox.set_pressed_no_signal(settings.randomize_name)
+	force_relay_checkbox.set_pressed_no_signal(settings.force_relay)
 	fullscreen_toggle.set_pressed_no_signal(settings.full_screen)
 	vsync_toggle.set_pressed_no_signal(settings.vsync)
 	confine_mouse_toggle.set_pressed_no_signal(settings.confine_mouse)
@@ -505,6 +512,9 @@ func _render_settings(settings: ForestBrawlSettings) -> void:
 func _read_settings() -> ForestBrawlSettings:
 	var settings := ForestBrawlSettings.new()
 	
+	settings.player_name = player_name_input.text
+	settings.randomize_name = always_randomize_checkbox.button_pressed
+	settings.force_relay = force_relay_checkbox.button_pressed
 	settings.full_screen = fullscreen_toggle.button_pressed
 	settings.vsync = vsync_toggle.button_pressed
 	settings.confine_mouse = confine_mouse_toggle.button_pressed
@@ -513,6 +523,9 @@ func _read_settings() -> ForestBrawlSettings:
 	return settings
 
 func _apply_settings(settings: ForestBrawlSettings) -> void:
+	# Randomize name
+	player_name_input.editable = not settings.randomize_name
+
 	# Full screen
 	if settings.full_screen:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
@@ -918,11 +931,21 @@ clear_button_enabled = true
 [node name="Randomize Button" type="Button" parent="Settings Menu/MarginContainer/Settings VBox/Player Name"]
 custom_minimum_size = Vector2(32, 0)
 layout_mode = 2
+tooltip_text = "Generate a random name"
 icon = ExtResource("4_w03d4")
 icon_alignment = 1
 expand_icon = true
 
+[node name="Always Randomize CheckBox" type="CheckBox" parent="Settings Menu/MarginContainer/Settings VBox"]
+layout_mode = 2
+text = "Always randomize name"
+
+[node name="Force relay CheckBox" type="CheckBox" parent="Settings Menu/MarginContainer/Settings VBox"]
+layout_mode = 2
+text = "Force relay"
+
 [node name="HSeparator" type="HSeparator" parent="Settings Menu/MarginContainer/Settings VBox"]
+visible = false
 layout_mode = 2
 
 [node name="GridContainer" type="GridContainer" parent="Settings Menu/MarginContainer/Settings VBox"]
@@ -951,6 +974,7 @@ text = "Confine mouse:"
 layout_mode = 2
 
 [node name="HSeparator2" type="HSeparator" parent="Settings Menu/MarginContainer/Settings VBox"]
+visible = false
 layout_mode = 2
 
 [node name="Volume" type="HBoxContainer" parent="Settings Menu/MarginContainer/Settings VBox"]

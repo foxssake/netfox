@@ -184,7 +184,7 @@ func _join(address: String) -> Error:
 	return ERR_UNAVAILABLE
 
 func _join_noray(oid: String) -> Error:
-	return _noray_connector.join(oid)
+	return _noray_connector.join(oid, ForestBrawlSettings.get_active().force_relay)
 
 func _host_lobby(name: String, address: String, max_players: int = 8, extra_data: Dictionary = {}) -> NohubResult.Lobby:
 	if not _nohub_client:
