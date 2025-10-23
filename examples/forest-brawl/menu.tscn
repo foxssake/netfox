@@ -142,7 +142,7 @@ func _execute() -> void:
 		label.text = \"Couldn't join %s: %s\" % [address, error_string(err)]
 
 func _cancel() -> void:
-	pass # TODO
+	pass
 
 func _back() -> void:
 	_switch_to(main_menu)
@@ -154,15 +154,8 @@ func _host() -> void:
 	var lobby_name := \"Quick Play #%x\" % [randi_range(0x10000000, 0xFFFFFFFF)]
 	var player_capacity := 8
 	var address := \"noray://%s/%s\" % [ForestBrawlConnector.noray_address(), Noray.oid]
-	# TODO(nohub.gd): Stringify data values
-	var data := {
-		\"name\": lobby_name,
-		\"player-count\": \"0\",
-		\"player-capacity\": str(player_capacity),
-		\"quick-play\": \"enabled\"
-	}
 	
-	var response := await ForestBrawlConnector.nohub().create_lobby(address, data)
+	var response := await ForestBrawlConnector.host_quick_play(address, player_capacity)
 	if not response.is_success():
 		label.text = \"Lobby fail: %s\" % [response.error().message]
 	
@@ -227,6 +220,9 @@ var _poll_wait := 0.
 
 var _is_hosting := false
 
+func is_active() -> bool:
+	return is_visible_in_tree()
+
 func _ready() -> void:
 	# TODO: Deduplicate?
 	visibility_changed.connect(func():
@@ -248,6 +244,9 @@ func _ready() -> void:
 	_select_preset(0)
 
 func _process(dt: float) -> void:
+	if not is_active():
+		return
+
 	# Poll lobbies
 	_poll_wait -= dt
 	if _poll_wait < 0.0 and ForestBrawlConnector.is_connected_to_services():
@@ -309,25 +308,28 @@ func _host() -> void:
 	var lobby_limit := lobby_player_limit_input.text
 
 	var noray_address := ForestBrawlConnector.noray_address()
-	var nohub := ForestBrawlConnector.nohub()
 	
 	if not lobby_name:
 		print(\"Lobby name can't be empty!\")
-	elif not lobby_limit.is_valid_int():
+		return
+	if not lobby_limit.is_valid_int():
 		print(\"Player limit is not a number!\")
-	elif int(lobby_limit) <= 0:
+		return
+	if int(lobby_limit) <= 0:
 		print(\"Invalid player limit!\")
+		return
+
+	var player_limit := int(lobby_limit)
+	var address := \"noray://%s/%s\" % [noray_address, Noray.oid]
+
+	var response := await ForestBrawlConnector.host_lobby(lobby_name, address, player_limit)
+	if not response.is_success():
+		print(\"Failed to create lobby! \", response)
+		return
 	else:
-		var player_limit := int(lobby_limit)
-		var address := \"noray://%s/%s\" % [noray_address, Noray.oid]
-		var data := { \"name\": lobby_name, \"player-count\": \"0\", \"player-capacity\": str(player_limit)}
-		var response := await nohub.create_lobby(address, data)
-		if not response.is_success():
-			print(\"Failed to create lobby!\", response)
-		else:
-			print(\"Created lobby!\", response.value())
-			_poll_wait = -1.
-	
+		print(\"Created lobby! \", response.value())
+		_poll_wait = -1.
+
 	var err := await ForestBrawlConnector.host_noray()
 	if err != OK:
 		prints(\"Failed to host game:\", error_string(err))
@@ -495,7 +497,6 @@ stretch_mode = 6
 
 [node name="Main Menu" type="VBoxContainer" parent="."]
 unique_name_in_owner = true
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -537,6 +538,7 @@ flat = true
 
 [node name="Quick Play Menu" type="VBoxContainer" parent="."]
 unique_name_in_owner = true
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
