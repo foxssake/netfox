@@ -1,12 +1,30 @@
-[gd_scene load_steps=13 format=3 uid="uid://dbnx63lgo7288"]
+[gd_scene load_steps=26 format=3 uid="uid://dbnx63lgo7288"]
 
 [ext_resource type="Texture2D" uid="uid://cdb8di7e1p6h6" path="res://icon.png" id="1_6gbgt"]
 [ext_resource type="Theme" uid="uid://cg8p4yow3i3ly" path="res://examples/forest-brawl/ui/menu-theme.tres" id="1_xmgyy"]
 [ext_resource type="Texture2D" uid="uid://4vyxbqthy3nf" path="res://examples/forest-brawl/ui/gauss-bg.png" id="2_f45cx"]
+[ext_resource type="AudioStream" uid="uid://b1tjkexft6b6p" path="res://examples/forest-brawl/sounds/switch/switch1.ogg" id="2_fg4qs"]
+[ext_resource type="AudioStream" uid="uid://cr7ui6x21ywtf" path="res://examples/forest-brawl/sounds/switch/switch2.ogg" id="3_x70pt"]
+[ext_resource type="AudioStream" uid="uid://b175yiuxb4out" path="res://examples/forest-brawl/sounds/switch/switch3.ogg" id="4_gji41"]
 [ext_resource type="Texture2D" uid="uid://c6bp4x3j4l27k" path="res://examples/forest-brawl/ui/die-icon.svg" id="4_w03d4"]
+[ext_resource type="AudioStream" uid="uid://br4qdiu4g7uuc" path="res://examples/forest-brawl/sounds/switch/switch4.ogg" id="5_6auhi"]
+[ext_resource type="AudioStream" uid="uid://ct4mldhp1j0p1" path="res://examples/forest-brawl/sounds/switch/switch5.ogg" id="6_47cu0"]
+[ext_resource type="AudioStream" uid="uid://b51qiut02m5hq" path="res://examples/forest-brawl/sounds/switch/switch6.ogg" id="7_g4pxc"]
+[ext_resource type="AudioStream" uid="uid://cg2pl8kegpluj" path="res://examples/forest-brawl/sounds/switch/switch7.ogg" id="8_si12f"]
+[ext_resource type="AudioStream" uid="uid://cwpvdoq22ewxj" path="res://examples/forest-brawl/sounds/switch/switch8.ogg" id="9_j72q5"]
+[ext_resource type="AudioStream" uid="uid://vopvgimi40ci" path="res://examples/forest-brawl/sounds/click/click_001.ogg" id="10_xypl4"]
+[ext_resource type="AudioStream" uid="uid://d4fnb7fq15ud7" path="res://examples/forest-brawl/sounds/click/click_002.ogg" id="11_6mefx"]
+[ext_resource type="AudioStream" uid="uid://xm1rrumqubqo" path="res://examples/forest-brawl/sounds/click/click_003.ogg" id="12_880g4"]
+[ext_resource type="AudioStream" uid="uid://pya5p1mgjj0r" path="res://examples/forest-brawl/sounds/click/click_004.ogg" id="13_iojt7"]
+[ext_resource type="AudioStream" uid="uid://dgxn16sobxnj6" path="res://examples/forest-brawl/sounds/click/click_005.ogg" id="14_uoh15"]
 
 [sub_resource type="GDScript" id="GDScript_hv8dj"]
 script/source = "extends Control
+
+@onready var audio_player := %\"UI Audio\" as AudioStreamPlayer
+
+@export var toggle_sounds: Array[AudioStream] = []
+@export var click_sounds: Array[AudioStream] = []
 
 func _ready():
 	# Hide when game starts
@@ -19,10 +37,29 @@ func _ready():
 
 	# Make sure the main menu is visible by default
 	for child in get_children():
-		child.hide()
+		if child is Control:
+			child.hide()
 
 	for i in range(2):
 		get_child(i).show()
+
+	# Play a sound when something is toggled
+	for control in find_children(\"*\", \"Control\"):
+		if control is CheckButton or control is CheckBox:
+			var toggle := control as Button
+			toggle.toggled.connect(func(__): _play_random_sfx(toggle_sounds, -4))
+		elif control is Button:
+			var button := control as Button
+			button.pressed.connect(func(): _play_random_sfx(click_sounds, +8))
+
+func _play_random_sfx(pool: Array[AudioStream], gain_db: float = 0.0) -> void:
+	if pool.is_empty():
+		return
+
+	var sfx := pool.pick_random() as AudioStream
+	audio_player.stream = sfx
+	audio_player.volume_db = gain_db
+	audio_player.play()
 "
 
 [sub_resource type="GDScript" id="GDScript_jmdql"]
@@ -566,6 +603,8 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("1_xmgyy")
 script = SubResource("GDScript_hv8dj")
+toggle_sounds = Array[AudioStream]([ExtResource("2_fg4qs"), ExtResource("3_x70pt"), ExtResource("4_gji41"), ExtResource("5_6auhi"), ExtResource("6_47cu0"), ExtResource("7_g4pxc"), ExtResource("8_si12f"), ExtResource("9_j72q5")])
+click_sounds = Array[AudioStream]([ExtResource("10_xypl4"), ExtResource("11_6mefx"), ExtResource("12_880g4"), ExtResource("13_iojt7"), ExtResource("14_uoh15")])
 
 [node name="TextureRect" type="TextureRect" parent="."]
 modulate = Color(0, 0, 0, 0.501961)
@@ -1000,3 +1039,6 @@ alignment = 1
 [node name="Confirm Button" type="Button" parent="Settings Menu/MarginContainer/Settings VBox/HBoxContainer"]
 layout_mode = 2
 text = "Confirm"
+
+[node name="UI Audio" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
