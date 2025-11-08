@@ -9,7 +9,7 @@ extends CharacterBody3D
 @onready var head := $Head as Node3D
 @onready var camera := $Head/Camera3D as Camera3D
 @onready var hit_sfx := $"Hit SFX" as AudioStreamPlayer3D
-
+#+#
 static var _logger := _NetfoxLogger.new("game", "Player")
 
 var gravity = ProjectSettings.get_setting(&"physics/3d/default_gravity")
