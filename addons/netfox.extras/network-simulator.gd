@@ -41,6 +41,7 @@ var _enet_peer: ENetMultiplayerPeer = ENetMultiplayerPeer.new()
 
 # UDP proxy
 var _proxy_thread: Thread
+var _proxy_loop_enabled := true
 var _udp_proxy_server: PacketPeerUDP
 var _udp_proxy_port: int
 var _rng_packet_loss: RandomNumberGenerator = RandomNumberGenerator.new()
@@ -137,9 +138,8 @@ func _process_packets() -> void:
 		_read_server_to_client_packets(current_time)
 		_process_server_to_client_queue(send_threshold)
 
-var _proxy_thread_alive = true
 func _process_loop():
-	while _proxy_thread_alive:
+	while _proxy_loop_enabled:
 		_process_packets()
 		OS.delay_msec(1)
 
@@ -234,5 +234,5 @@ func _should_send_packet() -> bool:
 
 func _exit_tree() -> void:
 	if _proxy_thread and _proxy_thread.is_started():
-		_proxy_thread_alive = false
+		_proxy_loop_enabled = false
 		_proxy_thread.wait_to_finish()
