@@ -1,5 +1,5 @@
 extends RefCounted
-class_name _NetfoxLogger
+class_name NetfoxLogger
 
 enum {
 	LOG_MIN,
@@ -32,14 +32,14 @@ const level_prefixes: Array[String] = [
 	""
 ]
 
-static func for_netfox(p_name: String) -> _NetfoxLogger:
-	return _NetfoxLogger.new("netfox", p_name)
+static func for_netfox(p_name: String) -> NetfoxLogger:
+	return NetfoxLogger.new("netfox", p_name)
 
-static func for_noray(p_name: String) -> _NetfoxLogger:
-	return _NetfoxLogger.new("netfox.noray", p_name)
+static func for_noray(p_name: String) -> NetfoxLogger:
+	return NetfoxLogger.new("netfox.noray", p_name)
 
-static func for_extras(p_name: String) -> _NetfoxLogger:
-	return _NetfoxLogger.new("netfox.extras", p_name)
+static func for_extras(p_name: String) -> NetfoxLogger:
+	return NetfoxLogger.new("netfox.extras", p_name)
 
 static func make_setting(name: String) -> Dictionary:
 	return {

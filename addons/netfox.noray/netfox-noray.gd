@@ -4,7 +4,7 @@ extends EditorPlugin
 const ROOT = "res://addons/netfox.noray"
 
 var SETTINGS = [
-	_NetfoxLogger.make_setting("netfox/logging/netfox_noray_log_level")
+	NetfoxLogger.make_setting("netfox/logging/netfox_noray_log_level")
 ]
 
 const AUTOLOADS = [

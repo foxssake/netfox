@@ -30,7 +30,7 @@ var _has_cancelled: bool = false
 var _context: Dictionary = {}
 var _mutated_objects: _Set = _Set.new()
 
-var _logger := _NetfoxLogger.for_netfox("RewindableAction")
+var _logger := NetfoxLogger.for_netfox("RewindableAction")
 
 # Process:
 #	@0:	Client sends an input with fire	@0

@@ -9,7 +9,7 @@ extends CharacterBody3D
 @onready var head := $Head as Node3D
 @onready var hud := $HUD as CanvasGroup
 
-static var _logger := _NetfoxLogger.new("game", "Player")
+static var _logger := NetfoxLogger.new("game", "Player")
 
 var gravity = ProjectSettings.get_setting(&"physics/3d/default_gravity")
 var health: int = 100

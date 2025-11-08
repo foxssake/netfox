@@ -27,7 +27,7 @@ const SIGNAL := 3
 ## Defaults to [constant WARN], based on project settings.
 var mismatch_action: int = ProjectSettings.get_setting(&"netfox/time/tickrate_mismatch_action", WARN)
 
-static var _logger := _NetfoxLogger.for_netfox("NetworkTickrateHandshake")
+static var _logger := NetfoxLogger.for_netfox("NetworkTickrateHandshake")
 
 ## Emitted when a tickrate mismatch is encountered, and [member mismatch_action] is set to 
 ## [constant SIGNAL].

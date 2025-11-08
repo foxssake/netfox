@@ -35,7 +35,7 @@ var latency_ms: int = 0
 ## Simulated packet loss percentage
 var packet_loss_percent: float = 0.0
 
-static var _logger: _NetfoxLogger = _NetfoxLogger.for_extras("NetworkSimulator")
+static var _logger: NetfoxLogger = NetfoxLogger.for_extras("NetworkSimulator")
 
 var _enet_peer: ENetMultiplayerPeer = ENetMultiplayerPeer.new()
 
