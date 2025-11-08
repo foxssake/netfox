@@ -391,7 +391,7 @@ var _tickrate_handshake: NetworkTickrateHandshake
 
 var _synced_peers: Dictionary = {}
 
-static var _logger: NetfoxLogger = NetfoxLogger.for_netfox("NetworkTime")
+static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("NetworkTime")
 
 ## Start NetworkTime.
 ##

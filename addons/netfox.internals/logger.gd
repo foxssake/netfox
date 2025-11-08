@@ -13,16 +13,7 @@ enum {
 
 const DEFAULT_LOG_LEVEL := LOG_DEBUG
 
-static var log_level: int
-static var module_log_level: Dictionary
-
-static var _tags: Dictionary = {}
-static var _ordered_tags: Array[Callable] = []
-
-var module: String
-var name: String
-
-const level_prefixes: Array[String] = [
+const _LEVEL_PREFIXES: Array[String] = [
 	"",
 	"TRC",
 	"DBG",
@@ -32,23 +23,14 @@ const level_prefixes: Array[String] = [
 	""
 ]
 
-static func for_netfox(p_name: String) -> NetfoxLogger:
-	return NetfoxLogger.new("netfox", p_name)
+static var log_level: int
+static var module_log_level: Dictionary
 
-static func for_noray(p_name: String) -> NetfoxLogger:
-	return NetfoxLogger.new("netfox.noray", p_name)
+static var _tags: Dictionary = {}
+static var _ordered_tags: Array[Callable] = []
 
-static func for_extras(p_name: String) -> NetfoxLogger:
-	return NetfoxLogger.new("netfox.extras", p_name)
-
-static func make_setting(name: String) -> Dictionary:
-	return {
-		"name": name,
-		"value": DEFAULT_LOG_LEVEL,
-		"type": TYPE_INT,
-		"hint": PROPERTY_HINT_ENUM,
-		"hint_string": "All,Trace,Debug,Info,Warning,Error,None"
-	}
+var module: String
+var name: String
 
 static func register_tag(tag: Callable, priority: int = 0) -> void:
 	# Save tag
@@ -86,41 +68,27 @@ static func _static_init():
 		"netfox.extras": ProjectSettings.get_setting(&"netfox/logging/netfox_extras_log_level", DEFAULT_LOG_LEVEL)
 	}
 
+static func _for_netfox(p_name: String) -> NetfoxLogger:
+	return NetfoxLogger.new("netfox", p_name)
+
+static func _for_noray(p_name: String) -> NetfoxLogger:
+	return NetfoxLogger.new("netfox.noray", p_name)
+
+static func _for_extras(p_name: String) -> NetfoxLogger:
+	return NetfoxLogger.new("netfox.extras", p_name)
+
+static func _make_setting(name: String) -> Dictionary:
+	return {
+		"name": name,
+		"value": DEFAULT_LOG_LEVEL,
+		"type": TYPE_INT,
+		"hint": PROPERTY_HINT_ENUM,
+		"hint_string": "All,Trace,Debug,Info,Warning,Error,None"
+	}
+
 func _init(p_module: String, p_name: String):
 	module = p_module
 	name = p_name
-
-func _check_log_level(level: int) -> bool:
-	var cmp_level = log_level
-	if level < cmp_level:
-		return false
-	
-	if module_log_level.has(module):
-		var module_level = module_log_level.get(module)
-		return level >= module_level
-	
-	return true
-
-func _format_text(text: String, values: Array, level: int) -> String:
-	level = clampi(level, LOG_MIN, LOG_MAX)
-	
-	var result := PackedStringArray()
-	
-	result.append("[%s]" % [level_prefixes[level]])
-	for tag in _ordered_tags:
-		result.append("[%s]" % [tag.call()])
-	result.append("[%s::%s] " % [module, name])
-	
-	if values.is_empty():
-		result.append(text)
-	else:
-		result.append(text % values)
-	
-	return "".join(result)
-
-func _log_text(text: String, values: Array, level: int):
-	if _check_log_level(level):
-		print(_format_text(text, values, level))
 
 func trace(text: String, values: Array = []):
 	_log_text(text, values, LOG_TRACE)
@@ -144,3 +112,35 @@ func error(text: String, values: Array = []):
 		push_error(formatted_text)
 		# Print so it shows up in the Output panel too
 		print(formatted_text)
+
+func _check_log_level(level: int) -> bool:
+	var cmp_level = log_level
+	if level < cmp_level:
+		return false
+	
+	if module_log_level.has(module):
+		var module_level = module_log_level.get(module)
+		return level >= module_level
+	
+	return true
+
+func _format_text(text: String, values: Array, level: int) -> String:
+	level = clampi(level, LOG_MIN, LOG_MAX)
+	
+	var result := PackedStringArray()
+	
+	result.append("[%s]" % [_LEVEL_PREFIXES[level]])
+	for tag in _ordered_tags:
+		result.append("[%s]" % [tag.call()])
+	result.append("[%s::%s] " % [module, name])
+	
+	if values.is_empty():
+		result.append(text)
+	else:
+		result.append(text % values)
+	
+	return "".join(result)
+
+func _log_text(text: String, values: Array, level: int):
+	if _check_log_level(level):
+		print(_format_text(text, values, level))

@@ -175,7 +175,7 @@ const _STAGE_SIMULATE := "S"
 const _STAGE_RECORD := "R"
 const _STAGE_AFTER := "A"
 
-static var _logger: NetfoxLogger = NetfoxLogger.for_netfox("NetworkRollback")
+static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("NetworkRollback")
 
 ## Submit the resimulation start tick for the current loop.
 ##

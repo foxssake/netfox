@@ -10,7 +10,7 @@ var _oid: String = ""
 var _pid: String = ""
 var _local_port: int = -1
 
-static var _logger: NetfoxLogger = NetfoxLogger.for_noray("Noray")
+static var _logger: NetfoxLogger = NetfoxLogger._for_noray("Noray")
 
 ## Open ID.
 ##
