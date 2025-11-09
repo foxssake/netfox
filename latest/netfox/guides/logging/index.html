@@ -108,9 +108,11 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Logging</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#using-the-logger">Using the logger</a>
+    </li>
     <li class="toctree-l3"><a class="reference internal" href="#log-levels">Log levels</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#log-messages">Log messages</a>
+    <li class="toctree-l3"><a class="reference internal" href="#tags">Tags</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#settings">Settings</a>
     </li>
@@ -208,47 +210,104 @@
               
                 <h1 id="logging">Logging</h1>
 <p>During runtime, it can be useful to print some diagnostic info to the console -
-this is called logging. The netfox addons include various log messages to help
-with debugging. This is useful when running the game locally, but also helps if
+this is called logging. The netfox addons include a logging system to help with
+debugging. This is useful when running the game locally, but also helps if
 there's log files players can attach with their bug reports.</p>
-<p>Depending on your game, different logs may be needed. To accommodate this,
-<em>netfox</em> can be configured to omit certain log messages.</p>
-<h2 id="log-levels">Log levels</h2>
-<p>Each log message can be in one of the following categories:</p>
-<ul>
-<li>Error<ul>
-<li>Something goes irrecoverably wrong, or something that should never happen
-  just happened</li>
-</ul>
-</li>
-<li>Warning<ul>
-<li>Something goes wrong, but can be handled</li>
-</ul>
-</li>
-<li>Info<ul>
-<li>Useful information on expected behaviour</li>
-</ul>
-</li>
-<li>Debug<ul>
-<li>Verbose messages, to help debug general code flow</li>
-</ul>
-</li>
-<li>Trace<ul>
-<li>Extremely verbose messages, to help follow the code flow to the smallest detail</li>
-</ul>
-</li>
-</ul>
-<h2 id="log-messages">Log messages</h2>
-<p>Log messages from any of the <em>netfox</em> addons are prefixed with log level, module and logging class / object:</p>
-<div class="highlight"><pre><span></span><code>[INF][netfox.noray::Noray] Trying to connect to noray at tomfol.io:8890
-[DBG][netfox.noray::Noray] Resolved noray host to 172.105.69.73
-[INF][netfox.noray::Noray] Connected to noray at 172.105.69.73:8890
-[DBG][netfox.noray::Noray] Saved OID: 6JeDH07eVuFu5SO0p-6X2
-[DBG][netfox.noray::Noray] Bound UDP to port 47769
-[DBG][netfox.noray::Noray] Saved PID: vw6_N9sT2N0tXaYke9SV9ReWCgtdsOdfeL1o9zkCL93U7KzBjgMZ7hShBXpf_WYOB_TthARt4GfzH1iLxXR7iR3WCebzx9Sf108e8wUoqwTJqm9bIdVxyYoQUBFT9h2M
-[INF][netfox.noray::Noray] Registered local port 47769 to remote
+<p>The system produces logs like this:</p>
+<div class="highlight"><pre><span></span><code>[DBG][@0][#1][_][netfox::NetworkPerformance] Network performance enabled, registering performance monitors
+[DBG][@0][#1][_][netfox.extras::WindowTiler] Tiling with sid: f2682d1, uid: 17627261006193110
+[DBG][@0][#1][_][netfox.extras::NetworkSimulator] Feature disabled
+[DBG][@0][#1][_][netfox.extras::WindowTiler] Tiling as idx 0 / 1 - 17627261006193110 in [&quot;17627261006193110&quot;]
+[DBG][@22][#1][_][netfox.extras::NetworkWeapon] Calling after fire hook for Bomb Projectile 5sswh7lcsgbq
+[DBG][@27][#1][_][fb::Displacer] Created explosion at (2.027323, 1.500942, -14.99592)@26
+[DBG][@34][#1][_][netfox.extras::NetworkWeapon] Calling after fire hook for Bomb Projectile u4h8opz52lin
+[DBG][@46][#1][_][fb::Displacer] Created explosion at (4.892477, 1.500942, -14.83388)@45
+[DBG][@46][#1][_][netfox.extras::NetworkWeapon] Calling after fire hook for Bomb Projectile 2u1d9n456yl1
+[DBG][@57][#1][_][fb::Displacer] Created explosion at (4.814114, 1.500942, -14.57117)@56
 </code></pre></div>
-<p>This makes it easier to gather info at a glance.</p>
+<p>This page will elaborate on how to produce your own logs, and what each part
+means.</p>
+<h2 id="using-the-logger">Using the logger</h2>
+<p>The logging system can be accessed by creating an instance of <code>NetfoxLogger</code>.
+Every logger has a name, and belongs to a module. Both of these can be
+arbitrary strings, and are included in the logged messages.</p>
+<p>Messages can be logged as different <em>logging levels</em>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">var</span><span class="w"> </span><span class="n">logger</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">NetfoxLogger</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;my-game&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Player&quot;</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="s2">&quot;Detailed message&quot;</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Something happened&quot;</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Hi!&quot;</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t connect&quot;</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Game missing?&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>To use string interpolation, you can also pass the template string and values
+separately. This can be useful to avoid substituting the values in case the
+message never gets printed because of filtering:</p>
+<div class="highlight"><pre><span></span><code><span class="n">logger</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="s2">&quot;Adjusted clock by </span><span class="si">%.2f</span><span class="s2">ms, offset: </span><span class="si">%.2f</span><span class="s2">ms, new time: </span><span class="si">%.4f</span><span class="s2">ss&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">nudge</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000.</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000.</span><span class="p">,</span><span class="w"> </span><span class="n">_clock</span><span class="o">.</span><span class="n">get_time</span><span class="p">()])</span>
+</code></pre></div>
+<p>In the above example, there's a lot of data to be included in the message.
+However, if trace logs are disabled, that data will never be substituted,
+saving some processing time.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>This same logging system is used by netfox itself.</p>
+</div>
+<h2 id="log-levels">Log levels</h2>
+<p>Each log message can belong to one of the following categories:</p>
+<dl>
+<dt>Error</dt>
+<dd>Something goes irrecoverably wrong, or something that should never happen
+just happened</dd>
+<dt>Warning</dt>
+<dd>Something goes wrong, but can be handled</dd>
+<dt>Info</dt>
+<dd>Useful information on expected behaviour</dd>
+<dt>Debug</dt>
+<dd>Verbose messages, to help debug general code flow</dd>
+<dt>Trace</dt>
+<dd>Extremely verbose messages, to help follow the code flow to the smallest
+detail</dd>
+</dl>
+<p>Depending on your game, different logs may be needed. To accommodate this,
+<em>netfox</em> can be configured in the <a href="#settings">Project Settings</a> to omit certain
+log messages.</p>
+<p>Filtering based on log levels can also be configured from code. To set the
+global log level, set <code>NetfoxLogger.log_level</code>. To configure the log level per
+module, use the <code>NetfoxLogger.module_log_level</code> dictionary.</p>
+<h2 id="tags">Tags</h2>
+<p>Tags can be attached to the logging system. They provide pieces of information
+that appear in each log message, for every logger.</p>
+<p>By default, netfox provides a few tags, to help with debugging. These are, in
+order:</p>
+<dl>
+<dt>Current tick</dt>
+<dd>The current tick, as per <code>NetworkTime</code></dd>
+<dt>Peer ID</dt>
+<dd>The currently active multiplayer peer's ID</dd>
+<dt>Rollback status</dt>
+<dd>
+<p>Contains the current rollback stage, simulated tick, and resimulated tick
+interval.</p>
+<p>The stage can be <code>B</code> for before loop, <code>P</code> for prepare tick, <code>S</code> for
+simulate tick, <code>R</code> for record tick, and <code>A</code> for after loop.</p>
+<p>The current tick is in the form of <code>X|A&gt;B</code>, meaning we're currently
+simulating tick X, in a loop going from tick A to tick B.</p>
+<p>Defaults to <code>_</code> if currently not in rollback.</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These default tags are subject to change between releases.</p>
+</div>
+<p>Custom tags can be attached by calling <code>NetfoxLogger.register_tag()</code>. In this
+sense, tags are callbacks that must return a single string, containing the tag
+data to be logged.</p>
+<p>This method takes a second, <code>priority</code> parameter. This priority is used to sort
+them for logging - tags are printed from lowest priority to highest.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Make sure to free your custom tags using <code>NetfoxLogger.free_tag()</code>. Not
+doing so might cause crashes. See <a href="https://github.com/foxssake/netfox/issues/433">#433</a> for details.</p>
+</div>
 <h2 id="settings">Settings</h2>
 <p><img alt="Logging settings" src="../../assets/logging-settings.png" /></p>
 <p>These settings control the <em>minimum</em> log level - e.g. if the log level is set
