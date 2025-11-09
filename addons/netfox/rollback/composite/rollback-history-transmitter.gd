@@ -134,7 +134,6 @@ func transmit_state(tick: int) -> void:
 		return
 
 	_latest_state_tick = max(_latest_state_tick, tick)
-	_state_history.merge(full_state, tick)
 
 	var is_sending_diffs := NetworkRollback.enable_diff_states
 	var is_full_state_tick := not is_sending_diffs or (full_state_interval > 0 and tick > _next_full_state_tick)
