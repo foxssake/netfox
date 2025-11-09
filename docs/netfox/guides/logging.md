@@ -110,6 +110,9 @@ Rollback status
 
     Defaults to `_` if currently not in rollback.
 
+!!!note
+    These default tags are subject to change between releases.
+
 Custom tags can be attached by calling `NetfoxLogger.register_tag()`. In this
 sense, tags are callbacks that must return a single string, containing the tag
 data to be logged.

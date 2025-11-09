@@ -7,7 +7,7 @@ class_name NetfoxLogger
 ## which messages are actually emitted. All messages are output using [method 
 ## @GlobalScope.print]. Warnings and errors are also pushed to the debug panel,
 ## using [method @GlobalScope.push_warning] and [method @GlobalScope.push_error]
-## respectively.
+## respectively, if [member push_to_debugger] is enabled.
 ## [br][br]
 ## Every logger has a name, and belongs to a module. Logging level can be
 ## overridden per module, using [member module_log_level].
@@ -48,6 +48,10 @@ static var log_level: int
 ## This is a dictionary that associates module names ( strings ) to log levels
 ## ( int, e.g. [constant LOG_DEBUG] ).
 static var module_log_level: Dictionary
+
+## Set to true to enable calling [@GlobalScope.push_warning] and
+## [@GlobalScope.push_error]
+static var push_to_debugger := true
 
 static var _tags: Dictionary = {}
 static var _ordered_tags: Array[Callable] = []
@@ -143,23 +147,29 @@ func info(text: String, values: Array = []):
 
 ## Log a warning message
 ## [br][br]
-## This is also forwarded to [method @GlobalScope.push_warning]. Warning
-## messages usually indicate that something has gone wrong, but is recoverable.
+## This is also forwarded to [method @GlobalScope.push_warning], if enabled with
+## [member push_to_debugger]. Warning messages usually indicate that something
+## has gone wrong, but is recoverable.
 func warning(text: String, values: Array = []):
 	if _check_log_level(LOG_WARN):
 		var formatted_text = _format_text(text, values, LOG_WARN)
-		push_warning(formatted_text)
+		if push_to_debugger:
+			push_warning(formatted_text)
+
 		# Print so it shows up in the Output panel too
 		print(formatted_text)
 
 ## Log an error message
 ## [br][br]
-## This is also forwarded to [method @GlobalScope.push_error]. Error messages
-## usually indicate an issue that can't be recovered from.
+## This is also forwarded to [method @GlobalScope.push_error], if enabled with
+## [member push_to_debugger]. Error messages usually indicate an issue that
+## can't be recovered from.
 func error(text: String, values: Array = []):
 	if _check_log_level(LOG_ERROR):
 		var formatted_text = _format_text(text, values, LOG_ERROR)
-		push_error(formatted_text)
+		if push_to_debugger:
+			push_error(formatted_text)
+
 		# Print so it shows up in the Output panel too
 		print(formatted_text)
 
