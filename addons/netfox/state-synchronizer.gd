@@ -62,7 +62,7 @@ var _next_diff_ack_tick: int
 
 var _is_initialized: bool = false
 
-static var _logger := _NetfoxLogger.for_netfox("StateSynchronizer")
+static var _logger := NetfoxLogger._for_netfox("StateSynchronizer")
 
 ## Process settings.
 ## [br][br]

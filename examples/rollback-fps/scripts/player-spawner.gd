@@ -5,7 +5,7 @@ extends Node
 
 var avatars: Dictionary = {}
 
-static var _logger := _NetfoxLogger.new("RollbackFPS", "PlayerSpawner")
+static var _logger := NetfoxLogger.new("RollbackFPS", "PlayerSpawner")
 
 func _ready():
 	NetworkEvents.on_client_start.connect(_handle_connected)

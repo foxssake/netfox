@@ -9,7 +9,7 @@ class_name BrawlerWeapon
 
 var last_fire: int = -1
 
-static var _logger := _NetfoxLogger.new("fb", "BrawlerWeapon")
+static var _logger := NetfoxLogger.new("fb", "BrawlerWeapon")
 
 func _ready():
 	NetworkTime.on_tick.connect(_tick)

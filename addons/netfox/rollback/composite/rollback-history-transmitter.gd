@@ -36,7 +36,7 @@ var _is_initialized: bool
 # Signals
 signal _on_transmit_state(state: Dictionary, tick: int)
 
-static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("RollbackHistoryTransmitter")
+static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("RollbackHistoryTransmitter")
 
 func get_earliest_input_tick() -> int:
 	return _earliest_input_tick
