@@ -15,6 +15,8 @@ class_name NetfoxLogger
 ## Loggers also support tags. Tags can be used to provide extra pieces of 
 ## information that are logged with each message. Some tags are provided by
 ## netfox. Additional tags can be added using [method register_tag].
+##
+## @tutorial(Logging Guide): https://foxssake.github.io/netfox/latest/netfox/guides/logging/
 
 
 enum {
