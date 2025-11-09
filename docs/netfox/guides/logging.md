@@ -1,44 +1,121 @@
 # Logging
 
 During runtime, it can be useful to print some diagnostic info to the console -
-this is called logging. The netfox addons include various log messages to help
-with debugging. This is useful when running the game locally, but also helps if
+this is called logging. The netfox addons include a logging system to help with
+debugging. This is useful when running the game locally, but also helps if
 there's log files players can attach with their bug reports.
 
-Depending on your game, different logs may be needed. To accommodate this,
-*netfox* can be configured to omit certain log messages.
+The system produces logs like this:
+
+```
+[DBG][@0][#1][_][netfox::NetworkPerformance] Network performance enabled, registering performance monitors
+[DBG][@0][#1][_][netfox.extras::WindowTiler] Tiling with sid: f2682d1, uid: 17627261006193110
+[DBG][@0][#1][_][netfox.extras::NetworkSimulator] Feature disabled
+[DBG][@0][#1][_][netfox.extras::WindowTiler] Tiling as idx 0 / 1 - 17627261006193110 in ["17627261006193110"]
+[DBG][@22][#1][_][netfox.extras::NetworkWeapon] Calling after fire hook for Bomb Projectile 5sswh7lcsgbq
+[DBG][@27][#1][_][fb::Displacer] Created explosion at (2.027323, 1.500942, -14.99592)@26
+[DBG][@34][#1][_][netfox.extras::NetworkWeapon] Calling after fire hook for Bomb Projectile u4h8opz52lin
+[DBG][@46][#1][_][fb::Displacer] Created explosion at (4.892477, 1.500942, -14.83388)@45
+[DBG][@46][#1][_][netfox.extras::NetworkWeapon] Calling after fire hook for Bomb Projectile 2u1d9n456yl1
+[DBG][@57][#1][_][fb::Displacer] Created explosion at (4.814114, 1.500942, -14.57117)@56
+```
+
+This page will elaborate on how to produce your own logs, and what each part
+means.
+
+## Using the logger
+
+The logging system can be accessed by creating an instance of `NetfoxLogger`.
+Every logger has a name, and belongs to a module. Both of these can be
+arbitrary strings, and are included in the logged messages.
+
+Messages can be logged as different *logging levels*:
+
+```gd
+var logger := NetfoxLogger.new("my-game", "Player")
+logger.trace("Detailed message")
+logger.debug("Something happened")
+logger.info("Hi!")
+logger.warning("Couldn't connect")
+logger.error("Game missing?")
+```
+
+To use string interpolation, you can also pass the template string and values
+separately. This can be useful to avoid substituting the values in case the
+message never gets printed because of filtering:
+
+```gd
+logger.trace("Adjusted clock by %.2fms, offset: %.2fms, new time: %.4fss", [nudge * 1000., offset * 1000., _clock.get_time()])
+```
+
+In the above example, there's a lot of data to be included in the message.
+However, if trace logs are disabled, that data will never be substituted,
+saving some processing time.
+
+!!!tip
+    This same logging system is used by netfox itself.
 
 ## Log levels
 
-Each log message can be in one of the following categories:
+Each log message can belong to one of the following categories:
 
-* Error
-    * Something goes irrecoverably wrong, or something that should never happen
-      just happened
-* Warning
-    * Something goes wrong, but can be handled
-* Info
-    * Useful information on expected behaviour
-* Debug
-    * Verbose messages, to help debug general code flow
-* Trace
-    * Extremely verbose messages, to help follow the code flow to the smallest detail
+Error
+:   Something goes irrecoverably wrong, or something that should never happen
+    just happened
 
-## Log messages
+Warning
+:   Something goes wrong, but can be handled
 
-Log messages from any of the *netfox* addons are prefixed with log level, module and logging class / object:
+Info
+:   Useful information on expected behaviour
 
-```
-[INF][netfox.noray::Noray] Trying to connect to noray at tomfol.io:8890
-[DBG][netfox.noray::Noray] Resolved noray host to 172.105.69.73
-[INF][netfox.noray::Noray] Connected to noray at 172.105.69.73:8890
-[DBG][netfox.noray::Noray] Saved OID: 6JeDH07eVuFu5SO0p-6X2
-[DBG][netfox.noray::Noray] Bound UDP to port 47769
-[DBG][netfox.noray::Noray] Saved PID: vw6_N9sT2N0tXaYke9SV9ReWCgtdsOdfeL1o9zkCL93U7KzBjgMZ7hShBXpf_WYOB_TthARt4GfzH1iLxXR7iR3WCebzx9Sf108e8wUoqwTJqm9bIdVxyYoQUBFT9h2M
-[INF][netfox.noray::Noray] Registered local port 47769 to remote
-```
+Debug
+:   Verbose messages, to help debug general code flow
 
-This makes it easier to gather info at a glance.
+Trace
+:   Extremely verbose messages, to help follow the code flow to the smallest
+    detail
+
+Depending on your game, different logs may be needed. To accommodate this,
+*netfox* can be configured in the [Project Settings](#settings) to omit certain
+log messages.
+
+Filtering based on log levels can also be configured from code. To set the
+global log level, set `NetfoxLogger.log_level`. To configure the log level per
+module, use the `NetfoxLogger.module_log_level` dictionary.
+
+## Tags
+
+Tags can be attached to the logging system. They provide pieces of information
+that appear in each log message, for every logger.
+
+By default, netfox provides a few tags, to help with debugging. These are, in
+order:
+
+Current tick
+:   The current tick, as per `NetworkTime`
+
+Peer ID
+:   The currently active multiplayer peer's ID
+
+Rollback status
+:   Contains the current rollback stage, simulated tick, and resimulated tick
+    interval.
+
+    The stage can be `B` for before loop, `P` for prepare tick, `S` for
+    simulate tick, `R` for record tick, and `A` for after loop.
+
+    The current tick is in the form of `X|A>B`, meaning we're currently
+    simulating tick X, in a loop going from tick A to tick B.
+
+    Defaults to `_` if currently not in rollback.
+
+Custom tags can be attached by calling `NetfoxLogger.register_tag()`. In this
+sense, tags are callbacks that must return a single string, containing the tag
+data to be logged.
+
+This method takes a second, `priority` parameter. This priority is used to sort
+them for logging - tags are printed from lowest priority to highest.
 
 ## Settings
 

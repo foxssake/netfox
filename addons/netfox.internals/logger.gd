@@ -18,22 +18,26 @@ class_name NetfoxLogger
 
 
 enum {
+	LOG_ALL,	## Filter level to log every message
 	LOG_TRACE,	## Trace logs, the most verbose level
 	LOG_DEBUG,	## Debug logs
 	LOG_INFO,	## Info logs
 	LOG_WARN,	## Warnings
-	LOG_ERROR	## Errors
+	LOG_ERROR,	## Errors
+	LOG_NONE	## Filter level to log no messages
 }
 
 ## Default log level to fall back on, if not configured
 const DEFAULT_LOG_LEVEL := LOG_DEBUG
 
 const _LEVEL_PREFIXES: Array[String] = [
+	"",
 	"TRC",
 	"DBG",
 	"INF",
 	"WRN",
 	"ERR",
+	""
 ]
 
 ## Global logging level, used by all loggers
