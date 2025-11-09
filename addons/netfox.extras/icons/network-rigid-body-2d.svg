@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   width="64"
-   height="64"
+   width="16"
+   height="16"
    version="1.1"
    id="svg1"
-   sodipodi:docname="RigidBody2D.svg"
-   inkscape:version="1.4 (e7c3feb100, 2024-10-09)"
+   sodipodi:docname="network-rigid-body-2d.svg"
+   inkscape:version="1.4.2 (ebf0e940d0, 2025-05-08)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -21,23 +21,39 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
-     inkscape:zoom="1"
-     inkscape:cx="-213"
-     inkscape:cy="-49"
+     inkscape:zoom="22.627417"
+     inkscape:cx="-6.098796"
+     inkscape:cy="12.705825"
      inkscape:window-width="2560"
-     inkscape:window-height="1048"
+     inkscape:window-height="1043"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg1" />
+     inkscape:current-layer="svg1"
+     showgrid="true">
+    <inkscape:grid
+       id="grid1"
+       units="px"
+       originx="0"
+       originy="0"
+       spacingx="1"
+       spacingy="1"
+       empcolor="#0099e5"
+       empopacity="0.30196078"
+       color="#0099e5"
+       opacity="0.14901961"
+       empspacing="5"
+       enabled="true"
+       visible="true" />
+  </sodipodi:namedview>
   <path
      fill="#8da5f3"
-     d="m 32,4 a 28,28 0 0 0 0,56 28,28 0 0 0 0,-56 z m 7.804,5.336 A 24,24 0 0 1 56.004,32 h -28 a 8,8 0 0 0 -3.8,-6.8 C 29.588,17.084 34.62,12.148 39.804,9.332 Z m -27.312,8.72 c 0.584,2.6 1.432,5.132 2.736,7.536 A 8,8 0 0 0 12,32 H 8 A 24,24 0 0 1 12.492,18.056 Z M 15.2,38.4 a 8,8 0 0 0 9.6,0 c 5.888,8.108 10.912,13.056 15.2,16 a 24,24 0 0 1 -28.6,-10 c 1,-2.4 2,-4 3.8,-6 z"
+     d="M 8,1 A 7,7 0 0 0 8,15 7,7 0 0 0 8,1 Z M 9.951,2.334 A 6,6 0 0 1 14.001,8 h -7 A 2,2 0 0 0 6.051,6.3 C 7.397,4.271 8.655,3.037 9.951,2.333 Z m -6.828,2.18 c 0.146,0.65 0.358,1.283 0.684,1.884 A 2,2 0 0 0 3,8 H 2 A 6,6 0 0 1 3.123,4.514 Z M 3.8,9.6 a 2,2 0 0 0 2.4,0 c 1.472,2.027 2.728,3.264 3.8,4 A 6,6 0 0 1 2.85,11.1 c 0.25,-0.6 0.5,-1 0.95,-1.5 z"
      id="path1"
-     style="stroke-width:4" />
+     style="stroke-width:1" />
   <g
      id="g9"
-     transform="translate(0,3.3)">
+     transform="matrix(0.25,0,0,0.25,0,0.825)">
     <path
        id="path1_00000101101429107098172700000017609064003007162547_"
        class="st1"

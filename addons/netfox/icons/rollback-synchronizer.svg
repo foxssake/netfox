@@ -1,17 +1,90 @@
-<?xml version="1.0" encoding="utf-8"?>
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 64 64" style="enable-background:new 0 0 64 64;" xml:space="preserve">
-<style type="text/css">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   id="Layer_1"
+   x="0px"
+   y="0px"
+   viewBox="0 0 16 16"
+   xml:space="preserve"
+   sodipodi:docname="rollback-synchronizer.svg"
+   width="16"
+   height="16"
+   inkscape:version="1.4.2 (ebf0e940d0, 2025-05-08)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><defs
+   id="defs1" /><sodipodi:namedview
+   id="namedview1"
+   pagecolor="#ffffff"
+   bordercolor="#000000"
+   borderopacity="0.25"
+   inkscape:showpageshadow="2"
+   inkscape:pageopacity="0.0"
+   inkscape:pagecheckerboard="0"
+   inkscape:deskcolor="#d1d1d1"
+   showgrid="true"
+   inkscape:zoom="48.8125"
+   inkscape:cx="7.3956466"
+   inkscape:cy="8.4302177"
+   inkscape:window-width="2560"
+   inkscape:window-height="1043"
+   inkscape:window-x="0"
+   inkscape:window-y="0"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="Layer_1"><inkscape:grid
+     id="grid1"
+     units="px"
+     originx="0"
+     originy="0"
+     spacingx="1"
+     spacingy="1"
+     empcolor="#0099e5"
+     empopacity="0.30196078"
+     color="#0099e5"
+     opacity="0.14902"
+     empspacing="5"
+     enabled="true"
+     visible="true" /></sodipodi:namedview>
+<style
+   type="text/css"
+   id="style1">
 	.st0{fill:none;stroke:#E0E0E0;stroke-width:6.875;stroke-linecap:round;stroke-linejoin:round;}
 	.st1{fill:none;stroke:#E0E0E0;stroke-width:6.875;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.66;}
 	.st2{fill:none;stroke:#E0E0E0;stroke-width:6.875;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.33;}
 	.st3{fill:#5FFF97;}
 	.st4{fill:#FF5F5F;}
 </style>
-<path id="path6" class="st0" d="M32,32l9.7-9.7"/>
-<path id="path7" class="st1" d="M32,32V18.3"/>
-<path id="path8" class="st2" d="M32,32l-9.7-9.7"/>
-<circle id="path4" class="st0" cx="32" cy="32" r="20.5"/>
-<path id="path1" class="st3" d="M32,38.2l-8.2,16.4l-8.2-16.4C15.6,38.2,32,38.2,32,38.2z"/>
-<path id="path2" class="st4" d="M48.5,54.6l-8.2-16.4L32,54.6H48.5z"/>
+<path
+   id="path6"
+   class="st0"
+   d="M 8,8 10.425,5.575"
+   style="stroke-width:2;stroke-dasharray:none" />
+<path
+   id="path7"
+   class="st1"
+   d="M 8,8 V 4.575"
+   style="stroke-width:2;stroke-dasharray:none" />
+<path
+   id="path8"
+   class="st2"
+   d="M 8,8 5.575,5.575"
+   style="stroke-width:2;stroke-dasharray:none" />
+<circle
+   id="path4"
+   class="st0"
+   cx="8"
+   cy="8"
+   style="stroke-width:2;stroke-dasharray:none"
+   r="5" />
+<path
+   id="path1"
+   class="st3"
+   d="M 8,9.55 5.95,13.65 3.9,9.55 Z"
+   style="stroke-width:2;stroke-dasharray:none" />
+<path
+   id="path2"
+   class="st4"
+   d="M 12.125,13.65 10.075,9.55 8,13.65 Z"
+   style="stroke-width:2;stroke-dasharray:none" />
 </svg>
