@@ -120,6 +120,10 @@ data to be logged.
 This method takes a second, `priority` parameter. This priority is used to sort
 them for logging - tags are printed from lowest priority to highest.
 
+!!!warning
+    Make sure to free your custom tags using `NetfoxLogger.free_tag()`. Not
+    doing so might cause crashes. See [#433] for details.
+
 ## Settings
 
 ![Logging settings](../assets/logging-settings.png)
@@ -139,3 +143,6 @@ Level* setting.
 
 Note that you don't need to install all netfox addons for the logging settings
 to work. If an addon is not installed, its log level setting is simply ignored.
+
+
+[#433]: https://github.com/foxssake/netfox/issues/433
