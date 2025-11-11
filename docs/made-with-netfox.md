@@ -43,6 +43,8 @@ With everyone on basic welfare a mysterious underground app has the desperate
 masses hooked: win brutal street tournaments, score hectic amounts of crypto,
 and maybe—just maybe—eat something that doesn’t squeak.
 
+[:simple-steam: Steam](https://store.steampowered.com/app/3204000/Chrome_Carnage/)
+
 ## Your game here!
 
 Building something cool with *netfox*? Whether it's a game, an app, tool, or
