@@ -447,7 +447,7 @@ func start() -> int:
 		_initial_sync_done = true
 
 	# Remove clients from the synced cache when disconnected
-	multiplayer.peer_disconnected.connect(func(peer): _synced_peers.erase(peer))
+	multiplayer.peer_disconnected.connect(_handle_peer_disconnect)
 
 	# Set initial clock state
 	_clock.set_time(NetworkTimeSynchronizer.get_time())
@@ -469,6 +469,9 @@ func stop() -> void:
 	_tickrate_handshake.stop()
 	_state = _STATE_INACTIVE
 	_synced_peers.clear()
+
+	if multiplayer.peer_disconnected.is_connected(_handle_peer_disconnect):
+		multiplayer.peer_disconnected.disconnect(_handle_peer_disconnect)
 
 ## Check if the initial time sync is done.
 func is_initial_sync_done() -> bool:
@@ -582,6 +585,9 @@ func _notification(what) -> void:
 
 func _is_active() -> bool:
 	return _state == _STATE_ACTIVE
+
+func _handle_peer_disconnect(peer: int) -> void:
+	_synced_peers.erase(peer)
 
 @rpc("any_peer", "reliable", "call_local")
 func _submit_sync_success() -> void:
