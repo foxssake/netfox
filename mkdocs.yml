@@ -29,6 +29,7 @@ nav:
   - 'index.md'
   - 'upgrading.md'
   - 'made-with-netfox.md'
+  - 'external-tutorials.md'
   - 'press-kit.md'
   - 'contributors.md'
   - netfox:
@@ -36,6 +37,7 @@ nav:
       - 'netfox/tutorials/responsive-player-movement.md'
       - 'netfox/tutorials/input-gathering-tips-and-tricks.md'
       - 'netfox/tutorials/predicting-input.md'
+      - 'netfox/tutorials/using-rollbacksynchronizer-without-inputs.md'
       - 'netfox/tutorials/modifying-objects-during-rollback.md'
       - 'netfox/tutorials/configuring-properties-from-code.md'
       - 'netfox/tutorials/rollback-caveats.md'
