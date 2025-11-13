@@ -275,6 +275,8 @@ func register_input_submission(root_node: Node, tick: int) -> void:
 		_input_submissions[root_node] = maxi(_input_submissions[root_node], tick)
 
 ## Get the latest input tick submitted by a specific root node
+## [br][br]
+## Returns [code]-1[/code] if no input was submitted for the node, ever.
 func get_latest_input_tick(root_node: Node) -> int:
 	if _input_submissions.has(root_node):
 		return _input_submissions[root_node]

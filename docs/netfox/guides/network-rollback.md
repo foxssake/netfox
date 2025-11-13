@@ -131,17 +131,19 @@ These methods are called by [RollbackSynchronizer] under the hood.
 
 ## Input Submission Status
 
-In certain scenarios you may wish to delay commiting to something hard to reverse
- like death, vfx or audio untill its known for sure the outcome won't change. One
-  way of doing this is to check which nodes have submited input and are past a 
-  point of rollback.
+In certain scenarios you may wish to delay committing to something hard to
+reverse like death, VFX or audio until its known for sure the outcome won't
+change. One way of doing this is to check which nodes have submitted input and
+are past a point of rollback.
 
-You can query the status of Nodes with `NetworkRollback.get_latest_input_tick(root_node)`
- or `NetworkRollback.has_input_for_tick(root_node, tick)`. `root_node` being what
-  the relevant [RollbackSynchronizer] has configured.
+You can query the status of Nodes with
+`NetworkRollback.get_latest_input_tick(root_node)` or
+`NetworkRollback.has_input_for_tick(root_node, tick)`. `root_node` being what
+the relevant [RollbackSynchronizer] has configured.
 
-All tracked nodes can be retreived from `NetworkRollback.get_input_submissions()`
- which will return the entire <root_node, latest_tick> dictionary.
+All tracked nodes can be retrieved from
+`NetworkRollback.get_input_submissions()` which will return the entire
+`<root_node, latest_tick>` dictionary.
 
 ## Settings
 
