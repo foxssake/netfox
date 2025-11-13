@@ -290,6 +290,12 @@ func get_input_submissions() -> Dictionary:
 func has_input_for_tick(root_node: Node, tick: int) -> bool:
 	return _input_submissions.has(root_node) and _input_submissions[root_node] >= tick
 
+## Free all input submission data for a node
+## [br][br]
+## Use this once the node is freed.
+func free_input_submission_data_for(root_node: Node) -> void:
+	_input_submissions.erase(root_node)
+
 func _ready():
 	NetfoxLogger.register_tag(_get_rollback_tag)
 	NetworkTime.after_tick_loop.connect(_rollback)
