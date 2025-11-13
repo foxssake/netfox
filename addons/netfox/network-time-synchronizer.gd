@@ -103,7 +103,7 @@ var _adjust_steps: int =ProjectSettings.get_setting(&"netfox/time/sync_adjust_st
 var _panic_threshold: float = ProjectSettings.get_setting(&"netfox/time/recalibrate_threshold", 2.)
 
 var _active: bool = false
-static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkTimeSynchronizer")
+static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("NetworkTimeSynchronizer")
 
 # Samples are stored in a ring buffer
 var _sample_buffer: _RingBuffer

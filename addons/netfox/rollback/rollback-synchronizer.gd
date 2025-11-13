@@ -88,7 +88,7 @@ var _has_input: bool
 var _input_tick: int
 var _is_predicted_tick: bool
 
-static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("RollbackSynchronizer")
+static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("RollbackSynchronizer")
 
 # Composition
 var _history_transmitter: _RollbackHistoryTransmitter

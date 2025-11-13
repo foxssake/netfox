@@ -36,7 +36,7 @@ var _is_initialized: bool
 # Signals
 signal _on_transmit_state(state: Dictionary, tick: int)
 
-static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("RollbackHistoryTransmitter")
+static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("RollbackHistoryTransmitter")
 
 func get_earliest_input_tick() -> int:
 	return _earliest_input_tick
@@ -135,7 +135,6 @@ func transmit_state(tick: int) -> void:
 		return
 
 	_latest_state_tick = max(_latest_state_tick, tick)
-	_state_history.merge(full_state, tick)
 
 	var is_sending_diffs := NetworkRollback.enable_diff_states
 	var is_full_state_tick := not is_sending_diffs or (full_state_interval > 0 and tick > _next_full_state_tick)

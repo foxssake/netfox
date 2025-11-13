@@ -34,7 +34,7 @@ var _full_state_props_accum: int = 0
 var _sent_state_props: int = 0
 var _sent_state_props_accum: int = 0
 
-static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkPerformance")
+static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("NetworkPerformance")
 
 ## Check if performance monitoring is enabled.
 ## [br][br]

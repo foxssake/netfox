@@ -11,7 +11,7 @@ var SETTINGS: Array[Dictionary] = [
 		"type": TYPE_BOOL
 	},
 	# Logging
-	_NetfoxLogger.make_setting("netfox/logging/netfox_log_level"),
+	NetfoxLogger._make_setting("netfox/logging/netfox_log_level"),
 	# Time settings
 	{
 		"name": "netfox/time/tickrate",

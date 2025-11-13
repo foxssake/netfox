@@ -45,7 +45,7 @@ signal on_state_changed(old_state: RewindableState, new_state: RewindableState)
 ## This signal is emitted whenever the state after a tick loop has changed.
 signal on_display_state_changed(old_state: RewindableState, new_state: RewindableState)
 
-static var _logger: _NetfoxLogger = _NetfoxLogger.for_extras("RewindableStateMachine")
+static var _logger: NetfoxLogger = NetfoxLogger._for_extras("RewindableStateMachine")
 
 var _state_object: RewindableState = null
 var _previous_state_object: RewindableState = null

@@ -176,7 +176,7 @@ const _STAGE_SIMULATE := "S"
 const _STAGE_RECORD := "R"
 const _STAGE_AFTER := "A"
 
-static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkRollback")
+static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("NetworkRollback")
 
 ## Submit the resimulation start tick for the current loop.
 ##
@@ -289,11 +289,11 @@ func has_input_for_tick(root_node: Node, tick: int) -> bool:
 	return _input_submissions.has(root_node) and _input_submissions[root_node] >= tick
 
 func _ready():
-	_NetfoxLogger.register_tag(_get_rollback_tag)
+	NetfoxLogger.register_tag(_get_rollback_tag)
 	NetworkTime.after_tick_loop.connect(_rollback)
 
 func _exit_tree():
-	_NetfoxLogger.free_tag(_get_rollback_tag)
+	NetfoxLogger.free_tag(_get_rollback_tag)
 
 func _get_rollback_tag() -> String:
 	if _is_rollback:

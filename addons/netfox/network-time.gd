@@ -391,7 +391,7 @@ var _tickrate_handshake: NetworkTickrateHandshake
 
 var _synced_peers: Dictionary = {}
 
-static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkTime")
+static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("NetworkTime")
 
 ## Start NetworkTime.
 ##
@@ -501,7 +501,7 @@ func ticks_between(seconds_from: float, seconds_to: float) -> int:
 	return seconds_to_ticks(seconds_to - seconds_from)
 
 func _ready() -> void:
-	_NetfoxLogger.register_tag(_get_tick_tag, -100)
+	NetfoxLogger.register_tag(_get_tick_tag, -100)
 
 	_tickrate_handshake = NetworkTickrateHandshake.new()
 	add_child(_tickrate_handshake)
@@ -512,7 +512,7 @@ func _ready() -> void:
 	)
 
 func _exit_tree() -> void:
-	_NetfoxLogger.free_tag(_get_tick_tag)
+	NetfoxLogger.free_tag(_get_tick_tag)
 
 func _get_tick_tag() -> String:
 	return "@%d" % tick

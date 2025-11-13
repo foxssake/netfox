@@ -12,7 +12,7 @@ var _property_cache: PropertyCache
 var _version := 0
 var _has_received := false
 
-var _logger := _NetfoxLogger.for_netfox("RedundantHistoryEncoder")
+var _logger := NetfoxLogger._for_netfox("RedundantHistoryEncoder")
 
 func get_redundancy() -> int:
 	return redundancy
