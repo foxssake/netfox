@@ -3,7 +3,7 @@ class_name RewindableAction
 
 ## Represents actions that may or may not happen, in a way compatible with
 ## rollback.
-## 
+##
 ## @experimental: This class is experimental!
 ## @tutorial(RewindableAction Guide): https://foxssake.github.io/netfox/latest/netfox/nodes/rewindable-action/
 
@@ -167,7 +167,7 @@ func _before_rollback_loop() -> void:
 
 		# Queue mutations
 		for mutated in _mutated_objects:
-			NetworkRollback.mutate(mutated, earliest_change)
+			NetworkRollback.mutate(mutated, max(earliest_change, NetworkRollback.tick))
 
 		# Apply queue
 		for tick in _queued_changes:
@@ -199,7 +199,7 @@ func _after_loop() -> void:
 	if not _active_ticks.is_empty():
 		var earliest_active = _active_ticks.min()
 		for mutated in _mutated_objects:
-			NetworkRollback.mutate(mutated, earliest_active)
+			NetworkRollback.mutate(mutated, max(earliest_active, NetworkRollback.tick))
 
 	# Submit
 	if is_multiplayer_authority() and _last_set_tick >= 0:
