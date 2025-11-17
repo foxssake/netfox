@@ -282,10 +282,6 @@ func get_latest_input_tick(root_node: Node) -> int:
 		return _input_submissions[root_node]
 	return -1
 
-## Get all root nodes that have submitted input
-func get_input_submissions() -> Dictionary:
-	return _input_submissions
-
 ## Check if a node has submitted input for a specific tick (or later)
 func has_input_for_tick(root_node: Node, tick: int) -> bool:
 	return _input_submissions.has(root_node) and _input_submissions[root_node] >= tick
