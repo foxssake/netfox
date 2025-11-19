@@ -6,6 +6,10 @@ class_name PredictiveSynchronizer
 ## for predictive simulation without networking.
 ## [br][br]
 ## This is a simplified version that focuses on local state management.
+## [br][br]
+## Like [RollbackSynchronizer], it automatically discovers nodes 
+## with a [code]_predict_tick(delta: float, tick: int)[/code]
+## method and calls them during the prediction phase.
 
 ## The root node for resolving node paths in properties. Defaults to the parent
 ## node.
@@ -23,6 +27,7 @@ var _state_property_config: _PropertyConfig = _PropertyConfig.new()
 var _property_cache := PropertyCache.new(root)
 
 var _states := _PropertyHistoryBuffer.new()
+var _nodes: Array[Node] = []
 var _skipset: _Set = _Set.new()
 
 var _properties_dirty: bool = false
@@ -37,16 +42,20 @@ func process_settings() -> void:
 	_property_cache.root = root
 	_property_cache.clear()
 
+	_nodes.clear()
 	_states.clear()
 
-	# Configure state properties for local prediction
+	# Gather all prediction-aware nodes to call during prediction ticks
+	_nodes = root.find_children("*")
+	_nodes.push_front(root)
+	_nodes = _nodes.filter(func(n): return n.has_method(&"_predict_tick"))
+	_nodes.erase(self)
+
 	_state_property_config.set_properties_from_paths(state_properties, _property_cache)
 
-	# Initialize the history recorder
 	if _history_recorder == null:
 		_history_recorder = _RollbackHistoryRecorder.new()
 	
-	# Configure the history recorder with empty inputs (since this is predictive)
 	var _inputs := _PropertyHistoryBuffer.new()
 	var _input_property_config := _PropertyConfig.new()
 	_history_recorder.configure(_states, _inputs, _state_property_config, _input_property_config, _property_cache, _skipset)
@@ -66,6 +75,7 @@ func _connect_signals() -> void:
 	NetworkTime.after_tick.connect(_after_tick)
 	
 	NetworkRollback.on_prepare_tick.connect(_on_prepare_tick)
+	NetworkRollback.on_process_tick.connect(_run_prediction_tick)
 	NetworkRollback.on_record_tick.connect(_on_record_tick)
 
 func _disconnect_signals() -> void:
@@ -73,6 +83,7 @@ func _disconnect_signals() -> void:
 	NetworkTime.after_tick.disconnect(_after_tick)
 	
 	NetworkRollback.on_prepare_tick.disconnect(_on_prepare_tick)
+	NetworkRollback.on_process_tick.disconnect(_run_prediction_tick)
 	NetworkRollback.on_record_tick.disconnect(_on_record_tick)
 
 func _before_tick(_dt: float, tick: int) -> void:
@@ -83,10 +94,13 @@ func _after_tick(_dt: float, tick: int) -> void:
 
 func _on_prepare_tick(tick: int) -> void:
 	_history_recorder.apply_tick(tick)
-	_skipset.clear()
 
 func _on_record_tick(tick: int) -> void:
 	_history_recorder.record_state(tick)
+
+func _run_prediction_tick(tick: int) -> void:
+	for node in _nodes:
+		node._predict_tick(NetworkTime.ticktime, tick)
 
 func _enter_tree() -> void:
 	if Engine.is_editor_hint():
