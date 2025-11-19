@@ -9,7 +9,7 @@ var death_tick: int
 var despawn_tick: int
 var fired_by: Node
 
-var _logger := _NetfoxLogger.new("fb", "Displacer")
+var _logger := NetfoxLogger.new("fb", "Displacer")
 
 func _ready():
 	birth_tick = NetworkTime.tick

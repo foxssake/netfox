@@ -4,7 +4,7 @@ extends EditorPlugin
 const ROOT = "res://addons/netfox.extras"
 
 var SETTINGS = [
-	_NetfoxLogger.make_setting("netfox/logging/netfox_extras_log_level"),
+	NetfoxLogger._make_setting("netfox/logging/netfox_extras_log_level"),
 	
 	# Window Tiler Settings
 	{

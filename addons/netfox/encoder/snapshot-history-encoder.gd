@@ -8,7 +8,7 @@ var _properties: Array[PropertyEntry]
 var _version := -1
 var _has_received := false
 
-static var _logger := _NetfoxLogger.for_netfox("_SnapshotHistoryEncoder")
+static var _logger := NetfoxLogger._for_netfox("_SnapshotHistoryEncoder")
 
 func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache):
 	_history = p_history

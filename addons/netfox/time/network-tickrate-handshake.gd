@@ -27,7 +27,7 @@ const SIGNAL := 3
 ## Defaults to [constant WARN], based on project settings.
 var mismatch_action: int = ProjectSettings.get_setting(&"netfox/time/tickrate_mismatch_action", WARN)
 
-static var _logger := _NetfoxLogger.for_netfox("NetworkTickrateHandshake")
+static var _logger := NetfoxLogger._for_netfox("NetworkTickrateHandshake")
 
 ## Emitted when a tickrate mismatch is encountered, and [member mismatch_action] is set to 
 ## [constant SIGNAL].
@@ -54,7 +54,7 @@ func run() -> void:
 ## [br][br]
 ## Called by [_NetworkTime], no need to call manually.
 func stop() -> void:
-	if multiplayer.is_server():
+	if multiplayer.peer_connected.is_connected(_handle_new_peer):
 		multiplayer.peer_connected.disconnect(_handle_new_peer)
 
 func _ready() -> void:

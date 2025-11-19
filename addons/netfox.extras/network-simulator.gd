@@ -35,12 +35,13 @@ var latency_ms: int = 0
 ## Simulated packet loss percentage
 var packet_loss_percent: float = 0.0
 
-static var _logger: _NetfoxLogger = _NetfoxLogger.for_extras("NetworkSimulator")
+static var _logger: NetfoxLogger = NetfoxLogger._for_extras("NetworkSimulator")
 
 var _enet_peer: ENetMultiplayerPeer = ENetMultiplayerPeer.new()
 
 # UDP proxy
 var _proxy_thread: Thread
+var _proxy_loop_enabled := true
 var _udp_proxy_server: PacketPeerUDP
 var _udp_proxy_port: int
 var _rng_packet_loss: RandomNumberGenerator = RandomNumberGenerator.new()
@@ -138,7 +139,7 @@ func _process_packets() -> void:
 		_process_server_to_client_queue(send_threshold)
 
 func _process_loop():
-	while true:
+	while _proxy_loop_enabled:
 		_process_packets()
 		OS.delay_msec(1)
 
@@ -233,4 +234,5 @@ func _should_send_packet() -> bool:
 
 func _exit_tree() -> void:
 	if _proxy_thread and _proxy_thread.is_started():
+		_proxy_loop_enabled = false
 		_proxy_thread.wait_to_finish()

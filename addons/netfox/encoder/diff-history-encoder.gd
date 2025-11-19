@@ -12,7 +12,7 @@ var _property_indexes := _BiMap.new()
 var _version := 0
 var _has_received := false
 
-static var _logger := _NetfoxLogger.for_netfox("DiffHistoryEncoder")
+static var _logger := NetfoxLogger._for_netfox("DiffHistoryEncoder")
 
 func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache):
 	_history = p_history

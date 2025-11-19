@@ -168,6 +168,7 @@ var _rollback_stage: String = ""
 var _is_rollback: bool = false
 var _simulated_nodes: _Set = _Set.new()
 var _mutated_nodes: Dictionary = {}
+var _input_submissions: Dictionary = {}
 
 const _STAGE_BEFORE := "B"
 const _STAGE_PREPARE := "P"
@@ -175,7 +176,7 @@ const _STAGE_SIMULATE := "S"
 const _STAGE_RECORD := "R"
 const _STAGE_AFTER := "A"
 
-static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkRollback")
+static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("NetworkRollback")
 
 ## Submit the resimulation start tick for the current loop.
 ##
@@ -266,12 +267,37 @@ func is_just_mutated(target: Object, p_tick: int = tick) -> bool:
 	else:
 		return false
 
+## Register that a node has submitted its input for a specific tick
+func register_input_submission(root_node: Node, tick: int) -> void:
+	if not _input_submissions.has(root_node):
+		_input_submissions[root_node] = tick
+	else:
+		_input_submissions[root_node] = maxi(_input_submissions[root_node], tick)
+
+## Get the latest input tick submitted by a specific root node
+## [br][br]
+## Returns [code]-1[/code] if no input was submitted for the node, ever.
+func get_latest_input_tick(root_node: Node) -> int:
+	if _input_submissions.has(root_node):
+		return _input_submissions[root_node]
+	return -1
+
+## Check if a node has submitted input for a specific tick (or later)
+func has_input_for_tick(root_node: Node, tick: int) -> bool:
+	return _input_submissions.has(root_node) and _input_submissions[root_node] >= tick
+
+## Free all input submission data for a node
+## [br][br]
+## Use this once the node is freed.
+func free_input_submission_data_for(root_node: Node) -> void:
+	_input_submissions.erase(root_node)
+
 func _ready():
-	_NetfoxLogger.register_tag(_get_rollback_tag)
+	NetfoxLogger.register_tag(_get_rollback_tag)
 	NetworkTime.after_tick_loop.connect(_rollback)
 
 func _exit_tree():
-	_NetfoxLogger.free_tag(_get_rollback_tag)
+	NetfoxLogger.free_tag(_get_rollback_tag)
 
 func _get_rollback_tag() -> String:
 	if _is_rollback:

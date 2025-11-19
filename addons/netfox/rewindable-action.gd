@@ -30,7 +30,7 @@ var _has_cancelled: bool = false
 var _context: Dictionary = {}
 var _mutated_objects: _Set = _Set.new()
 
-var _logger := _NetfoxLogger.for_netfox("RewindableAction")
+var _logger := NetfoxLogger._for_netfox("RewindableAction")
 
 # Process:
 #	@0:	Client sends an input with fire	@0
@@ -138,12 +138,11 @@ func dont_mutate(target: Object) -> void:
 
 func _connect_signals() -> void:
 	NetworkRollback.before_loop.connect(_before_rollback_loop)
-	NetworkRollback.on_process_tick.connect(_process_tick)
-	NetworkTime.after_tick_loop.connect(_after_tick_loop)
+	NetworkRollback.after_loop.connect(_after_loop)
 
 func _disconnect_signals() -> void:
 	NetworkRollback.before_loop.disconnect(_before_rollback_loop)
-	NetworkTime.after_tick_loop.disconnect(_after_tick_loop)
+	NetworkRollback.after_loop.disconnect(_after_loop)
 
 func _enter_tree() -> void:
 	_connect_signals()
@@ -170,11 +169,11 @@ func _before_rollback_loop() -> void:
 		for mutated in _mutated_objects:
 			NetworkRollback.mutate(mutated, earliest_change)
 
-func _process_tick(tick: int) -> void:
-	if _queued_changes.has(tick):
-		set_active(_queued_changes[tick])
+		# Apply queue
+		for tick in _queued_changes:
+			set_active(_queued_changes[tick], tick)
 
-func _after_tick_loop() -> void:
+func _after_loop() -> void:
 	# Trim history
 	for tick in _active_ticks:
 		if tick < NetworkRollback.history_start:
@@ -220,6 +219,9 @@ func _submit_state(bytes: PackedByteArray) -> void:
 	var earliest_tick := maxi(history_start, NetworkRollback.history_start)
 	# Don't compare past last event, as to not cancel events the host simply doesn't know about
 	var latest_tick = maxi(last_known_tick, NetworkRollback.history_start)
+
+	if earliest_tick > NetworkTime.tick or latest_tick > NetworkTime.tick:
+		_logger.warning("Received tickset for range @%d>%d, which has ticks in the future!", [earliest_tick, latest_tick])
 
 	for tick in range(earliest_tick, latest_tick + 1):
 		var is_tick_active = active_ticks.has(tick)

@@ -103,7 +103,7 @@ var _adjust_steps: int =ProjectSettings.get_setting(&"netfox/time/sync_adjust_st
 var _panic_threshold: float = ProjectSettings.get_setting(&"netfox/time/recalibrate_threshold", 2.)
 
 var _active: bool = false
-static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkTimeSynchronizer")
+static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("NetworkTimeSynchronizer")
 
 # Samples are stored in a ring buffer
 var _sample_buffer: _RingBuffer
@@ -162,14 +162,17 @@ func _loop() -> void:
 	on_initial_sync.emit()
 
 	while _active:
+		if multiplayer.is_server():
+			return stop()
+
 		var sample := NetworkClockSample.new()
 		_awaiting_samples[_sample_idx] = sample
-		
+
 		sample.ping_sent = _clock.get_time()
 		_send_ping.rpc_id(1, _sample_idx)
-		
+
 		_sample_idx += 1
-		
+
 		await get_tree().create_timer(sync_interval).timeout
 
 func _discipline_clock() -> void:

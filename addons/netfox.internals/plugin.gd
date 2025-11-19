@@ -2,7 +2,7 @@
 extends EditorPlugin
 
 var SETTINGS = [
-	_NetfoxLogger.make_setting("netfox/logging/log_level")
+	NetfoxLogger._make_setting("netfox/logging/log_level")
 ]
 
 func _enter_tree():

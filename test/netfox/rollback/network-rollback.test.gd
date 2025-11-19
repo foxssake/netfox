@@ -18,35 +18,66 @@ func after_case(__):
 	network_rollback.queue_free()
 	mutated_node.queue_free()
 
-#region Mutate
-func test_should_be_mutated_after():
-	# Given
-	network_rollback.mutate(mutated_node, 8)
+func suite() -> void:
+	define("mutate()", func():
+		test("should be mutated after", func():
+			# Given
+			network_rollback.mutate(mutated_node, 8)
 
-	# When + Then
-	expect(network_rollback.is_mutated(mutated_node, 10))
-	expect_not(network_rollback.is_just_mutated(mutated_node, 10))
+			# When + Then
+			expect(network_rollback.is_mutated(mutated_node, 10))
+			expect_not(network_rollback.is_just_mutated(mutated_node, 10))
+		)
+		
+		test("should just be mutated", func():
+			# Given
+			network_rollback.mutate(mutated_node, 8)
 
-func test_should_just_be_mutated():
-	# Given
-	network_rollback.mutate(mutated_node, 8)
+			# When + Then
+			expect(network_rollback.is_mutated(mutated_node, 8))
+			expect(network_rollback.is_just_mutated(mutated_node, 8))
+		)
+		
+		test("should not be mutated after", func():
+			# Given
+			network_rollback.mutate(mutated_node, 8)
 
-	# When + Then
-	expect(network_rollback.is_mutated(mutated_node, 8))
-	expect(network_rollback.is_just_mutated(mutated_node, 8))
+			# When + Then
+			expect_not(network_rollback.is_mutated(mutated_node, 4))
+			expect_not(network_rollback.is_just_mutated(mutated_node, 4))
+		)
+		
+		test("unknown should not be mutated", func():
+			# Given nothing
 
-func test_should_not_be_mutated_after():
-	# Given
-	network_rollback.mutate(mutated_node, 8)
-
-	# When + Then
-	expect_not(network_rollback.is_mutated(mutated_node, 4))
-	expect_not(network_rollback.is_just_mutated(mutated_node, 4))
-
-func test_unknown_should_not_be_mutated():
-	# Given nothing
-
-	# Then
-	expect_not(network_rollback.is_mutated(mutated_node, 8))
-	expect_not(network_rollback.is_just_mutated(mutated_node, 8))
-#endregion
+			# Then
+			expect_not(network_rollback.is_mutated(mutated_node, 8))
+			expect_not(network_rollback.is_just_mutated(mutated_node, 8))
+		)
+	)
+	
+	define("input submission", func():
+		test("should have input after submit", func():
+			# Given
+			network_rollback.register_input_submission(mutated_node, 2)
+			
+			# Then
+			expect(network_rollback.has_input_for_tick(mutated_node, 2), "Node should have input!")
+			expect(network_rollback.has_input_for_tick(mutated_node, 1), "Node should have future input!")
+			expect_not(network_rollback.has_input_for_tick(mutated_node, 3), "Node shouldn't yet have input!")
+		)
+		
+		test("should return latest input tick", func():
+			# Given
+			network_rollback.register_input_submission(mutated_node, 2)
+			
+			# Then
+			expect_equal(network_rollback.get_latest_input_tick(mutated_node), 2)
+		)
+		
+		test("should return no input tick", func():
+			# Given nothing
+			# Then
+			expect_equal(network_rollback.get_latest_input_tick(mutated_node), -1)
+		)
+	)

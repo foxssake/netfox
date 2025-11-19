@@ -5,7 +5,7 @@ class_name _PropertySnapshot
 # Dictionary[String, Variant]
 var _snapshot: Dictionary = {}
 
-static var _logger := _NetfoxLogger.for_netfox("PropertySnapshot")
+static var _logger := NetfoxLogger._for_netfox("PropertySnapshot")
 
 func as_dictionary() -> Dictionary:
 	return _snapshot.duplicate()
