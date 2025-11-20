@@ -203,7 +203,12 @@ func _after_loop() -> void:
 
 	# Submit
 	if is_multiplayer_authority() and _last_set_tick >= 0:
-		var active_tick_bytes = _TicksetSerializer.serialize(NetworkRollback.history_start, _last_set_tick, _active_ticks)
+		var serialize_from := NetworkRollback.history_start
+		var serialize_to := _last_set_tick
+		if not _active_ticks.is_empty():
+			serialize_to = maxi(_active_ticks.max(), serialize_to)
+
+		var active_tick_bytes = _TicksetSerializer.serialize(serialize_from, serialize_to, _active_ticks)
 		_submit_state.rpc(active_tick_bytes)
 
 @rpc("authority", "unreliable_ordered", "call_remote")
