@@ -28,3 +28,4 @@ plantuml-*.jar
 
 # Only for local use
 sh/ensure-uids.sh
+*.import
