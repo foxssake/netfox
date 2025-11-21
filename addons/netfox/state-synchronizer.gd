@@ -49,6 +49,9 @@ var _property_cache: PropertyCache
 var _property_config: _PropertyConfig = _PropertyConfig.new()
 var _properties_dirty: bool = false
 
+var _user_schema: Dictionary = {}
+var _serializers: Dictionary = {}
+
 var _state_history := _PropertyHistoryBuffer.new()
 
 # Collaborators
@@ -71,8 +74,8 @@ func process_settings() -> void:
 	_property_cache = PropertyCache.new(root)
 	_property_config.set_properties_from_paths(properties, _property_cache)
 
-	_full_state_encoder = _SnapshotHistoryEncoder.new(_state_history, _property_cache)
-	_diff_state_encoder = _DiffHistoryEncoder.new(_state_history, _property_cache)
+	_full_state_encoder = _SnapshotHistoryEncoder.new(_state_history, _property_cache, _serializers)
+	_diff_state_encoder = _DiffHistoryEncoder.new(_state_history, _property_cache, _serializers)
 
 	_diff_state_encoder.add_properties(_property_config.get_properties())
 
@@ -100,6 +103,11 @@ func add_state(node: Variant, property: String) -> void:
 		return
 
 	properties.push_back(property_path)
+	_properties_dirty = true
+	_reprocess_settings.call_deferred()
+
+func set_schema(schema: Dictionary) -> void:
+	_user_schema = schema
 	_properties_dirty = true
 	_reprocess_settings.call_deferred()
 
@@ -166,6 +174,16 @@ func _reprocess_settings() -> void:
 	_properties_dirty = false
 	process_settings()
 
+func _compile_serializers() -> void:
+	_serializers.clear()
+	var fallback = NetfoxSchemas.variant()
+	for prop in _property_config.get_properties():
+		var path = prop.to_string()
+		if _user_schema.has(path):
+			_serializers[path] = _user_schema[path]
+		else:
+			_serializers[path] = fallback
+
 func _broadcast_state(tick: int, state: _PropertySnapshot) -> void:
 	var is_sending_diffs := NetworkRollback.enable_diff_states # TODO: Don't tie to a rollback setting?
 	var is_full_state_tick := not is_sending_diffs or (full_state_interval > 0 and tick > _next_full_state_tick)
@@ -218,7 +236,7 @@ func _send_full_state(tick: int, peer: int = 0) -> void:
 
 # `serialized_state` is a serialized _PropertySnapshot
 @rpc("any_peer", "unreliable_ordered", "call_remote")
-func _submit_full_state(data: Array, tick: int) -> void:
+func _submit_full_state(data: PackedByteArray, tick: int) -> void:
 	if not _is_initialized: return
 
 	var sender := multiplayer.get_remote_sender_id()

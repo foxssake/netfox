@@ -26,8 +26,9 @@ func before_case(__):
 	target_history = _PropertyHistoryBuffer.new()
 	property_cache = PropertyCache.new(root_node)
 
-	source_encoder = _DiffHistoryEncoder.new(source_history, property_cache)
-	target_encoder = _DiffHistoryEncoder.new(target_history, property_cache)
+	var serializers = {}
+	source_encoder = _DiffHistoryEncoder.new(source_history, property_cache, serializers)
+	target_encoder = _DiffHistoryEncoder.new(target_history, property_cache, serializers)
 
 	source_encoder.add_properties(property_entries)
 	target_encoder.add_properties(property_entries)
