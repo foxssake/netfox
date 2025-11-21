@@ -1,12 +1,12 @@
 [gd_scene load_steps=17 format=3 uid="uid://dw3xd5a7xnse7"]
 
-[ext_resource type="Script" path="res://examples/rollback-fps/scripts/player.gd" id="1_bww6v"]
-[ext_resource type="Script" path="res://examples/rollback-fps/scripts/player-weapon.gd" id="2_qyetr"]
+[ext_resource type="Script" uid="uid://16cr653lwxno" path="res://examples/rollback-fps/scripts/player.gd" id="1_bww6v"]
+[ext_resource type="Script" uid="uid://da0u0nkxkqnpt" path="res://examples/rollback-fps/scripts/player-weapon.gd" id="2_qyetr"]
 [ext_resource type="AudioStream" uid="uid://cope814m1d7p6" path="res://examples/multiplayer-fps/sounds/fire.mp3" id="3_kq0j8"]
-[ext_resource type="Script" path="res://addons/netfox/rewindable-action.gd" id="6_pks3d"]
-[ext_resource type="Script" path="res://examples/rollback-fps/scripts/player-input.gd" id="7_2i3bi"]
-[ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="9_vik3r"]
-[ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="10_4mqhe"]
+[ext_resource type="Script" uid="uid://chr4omg2hy3yu" path="res://addons/netfox/rewindable-action.gd" id="6_pks3d"]
+[ext_resource type="Script" uid="uid://efvmt2o8yu0e" path="res://examples/rollback-fps/scripts/player-input.gd" id="7_2i3bi"]
+[ext_resource type="Script" uid="uid://d350u8evihs1u" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="9_vik3r"]
+[ext_resource type="Script" uid="uid://dour8fehaaugp" path="res://addons/netfox/tick-interpolator.gd" id="10_4mqhe"]
 [ext_resource type="AudioStream" uid="uid://q7ql86p7flj" path="res://examples/multiplayer-fps/sounds/hit.wav" id="15_1n4tg"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_6kydi"]

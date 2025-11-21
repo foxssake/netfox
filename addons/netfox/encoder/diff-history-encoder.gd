@@ -3,6 +3,7 @@ class_name _DiffHistoryEncoder
 
 var _history: _PropertyHistoryBuffer
 var _property_cache: PropertyCache
+var _serializers: Dictionary
 
 var _full_snapshot := {}
 var _encoded_snapshot := {}
@@ -14,14 +15,15 @@ var _has_received := false
 
 static var _logger := NetfoxLogger._for_netfox("DiffHistoryEncoder")
 
-func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache):
+func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache, p_serializers: Dictionary) -> void:
 	_history = p_history
 	_property_cache = p_property_cache
+	_serializers = p_serializers
 
 func add_properties(properties: Array[PropertyEntry]) -> void:
 	var has_new_properties := false
 
-	for property_entry in properties:
+	for property_entry: PropertyEntry in properties:
 		var is_new := _ensure_property_idx(property_entry.to_string())
 		has_new_properties = has_new_properties or is_new
 
@@ -47,12 +49,19 @@ func encode(tick: int, reference_tick: int, properties: Array[PropertyEntry]) ->
 	var buffer := StreamPeerBuffer.new()
 	buffer.put_u8(_version)
 
-	for property in diff_snapshot.properties():
-		var property_idx := _property_indexes.get_by_value(property) as int
-		var property_value = diff_snapshot.get_value(property)
-
+	for property_path in diff_snapshot.properties():
+		var property_idx := _property_indexes.get_by_value(property_path) as int
 		buffer.put_u8(property_idx)
-		buffer.put_var(property_value)
+		
+		var val = diff_snapshot.get_value(property_path)
+		
+		if _serializers.has(property_path):
+			_serializers[property_path].encode(val, buffer)
+		else:
+			# Fallback
+			var data: PackedByteArray = var_to_bytes(val)
+			buffer.put_u32(data.size())
+			buffer.put_data(data)
 
 	return buffer.data_array
 
@@ -79,14 +88,24 @@ func decode(data: PackedByteArray, properties: Array[PropertyEntry]) -> _Propert
 	_has_received = true
 
 	while buffer.get_available_bytes() > 0:
+		# 1. Read Property Index
 		var property_idx := buffer.get_u8()
-		var property_value := buffer.get_var()
+		
 		if not _property_indexes.has_key(property_idx):
 			_logger.warning("Received unknown property index %d, ignoring!", [property_idx])
-			continue
+			break
 
-		var property_entry := _property_indexes.get_by_key(property_idx)
-		result.set_value(property_entry, property_value)
+		var property_path := _property_indexes.get_by_key(property_idx)
+		
+		var val
+		if _serializers.has(property_path):
+			val = _serializers[property_path].decode(buffer)
+		else:
+			var size: int = buffer.get_u32()
+			var bytes: Array = buffer.get_data(size)
+			val = bytes_to_var(bytes)
+			
+		result.set_value(property_path, val)
 
 	return result
 

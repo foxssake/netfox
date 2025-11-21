@@ -17,7 +17,8 @@ func configure(
 		p_state_history: _PropertyHistoryBuffer, p_input_history: _PropertyHistoryBuffer,
 		p_state_property_config: _PropertyConfig, p_input_property_config: _PropertyConfig,
 		p_property_cache: PropertyCache,
-		p_skipset: _Set
+		p_skipset: _Set,
+		p_serializers: Dictionary
 	) -> void:
 	_state_history = p_state_history
 	_input_history = p_input_history
