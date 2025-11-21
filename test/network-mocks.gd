@@ -36,3 +36,7 @@ static func in_network_tick(callback: Callable) -> void:
 ## Runs a single network tick
 static func run_network_tick() -> void:
 	in_network_tick(NOOP)
+
+## Runs a single-tick network tick loop
+static func run_network_tick_loop() -> void:
+	in_network_tick_loop(NOOP)
