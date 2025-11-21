@@ -43,6 +43,13 @@ func _ready():
 		"Head/PlayerFPSWeapon:last_fire": NetfoxSchemas.int32()
 	})
 
+	rollback_synchronizer.set_input_schema({
+		"Input:movement": NetfoxSchemas.vec2(),
+		"Input:look_angle": NetfoxSchemas.vec2(),
+		"Input:jump": NetfoxSchemas.uint8(),
+		"Input:fire": NetfoxSchemas.uint8()
+	})
+
 	# Wait for deps to setup
 	await get_tree().process_frame
 	if input.is_multiplayer_authority():

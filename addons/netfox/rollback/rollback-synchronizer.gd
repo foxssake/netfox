@@ -80,6 +80,9 @@ var _properties_dirty: bool = false
 var _user_state_schema: Dictionary = {}
 var _state_serializers: Dictionary = {}
 
+var _user_input_schema: Dictionary = {}
+var _input_serializers: Dictionary = {}
+
 var _property_cache := PropertyCache.new(root)
 var _freshness_store := RollbackFreshnessStore.new()
 
@@ -121,7 +124,7 @@ func process_settings() -> void:
 	_nodes.erase(self)
 
 	_history_transmitter.sync_settings(root, enable_input_broadcast, full_state_interval, diff_ack_interval)
-	_history_transmitter.configure(_states, _inputs, _state_property_config, _input_property_config, visibility_filter, _property_cache, _skipset, _state_serializers)
+	_history_transmitter.configure(_states, _inputs, _state_property_config, _input_property_config, visibility_filter, _property_cache, _skipset, _state_serializers, _input_serializers)
 	_history_recorder.configure(_states, _inputs, _state_property_config, _input_property_config, _property_cache, _skipset, _state_serializers)
 
 ## Process settings based on authority.
@@ -153,6 +156,11 @@ func add_state(node: Variant, property: String):
 
 func set_state_schema(schema: Dictionary) -> void:
 	_user_state_schema = schema
+	_properties_dirty = true
+	_reprocess_settings.call_deferred()
+
+func set_input_schema(schema: Dictionary) -> void:
+	_user_input_schema = schema
 	_properties_dirty = true
 	_reprocess_settings.call_deferred()
 
@@ -444,7 +452,6 @@ func _push_simset_metrics():
 
 func _compile_serializers() -> void:
 	_state_serializers.clear()
-	
 	var fallback = NetfoxSchemas.variant()
 	
 	for prop in _state_property_config.get_properties():
@@ -453,6 +460,14 @@ func _compile_serializers() -> void:
 			_state_serializers[path] = _user_state_schema[path]
 		else:
 			_state_serializers[path] = fallback
+
+	_input_serializers.clear()
+	for prop in _input_property_config.get_properties():
+		var path = prop.to_string()
+		if _user_input_schema.has(path):
+			_input_serializers[path] = _user_input_schema[path]
+		else:
+			_input_serializers[path] = fallback
 
 func _reprocess_settings() -> void:
 	if not _properties_dirty or Engine.is_editor_hint():

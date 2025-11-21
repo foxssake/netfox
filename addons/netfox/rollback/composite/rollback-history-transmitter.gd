@@ -17,7 +17,8 @@ var _input_property_config: _PropertyConfig
 var _property_cache: PropertyCache
 var _skipset: _Set
 
-var _serializers: Dictionary
+var _state_serializers: Dictionary
+var _input_serializers: Dictionary
 
 # Collaborators
 var _input_encoder: _RedundantHistoryEncoder
@@ -61,7 +62,8 @@ func configure(
 		p_visibility_filter: PeerVisibilityFilter,
 		p_property_cache: PropertyCache,
 		p_skipset: _Set,
-		p_serializers: Dictionary
+		p_state_serializers: Dictionary,
+		p_input_serializers: Dictionary = {}
 	) -> void:
 	_state_history = p_state_history
 	_input_history = p_input_history
@@ -70,11 +72,12 @@ func configure(
 	_visibility_filter = p_visibility_filter
 	_property_cache = p_property_cache
 	_skipset = p_skipset
-	_serializers = p_serializers
+	_state_serializers = p_state_serializers
+	_input_serializers = p_input_serializers
 
-	_input_encoder = _RedundantHistoryEncoder.new(_input_history, _property_cache)
-	_full_state_encoder = _SnapshotHistoryEncoder.new(_state_history, _property_cache, _serializers)
-	_diff_state_encoder = _DiffHistoryEncoder.new(_state_history, _property_cache, _serializers)
+	_input_encoder = _RedundantHistoryEncoder.new(_input_history, _property_cache, _input_serializers)
+	_full_state_encoder = _SnapshotHistoryEncoder.new(_state_history, _property_cache, _state_serializers)
+	_diff_state_encoder = _DiffHistoryEncoder.new(_state_history, _property_cache, _state_serializers)
 
 	_is_initialized = true
 
@@ -207,7 +210,7 @@ func _notification(what):
 		NetworkRollback.free_input_submission_data_for(root)
 
 @rpc("any_peer", "unreliable", "call_remote")
-func _submit_input(tick: int, data: Array) -> void:
+func _submit_input(tick: int, data: PackedByteArray) -> void:
 	if not _is_initialized:
 		# Settings not processed yet
 		return
