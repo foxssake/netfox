@@ -1,7 +1,7 @@
 [gd_scene load_steps=7 format=3 uid="uid://f41lldd1a1xg"]
 
 [ext_resource type="PackedScene" uid="uid://badtpsxn5lago" path="res://examples/shared/ui/network-popup.tscn" id="1_0btv1"]
-[ext_resource type="Script" uid="uid://dsgvf4g1u43ed" path="res://examples/multiplayer-simple/scripts/player-spawner.gd" id="1_cru4a"]
+[ext_resource type="Script" path="res://examples/multiplayer-simple/scripts/player-spawner.gd" id="1_cru4a"]
 [ext_resource type="PackedScene" uid="uid://duljyj8cj1vb6" path="res://examples/multiplayer-simple/characters/player.tscn" id="2_jb473"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_rrbfu"]
@@ -74,6 +74,5 @@ spawn_root = NodePath("../../Players")
 spawn_point = Vector3(0, 1, 0)
 
 [node name="Network Popup" parent="Network" instance=ExtResource("1_0btv1")]
-current_tab = 0
 
 [node name="Players" type="Node" parent="."]
