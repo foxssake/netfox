@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://foxssake.github.io/netfox/v1.35.3/netfox/tutorials/modifying-objects-during-rollback/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Modifying objects during rollback - netfox</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/version-selector.css" rel="stylesheet" />
+        <link href="../../../css/twemoji.css" rel="stylesheet" />
+        <link href="../../../assets/mkdocs_puml/puml.css" rel="stylesheet" />
+        <link href="../../../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Modifying objects during rollback";
+        var mkdocs_page_input_path = "netfox/tutorials/modifying-objects-during-rollback.md";
+        var mkdocs_page_url = "/netfox/v1.35.3/netfox/tutorials/modifying-objects-during-rollback/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script>
+  <script src="https://giscus.app/client.js"
+          data-repo="foxssake/netfox"
+          data-repo-id="R_kgDOKBON2A"
+          data-category="Docs"
+          data-category-id="DIC_kwDOKBON2M4Clib_"
+          data-mapping="title"
+          data-strict="0"
+          data-reactions-enabled="1"
+          data-emit-metadata="0"
+          data-input-position="top"
+          data-theme="light"
+          data-lang="en"
+          data-loading="lazy"
+          crossorigin="anonymous"
+          async>
+  </script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> netfox
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../upgrading/">Upgrading netfox</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../made-with-netfox/">Made with netfox</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../external-tutorials/">External tutorials</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../press-kit/">Press kit</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../contributors/">Contributors</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" >Tutorials</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../responsive-player-movement/">Responsive player movement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../input-gathering-tips-and-tricks/">Input gathering tips and tricks</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../predicting-input/">Predicting input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../using-rollbacksynchronizer-without-inputs/">Using RollbackSynchronizer without inputs</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Modifying objects during rollback</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#using-mutations">Using Mutations</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#example-code">Example code</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#the-problem-with-naive-implementations">The problem with naive implementations</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../configuring-properties-from-code/">Configuring properties from code</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../rollback-caveats/">Rollback caveats</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../interpolation-caveats/">Interpolation caveats</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Concepts</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../concepts/servers-clients-ownership/">Servers, clients, and ownership</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../concepts/authoritative-servers/">Authoritative servers</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/logging/">Logging</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-time/">NetworkTime</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-time-synchronizer/">NetworkTimeSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-events/">NetworkEvents</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/interpolators/">Interpolators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/property-paths/">Property paths</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-rollback/">NetworkRollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/network-performance/">NetworkPerformance</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/visibility-management/">Visibility Management</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../guides/netfox-sharp/">Netfox Sharp</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Nodes</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../nodes/tick-interpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../nodes/rollback-synchronizer/">RollbackSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../nodes/state-synchronizer/">StateSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../nodes/rewindable-action/">RewindableAction</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.noray</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.noray/guides/noray/">Noray</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.noray/guides/packet-handshake/">PacketHandshake</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.extras</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/physics/">Physics</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/network-simulator/">NetworkSimulator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/base-net-input/">BaseNetInput</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/network-weapon/">NetworkWeapon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/rewindable-state-machine/">RewindableStateMachine</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/rewindable-random-number-generator/">RewindableRandomNumberGenerator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/window-tiler/">WindowTiler</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">netfox</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">netfox</li>
+          <li class="breadcrumb-item">Tutorials</li>
+      <li class="breadcrumb-item active">Modifying objects during rollback</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="modifying-objects-during-rollback">Modifying objects during rollback</h1>
+<p>There are cases where two objects interact and modify each other during
+rollback. For example:</p>
+<ul>
+<li>Players shoving another</li>
+<li>An explosion displacing objects around it</li>
+<li>Two cars colliding</li>
+<li>A player shooting at another - if player stats are managed as part of
+  rollback</li>
+</ul>
+<h2 id="using-mutations">Using Mutations</h2>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Mutations are <em>experimental</em>, meaning the API may change in breaking ways,
+and may be less stable than other features.</p>
+<p>Once the API matures and finds its final form, the <em>experimental</em> mark will
+be removed. Feedback is welcome in the meanwhile!</p>
+</div>
+<p>Mutations enable modifying objects during rollback, in a way that is taken into
+account by netfox.</p>
+<p>When an object is modified during rollback, call <code>NetworkRollback.mutate()</code>,
+passing said object as an argument.</p>
+<p>As a result, the changes made to the object in the current tick will be
+recorded. Since its history has changed, it will be resimulated from the point
+of change - i.e. for all ticks after the change was made.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Make sure that <code>mutate()</code> is only called on objects that need it - otherwise,
+ticks will be resimulated for objects that don't need it, resulting in worse
+performance.</p>
+</div>
+<h3 id="example-code">Example code</h3>
+<p>To see this in action, take a snippet from Forest Brawl:</p>
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">brawler</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">_get_overlapping_brawlers</span><span class="p">():</span>
+<span class="w">        </span><span class="k">var</span><span class="w"> </span><span class="n">diff</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">brawler</span><span class="o">.</span><span class="n">global_position</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">global_position</span>
+<span class="w">        </span><span class="k">var</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">clampf</span><span class="p">(</span><span class="mf">1.0</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="mf">1.0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">diff</span><span class="o">.</span><span class="n">length_squared</span><span class="p">()),</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">)</span>
+
+<span class="w">        </span><span class="k">var</span><span class="w"> </span><span class="n">offset</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="nb nb-Type">Vector3</span><span class="p">(</span><span class="n">diff</span><span class="o">.</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">diff</span><span class="o">.</span><span class="n">y</span><span class="p">),</span><span class="w"> </span><span class="n">diff</span><span class="o">.</span><span class="n">z</span><span class="p">)</span><span class="o">.</span><span class="n">normalized</span><span class="p">()</span>
+<span class="w">        </span><span class="n">offset</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="n">strength_factor</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">strength</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">NetworkTime</span><span class="o">.</span><span class="n">ticktime</span>
+
+<span class="w">        </span><span class="n">brawler</span><span class="o">.</span><span class="n">shove</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
+<span class="w">        </span><span class="n">NetworkRollback</span><span class="o">.</span><span class="n">mutate</span><span class="p">(</span><span class="n">brawler</span><span class="p">)</span>
+</code></pre></div>
+<p>The script calculates which direction to shove the player in, and with what
+force. This is then applied by calling <code>shove()</code>. </p>
+<p>Then, on the last line, these changes are saved by calling
+<code>NetworkRollback.mutate(brawler)</code>.</p>
+<p>Calling <code>mutate()</code> is all that's needed to use this feature.</p>
+<h2 id="the-problem-with-naive-implementations">The problem with naive implementations</h2>
+<p>The simplest way to implement these mechanics is to just update the affected
+object, without using mutations. For example, when one player shoves another,
+the shove direction can simply be added to the target player's position. Doing
+this will not work unfortunately.</p>
+<p>Let's say that Player A is shoving Player B. With Player A being the local
+player, we have input for its actions. With Player B being a remote player, it
+won't be simulated. So even though its position was modified, this change will
+not be recorded, and will be overridden by its last <em>known</em> position.</p>
+<div class='puml-container'><div class="puml light" style="display: block"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" data-diagram-type="TIMING" height="152px" preserveAspectRatio="xMidYMid meet" style="width:337px;height:152px;background:#FFFFFF;" version="1.1" viewBox="0 0 337 152" width="337px" zoomAndPan="magnify" class="diagram"><defs/><g><line style="stroke:#333333;stroke-width:0.5;" x1="10" x2="10" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;" x1="320" x2="320" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3,5;" x1="15" x2="15" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3,5;" x1="65" x2="65" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3,5;" x1="115" x2="115" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3,5;" x1="165" x2="165" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3,5;" x1="215" x2="215" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3,5;" x1="265" x2="265" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3,5;" x1="315" x2="315" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;" x1="10" x2="320" y1="10" y2="10"/><text fill="#333333" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="65.7412" x="15" y="22.9951">Player A</text><line style="stroke:#333333;stroke-width:0.5;" x1="10" x2="81.7412" y1="27.2969" y2="27.2969"/><line style="stroke:#333333;stroke-width:0.5;" x1="81.7412" x2="91.7412" y1="27.2969" y2="10"/><polygon fill="#E2E2F0" points="27,32.2969,203,32.2969,215,44.2969,203,56.2969,27,56.2969,15,44.2969" style="stroke:#006400;stroke-width:1.5;"/><polygon fill="#E2E2F0" points="227,32.2969,315,32.2969,315,56.2969,227,56.2969,215,44.2969" style="stroke:#E2E2F0;stroke-width:1.5;"/><path d="M315,32.2969 L227,32.2969 L215,44.2969 L227,56.2969 L315,56.2969" fill="#E2E2F0" style="stroke:#006400;stroke-width:1.5;"/><text fill="#333333" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="61.1484" x="84.4258" y="48.4512">Restored</text><text fill="#333333" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="68.4785" x="227" y="48.4512">Simulated</text><line style="stroke:#333333;stroke-width:0.5;" x1="10" x2="320" y1="66.2969" y2="66.2969"/><text fill="#333333" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="65.5771" x="15" y="79.292">Player B</text><line style="stroke:#333333;stroke-width:0.5;" x1="10" x2="81.5771" y1="83.5938" y2="83.5938"/><line style="stroke:#333333;stroke-width:0.5;" x1="81.5771" x2="91.5771" y1="83.5938" y2="66.2969"/><polygon fill="#E2E2F0" points="27,88.5938,315,88.5938,315,112.5938,27,112.5938,15,100.5938" style="stroke:#E2E2F0;stroke-width:1.5;"/><path d="M315,88.5938 L27,88.5938 L15,100.5938 L27,112.5938 L315,112.5938" fill="#E2E2F0" style="stroke:#006400;stroke-width:1.5;"/><text fill="#333333" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="61.1484" x="27" y="104.748">Restored</text><line style="stroke:#333333;stroke-width:2;" x1="15" x2="15" y1="122.5938" y2="127.5938"/><line style="stroke:#333333;stroke-width:2;" x1="65" x2="65" y1="122.5938" y2="127.5938"/><line style="stroke:#333333;stroke-width:2;" x1="115" x2="115" y1="122.5938" y2="127.5938"/><line style="stroke:#333333;stroke-width:2;" x1="165" x2="165" y1="122.5938" y2="127.5938"/><line style="stroke:#333333;stroke-width:2;" x1="215" x2="215" y1="122.5938" y2="127.5938"/><line style="stroke:#333333;stroke-width:2;" x1="265" x2="265" y1="122.5938" y2="127.5938"/><line style="stroke:#333333;stroke-width:2;" x1="315" x2="315" y1="122.5938" y2="127.5938"/><line style="stroke:#333333;stroke-width:2;" x1="15" x2="315" y1="122.5938" y2="122.5938"/><text fill="#333333" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="6.9985" x="11.5007" y="138.8042">0</text><text fill="#333333" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="6.9985" x="211.5007" y="138.8042">8</text><text fill="#333333" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="13.9971" x="258.0015" y="138.8042">10</text><line style="stroke:#00008B;stroke-width:1.5;" x1="265" x2="265" y1="56.2969" y2="88.5938"/><polygon fill="#00008B" points="262.2638,81.0762,267.7362,81.0762,265,88.5938" style="stroke:#00008B;stroke-width:1.5;"/><text fill="#00008B" font-family="Serif" font-size="14" lengthAdjust="spacing" textLength="51.748" x="265" y="77.7745">shove()</text></g></svg></div></div>
+
+<p>In the example above, even though Player A shoved Player B on tick 10, Player B
+is not simulated in that given tick, so it won't be recorded. Player A's shove
+is not saved to history.</p>
+<p>This may partially be fixed by enabling <a href="../predicting-input/">prediction</a> for players.</p>
+<p>Take another case, where Player B wants to shove Player A. With Player B being
+a remote player, we only receive its input a few ticks after the fact. So we
+need to resimulate Player B from an earlier tick. In one of these earlier tick,
+Player A gets shoved.</p>
+<div class='puml-container'><div class="puml light" style="display: block"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" data-diagram-type="TIMING" height="152px" preserveAspectRatio="xMidYMid meet" style="width:507px;height:152px;background:#FFFFFF;" version="1.1" viewBox="0 0 507 152" width="507px" zoomAndPan="magnify" class="diagram"><defs/><g><line style="stroke:#333333;stroke-width:0.5;" x1="10" x2="10" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;" x1="470" x2="470" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3,5;" x1="15" x2="15" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3,5;" x1="65" x2="65" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3,5;" x1="115" x2="115" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3,5;" x1="165" x2="165" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3,5;" x1="215" x2="215" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3,5;" x1="265" x2="265" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3,5;" x1="315" x2="315" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3,5;" x1="365" x2="365" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3,5;" x1="415" x2="415" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3,5;" x1="465" x2="465" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;" x1="10" x2="470" y1="10" y2="10"/><text fill="#333333" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="65.7412" x="15" y="22.9951">Player A</text><line style="stroke:#333333;stroke-width:0.5;" x1="10" x2="81.7412" y1="27.2969" y2="27.2969"/><line style="stroke:#333333;stroke-width:0.5;" x1="81.7412" x2="91.7412" y1="27.2969" y2="10"/><polygon fill="#E2E2F0" points="27,32.2969,403,32.2969,415,44.2969,403,56.2969,27,56.2969,15,44.2969" style="stroke:#006400;stroke-width:1.5;"/><polygon fill="#E2E2F0" points="427,32.2969,465,32.2969,465,56.2969,427,56.2969,415,44.2969" style="stroke:#E2E2F0;stroke-width:1.5;"/><path d="M465,32.2969 L427,32.2969 L415,44.2969 L427,56.2969 L465,56.2969" fill="#E2E2F0" style="stroke:#006400;stroke-width:1.5;"/><text fill="#333333" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="61.1484" x="184.4258" y="48.4512">Restored</text><text fill="#333333" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="68.4785" x="427" y="48.4512">Simulated</text><line style="stroke:#333333;stroke-width:0.5;" x1="10" x2="470" y1="66.2969" y2="66.2969"/><text fill="#333333" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="65.5771" x="15" y="79.292">Player B</text><line style="stroke:#333333;stroke-width:0.5;" x1="10" x2="81.5771" y1="83.5938" y2="83.5938"/><line style="stroke:#333333;stroke-width:0.5;" x1="81.5771" x2="91.5771" y1="83.5938" y2="66.2969"/><polygon fill="#E2E2F0" points="27,88.5938,303,88.5938,315,100.5938,303,112.5938,27,112.5938,15,100.5938" style="stroke:#006400;stroke-width:1.5;"/><polygon fill="#E2E2F0" points="327,88.5938,465,88.5938,465,112.5938,327,112.5938,315,100.5938" style="stroke:#E2E2F0;stroke-width:1.5;"/><path d="M465,88.5938 L327,88.5938 L315,100.5938 L327,112.5938 L465,112.5938" fill="#E2E2F0" style="stroke:#006400;stroke-width:1.5;"/><text fill="#333333" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="61.1484" x="134.4258" y="104.748">Restored</text><text fill="#333333" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="68.4785" x="327" y="104.748">Simulated</text><line style="stroke:#333333;stroke-width:2;" x1="15" x2="15" y1="122.5938" y2="127.5938"/><line style="stroke:#333333;stroke-width:2;" x1="65" x2="65" y1="122.5938" y2="127.5938"/><line style="stroke:#333333;stroke-width:2;" x1="115" x2="115" y1="122.5938" y2="127.5938"/><line style="stroke:#333333;stroke-width:2;" x1="165" x2="165" y1="122.5938" y2="127.5938"/><line style="stroke:#333333;stroke-width:2;" x1="215" x2="215" y1="122.5938" y2="127.5938"/><line style="stroke:#333333;stroke-width:2;" x1="265" x2="265" y1="122.5938" y2="127.5938"/><line style="stroke:#333333;stroke-width:2;" x1="315" x2="315" y1="122.5938" y2="127.5938"/><line style="stroke:#333333;stroke-width:2;" x1="365" x2="365" y1="122.5938" y2="127.5938"/><line style="stroke:#333333;stroke-width:2;" x1="415" x2="415" y1="122.5938" y2="127.5938"/><line style="stroke:#333333;stroke-width:2;" x1="465" x2="465" y1="122.5938" y2="127.5938"/><line style="stroke:#333333;stroke-width:2;" x1="15" x2="465" y1="122.5938" y2="122.5938"/><text fill="#333333" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="6.9985" x="11.5007" y="138.8042">0</text><text fill="#333333" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="6.9985" x="311.5007" y="138.8042">6</text><text fill="#333333" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="6.9985" x="361.5007" y="138.8042">7</text><text fill="#333333" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="6.9985" x="411.5007" y="138.8042">8</text><line style="stroke:#00008B;stroke-width:1.5;" x1="365" x2="365" y1="88.5938" y2="56.2969"/><polygon fill="#00008B" points="367.7362,63.8144,362.2638,63.8144,365,56.2969" style="stroke:#00008B;stroke-width:1.5;"/><text fill="#00008B" font-family="Serif" font-size="14" lengthAdjust="spacing" textLength="51.748" x="365" y="76.8095">shove()</text></g></svg></div></div>
+
+<p>In this example, we've received input for Player B for tick 6 onwards. On tick
+7, Player B shoves Player A. Since we've already simulated Player A for the
+given tick, we don't need to simulate it again. This means that any changes for
+the tick will not be recorded. The shove will not be saved to history.</p>
+<p>Since Player A was already simulated and recorded for this earlier tick, it
+being shoved will not be recorded.</p>
+<p>In both cases, we need to use mutations to tell netfox that a given object has
+been modified ( <em>mutated</em> ), and its state history should be updated.</p>
+<p>Let's try the previous example, but now with <code>mutate()</code> added:</p>
+<div class='puml-container'><div class="puml light" style="display: block"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" data-diagram-type="TIMING" height="152px" preserveAspectRatio="xMidYMid meet" style="width:457px;height:152px;background:#FFFFFF;" version="1.1" viewBox="0 0 457 152" width="457px" zoomAndPan="magnify" class="diagram"><defs/><g><line style="stroke:#333333;stroke-width:0.5;" x1="10" x2="10" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;" x1="420" x2="420" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3,5;" x1="15" x2="15" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3,5;" x1="65" x2="65" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3,5;" x1="115" x2="115" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3,5;" x1="165" x2="165" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3,5;" x1="215" x2="215" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3,5;" x1="265" x2="265" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3,5;" x1="315" x2="315" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3,5;" x1="365" x2="365" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;stroke-dasharray:3,5;" x1="415" x2="415" y1="10" y2="122.5938"/><line style="stroke:#333333;stroke-width:0.5;" x1="10" x2="420" y1="10" y2="10"/><text fill="#333333" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="65.7412" x="15" y="22.9951">Player A</text><line style="stroke:#333333;stroke-width:0.5;" x1="10" x2="81.7412" y1="27.2969" y2="27.2969"/><line style="stroke:#333333;stroke-width:0.5;" x1="81.7412" x2="91.7412" y1="27.2969" y2="10"/><polygon fill="#E2E2F0" points="27,32.2969,353,32.2969,365,44.2969,353,56.2969,27,56.2969,15,44.2969" style="stroke:#006400;stroke-width:1.5;"/><polygon fill="#E2E2F0" points="377,32.2969,415,32.2969,415,56.2969,377,56.2969,365,44.2969" style="stroke:#E2E2F0;stroke-width:1.5;"/><path d="M415,32.2969 L377,32.2969 L365,44.2969 L377,56.2969 L415,56.2969" fill="#E2E2F0" style="stroke:#006400;stroke-width:1.5;"/><text fill="#333333" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="61.1484" x="159.4258" y="48.4512">Restored</text><text fill="#333333" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="68.4785" x="377" y="48.4512">Simulated</text><line style="stroke:#333333;stroke-width:0.5;" x1="10" x2="420" y1="66.2969" y2="66.2969"/><text fill="#333333" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="65.5771" x="15" y="79.292">Player B</text><line style="stroke:#333333;stroke-width:0.5;" x1="10" x2="81.5771" y1="83.5938" y2="83.5938"/><line style="stroke:#333333;stroke-width:0.5;" x1="81.5771" x2="91.5771" y1="83.5938" y2="66.2969"/><polygon fill="#E2E2F0" points="27,88.5938,303,88.5938,315,100.5938,303,112.5938,27,112.5938,15,100.5938" style="stroke:#006400;stroke-width:1.5;"/><polygon fill="#E2E2F0" points="327,88.5938,415,88.5938,415,112.5938,327,112.5938,315,100.5938" style="stroke:#E2E2F0;stroke-width:1.5;"/><path d="M415,88.5938 L327,88.5938 L315,100.5938 L327,112.5938 L415,112.5938" fill="#E2E2F0" style="stroke:#006400;stroke-width:1.5;"/><text fill="#333333" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="61.1484" x="134.4258" y="104.748">Restored</text><text fill="#333333" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="68.4785" x="327" y="104.748">Simulated</text><line style="stroke:#333333;stroke-width:2;" x1="15" x2="15" y1="122.5938" y2="127.5938"/><line style="stroke:#333333;stroke-width:2;" x1="65" x2="65" y1="122.5938" y2="127.5938"/><line style="stroke:#333333;stroke-width:2;" x1="115" x2="115" y1="122.5938" y2="127.5938"/><line style="stroke:#333333;stroke-width:2;" x1="165" x2="165" y1="122.5938" y2="127.5938"/><line style="stroke:#333333;stroke-width:2;" x1="215" x2="215" y1="122.5938" y2="127.5938"/><line style="stroke:#333333;stroke-width:2;" x1="265" x2="265" y1="122.5938" y2="127.5938"/><line style="stroke:#333333;stroke-width:2;" x1="315" x2="315" y1="122.5938" y2="127.5938"/><line style="stroke:#333333;stroke-width:2;" x1="365" x2="365" y1="122.5938" y2="127.5938"/><line style="stroke:#333333;stroke-width:2;" x1="415" x2="415" y1="122.5938" y2="127.5938"/><line style="stroke:#333333;stroke-width:2;" x1="15" x2="415" y1="122.5938" y2="122.5938"/><text fill="#333333" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="6.9985" x="11.5007" y="138.8042">0</text><text fill="#333333" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="6.9985" x="311.5007" y="138.8042">6</text><text fill="#333333" font-family="sans-serif" font-size="11" lengthAdjust="spacing" textLength="6.9985" x="361.5007" y="138.8042">7</text><line style="stroke:#00008B;stroke-width:1.5;" x1="365" x2="365" y1="88.5938" y2="44.2969"/><polygon fill="#00008B" points="367.7362,51.8144,362.2638,51.8144,365,44.2969" style="stroke:#00008B;stroke-width:1.5;"/><text fill="#00008B" font-family="Serif" font-size="14" lengthAdjust="spacing" textLength="51.748" x="365" y="64.8095">shove()</text><text fill="#00008B" font-family="Serif" font-size="14" lengthAdjust="spacing" textLength="61.0996" x="365" y="81.1064">mutate()</text></g></svg></div></div>
+
+<p>Player A will be resimulated from the point of shoving, and the shove itself
+will be recorded.</p>
+              
+            </div>
+          </div>
+  <hr>
+  <h2>User discussion</h2>
+  <div class="giscus" ></div>
+  <hr>
+  <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../using-rollbacksynchronizer-without-inputs/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../configuring-properties-from-code/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../assets/mkdocs_puml/puml.js"></script>
+      <script src="../../../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://foxssake.github.io/netfox/v1.35.3/netfox/guides/logging/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Logging - netfox</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/version-selector.css" rel="stylesheet" />
+        <link href="../../../css/twemoji.css" rel="stylesheet" />
+        <link href="../../../assets/mkdocs_puml/puml.css" rel="stylesheet" />
+        <link href="../../../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Logging";
+        var mkdocs_page_input_path = "netfox/guides/logging.md";
+        var mkdocs_page_url = "/netfox/v1.35.3/netfox/guides/logging/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script>
+  <script src="https://giscus.app/client.js"
+          data-repo="foxssake/netfox"
+          data-repo-id="R_kgDOKBON2A"
+          data-category="Docs"
+          data-category-id="DIC_kwDOKBON2M4Clib_"
+          data-mapping="title"
+          data-strict="0"
+          data-reactions-enabled="1"
+          data-emit-metadata="0"
+          data-input-position="top"
+          data-theme="light"
+          data-lang="en"
+          data-loading="lazy"
+          crossorigin="anonymous"
+          async>
+  </script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> netfox
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../upgrading/">Upgrading netfox</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../made-with-netfox/">Made with netfox</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../external-tutorials/">External tutorials</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../press-kit/">Press kit</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../contributors/">Contributors</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >Tutorials</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/responsive-player-movement/">Responsive player movement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/input-gathering-tips-and-tricks/">Input gathering tips and tricks</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/predicting-input/">Predicting input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/using-rollbacksynchronizer-without-inputs/">Using RollbackSynchronizer without inputs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/modifying-objects-during-rollback/">Modifying objects during rollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/configuring-properties-from-code/">Configuring properties from code</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/rollback-caveats/">Rollback caveats</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/interpolation-caveats/">Interpolation caveats</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Concepts</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../concepts/servers-clients-ownership/">Servers, clients, and ownership</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../concepts/authoritative-servers/">Authoritative servers</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Guides</a>
+    <ul class="current">
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Logging</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#using-the-logger">Using the logger</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#log-levels">Log levels</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#tags">Tags</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#settings">Settings</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../network-time/">NetworkTime</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../network-time-synchronizer/">NetworkTimeSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../network-events/">NetworkEvents</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../interpolators/">Interpolators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../property-paths/">Property paths</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../network-rollback/">NetworkRollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../network-performance/">NetworkPerformance</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../visibility-management/">Visibility Management</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox-sharp/">Netfox Sharp</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Nodes</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../nodes/tick-interpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../nodes/rollback-synchronizer/">RollbackSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../nodes/state-synchronizer/">StateSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../nodes/rewindable-action/">RewindableAction</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.noray</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.noray/guides/noray/">Noray</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.noray/guides/packet-handshake/">PacketHandshake</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.extras</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/physics/">Physics</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/network-simulator/">NetworkSimulator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/base-net-input/">BaseNetInput</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/network-weapon/">NetworkWeapon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/rewindable-state-machine/">RewindableStateMachine</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/rewindable-random-number-generator/">RewindableRandomNumberGenerator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/window-tiler/">WindowTiler</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">netfox</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">netfox</li>
+          <li class="breadcrumb-item">Guides</li>
+      <li class="breadcrumb-item active">Logging</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="logging">Logging</h1>
+<p>During runtime, it can be useful to print some diagnostic info to the console -
+this is called logging. The netfox addons include a logging system to help with
+debugging. This is useful when running the game locally, but also helps if
+there's log files players can attach with their bug reports.</p>
+<p>The system produces logs like this:</p>
+<div class="highlight"><pre><span></span><code>[DBG][@0][#1][_][netfox::NetworkPerformance] Network performance enabled, registering performance monitors
+[DBG][@0][#1][_][netfox.extras::WindowTiler] Tiling with sid: f2682d1, uid: 17627261006193110
+[DBG][@0][#1][_][netfox.extras::NetworkSimulator] Feature disabled
+[DBG][@0][#1][_][netfox.extras::WindowTiler] Tiling as idx 0 / 1 - 17627261006193110 in [&quot;17627261006193110&quot;]
+[DBG][@22][#1][_][netfox.extras::NetworkWeapon] Calling after fire hook for Bomb Projectile 5sswh7lcsgbq
+[DBG][@27][#1][_][fb::Displacer] Created explosion at (2.027323, 1.500942, -14.99592)@26
+[DBG][@34][#1][_][netfox.extras::NetworkWeapon] Calling after fire hook for Bomb Projectile u4h8opz52lin
+[DBG][@46][#1][_][fb::Displacer] Created explosion at (4.892477, 1.500942, -14.83388)@45
+[DBG][@46][#1][_][netfox.extras::NetworkWeapon] Calling after fire hook for Bomb Projectile 2u1d9n456yl1
+[DBG][@57][#1][_][fb::Displacer] Created explosion at (4.814114, 1.500942, -14.57117)@56
+</code></pre></div>
+<p>This page will elaborate on how to produce your own logs, and what each part
+means.</p>
+<h2 id="using-the-logger">Using the logger</h2>
+<p>The logging system can be accessed by creating an instance of <code>NetfoxLogger</code>.
+Every logger has a name, and belongs to a module. Both of these can be
+arbitrary strings, and are included in the logged messages.</p>
+<p>Messages can be logged as different <em>logging levels</em>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">var</span><span class="w"> </span><span class="n">logger</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">NetfoxLogger</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;my-game&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Player&quot;</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="s2">&quot;Detailed message&quot;</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Something happened&quot;</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Hi!&quot;</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t connect&quot;</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Game missing?&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>To use string interpolation, you can also pass the template string and values
+separately. This can be useful to avoid substituting the values in case the
+message never gets printed because of filtering:</p>
+<div class="highlight"><pre><span></span><code><span class="n">logger</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="s2">&quot;Adjusted clock by </span><span class="si">%.2f</span><span class="s2">ms, offset: </span><span class="si">%.2f</span><span class="s2">ms, new time: </span><span class="si">%.4f</span><span class="s2">ss&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">nudge</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000.</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000.</span><span class="p">,</span><span class="w"> </span><span class="n">_clock</span><span class="o">.</span><span class="n">get_time</span><span class="p">()])</span>
+</code></pre></div>
+<p>In the above example, there's a lot of data to be included in the message.
+However, if trace logs are disabled, that data will never be substituted,
+saving some processing time.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>This same logging system is used by netfox itself.</p>
+</div>
+<h2 id="log-levels">Log levels</h2>
+<p>Each log message can belong to one of the following categories:</p>
+<dl>
+<dt>Error</dt>
+<dd>Something goes irrecoverably wrong, or something that should never happen
+just happened</dd>
+<dt>Warning</dt>
+<dd>Something goes wrong, but can be handled</dd>
+<dt>Info</dt>
+<dd>Useful information on expected behaviour</dd>
+<dt>Debug</dt>
+<dd>Verbose messages, to help debug general code flow</dd>
+<dt>Trace</dt>
+<dd>Extremely verbose messages, to help follow the code flow to the smallest
+detail</dd>
+</dl>
+<p>Depending on your game, different logs may be needed. To accommodate this,
+<em>netfox</em> can be configured in the <a href="#settings">Project Settings</a> to omit certain
+log messages.</p>
+<p>Filtering based on log levels can also be configured from code. To set the
+global log level, set <code>NetfoxLogger.log_level</code>. To configure the log level per
+module, use the <code>NetfoxLogger.module_log_level</code> dictionary.</p>
+<h2 id="tags">Tags</h2>
+<p>Tags can be attached to the logging system. They provide pieces of information
+that appear in each log message, for every logger.</p>
+<p>By default, netfox provides a few tags, to help with debugging. These are, in
+order:</p>
+<dl>
+<dt>Current tick</dt>
+<dd>The current tick, as per <code>NetworkTime</code></dd>
+<dt>Peer ID</dt>
+<dd>The currently active multiplayer peer's ID</dd>
+<dt>Rollback status</dt>
+<dd>
+<p>Contains the current rollback stage, simulated tick, and resimulated tick
+interval.</p>
+<p>The stage can be <code>B</code> for before loop, <code>P</code> for prepare tick, <code>S</code> for
+simulate tick, <code>R</code> for record tick, and <code>A</code> for after loop.</p>
+<p>The current tick is in the form of <code>X|A&gt;B</code>, meaning we're currently
+simulating tick X, in a loop going from tick A to tick B.</p>
+<p>Defaults to <code>_</code> if currently not in rollback.</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These default tags are subject to change between releases.</p>
+</div>
+<p>Custom tags can be attached by calling <code>NetfoxLogger.register_tag()</code>. In this
+sense, tags are callbacks that must return a single string, containing the tag
+data to be logged.</p>
+<p>This method takes a second, <code>priority</code> parameter. This priority is used to sort
+them for logging - tags are printed from lowest priority to highest.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Make sure to free your custom tags using <code>NetfoxLogger.free_tag()</code>. Not
+doing so might cause crashes. See <a href="https://github.com/foxssake/netfox/issues/433">#433</a> for details.</p>
+</div>
+<h2 id="settings">Settings</h2>
+<p><img alt="Logging settings" src="../../assets/logging-settings.png" /></p>
+<p>These settings control the <em>minimum</em> log level - e.g. if the log level is set
+to <em>info</em>, only messages at or above the info level will be logged, namely
+info, warning and error. If the setting is set to <em>all</em>, all messages are
+logged.</p>
+<p>Log levels can be controlled globally and per addon. A message will be logged
+if it passes <em>both</em> logging level checks.</p>
+<p>For example, if the <em>Log Level</em> setting is at <em>Warning</em> and the <em>Netfox Log
+Level</em> is at <em>Info</em>, only warning and error messages are logged for netfox.
+This happens because the <em>Log Level</em> is more restrictive than the <em>Netfox Log
+Level</em> setting.</p>
+<p>Note that you don't need to install all netfox addons for the logging settings
+to work. If an addon is not installed, its log level setting is simply ignored.</p>
+              
+            </div>
+          </div>
+  <hr>
+  <h2>User discussion</h2>
+  <div class="giscus" ></div>
+  <hr>
+  <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../../concepts/authoritative-servers/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../network-time/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../assets/mkdocs_puml/puml.js"></script>
+      <script src="../../../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
