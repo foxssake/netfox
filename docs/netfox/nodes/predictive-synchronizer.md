@@ -43,37 +43,16 @@ under the specified root. During rollback, it will call that method for each tic
 Implement `_predict_tick` in your scripts:
 
 ```gdscript
-extends Node3D
+extends ShapeCast3D
 
-@export var projectile_speed: float = 500.0
-@onready var shape_cast: ShapeCast3D = $ShapeCast3D
-
-var velocity: Vector3
-var traveled_distance: float = 0.0
-var has_hit: bool = false
-
-func _ready():
-    # Set initial forward velocity
-    velocity = -transform.basis.z * projectile_speed
-    
-    # Configure shape cast
-    shape_cast.target_position = velocity.normalized() * projectile_speed
+@export var projectile_speed: float = 50.0
 
 func _predict_tick(delta: float, tick: int, is_fresh: bool):
-    if has_hit:
-        return
-    
-    # Move projectile forward at constant speed
-    var movement = velocity * delta
-    position += movement
-    traveled_distance += movement.length()
-    
-    # Update shape cast and check for collisions
-    shape_cast.force_shapecast_update()
-    
-    if shape_cast.is_colliding():
-        has_hit = true
-        # Handle collision on fresh tick only
-        if is_fresh:
-            print("Projectile hit: ", shape_cast.get_collider(0))
+
+	shape_cast.force_shapecast_update()
+
+	if is_colliding():
+		handle_collision()
+
+	global_position += transform.basis.z.normalized() * projectile_speed
 ```
