@@ -173,6 +173,12 @@ func _before_rollback_loop() -> void:
 		for tick in _queued_changes:
 			set_active(_queued_changes[tick], tick)
 
+	# Queue earliest event
+	if not _active_ticks.is_empty():
+		var earliest_active = _active_ticks.min()
+		for mutated in _mutated_objects:
+			NetworkRollback.mutate(mutated, earliest_active)
+
 func _after_loop() -> void:
 	# Trim history
 	for tick in _active_ticks:
@@ -195,15 +201,14 @@ func _after_loop() -> void:
 	_state_changes.clear()
 	_queued_changes.clear()
 
-	# Queue earliest event
-	if not _active_ticks.is_empty():
-		var earliest_active = _active_ticks.min()
-		for mutated in _mutated_objects:
-			NetworkRollback.mutate(mutated, earliest_active)
-
 	# Submit
 	if is_multiplayer_authority() and _last_set_tick >= 0:
-		var active_tick_bytes = _TicksetSerializer.serialize(NetworkRollback.history_start, _last_set_tick, _active_ticks)
+		var serialize_from := NetworkRollback.history_start
+		var serialize_to := _last_set_tick
+		if not _active_ticks.is_empty():
+			serialize_to = maxi(_active_ticks.max(), serialize_to)
+
+		var active_tick_bytes = _TicksetSerializer.serialize(serialize_from, serialize_to, _active_ticks)
 		_submit_state.rpc(active_tick_bytes)
 
 @rpc("authority", "unreliable_ordered", "call_remote")
@@ -220,8 +225,11 @@ func _submit_state(bytes: PackedByteArray) -> void:
 	# Don't compare past last event, as to not cancel events the host simply doesn't know about
 	var latest_tick = maxi(last_known_tick, NetworkRollback.history_start)
 
-	if earliest_tick > NetworkTime.tick or latest_tick > NetworkTime.tick:
-		_logger.warning("Received tickset for range @%d>%d, which has ticks in the future!", [earliest_tick, latest_tick])
+	# Add a tolerance of 4 ticks for checking if the tickset is in the future
+	# Server time might be ahead a tick or two under really small latencies,
+	# e.g. LAN
+	if earliest_tick > NetworkTime.tick + 4 or latest_tick > NetworkTime.tick + 4:
+		_logger.debug("Received tickset for range @%d>%d, which has ticks in the future!", [earliest_tick, latest_tick])
 
 	for tick in range(earliest_tick, latest_tick + 1):
 		var is_tick_active = active_ticks.has(tick)
