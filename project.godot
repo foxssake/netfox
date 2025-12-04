@@ -31,6 +31,7 @@ NetworkPerformance="*res://addons/netfox/network-performance.gd"
 WindowTiler="*res://addons/netfox.extras/window-tiler.gd"
 NetworkSimulator="*res://addons/netfox.extras/network-simulator.gd"
 RollbackSimulationServer="*res://addons/netfox/servers/rollback-simulation-server.gd"
+RollbackHistoryServer="*res://addons/netfox/servers/rollback-history-server.gd"
 
 [display]
 

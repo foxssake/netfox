@@ -342,6 +342,7 @@ func _rollback() -> void:
 		#	Done individually by Rewindables ( usually Rollback Synchronizers )
 		#	Restore input and state for tick
 		_rollback_stage = _STAGE_PREPARE
+		RollbackHistoryServer.restore_tick(tick)
 		on_prepare_tick.emit(tick)
 		after_prepare_tick.emit(tick)
 
@@ -358,10 +359,13 @@ func _rollback() -> void:
 
 		# Record state for tick + 1
 		_rollback_stage = _STAGE_RECORD
+		RollbackHistoryServer.record_tick(tick + 1)
 		on_record_tick.emit(tick + 1)
 
 	# Restore display state
 	_rollback_stage = _STAGE_AFTER
+	RollbackHistoryServer.restore_tick(display_tick)
+	RollbackHistoryServer.trim_history(history_start)
 	after_loop.emit()
 
 	# Cleanup

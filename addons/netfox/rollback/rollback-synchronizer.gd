@@ -101,7 +101,7 @@ var _registered_nodes: Array[Node] = []
 ## Call this after any change to configuration. Updates based on authority too
 ## ( calls process_authority ).
 func process_settings() -> void:
-	# Unregister all nodes
+	# Deregister all nodes
 	for node in _registered_nodes:
 		RollbackSimulationServer.deregister_node(node)
 
@@ -136,11 +136,20 @@ func process_settings() -> void:
 ## RollbackSynchronizer changes. Make sure to do this at the same time on all
 ## peers.
 func process_authority():
+	# Deregister all recorded properties
+	for prop in _get_recorded_state_props() + _get_recorded_input_props():
+		RollbackHistoryServer.deregister_property(prop.node, prop.property)
+
+	# Process authority
 	_state_property_config.local_peer_id = multiplayer.get_unique_id()
 	_input_property_config.local_peer_id = multiplayer.get_unique_id()
 
 	_state_property_config.set_properties_from_paths(state_properties, _property_cache)
 	_input_property_config.set_properties_from_paths(input_properties, _property_cache)
+
+	# Register new recorded properties
+	for prop in _get_recorded_state_props() + _get_recorded_input_props():
+		RollbackHistoryServer.register_property(prop.node, prop.property)
 
 ## Add a state property.
 ## [br][br]
@@ -270,7 +279,8 @@ func _disconnect_signals() -> void:
 	NetworkRollback.after_loop.disconnect(_after_rollback_loop)
 
 func _before_tick(_dt: float, tick: int) -> void:
-	_history_recorder.apply_state(tick)
+#	_history_recorder.apply_state(tick)
+	pass
 
 func _after_tick(_dt: float, tick: int) -> void:
 	_history_recorder.record_input(tick)
@@ -282,7 +292,7 @@ func _before_rollback_loop() -> void:
 	_notify_resim()
 
 func _on_prepare_tick(tick: int) -> void:
-	_history_recorder.apply_tick(tick)
+#	_history_recorder.apply_tick(tick)
 	_prepare_tick_process(tick)
 
 func _process_tick(tick: int) -> void:
@@ -295,7 +305,7 @@ func _on_record_tick(tick: int) -> void:
 	_history_transmitter.transmit_state(tick)
 
 func _after_rollback_loop() -> void:
-	_history_recorder.apply_display_state()
+#	_history_recorder.apply_display_state()
 	_history_transmitter.conclude_tick_loop()
 
 func _notification(what: int) -> void:
