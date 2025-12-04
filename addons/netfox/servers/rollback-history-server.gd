@@ -44,29 +44,18 @@ func trim_history(earliest_tick: int) -> void:
 			break
 		_snapshots.erase(earliest_stored_tick)
 
-class RecordedProperty:
-	var node: Node
-	var property: NodePath
+# TODO: Keep snapshots private
+func get_snapshot(tick: int) -> Snapshot:
+	return _snapshots.get(tick)
 
-	func _init(p_node: Node, p_property: NodePath):
-		node = p_node
-		property = p_property
+# TODO: Keep snapshots private
+func merge_snapshot(snapshot: Snapshot) -> Snapshot:
+	var tick := snapshot.tick
+	if not _snapshots.has(snapshot.tick):
+		_snapshots[tick] = snapshot
+		return snapshot
 
-	func extract_value() -> Variant:
-		return node.get_indexed(property)
+	var stored_snapshot := _snapshots[tick] as Snapshot
+	stored_snapshot.data.merge(snapshot.data)
 
-	func apply_value(value: Variant) -> void:
-		node.set_indexed(property, value)
-
-class Snapshot:
-	var tick: int
-	var data: Dictionary = {} # RecordedProperty to Variant value
-
-	func _init(p_tick: int):
-		tick = p_tick
-
-	func has_node(node: Node) -> bool:
-		for entry in data.keys():
-			if (entry as RecordedProperty).node == node:
-				return true
-		return false
+	return stored_snapshot

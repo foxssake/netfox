@@ -140,6 +140,12 @@ func process_authority():
 	for prop in _get_recorded_state_props() + _get_recorded_input_props():
 		RollbackHistoryServer.deregister_property(prop.node, prop.property)
 
+	for prop in _get_owned_input_props():
+		RollbackSynchronizationServer.deregister_input(prop.node, prop.property)
+
+	for prop in _get_owned_state_props():
+		RollbackSynchronizationServer.deregister_state(prop.node, prop.property)
+
 	# Process authority
 	_state_property_config.local_peer_id = multiplayer.get_unique_id()
 	_input_property_config.local_peer_id = multiplayer.get_unique_id()
@@ -150,6 +156,12 @@ func process_authority():
 	# Register new recorded properties
 	for prop in _get_recorded_state_props() + _get_recorded_input_props():
 		RollbackHistoryServer.register_property(prop.node, prop.property)
+
+	for prop in _get_owned_input_props():
+		RollbackSynchronizationServer.register_input(prop.node, prop.property)
+
+	for prop in _get_owned_state_props():
+		RollbackSynchronizationServer.register_state(prop.node, prop.property)
 
 ## Add a state property.
 ## [br][br]
