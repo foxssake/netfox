@@ -12,3 +12,6 @@ func has_node(node: Node) -> bool:
 		if (entry as RecordedProperty).node == node:
 			return true
 	return false
+
+func _to_string() -> String:
+	return "Snapshot(#%d, %s)" % [tick, str(data)]

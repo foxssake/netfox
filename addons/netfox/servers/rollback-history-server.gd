@@ -1,30 +1,53 @@
 extends Node
 class_name _RollbackHistoryServer
 
-var _recorded_properties: Array[RecordedProperty] = []
+var _input_properties: Array = []
+var _state_properties: Array = []
+
 var _snapshots: Dictionary = {} # tick to Snapshot
 
-func register_property(node: Node, property: NodePath) -> void:
-	var entry := RecordedProperty.new(node, property)
+static var _logger := NetfoxLogger._for_netfox("RollbackHistoryServer")
+
+func register_property(node: Node, property: NodePath, pool: Array) -> void:
+	var entry := RecordedProperty.key_of(node, property)
 
 	# TODO: Accelerate this check, maybe with _Set
-	if not _recorded_properties.has(entry):
-		_recorded_properties.append(entry)
+	if not pool.has(entry):
+		pool.append(entry)
 
-func deregister_property(node: Node, property: NodePath) -> void:
-	# TODO: Accelerate, maybe with _Set
-	_recorded_properties.erase(RecordedProperty.new(node, property))
+func deregister_property(node: Node, property: NodePath, pool: Array) -> void:
+	pool.erase([node, property])
 
-func record_tick(tick: int) -> void:
+func register_state(node: Node, property: NodePath) -> void:
+	register_property(node, property, _state_properties)
+
+func deregister_state(node: Node, property: NodePath) -> void:
+	deregister_property(node, property, _state_properties)
+
+func register_input(node: Node, property: NodePath) -> void:
+	register_property(node, property, _input_properties)
+
+func deregister_input(node: Node, property: NodePath) -> void:
+	deregister_property(node, property, _input_properties)
+
+func record_tick(tick: int, properties: Array) -> void:
 	# Ensure snapshot
 	var snapshot := _snapshots.get(tick) as Snapshot
 	if snapshot == null:
 		snapshot = Snapshot.new(tick)
+		_snapshots[tick] = snapshot
 
 	# Record values
-	for entry in _recorded_properties:
-		var recorded_property := entry as RecordedProperty
-		snapshot.data[recorded_property] = recorded_property.extract_value()
+	for entry in properties:
+		snapshot.data[entry] = RecordedProperty.extract(entry)
+
+#	_logger.debug("Recorded %d properties; %s", [properties.size(), snapshot])
+
+func record_input(tick: int) -> void:
+	record_tick(tick, _input_properties)
+
+func record_state(tick: int) -> void:
+	record_tick(tick, _state_properties)
 
 func restore_tick(tick: int) -> bool:
 	if not _snapshots.has(tick):
@@ -32,9 +55,8 @@ func restore_tick(tick: int) -> bool:
 
 	var snapshot := _snapshots[tick] as Snapshot
 	for entry in snapshot.data.keys():
-		var recorded_property := entry as RecordedProperty
 		var value = snapshot.data[entry]
-		recorded_property.apply_value(value)
+		RecordedProperty.apply(entry, value)
 	return true
 
 func trim_history(earliest_tick: int) -> void:

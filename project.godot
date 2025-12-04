@@ -127,7 +127,7 @@ escape={
 [netfox]
 
 general/clear_settings=false
-time/tickrate=24
+time/tickrate=8
 extras/auto_tile_windows=true
 autoconnect/enabled=false
 

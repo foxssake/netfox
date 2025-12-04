@@ -1,26 +1,32 @@
 extends Node
 class_name _RollbackSynchronizationServer
 
-var _input_properties: Array[RecordedProperty] = []
-var _state_properties: Array[RecordedProperty] = []
+var _input_properties: Array = []
+var _state_properties: Array = []
 
 static var _logger := NetfoxLogger._for_netfox("RollbackSynchronizationServer")
 
-func register_input(node: Node, property: NodePath) -> void:
-	var entry := RecordedProperty.new(node, property)
-	if _input_properties.has(entry): return
-	_input_properties.append(entry)
+func register_property(node: Node, property: NodePath, pool: Array) -> void:
+	var entry := RecordedProperty.key_of(node, property)
+
+	# TODO: Accelerate this check, maybe with _Set
+	if not pool.has(entry):
+		pool.append(entry)
+
+func deregister_property(node: Node, property: NodePath, pool: Array) -> void:
+	pool.erase([node, property])
 
 func register_state(node: Node, property: NodePath) -> void:
-	var entry := RecordedProperty.new(node, property)
-	if _state_properties.has(entry): return
-	_state_properties.append(entry)
-
-func deregister_input(node: Node, property: NodePath) -> void:
-	_input_properties.erase(RecordedProperty.new(node, property))
+	register_property(node, property, _state_properties)
 
 func deregister_state(node: Node, property: NodePath) -> void:
-	_state_properties.erase(RecordedProperty.new(node, property))
+	deregister_property(node, property, _state_properties)
+
+func register_input(node: Node, property: NodePath) -> void:
+	register_property(node, property, _input_properties)
+
+func deregister_input(node: Node, property: NodePath) -> void:
+	deregister_property(node, property, _input_properties)
 
 func synchronize_input(tick: int) -> void:
 	# Grab snapshot from RollbackHistoryServer
@@ -36,6 +42,7 @@ func synchronize_input(tick: int) -> void:
 		input_snapshot.data[property] = snapshot.data[property]
 
 	# Transmit
+#	_logger.debug("Submitting input: %s", [input_snapshot])
 	_submit_input.rpc(_serialize_snapshot(input_snapshot))
 
 func synchronize_state(tick: int) -> void:
@@ -52,16 +59,18 @@ func synchronize_state(tick: int) -> void:
 		state_snapshot.data[property] = snapshot.data[property]
 
 	# Transmit
+#	_logger.debug("Submitting state: %s", [state_snapshot])
 	_submit_state.rpc(_serialize_snapshot(state_snapshot))
 
 func _serialize_snapshot(snapshot: Snapshot) -> Variant:
 	var serialized_properties := []
 
 	for entry in snapshot.data.keys():
-		var property := entry as RecordedProperty
-		var value = snapshot.data[property]
+		var node := entry[0] as Node
+		var property := entry[1] as NodePath
+		var value = snapshot.data[entry]
 
-		serialized_properties.append([str(property.node.get_path()), property.property, value])
+		serialized_properties.append([str(node.get_path()), str(property), value])
 
 	serialized_properties.append(snapshot.tick)
 	return serialized_properties
@@ -83,8 +92,7 @@ func _deserialize_snapshot(data: Variant) -> Snapshot:
 			_logger.warning("Can't find node at path %s, ignoring", [node_path])
 			continue
 
-		# TODO: Dicts might fail if recorded property's equal but not identical
-		snapshot.data[RecordedProperty.new(node, property)] = value
+		snapshot.data[RecordedProperty.key_of(node, property)] = value
 	
 	return snapshot
 

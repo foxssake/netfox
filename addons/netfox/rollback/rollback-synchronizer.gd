@@ -137,8 +137,11 @@ func process_settings() -> void:
 ## peers.
 func process_authority():
 	# Deregister all recorded properties
-	for prop in _get_recorded_state_props() + _get_recorded_input_props():
-		RollbackHistoryServer.deregister_property(prop.node, prop.property)
+	for prop in _get_recorded_state_props():
+		RollbackHistoryServer.deregister_state(prop.node, prop.property)
+
+	for prop in _get_recorded_input_props():
+		RollbackHistoryServer.deregister_input(prop.node, prop.property)
 
 	for prop in _get_owned_input_props():
 		RollbackSynchronizationServer.deregister_input(prop.node, prop.property)
@@ -154,8 +157,11 @@ func process_authority():
 	_input_property_config.set_properties_from_paths(input_properties, _property_cache)
 
 	# Register new recorded properties
-	for prop in _get_recorded_state_props() + _get_recorded_input_props():
-		RollbackHistoryServer.register_property(prop.node, prop.property)
+	for prop in _get_recorded_state_props():
+		RollbackHistoryServer.register_state(prop.node, prop.property)
+
+	for prop in _get_recorded_input_props():
+		RollbackHistoryServer.register_input(prop.node, prop.property)
 
 	for prop in _get_owned_input_props():
 		RollbackSynchronizationServer.register_input(prop.node, prop.property)
