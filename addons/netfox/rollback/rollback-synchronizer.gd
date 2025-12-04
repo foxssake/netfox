@@ -94,11 +94,18 @@ static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("RollbackSynchronize
 var _history_transmitter: _RollbackHistoryTransmitter
 var _history_recorder: _RollbackHistoryRecorder
 
+var _registered_nodes: Array[Node] = []
+
 ## Process settings.
 ##
 ## Call this after any change to configuration. Updates based on authority too
 ## ( calls process_authority ).
 func process_settings() -> void:
+	# Unregister all nodes
+	for node in _registered_nodes:
+		RollbackSimulationServer.deregister_node(node)
+
+	# Clear
 	_property_cache.root = root
 	_property_cache.clear()
 	_freshness_store.clear()
@@ -114,6 +121,10 @@ func process_settings() -> void:
 	_nodes.push_front(root)
 	_nodes = _nodes.filter(func(it): return NetworkRollback.is_rollback_aware(it))
 	_nodes.erase(self)
+
+	for node in _nodes:
+		RollbackSimulationServer.register(node._rollback_tick)
+		_registered_nodes.append(node)
 
 	_history_transmitter.sync_settings(root, enable_input_broadcast, full_state_interval, diff_ack_interval)
 	_history_transmitter.configure(_states, _inputs, _state_property_config, _input_property_config, visibility_filter, _property_cache, _skipset)
@@ -275,8 +286,9 @@ func _on_prepare_tick(tick: int) -> void:
 	_prepare_tick_process(tick)
 
 func _process_tick(tick: int) -> void:
-	_run_rollback_tick(tick)
-	_push_simset_metrics()
+#	_run_rollback_tick(tick)
+#	_push_simset_metrics()
+	pass
 
 func _on_record_tick(tick: int) -> void:
 	_history_recorder.record_state(tick)

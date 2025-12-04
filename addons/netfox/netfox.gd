@@ -145,6 +145,10 @@ const AUTOLOADS: Array[Dictionary] = [
 	{
 		"name": "NetworkPerformance",
 		"path": ROOT + "/network-performance.gd"
+	},
+	{
+		"name": "RollbackSimulationServer",
+		"path": ROOT + "/servers/rollback-simulation-server.gd"
 	}
 ]
 

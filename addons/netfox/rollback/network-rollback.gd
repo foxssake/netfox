@@ -352,6 +352,7 @@ func _rollback() -> void:
 		#		If authority: Latest input >= tick >= Latest state
 		#		If not: Latest input >= tick >= Earliest input
 		_rollback_stage = _STAGE_SIMULATE
+		RollbackSimulationServer.simulate(NetworkTime.ticktime, tick)
 		on_process_tick.emit(tick)
 		after_process_tick.emit(tick)
 
