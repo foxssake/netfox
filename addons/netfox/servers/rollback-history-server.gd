@@ -39,9 +39,11 @@ func record_tick(tick: int, properties: Array) -> void:
 
 	# Record values
 	for entry in properties:
-		snapshot.data[entry] = RecordedProperty.extract(entry)
+		var node := entry[0] as Node
+		var property := entry[1] as NodePath
+		snapshot.set_property(node, property, RecordedProperty.extract(entry), node.is_multiplayer_authority())
 
-#	_logger.debug("Recorded %d properties; %s", [properties.size(), snapshot])
+	_logger.debug("Recorded %d properties; %s", [properties.size(), snapshot])
 
 func record_input(tick: int) -> void:
 	record_tick(tick, _input_properties)
@@ -79,6 +81,7 @@ func merge_snapshot(snapshot: Snapshot) -> Snapshot:
 		return snapshot
 
 	var stored_snapshot := _snapshots[tick] as Snapshot
-	stored_snapshot.data.merge(snapshot.data)
+	stored_snapshot.merge(snapshot)
+#	_snapshots[tick] = stored_snapshot
 
 	return stored_snapshot

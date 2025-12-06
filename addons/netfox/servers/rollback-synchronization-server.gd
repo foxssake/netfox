@@ -74,8 +74,9 @@ func _serialize_snapshot(snapshot: Snapshot) -> Variant:
 		var node := entry[0] as Node
 		var property := entry[1] as NodePath
 		var value = snapshot.data[entry]
+		var is_auth := snapshot._is_authoritative.get(entry, false)
 
-		serialized_properties.append([str(node.get_path()), str(property), value])
+		serialized_properties.append([str(node.get_path()), str(property), value, is_auth])
 
 	serialized_properties.append(snapshot.tick)
 	return serialized_properties
@@ -91,13 +92,14 @@ func _deserialize_snapshot(data: Variant) -> Snapshot:
 		var node_path := entry_data[0] as String
 		var property := entry_data[1] as String
 		var value = entry_data[2]
+		var is_auth := entry_data[3] as bool
 
 		var node := get_tree().root.get_node(node_path)
 		if not node:
 			_logger.warning("Can't find node at path %s, ignoring", [node_path])
 			continue
 
-		snapshot.data[RecordedProperty.key_of(node, property)] = value
+		snapshot.set_property(node, property, value, is_auth)
 	
 	return snapshot
 
@@ -113,9 +115,9 @@ func _submit_input(snapshot_data: Variant):
 @rpc("any_peer", "call_remote", "unreliable")
 func _submit_state(snapshot_data: Variant):
 	var snapshot := _deserialize_snapshot(snapshot_data)
-#	_logger.debug("Received state snapshot: %s", [snapshot])
+	_logger.debug("Received state snapshot: %s", [snapshot])
 
 	# TODO: Sanitize
 
 	var merged := RollbackHistoryServer.merge_snapshot(snapshot)
-#	_logger.debug("Merged state; %s", [merged])
+	_logger.debug("Merged state; %s", [merged])
