@@ -43,6 +43,7 @@ func synchronize_input(tick: int) -> void:
 		if not snapshot.data.has(property):
 			continue
 		input_snapshot.data[property] = snapshot.data[property]
+		input_snapshot._is_authoritative[property] = snapshot._is_authoritative[property]
 
 	# Transmit
 	if not input_snapshot.data.is_empty():
@@ -61,6 +62,7 @@ func synchronize_state(tick: int) -> void:
 		if not snapshot.data.has(property):
 			continue
 		state_snapshot.data[property] = snapshot.data[property]
+		state_snapshot._is_authoritative[property] = snapshot._is_authoritative[property]
 
 	# Transmit
 	if not state_snapshot.data.is_empty():
@@ -106,11 +108,14 @@ func _deserialize_snapshot(data: Variant) -> Snapshot:
 @rpc("any_peer", "call_remote", "reliable")
 func _submit_input(snapshot_data: Variant):
 	var snapshot := _deserialize_snapshot(snapshot_data)
+	_logger.debug("Received input snapshot: %s", [snapshot])
 
 	# TODO: Sanitize
 
 	var merged := RollbackHistoryServer.merge_snapshot(snapshot)
-#	_logger.debug("Merged input; %s", [merged])
+	_logger.debug("Merged input; %s", [merged])
+
+	on_input.emit(snapshot)
 
 @rpc("any_peer", "call_remote", "unreliable")
 func _submit_state(snapshot_data: Variant):
@@ -121,3 +126,5 @@ func _submit_state(snapshot_data: Variant):
 
 	var merged := RollbackHistoryServer.merge_snapshot(snapshot)
 	_logger.debug("Merged state; %s", [merged])
+
+	on_state.emit(snapshot)

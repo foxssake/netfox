@@ -308,7 +308,8 @@ func _after_tick(_dt: float, tick: int) -> void:
 	_freshness_store.trim()
 
 func _before_rollback_loop() -> void:
-	_notify_resim()
+#	_notify_resim()
+	pass
 
 func _on_prepare_tick(tick: int) -> void:
 #	_history_recorder.apply_tick(tick)
