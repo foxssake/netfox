@@ -54,6 +54,7 @@ func restore_tick(tick: int) -> bool:
 		return false
 
 	var snapshot := _snapshots[tick] as Snapshot
+	_logger.debug("Restoring snapshot: %s", [snapshot])
 	for entry in snapshot.data.keys():
 		var value = snapshot.data[entry]
 		RecordedProperty.apply(entry, value)

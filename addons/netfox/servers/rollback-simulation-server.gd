@@ -35,6 +35,7 @@ func get_nodes_to_simulate() -> Array[Node]:
 
 func simulate(delta: float, tick: int) -> void:
 	var nodes := get_nodes_to_simulate()
+#	_logger.debug("Simulating %d nodes", [nodes.size()])
 
 	# Sort based on SceneTree order
 	for node in nodes:

@@ -170,6 +170,9 @@ var _simulated_nodes: _Set = _Set.new()
 var _mutated_nodes: Dictionary = {}
 var _input_submissions: Dictionary = {}
 
+var _earliest_input := -1
+var _latest_state := -1
+
 const _STAGE_BEFORE := "B"
 const _STAGE_PREPARE := "P"
 const _STAGE_SIMULATE := "S"
@@ -299,6 +302,16 @@ func _ready():
 		RollbackHistoryServer.record_input(tick)
 		RollbackSynchronizationServer.synchronize_input(tick)
 	)
+	
+	RollbackSynchronizationServer.on_input.connect(func(snapshot: Snapshot):
+		if _earliest_input < 0 or snapshot.tick < _earliest_input:
+			_earliest_input = snapshot.tick
+	)
+	
+	RollbackSynchronizationServer.on_state.connect(func(snapshot: Snapshot):
+		if _latest_state < 0 or snapshot.tick > _latest_state:
+			_latest_state = snapshot.tick
+	)
 
 func _exit_tree():
 	NetfoxLogger.free_tag(_get_rollback_tag)
@@ -316,6 +329,13 @@ func _rollback() -> void:
 	# Ask all rewindables to submit their earliest inputs
 	_resim_from = NetworkTime.tick
 	before_loop.emit()
+	
+	# TODO: Move to RollbackSimulationServer?
+	if _earliest_input >= 0:
+		_resim_from = mini(_resim_from, _earliest_input)
+	if _latest_state >= 0:
+		_resim_from = mini(_resim_from, _latest_state)
+	_resim_from = mini(_resim_from, NetworkTime.tick - 1)
 
 	# Only set _is_rollback *after* emitting before_loop
 	_is_rollback = true

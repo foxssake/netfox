@@ -6,6 +6,9 @@ var _state_properties: Array = []
 
 static var _logger := NetfoxLogger._for_netfox("RollbackSynchronizationServer")
 
+signal on_input(snapshot: Snapshot)
+signal on_state(snapshot: Snapshot)
+
 func register_property(node: Node, property: NodePath, pool: Array) -> void:
 	var entry := RecordedProperty.key_of(node, property)
 
@@ -42,8 +45,9 @@ func synchronize_input(tick: int) -> void:
 		input_snapshot.data[property] = snapshot.data[property]
 
 	# Transmit
-#	_logger.debug("Submitting input: %s", [input_snapshot])
-	_submit_input.rpc(_serialize_snapshot(input_snapshot))
+	if not input_snapshot.data.is_empty():
+		_logger.debug("Submitting input: %s", [input_snapshot])
+		_submit_input.rpc(_serialize_snapshot(input_snapshot))
 
 func synchronize_state(tick: int) -> void:
 	# Grab snapshot from RollbackHistoryServer
@@ -59,8 +63,9 @@ func synchronize_state(tick: int) -> void:
 		state_snapshot.data[property] = snapshot.data[property]
 
 	# Transmit
-#	_logger.debug("Submitting state: %s", [state_snapshot])
-	_submit_state.rpc(_serialize_snapshot(state_snapshot))
+	if not state_snapshot.data.is_empty():
+		_logger.debug("Submitting state: %s", [state_snapshot])
+		_submit_state.rpc(_serialize_snapshot(state_snapshot))
 
 func _serialize_snapshot(snapshot: Snapshot) -> Variant:
 	var serialized_properties := []
@@ -103,13 +108,14 @@ func _submit_input(snapshot_data: Variant):
 	# TODO: Sanitize
 
 	var merged := RollbackHistoryServer.merge_snapshot(snapshot)
-	_logger.debug("Merged input; %s", [merged])
+#	_logger.debug("Merged input; %s", [merged])
 
 @rpc("any_peer", "call_remote", "unreliable")
 func _submit_state(snapshot_data: Variant):
 	var snapshot := _deserialize_snapshot(snapshot_data)
+#	_logger.debug("Received state snapshot: %s", [snapshot])
 
 	# TODO: Sanitize
 
 	var merged := RollbackHistoryServer.merge_snapshot(snapshot)
-	_logger.debug("Merged state; %s", [merged])
+#	_logger.debug("Merged state; %s", [merged])

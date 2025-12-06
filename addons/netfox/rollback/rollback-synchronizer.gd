@@ -224,6 +224,7 @@ func get_input_age() -> int:
 ## simulated and recorded, but will not be broadcast, nor considered
 ## authoritative.
 func is_predicting() -> bool:
+	return false
 	return _is_predicted_tick
 
 ## Ignore a node's prediction for the current rollback tick.
@@ -301,8 +302,8 @@ func _before_tick(_dt: float, tick: int) -> void:
 	pass
 
 func _after_tick(_dt: float, tick: int) -> void:
-	_history_recorder.record_input(tick)
-	_history_transmitter.transmit_input(tick)
+#	_history_recorder.record_input(tick)
+#	_history_transmitter.transmit_input(tick)
 	_history_recorder.trim_history()
 	_freshness_store.trim()
 
@@ -320,11 +321,12 @@ func _process_tick(tick: int) -> void:
 
 func _on_record_tick(tick: int) -> void:
 	_history_recorder.record_state(tick)
-	_history_transmitter.transmit_state(tick)
+#	_history_transmitter.transmit_state(tick)
 
 func _after_rollback_loop() -> void:
 #	_history_recorder.apply_display_state()
-	_history_transmitter.conclude_tick_loop()
+#	_history_transmitter.conclude_tick_loop()
+	pass
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_EDITOR_PRE_SAVE:
@@ -382,6 +384,7 @@ func _exit_tree() -> void:
 	_disconnect_signals()
 
 func _notify_resim() -> void:
+	return
 	if _get_owned_input_props().is_empty():
 		# We don't have any inputs we own, simulate from earliest we've received
 		NetworkRollback.notify_resimulation_start(_history_transmitter.get_earliest_input_tick())
