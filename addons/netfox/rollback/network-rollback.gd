@@ -337,6 +337,10 @@ func _rollback() -> void:
 		_resim_from = mini(_resim_from, _latest_state)
 	_resim_from = mini(_resim_from, NetworkTime.tick - 1)
 
+	_earliest_input = -1
+	_latest_state = -1
+#	_resim_from = maxi(1, history_start + 1)
+
 	# Only set _is_rollback *after* emitting before_loop
 	_is_rollback = true
 	_rollback_stage = _STAGE_BEFORE

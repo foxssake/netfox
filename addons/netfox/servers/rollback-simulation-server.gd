@@ -4,6 +4,9 @@ class_name _RollbackSimulationServer
 # node to callback
 # TODO: Consider allowing any Object, not just nodes
 var _callbacks := {}
+# node to input node
+# TODO: Support multiple input nodes for a single simulated node
+var _input_for := {}
 
 var _group := StringName("__nf_rollback_sim" + str(get_instance_id()))
 
@@ -27,15 +30,37 @@ func deregister(callback: Callable) -> void:
 
 func deregister_node(node: Node) -> void:
 	_callbacks.erase(node)
+	deregister_input(node)
 
-func get_nodes_to_simulate() -> Array[Node]:
+func register_input_for(node: Node, input: Node) -> void:
+	_input_for[node] = input
+
+func deregister_input(node: Node) -> void:
+	_input_for.erase(node)
+
+func get_nodes_to_simulate(tick: int) -> Array[Node]:
 	var result: Array[Node] = []
-	result.assign(_callbacks.keys())
+	var snapshot := RollbackHistoryServer.get_snapshot(tick)
+	if not snapshot:
+		return []
+
+	for node in _callbacks.keys():
+		if not _input_for.has(node):
+			# Node has no input, simulate it
+			result.append(node)
+			continue
+		
+		var input := _input_for[node] as Node
+		if not snapshot.has_node(input, true):
+			continue
+
+		result.append(node)
+
 	return result
 
 func simulate(delta: float, tick: int) -> void:
-	var nodes := get_nodes_to_simulate()
-#	_logger.debug("Simulating %d nodes", [nodes.size()])
+	var nodes := get_nodes_to_simulate(tick)
+	_logger.debug("Simulating %d nodes: %s", [nodes.size(), nodes])
 
 	# Sort based on SceneTree order
 	for node in nodes:

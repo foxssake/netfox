@@ -38,6 +38,8 @@ RollbackSynchronizationServer="*res://addons/netfox/servers/rollback-synchroniza
 
 window/size/viewport_width=540
 window/size/viewport_height=540
+window/size/transparent=true
+window/per_pixel_transparency/allowed=true
 window/vsync/vsync_mode=0
 
 [editor_plugins]
@@ -127,13 +129,14 @@ escape={
 [netfox]
 
 general/clear_settings=false
-time/tickrate=4
+time/tickrate=16
 extras/auto_tile_windows=true
 autoconnect/enabled=false
 
 [rendering]
 
 lights_and_shadows/directional_shadow/soft_shadow_filter_quality=3
+viewport/transparent_background=true
 anti_aliasing/quality/screen_space_aa=1
 
 [vest]

@@ -122,8 +122,16 @@ func process_settings() -> void:
 	_nodes = _nodes.filter(func(it): return NetworkRollback.is_rollback_aware(it))
 	_nodes.erase(self)
 
+	var input_nodes = []
+	for prop in _input_property_config.get_properties():
+		var input_node := prop.node
+		if not input_nodes.has(input_node):
+			input_nodes.append(input_node)
+
 	for node in _nodes:
 		RollbackSimulationServer.register(node._rollback_tick)
+		for input_node in input_nodes:
+			RollbackSimulationServer.register_input_for(node, input_node)
 		_registered_nodes.append(node)
 
 	_history_transmitter.sync_settings(root, enable_input_broadcast, full_state_interval, diff_ack_interval)
