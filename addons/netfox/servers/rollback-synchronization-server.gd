@@ -108,23 +108,23 @@ func _deserialize_snapshot(data: Variant) -> Snapshot:
 @rpc("any_peer", "call_remote", "reliable")
 func _submit_input(snapshot_data: Variant):
 	var snapshot := _deserialize_snapshot(snapshot_data)
-	_logger.debug("Received input snapshot: %s", [snapshot])
+#	_logger.debug("Received input snapshot: %s", [snapshot])
 
 	# TODO: Sanitize
 
 	var merged := RollbackHistoryServer.merge_snapshot(snapshot)
-	_logger.debug("Merged input; %s", [merged])
+#	_logger.debug("Merged input; %s", [merged])
 
 	on_input.emit(snapshot)
 
 @rpc("any_peer", "call_remote", "unreliable")
 func _submit_state(snapshot_data: Variant):
 	var snapshot := _deserialize_snapshot(snapshot_data)
-	_logger.debug("Received state snapshot: %s", [snapshot])
+#	_logger.debug("Received state snapshot: %s", [snapshot])
 
 	# TODO: Sanitize
 
 	var merged := RollbackHistoryServer.merge_snapshot(snapshot)
-	_logger.debug("Merged state; %s", [merged])
+#	_logger.debug("Merged state; %s", [merged])
 
 	on_state.emit(snapshot)
