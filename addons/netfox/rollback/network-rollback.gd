@@ -331,11 +331,15 @@ func _rollback() -> void:
 	before_loop.emit()
 	
 	# TODO: Move to RollbackSimulationServer?
+	var range_source = "notif"
 	if _earliest_input >= 0:
+		range_source = "earliest input"
 		_resim_from = mini(_resim_from, _earliest_input)
 	if _latest_state >= 0:
+		range_source = "latest state"
 		_resim_from = mini(_resim_from, _latest_state)
 	_resim_from = mini(_resim_from, NetworkTime.tick - 1)
+	_logger.debug("Simulating range @%d>@%d using %s", [_resim_from, NetworkTime.tick, range_source])
 
 	_earliest_input = -1
 	_latest_state = -1

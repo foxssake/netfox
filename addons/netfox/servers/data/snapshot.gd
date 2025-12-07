@@ -46,4 +46,8 @@ func has_node(node: Node, require_auth: bool = false) -> bool:
 	return false
 
 func _to_string() -> String:
-	return "Snapshot(#%d, %s)" % [tick, data]
+	var result := "Snapshot(#%d" % [tick]
+	for entry in data:
+		result += ", %s(%s): %s" % [entry, _is_authoritative.get(entry, false), data[entry]]
+	result += ")"
+	return result

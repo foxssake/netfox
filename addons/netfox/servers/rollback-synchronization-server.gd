@@ -47,7 +47,8 @@ func synchronize_input(tick: int) -> void:
 
 	# Transmit
 	if not input_snapshot.data.is_empty():
-		_logger.debug("Submitting input: %s", [input_snapshot])
+		# TODO: Always submit, even if empty
+#		_logger.debug("Submitting input: %s", [input_snapshot])
 		_submit_input.rpc(_serialize_snapshot(input_snapshot))
 
 func synchronize_state(tick: int) -> void:
@@ -66,7 +67,8 @@ func synchronize_state(tick: int) -> void:
 
 	# Transmit
 	if not state_snapshot.data.is_empty():
-		_logger.debug("Submitting state: %s", [state_snapshot])
+		# TODO: Always submit, even if empty
+#		_logger.debug("Submitting state: %s", [state_snapshot])
 		_submit_state.rpc(_serialize_snapshot(state_snapshot))
 
 func _serialize_snapshot(snapshot: Snapshot) -> Variant:

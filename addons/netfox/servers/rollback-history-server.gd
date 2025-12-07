@@ -30,7 +30,7 @@ func register_input(node: Node, property: NodePath) -> void:
 func deregister_input(node: Node, property: NodePath) -> void:
 	deregister_property(node, property, _input_properties)
 
-func record_tick(tick: int, properties: Array) -> void:
+func record_tick(tick: int, properties: Array, predicted_nodes: Array[Node]) -> void:
 	# Ensure snapshot
 	var snapshot := _snapshots.get(tick) as Snapshot
 	if snapshot == null:
@@ -42,17 +42,19 @@ func record_tick(tick: int, properties: Array) -> void:
 	for entry in properties:
 		var node := entry[0] as Node
 		var property := entry[1] as NodePath
+		var is_auth := node.is_multiplayer_authority() and not predicted_nodes.has(node)
 		
-		if snapshot.merge_property(node, property, RecordedProperty.extract(entry), node.is_multiplayer_authority()):
-			updated.append([node, property, RecordedProperty.extract(entry), node.is_multiplayer_authority()])
+		if snapshot.merge_property(node, property, RecordedProperty.extract(entry), is_auth):
+			updated.append([node, property, RecordedProperty.extract(entry), is_auth])
 
 	_logger.debug("Recorded %d properties: %s; %s", [properties.size(), updated, snapshot])
 
 func record_input(tick: int) -> void:
-	record_tick(tick, _input_properties)
+	record_tick(tick, _input_properties, [])
 
 func record_state(tick: int) -> void:
-	record_tick(tick, _state_properties)
+	# TODO: Servers preferably shouldn't depend on eachother
+	record_tick(tick, _state_properties, RollbackSimulationServer.get_predicted_nodes())
 
 func restore_tick(tick: int) -> bool:
 	if not _snapshots.has(tick):

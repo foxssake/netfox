@@ -8,6 +8,8 @@ var _callbacks := {}
 # TODO: Support multiple input nodes for a single simulated node
 var _input_for := {}
 
+var _predicted_nodes := [] as Array[Node]
+
 var _group := StringName("__nf_rollback_sim" + str(get_instance_id()))
 
 static var _logger := NetfoxLogger._for_netfox("RollbackSimulationServer")
@@ -48,7 +50,7 @@ func get_nodes_to_simulate(snapshot: Snapshot) -> Array[Node]:
 			# Node has no input, simulate it
 			result.append(node)
 			continue
-		
+
 		var input := _input_for[node] as Node
 		if not snapshot.has_node(input, true):
 			continue
@@ -57,8 +59,23 @@ func get_nodes_to_simulate(snapshot: Snapshot) -> Array[Node]:
 
 	return result
 
+func is_predicting(snapshot: Snapshot, node: Node) -> bool:
+	if not node.is_multiplayer_authority():
+		# We don't own the node, so we can only guess - i.e. predict
+		return true
+	if not _input_for.has(node):
+		# We own the node, node doesn't depend on input, we're sure
+		return false
+	if not snapshot.has_node(_input_for[node], true):
+		# We own the node, node depends on input, we don't have data for input - predict
+		return true
+	# We own the node and we have data for node's input - we're sure
+	return false
+
 func simulate(delta: float, tick: int) -> void:
-	var nodes := get_nodes_to_simulate(RollbackHistoryServer.get_snapshot(tick))
+	var snapshot := RollbackHistoryServer.get_snapshot(tick)
+	var nodes := get_nodes_to_simulate(snapshot)
+	_predicted_nodes.clear()
 	_logger.debug("Simulating %d nodes: %s", [nodes.size(), nodes])
 
 	# Sort based on SceneTree order
@@ -71,6 +88,12 @@ func simulate(delta: float, tick: int) -> void:
 		var callback := _callbacks[node] as Callable
 		callback.call(delta, tick, false) # TODO: is_fresh
 		node.remove_from_group(_group)
+		
+		if is_predicting(snapshot, node):
+			_predicted_nodes.append(node)
 
 	# Metrics
 	NetworkPerformance.push_rollback_nodes_simulated(nodes.size())
+
+func get_predicted_nodes() -> Array[Node]:
+	return _predicted_nodes
