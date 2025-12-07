@@ -38,9 +38,8 @@ func register_input_for(node: Node, input: Node) -> void:
 func deregister_input(node: Node) -> void:
 	_input_for.erase(node)
 
-func get_nodes_to_simulate(tick: int) -> Array[Node]:
+func get_nodes_to_simulate(snapshot: Snapshot) -> Array[Node]:
 	var result: Array[Node] = []
-	var snapshot := RollbackHistoryServer.get_snapshot(tick)
 	if not snapshot:
 		return []
 
@@ -59,7 +58,7 @@ func get_nodes_to_simulate(tick: int) -> Array[Node]:
 	return result
 
 func simulate(delta: float, tick: int) -> void:
-	var nodes := get_nodes_to_simulate(tick)
+	var nodes := get_nodes_to_simulate(RollbackHistoryServer.get_snapshot(tick))
 	_logger.debug("Simulating %d nodes: %s", [nodes.size(), nodes])
 
 	# Sort based on SceneTree order

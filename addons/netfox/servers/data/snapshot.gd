@@ -27,6 +27,11 @@ func merge(snapshot: Snapshot) -> void:
 			data[prop_key] = snapshot.data[prop_key]
 			_is_authoritative[prop_key] = snapshot._is_authoritative[prop_key]
 
+func apply() -> void:
+	for prop_key in data:
+		var value = data[prop_key]
+		RecordedProperty.apply(prop_key, value)
+
 func has_node(node: Node, require_auth: bool = false) -> bool:
 	for entry in data.keys():
 		var entry_node := entry[0] as Node
