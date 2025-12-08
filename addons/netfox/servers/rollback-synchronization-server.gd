@@ -80,6 +80,10 @@ func _serialize_snapshot(snapshot: Snapshot) -> Variant:
 		var value = snapshot.data[entry]
 		var is_auth := snapshot._is_authoritative.get(entry, false)
 
+		if not is_auth:
+			# Don't broadcast data we're not sure about
+			continue
+
 		serialized_properties.append([str(node.get_path()), str(property), value, is_auth])
 
 	serialized_properties.append(snapshot.tick)
@@ -123,6 +127,13 @@ func _submit_input(snapshot_data: Variant):
 func _submit_state(snapshot_data: Variant):
 	var snapshot := _deserialize_snapshot(snapshot_data)
 #	_logger.debug("Received state snapshot: %s", [snapshot])
+
+	var stored_snapshot := RollbackHistoryServer.get_snapshot(snapshot.tick)
+	if stored_snapshot != null:
+		for entry in snapshot.data:
+			if snapshot.data[entry] != stored_snapshot.data[entry]:
+				pass
+				# _logger.warning("Server reconciliation for @%d/%s: %s -> %s", [snapshot.tick, entry, stored_snapshot.data[entry], snapshot.data[entry]])
 
 	# TODO: Sanitize
 

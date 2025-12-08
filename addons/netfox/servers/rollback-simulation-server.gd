@@ -53,6 +53,7 @@ func get_nodes_to_simulate(snapshot: Snapshot) -> Array[Node]:
 
 		var input := _input_for[node] as Node
 		if not snapshot.has_node(input, true):
+			# We don't have input for node, don't simulate
 			continue
 
 		result.append(node)
@@ -83,14 +84,16 @@ func simulate(delta: float, tick: int) -> void:
 		node.add_to_group(_group)
 	nodes = get_tree().get_nodes_in_group(_group)
 
+	# Determine predicted nodes
+	for node in _callbacks.keys():
+		if is_predicting(snapshot, node):
+			_predicted_nodes.append(node)
+
 	# Run callbacks and clear group
 	for node in nodes:
 		var callback := _callbacks[node] as Callable
 		callback.call(delta, tick, false) # TODO: is_fresh
 		node.remove_from_group(_group)
-		
-		if is_predicting(snapshot, node):
-			_predicted_nodes.append(node)
 
 	# Metrics
 	NetworkPerformance.push_rollback_nodes_simulated(nodes.size())
