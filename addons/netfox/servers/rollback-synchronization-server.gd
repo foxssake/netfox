@@ -131,7 +131,7 @@ func _submit_state(snapshot_data: Variant):
 	var stored_snapshot := RollbackHistoryServer.get_snapshot(snapshot.tick)
 	if stored_snapshot != null:
 		for entry in snapshot.data:
-			if snapshot.data[entry] != stored_snapshot.data[entry]:
+			if snapshot.data.get(entry) != stored_snapshot.data.get(entry):
 				pass
 				# _logger.warning("Server reconciliation for @%d/%s: %s -> %s", [snapshot.tick, entry, stored_snapshot.data[entry], snapshot.data[entry]])
 

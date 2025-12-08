@@ -7,6 +7,10 @@ var _callbacks := {}
 # node to input node
 # TODO: Support multiple input nodes for a single simulated node
 var _input_for := {}
+# node to array of ticks
+# used for is_fresh
+# TODO: Refactor to ringbuffer containing sets of nodes?
+var _simulated_ticks := {}
 
 var _predicted_nodes := [] as Array[Node]
 
@@ -22,17 +26,19 @@ func register(callback: Callable) -> void:
 	_callbacks[callback.get_object()] = callback
 
 func deregister(callback: Callable) -> void:
-	if not is_instance_valid(callback.get_object()):
-		return
+	if not callback or not callback.is_valid(): return
 
-	if _callbacks[callback.get_object()] != callback:
-		return
+	var object := callback.get_object()
 
-	_callbacks.erase(callback.get_object())
+	if not is_instance_valid(object): return
+	if _callbacks[object] != callback: return
+
+	_callbacks.erase(object)
+	_input_for.erase(object)
+	_simulated_ticks.erase(object)
 
 func deregister_node(node: Node) -> void:
-	_callbacks.erase(node)
-	deregister_input(node)
+	deregister(_callbacks.get(node))
 
 func register_input_for(node: Node, input: Node) -> void:
 	_input_for[node] = input
@@ -73,6 +79,23 @@ func is_predicting(snapshot: Snapshot, node: Node) -> bool:
 	# We own the node and we have data for node's input - we're sure
 	return false
 
+func is_tick_fresh_for(node: Node, tick: int) -> bool:
+	if not _simulated_ticks.has(node):
+		return false
+	var ticks := _simulated_ticks.get(node) as Array[int]
+	return ticks.has(tick)
+
+func set_tick_simulated_for(node: Node, tick: int) -> void:
+	if not _simulated_ticks.has(node):
+		_simulated_ticks[node] = [tick] as Array[int]
+	else:
+		_simulated_ticks[node].append(tick)
+
+func trim_ticks_simulated(beginning: int) -> void:
+	for object in _simulated_ticks:
+		_simulated_ticks[object] = _simulated_ticks[object]\
+			.filter(func(tick): return tick >= beginning)
+
 func simulate(delta: float, tick: int) -> void:
 	var snapshot := RollbackHistoryServer.get_snapshot(tick)
 	var nodes := get_nodes_to_simulate(snapshot)
@@ -92,8 +115,11 @@ func simulate(delta: float, tick: int) -> void:
 	# Run callbacks and clear group
 	for node in nodes:
 		var callback := _callbacks[node] as Callable
-		callback.call(delta, tick, false) # TODO: is_fresh
+		var is_fresh := is_tick_fresh_for(node, tick)
+		callback.call(delta, tick, is_fresh)
 		node.remove_from_group(_group)
+
+		set_tick_simulated_for(node, tick)
 
 	# Metrics
 	NetworkPerformance.push_rollback_nodes_simulated(nodes.size())

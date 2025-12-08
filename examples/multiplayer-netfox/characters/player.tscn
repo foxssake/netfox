@@ -27,7 +27,6 @@ input_properties = Array[String](["Input:movement"])
 [node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("3_dkpv5")
 root = NodePath("..")
-enabled = false
 properties = Array[String]([":position"])
 
 [node name="Input" type="Node" parent="."]
