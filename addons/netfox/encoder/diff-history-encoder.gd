@@ -3,7 +3,7 @@ class_name _DiffHistoryEncoder
 
 var _history: _PropertyHistoryBuffer
 var _property_cache: PropertyCache
-var _serializers: Dictionary
+var _schema_handler: NetfoxSchemaHandler
 
 var _full_snapshot := {}
 var _encoded_snapshot := {}
@@ -15,10 +15,10 @@ var _has_received := false
 
 static var _logger := NetfoxLogger._for_netfox("DiffHistoryEncoder")
 
-func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache, p_serializers: Dictionary) -> void:
+func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache, p_schema_handler: NetfoxSchemaHandler) -> void:
 	_history = p_history
 	_property_cache = p_property_cache
-	_serializers = p_serializers
+	_schema_handler = p_schema_handler
 
 func add_properties(properties: Array[PropertyEntry]) -> void:
 	var has_new_properties := false
@@ -54,14 +54,7 @@ func encode(tick: int, reference_tick: int, properties: Array[PropertyEntry]) ->
 		buffer.put_u8(property_idx)
 		
 		var val = diff_snapshot.get_value(property_path)
-		
-		if _serializers.has(property_path):
-			_serializers[property_path].encode(val, buffer)
-		else:
-			# Fallback
-			var data: PackedByteArray = var_to_bytes(val)
-			buffer.put_u32(data.size())
-			buffer.put_data(data)
+		_schema_handler.encode(property_path, val, buffer)
 
 	return buffer.data_array
 
@@ -93,17 +86,10 @@ func decode(data: PackedByteArray, properties: Array[PropertyEntry]) -> _Propert
 		
 		if not _property_indexes.has_key(property_idx):
 			_logger.warning("Received unknown property index %d, ignoring!", [property_idx])
-			break
+			break # Changed from continue to break per review
 
 		var property_path := _property_indexes.get_by_key(property_idx)
-		
-		var val
-		if _serializers.has(property_path):
-			val = _serializers[property_path].decode(buffer)
-		else:
-			var size: int = buffer.get_u32()
-			var bytes: Array = buffer.get_data(size)
-			val = bytes_to_var(bytes)
+		var val = _schema_handler.decode(property_path, buffer) # Use handler
 			
 		result.set_value(property_path, val)
 

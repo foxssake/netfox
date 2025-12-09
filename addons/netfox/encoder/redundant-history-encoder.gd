@@ -8,17 +8,17 @@ var redundancy: int = 4:
 var _history: _PropertyHistoryBuffer
 var _properties: Array[PropertyEntry]
 var _property_cache: PropertyCache
-var _serializers: Dictionary
+var _schema_handler: NetfoxSchemaHandler
 
 var _version := 0
 var _has_received := false
 
 var _logger := NetfoxLogger._for_netfox("RedundantHistoryEncoder")
 
-func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache, p_serializers: Dictionary):
+func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache, p_schema_handler: NetfoxSchemaHandler):
 	_history = p_history
 	_property_cache = p_property_cache
-	_serializers = p_serializers
+	_schema_handler = p_schema_handler
 
 func get_redundancy() -> int:
 	return redundancy
@@ -54,14 +54,7 @@ func encode(tick: int, properties: Array[PropertyEntry]) -> PackedByteArray:
 		for property: PropertyEntry in properties:
 			var path = property.to_string()
 			var value = snapshot.get_value(path)
-			
-			if _serializers.has(path):
-				_serializers[path].encode(value, buffer)
-			else:
-				# Fallback
-				var data: PackedByteArray = var_to_bytes(value)
-				buffer.put_u32(data.size())
-				buffer.put_data(data)
+			_schema_handler.encode(path, value, buffer)
 
 	return buffer.data_array
 
@@ -70,9 +63,6 @@ func decode(data: Variant, properties: Array[PropertyEntry]) -> Array[_PropertyS
 	
 	if data.is_empty():
 		return result
-	
-	if data is Array:
-		return _decode_legacy_array(data, properties)
 	
 	var buffer := StreamPeerBuffer.new()
 	if data is PackedByteArray:
@@ -102,15 +92,7 @@ func decode(data: Variant, properties: Array[PropertyEntry]) -> Array[_PropertyS
 				break
 				
 			var path: String = property.to_string()
-			var val
-			
-			if _serializers.has(path):
-				val = _serializers[path].decode(buffer)
-			else:
-				var size: int = buffer.get_u32()
-				var bytes: Array = buffer.get_data(size)
-				# bytes is [error, data] from StreamPeerBuffer
-				val = bytes_to_var(bytes[1])
+			var val = _schema_handler.decode(path, buffer) # Use handler
 			
 			snapshot.set_value(path, val)
 		
@@ -119,22 +101,6 @@ func decode(data: Variant, properties: Array[PropertyEntry]) -> Array[_PropertyS
 		else:
 			break
 
-	return result
-
-func _decode_legacy_array(data: Array, properties: Array[PropertyEntry]) -> Array[_PropertySnapshot]:
-	if data.is_empty() or properties.is_empty(): return []
-	var packet_version = data.pop_back() as int
-	if packet_version != _version:
-		return []
-	
-	var result: Array[_PropertySnapshot] = []
-	var redundancy = data.size() / properties.size()
-	result.assign(range(redundancy).map(func(__): return _PropertySnapshot.new()))
-
-	for i in range(data.size()):
-		var offset_idx = i / properties.size()
-		var prop_idx = i % properties.size()
-		result[offset_idx].set_value(properties[prop_idx].to_string(), data[i])
 	return result
 
 # Returns earliest new tick as int, or -1 if no new ticks applied

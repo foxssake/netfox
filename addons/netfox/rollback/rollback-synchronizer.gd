@@ -78,10 +78,10 @@ var _skipset: _Set = _Set.new()
 var _properties_dirty: bool = false
 
 var _user_state_schema: Dictionary = {}
-var _state_serializers: Dictionary = {}
-
 var _user_input_schema: Dictionary = {}
-var _input_serializers: Dictionary = {}
+
+var _state_schema_handler: NetfoxSchemaHandler
+var _input_schema_handler: NetfoxSchemaHandler
 
 var _property_cache := PropertyCache.new(root)
 var _freshness_store := RollbackFreshnessStore.new()
@@ -124,8 +124,8 @@ func process_settings() -> void:
 	_nodes.erase(self)
 
 	_history_transmitter.sync_settings(root, enable_input_broadcast, full_state_interval, diff_ack_interval)
-	_history_transmitter.configure(_states, _inputs, _state_property_config, _input_property_config, visibility_filter, _property_cache, _skipset, _state_serializers, _input_serializers)
-	_history_recorder.configure(_states, _inputs, _state_property_config, _input_property_config, _property_cache, _skipset, _state_serializers)
+	_history_transmitter.configure(_states, _inputs, _state_property_config, _input_property_config, visibility_filter, _property_cache, _skipset, _state_schema_handler, _input_schema_handler)
+	_history_recorder.configure(_states, _inputs, _state_property_config, _input_property_config, _property_cache, _skipset)
 
 ## Process settings based on authority.
 ##
@@ -451,23 +451,23 @@ func _push_simset_metrics():
 	NetworkPerformance.push_rollback_nodes_simulated(_simset.size())
 
 func _compile_serializers() -> void:
-	_state_serializers.clear()
 	var fallback = NetfoxSchemas.variant()
 	
+	var state_serializers := {}
 	for prop in _state_property_config.get_properties():
 		var path = prop.to_string()
 		if _user_state_schema.has(path):
-			_state_serializers[path] = _user_state_schema[path]
-		else:
-			_state_serializers[path] = fallback
+			state_serializers[path] = _user_state_schema[path]
+	
+	_state_schema_handler = NetfoxSchemaHandler.new(state_serializers, fallback)
 
-	_input_serializers.clear()
+	var input_serializers := {}
 	for prop in _input_property_config.get_properties():
 		var path = prop.to_string()
 		if _user_input_schema.has(path):
-			_input_serializers[path] = _user_input_schema[path]
-		else:
-			_input_serializers[path] = fallback
+			input_serializers[path] = _user_input_schema[path]
+			
+	_input_schema_handler = NetfoxSchemaHandler.new(input_serializers, fallback)
 
 func _reprocess_settings() -> void:
 	if not _properties_dirty or Engine.is_editor_hint():

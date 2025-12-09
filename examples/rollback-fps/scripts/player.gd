@@ -46,8 +46,8 @@ func _ready():
 	rollback_synchronizer.set_input_schema({
 		"Input:movement": NetfoxSchemas.vec2(),
 		"Input:look_angle": NetfoxSchemas.vec2(),
-		"Input:jump": NetfoxSchemas.uint8(),
-		"Input:fire": NetfoxSchemas.uint8()
+		"Input:jump": NetfoxSchemas.bool(),
+		"Input:fire": NetfoxSchemas.bool()
 	})
 
 	# Wait for deps to setup
