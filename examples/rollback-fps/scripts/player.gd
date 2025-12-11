@@ -44,7 +44,7 @@ func _ready():
 	})
 
 	rollback_synchronizer.set_input_schema({
-		"Input:movement": NetfoxSchemas.vec2(),
+		"Input:movement": NetfoxSchemas.vec3(),
 		"Input:look_angle": NetfoxSchemas.vec2(),
 		"Input:jump": NetfoxSchemas.bool(),
 		"Input:fire": NetfoxSchemas.bool()
