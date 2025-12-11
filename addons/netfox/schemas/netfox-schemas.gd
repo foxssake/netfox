@@ -4,6 +4,7 @@ class_name NetfoxSchemas
 static func variant() -> NetfoxSerializer:
 	return VariantSerializer.new()
 
+# TODO: Avoid keyword as function name
 static func bool() -> NetfoxSerializer:
 	return BoolSerializer.new()
 
@@ -15,6 +16,12 @@ static func uint16() -> NetfoxSerializer:
 
 static func uint32() -> NetfoxSerializer:
 	return Uint32Serializer.new()
+
+static func int8() -> NetfoxSerializer:
+	return Int8Serializer.new()
+
+static func int16() -> NetfoxSerializer:
+	return Int16Serializer.new()
 
 static func int32() -> NetfoxSerializer:
 	return Int32Serializer.new()
@@ -31,27 +38,16 @@ static func vec2() -> NetfoxSerializer:
 static func vec3() -> NetfoxSerializer:
 	return Vec3Serializer.new()
 
-# --- Internal Serializer Classes ---
+# TODO: vec4, quat, transform?
+
+# Serializer classes
 
 class VariantSerializer extends NetfoxSerializer:
 	func encode(v: Variant, b: StreamPeerBuffer) -> void:
-		var data = var_to_bytes(v)
-		b.put_u32(data.size()) 
-		b.put_data(data)
+		b.put_var(v, false)
 	
 	func decode(b: StreamPeerBuffer) -> Variant:
-		if b.get_available_bytes() < 4:
-			return null 
-		
-		var size = b.get_u32()
-		if size < 4 or b.get_available_bytes() < size:
-			return null
-		
-		var result = b.get_data(size)
-		if result[0] != OK:
-			return null
-			
-		return bytes_to_var(result[1])
+		return b.get_var(false)
 
 class BoolSerializer extends NetfoxSerializer:
 	func encode(v: Variant, b: StreamPeerBuffer) -> void:
@@ -71,6 +67,14 @@ class Uint16Serializer extends NetfoxSerializer:
 class Uint32Serializer extends NetfoxSerializer:
 	func encode(v: Variant, b: StreamPeerBuffer) -> void: b.put_u32(v)
 	func decode(b: StreamPeerBuffer) -> Variant: return b.get_u32()
+
+class Int8Serializer extends NetfoxSerializer:
+	func encode(v: Variant, b: StreamPeerBuffer) -> void: b.put_8(v)
+	func decode(b: StreamPeerBuffer) -> Variant: return b.get_8()
+
+class Int16Serializer extends NetfoxSerializer:
+	func encode(v: Variant, b: StreamPeerBuffer) -> void: b.put_16(v)
+	func decode(b: StreamPeerBuffer) -> Variant: return b.get_16()
 
 class Int32Serializer extends NetfoxSerializer:
 	func encode(v: Variant, b: StreamPeerBuffer) -> void: b.put_32(v)

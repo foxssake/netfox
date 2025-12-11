@@ -25,9 +25,7 @@ func get_redundancy() -> int:
 
 func set_redundancy(p_redundancy: int):
 	if p_redundancy <= 0:
-		_logger.warning(
-			"Attempting to set redundancy to %d, which would send no data!", [p_redundancy]
-		)
+		_logger.warning("Attempting to set redundancy to %d, which would send no data!", [p_redundancy])
 		return
 
 	redundancy = p_redundancy
@@ -40,34 +38,30 @@ func set_properties(properties: Array[PropertyEntry]) -> void:
 func encode(tick: int, properties: Array[PropertyEntry]) -> PackedByteArray:
 	if _history.is_empty():
 		return PackedByteArray()
-	
+
 	var buffer := StreamPeerBuffer.new()
-	
 	buffer.put_u8(_version)
-	
-	for i: int in range(mini(redundancy, _history.size())):
+
+	for i in range(mini(redundancy, _history.size())):
 		var offset_tick := tick - i
 		if offset_tick < _history.get_earliest_tick():
 			break
 
 		var snapshot := _history.get_snapshot(offset_tick)
-		for property: PropertyEntry in properties:
-			var path = property.to_string()
-			var value = snapshot.get_value(path)
+		for property in properties:
+			var path := property.to_string()
+			var value := snapshot.get_value(path)
 			_schema_handler.encode(path, value, buffer)
 
 	return buffer.data_array
 
-func decode(data: Variant, properties: Array[PropertyEntry]) -> Array[_PropertySnapshot]:
+func decode(data: PackedByteArray, properties: Array[PropertyEntry]) -> Array[_PropertySnapshot]:
 	var result: Array[_PropertySnapshot] = []
-	
+
 	if data.is_empty():
 		return result
-	
+
 	var buffer := StreamPeerBuffer.new()
-	if data is PackedByteArray:
-		buffer.data_array = data
-	
 	var packet_version := buffer.get_u8()
 
 	if packet_version != _version:
@@ -78,28 +72,23 @@ func decode(data: Variant, properties: Array[PropertyEntry]) -> Array[_PropertyS
 			# Version mismatch, can't parse
 			_logger.warning("Version mismatch! own: %d, received: %s", [_version, packet_version])
 			return result
-	
+
 	_has_received = true
-	
+
 	while buffer.get_available_bytes() > 0:
 		var snapshot = _PropertySnapshot.new()
-		var snapshot_valid = true
-		
-		for property: PropertyEntry in properties:
+
+		for property in properties:
 			# Stop if we run out of data mid-snapshot
 			if buffer.get_available_bytes() == 0:
-				snapshot_valid = false
 				break
-				
-			var path: String = property.to_string()
-			var val = _schema_handler.decode(path, buffer) # Use handler
-			
-			snapshot.set_value(path, val)
-		
-		if snapshot_valid:
-			result.append(snapshot)
-		else:
-			break
+
+			var path := property.to_string()
+			var value := _schema_handler.decode(path, buffer)
+
+			snapshot.set_value(path, value)
+
+		result.append(snapshot)
 
 	return result
 

@@ -1,3 +1,4 @@
+# TODO: Private
 extends RefCounted
 class_name NetfoxSchemaHandler
 
@@ -9,13 +10,7 @@ func _init(serializers: Dictionary, fallback: NetfoxSerializer) -> void:
 	_fallback = fallback
 
 func encode(path: String, value: Variant, buffer: StreamPeerBuffer) -> void:
-	if _serializers.has(path):
-		_serializers[path].encode(value, buffer)
-	else:
-		_fallback.encode(value, buffer)
+	(_serializers.get(path, _fallback) as NetfoxSerializer).encode(value, buffer)
 
 func decode(path: String, buffer: StreamPeerBuffer) -> Variant:
-	if _serializers.has(path):
-		return _serializers[path].decode(buffer)
-	else:
-		return _fallback.decode(buffer)
+	return (_serializers.get(path, _fallback) as NetfoxSerializer).decode(buffer)

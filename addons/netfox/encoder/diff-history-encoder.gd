@@ -23,7 +23,7 @@ func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache, p
 func add_properties(properties: Array[PropertyEntry]) -> void:
 	var has_new_properties := false
 
-	for property_entry: PropertyEntry in properties:
+	for property_entry in properties:
 		var is_new := _ensure_property_idx(property_entry.to_string())
 		has_new_properties = has_new_properties or is_new
 
@@ -32,7 +32,7 @@ func add_properties(properties: Array[PropertyEntry]) -> void:
 		_version = (_version + 1) % 256
 
 func encode(tick: int, reference_tick: int, properties: Array[PropertyEntry]) -> PackedByteArray:
-	assert(properties.size() <= 255, "Property indices may not fit into bytes!")
+	assert(properties.size() <= 255, "Property indices may not fit into bytes; too many properties!")
 
 	var snapshot := _history.get_snapshot(tick)
 	var property_strings := properties.map(func(it): return it.to_string())
@@ -53,8 +53,8 @@ func encode(tick: int, reference_tick: int, properties: Array[PropertyEntry]) ->
 		var property_idx := _property_indexes.get_by_value(property_path) as int
 		buffer.put_u8(property_idx)
 		
-		var val = diff_snapshot.get_value(property_path)
-		_schema_handler.encode(property_path, val, buffer)
+		var value := diff_snapshot.get_value(property_path)
+		_schema_handler.encode(property_path, value, buffer)
 
 	return buffer.data_array
 
@@ -68,6 +68,7 @@ func decode(data: PackedByteArray, properties: Array[PropertyEntry]) -> _Propert
 	buffer.data_array = data
 
 	var packet_version := buffer.get_u8()
+	# TODO: Extract schema versioning into shared code to avoid duplication
 	if packet_version != _version:
 		if not _has_received:
 			# This is the first time we receive data
@@ -81,17 +82,16 @@ func decode(data: PackedByteArray, properties: Array[PropertyEntry]) -> _Propert
 	_has_received = true
 
 	while buffer.get_available_bytes() > 0:
-		# 1. Read Property Index
 		var property_idx := buffer.get_u8()
-		
+
 		if not _property_indexes.has_key(property_idx):
 			_logger.warning("Received unknown property index %d, ignoring!", [property_idx])
-			break # Changed from continue to break per review
+			break
 
 		var property_path := _property_indexes.get_by_key(property_idx)
-		var val = _schema_handler.decode(property_path, buffer) # Use handler
-			
-		result.set_value(property_path, val)
+		var value := _schema_handler.decode(property_path, buffer)
+
+		result.set_value(property_path, value)
 
 	return result
 

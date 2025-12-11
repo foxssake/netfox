@@ -27,25 +27,20 @@ func encode(tick: int, properties: Array[PropertyEntry]) -> PackedByteArray:
 	
 	buffer.put_u8(_version)
 
-	for property: PropertyEntry in properties:
+	for property in properties:
 		var path: String = property.to_string()
 		var value = snapshot.get_value(path)
 		_schema_handler.encode(path, value, buffer)
 
 	return buffer.data_array
 
-func decode(data: Variant, properties: Array[PropertyEntry]) -> _PropertySnapshot:
+func decode(data: PackedByteArray, properties: Array[PropertyEntry]) -> _PropertySnapshot:
 	var result := _PropertySnapshot.new()
-	
-	# Handle case where data might be empty
+
 	if data.is_empty():
 		return result
-		
-	var buffer := StreamPeerBuffer.new()
-	if data is PackedByteArray:
-		buffer.data_array = data
 
-	# Read Version
+	var buffer := StreamPeerBuffer.new()
 	var packet_version: int = buffer.get_u8()
 
 	if packet_version != _version:
@@ -57,13 +52,14 @@ func decode(data: Variant, properties: Array[PropertyEntry]) -> _PropertySnapsho
 
 	_has_received = true
 
-	for property: PropertyEntry in properties:
+	for property in properties:
 		if buffer.get_available_bytes() == 0:
+			_logger.warning("Received snapshot with %d properties, expected %d!", [result.size(), properties.size()])
 			break
-		
-		var path: String = property.to_string()
-		var val = _schema_handler.decode(path, buffer) # Use handler
-		result.set_value(path, val)
+
+		var path := property.to_string()
+		var value := _schema_handler.decode(path, buffer)
+		result.set_value(path, value)
 
 	return result
 
