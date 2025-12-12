@@ -26,9 +26,9 @@ func before_case(__):
 	target_history = _PropertyHistoryBuffer.new()
 	property_cache = PropertyCache.new(root_node)
 
-	var serializers = {}
-	source_encoder = _DiffHistoryEncoder.new(source_history, property_cache, serializers)
-	target_encoder = _DiffHistoryEncoder.new(target_history, property_cache, serializers)
+	var schema := NetfoxSchemaHandler.new({})
+	source_encoder = _DiffHistoryEncoder.new(source_history, property_cache, schema)
+	target_encoder = _DiffHistoryEncoder.new(target_history, property_cache, schema)
 
 	source_encoder.add_properties(property_entries)
 	target_encoder.add_properties(property_entries)

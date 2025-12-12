@@ -41,6 +41,7 @@ func decode(data: PackedByteArray, properties: Array[PropertyEntry]) -> _Propert
 		return result
 
 	var buffer := StreamPeerBuffer.new()
+	buffer.data_array = data
 	var packet_version: int = buffer.get_u8()
 
 	if packet_version != _version:
