@@ -77,7 +77,7 @@ var _skipset: _Set = _Set.new()
 
 var _properties_dirty: bool = false
 
-var _schema: NetfoxSchemaHandler
+var _schema := NetfoxSchemaHandler.new({})
 
 var _property_cache := PropertyCache.new(root)
 var _freshness_store := RollbackFreshnessStore.new()
