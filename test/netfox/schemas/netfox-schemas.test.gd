@@ -19,6 +19,18 @@ func suite() -> void:
 		
 		["float32", NetfoxSchemas.float32(), 2.0, 4],
 		["float64", NetfoxSchemas.float64(), 2.0, 8],
+		
+		["vec2f32", NetfoxSchemas.vec2f32(), Vector2(+1, -1), 8],
+		["vec2f64", NetfoxSchemas.vec2f64(), Vector2(+1, -1), 16],
+		["vec3f32", NetfoxSchemas.vec3f32(), Vector3(+1, -1, .5), 12],
+		["vec3f64", NetfoxSchemas.vec3f64(), Vector3(+1, -1, .5), 24],
+		["vec4f32", NetfoxSchemas.vec4f32(), Vector4(+1, -1, .5, -5), 16],
+		["vec4f64", NetfoxSchemas.vec4f64(), Vector4(+1, -1, .5, -5), 32],
+		
+		["transform2f32", NetfoxSchemas.transform2f32(), Transform2D.IDENTITY.rotated(37.), 24],
+		["transform2f64", NetfoxSchemas.transform2f64(), Transform2D.IDENTITY.rotated(37.), 48],
+		["transform3f32", NetfoxSchemas.transform3f32(), Transform3D.IDENTITY.rotated(Vector3.ONE, 37.), 48],
+		["transform3f64", NetfoxSchemas.transform3f64(), Transform3D.IDENTITY.rotated(Vector3.ONE, 37.), 96],
 	]
 
 	for case in cases:

@@ -39,18 +39,53 @@ static func float32() -> NetfoxSerializer:
 static func float64() -> NetfoxSerializer:
 	return Float64Serializer.new()
 
-static func vec2() -> NetfoxSerializer:
-	return Vec2Serializer.new()
+static func vec2t(component_serializer: NetfoxSerializer) -> NetfoxSerializer:
+	return GenericVec2Serializer.new(component_serializer)
 
-static func vec3() -> NetfoxSerializer:
-	return Vec3Serializer.new()
+static func vec2f32() -> NetfoxSerializer:
+	return vec2t(float32())
 
-# TODO: Generic vector types that use a supplied schema per component
-# TODO: Generic quaternion type
-# TODO: Generic transform2D and transform3D type
-# TODO: transform2f32, transform3f32
-# TODO: vec2f16, vec2f32, vec2f64, vec3f16, vec3f32, vec3f64, vec4f16, vec4f32, vec4f64
-# TODO: vec4, quat, transform?
+static func vec2f64() -> NetfoxSerializer:
+	return vec2t(float64())
+
+static func vec3t(component_serializer: NetfoxSerializer) -> NetfoxSerializer:
+	return GenericVec3Serializer.new(component_serializer)
+
+static func vec3f32() -> NetfoxSerializer:
+	return vec3t(float32())
+
+static func vec3f64() -> NetfoxSerializer:
+	return vec3t(float64())
+
+static func vec4t(component_serializer: NetfoxSerializer) -> NetfoxSerializer:
+	return GenericVec4Serializer.new(component_serializer)
+
+static func vec4f32() -> NetfoxSerializer:
+	return vec4t(float32())
+
+static func vec4f64() -> NetfoxSerializer:
+	return vec4t(float64())
+
+static func transform2t(component_serializer: NetfoxSerializer) -> NetfoxSerializer:
+	return GenericTransform2DSerializer.new(component_serializer)
+
+static func transform2f32() -> NetfoxSerializer:
+	return transform2t(float32())
+
+static func transform2f64() -> NetfoxSerializer:
+	return transform2t(float64())
+
+static func transform3t(component_serializer: NetfoxSerializer) -> NetfoxSerializer:
+	return GenericTransform3DSerializer.new(component_serializer)
+
+static func transform3f32() -> NetfoxSerializer:
+	return transform3t(float32())
+
+static func transform3f64() -> NetfoxSerializer:
+	return transform3t(float64())
+
+# TODO: Generic quaternion type, quat32f, quat64f
+# TODO: fixed16(), fixed32(), fixed64() - unlerp, quantize, encode as size
 
 # Serializer classes
 
@@ -108,17 +143,92 @@ class Float64Serializer extends NetfoxSerializer:
 	func encode(v: Variant, b: StreamPeerBuffer) -> void: b.put_double(v)
 	func decode(b: StreamPeerBuffer) -> Variant: return b.get_double()
 
-class Vec2Serializer extends NetfoxSerializer:
-	func encode(v: Variant, b: StreamPeerBuffer) -> void:
-		b.put_float(v.x)
-		b.put_float(v.y)
-	func decode(b: StreamPeerBuffer) -> Variant:
-		return Vector2(b.get_float(), b.get_float())
+class GenericVec2Serializer extends NetfoxSerializer:
+	var component: NetfoxSerializer
+	
+	func _init(p_component: NetfoxSerializer):
+		component = p_component
 
-class Vec3Serializer extends NetfoxSerializer:
 	func encode(v: Variant, b: StreamPeerBuffer) -> void:
-		b.put_float(v.x)
-		b.put_float(v.y)
-		b.put_float(v.z)
+		component.encode(v.x, b)
+		component.encode(v.y, b)
+	
 	func decode(b: StreamPeerBuffer) -> Variant:
-		return Vector3(b.get_float(), b.get_float(), b.get_float())
+		return Vector2(component.decode(b), component.decode(b))
+
+class GenericVec3Serializer extends NetfoxSerializer:
+	var component: NetfoxSerializer
+	
+	func _init(p_component: NetfoxSerializer):
+		component = p_component
+
+	func encode(v: Variant, b: StreamPeerBuffer) -> void:
+		component.encode(v.x, b)
+		component.encode(v.y, b)
+		component.encode(v.z, b)
+	
+	func decode(b: StreamPeerBuffer) -> Variant:
+		return Vector3(
+			component.decode(b), component.decode(b), component.decode(b)
+		)
+
+class GenericVec4Serializer extends NetfoxSerializer:
+	var component: NetfoxSerializer
+	
+	func _init(p_component: NetfoxSerializer):
+		component = p_component
+
+	func encode(v: Variant, b: StreamPeerBuffer) -> void:
+		component.encode(v.x, b)
+		component.encode(v.y, b)
+		component.encode(v.z, b)
+		component.encode(v.w, b)
+	
+	func decode(b: StreamPeerBuffer) -> Variant:
+		return Vector4(
+			component.decode(b), component.decode(b), component.decode(b), component.decode(b)
+		)
+
+class GenericTransform2DSerializer extends NetfoxSerializer:
+	var component: NetfoxSerializer
+	
+	func _init(p_component: NetfoxSerializer):
+		component = p_component
+
+	func encode(v: Variant, b: StreamPeerBuffer) -> void:
+		var t := v as Transform2D
+		
+		component.encode(t.x.x, b); component.encode(t.x.y, b)
+		component.encode(t.y.x, b); component.encode(t.y.y, b)
+		component.encode(t.origin.x, b); component.encode(t.origin.y, b)
+
+	func decode(b: StreamPeerBuffer) -> Variant:
+		return Transform2D(
+			Vector2(component.decode(b), component.decode(b)),
+			Vector2(component.decode(b), component.decode(b)),
+			Vector2(component.decode(b), component.decode(b)),
+		)
+
+class GenericTransform3DSerializer extends NetfoxSerializer:
+	var component: NetfoxSerializer
+	
+	func _init(p_component: NetfoxSerializer):
+		component = p_component
+
+	func encode(v: Variant, b: StreamPeerBuffer) -> void:
+		var t := v as Transform3D
+
+		component.encode(t.basis.x.x, b); component.encode(t.basis.x.y, b); component.encode(t.basis.x.z, b)
+		component.encode(t.basis.y.x, b); component.encode(t.basis.y.y, b); component.encode(t.basis.y.z, b)
+		component.encode(t.basis.z.x, b); component.encode(t.basis.z.y, b); component.encode(t.basis.z.z, b)
+		component.encode(t.origin.x, b); component.encode(t.origin.y, b); component.encode(t.origin.z, b)
+
+	func decode(b: StreamPeerBuffer) -> Variant:
+		return Transform3D(
+			Basis(
+				Vector3(component.decode(b), component.decode(b), component.decode(b)),
+				Vector3(component.decode(b), component.decode(b), component.decode(b)),
+				Vector3(component.decode(b), component.decode(b), component.decode(b)),
+			),
+			Vector3(component.decode(b), component.decode(b), component.decode(b))
+		)

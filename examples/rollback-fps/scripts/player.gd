@@ -37,12 +37,12 @@ func _ready():
 
 	## Testing the new state schemas
 	rollback_synchronizer.set_schema({
-		":velocity": NetfoxSchemas.vec3(),
+		":velocity": NetfoxSchemas.vec3f32(),
 		":health": NetfoxSchemas.int8(),
 		":deaths": NetfoxSchemas.uint16(),
 		"Head/PlayerFPSWeapon:last_fire": NetfoxSchemas.int32(),
-		"Input:movement": NetfoxSchemas.vec3(),
-		"Input:look_angle": NetfoxSchemas.vec2(),
+		"Input:movement": NetfoxSchemas.vec3f32(),
+		"Input:look_angle": NetfoxSchemas.vec2f32(),
 		"Input:jump": NetfoxSchemas.bool8(),
 		"Input:fire": NetfoxSchemas.bool8()
 	})
