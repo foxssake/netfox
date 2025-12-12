@@ -49,8 +49,7 @@ var _property_cache: PropertyCache
 var _property_config: _PropertyConfig = _PropertyConfig.new()
 var _properties_dirty: bool = false
 
-var _user_schema: Dictionary = {}
-var _schema_handler: NetfoxSchemaHandler
+var _schema: NetfoxSchemaHandler
 
 var _state_history := _PropertyHistoryBuffer.new()
 
@@ -74,8 +73,8 @@ func process_settings() -> void:
 	_property_cache = PropertyCache.new(root)
 	_property_config.set_properties_from_paths(properties, _property_cache)
 
-	_full_state_encoder = _SnapshotHistoryEncoder.new(_state_history, _property_cache, _schema_handler)
-	_diff_state_encoder = _DiffHistoryEncoder.new(_state_history, _property_cache, _schema_handler)
+	_full_state_encoder = _SnapshotHistoryEncoder.new(_state_history, _property_cache, _schema)
+	_diff_state_encoder = _DiffHistoryEncoder.new(_state_history, _property_cache, _schema)
 
 	_diff_state_encoder.add_properties(_property_config.get_properties())
 
@@ -107,7 +106,7 @@ func add_state(node: Variant, property: String) -> void:
 	_reprocess_settings.call_deferred()
 
 func set_schema(schema: Dictionary) -> void:
-	_user_schema = schema
+	_schema = NetfoxSchemaHandler.new(schema)
 	_properties_dirty = true
 	_reprocess_settings.call_deferred()
 
@@ -173,16 +172,6 @@ func _reprocess_settings() -> void:
 
 	_properties_dirty = false
 	process_settings()
-
-func _compile_serializers() -> void:
-	var serializers := {}
-	var fallback = NetfoxSchemas.variant()
-	for prop in _property_config.get_properties():
-		var path = prop.to_string()
-		if _user_schema.has(path):
-			serializers[path] = _user_schema[path]
-			
-	_schema_handler = NetfoxSchemaHandler.new(serializers, fallback)
 
 func _broadcast_state(tick: int, state: _PropertySnapshot) -> void:
 	var is_sending_diffs := NetworkRollback.enable_diff_states # TODO: Don't tie to a rollback setting?

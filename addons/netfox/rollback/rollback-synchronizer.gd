@@ -77,11 +77,7 @@ var _skipset: _Set = _Set.new()
 
 var _properties_dirty: bool = false
 
-var _user_state_schema: Dictionary = {}
-var _user_input_schema: Dictionary = {}
-
-var _state_schema_handler: NetfoxSchemaHandler
-var _input_schema_handler: NetfoxSchemaHandler
+var _schema: NetfoxSchemaHandler
 
 var _property_cache := PropertyCache.new(root)
 var _freshness_store := RollbackFreshnessStore.new()
@@ -114,8 +110,6 @@ func process_settings() -> void:
 	_states.clear()
 	_inputs.clear()
 	process_authority()
-	
-	_compile_serializers()
 
 	# Gather all rollback-aware nodes to simulate during rollbacks
 	_nodes = root.find_children("*")
@@ -124,7 +118,7 @@ func process_settings() -> void:
 	_nodes.erase(self)
 
 	_history_transmitter.sync_settings(root, enable_input_broadcast, full_state_interval, diff_ack_interval)
-	_history_transmitter.configure(_states, _inputs, _state_property_config, _input_property_config, visibility_filter, _property_cache, _skipset, _state_schema_handler, _input_schema_handler)
+	_history_transmitter.configure(_states, _inputs, _state_property_config, _input_property_config, visibility_filter, _property_cache, _skipset, _schema)
 	_history_recorder.configure(_states, _inputs, _state_property_config, _input_property_config, _property_cache, _skipset)
 
 ## Process settings based on authority.
@@ -153,14 +147,8 @@ func add_state(node: Variant, property: String):
 	_properties_dirty = true
 	_reprocess_settings.call_deferred()
 
-
-func set_state_schema(schema: Dictionary) -> void:
-	_user_state_schema = schema
-	_properties_dirty = true
-	_reprocess_settings.call_deferred()
-
-func set_input_schema(schema: Dictionary) -> void:
-	_user_input_schema = schema
+func set_schema(schema: Dictionary) -> void:
+	_schema = NetfoxSchemaHandler.new(schema)
 	_properties_dirty = true
 	_reprocess_settings.call_deferred()
 
@@ -449,25 +437,6 @@ func _run_rollback_tick(tick: int) -> void:
 func _push_simset_metrics():
 	# Push metrics
 	NetworkPerformance.push_rollback_nodes_simulated(_simset.size())
-
-func _compile_serializers() -> void:
-	var fallback = NetfoxSchemas.variant()
-	
-	var state_serializers := {}
-	for prop in _state_property_config.get_properties():
-		var path = prop.to_string()
-		if _user_state_schema.has(path):
-			state_serializers[path] = _user_state_schema[path]
-	
-	_state_schema_handler = NetfoxSchemaHandler.new(state_serializers, fallback)
-
-	var input_serializers := {}
-	for prop in _input_property_config.get_properties():
-		var path = prop.to_string()
-		if _user_input_schema.has(path):
-			input_serializers[path] = _user_input_schema[path]
-			
-	_input_schema_handler = NetfoxSchemaHandler.new(input_serializers, fallback)
 
 func _reprocess_settings() -> void:
 	if not _properties_dirty or Engine.is_editor_hint():

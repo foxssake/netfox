@@ -36,18 +36,15 @@ func _ready():
 	NetworkTime.after_tick_loop.connect(_after_tick_loop)
 
 	## Testing the new state schemas
-	rollback_synchronizer.set_state_schema({
+	rollback_synchronizer.set_schema({
 		":velocity": NetfoxSchemas.vec3(),
-		":health": NetfoxSchemas.uint8(),     # Fits 0-255
-		":deaths": NetfoxSchemas.uint16(),    # Fits 0-65535
-		"Head/PlayerFPSWeapon:last_fire": NetfoxSchemas.int32()
-	})
-
-	rollback_synchronizer.set_input_schema({
+		":health": NetfoxSchemas.int8(),
+		":deaths": NetfoxSchemas.uint16(),
+		"Head/PlayerFPSWeapon:last_fire": NetfoxSchemas.int32(),
 		"Input:movement": NetfoxSchemas.vec3(),
 		"Input:look_angle": NetfoxSchemas.vec2(),
-		"Input:jump": NetfoxSchemas.bool(),
-		"Input:fire": NetfoxSchemas.bool()
+		"Input:jump": NetfoxSchemas.bool8(),
+		"Input:fire": NetfoxSchemas.bool8()
 	})
 
 	# Wait for deps to setup

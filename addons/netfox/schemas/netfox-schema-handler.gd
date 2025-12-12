@@ -5,7 +5,7 @@ class_name NetfoxSchemaHandler
 var _serializers: Dictionary
 var _fallback: NetfoxSerializer
 
-func _init(serializers: Dictionary, fallback: NetfoxSerializer) -> void:
+func _init(serializers: Dictionary, fallback: NetfoxSerializer = NetfoxSchemas.variant()) -> void:
 	_serializers = serializers
 	_fallback = fallback
 

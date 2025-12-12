@@ -4,8 +4,7 @@ class_name NetfoxSchemas
 static func variant() -> NetfoxSerializer:
 	return VariantSerializer.new()
 
-# TODO: Avoid keyword as function name
-static func bool() -> NetfoxSerializer:
+static func bool8() -> NetfoxSerializer:
 	return BoolSerializer.new()
 
 static func uint8() -> NetfoxSerializer:
@@ -17,6 +16,9 @@ static func uint16() -> NetfoxSerializer:
 static func uint32() -> NetfoxSerializer:
 	return Uint32Serializer.new()
 
+static func uint64() -> NetfoxSerializer:
+	return Uint64Serializer.new()
+
 static func int8() -> NetfoxSerializer:
 	return Int8Serializer.new()
 
@@ -25,6 +27,12 @@ static func int16() -> NetfoxSerializer:
 
 static func int32() -> NetfoxSerializer:
 	return Int32Serializer.new()
+
+static func int64() -> NetfoxSerializer:
+	return Int64Serializer.new()
+
+static func float16() -> NetfoxSerializer:
+	return Float16Serializer.new()
 
 static func float32() -> NetfoxSerializer:
 	return Float32Serializer.new()
@@ -38,6 +46,11 @@ static func vec2() -> NetfoxSerializer:
 static func vec3() -> NetfoxSerializer:
 	return Vec3Serializer.new()
 
+# TODO: Generic vector types that use a supplied schema per component
+# TODO: Generic quaternion type
+# TODO: Generic transform2D and transform3D type
+# TODO: transform2f32, transform3f32
+# TODO: vec2f16, vec2f32, vec2f64, vec3f16, vec3f32, vec3f64, vec4f16, vec4f32, vec4f64
 # TODO: vec4, quat, transform?
 
 # Serializer classes
@@ -68,6 +81,10 @@ class Uint32Serializer extends NetfoxSerializer:
 	func encode(v: Variant, b: StreamPeerBuffer) -> void: b.put_u32(v)
 	func decode(b: StreamPeerBuffer) -> Variant: return b.get_u32()
 
+class Uint64Serializer extends NetfoxSerializer:
+	func encode(v: Variant, b: StreamPeerBuffer) -> void: b.put_u64(v)
+	func decode(b: StreamPeerBuffer) -> Variant: return b.get_u64()
+
 class Int8Serializer extends NetfoxSerializer:
 	func encode(v: Variant, b: StreamPeerBuffer) -> void: b.put_8(v)
 	func decode(b: StreamPeerBuffer) -> Variant: return b.get_8()
@@ -79,6 +96,14 @@ class Int16Serializer extends NetfoxSerializer:
 class Int32Serializer extends NetfoxSerializer:
 	func encode(v: Variant, b: StreamPeerBuffer) -> void: b.put_32(v)
 	func decode(b: StreamPeerBuffer) -> Variant: return b.get_32()
+
+class Int64Serializer extends NetfoxSerializer:
+	func encode(v: Variant, b: StreamPeerBuffer) -> void: b.put_64(v)
+	func decode(b: StreamPeerBuffer) -> Variant: return b.get_64()
+
+class Float16Serializer extends NetfoxSerializer:
+	func encode(v: Variant, b: StreamPeerBuffer) -> void: b.put_half(v)
+	func decode(b: StreamPeerBuffer) -> Variant: return b.get_half()
 
 class Float32Serializer extends NetfoxSerializer:
 	func encode(v: Variant, b: StreamPeerBuffer) -> void: b.put_float(v)
