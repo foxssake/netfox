@@ -31,8 +31,7 @@ static func int32() -> NetfoxSerializer:
 static func int64() -> NetfoxSerializer:
 	return Int64Serializer.new()
 
-static func float16() -> NetfoxSerializer:
-	return Float16Serializer.new()
+# TODO(v2): float16()
 
 static func float32() -> NetfoxSerializer:
 	return Float32Serializer.new()
@@ -100,10 +99,6 @@ class Int32Serializer extends NetfoxSerializer:
 class Int64Serializer extends NetfoxSerializer:
 	func encode(v: Variant, b: StreamPeerBuffer) -> void: b.put_64(v)
 	func decode(b: StreamPeerBuffer) -> Variant: return b.get_64()
-
-class Float16Serializer extends NetfoxSerializer:
-	func encode(v: Variant, b: StreamPeerBuffer) -> void: b.put_half(v)
-	func decode(b: StreamPeerBuffer) -> Variant: return b.get_half()
 
 class Float32Serializer extends NetfoxSerializer:
 	func encode(v: Variant, b: StreamPeerBuffer) -> void: b.put_float(v)
