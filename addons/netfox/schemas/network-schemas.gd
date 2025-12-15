@@ -100,6 +100,31 @@ static func vec4f32() -> NetworkSchemaSerializer:
 static func vec4f64() -> NetworkSchemaSerializer:
 	return vec4t(float64())
 
+# Normals
+static func normal2t(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
+	return Normal2Serializer.new(component_serializer)
+
+static func normal2f16() -> NetworkSchemaSerializer:
+	return normal2t(float16())
+
+static func normal2f32() -> NetworkSchemaSerializer:
+	return normal2t(float32())
+
+static func normal2f64() -> NetworkSchemaSerializer:
+	return normal2t(float64())
+
+static func normal3t(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
+	return Normal3Serializer.new(component_serializer)
+
+static func normal3f16() -> NetworkSchemaSerializer:
+	return normal3t(float16())
+
+static func normal3f32() -> NetworkSchemaSerializer:
+	return normal3t(float32())
+
+static func normal3f64() -> NetworkSchemaSerializer:
+	return normal3t(float64())
+
 # Quaternion
 static func quatt(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
 	return GenericQuaternionSerializer.new(component_serializer)
@@ -249,6 +274,34 @@ class GenericVec3Serializer extends NetworkSchemaSerializer:
 	func decode(b: StreamPeerBuffer) -> Variant:
 		return Vector3(
 			component.decode(b), component.decode(b), component.decode(b)
+		)
+
+class Normal2Serializer extends NetworkSchemaSerializer:
+	var component: NetworkSchemaSerializer
+	
+	func _init(p_component: NetworkSchemaSerializer):
+		component = p_component
+
+	func encode(v: Variant, b: StreamPeerBuffer) -> void:
+		component.encode((v as Vector2).angle(), b)
+	
+	func decode(b: StreamPeerBuffer) -> Variant:
+		return Vector2.RIGHT.rotated(component.decode(b))
+
+class Normal3Serializer extends NetworkSchemaSerializer:
+	var component: NetworkSchemaSerializer
+	
+	func _init(p_component: NetworkSchemaSerializer):
+		component = p_component
+
+	func encode(v: Variant, b: StreamPeerBuffer) -> void:
+		var uv := (v as Vector3).octahedron_encode()
+		component.encode(uv.x, b)
+		component.encode(uv.y, b)
+	
+	func decode(b: StreamPeerBuffer) -> Variant:
+		return Vector3.octahedron_decode(
+			Vector2(component.decode(b), component.decode(b))
 		)
 
 class GenericVec4Serializer extends NetworkSchemaSerializer:

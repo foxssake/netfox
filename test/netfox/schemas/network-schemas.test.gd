@@ -42,6 +42,13 @@ func suite() -> void:
 		["vec4f32", NetworkSchemas.vec4f32(), Vector4(+1, -1, .5, -5), 16],
 		["vec4f64", NetworkSchemas.vec4f64(), Vector4(+1, -1, .5, -5), 32],
 		
+		["normal2f16", NetworkSchemas.normal2f16(), Vector2.RIGHT.rotated(PI / 6.), 2 if has_half else 4],
+		["normal2f32", NetworkSchemas.normal2f32(), Vector2.RIGHT.rotated(PI / 6.), 4],
+		["normal2f64", NetworkSchemas.normal2f64(), Vector2.RIGHT.rotated(PI / 6.), 8],
+		["normal3f16", NetworkSchemas.normal3f16(), Vector3.UP, 4 if has_half else 8],
+		["normal3f32", NetworkSchemas.normal3f32(), Vector3.UP, 8],
+		["normal3f64", NetworkSchemas.normal3f64(), Vector3.UP, 16],
+		
 		["quat16f", NetworkSchemas.quat32f(), Quaternion.from_euler(Vector3.ONE), 8 if has_half else 16],
 		["quat32f", NetworkSchemas.quat32f(), Quaternion.from_euler(Vector3.ONE), 16],
 		["quat64f", NetworkSchemas.quat64f(), Quaternion.from_euler(Vector3.ONE), 32],
