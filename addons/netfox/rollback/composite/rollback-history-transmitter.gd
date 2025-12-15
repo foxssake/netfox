@@ -17,7 +17,7 @@ var _input_property_config: _PropertyConfig
 var _property_cache: PropertyCache
 var _skipset: _Set
 
-var _schema_handler: NetfoxSchemaHandler
+var _schema_handler: _NetworkSchema
 
 # Collaborators
 var _input_encoder: _RedundantHistoryEncoder
@@ -61,7 +61,7 @@ func configure(
 		p_visibility_filter: PeerVisibilityFilter,
 		p_property_cache: PropertyCache,
 		p_skipset: _Set,
-		p_schema_handler: NetfoxSchemaHandler,
+		p_schema_handler: _NetworkSchema,
 	) -> void:
 	_state_history = p_state_history
 	_input_history = p_input_history

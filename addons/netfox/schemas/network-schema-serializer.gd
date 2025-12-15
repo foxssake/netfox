@@ -1,5 +1,5 @@
 extends RefCounted
-class_name NetfoxSerializer
+class_name NetworkSchemaSerializer
 
 func encode(value: Variant, buffer: StreamPeerBuffer) -> void:
 	pass

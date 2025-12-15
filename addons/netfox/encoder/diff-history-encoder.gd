@@ -3,7 +3,7 @@ class_name _DiffHistoryEncoder
 
 var _history: _PropertyHistoryBuffer
 var _property_cache: PropertyCache
-var _schema_handler: NetfoxSchemaHandler
+var _schema_handler: _NetworkSchema
 
 var _full_snapshot := {}
 var _encoded_snapshot := {}
@@ -15,7 +15,7 @@ var _has_received := false
 
 static var _logger := NetfoxLogger._for_netfox("DiffHistoryEncoder")
 
-func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache, p_schema_handler: NetfoxSchemaHandler) -> void:
+func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache, p_schema_handler: _NetworkSchema) -> void:
 	_history = p_history
 	_property_cache = p_property_cache
 	_schema_handler = p_schema_handler

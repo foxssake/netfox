@@ -77,7 +77,7 @@ var _skipset: _Set = _Set.new()
 
 var _properties_dirty: bool = false
 
-var _schema := NetfoxSchemaHandler.new({})
+var _schema := _NetworkSchema.new({})
 
 var _property_cache := PropertyCache.new(root)
 var _freshness_store := RollbackFreshnessStore.new()
@@ -148,7 +148,7 @@ func add_state(node: Variant, property: String):
 	_reprocess_settings.call_deferred()
 
 func set_schema(schema: Dictionary) -> void:
-	_schema = NetfoxSchemaHandler.new(schema)
+	_schema = _NetworkSchema.new(schema)
 	_properties_dirty = true
 	_reprocess_settings.call_deferred()
 

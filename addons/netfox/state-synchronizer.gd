@@ -49,7 +49,7 @@ var _property_cache: PropertyCache
 var _property_config: _PropertyConfig = _PropertyConfig.new()
 var _properties_dirty: bool = false
 
-var _schema: NetfoxSchemaHandler
+var _schema: _NetworkSchema
 
 var _state_history := _PropertyHistoryBuffer.new()
 
@@ -106,7 +106,7 @@ func add_state(node: Variant, property: String) -> void:
 	_reprocess_settings.call_deferred()
 
 func set_schema(schema: Dictionary) -> void:
-	_schema = NetfoxSchemaHandler.new(schema)
+	_schema = _NetworkSchema.new(schema)
 	_properties_dirty = true
 	_reprocess_settings.call_deferred()
 

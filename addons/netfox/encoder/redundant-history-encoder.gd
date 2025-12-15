@@ -8,14 +8,14 @@ var redundancy: int = 4:
 var _history: _PropertyHistoryBuffer
 var _properties: Array[PropertyEntry]
 var _property_cache: PropertyCache
-var _schema_handler: NetfoxSchemaHandler
+var _schema_handler: _NetworkSchema
 
 var _version := 0
 var _has_received := false
 
 var _logger := NetfoxLogger._for_netfox("RedundantHistoryEncoder")
 
-func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache, p_schema_handler: NetfoxSchemaHandler):
+func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache, p_schema_handler: _NetworkSchema):
 	_history = p_history
 	_property_cache = p_property_cache
 	_schema_handler = p_schema_handler

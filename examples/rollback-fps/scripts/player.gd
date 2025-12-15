@@ -37,16 +37,16 @@ func _ready():
 
 	## Testing the new state schemas
 	rollback_synchronizer.set_schema({
-		":transform": NetfoxSchemas.transform3f32(),
-		":velocity": NetfoxSchemas.vec3f32(),
-		":health": NetfoxSchemas.int8(),
-		":deaths": NetfoxSchemas.uint16(),
-		"Head:transform": NetfoxSchemas.transform3f32(),
-		"Head/PlayerFPSWeapon:last_fire": NetfoxSchemas.int32(),
-		"Input:movement": NetfoxSchemas.vec3f32(),
-		"Input:look_angle": NetfoxSchemas.vec2f32(),
-		"Input:jump": NetfoxSchemas.bool8(),
-		"Input:fire": NetfoxSchemas.bool8()
+		":transform": NetworkSchemas.transform3f32(),
+		":velocity": NetworkSchemas.vec3f32(),
+		":health": NetworkSchemas.int8(),
+		":deaths": NetworkSchemas.uint16(),
+		"Head:transform": NetworkSchemas.transform3f32(),
+		"Head/PlayerFPSWeapon:last_fire": NetworkSchemas.int32(),
+		"Input:movement": NetworkSchemas.vec3f32(),
+		"Input:look_angle": NetworkSchemas.vec2f32(),
+		"Input:jump": NetworkSchemas.bool8(),
+		"Input:fire": NetworkSchemas.bool8()
 	})
 
 	# Wait for deps to setup
