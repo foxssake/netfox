@@ -4,6 +4,9 @@ class_name NetworkSchemas
 static func variant() -> NetworkSchemaSerializer:
 	return VariantSerializer.new()
 
+static func string() -> NetworkSchemaSerializer:
+	return StringSerializer.new()
+
 static func bool8() -> NetworkSchemaSerializer:
 	return BoolSerializer.new()
 
@@ -87,6 +90,16 @@ static func vec4f32() -> NetworkSchemaSerializer:
 static func vec4f64() -> NetworkSchemaSerializer:
 	return vec4t(float64())
 
+# Quaternion
+static func quatt(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
+	return GenericQuaternionSerializer.new(component_serializer)
+
+static func quat32f() -> NetworkSchemaSerializer:
+	return quatt(float32())
+
+static func quat64f() -> NetworkSchemaSerializer:
+	return quatt(float64())
+
 # Transforms
 static func transform2t(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
 	return GenericTransform2DSerializer.new(component_serializer)
@@ -106,15 +119,13 @@ static func transform3f32() -> NetworkSchemaSerializer:
 static func transform3f64() -> NetworkSchemaSerializer:
 	return transform3t(float64())
 
-# Quaternion
-static func quatt(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
-	return GenericQuaternionSerializer.new(component_serializer)
+# Collections
 
-static func quat32f() -> NetworkSchemaSerializer:
-	return quatt(float32())
+static func array_of(item_serializer: NetworkSchemaSerializer = variant(), size_serializer: NetworkSchemaSerializer = uint16()) -> NetworkSchemaSerializer:
+	return ArraySerializer.new(item_serializer, size_serializer)
 
-static func quat64f() -> NetworkSchemaSerializer:
-	return quatt(float64())
+static func dictionary(key_serializer: NetworkSchemaSerializer = variant(), value_serializer: NetworkSchemaSerializer = variant(), size_serializer: NetworkSchemaSerializer = uint16()) -> NetworkSchemaSerializer:
+	return DictionarySerializer.new(key_serializer, value_serializer, size_serializer)
 
 # Serializer classes
 
@@ -124,6 +135,13 @@ class VariantSerializer extends NetworkSchemaSerializer:
 	
 	func decode(b: StreamPeerBuffer) -> Variant:
 		return b.get_var(false)
+
+class StringSerializer extends NetworkSchemaSerializer:
+	func encode(v: Variant, b: StreamPeerBuffer) -> void:
+		b.put_utf8_string(str(v))
+
+	func decode(b: StreamPeerBuffer) -> Variant:
+		return b.get_utf8_string()
 
 class BoolSerializer extends NetworkSchemaSerializer:
 	func encode(v: Variant, b: StreamPeerBuffer) -> void:
@@ -305,3 +323,58 @@ class QuantizingSerializer extends NetworkSchemaSerializer:
 		var s := component.decode(b)
 		var f := inverse_lerp(to_min, to_max, s)
 		return lerp(from_min, from_max, f)
+
+class ArraySerializer extends NetworkSchemaSerializer:
+	var component: NetworkSchemaSerializer
+	var size: NetworkSchemaSerializer
+	
+	func _init(p_component: NetworkSchemaSerializer, p_size: NetworkSchemaSerializer):
+		component = p_component
+		size = p_size
+	
+	func encode(v: Variant, b: StreamPeerBuffer) -> void:
+		var array := v as Array
+
+		size.encode(array.size(), b)
+		for item in array:
+			component.encode(item, b)
+	
+	func decode(b: StreamPeerBuffer) -> Variant:
+		var array := []
+		
+		var item_count = size.decode(b)
+		array.resize(item_count)
+		for i in item_count:
+			array[i] = component.decode(b)
+		
+		return array
+
+class DictionarySerializer extends NetworkSchemaSerializer:
+	var key_serializer: NetworkSchemaSerializer
+	var value_serializer: NetworkSchemaSerializer
+	var size_serializer: NetworkSchemaSerializer
+	
+	func _init(p_key_serializer: NetworkSchemaSerializer, p_value_serializer: NetworkSchemaSerializer, p_size_serializer: NetworkSchemaSerializer):
+		key_serializer = p_key_serializer
+		value_serializer = p_value_serializer
+		size_serializer = p_size_serializer
+	
+	func encode(v: Variant, b: StreamPeerBuffer) -> void:
+		var dictionary := v as Dictionary
+
+		size_serializer.encode(dictionary.size(), b)
+		for key in dictionary:
+			var value = dictionary[key]
+			key_serializer.encode(key, b)
+			value_serializer.encode(value, b)
+	
+	func decode(b: StreamPeerBuffer) -> Variant:
+		var dictionary := {}
+		
+		var size = size_serializer.decode(b)
+		for i in size:
+			var key = key_serializer.decode(b)
+			var value = value_serializer.decode(b)
+			dictionary[key] = value
+		
+		return dictionary
