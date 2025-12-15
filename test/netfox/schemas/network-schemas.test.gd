@@ -4,6 +4,8 @@ func get_suite_name() -> String:
 	return "NetworkSchemas"
 
 func suite() -> void:
+	var has_half := (Engine.get_version_info().hex >= 0x040400) as bool
+	
 	var cases := [
 		["variant", NetworkSchemas.variant(), 32, 12],
 		["string", NetworkSchemas.string(), "hi!!", 8],
@@ -28,9 +30,11 @@ func suite() -> void:
 		["ufrac16", NetworkSchemas.ufrac16(), 63. / 255., 2],
 		["ufrac32", NetworkSchemas.ufrac32(), 63. / 255., 4],
 		
+		["float16", NetworkSchemas.float16(), 2.0, 2 if has_half else 4],
 		["float32", NetworkSchemas.float32(), 2.0, 4],
 		["float64", NetworkSchemas.float64(), 2.0, 8],
 		
+		["vec2f16", NetworkSchemas.vec2f32(), Vector2(+1, -1), 4 if has_half else 8],
 		["vec2f32", NetworkSchemas.vec2f32(), Vector2(+1, -1), 8],
 		["vec2f64", NetworkSchemas.vec2f64(), Vector2(+1, -1), 16],
 		["vec3f32", NetworkSchemas.vec3f32(), Vector3(+1, -1, .5), 12],
@@ -38,9 +42,11 @@ func suite() -> void:
 		["vec4f32", NetworkSchemas.vec4f32(), Vector4(+1, -1, .5, -5), 16],
 		["vec4f64", NetworkSchemas.vec4f64(), Vector4(+1, -1, .5, -5), 32],
 		
+		["quat16f", NetworkSchemas.quat32f(), Quaternion.from_euler(Vector3.ONE), 8 if has_half else 16],
 		["quat32f", NetworkSchemas.quat32f(), Quaternion.from_euler(Vector3.ONE), 16],
 		["quat64f", NetworkSchemas.quat64f(), Quaternion.from_euler(Vector3.ONE), 32],
 		
+		["transform2f16", NetworkSchemas.transform2f32(), Transform2D.IDENTITY.rotated(37.), 12 if has_half else 24],
 		["transform2f32", NetworkSchemas.transform2f32(), Transform2D.IDENTITY.rotated(37.), 24],
 		["transform2f64", NetworkSchemas.transform2f64(), Transform2D.IDENTITY.rotated(37.), 48],
 		["transform3f32", NetworkSchemas.transform3f32(), Transform3D.IDENTITY.rotated(Vector3.ONE, 37.), 48],

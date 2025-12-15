@@ -34,7 +34,8 @@ static func int32() -> NetworkSchemaSerializer:
 static func int64() -> NetworkSchemaSerializer:
 	return Int64Serializer.new()
 
-# TODO(v2): float16()
+static func float16() -> NetworkSchemaSerializer:
+	return Float16Serializer.new()
 
 static func float32() -> NetworkSchemaSerializer:
 	return Float32Serializer.new()
@@ -66,6 +67,9 @@ static func ufrac32() -> NetworkSchemaSerializer:
 static func vec2t(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
 	return GenericVec2Serializer.new(component_serializer)
 
+static func vec2f16() -> NetworkSchemaSerializer:
+	return vec2t(float16())
+
 static func vec2f32() -> NetworkSchemaSerializer:
 	return vec2t(float32())
 
@@ -74,6 +78,9 @@ static func vec2f64() -> NetworkSchemaSerializer:
 
 static func vec3t(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
 	return GenericVec3Serializer.new(component_serializer)
+	
+static func vec3f16() -> NetworkSchemaSerializer:
+	return vec3t(float16())
 
 static func vec3f32() -> NetworkSchemaSerializer:
 	return vec3t(float32())
@@ -83,6 +90,9 @@ static func vec3f64() -> NetworkSchemaSerializer:
 
 static func vec4t(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
 	return GenericVec4Serializer.new(component_serializer)
+
+static func vec4f16() -> NetworkSchemaSerializer:
+	return vec4t(float16())
 
 static func vec4f32() -> NetworkSchemaSerializer:
 	return vec4t(float32())
@@ -94,6 +104,9 @@ static func vec4f64() -> NetworkSchemaSerializer:
 static func quatt(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
 	return GenericQuaternionSerializer.new(component_serializer)
 
+static func quat16f() -> NetworkSchemaSerializer:
+	return quatt(float16())
+
 static func quat32f() -> NetworkSchemaSerializer:
 	return quatt(float32())
 
@@ -104,6 +117,9 @@ static func quat64f() -> NetworkSchemaSerializer:
 static func transform2t(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
 	return GenericTransform2DSerializer.new(component_serializer)
 
+static func transform2f16() -> NetworkSchemaSerializer:
+	return transform2t(float16())
+
 static func transform2f32() -> NetworkSchemaSerializer:
 	return transform2t(float32())
 
@@ -112,6 +128,9 @@ static func transform2f64() -> NetworkSchemaSerializer:
 
 static func transform3t(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
 	return GenericTransform3DSerializer.new(component_serializer)
+	
+static func transform3f16() -> NetworkSchemaSerializer:
+	return transform3t(float16())
 
 static func transform3f32() -> NetworkSchemaSerializer:
 	return transform3t(float32())
@@ -181,6 +200,19 @@ class Int32Serializer extends NetworkSchemaSerializer:
 class Int64Serializer extends NetworkSchemaSerializer:
 	func encode(v: Variant, b: StreamPeerBuffer) -> void: b.put_64(v)
 	func decode(b: StreamPeerBuffer) -> Variant: return b.get_64()
+
+class Float16Serializer extends NetworkSchemaSerializer:
+	func encode(v: Variant, b: StreamPeerBuffer) -> void:
+		if Engine.get_version_info().hex >= 0x040400:
+			b.put_half(v)
+		else:
+			b.put_float(v)
+
+	func decode(b: StreamPeerBuffer) -> Variant:
+		if Engine.get_version_info().hex >= 0x040400:
+			return b.get_half()
+		else:
+			return b.get_float()
 
 class Float32Serializer extends NetworkSchemaSerializer:
 	func encode(v: Variant, b: StreamPeerBuffer) -> void: b.put_float(v)
