@@ -39,6 +39,27 @@ static func float32() -> NetfoxSerializer:
 static func float64() -> NetfoxSerializer:
 	return Float64Serializer.new()
 
+# signed fraction, i.e. floats in [-1., +1.] range
+static func sfrac8() -> NetfoxSerializer:
+	return QuantizingSerializer.new(uint8(), -1., 1., 0, 0xFF)
+	
+static func sfrac16() -> NetfoxSerializer:
+	return QuantizingSerializer.new(uint16(), -1., 1., 0, 0xFFFF)
+	
+static func sfrac32() -> NetfoxSerializer:
+	return QuantizingSerializer.new(uint32(), -1., 1., 0, 0xFFFFFFFF)
+
+# unsigned fraction, i.e. floats in [0, +1.] range
+static func ufrac8() -> NetfoxSerializer:
+	return QuantizingSerializer.new(uint8(), 0., 1., 0, 0xFF)
+	
+static func ufrac16() -> NetfoxSerializer:
+	return QuantizingSerializer.new(uint16(), 0., 1., 0, 0xFFFF)
+	
+static func ufrac32() -> NetfoxSerializer:
+	return QuantizingSerializer.new(uint32(), 0., 1., 0, 0xFFFFFFFF)
+
+# vector types
 static func vec2t(component_serializer: NetfoxSerializer) -> NetfoxSerializer:
 	return GenericVec2Serializer.new(component_serializer)
 
@@ -66,6 +87,7 @@ static func vec4f32() -> NetfoxSerializer:
 static func vec4f64() -> NetfoxSerializer:
 	return vec4t(float64())
 
+# Transforms
 static func transform2t(component_serializer: NetfoxSerializer) -> NetfoxSerializer:
 	return GenericTransform2DSerializer.new(component_serializer)
 
@@ -84,8 +106,15 @@ static func transform3f32() -> NetfoxSerializer:
 static func transform3f64() -> NetfoxSerializer:
 	return transform3t(float64())
 
-# TODO: Generic quaternion type, quat32f, quat64f
-# TODO: fixed16(), fixed32(), fixed64() - unlerp, quantize, encode as size
+# Quaternion
+static func quatt(component_serializer: NetfoxSerializer) -> NetfoxSerializer:
+	return GenericQuaternionSerializer.new(component_serializer)
+
+static func quat32f() -> NetfoxSerializer:
+	return quatt(float32())
+
+static func quat64f() -> NetfoxSerializer:
+	return quatt(float64())
 
 # Serializer classes
 
@@ -189,6 +218,23 @@ class GenericVec4Serializer extends NetfoxSerializer:
 			component.decode(b), component.decode(b), component.decode(b), component.decode(b)
 		)
 
+class GenericQuaternionSerializer extends NetfoxSerializer:
+	var component: NetfoxSerializer
+	
+	func _init(p_component: NetfoxSerializer):
+		component = p_component
+
+	func encode(v: Variant, b: StreamPeerBuffer) -> void:
+		component.encode(v.x, b)
+		component.encode(v.y, b)
+		component.encode(v.z, b)
+		component.encode(v.w, b)
+	
+	func decode(b: StreamPeerBuffer) -> Variant:
+		return Quaternion(
+			component.decode(b), component.decode(b), component.decode(b), component.decode(b)
+		)
+
 class GenericTransform2DSerializer extends NetfoxSerializer:
 	var component: NetfoxSerializer
 	
@@ -232,3 +278,30 @@ class GenericTransform3DSerializer extends NetfoxSerializer:
 			),
 			Vector3(component.decode(b), component.decode(b), component.decode(b))
 		)
+
+class QuantizingSerializer extends NetfoxSerializer:
+	var component: NetfoxSerializer
+	var from_min: Variant
+	var from_max: Variant
+	var to_min: Variant
+	var to_max: Variant
+	
+	func _init(
+		p_component: NetfoxSerializer, p_from_min: Variant,
+		p_from_max: Variant, p_to_min: Variant, p_to_max: Variant
+	):
+		component = p_component
+		from_min = p_from_min
+		from_max = p_from_max
+		to_min = p_to_min
+		to_max = p_to_max
+
+	func encode(v: Variant, b: StreamPeerBuffer) -> void:
+		var f := inverse_lerp(from_min, from_max, v)
+		var s := lerp(to_min, to_max, f)
+		component.encode(s, b)
+
+	func decode(b: StreamPeerBuffer) -> Variant:
+		var s := component.decode(b)
+		var f := inverse_lerp(to_min, to_max, s)
+		return lerp(from_min, from_max, f)
