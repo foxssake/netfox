@@ -1,173 +1,294 @@
 extends Object
 class_name NetworkSchemas
 
+## Provides various schema serializers
+
+## Serialize any data type supported by [method @GlobalScope.var_to_bytes].
 static func variant() -> NetworkSchemaSerializer:
 	return VariantSerializer.new()
 
+## Serialize strings in UTF-8 encoding.
 static func string() -> NetworkSchemaSerializer:
 	return StringSerializer.new()
 
+## Serialize booleans as 8 bits.
 static func bool8() -> NetworkSchemaSerializer:
 	return BoolSerializer.new()
 
+## Serialize unsigned integers as 8 bits.
 static func uint8() -> NetworkSchemaSerializer:
 	return Uint8Serializer.new()
 
+## Serialize unsigned integers as 16 bits.
 static func uint16() -> NetworkSchemaSerializer:
 	return Uint16Serializer.new()
 
+## Serialize unsigned integers as 32 bits.
 static func uint32() -> NetworkSchemaSerializer:
 	return Uint32Serializer.new()
 
+## Serialize unsigned integers as 64 bits.
 static func uint64() -> NetworkSchemaSerializer:
 	return Uint64Serializer.new()
 
+## Serialize signed integers as 8 bits.
 static func int8() -> NetworkSchemaSerializer:
 	return Int8Serializer.new()
 
+## Serialize signed integers as 16 bits.
 static func int16() -> NetworkSchemaSerializer:
 	return Int16Serializer.new()
 
+## Serialize signed integers as 32 bits.
 static func int32() -> NetworkSchemaSerializer:
 	return Int32Serializer.new()
 
+## Serialize signed integers as 64 bits.
 static func int64() -> NetworkSchemaSerializer:
 	return Int64Serializer.new()
 
+## Serialize floats in half-precision, as 16 bits.
+## [br][br]
+## This is only supported in Godot 4.4 and up, earlier versions fall back to
+## [method float32].
 static func float16() -> NetworkSchemaSerializer:
 	return Float16Serializer.new()
 
+## Serialize floats in single-precision, as 32 bits.
 static func float32() -> NetworkSchemaSerializer:
 	return Float32Serializer.new()
 
+## Serialize floats in double-precision, as 64 bits.
 static func float64() -> NetworkSchemaSerializer:
 	return Float64Serializer.new()
 
-# signed fraction, i.e. floats in [-1., +1.] range
+## Serialize signed fractions in the [code][-1.0, +1.0][/code] range as 8 bits.
 static func sfrac8() -> NetworkSchemaSerializer:
 	return QuantizingSerializer.new(uint8(), -1., 1., 0, 0xFF)
-	
+
+## Serialize signed fractions in the [code][-1.0, +1.0][/code] range as 16 bits.
 static func sfrac16() -> NetworkSchemaSerializer:
 	return QuantizingSerializer.new(uint16(), -1., 1., 0, 0xFFFF)
-	
+
+## Serialize signed fractions in the [code][-1.0, +1.0][/code] range as 32 bits.
 static func sfrac32() -> NetworkSchemaSerializer:
 	return QuantizingSerializer.new(uint32(), -1., 1., 0, 0xFFFFFFFF)
 
-# unsigned fraction, i.e. floats in [0, +1.] range
+## Serialize signed fractions in the [code][0.0, 1.0][/code] range as 8 bits.
 static func ufrac8() -> NetworkSchemaSerializer:
 	return QuantizingSerializer.new(uint8(), 0., 1., 0, 0xFF)
-	
+
+## Serialize signed fractions in the [code][0.0, 1.0][/code] range as 16 bits.
 static func ufrac16() -> NetworkSchemaSerializer:
 	return QuantizingSerializer.new(uint16(), 0., 1., 0, 0xFFFF)
-	
+
+## Serialize signed fractions in the [code][0.0, 1.0][/code] range as 32 bits.
 static func ufrac32() -> NetworkSchemaSerializer:
 	return QuantizingSerializer.new(uint32(), 0., 1., 0, 0xFFFFFFFF)
 
-# vector types
+## Serialize [Vector2] objects, using [param component_serializer] to
+## serialize each component of the vector.
 static func vec2t(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
 	return GenericVec2Serializer.new(component_serializer)
 
+## Serialize [Vector2] objects, with each component being a half-precision
+## float.
+## [br][br]
+## This is only supported in Godot 4.4 and up. Earlier versions fall back to
+## [method vec2f32].
 static func vec2f16() -> NetworkSchemaSerializer:
 	return vec2t(float16())
 
+## Serialize [Vector2] objects, with each component being a single-precision
+## float.
 static func vec2f32() -> NetworkSchemaSerializer:
 	return vec2t(float32())
 
+## Serialize [Vector2] objects, with each component being a double-precision
+## float.
 static func vec2f64() -> NetworkSchemaSerializer:
 	return vec2t(float64())
 
+## Serialize [Vector3] objects, using [param component_serializer] to
+## serialize each component of the vector.
 static func vec3t(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
 	return GenericVec3Serializer.new(component_serializer)
 	
+## Serialize [Vector3] objects, with each component being a half-precision
+## float.
+## [br][br]
+## This is only supported in Godot 4.4 and up. Earlier versions fall back to
+## [method vec3f32].
 static func vec3f16() -> NetworkSchemaSerializer:
 	return vec3t(float16())
 
+## Serialize [Vector3] objects, with each component being a double-precision
+## float.
 static func vec3f32() -> NetworkSchemaSerializer:
 	return vec3t(float32())
 
+## Serialize [Vector3] objects, with each component being a double-precision
+## float.
 static func vec3f64() -> NetworkSchemaSerializer:
 	return vec3t(float64())
 
+## Serialize [Vector4] objects, using [param component_serializer] to
+## serialize each component of the vector.
 static func vec4t(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
 	return GenericVec4Serializer.new(component_serializer)
 
+## Serialize [Vector4] objects, with each component being a half-precision
+## float.
+## [br][br]
+## This is only supported in Godot 4.4 and up. Earlier versions fall back to
+## [method vec4f32].
 static func vec4f16() -> NetworkSchemaSerializer:
 	return vec4t(float16())
 
+## Serialize [Vector4] objects, with each component being a double-precision
+## float.
 static func vec4f32() -> NetworkSchemaSerializer:
 	return vec4t(float32())
 
+## Serialize [Vector4] objects, with each component being a double-precision
+## float.
 static func vec4f64() -> NetworkSchemaSerializer:
 	return vec4t(float64())
 
 # Normals
+## Serialize normalized [Vector2] objects, using [param component_serializer] to
+## serialize each component of the vector.
 static func normal2t(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
 	return Normal2Serializer.new(component_serializer)
 
+## Serialize normalized [Vector2] objects, with each component being a
+## half-precision float.
+## [br][br]
+## This is only supported in Godot 4.4 and up. Earlier versions fall back to
+## [method normal2f32].
 static func normal2f16() -> NetworkSchemaSerializer:
 	return normal2t(float16())
 
+## Serialize normalized [Vector2] objects, with each component being a
+## single-precision float.
 static func normal2f32() -> NetworkSchemaSerializer:
 	return normal2t(float32())
 
+## Serialize normalized [Vector2] objects, with each component being a
+## double-precision float.
 static func normal2f64() -> NetworkSchemaSerializer:
 	return normal2t(float64())
 
+## Serialize normalized [Vector3] objects, using [param component_serializer] to
+## serialize each component of the vector.
 static func normal3t(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
 	return Normal3Serializer.new(component_serializer)
 
+## Serialize normalized [Vector3] objects, with each component being a
+## half-precision float.
+## [br][br]
+## This is only supported in Godot 4.4 and up. Earlier versions fall back to
+## [method normal3f32].
 static func normal3f16() -> NetworkSchemaSerializer:
 	return normal3t(float16())
 
+## Serialize normalized [Vector3] objects, with each component being a
+## single-precision float.
 static func normal3f32() -> NetworkSchemaSerializer:
 	return normal3t(float32())
 
+## Serialize normalized [Vector3] objects, with each component being a
+## double-precision float.
 static func normal3f64() -> NetworkSchemaSerializer:
 	return normal3t(float64())
 
 # Quaternion
+## Serialize [Quaternion] objects, using [param component_serializer] to
+## serialize each component of the quaternion.
 static func quatt(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
 	return GenericQuaternionSerializer.new(component_serializer)
 
+## Serialize [Quaternion] objects, with each component being a half-precision
+## float.
+## [br][br]
+## This is only supported in Godot 4.4 and up. Earlier versions fall back to
+## [method quat32f].
 static func quat16f() -> NetworkSchemaSerializer:
 	return quatt(float16())
 
+## Serialize [Quaternion] objects, with each component being a single-precision
+## float.
 static func quat32f() -> NetworkSchemaSerializer:
 	return quatt(float32())
 
+## Serialize [Quaternion] objects, with each component being a double-precision
+## float.
 static func quat64f() -> NetworkSchemaSerializer:
 	return quatt(float64())
 
 # Transforms
+## Serialize [Transform2D] objects, using [param component_serializer] to
+## serialize each component of the transform.
 static func transform2t(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
 	return GenericTransform2DSerializer.new(component_serializer)
 
+## Serialize [Transform2D] objects, with each component being a half-precision
+## float.
+## [br][br]
+## This is only supported in Godot 4.4 and up. Earlier versions fall back to
+## [method transform2f32].
 static func transform2f16() -> NetworkSchemaSerializer:
 	return transform2t(float16())
 
+## Serialize [Transform2D] objects, with each component being a single-precision
+## float.
 static func transform2f32() -> NetworkSchemaSerializer:
 	return transform2t(float32())
 
+## Serialize [Transform2D] objects, with each component being a double-precision
+## float.
 static func transform2f64() -> NetworkSchemaSerializer:
 	return transform2t(float64())
 
+## Serialize [Transform3D] objects, using [param component_serializer] to
+## serialize each component of the transform.
 static func transform3t(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
 	return GenericTransform3DSerializer.new(component_serializer)
 	
+## Serialize [Transform3D] objects, with each component being a half-precision
+## float.
+## [br][br]
+## This is only supported in Godot 4.4 and up. Earlier versions fall back to
+## [method transform3f32].
 static func transform3f16() -> NetworkSchemaSerializer:
 	return transform3t(float16())
 
+## Serialize [Transform3D] objects, with each component being a single-precision
+## float.
 static func transform3f32() -> NetworkSchemaSerializer:
 	return transform3t(float32())
 
+## Serialize [Transform2D] objects, with each component being a double-precision
+## float.
 static func transform3f64() -> NetworkSchemaSerializer:
 	return transform3t(float64())
 
 # Collections
 
+## Serialize homogenoeous arrays, using [param item_serializer] to
+## serialize each item, and [param size_serializer] to serialize the array's
+## size.
+## [br][br]
+## To serialize heterogenoeous arrays, use [method variant] as the item
+## serializer.
 static func array_of(item_serializer: NetworkSchemaSerializer = variant(), size_serializer: NetworkSchemaSerializer = uint16()) -> NetworkSchemaSerializer:
 	return ArraySerializer.new(item_serializer, size_serializer)
 
+## Serialize homogenoeous dictionaries, using [param key_serialize] and
+## [param value_serializer] to serialize key-value pairs, and
+## [param size_serializer] to serialize the number of entries.
+## [br][br]
+## If either the keys or values are not homogenoeous, use [method variant].
 static func dictionary(key_serializer: NetworkSchemaSerializer = variant(), value_serializer: NetworkSchemaSerializer = variant(), size_serializer: NetworkSchemaSerializer = uint16()) -> NetworkSchemaSerializer:
 	return DictionarySerializer.new(key_serializer, value_serializer, size_serializer)
 
