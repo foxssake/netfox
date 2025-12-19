@@ -1,4 +1,3 @@
-# TODO: Private
 extends RefCounted
 class_name _NetworkSchema
 
