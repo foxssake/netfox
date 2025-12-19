@@ -173,6 +173,12 @@ const TYPES: Array[Dictionary] = [
 		"script": ROOT + "/rewindable-action.gd",
 		"icon": ROOT + "/icons/rewindable-action.svg"
 	},
+	{
+		"name": "PredictiveSynchronizer",
+		"base": "Node",
+		"script": ROOT + "/rollback/predictive-synchronizer.gd",
+		"icon": ROOT + "/icons/predictive-synchronizer.svg"
+	},
 ]
 
 func _enter_tree():
