@@ -2,48 +2,78 @@ extends Object
 class_name NetworkSchemas
 
 ## Provides various schema serializers
+##
+## While some method names are abbreviated, they use a few naming schemes. For 
+## example: [br][br]
+## [method uint16] - unsigned integer, 16 bits[br]
+## [method vec2t] - [Vector2], component of specified [i]type[/i][br]
+## [method vec3f32] - [Vector3], each component as a [method float32][br]
+## [br]
+## To handle collections, see [method array_of] and [method dictionary].
 
 ## Serialize any data type supported by [method @GlobalScope.var_to_bytes].
+## [br][br]
+## Final size depends on the value.
 static func variant() -> NetworkSchemaSerializer:
 	return VariantSerializer.new()
 
 ## Serialize strings in UTF-8 encoding.
+## [br][br]
+## Final size depends on the string, the string itself is zero-terminated.
 static func string() -> NetworkSchemaSerializer:
 	return StringSerializer.new()
 
 ## Serialize booleans as 8 bits.
+## [br][br]
+## Final size is 1 byte.
 static func bool8() -> NetworkSchemaSerializer:
 	return BoolSerializer.new()
 
 ## Serialize unsigned integers as 8 bits.
+## [br][br]
+## Final size is 1 byte.
 static func uint8() -> NetworkSchemaSerializer:
 	return Uint8Serializer.new()
 
 ## Serialize unsigned integers as 16 bits.
+## [br][br]
+## Final size is 2 bytes.
 static func uint16() -> NetworkSchemaSerializer:
 	return Uint16Serializer.new()
 
 ## Serialize unsigned integers as 32 bits.
+## [br][br]
+## Final size is 4 bytes.
 static func uint32() -> NetworkSchemaSerializer:
 	return Uint32Serializer.new()
 
 ## Serialize unsigned integers as 64 bits.
+## [br][br]
+## Final size is 8 bytes.
 static func uint64() -> NetworkSchemaSerializer:
 	return Uint64Serializer.new()
 
 ## Serialize signed integers as 8 bits.
+## [br][br]
+## Final size is 1 byte.
 static func int8() -> NetworkSchemaSerializer:
 	return Int8Serializer.new()
 
 ## Serialize signed integers as 16 bits.
+## [br][br]
+## Final size is 2 bytes.
 static func int16() -> NetworkSchemaSerializer:
 	return Int16Serializer.new()
 
 ## Serialize signed integers as 32 bits.
+## [br][br]
+## Final size is 4 bytes.
 static func int32() -> NetworkSchemaSerializer:
 	return Int32Serializer.new()
 
 ## Serialize signed integers as 64 bits.
+## [br][br]
+## Final size is 8 bytes.
 static func int64() -> NetworkSchemaSerializer:
 	return Int64Serializer.new()
 
@@ -51,43 +81,63 @@ static func int64() -> NetworkSchemaSerializer:
 ## [br][br]
 ## This is only supported in Godot 4.4 and up, earlier versions fall back to
 ## [method float32].
+## [br][br]
+## Final size is 2 bytes, or 4 if using fallback.
 static func float16() -> NetworkSchemaSerializer:
 	return Float16Serializer.new()
 
 ## Serialize floats in single-precision, as 32 bits.
+## [br][br]
+## Final size is 4 bytes.
 static func float32() -> NetworkSchemaSerializer:
 	return Float32Serializer.new()
 
 ## Serialize floats in double-precision, as 64 bits.
+## [br][br]
+## Final size is 8 bytes.
 static func float64() -> NetworkSchemaSerializer:
 	return Float64Serializer.new()
 
 ## Serialize signed fractions in the [code][-1.0, +1.0][/code] range as 8 bits.
+## [br][br]
+## Final size is 1 byte.
 static func sfrac8() -> NetworkSchemaSerializer:
 	return QuantizingSerializer.new(uint8(), -1., 1., 0, 0xFF)
 
 ## Serialize signed fractions in the [code][-1.0, +1.0][/code] range as 16 bits.
+## [br][br]
+## Final size is 2 bytes.
 static func sfrac16() -> NetworkSchemaSerializer:
 	return QuantizingSerializer.new(uint16(), -1., 1., 0, 0xFFFF)
 
 ## Serialize signed fractions in the [code][-1.0, +1.0][/code] range as 32 bits.
+## [br][br]
+## Final size is 4 bytes.
 static func sfrac32() -> NetworkSchemaSerializer:
 	return QuantizingSerializer.new(uint32(), -1., 1., 0, 0xFFFFFFFF)
 
 ## Serialize signed fractions in the [code][0.0, 1.0][/code] range as 8 bits.
+## [br][br]
+## Final size is 1 byte.
 static func ufrac8() -> NetworkSchemaSerializer:
 	return QuantizingSerializer.new(uint8(), 0., 1., 0, 0xFF)
 
 ## Serialize signed fractions in the [code][0.0, 1.0][/code] range as 16 bits.
+## [br][br]
+## Final size is 2 bytes.
 static func ufrac16() -> NetworkSchemaSerializer:
 	return QuantizingSerializer.new(uint16(), 0., 1., 0, 0xFFFF)
 
 ## Serialize signed fractions in the [code][0.0, 1.0][/code] range as 32 bits.
+## [br][br]
+## Final size is 4 bytes.
 static func ufrac32() -> NetworkSchemaSerializer:
 	return QuantizingSerializer.new(uint32(), 0., 1., 0, 0xFFFFFFFF)
 
 ## Serialize [Vector2] objects, using [param component_serializer] to
 ## serialize each component of the vector.
+## [br][br]
+## Serializes 2 components, size depends on the [param component_serializer].
 static func vec2t(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
 	return GenericVec2Serializer.new(component_serializer)
 
@@ -96,21 +146,29 @@ static func vec2t(component_serializer: NetworkSchemaSerializer) -> NetworkSchem
 ## [br][br]
 ## This is only supported in Godot 4.4 and up. Earlier versions fall back to
 ## [method vec2f32].
+## [br][br]
+## Final size is 4 bytes, or 8 if using fallback.
 static func vec2f16() -> NetworkSchemaSerializer:
 	return vec2t(float16())
 
 ## Serialize [Vector2] objects, with each component being a single-precision
 ## float.
+## [br][br]
+## Final size is 8 bytes.
 static func vec2f32() -> NetworkSchemaSerializer:
 	return vec2t(float32())
 
 ## Serialize [Vector2] objects, with each component being a double-precision
 ## float.
+## [br][br]
+## Final size is 16 bytes.
 static func vec2f64() -> NetworkSchemaSerializer:
 	return vec2t(float64())
 
 ## Serialize [Vector3] objects, using [param component_serializer] to
 ## serialize each component of the vector.
+## [br][br]
+## Serializes 3 components, size depends on the [param component_serializer].
 static func vec3t(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
 	return GenericVec3Serializer.new(component_serializer)
 	
@@ -119,21 +177,29 @@ static func vec3t(component_serializer: NetworkSchemaSerializer) -> NetworkSchem
 ## [br][br]
 ## This is only supported in Godot 4.4 and up. Earlier versions fall back to
 ## [method vec3f32].
+## [br][br]
+## Final size is 6 bytes, or 12 if using fallback.
 static func vec3f16() -> NetworkSchemaSerializer:
 	return vec3t(float16())
 
 ## Serialize [Vector3] objects, with each component being a double-precision
 ## float.
+## [br][br]
+## Final size is 12 bytes.
 static func vec3f32() -> NetworkSchemaSerializer:
 	return vec3t(float32())
 
 ## Serialize [Vector3] objects, with each component being a double-precision
 ## float.
+## [br][br]
+## Final size is 24 bytes.
 static func vec3f64() -> NetworkSchemaSerializer:
 	return vec3t(float64())
 
 ## Serialize [Vector4] objects, using [param component_serializer] to
 ## serialize each component of the vector.
+## [br][br]
+## Serializes 4 components, size depends on the [param component_serializer].
 static func vec4t(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
 	return GenericVec4Serializer.new(component_serializer)
 
@@ -142,22 +208,30 @@ static func vec4t(component_serializer: NetworkSchemaSerializer) -> NetworkSchem
 ## [br][br]
 ## This is only supported in Godot 4.4 and up. Earlier versions fall back to
 ## [method vec4f32].
+## [br][br]
+## Final size is 8 bytes, or 16 if using fallback.
 static func vec4f16() -> NetworkSchemaSerializer:
 	return vec4t(float16())
 
 ## Serialize [Vector4] objects, with each component being a double-precision
 ## float.
+## [br][br]
+## Final size is 16 bytes.
 static func vec4f32() -> NetworkSchemaSerializer:
 	return vec4t(float32())
 
 ## Serialize [Vector4] objects, with each component being a double-precision
 ## float.
+## [br][br]
+## Final size is 32 bytes.
 static func vec4f64() -> NetworkSchemaSerializer:
 	return vec4t(float64())
 
 # Normals
 ## Serialize normalized [Vector2] objects, using [param component_serializer] to
 ## serialize each component of the vector.
+## [br][br]
+## Serializes 1 component, size depends on the [param component_serializer].
 static func normal2t(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
 	return Normal2Serializer.new(component_serializer)
 
@@ -166,21 +240,29 @@ static func normal2t(component_serializer: NetworkSchemaSerializer) -> NetworkSc
 ## [br][br]
 ## This is only supported in Godot 4.4 and up. Earlier versions fall back to
 ## [method normal2f32].
+## [br][br]
+## Final size is 2 bytes, 4 if using fallback.
 static func normal2f16() -> NetworkSchemaSerializer:
 	return normal2t(float16())
 
 ## Serialize normalized [Vector2] objects, with each component being a
 ## single-precision float.
+## [br][br]
+## Final size is 4 bytes.
 static func normal2f32() -> NetworkSchemaSerializer:
 	return normal2t(float32())
 
 ## Serialize normalized [Vector2] objects, with each component being a
 ## double-precision float.
+## [br][br]
+## Final size is 8 bytes.
 static func normal2f64() -> NetworkSchemaSerializer:
 	return normal2t(float64())
 
 ## Serialize normalized [Vector3] objects, using [param component_serializer] to
 ## serialize each component of the vector.
+## [br][br]
+## Serializes 2 components, size depends on the [param component_serializer].
 static func normal3t(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
 	return Normal3Serializer.new(component_serializer)
 
@@ -189,22 +271,30 @@ static func normal3t(component_serializer: NetworkSchemaSerializer) -> NetworkSc
 ## [br][br]
 ## This is only supported in Godot 4.4 and up. Earlier versions fall back to
 ## [method normal3f32].
+## [br][br]
+## Final size is 4 bytes, 8 if using fallback.
 static func normal3f16() -> NetworkSchemaSerializer:
 	return normal3t(float16())
 
 ## Serialize normalized [Vector3] objects, with each component being a
 ## single-precision float.
+## [br][br]
+## Final size is 8 bytes.
 static func normal3f32() -> NetworkSchemaSerializer:
 	return normal3t(float32())
 
 ## Serialize normalized [Vector3] objects, with each component being a
 ## double-precision float.
+## [br][br]
+## Final size is 16 bytes.
 static func normal3f64() -> NetworkSchemaSerializer:
 	return normal3t(float64())
 
 # Quaternion
 ## Serialize [Quaternion] objects, using [param component_serializer] to
 ## serialize each component of the quaternion.
+## [br][br]
+## Serializes 4 components, size depends on the [param component_serializer].
 static func quatt(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
 	return GenericQuaternionSerializer.new(component_serializer)
 
@@ -213,22 +303,31 @@ static func quatt(component_serializer: NetworkSchemaSerializer) -> NetworkSchem
 ## [br][br]
 ## This is only supported in Godot 4.4 and up. Earlier versions fall back to
 ## [method quat32f].
+## [br][br]
+## Final size is 8 bytes, 16 if using fallback.
 static func quat16f() -> NetworkSchemaSerializer:
 	return quatt(float16())
 
 ## Serialize [Quaternion] objects, with each component being a single-precision
 ## float.
+## [br][br]
+## Final size is 16 bytes.
 static func quat32f() -> NetworkSchemaSerializer:
 	return quatt(float32())
 
 ## Serialize [Quaternion] objects, with each component being a double-precision
 ## float.
+## [br][br]
+## Final size is 32 bytes.
 static func quat64f() -> NetworkSchemaSerializer:
 	return quatt(float64())
 
 # Transforms
 ## Serialize [Transform2D] objects, using [param component_serializer] to
 ## serialize each component of the transform.
+## [br][br]
+## Serializes a 2x3 matrix in 6 components, final size depends on [param 
+## component_serializer].
 static func transform2t(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
 	return GenericTransform2DSerializer.new(component_serializer)
 
@@ -237,21 +336,30 @@ static func transform2t(component_serializer: NetworkSchemaSerializer) -> Networ
 ## [br][br]
 ## This is only supported in Godot 4.4 and up. Earlier versions fall back to
 ## [method transform2f32].
+## [br][br]
+## Final size is 12 bytes, 24 if using fallback.
 static func transform2f16() -> NetworkSchemaSerializer:
 	return transform2t(float16())
 
 ## Serialize [Transform2D] objects, with each component being a single-precision
 ## float.
+## [br][br]
+## Final size is 24 bytes.
 static func transform2f32() -> NetworkSchemaSerializer:
 	return transform2t(float32())
 
 ## Serialize [Transform2D] objects, with each component being a double-precision
 ## float.
+## [br][br]
+## Final size is 48 bytes.
 static func transform2f64() -> NetworkSchemaSerializer:
 	return transform2t(float64())
 
 ## Serialize [Transform3D] objects, using [param component_serializer] to
 ## serialize each component of the transform.
+## [br][br]
+## Serializes a 3x4 matrix in 12 components, final size depends on [param 
+## component_serializer].
 static func transform3t(component_serializer: NetworkSchemaSerializer) -> NetworkSchemaSerializer:
 	return GenericTransform3DSerializer.new(component_serializer)
 	
@@ -260,16 +368,22 @@ static func transform3t(component_serializer: NetworkSchemaSerializer) -> Networ
 ## [br][br]
 ## This is only supported in Godot 4.4 and up. Earlier versions fall back to
 ## [method transform3f32].
+## [br][br]
+## Final size is 24 bytes, 48 if using fallback.
 static func transform3f16() -> NetworkSchemaSerializer:
 	return transform3t(float16())
 
 ## Serialize [Transform3D] objects, with each component being a single-precision
 ## float.
+## [br][br]
+## Final size is 48 bytes.
 static func transform3f32() -> NetworkSchemaSerializer:
 	return transform3t(float32())
 
 ## Serialize [Transform2D] objects, with each component being a double-precision
 ## float.
+## [br][br]
+## Final size is 96 bytes.
 static func transform3f64() -> NetworkSchemaSerializer:
 	return transform3t(float64())
 
@@ -281,6 +395,8 @@ static func transform3f64() -> NetworkSchemaSerializer:
 ## [br][br]
 ## To serialize heterogenoeous arrays, use [method variant] as the item
 ## serializer.
+## [br][br]
+## Final size is [code]sizeof(size_serializer) + array.size() * sizeof(item_serializer)[/code]
 static func array_of(item_serializer: NetworkSchemaSerializer = variant(), size_serializer: NetworkSchemaSerializer = uint16()) -> NetworkSchemaSerializer:
 	return ArraySerializer.new(item_serializer, size_serializer)
 
@@ -289,7 +405,11 @@ static func array_of(item_serializer: NetworkSchemaSerializer = variant(), size_
 ## [param size_serializer] to serialize the number of entries.
 ## [br][br]
 ## If either the keys or values are not homogenoeous, use [method variant].
-static func dictionary(key_serializer: NetworkSchemaSerializer = variant(), value_serializer: NetworkSchemaSerializer = variant(), size_serializer: NetworkSchemaSerializer = uint16()) -> NetworkSchemaSerializer:
+## [br][br]
+## Final size is [code]sizeof(size_serializer) + dictionary.size() * (sizeof(key_serializer) + sizeof(value_serializer))[/code]
+static func dictionary(key_serializer: NetworkSchemaSerializer = variant(),
+	value_serializer: NetworkSchemaSerializer = variant(),
+	size_serializer: NetworkSchemaSerializer = uint16()) -> NetworkSchemaSerializer:
 	return DictionarySerializer.new(key_serializer, value_serializer, size_serializer)
 
 # Serializer classes
