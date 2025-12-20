@@ -10,7 +10,8 @@ class_name NetworkSchemas
 ## [method vec3f32] - [Vector3], each component as a [method float32][br]
 ## [br]
 ## To handle collections, see [method array_of] and [method dictionary].
-# TODO: Link tutorial
+##
+## @tutorial(Network schemas): https://foxssake.github.io/netfox/latest/netfox/guides/network-schemas/
 
 ## Serialize any data type supported by [method @GlobalScope.var_to_bytes].
 ## [br][br]

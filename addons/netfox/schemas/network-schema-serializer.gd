@@ -9,7 +9,8 @@ class_name NetworkSchemaSerializer
 ## To implement a custom serializer, extend this class and pass an instance of
 ## it in place of a NetworkSchemaSerializer, for example to [method
 ## RollbackSynchronizer.set_schema].
-# TODO: Link tutorial
+##
+## @tutorial(Network schemas): https://foxssake.github.io/netfox/latest/netfox/guides/network-schemas/
 
 ## Encode [param value] into [param buffer]
 func encode(value: Variant, buffer: StreamPeerBuffer) -> void:
