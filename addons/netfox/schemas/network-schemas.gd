@@ -83,7 +83,7 @@ static func int64() -> NetworkSchemaSerializer:
 ## This is only supported in Godot 4.4 and up, earlier versions fall back to
 ## [method float32].
 ## [br][br]
-## Final size is 2 bytes, or 4 if using fallback.
+## Final size is 2 bytes, 4 if using fallback.
 static func float16() -> NetworkSchemaSerializer:
 	return Float16Serializer.new()
 
@@ -148,7 +148,7 @@ static func vec2t(component_serializer: NetworkSchemaSerializer) -> NetworkSchem
 ## This is only supported in Godot 4.4 and up. Earlier versions fall back to
 ## [method vec2f32].
 ## [br][br]
-## Final size is 4 bytes, or 8 if using fallback.
+## Final size is 4 bytes, 8 if using fallback.
 static func vec2f16() -> NetworkSchemaSerializer:
 	return vec2t(float16())
 
@@ -179,7 +179,7 @@ static func vec3t(component_serializer: NetworkSchemaSerializer) -> NetworkSchem
 ## This is only supported in Godot 4.4 and up. Earlier versions fall back to
 ## [method vec3f32].
 ## [br][br]
-## Final size is 6 bytes, or 12 if using fallback.
+## Final size is 6 bytes, 12 if using fallback.
 static func vec3f16() -> NetworkSchemaSerializer:
 	return vec3t(float16())
 
@@ -210,7 +210,7 @@ static func vec4t(component_serializer: NetworkSchemaSerializer) -> NetworkSchem
 ## This is only supported in Godot 4.4 and up. Earlier versions fall back to
 ## [method vec4f32].
 ## [br][br]
-## Final size is 8 bytes, or 16 if using fallback.
+## Final size is 8 bytes, 16 if using fallback.
 static func vec4f16() -> NetworkSchemaSerializer:
 	return vec4t(float16())
 
