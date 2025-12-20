@@ -12,6 +12,10 @@ var _input_for := {}
 # TODO: Refactor to ringbuffer containing sets of nodes?
 var _simulated_ticks := {}
 
+# Currently simulated object
+var _current_object: Object = null
+# Predicted nodes for next simulation
+# TODO: _Set?
 var _predicted_nodes := [] as Array[Node]
 
 var _group := StringName("__nf_rollback_sim" + str(get_instance_id()))
@@ -79,6 +83,11 @@ func is_predicting(snapshot: Snapshot, node: Node) -> bool:
 	# We own the node and we have data for node's input - we're sure
 	return false
 
+func is_predicting_current() -> bool:
+	if not _current_object or not is_instance_valid(_current_object):
+		return false
+	return _predicted_nodes.has(_current_object)
+
 func is_tick_fresh_for(node: Node, tick: int) -> bool:
 	if not _simulated_ticks.has(node):
 		return false
@@ -97,6 +106,8 @@ func trim_ticks_simulated(beginning: int) -> void:
 			.filter(func(tick): return tick >= beginning)
 
 func simulate(delta: float, tick: int) -> void:
+	_current_object = null
+
 	var snapshot := RollbackHistoryServer.get_snapshot(tick)
 	var nodes := get_nodes_to_simulate(snapshot)
 	_predicted_nodes.clear()
@@ -114,11 +125,14 @@ func simulate(delta: float, tick: int) -> void:
 
 	# Run callbacks and clear group
 	for node in nodes:
+		_current_object = node
+
 		var callback := _callbacks[node] as Callable
 		var is_fresh := is_tick_fresh_for(node, tick)
 		callback.call(delta, tick, is_fresh)
 		node.remove_from_group(_group)
 
+		_current_object = null
 		set_tick_simulated_for(node, tick)
 
 	# Metrics

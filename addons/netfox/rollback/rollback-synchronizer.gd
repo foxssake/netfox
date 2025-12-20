@@ -156,6 +156,7 @@ func process_authority():
 ## [NodePath] pointing to a node, or an actual [Node] instance. If the given
 ## property is already tracked, this method does nothing.
 func add_state(node: Variant, property: String):
+	# TODO: Rewrite
 	var property_path := PropertyEntry.make_path(root, node, property)
 	if not property_path or state_properties.has(property_path):
 		return
@@ -170,6 +171,7 @@ func add_state(node: Variant, property: String):
 ## [NodePath] pointing to a node, or an actual [Node] instance. If the given
 ## property is already tracked, this method does nothing.
 func add_input(node: Variant, property: String) -> void:
+	# TODO: Rewrite
 	var property_path := PropertyEntry.make_path(root, node, property)
 	if not property_path or input_properties.has(property_path):
 		return
@@ -184,6 +186,7 @@ func add_input(node: Variant, property: String) -> void:
 ## [br][br]
 ## Returns true if input is available.
 func has_input() -> bool:
+	# TODO: Rewrite
 	return false
 
 ## Get the age of currently available input in ticks.
@@ -193,6 +196,7 @@ func has_input() -> bool:
 ## [br][br]
 ## Calling this when [member has_input] is false will yield an error.
 func get_input_age() -> int:
+	# TODO: Rewrite
 	return 0
 
 ## Check if the current tick is predicted.
@@ -201,13 +205,14 @@ func get_input_age() -> int:
 ## simulated and recorded, but will not be broadcast, nor considered
 ## authoritative.
 func is_predicting() -> bool:
-	return false
+	return RollbackSimulationServer.is_predicting_current()
 
 ## Ignore a node's prediction for the current rollback tick.
 ##
 ## Call this when the input is too old to base predictions on. This call is
 ## ignored if [member enable_prediction] is false.
 func ignore_prediction(node: Node) -> void:
+	# TODO: Rewrite
 	return
 
 ## Get the tick of the last known input.
@@ -222,6 +227,7 @@ func ignore_prediction(node: Node) -> void:
 ## [br][br]
 ## Returns -1 if there's no known input.
 func get_last_known_input() -> int:
+	# TODO: Rewrite
 	return -1
 
 ## Get the tick of the last known state.
@@ -231,6 +237,7 @@ func get_last_known_input() -> int:
 ## data may change as new input arrives. For peers that don't own state, this
 ## will be the tick of the latest state received from the state owner.
 func get_last_known_state() -> int:
+	# TODO: Rewrite
 	# If we own state, this will be updated when recording and broadcasting
 	# state, this will be the current tick
 	# If we don't own state, this will be updated when state data is received
