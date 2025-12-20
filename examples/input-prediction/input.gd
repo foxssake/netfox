@@ -27,7 +27,7 @@ func _predict(_t):
 		return
 	
 	# Decay input over a short time
-	var decay_time := NetworkTime.seconds_to_ticks(.15)
+	var decay_time := NetworkTime.seconds_to_ticks(.05)
 	var input_age := _rollback_synchronizer.get_input_age()
 	
 	# **ALWAYS** cast either side to float, otherwise the integer-integer 

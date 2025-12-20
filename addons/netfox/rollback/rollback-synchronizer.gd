@@ -71,6 +71,8 @@ var visibility_filter := PeerVisibilityFilter.new()
 var _state_property_config: _PropertyConfig = _PropertyConfig.new()
 var _input_property_config: _PropertyConfig = _PropertyConfig.new()
 
+var _input_nodes := [] as Array[Node]
+
 var _properties_dirty: bool = false
 var _property_cache := PropertyCache.new(root)
 
@@ -99,15 +101,15 @@ func process_settings() -> void:
 	nodes = nodes.filter(func(it): return NetworkRollback.is_rollback_aware(it))
 	nodes.erase(self)
 
-	var input_nodes = []
+	_input_nodes.clear()
 	for prop in _input_property_config.get_properties():
 		var input_node := prop.node
-		if not input_nodes.has(input_node):
-			input_nodes.append(input_node)
+		if not _input_nodes.has(input_node):
+			_input_nodes.append(input_node)
 
 	for node in nodes:
 		RollbackSimulationServer.register(node._rollback_tick)
-		for input_node in input_nodes:
+		for input_node in _input_nodes:
 			RollbackSimulationServer.register_input_for(node, input_node)
 		_registered_nodes.append(node)
 
@@ -186,8 +188,7 @@ func add_input(node: Variant, property: String) -> void:
 ## [br][br]
 ## Returns true if input is available.
 func has_input() -> bool:
-	# TODO: Rewrite
-	return false
+	return get_input_age() >= 0
 
 ## Get the age of currently available input in ticks.
 ##
@@ -196,8 +197,15 @@ func has_input() -> bool:
 ## [br][br]
 ## Calling this when [member has_input] is false will yield an error.
 func get_input_age() -> int:
-	# TODO: Rewrite
-	return 0
+	# TODO: input-prediction example desyncs
+	# TODO: Cache these after prepare tick?
+	var max_age := 0
+	for input_node in _input_nodes:
+		var age := RollbackHistoryServer.get_data_age_for(input_node, NetworkRollback.tick)
+		if age < 0:
+			# TODO: Error, somehow
+			return -1
+	return max_age
 
 ## Check if the current tick is predicted.
 ##
@@ -213,6 +221,7 @@ func is_predicting() -> bool:
 ## ignored if [member enable_prediction] is false.
 func ignore_prediction(node: Node) -> void:
 	# TODO: Rewrite
+	# TODO: Does this even make sense in its current form?
 	return
 
 ## Get the tick of the last known input.

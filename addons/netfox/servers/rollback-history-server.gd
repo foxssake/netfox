@@ -8,18 +8,6 @@ var _snapshots: Dictionary = {} # tick to Snapshot
 
 static var _logger := NetfoxLogger._for_netfox("RollbackHistoryServer")
 
-func _ready():
-	NetworkTime.on_tick.connect(func(dt, t):
-		if t != 160: return
-		
-		var data := ""
-		for tick in _snapshots:
-			var snapshot := _snapshots[tick] as Snapshot
-			data += "@%d: %s\n" % [tick, snapshot]
-		
-		_logger.info("History dump: \n" + data)
-	)
-
 func register_property(node: Node, property: NodePath, pool: Array) -> void:
 	var entry := RecordedProperty.key_of(node, property)
 
@@ -100,3 +88,12 @@ func merge_snapshot(snapshot: Snapshot) -> Snapshot:
 #	_snapshots[tick] = stored_snapshot
 
 	return stored_snapshot
+
+func get_data_age_for(what: Node, tick: int) -> int:
+	for i in range(tick, _snapshots.keys.min() - 1, -1):
+		if not _snapshots.has(i):
+			continue
+		var snapshot := get_snapshot(i)
+		if snapshot.has_node(what, true):
+			return tick - i
+	return -1
