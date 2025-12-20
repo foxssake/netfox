@@ -9,8 +9,6 @@ extends CharacterBody3D
 @onready var head := $Head as Node3D
 @onready var camera := $Head/Camera3D as Camera3D
 @onready var hit_sfx := $"Hit SFX" as AudioStreamPlayer3D
-@onready var rollback_synchronizer := $RollbackSynchronizer as RollbackSynchronizer
-
 #+#
 static var _logger := NetfoxLogger.new("game", "Player")
 
@@ -34,20 +32,6 @@ func _ready():
 
 	NetworkTime.before_tick_loop.connect(_before_tick_loop)
 	NetworkTime.after_tick_loop.connect(_after_tick_loop)
-
-	## Testing the new state schemas
-	rollback_synchronizer.set_schema({
-		":transform": NetworkSchemas.transform3f32(),
-		":velocity": NetworkSchemas.vec3f32(),
-		":health": NetworkSchemas.int8(),
-		":deaths": NetworkSchemas.uint16(),
-		"Head:transform": NetworkSchemas.transform3f32(),
-		"Head/PlayerFPSWeapon:last_fire": NetworkSchemas.int32(),
-		"Input:movement": NetworkSchemas.vec3f32(),
-		"Input:look_angle": NetworkSchemas.vec2f32(),
-		"Input:jump": NetworkSchemas.bool8(),
-		"Input:fire": NetworkSchemas.bool8()
-	})
 
 	# Wait for deps to setup
 	await get_tree().process_frame

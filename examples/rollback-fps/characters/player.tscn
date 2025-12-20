@@ -35,8 +35,6 @@ size = Vector3(0.2, 0.2, 1)
 
 [node name="player" type="CharacterBody3D"]
 script = ExtResource("1_bww6v")
-speed = null
-jump_strength = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("CapsuleShape3D_6kydi")
