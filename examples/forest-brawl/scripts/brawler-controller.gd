@@ -64,6 +64,16 @@ func _ready():
 	material.albedo_color = color
 	mesh.set_surface_override_material(0, material)
 
+	rollback_synchronizer.set_schema({
+		":transform": NetworkSchemas.transform3f32(),
+		":velocity": NetworkSchemas.vec3f32(),
+		":speed": NetworkSchemas.float32(),
+		":mass": NetworkSchemas.float32(),
+		
+		"Input:movement": NetworkSchemas.vec3f32(),
+		"Input:aim": NetworkSchemas.vec3f32()
+	})
+
 func _process(delta):
 	# Update animation
 	# Running

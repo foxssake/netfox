@@ -306,21 +306,21 @@ static func quatt(component_serializer: NetworkSchemaSerializer) -> NetworkSchem
 ## [method quat32f].
 ## [br][br]
 ## Final size is 8 bytes, 16 if using fallback.
-static func quat16f() -> NetworkSchemaSerializer:
+static func quatf16() -> NetworkSchemaSerializer:
 	return quatt(float16())
 
 ## Serialize [Quaternion] objects, with each component being a single-precision
 ## float.
 ## [br][br]
 ## Final size is 16 bytes.
-static func quat32f() -> NetworkSchemaSerializer:
+static func quatf32() -> NetworkSchemaSerializer:
 	return quatt(float32())
 
 ## Serialize [Quaternion] objects, with each component being a double-precision
 ## float.
 ## [br][br]
 ## Final size is 32 bytes.
-static func quat64f() -> NetworkSchemaSerializer:
+static func quatf64() -> NetworkSchemaSerializer:
 	return quatt(float64())
 
 # Transforms

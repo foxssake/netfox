@@ -105,6 +105,23 @@ func add_state(node: Variant, property: String) -> void:
 	_properties_dirty = true
 	_reprocess_settings.call_deferred()
 
+## Set the schema for transmitting properties over the network.
+## [br][br]
+## The [param schema] must be a dictionary, with the keys being property path
+## strings, and the values are the associated [NetworkSchemaSerializer] objects.
+## Properties are interpreted relative to the [member root] node. Properties not
+## specified in the schema will use a generic fallback serializer. By using the
+## right serializer for the right property, bandwidth usage can be lowered.
+## [br][br]
+## See [NetworkSchemas] for many common serializers.
+## [br][br]
+## Example:
+## [codeblock]
+##    state_synchronizer.set_schema({
+##        ":transform": NetworkSchemas.transform3f32(),
+##        ":velocity": NetworkSchemas.vec3f32()
+##    })
+## [/codeblock]
 func set_schema(schema: Dictionary) -> void:
 	_schema = _NetworkSchema.new(schema)
 	_properties_dirty = true

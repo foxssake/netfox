@@ -165,7 +165,7 @@ func add_input(node: Variant, property: String) -> void:
 ## [br][br]
 ## The [param schema] must be a dictionary, with the keys being property path
 ## strings, and the values are the associated [NetworkSchemaSerializer] objects.
-## Properties are interpreted relative to the [member root] node .The schema can
+## Properties are interpreted relative to the [member root] node. The schema can
 ## contain both state and input properties. Properties not specified in the
 ## schema will use a generic fallback serializer. By using the right serializer
 ## for the right property, bandwidth usage can be lowered.

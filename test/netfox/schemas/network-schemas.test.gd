@@ -49,13 +49,14 @@ func suite() -> void:
 		["normal3f32", NetworkSchemas.normal3f32(), Vector3.UP, 8],
 		["normal3f64", NetworkSchemas.normal3f64(), Vector3.UP, 16],
 		
-		["quat16f", NetworkSchemas.quat32f(), Quaternion.from_euler(Vector3.ONE), 8 if has_half else 16],
-		["quat32f", NetworkSchemas.quat32f(), Quaternion.from_euler(Vector3.ONE), 16],
-		["quat64f", NetworkSchemas.quat64f(), Quaternion.from_euler(Vector3.ONE), 32],
+		["quat16f", NetworkSchemas.quatf16(), Quaternion.from_euler(Vector3.ONE), 8 if has_half else 16],
+		["quat32f", NetworkSchemas.quatf32(), Quaternion.from_euler(Vector3.ONE), 16],
+		["quat64f", NetworkSchemas.quatf64(), Quaternion.from_euler(Vector3.ONE), 32],
 		
-		["transform2f16", NetworkSchemas.transform2f32(), Transform2D.IDENTITY.rotated(37.), 12 if has_half else 24],
+		["transform2f16", NetworkSchemas.transform2f16(), Transform2D.IDENTITY.rotated(37.), 12 if has_half else 24],
 		["transform2f32", NetworkSchemas.transform2f32(), Transform2D.IDENTITY.rotated(37.), 24],
 		["transform2f64", NetworkSchemas.transform2f64(), Transform2D.IDENTITY.rotated(37.), 48],
+		["transform3f16", NetworkSchemas.transform3f16(), Transform3D.IDENTITY.rotated(Vector3.ONE, 37.), 24 if has_half else 48],
 		["transform3f32", NetworkSchemas.transform3f32(), Transform3D.IDENTITY.rotated(Vector3.ONE, 37.), 48],
 		["transform3f64", NetworkSchemas.transform3f64(), Transform3D.IDENTITY.rotated(Vector3.ONE, 37.), 96],
 		
