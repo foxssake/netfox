@@ -72,6 +72,7 @@ var _state_property_config: _PropertyConfig = _PropertyConfig.new()
 var _input_property_config: _PropertyConfig = _PropertyConfig.new()
 
 var _input_nodes := [] as Array[Node]
+var _state_nodes := [] as Array[Node]
 
 var _properties_dirty: bool = false
 var _property_cache := PropertyCache.new(root)
@@ -106,6 +107,13 @@ func process_settings() -> void:
 		var input_node := prop.node
 		if not _input_nodes.has(input_node):
 			_input_nodes.append(input_node)
+
+	# TODO: Move tracking nodes to property configs?
+	_state_nodes.clear()
+	for prop in _state_property_config.get_properties():
+		var state_node := prop.node
+		if not _state_nodes.has(state_node):
+			_state_nodes.append(state_node)
 
 	for node in nodes:
 		RollbackSimulationServer.register(node._rollback_tick)
@@ -242,8 +250,14 @@ func ignore_prediction(node: Node) -> void:
 ## [br][br]
 ## Returns -1 if there's no known input.
 func get_last_known_input() -> int:
-	# TODO: Rewrite
-	return -1
+	# TODO: Is there an easier way?
+	var max_age := 0
+	var latest_tick := NetworkTime.tick + 1
+	for input_node in _input_nodes:
+		var age := RollbackHistoryServer.get_data_age_for(input_node, latest_tick)
+		if age >= 0:
+			max_age = maxi(age, max_age)
+	return latest_tick - max_age
 
 ## Get the tick of the last known state.
 ## [br][br]
@@ -252,12 +266,14 @@ func get_last_known_input() -> int:
 ## data may change as new input arrives. For peers that don't own state, this
 ## will be the tick of the latest state received from the state owner.
 func get_last_known_state() -> int:
-	# TODO: Rewrite
-	# If we own state, this will be updated when recording and broadcasting
-	# state, this will be the current tick
-	# If we don't own state, this will be updated when state data is received
-#	return _history_transmitter.get_latest_state_tick()
-	return 0
+	# TODO: Is there an easier way?
+	var max_age := 0
+	var latest_tick := NetworkTime.tick + 1
+	for state_node in _registered_nodes:
+		var age := RollbackHistoryServer.get_data_age_for(state_node, latest_tick)
+		if age >= 0:
+			max_age = maxi(age, max_age)
+	return latest_tick - max_age
 
 func _ready() -> void:
 	if Engine.is_editor_hint():
