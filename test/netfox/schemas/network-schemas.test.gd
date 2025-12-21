@@ -30,6 +30,14 @@ func suite() -> void:
 		["ufrac16", NetworkSchemas.ufrac16(), 63. / 255., 2],
 		["ufrac32", NetworkSchemas.ufrac32(), 63. / 255., 4],
 		
+		["degrees8", NetworkSchemas.degrees8(), 127. / 255. * 360., 1],
+		["degrees16", NetworkSchemas.degrees16(), 127. / 255. * 360., 2],
+		["degrees32", NetworkSchemas.degrees32(), 127. / 255. * 360., 4],
+		
+		["radians8", NetworkSchemas.radians8(), 127. / 255. * TAU, 1],
+		["radians16", NetworkSchemas.radians16(), 127. / 255. * TAU, 2],
+		["radians32", NetworkSchemas.radians32(), 127. / 255. * TAU, 4],
+		
 		["float16", NetworkSchemas.float16(), 2.0, 2 if has_half else 4],
 		["float32", NetworkSchemas.float32(), 2.0, 4],
 		["float64", NetworkSchemas.float64(), 2.0, 8],
@@ -79,3 +87,35 @@ func suite() -> void:
 			expect_equal(decoded, value)
 			expect_equal(buffer.data_array.size(), expected_size)
 		)
+
+	test("should handle negative degrees", func():
+		var input_value := -60.
+		var expected_value := 300.
+		var threshold := 1.
+		
+		var buffer := StreamPeerBuffer.new()
+		var serializer := NetworkSchemas.degrees16()
+		serializer.encode(input_value, buffer)
+
+		buffer.seek(0)
+		var decoded := serializer.decode(buffer) as float
+
+		expect(abs(decoded - expected_value) < threshold, "Decoded %s while expected %s!" % [decoded, expected_value])
+		Vest.message("Difference: %s" % [abs(decoded - expected_value)])
+	)
+
+	test("should handle negative radians", func():
+		var input_value := -TAU / 6.
+		var expected_value := 5. / 6. * TAU
+		var threshold := 1. / TAU
+		
+		var buffer := StreamPeerBuffer.new()
+		var serializer := NetworkSchemas.radians16()
+		serializer.encode(input_value, buffer)
+
+		buffer.seek(0)
+		var decoded := serializer.decode(buffer) as float
+
+		expect(abs(decoded - expected_value) < threshold, "Decoded %s while expected %s!" % [decoded, expected_value])
+		Vest.message("Difference: %s" % [abs(decoded - expected_value)])
+	)

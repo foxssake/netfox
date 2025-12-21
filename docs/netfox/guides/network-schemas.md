@@ -115,6 +115,8 @@ ending up with 12 bytes.
 |-----------------------|---------------------------------------------------------|--------------------------------------------------------------------|
 | Numbers in `[0, 1]`   | `ufrac8()`, `ufrac16()`, `ufrac32()`                    | 1, 2, or 4 bytes                                                   |
 | Numbers in `[-1, +1]` | `sfrac8()`, `sfrac16()`, `sfrac32()`                    | 1, 2, or 4 bytes                                                   |
+| Degrees               | `degrees8()`, `degrees16()`, `degrees32()`              | 1, 2, or 4 bytes                                                   |
+| Radians               | `radians8()`, `radians16()`, `radians32()`              | 1, 2, or 4 bytes                                                   |
 | Normalized 2D vectors | `normal2f16()`, `normal2f32()`, `normal2f64()`          | 2, 4, or 8 bytes                                                   |
 | Normalized 3D vectors | `normal3f16()`, `normal3f32()`, `normal3f64()`          | 4, 8, or 16 bytes                                                  |
 

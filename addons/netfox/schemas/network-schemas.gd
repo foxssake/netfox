@@ -136,6 +136,48 @@ static func ufrac16() -> NetworkSchemaSerializer:
 static func ufrac32() -> NetworkSchemaSerializer:
 	return QuantizingSerializer.new(uint32(), 0., 1., 0, 0xFFFFFFFF)
 
+## Serialize degrees as 8 bits. The value will always decode to the
+## [code][0.0, 360.0)[/code] range.
+## [br][br]
+## Final size is 1 byte.
+static func degrees8() -> NetworkSchemaSerializer:
+	return ModuloSerializer.new(uint8(), 360., 0xFF)
+
+## Serialize degrees as 16 bits. The value will always decode to the
+## [code][0.0, 360.0)[/code] range.
+## [br][br]
+## Final size is 2 bytes.
+static func degrees16() -> NetworkSchemaSerializer:
+	return ModuloSerializer.new(uint16(), 360., 0xFFFF)
+
+## Serialize degrees as 32 bits. The value will always decode to the
+## [code][0.0, 360.0)[/code] range.
+## [br][br]
+## Final size is 4 bytes.
+static func degrees32() -> NetworkSchemaSerializer:
+	return ModuloSerializer.new(uint32(), 360., 0xFFFFFFFF)
+
+## Serialize radians as 8 bits. The value will always decode to the
+## [code][0.0, TAU)[/code] range.
+## [br][br]
+## Final size is 1 byte.
+static func radians8() -> NetworkSchemaSerializer:
+	return ModuloSerializer.new(uint8(), TAU, 0xFF)
+
+## Serialize radians as 16 bits. The value will always decode to the
+## [code][0.0, TAU)[/code] range.
+## [br][br]
+## Final size is 2 bytes.
+static func radians16() -> NetworkSchemaSerializer:
+	return ModuloSerializer.new(uint16(), TAU, 0xFFFF)
+
+## Serialize radians as 32 bits. The value will always decode to the
+## [code][0.0, TAU)[/code] range.
+## [br][br]
+## Final size is 4 bytes.
+static func radians32() -> NetworkSchemaSerializer:
+	return ModuloSerializer.new(uint32(), TAU, 0xFFFFFFFF)
+
 ## Serialize [Vector2] objects, using [param component_serializer] to
 ## serialize each component of the vector.
 ## [br][br]
@@ -651,6 +693,25 @@ class QuantizingSerializer extends NetworkSchemaSerializer:
 		var s := component.decode(b)
 		var f := inverse_lerp(to_min, to_max, s)
 		return lerp(from_min, from_max, f)
+
+class ModuloSerializer extends NetworkSchemaSerializer:
+	var component: NetworkSchemaSerializer
+	var value_max: Variant
+	var component_max: Variant
+
+	func _init(p_component: NetworkSchemaSerializer, p_value_max: Variant, p_component_max: Variant):
+		component = p_component
+		value_max = p_value_max
+		component_max = p_component_max
+
+	func encode(v: Variant, b: StreamPeerBuffer) -> void:
+		var f = fposmod(float(v), value_max) / value_max
+		var s = f * component_max
+		component.encode(s, b)
+
+	func decode(b: StreamPeerBuffer) -> Variant:
+		var s = float(component.decode(b))
+		return (s / component_max) * value_max
 
 class ArraySerializer extends NetworkSchemaSerializer:
 	var component: NetworkSchemaSerializer
