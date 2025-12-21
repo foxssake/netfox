@@ -202,6 +202,7 @@ func get_input_age() -> int:
 	var max_age := 0
 	for input_node in _input_nodes:
 		var age := RollbackHistoryServer.get_data_age_for(input_node, NetworkRollback.tick)
+		max_age = maxi(age, max_age)
 		if age < 0:
 			# TODO: Error, somehow
 			return -1
@@ -213,7 +214,12 @@ func get_input_age() -> int:
 ## simulated and recorded, but will not be broadcast, nor considered
 ## authoritative.
 func is_predicting() -> bool:
-	return RollbackSimulationServer.is_predicting_current()
+	if RollbackSimulationServer.get_simulated_object() != null:
+		# An object is being simulated, check if it's predicted
+		return RollbackSimulationServer.is_predicting_current()
+	else:
+		# We're outside of simulation, predicting if we don't have current input
+		return get_input_age() != 0
 
 ## Ignore a node's prediction for the current rollback tick.
 ##

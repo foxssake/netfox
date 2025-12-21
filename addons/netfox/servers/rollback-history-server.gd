@@ -90,7 +90,10 @@ func merge_snapshot(snapshot: Snapshot) -> Snapshot:
 	return stored_snapshot
 
 func get_data_age_for(what: Node, tick: int) -> int:
-	for i in range(tick, _snapshots.keys.min() - 1, -1):
+	if _snapshots.is_empty():
+		return -1
+
+	for i in range(tick, _snapshots.keys().min() - 1, -1):
 		if not _snapshots.has(i):
 			continue
 		var snapshot := get_snapshot(i)

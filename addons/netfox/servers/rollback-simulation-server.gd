@@ -88,6 +88,9 @@ func is_predicting_current() -> bool:
 		return false
 	return _predicted_nodes.has(_current_object)
 
+func get_simulated_object() -> Object:
+	return _current_object
+
 func is_tick_fresh_for(node: Node, tick: int) -> bool:
 	if not _simulated_ticks.has(node):
 		return false
