@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://foxssake.github.io/netfox/latest/netfox/guides/network-schemas/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Network Schemas - netfox</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/version-selector.css" rel="stylesheet" />
+        <link href="../../../css/twemoji.css" rel="stylesheet" />
+        <link href="../../../assets/mkdocs_puml/puml.css" rel="stylesheet" />
+        <link href="../../../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Network Schemas";
+        var mkdocs_page_input_path = "netfox/guides/network-schemas.md";
+        var mkdocs_page_url = "/netfox/latest/netfox/guides/network-schemas/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script>
+  <script src="https://giscus.app/client.js"
+          data-repo="foxssake/netfox"
+          data-repo-id="R_kgDOKBON2A"
+          data-category="Docs"
+          data-category-id="DIC_kwDOKBON2M4Clib_"
+          data-mapping="title"
+          data-strict="0"
+          data-reactions-enabled="1"
+          data-emit-metadata="0"
+          data-input-position="top"
+          data-theme="light"
+          data-lang="en"
+          data-loading="lazy"
+          crossorigin="anonymous"
+          async>
+  </script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> netfox
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../upgrading/">Upgrading netfox</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../made-with-netfox/">Made with netfox</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../external-tutorials/">External tutorials</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../press-kit/">Press kit</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../contributors/">Contributors</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >Tutorials</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/responsive-player-movement/">Responsive player movement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/input-gathering-tips-and-tricks/">Input gathering tips and tricks</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/predicting-input/">Predicting input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/using-rollbacksynchronizer-without-inputs/">Using RollbackSynchronizer without inputs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/modifying-objects-during-rollback/">Modifying objects during rollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/configuring-properties-from-code/">Configuring properties from code</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/rollback-caveats/">Rollback caveats</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../tutorials/interpolation-caveats/">Interpolation caveats</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Concepts</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../concepts/servers-clients-ownership/">Servers, clients, and ownership</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../concepts/authoritative-servers/">Authoritative servers</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Guides</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../logging/">Logging</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../network-time/">NetworkTime</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../network-time-synchronizer/">NetworkTimeSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../network-events/">NetworkEvents</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../interpolators/">Interpolators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../property-paths/">Property paths</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../network-rollback/">NetworkRollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../network-performance/">NetworkPerformance</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Network Schemas</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#lossless-vs-lossy">Lossless vs. lossy</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#lossless-compression">Lossless compression</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#lossy-compression">Lossy compression</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#registering-a-schema">Registering a schema</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#built-in-serializers">Built-in serializers</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#algebraic-types">Algebraic types</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#compressed-types">Compressed types</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#generic-types">Generic types</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#collections-and-others">Collections and others</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#implementing-a-custom-serializer">Implementing a custom serializer</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../visibility-management/">Visibility Management</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox-sharp/">Netfox Sharp</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Nodes</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../nodes/tick-interpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../nodes/rollback-synchronizer/">RollbackSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../nodes/state-synchronizer/">StateSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../nodes/rewindable-action/">RewindableAction</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.noray</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.noray/guides/noray/">Noray</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.noray/guides/packet-handshake/">PacketHandshake</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.extras</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/physics/">Physics</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/network-simulator/">NetworkSimulator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/base-net-input/">BaseNetInput</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/network-weapon/">NetworkWeapon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/rewindable-state-machine/">RewindableStateMachine</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/rewindable-random-number-generator/">RewindableRandomNumberGenerator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../netfox.extras/guides/window-tiler/">WindowTiler</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">netfox</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">netfox</li>
+          <li class="breadcrumb-item">Guides</li>
+      <li class="breadcrumb-item active">Network Schemas</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="network-schemas">Network Schemas</h1>
+<p>By default, <em>netfox</em> uses Godot's <a href="https://docs.godotengine.org/en/stable/tutorials/io/binary_serialization_api.html">Binary serialization API</a> to serialize data
+before transmitting it over the network. This is designed to work under various
+circumstances, with various data types, without knowing anything about them in
+advance.</p>
+<p>However, during development, developers often have knowledge about the
+individual properties, such as their type and possible range of values. In
+addition, some values may be less important as others, and thus can accept some
+loss of precision.</p>
+<p>Schemas enable developers to specify how each property should be serialized,
+allowing them to use this knowledge to reduce packet sizes, and thus bandwidth
+usage.</p>
+<h2 id="lossless-vs-lossy">Lossless vs. lossy</h2>
+<p>Most serializers are either lossless or lossy. This section gives a short
+theoretical introduction on what each means and when are they useful.</p>
+<h3 id="lossless-compression">Lossless compression</h3>
+<p>When the same amount of information can be represented with less data ( bytes
+), it is <em>lossless compression</em>.</p>
+<p>For example, to represent a 2D normal vector, we do not need to serialize both
+of its component ( x, y ). Since we know the vector's length to be 1 by
+definition, we can store the vector's angle compared to predetermined reference
+vector. From that, we can completely reconstruct the original vector on
+deserialization.</p>
+<p>Another example is when the range of values the vector can take on is much
+smaller than its underlying datatype supports. For example, an inventory where
+items can't stack beyond 99. Instead of defaulting to a 64 bit integer, it is
+sufficient to serialize this data as a 8 bit integer. That is 1/8th of the
+original data, while still perfectly representing the range of values needed.</p>
+<p>Lossless compression is an excellent tool, since the same information is kept,
+but with less data usage. Unfortunately, lossless compression is not feasible
+for every property.</p>
+<h3 id="lossy-compression">Lossy compression</h3>
+<p>If some information is lost when using less data ( bytes ) to represent a
+value, it is <em>lossy compression</em>. This can be useful in cases where the benefit
+of reduced packet size outweighs the drawbacks of lost information.</p>
+<p>For example, movement vectors for NPCs may be serialized as half precision
+floats, instead of the default single precision. Since players don't directly
+control NPC's, they won't notice any difference between their original input
+and what was serialized.</p>
+<p>While lossy compression can be a useful tool, it is important to judge whether
+the loss of information or precision does not detract too much from the game
+experience.</p>
+<h2 id="registering-a-schema">Registering a schema</h2>
+<p>Both <a href="../../nodes/rollback-synchronizer/">RollbackSynchronizer</a> and <a href="../../nodes/state-synchronizer/">StateSynchronizer</a> expose a <code>set_schema()</code>
+method, that can be used to register the schema used for transmitting
+properties over the network. This method takes a dictionary, with the keys
+being property path strings, and the values being serializers:</p>
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="n">rollback_synchronizer</span><span class="o">.</span><span class="n">set_schema</span><span class="p">({</span>
+<span class="w">        </span><span class="s2">&quot;:transform&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">NetworkSchemas</span><span class="o">.</span><span class="n">transform3f32</span><span class="p">(),</span>
+<span class="w">        </span><span class="s2">&quot;:velocity&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">NetworkSchemas</span><span class="o">.</span><span class="n">vec3f32</span><span class="p">(),</span>
+<span class="w">        </span><span class="s2">&quot;:speed&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">NetworkSchemas</span><span class="o">.</span><span class="n">float32</span><span class="p">(),</span>
+<span class="w">        </span><span class="s2">&quot;:mass&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">NetworkSchemas</span><span class="o">.</span><span class="n">float32</span><span class="p">(),</span>
+
+<span class="w">        </span><span class="s2">&quot;Input:movement&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">NetworkSchemas</span><span class="o">.</span><span class="n">vec3f32</span><span class="p">(),</span>
+<span class="w">        </span><span class="s2">&quot;Input:aim&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">NetworkSchemas</span><span class="o">.</span><span class="n">vec3f32</span><span class="p">()</span>
+<span class="w">    </span><span class="p">})</span>
+</code></pre></div>
+<h2 id="built-in-serializers">Built-in serializers</h2>
+<p><code>NetworkSchemas</code> provides many built-in serializers in the form of static
+methods. Each supported type has multiple serializers for different sizes.</p>
+<p>While many serializers are usable as-is, there are some generic ones that take
+other serializers as arguments. For example, <code>vec3t()</code> serializes a Vector3,
+and using the serializer passed to it to save each component of the vector.
+This way, <code>vec3t(float16())</code> will save 3 half-precision floats, ending up with
+6 bytes of data, while <code>vec3t(float32())</code> will save 3 single-precision floats,
+ending up with 12 bytes.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Many built-in serializers use half-precision floats. These are only
+supported in Godot 4.4 and up. Earlier versions fall back to
+single-precision floats.</p>
+<p>For example, <code>float16()</code> may fall back to <code>float32()</code>, <code>vec2f16()</code> to
+<code>vec2f32()</code>, etc.</p>
+</div>
+<h3 id="algebraic-types">Algebraic types</h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Methods</th>
+<th>Size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Booleans</td>
+<td><code>bool8()</code></td>
+<td>1 byte</td>
+</tr>
+<tr>
+<td>Signed integers</td>
+<td><code>int8()</code>, <code>int16()</code>, <code>int32()</code>, <code>int64()</code></td>
+<td>1, 2, 4, or 8 bytes</td>
+</tr>
+<tr>
+<td>Unsigned integers</td>
+<td><code>uint8()</code>, <code>uint16()</code>, <code>uint32()</code>, <code>uint64()</code></td>
+<td>1, 2, 4, or 8 bytes</td>
+</tr>
+<tr>
+<td>Floats</td>
+<td><code>float16()</code>, <code>float32()</code>, <code>float64()</code></td>
+<td>2, 4, or 8 bytes</td>
+</tr>
+<tr>
+<td>Vector2</td>
+<td><code>vec2f16()</code>, <code>vec2f32()</code>, <code>vec2f64()</code></td>
+<td>4, 8, or 16 bytes</td>
+</tr>
+<tr>
+<td>Vector3</td>
+<td><code>vec3f16()</code>, <code>vec3f32()</code>, <code>vec3f64()</code></td>
+<td>6, 8, or 24 bytes</td>
+</tr>
+<tr>
+<td>Vector4</td>
+<td><code>vec4f16()</code>, <code>vec4f32()</code>, <code>vec4f64()</code></td>
+<td>8, 16, or 32 bytes</td>
+</tr>
+<tr>
+<td>Quaternion</td>
+<td><code>quatf16()</code>, <code>quatf32()</code>, <code>quatf64()</code></td>
+<td>8, 16, or 32 bytes</td>
+</tr>
+<tr>
+<td>Transform2D</td>
+<td><code>transform2f16()</code>, <code>transform2f32()</code>, <code>transform2f64()</code></td>
+<td>12, 24, or 48 bytes</td>
+</tr>
+<tr>
+<td>Transform3D</td>
+<td><code>transform3f16()</code>, <code>transform3f32()</code>, <code>transform3f64()</code></td>
+<td>24, 48, or 96 bytes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="compressed-types">Compressed types</h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Methods</th>
+<th>Size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Numbers in <code>[0, 1]</code></td>
+<td><code>ufrac8()</code>, <code>ufrac16()</code>, <code>ufrac32()</code></td>
+<td>1, 2, or 4 bytes</td>
+</tr>
+<tr>
+<td>Numbers in <code>[-1, +1]</code></td>
+<td><code>sfrac8()</code>, <code>sfrac16()</code>, <code>sfrac32()</code></td>
+<td>1, 2, or 4 bytes</td>
+</tr>
+<tr>
+<td>Degrees</td>
+<td><code>degrees8()</code>, <code>degrees16()</code>, <code>degrees32()</code></td>
+<td>1, 2, or 4 bytes</td>
+</tr>
+<tr>
+<td>Radians</td>
+<td><code>radians8()</code>, <code>radians16()</code>, <code>radians32()</code></td>
+<td>1, 2, or 4 bytes</td>
+</tr>
+<tr>
+<td>Normalized 2D vectors</td>
+<td><code>normal2f16()</code>, <code>normal2f32()</code>, <code>normal2f64()</code></td>
+<td>2, 4, or 8 bytes</td>
+</tr>
+<tr>
+<td>Normalized 3D vectors</td>
+<td><code>normal3f16()</code>, <code>normal3f32()</code>, <code>normal3f64()</code></td>
+<td>4, 8, or 16 bytes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="generic-types">Generic types</h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Methods</th>
+<th>Size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vector2</td>
+<td><code>vec2t()</code></td>
+<td><code>2 * sizeof(component)</code></td>
+</tr>
+<tr>
+<td>Vector3</td>
+<td><code>vec3t()</code></td>
+<td><code>3 * sizeof(component)</code></td>
+</tr>
+<tr>
+<td>Vector4</td>
+<td><code>vec4t()</code></td>
+<td><code>4 * sizeof(component)</code></td>
+</tr>
+<tr>
+<td>Quaternion</td>
+<td><code>quatt()</code></td>
+<td><code>4 * sizeof(component)</code></td>
+</tr>
+<tr>
+<td>Transform2D</td>
+<td><code>transform2t()</code></td>
+<td><code>6 * sizeof(component)</code></td>
+</tr>
+<tr>
+<td>Transform3D</td>
+<td><code>transform3t()</code></td>
+<td><code>12 * sizeof(component)</code></td>
+</tr>
+<tr>
+<td>Normalized Vector2</td>
+<td><code>normal2t()</code></td>
+<td><code>sizeof(component)</code></td>
+</tr>
+<tr>
+<td>Normalized Vector3</td>
+<td><code>normal3t()</code></td>
+<td><code>2 * sizeof(component)</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="collections-and-others">Collections and others</h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Methods</th>
+<th>Size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Arrays</td>
+<td><code>array_of()</code></td>
+<td><code>sizeof(size) + array.size() * sizeof(item)</code></td>
+</tr>
+<tr>
+<td>Dictionaries</td>
+<td><code>dictionary()</code></td>
+<td><code>sizeof(size) + dictionary.size() * (sizeof(key) + sizeof(value))</code></td>
+</tr>
+<tr>
+<td>Strings</td>
+<td><code>string()</code></td>
+<td>Size in UTF-8 + null-terminator at the end</td>
+</tr>
+<tr>
+<td>Variant</td>
+<td><code>variant()</code></td>
+<td>Same as <a href="https://docs.godotengine.org/en/stable/classes/class_%40globalscope.html#class-globalscope-method-var-to-bytes">var_to_bytes()</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="implementing-a-custom-serializer">Implementing a custom serializer</h2>
+<p>Custom serializers are also supported. To implement one, extend the
+<code>NetworkSchemaSerializer</code> class, and implement the <code>encode()</code> and <code>decode()</code>
+methods.</p>
+<p>For example, consider a <code>Node</code> serializer that encodes the node's path:</p>
+<div class="highlight"><pre><span></span><code><span class="k">extends</span><span class="w"> </span><span class="n">NetworkSchemaSerializer</span>
+<span class="k">class_name</span><span class="w"> </span><span class="n">ExampleNodeSerializer</span>
+
+<span class="c1"># Needs to be set from the outside</span>
+<span class="k">static</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">scene_tree</span><span class="p">:</span><span class="w"> </span><span class="n">SceneTree</span>
+
+<span class="k">func</span><span class="w"> </span><span class="n">encode</span><span class="p">(</span><span class="n">value</span><span class="p">:</span><span class="w"> </span><span class="n">Variant</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">:</span><span class="w"> </span><span class="n">StreamPeerBuffer</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">void</span><span class="p">:</span>
+<span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="n">node</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">Node</span>
+<span class="w">    </span><span class="n">buffer</span><span class="o">.</span><span class="n">put_utf8_string</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">get_path</span><span class="p">())</span>
+
+<span class="k">func</span><span class="w"> </span><span class="n">decode</span><span class="p">(</span><span class="n">buffer</span><span class="p">:</span><span class="w"> </span><span class="n">StreamPeerBuffer</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">Variant</span><span class="p">:</span>
+<span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">buffer</span><span class="o">.</span><span class="n">get_utf8_string</span><span class="p">()</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">scene_tree</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">get_node</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+</code></pre></div>
+<p>This custom serializer can now be used in schemas:</p>
+<div class="highlight"><pre><span></span><code><span class="n">rollback_synchronizer</span><span class="o">.</span><span class="n">set_schema</span><span class="p">({</span>
+<span class="w">  </span><span class="s2">&quot;Input:target&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">ExampleNodeSerializer</span><span class="o">.</span><span class="n">new</span><span class="p">()</span>
+<span class="p">})</span>
+</code></pre></div>
+              
+            </div>
+          </div>
+  <hr>
+  <h2>User discussion</h2>
+  <div class="giscus" ></div>
+  <hr>
+  <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../network-performance/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../visibility-management/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../assets/mkdocs_puml/puml.js"></script>
+      <script src="../../../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
