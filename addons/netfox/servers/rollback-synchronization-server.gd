@@ -1,6 +1,10 @@
 extends Node
 class_name _RollbackSynchronizationServer
 
+# TODO: Support various encoders
+# TODO: Diff states
+# TODO: Honor visibility filters
+
 var _input_properties: Array = []
 var _state_properties: Array = []
 
