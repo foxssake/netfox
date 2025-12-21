@@ -3,6 +3,7 @@ class_name _DiffHistoryEncoder
 
 var _history: _PropertyHistoryBuffer
 var _property_cache: PropertyCache
+var _schema_handler: _NetworkSchema
 
 var _full_snapshot := {}
 var _encoded_snapshot := {}
@@ -14,9 +15,10 @@ var _has_received := false
 
 static var _logger := NetfoxLogger._for_netfox("DiffHistoryEncoder")
 
-func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache):
+func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache, p_schema_handler: _NetworkSchema) -> void:
 	_history = p_history
 	_property_cache = p_property_cache
+	_schema_handler = p_schema_handler
 
 func add_properties(properties: Array[PropertyEntry]) -> void:
 	var has_new_properties := false
@@ -30,7 +32,7 @@ func add_properties(properties: Array[PropertyEntry]) -> void:
 		_version = (_version + 1) % 256
 
 func encode(tick: int, reference_tick: int, properties: Array[PropertyEntry]) -> PackedByteArray:
-	assert(properties.size() <= 255, "Property indices may not fit into bytes!")
+	assert(properties.size() <= 255, "Property indices may not fit into bytes; too many properties!")
 
 	var snapshot := _history.get_snapshot(tick)
 	var property_strings := properties.map(func(it): return it.to_string())
@@ -47,12 +49,12 @@ func encode(tick: int, reference_tick: int, properties: Array[PropertyEntry]) ->
 	var buffer := StreamPeerBuffer.new()
 	buffer.put_u8(_version)
 
-	for property in diff_snapshot.properties():
-		var property_idx := _property_indexes.get_by_value(property) as int
-		var property_value = diff_snapshot.get_value(property)
-
+	for property_path in diff_snapshot.properties():
+		var property_idx := _property_indexes.get_by_value(property_path) as int
 		buffer.put_u8(property_idx)
-		buffer.put_var(property_value)
+		
+		var value := diff_snapshot.get_value(property_path)
+		_schema_handler.encode(property_path, value, buffer)
 
 	return buffer.data_array
 
@@ -66,6 +68,7 @@ func decode(data: PackedByteArray, properties: Array[PropertyEntry]) -> _Propert
 	buffer.data_array = data
 
 	var packet_version := buffer.get_u8()
+	# TODO: Extract schema versioning into shared code to avoid duplication
 	if packet_version != _version:
 		if not _has_received:
 			# This is the first time we receive data
@@ -80,13 +83,15 @@ func decode(data: PackedByteArray, properties: Array[PropertyEntry]) -> _Propert
 
 	while buffer.get_available_bytes() > 0:
 		var property_idx := buffer.get_u8()
-		var property_value := buffer.get_var()
+
 		if not _property_indexes.has_key(property_idx):
 			_logger.warning("Received unknown property index %d, ignoring!", [property_idx])
-			continue
+			break
 
-		var property_entry := _property_indexes.get_by_key(property_idx)
-		result.set_value(property_entry, property_value)
+		var property_path := _property_indexes.get_by_key(property_idx)
+		var value := _schema_handler.decode(property_path, buffer)
+
+		result.set_value(property_path, value)
 
 	return result
 

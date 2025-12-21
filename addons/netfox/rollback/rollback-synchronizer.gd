@@ -77,6 +77,8 @@ var _skipset: _Set = _Set.new()
 
 var _properties_dirty: bool = false
 
+var _schema := _NetworkSchema.new({})
+
 var _property_cache := PropertyCache.new(root)
 var _freshness_store := RollbackFreshnessStore.new()
 
@@ -95,7 +97,7 @@ var _history_transmitter: _RollbackHistoryTransmitter
 var _history_recorder: _RollbackHistoryRecorder
 
 ## Process settings.
-##
+## [br][br]
 ## Call this after any change to configuration. Updates based on authority too
 ## ( calls process_authority ).
 func process_settings() -> void:
@@ -116,11 +118,11 @@ func process_settings() -> void:
 	_nodes.erase(self)
 
 	_history_transmitter.sync_settings(root, enable_input_broadcast, full_state_interval, diff_ack_interval)
-	_history_transmitter.configure(_states, _inputs, _state_property_config, _input_property_config, visibility_filter, _property_cache, _skipset)
+	_history_transmitter.configure(_states, _inputs, _state_property_config, _input_property_config, visibility_filter, _property_cache, _skipset, _schema)
 	_history_recorder.configure(_states, _inputs, _state_property_config, _input_property_config, _property_cache, _skipset)
 
 ## Process settings based on authority.
-##
+## [br][br]
 ## Call this whenever the authority of any of the nodes managed by
 ## RollbackSynchronizer changes. Make sure to do this at the same time on all
 ## peers.
@@ -159,8 +161,32 @@ func add_input(node: Variant, property: String) -> void:
 	_properties_dirty = true
 	_reprocess_settings.call_deferred()
 
+## Set the schema for transmitting properties over the network.
+## [br][br]
+## The [param schema] must be a dictionary, with the keys being property path
+## strings, and the values are the associated [NetworkSchemaSerializer] objects.
+## Properties are interpreted relative to the [member root] node. The schema can
+## contain both state and input properties. Properties not specified in the
+## schema will use a generic fallback serializer. By using the right serializer
+## for the right property, bandwidth usage can be lowered.
+## [br][br]
+## See [NetworkSchemas] for many common serializers.
+## [br][br]
+## Example:
+## [codeblock]
+##    rollback_synchronizer.set_schema({
+##        ":transform": NetworkSchemas.transform3f32(),
+##        ":velocity": NetworkSchemas.vec3f32(),
+##        "Input:movement": NetworkSchemas.vec3f32()
+##    })
+## [/codeblock]
+func set_schema(schema: Dictionary) -> void:
+	_schema = _NetworkSchema.new(schema)
+	_properties_dirty = true
+	_reprocess_settings.call_deferred()
+
 ## Check if input is available for the current tick.
-##
+## [br][br]
 ## This input is not always current, it may be from multiple ticks ago.
 ## [br][br]
 ## Returns true if input is available.
@@ -168,7 +194,7 @@ func has_input() -> bool:
 	return _has_input
 
 ## Get the age of currently available input in ticks.
-##
+## [br][br]
 ## The available input may be from the current tick, or from multiple ticks ago.
 ## This number of tick is the input's age.
 ## [br][br]
@@ -181,7 +207,7 @@ func get_input_age() -> int:
 		return -1
 
 ## Check if the current tick is predicted.
-##
+## [br][br]
 ## A tick becomes predicted if there's no up-to-date input available. It will be
 ## simulated and recorded, but will not be broadcast, nor considered
 ## authoritative.
@@ -189,7 +215,7 @@ func is_predicting() -> bool:
 	return _is_predicted_tick
 
 ## Ignore a node's prediction for the current rollback tick.
-##
+## [br][br]
 ## Call this when the input is too old to base predictions on. This call is
 ## ignored if [member enable_prediction] is false.
 func ignore_prediction(node: Node) -> void:

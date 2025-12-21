@@ -49,6 +49,8 @@ var _property_cache: PropertyCache
 var _property_config: _PropertyConfig = _PropertyConfig.new()
 var _properties_dirty: bool = false
 
+var _schema: _NetworkSchema
+
 var _state_history := _PropertyHistoryBuffer.new()
 
 # Collaborators
@@ -71,8 +73,8 @@ func process_settings() -> void:
 	_property_cache = PropertyCache.new(root)
 	_property_config.set_properties_from_paths(properties, _property_cache)
 
-	_full_state_encoder = _SnapshotHistoryEncoder.new(_state_history, _property_cache)
-	_diff_state_encoder = _DiffHistoryEncoder.new(_state_history, _property_cache)
+	_full_state_encoder = _SnapshotHistoryEncoder.new(_state_history, _property_cache, _schema)
+	_diff_state_encoder = _DiffHistoryEncoder.new(_state_history, _property_cache, _schema)
 
 	_diff_state_encoder.add_properties(_property_config.get_properties())
 
@@ -100,6 +102,28 @@ func add_state(node: Variant, property: String) -> void:
 		return
 
 	properties.push_back(property_path)
+	_properties_dirty = true
+	_reprocess_settings.call_deferred()
+
+## Set the schema for transmitting properties over the network.
+## [br][br]
+## The [param schema] must be a dictionary, with the keys being property path
+## strings, and the values are the associated [NetworkSchemaSerializer] objects.
+## Properties are interpreted relative to the [member root] node. Properties not
+## specified in the schema will use a generic fallback serializer. By using the
+## right serializer for the right property, bandwidth usage can be lowered.
+## [br][br]
+## See [NetworkSchemas] for many common serializers.
+## [br][br]
+## Example:
+## [codeblock]
+##    state_synchronizer.set_schema({
+##        ":transform": NetworkSchemas.transform3f32(),
+##        ":velocity": NetworkSchemas.vec3f32()
+##    })
+## [/codeblock]
+func set_schema(schema: Dictionary) -> void:
+	_schema = _NetworkSchema.new(schema)
 	_properties_dirty = true
 	_reprocess_settings.call_deferred()
 
@@ -218,7 +242,7 @@ func _send_full_state(tick: int, peer: int = 0) -> void:
 
 # `serialized_state` is a serialized _PropertySnapshot
 @rpc("any_peer", "unreliable_ordered", "call_remote")
-func _submit_full_state(data: Array, tick: int) -> void:
+func _submit_full_state(data: PackedByteArray, tick: int) -> void:
 	if not _is_initialized: return
 
 	var sender := multiplayer.get_remote_sender_id()

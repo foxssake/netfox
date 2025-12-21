@@ -25,8 +25,9 @@ func before_case(__):
 	target_history = _PropertyHistoryBuffer.new()
 	property_cache = PropertyCache.new(root_node)
 
-	source_encoder = _RedundantHistoryEncoder.new(source_history, property_cache)
-	target_encoder = _RedundantHistoryEncoder.new(target_history, property_cache)
+	var schema := _NetworkSchema.new({})
+	source_encoder = _RedundantHistoryEncoder.new(source_history, property_cache, schema)
+	target_encoder = _RedundantHistoryEncoder.new(target_history, property_cache, schema)
 
 	# By setting different redundancies, we also test for the encoders
 	# recognizing redundancy in incoming data
