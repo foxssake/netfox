@@ -72,6 +72,21 @@ i.e.
 * ChacacterBody (2D and 3D) - [move_and_collide()] ( which has a test only
   mode )
 
+While kinematic nodes like `CharacterBody3D` can be used with rollback if their
+position and velocity are rolled back, you will still run into issues with physics
+queries (e.g. `PhysicsDirectSpaceState3D.intersect_shape`), since the [BVH] used
+for querying will not have been updated. To work around this, run the following
+for each `CollisionObject` that has its position rolled back before each tick of
+the rollback loop:
+
+```gdscript
+# Works for both Jolt and GodotPhysics3D.
+func _force_update_bvh_for_node():
+ PhysicsServer3D.body_set_mode(get_rid(), PhysicsServer3D.BODY_MODE_STATIC)
+ PhysicsServer3D.body_set_state(get_rid(), PhysicsServer3D.BODY_STATE_TRANSFORM, global_transform)
+ PhysicsServer3D.body_set_mode(get_rid(), PhysicsServer3D.BODY_MODE_KINEMATIC)
+```
+
 !!!tip
     The *netfox.extras* addon provides optional support for physics simulation
     with rollback. See [Physics](../../netfox.extras/guides/physics.md)
@@ -98,3 +113,4 @@ point in time and then played forward to the present in a single frame.
 
 [force_shapecast_update()]: https://docs.godotengine.org/en/stable/classes/class_shapecast3d.html#class-shapecast3d-method-force-shapecast-update
 [move_and_collide()]: https://docs.godotengine.org/en/stable/classes/class_physicsbody3d.html#class-physicsbody3d-method-move-and-collide
+[BVH]: https://en.wikipedia.org/wiki/Bounding_volume_hierarchy
