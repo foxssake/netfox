@@ -85,7 +85,7 @@ func _handle_tickrate_mismatch(peer: int, tickrate: int) -> void:
 					NetworkTime.tickrate, tickrate
 				])
 				# TODO: Make tickrate mutable at user's digression
-				ProjectSettings.set_setting(&"netfox/time/tickrate", tickrate)
+				NetworkTime._tickrate = tickrate
 		SIGNAL:
 			on_tickrate_mismatch.emit(peer, tickrate)
 
