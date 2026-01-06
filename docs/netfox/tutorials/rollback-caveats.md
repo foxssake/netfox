@@ -81,7 +81,7 @@ rollback loop:
 
 ```gdscript
 # Works for both Jolt and GodotPhysics3D.
-func _force_update_bvh_for_node():
+func _force_update_physics_transform():
   PhysicsServer3D.body_set_mode(get_rid(), PhysicsServer3D.BODY_MODE_STATIC)
   PhysicsServer3D.body_set_state(get_rid(), PhysicsServer3D.BODY_STATE_TRANSFORM, global_transform)
   PhysicsServer3D.body_set_mode(get_rid(), PhysicsServer3D.BODY_MODE_KINEMATIC)
