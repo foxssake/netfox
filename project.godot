@@ -33,18 +33,27 @@ NetworkSimulator="*res://addons/netfox.extras/network-simulator.gd"
 
 [display]
 
-window/size/viewport_width=540
-window/size/viewport_height=540
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/size/window_width_override=540
+window/size/window_height_override=540
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
 window/vsync/vsync_mode=0
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/netfox.extras/plugin.cfg", "res://addons/netfox.internals/plugin.cfg", "res://addons/netfox.noray/plugin.cfg", "res://addons/netfox/plugin.cfg", "res://addons/vest/plugin.cfg")
+enabled=PackedStringArray("res://addons/netfox.extras/plugin.cfg", "res://addons/netfox.internals/plugin.cfg", "res://addons/netfox.noray/plugin.cfg", "res://addons/netfox/plugin.cfg", "res://addons/nohub.gd/plugin.cfg", "res://addons/trimsock.gd/plugin.cfg", "res://addons/vest/plugin.cfg")
 
 [filesystem]
 
 import/blender/enabled=false
 import/fbx/enabled=false
+
+[gui]
+
+theme/default_font_multichannel_signed_distance_field=true
+theme/default_font_generate_mipmaps=true
 
 [input]
 
