@@ -119,4 +119,3 @@ point in time and then played forward to the present in a single frame.
 
 [force_shapecast_update()]: https://docs.godotengine.org/en/stable/classes/class_shapecast3d.html#class-shapecast3d-method-force-shapecast-update
 [move_and_collide()]: https://docs.godotengine.org/en/stable/classes/class_physicsbody3d.html#class-physicsbody3d-method-move-and-collide
-[physics server]: https://docs.godotengine.org/en/stable/classes/class_physicsserver3d.html
