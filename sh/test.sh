@@ -22,9 +22,12 @@ if [ ! -f "$VEST_LOG" ]; then
   exit 1
 fi
 
+echo "::group::Test report"
+cat "$VEST_LOG"
+echo "::endgroup::"
+
 if grep "not ok" "$VEST_LOG"; then
   echo "::error::There are failing test(s)!"
-  cat "$VEST_LOG"
   exit 1
 else
   print "Success!"
