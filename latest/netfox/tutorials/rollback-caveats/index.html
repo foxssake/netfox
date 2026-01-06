@@ -274,6 +274,22 @@ i.e.</p>
 <li>ChacacterBody (2D and 3D) - <a href="https://docs.godotengine.org/en/stable/classes/class_physicsbody3d.html#class-physicsbody3d-method-move-and-collide">move_and_collide()</a> ( which has a test only
   mode )</li>
 </ul>
+<p>While kinematic nodes like <code>CharacterBody3D</code> can be used with rollback, physics
+queries can still cause issues (e.g.
+<code>PhysicsDirectSpaceState3D.intersect_shape()</code>). This is due to the lack of
+updates mentioned earlier. To work around this, run the following for each
+<code>CollisionObject</code> that has its position rolled back before each tick of the
+rollback loop:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Works for both Jolt and GodotPhysics3D.</span>
+<span class="k">func</span><span class="w"> </span><span class="n">_force_update_physics_transform</span><span class="p">():</span>
+<span class="w">  </span><span class="n">PhysicsServer3D</span><span class="o">.</span><span class="n">body_set_mode</span><span class="p">(</span><span class="n">get_rid</span><span class="p">(),</span><span class="w"> </span><span class="n">PhysicsServer3D</span><span class="o">.</span><span class="n">BODY_MODE_STATIC</span><span class="p">)</span>
+<span class="w">  </span><span class="n">PhysicsServer3D</span><span class="o">.</span><span class="n">body_set_state</span><span class="p">(</span><span class="n">get_rid</span><span class="p">(),</span><span class="w"> </span><span class="n">PhysicsServer3D</span><span class="o">.</span><span class="n">BODY_STATE_TRANSFORM</span><span class="p">,</span><span class="w"> </span><span class="n">global_transform</span><span class="p">)</span>
+<span class="w">  </span><span class="n">PhysicsServer3D</span><span class="o">.</span><span class="n">body_set_mode</span><span class="p">(</span><span class="n">get_rid</span><span class="p">(),</span><span class="w"> </span><span class="n">PhysicsServer3D</span><span class="o">.</span><span class="n">BODY_MODE_KINEMATIC</span><span class="p">)</span>
+</code></pre></div>
+<p>The above forces an update by setting the object to static, updating its
+transform, and then setting it back to its original, kinematic state.</p>
+<p>Note that the above code needs to run for any kinematic object that is to be
+detected by the query and is manipulated during rollback.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>The <em>netfox.extras</em> addon provides optional support for physics simulation
