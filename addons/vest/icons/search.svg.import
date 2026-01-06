@@ -2,17 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://beoxvhp204wuv"
-path="res://.godot/imported/jump-to.svg-c9add894b2d5164c6f4e6837154c4f30.ctex"
+uid="uid://cl6im4a1uj6nq"
+path="res://.godot/imported/search.svg-f595f7d0e550dfff682417fb006673bc.ctex"
 metadata={
-"has_editor_variant": true,
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/vest/icons/jump-to.svg"
-dest_files=["res://.godot/imported/jump-to.svg-c9add894b2d5164c6f4e6837154c4f30.ctex"]
+source_file="res://addons/vest/icons/search.svg"
+dest_files=["res://.godot/imported/search.svg-f595f7d0e550dfff682417fb006673bc.ctex"]
 
 [params]
 
@@ -34,5 +33,5 @@ process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
 svg/scale=2.0
-editor/scale_with_editor_scale=true
-editor/convert_colors_with_editor_theme=true
+editor/scale_with_editor_scale=false
+editor/convert_colors_with_editor_theme=false

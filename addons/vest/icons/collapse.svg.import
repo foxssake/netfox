@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://beoxvhp204wuv"
-path="res://.godot/imported/jump-to.svg-c9add894b2d5164c6f4e6837154c4f30.ctex"
+uid="uid://cv8va2smpv1lf"
+path="res://.godot/imported/collapse.svg-9b497d9ee40a464a0f26821fb8538f0b.ctex"
 metadata={
 "has_editor_variant": true,
 "vram_texture": false
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://addons/vest/icons/jump-to.svg"
-dest_files=["res://.godot/imported/jump-to.svg-c9add894b2d5164c6f4e6837154c4f30.ctex"]
+source_file="res://addons/vest/icons/collapse.svg"
+dest_files=["res://.godot/imported/collapse.svg-9b497d9ee40a464a0f26821fb8538f0b.ctex"]
 
 [params]
 
