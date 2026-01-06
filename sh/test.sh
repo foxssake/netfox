@@ -24,6 +24,7 @@ fi
 
 echo "::group::Test report"
 cat "$VEST_LOG"
+echo ""
 echo "::endgroup::"
 
 if grep "not ok" "$VEST_LOG"; then
