@@ -5,6 +5,24 @@ var tick: int
 var data: Dictionary = {} # RecordedProperty to Variant value
 var _is_authoritative: Dictionary = {} # Property key to bool, not present means false
 
+static func make_patch(from: Snapshot, to: Snapshot, tick: int = from.tick, include_new: bool = true) -> Snapshot:
+	var patch := Snapshot.new(to.tick)
+	
+	for prop_key in from.data:
+		# TODO: This works if both props are auth - handle if that differs
+		if to.data.has(prop_key) and from.data[prop_key] != to.data[prop_key]:
+			patch.data[prop_key] = to.data[prop_key]
+			patch._is_authoritative[prop_key] = to._is_authoritative[prop_key]
+
+	if include_new:
+		for prop_key in to.data:
+			# TODO: This works if both props are auth - handle if that differs
+			if from.data.has(prop_key) and from.data[prop_key] != to.data[prop_key]:
+				patch.data[prop_key] = to.data[prop_key]
+				patch._is_authoritative[prop_key] = to._is_authoritative[prop_key]
+	
+	return patch
+
 func _init(p_tick: int):
 	tick = p_tick
 
@@ -31,6 +49,29 @@ func apply() -> void:
 	for prop_key in data:
 		var value = data[prop_key]
 		RecordedProperty.apply(prop_key, value)
+
+func filtered_to_properties(prop_keys: Array) -> Snapshot:
+	var snapshot := Snapshot.new(tick)
+
+	for property in prop_keys:
+		if not data.has(property):
+			continue
+		snapshot.data[property] = data[property]
+		snapshot._is_authoritative[property] = _is_authoritative[property]
+
+	return snapshot
+
+func filtered_to_auth() -> Snapshot:
+	var snapshot := Snapshot.new(tick)
+
+	for property in data:
+		if not _is_authoritative[property]:
+			continue
+
+		snapshot.data[property] = data[property]
+		snapshot._is_authoritative[property] = _is_authoritative[property]
+
+	return snapshot
 
 func has_node(node: Node, require_auth: bool = false) -> bool:
 	for entry in data.keys():
