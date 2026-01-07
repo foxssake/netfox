@@ -2,15 +2,16 @@ extends Node
 class_name _RollbackSynchronizationServer
 
 # TODO: Support various encoders
-# TODO: Diff states
 # TODO: Honor visibility filters
 
 var _input_properties: Array = []
 var _state_properties: Array = []
 
-var _full_state_interval := 24
-var _state_ack_interval := 4
+var _full_state_interval := 24		# TODO: Config
+var _state_ack_interval := 4		# TODO: Config
 var _ackd_tick := {} # peer id to ack'd tick
+
+var _input_redundancy := 3			# TODO: Config
 
 static var _logger := NetfoxLogger._for_netfox("RollbackSynchronizationServer")
 
@@ -39,24 +40,27 @@ func register_input(node: Node, property: NodePath) -> void:
 func deregister_input(node: Node, property: NodePath) -> void:
 	deregister_property(node, property, _input_properties)
 
+# TODO: Make this testable somehow, I beg of you
 func synchronize_input(tick: int) -> void:
-	# Grab snapshot from RollbackHistoryServer
-	var snapshot := RollbackHistoryServer.get_snapshot(tick)
-	if not snapshot:
-		return
+	var encoded_snapshots := []
 
-	# Filter to input properties
-	var input_snapshot := Snapshot.new(tick)
-	for property in _input_properties:
-		if not snapshot.data.has(property):
-			continue
-		input_snapshot.data[property] = snapshot.data[property]
-		input_snapshot._is_authoritative[property] = snapshot._is_authoritative[property]
+	for offset in _input_redundancy:
+		# Grab snapshot from RollbackHistoryServer
+		var snapshot := RollbackHistoryServer.get_snapshot(tick + offset)
+		if not snapshot:
+			break
 
-	# Transmit
-	# _logger.debug("Submitting input: %s", [input_snapshot])
-	_submit_input.rpc(_serialize_snapshot(input_snapshot))
+		# Filter to input properties
+		# TODO: Send only owned props
+		var input_snapshot := snapshot.filtered_to_properties(_input_properties)
 
+		# Transmit
+		# _logger.debug("Submitting input: %s", [input_snapshot])
+		encoded_snapshots.append(_serialize_snapshot(input_snapshot))
+
+	_submit_input.rpc(encoded_snapshots)
+
+# TODO: Make this testable somehow, I beg of you
 func synchronize_state(tick: int) -> void:
 	# Grab snapshot from RollbackHistoryServer
 	var snapshot := RollbackHistoryServer.get_snapshot(tick)
@@ -64,12 +68,15 @@ func synchronize_state(tick: int) -> void:
 		return
 
 	# Filter to state properties
+	# TODO: Send only owned props
 	var state_snapshot := snapshot.filtered_to_properties(_state_properties)
 	
 	# Figure out whether to send full- or diff state
 	var is_diff := false
-	# TODO: Something better than modulo logic?
-	if _full_state_interval >= 1 and (tick % _full_state_interval) != 0:
+	if _full_state_interval <= 0:
+		is_diff = true
+	elif _full_state_interval >= 1 and (tick % _full_state_interval) != 0:
+		# TODO: Something better than modulo logic? --^
 		is_diff = true
 
 	# Transmit
@@ -144,16 +151,17 @@ func _deserialize_snapshot(data: Variant) -> Snapshot:
 	return snapshot
 
 @rpc("any_peer", "call_remote", "reliable")
-func _submit_input(snapshot_data: Variant):
-	var snapshot := _deserialize_snapshot(snapshot_data)
-#	_logger.debug("Received input snapshot: %s", [snapshot])
+func _submit_input(encoded_snapshots: Array):
+	for snapshot_data in encoded_snapshots:
+		var snapshot := _deserialize_snapshot(snapshot_data)
+	#	_logger.debug("Received input snapshot: %s", [snapshot])
 
-	# TODO: Sanitize
+		# TODO: Sanitize
 
-	var merged := RollbackHistoryServer.merge_snapshot(snapshot)
-#	_logger.debug("Merged input; %s", [merged])
+		var merged := RollbackHistoryServer.merge_snapshot(snapshot)
+	#	_logger.debug("Merged input; %s", [merged])
 
-	on_input.emit(snapshot)
+		on_input.emit(snapshot)
 
 @rpc("any_peer", "call_remote", "unreliable")
 func _submit_state(snapshot_data: Variant):
