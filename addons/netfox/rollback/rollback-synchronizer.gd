@@ -73,6 +73,7 @@ var _input_property_config: _PropertyConfig = _PropertyConfig.new()
 
 var _input_nodes := [] as Array[Node]
 var _state_nodes := [] as Array[Node]
+var _schema_props := [] as Array[Array] # [node, property path] tuples
 
 var _properties_dirty: bool = false
 var _property_cache := PropertyCache.new(root)
@@ -215,11 +216,19 @@ func add_input(node: Variant, property: String) -> void:
 ##    })
 ## [/codeblock]
 func set_schema(schema: Dictionary) -> void:
-	# TODO: Rewrite
-	# _schema = _NetworkSchema.new(schema)
-	# _properties_dirty = true
-	# _reprocess_settings.call_deferred()
-	pass
+	# Remove previous schema
+	for entry in _schema_props:
+		var node = entry[0]
+		var property_path = entry[1]
+		RollbackSynchronizationServer.deregister_schema(node, property_path)
+	_schema_props.clear()
+
+	# Register new schema
+	for prop in schema:
+		var prop_entry := PropertyEntry.parse(root, prop)
+		var serializer := schema[prop] as NetworkSchemaSerializer
+		RollbackSynchronizationServer.register_schema(prop_entry.node, prop_entry.property, serializer)
+		_schema_props.append([prop_entry.node, prop_entry.property])
 
 ## Check if input is available for the current tick.
 ## [br][br]

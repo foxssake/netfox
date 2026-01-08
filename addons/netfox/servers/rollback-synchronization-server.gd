@@ -11,6 +11,9 @@ var _full_state_interval := 24		# TODO: Config
 var _state_ack_interval := 4		# TODO: Config
 var _ackd_tick := {} # peer id to ack'd tick
 
+var _schemas := {} # RecordedProperty key to NetworkSchemaSerializer
+var _fallback_schema := NetworkSchemas.variant()
+
 var _input_redundancy := 3			# TODO: Config
 
 static var _logger := NetfoxLogger._for_netfox("RollbackSynchronizationServer")
@@ -39,6 +42,14 @@ func register_input(node: Node, property: NodePath) -> void:
 
 func deregister_input(node: Node, property: NodePath) -> void:
 	deregister_property(node, property, _input_properties)
+
+func register_schema(node: Node, property: NodePath, serializer: NetworkSchemaSerializer) -> void:
+	var key := RecordedProperty.key_of(node, property)
+	_schemas[key] = serializer
+
+func deregister_schema(node: Node, property: NodePath) -> void:
+	var key := RecordedProperty.key_of(node, property)
+	_schemas.erase(key)
 
 # TODO: Optimize
 func get_properties_of(node: Node) -> Array[NodePath]:
@@ -149,7 +160,8 @@ func _serialize_full_state_for(peer: int, snapshot: Snapshot, buffer: StreamPeer
 		
 		# Write properties as-is
 		for property in get_properties_of(node):
-			buffer.put_var(snapshot.get_property(node, property)) # TODO: Schema
+			var value := snapshot.get_property(node, property)
+			_serialize_property(node, property, value, buffer)
 
 	return buffer.data_array
 
@@ -174,10 +186,18 @@ func _deserialize_full_state_of(peer: int, buffer: StreamPeerBuffer, is_auth: bo
 		
 		# Read properties
 		for property in get_properties_of(node):
-			var value := buffer.get_var() # TODO: Schemas
+			var value := _deserialize_property(node, property, buffer)
 			snapshot.set_property(node, property, value, is_auth)
 	
 	return snapshot
+
+func _serialize_property(node: Node, property: NodePath, value: Variant, buffer: StreamPeerBuffer) -> void:
+	var serializer := _schemas.get(RecordedProperty.key_of(node, property), _fallback_schema) as NetworkSchemaSerializer
+	serializer.encode(value, buffer)
+
+func _deserialize_property(node: Node, property: NodePath, buffer: StreamPeerBuffer) -> Variant:
+	var serializer := _schemas.get(RecordedProperty.key_of(node, property), _fallback_schema) as NetworkSchemaSerializer
+	return serializer.decode(buffer)
 
 func _serialize_snapshot(snapshot: Snapshot) -> Variant:
 	var serialized_properties := []
