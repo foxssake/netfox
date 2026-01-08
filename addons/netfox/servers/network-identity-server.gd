@@ -1,8 +1,7 @@
 extends Node
-class_name NetworkIdentityServer
 
 var _next_id := 0
-var _identifiers := {} # peer to NetworkIdentifier
+var _identifiers := {} # object to NetworkIdentifier
 var _push_queue := [] as Array[IdentityNotification]
 
 static var _logger := NetfoxLogger._for_netfox("NetworkIdentityServer")
@@ -34,12 +33,17 @@ func deregister_node(node: Node) -> void:
 func get_identifier_of(what: Object) -> NetworkIdentifier:
 	return _identifiers[what]
 
-func queue_id_for(what: Object, peer: int) -> Error:
-	var identifier := _identifiers.get(what) as NetworkIdentifier
-	if not identifier: return ERR_DOES_NOT_EXIST
-	
+func resolve_reference(peer: int, identity_reference: NetworkIdentityReference, allow_queue: bool = true) -> NetworkIdentifier:
+	if identity_reference.has_id():
+		return _get_identifier_by_id(peer, identity_reference.get_id())
+	else:
+		var identifier := _get_identifier_by_name(identity_reference.get_full_name())
+		if allow_queue and identifier:
+			queue_for(identifier, peer)
+		return identifier
+
+func queue_for(identifier: NetworkIdentifier, peer: int) -> void:
 	_push_queue.append(IdentityNotification.of(peer, identifier))
-	return OK
 
 func flush_queue() -> void:
 	var ids := {}
@@ -56,6 +60,14 @@ func _get_identifier_by_name(full_name: String) -> NetworkIdentifier:
 	for value in _identifiers.values() as Array:
 		var identifier := value as NetworkIdentifier
 		if identifier.get_full_name() == full_name:
+			return identifier
+	return null
+
+func _get_identifier_by_id(peer: int, id: int) -> NetworkIdentifier:
+	# TODO: Optimize, probably by caching
+	for value in _identifiers.values() as Array:
+		var identifier := value as NetworkIdentifier
+		if identifier.get_id_for(peer) == id:
 			return identifier
 	return null
 
@@ -104,6 +116,9 @@ class NetworkIdentifier:
 		
 	func get_full_name() -> String:
 		return _full_name
+		
+	func get_subject() -> Object:
+		return _subject
 
 	func reference_for(peer: int) -> NetworkIdentityReference:
 		if has_id_for(peer):
@@ -141,7 +156,7 @@ class NetworkIdentityReference:
 
 	func _to_string() -> String:
 		if has_id():
-			return "NetworkIdentityReference#%d" % [_id, _full_name]
+			return "NetworkIdentityReference#%d" % [_id]
 		else:
 			return "NetworkIdentityReference(%s)" % [_full_name]
 

@@ -76,6 +76,18 @@ func filtered_to_auth() -> Snapshot:
 
 	return snapshot
 
+func filtered_to_owned() -> Snapshot:
+	var snapshot := Snapshot.new(tick)
+
+	for property in data:
+		if not RecordedProperty.get_node(property).is_multiplayer_authority():
+			continue
+
+		snapshot.data[property] = data[property]
+		snapshot._is_authoritative[property] = _is_authoritative[property]
+	
+	return snapshot
+
 func has_node(node: Node, require_auth: bool = false) -> bool:
 	for entry in data.keys():
 		var entry_node := entry[0] as Node

@@ -19,11 +19,13 @@ func suite() -> void:
 		test("should do nothing on unknown", func(): todo())
 	)
 	
-	define("queue_id_for()", func():
-		test("should return ok", func(): todo())
-		test("should fail on unknown", func(): todo())
-	)
-
 	define("flush_queue()", func():
 		test("should send ids", func(): todo())
+	)
+	
+	define("resolve_reference()", func():
+		test("should return by id", func(): todo())
+		test("should return by name", func(): todo())
+		test("should return null on unknown", func(): todo())
+		test("should queue on name", func(): todo())
 	)

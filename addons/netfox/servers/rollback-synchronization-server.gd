@@ -40,6 +40,19 @@ func register_input(node: Node, property: NodePath) -> void:
 func deregister_input(node: Node, property: NodePath) -> void:
 	deregister_property(node, property, _input_properties)
 
+# TODO: Optimize
+func get_properties_of(node: Node) -> Array[NodePath]:
+	var result := [] as Array[NodePath]
+	
+	for property in _state_properties + _input_properties:
+		var prop_node := RecordedProperty.get_node(property)
+		var prop_path := RecordedProperty.get_property(property)
+		
+		if node == prop_node:
+			result.append(prop_path)
+	
+	return result
+
 # TODO: Make this testable somehow, I beg of you
 func synchronize_input(tick: int) -> void:
 	var encoded_snapshots := []
@@ -51,8 +64,8 @@ func synchronize_input(tick: int) -> void:
 			break
 
 		# Filter to input properties
-		# TODO: Send only owned props
-		var input_snapshot := snapshot.filtered_to_properties(_input_properties)
+		# TODO: Optimize, avoid making two copies
+		var input_snapshot := snapshot.filtered_to_properties(_input_properties).filtered_to_owned()
 
 		# Transmit
 		# _logger.debug("Submitting input: %s", [input_snapshot])
@@ -68,7 +81,6 @@ func synchronize_state(tick: int) -> void:
 		return
 
 	# Filter to state properties
-	# TODO: Send only owned props
 	var state_snapshot := snapshot.filtered_to_properties(_state_properties)
 	
 	# Figure out whether to send full- or diff state
@@ -78,6 +90,7 @@ func synchronize_state(tick: int) -> void:
 	elif _full_state_interval >= 1 and (tick % _full_state_interval) != 0:
 		# TODO: Something better than modulo logic? --^
 		is_diff = true
+	is_diff = false # TODO: Remove once diff states are supported
 
 	# Transmit
 	if is_diff:
@@ -106,19 +119,65 @@ func synchronize_state(tick: int) -> void:
 #			_submit_state.rpc_id(peer, _serialize_snapshot(state_snapshot))
 #			_logger.info("Sent diff state for @%d <- @%d to #%d", [tick, reference_tick, peer])
 	else:
-		# _logger.debug("Submitting state: %s", [state_snapshot])
-		_submit_state.rpc(_serialize_snapshot(state_snapshot))
-		_logger.info("Broadcast full state for @%d", [tick])
+		for peer in multiplayer.get_peers():
+			_submit_state.rpc_id(peer, _serialize_full_state_for(peer, state_snapshot))
 
-func _serialize_full_state(snapshot: Snapshot, buffer: StreamPeerBuffer) -> void:
+func _serialize_full_state_for(peer: int, snapshot: Snapshot, buffer: StreamPeerBuffer = null) -> PackedByteArray:
+	if buffer == null:
+		buffer = StreamPeerBuffer.new()
+
+	var netref := NetworkSchemas.netref()
+	
 	# Write tick
-	buffer.put_u32(snapshot.tick) # TODO: Schemas.varint()
+	buffer.put_u32(snapshot.tick)
 	
 	# For each node
 	for node in snapshot.nodes():
+		if not node.is_multiplayer_authority():
+			continue
+
 		# Write identifier
-		pass
+		var identifier := NetworkIdentityServer.get_identifier_of(node)
+		if not identifier:
+			_logger.error("Can't synchronize node %s, identifier missing!", [node])
+			continue
+		var idref := identifier.reference_for(peer)
+		netref.encode(idref, buffer)
+		
+		# TODO: Store some kind of size header, in case `peer` doesn't have the
+		# node yet
+		
 		# Write properties as-is
+		for property in get_properties_of(node):
+			buffer.put_var(snapshot.get_property(node, property)) # TODO: Schema
+
+	return buffer.data_array
+
+func _deserialize_full_state_of(peer: int, buffer: StreamPeerBuffer, is_auth: bool = true) -> Snapshot:
+	var netref := NetworkSchemas.netref()
+	
+	# Read tick
+	var tick := buffer.get_u32()
+	var snapshot := Snapshot.new(tick)
+	
+	while buffer.get_available_bytes() > 0:
+		# Read identity reference
+		var idref := netref.decode(buffer) as NetworkIdentityServer.NetworkIdentityReference
+		
+		# Resolve to identifier
+		var identifier := NetworkIdentityServer.resolve_reference(peer, idref)
+		if not identifier:
+			# TODO: Handle unknown IDs gracefully
+			_logger.error("Received unknown identity reference %s, discarding rest of the snapshot", [idref])
+			break
+		var node := identifier.get_subject() as Node
+		
+		# Read properties
+		for property in get_properties_of(node):
+			var value := buffer.get_var() # TODO: Schemas
+			snapshot.set_property(node, property, value, is_auth)
+	
+	return snapshot
 
 func _serialize_snapshot(snapshot: Snapshot) -> Variant:
 	var serialized_properties := []
@@ -174,9 +233,13 @@ func _submit_input(encoded_snapshots: Array):
 		on_input.emit(snapshot)
 
 @rpc("any_peer", "call_remote", "unreliable")
-func _submit_state(snapshot_data: Variant):
+func _submit_state(data: PackedByteArray):
+	var buffer := StreamPeerBuffer.new()
+	buffer.data_array = data
+
 	var sender := multiplayer.get_remote_sender_id()
-	var snapshot := _deserialize_snapshot(snapshot_data)
+	var snapshot := _deserialize_full_state_of(sender, buffer)
+
 	# TODO: Sanitize
 #	_logger.debug("Received state snapshot: %s", [snapshot])
 

@@ -121,6 +121,11 @@ func process_settings() -> void:
 			RollbackSimulationServer.register_input_for(node, input_node)
 		_registered_nodes.append(node)
 
+	# Register identifiers
+	# TODO: Somehow deregister on destroy
+	for node in _state_nodes + _input_nodes:
+		NetworkIdentityServer.register_node(node)
+
 ## Process settings based on authority.
 ## [br][br]
 ## Call this whenever the authority of any of the nodes managed by
@@ -134,10 +139,10 @@ func process_authority():
 	for prop in _get_recorded_input_props():
 		RollbackHistoryServer.deregister_input(prop.node, prop.property)
 
-	for prop in _get_owned_input_props():
+	for prop in _input_property_config.get_properties():
 		RollbackSynchronizationServer.deregister_input(prop.node, prop.property)
 
-	for prop in _get_owned_state_props():
+	for prop in _state_property_config.get_properties():
 		RollbackSynchronizationServer.deregister_state(prop.node, prop.property)
 
 	# Process authority
@@ -154,10 +159,10 @@ func process_authority():
 	for prop in _get_recorded_input_props():
 		RollbackHistoryServer.register_input(prop.node, prop.property)
 
-	for prop in _get_owned_input_props():
+	for prop in _input_property_config.get_properties():
 		RollbackSynchronizationServer.register_input(prop.node, prop.property)
 
-	for prop in _get_owned_state_props():
+	for prop in _state_property_config.get_properties():
 		RollbackSynchronizationServer.register_state(prop.node, prop.property)
 
 ## Add a state property.

@@ -4,6 +4,12 @@ class_name RecordedProperty
 static func key_of(p_node: Node, p_property: NodePath) -> Array:
 	return [p_node, p_property]
 
+static func get_node(key: Array) -> Node:
+	return key[0]
+
+static func get_property(key: Array) -> NodePath:
+	return key[1]
+
 static func extract(key: Array) -> Variant:
 	var node := key[0] as Node
 	var property := key[1] as NodePath
