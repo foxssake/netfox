@@ -1,12 +1,40 @@
-[gd_scene load_steps=8 format=3 uid="uid://bp8g7j7774mwi"]
+[gd_scene load_steps=16 format=3 uid="uid://bp8g7j7774mwi"]
 
-[ext_resource type="Script" uid="uid://i36by1fk3oss" path="res://addons/vest/ui/vest-ui.gd" id="1_cct3x"]
+[ext_resource type="Script" path="res://addons/vest/ui/vest-ui.gd" id="1_cct3x"]
 [ext_resource type="Texture2D" uid="uid://r4y6ihamgino" path="res://addons/vest/icons/run.svg" id="2_q3lni"]
+[ext_resource type="PackedScene" uid="uid://lqudrgj64q3x" path="res://addons/vest/ui/results-panel.tscn" id="2_r41u0"]
 [ext_resource type="Texture2D" uid="uid://dwhlyf5eyiect" path="res://addons/vest/icons/debug.svg" id="3_mcbjt"]
 [ext_resource type="Texture2D" uid="uid://ctdipwc8sklwo" path="res://addons/vest/icons/clear.svg" id="4_rjham"]
 [ext_resource type="Texture2D" uid="uid://dt75n55vr4kq0" path="res://addons/vest/icons/refresh.svg" id="5_k7hxl"]
 [ext_resource type="Texture2D" uid="uid://bmqjme87oq3xx" path="res://addons/vest/icons/pass.svg" id="6_mef67"]
 [ext_resource type="Texture2D" uid="uid://c711af0y1s2ct" path="res://addons/vest/icons/run-save.svg" id="6_wy3v7"]
+[ext_resource type="Texture2D" uid="uid://bpyua1ic4p47h" path="res://addons/vest/icons/visibility.svg" id="6_xkbs5"]
+[ext_resource type="Texture2D" uid="uid://sx0233b14cll" path="res://addons/vest/icons/expand.svg" id="9_hg4sy"]
+[ext_resource type="Texture2D" uid="uid://cl6im4a1uj6nq" path="res://addons/vest/icons/search.svg" id="10_2uogy"]
+[ext_resource type="Texture2D" uid="uid://csfyamlc15vp0" path="res://addons/vest/icons/spinner.svg" id="10_7lh4k"]
+[ext_resource type="PackedScene" uid="uid://dbgbcglqh42ya" path="res://addons/vest/ui/visibility-popup.tscn" id="13_72bup"]
+
+[sub_resource type="Animation" id="Animation_cyqg3"]
+resource_name = "spin"
+loop_mode = 1
+step = 0.0416667
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Spinner:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(0.5, 1),
+"update": 0,
+"values": [0.0, 6.28319]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_ed1ow"]
+_data = {
+"spin": SubResource("Animation_cyqg3")
+}
 
 [node name="Vest UI" type="Control"]
 custom_minimum_size = Vector2(0, 144)
@@ -27,30 +55,17 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 
-[node name="Results Panel" type="Panel" parent="VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/Results Panel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Results Tree" type="Tree" parent="VBoxContainer/Results Panel/PanelContainer"]
+[node name="Results Panel" parent="VBoxContainer" instance=ExtResource("2_r41u0")]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-columns = 2
-hide_root = true
 
 [node name="Bottom Line" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 
-[node name="Run All Button" type="Button" parent="VBoxContainer/Bottom Line"]
+[node name="Buttons" type="HBoxContainer" parent="VBoxContainer/Bottom Line"]
+layout_mode = 2
+
+[node name="Run All Button" type="Button" parent="VBoxContainer/Bottom Line/Buttons"]
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Run tests"
@@ -59,7 +74,7 @@ icon = ExtResource("2_q3lni")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Debug Button" type="Button" parent="VBoxContainer/Bottom Line"]
+[node name="Debug Button" type="Button" parent="VBoxContainer/Bottom Line/Buttons"]
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Debug tests"
@@ -68,7 +83,7 @@ icon = ExtResource("3_mcbjt")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Clear Button" type="Button" parent="VBoxContainer/Bottom Line"]
+[node name="Clear Button" type="Button" parent="VBoxContainer/Bottom Line/Buttons"]
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Clear results"
@@ -77,7 +92,7 @@ icon = ExtResource("4_rjham")
 icon_alignment = 1
 expand_icon = true
 
-[node name="Run on Save Button" type="Button" parent="VBoxContainer/Bottom Line"]
+[node name="Run on Save Button" type="Button" parent="VBoxContainer/Bottom Line/Buttons"]
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Run on Save"
@@ -87,36 +102,122 @@ icon = ExtResource("6_wy3v7")
 icon_alignment = 1
 expand_icon = true
 
+[node name="Filter Results Button" type="Button" parent="VBoxContainer/Bottom Line/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Filter results"
+text = "      "
+icon = ExtResource("6_xkbs5")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Visibility Popup" parent="VBoxContainer/Bottom Line/Buttons/Filter Results Button" instance=ExtResource("13_72bup")]
+unique_name_in_owner = true
+visible = false
+
+[node name="Search Button" type="Button" parent="VBoxContainer/Bottom Line/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "      "
+icon = ExtResource("10_2uogy")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Search Input" type="LineEdit" parent="VBoxContainer/Bottom Line/Buttons"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(192, 0)
+layout_mode = 2
+placeholder_text = "Search..."
+
+[node name="Expand Toggle Button" type="Button" parent="VBoxContainer/Bottom Line/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "      "
+icon = ExtResource("9_hg4sy")
+icon_alignment = 1
+expand_icon = true
+
 [node name="VSeparator3" type="VSeparator" parent="VBoxContainer/Bottom Line"]
 layout_mode = 2
 
-[node name="Test Summary Icon" type="TextureRect" parent="VBoxContainer/Bottom Line"]
+[node name="Run Summary" type="HBoxContainer" parent="VBoxContainer/Bottom Line"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Test Summary Icon" type="TextureRect" parent="VBoxContainer/Bottom Line/Run Summary"]
 unique_name_in_owner = true
 visible = false
+custom_minimum_size = Vector2(16, 16)
 layout_mode = 2
 size_flags_vertical = 4
 texture = ExtResource("6_mef67")
 expand_mode = 5
 stretch_mode = 4
 
-[node name="Tests Summary Label" type="Label" parent="VBoxContainer/Bottom Line"]
+[node name="Tests Summary Label" type="Label" parent="VBoxContainer/Bottom Line/Run Summary"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(220, 0)
 layout_mode = 2
-text = "Ready"
+
+[node name="Progress Indicator" type="HBoxContainer" parent="VBoxContainer/Bottom Line"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Control" type="Control" parent="VBoxContainer/Bottom Line/Progress Indicator"]
+custom_minimum_size = Vector2(32, 0)
+layout_mode = 2
+
+[node name="Spinner" type="TextureRect" parent="VBoxContainer/Bottom Line/Progress Indicator/Control"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -16.0
+offset_top = -15.5
+offset_right = 16.0
+offset_bottom = 16.5
+grow_horizontal = 2
+grow_vertical = 2
+rotation = 2.9185
+pivot_offset = Vector2(16, 16)
+texture = ExtResource("10_7lh4k")
+expand_mode = 5
+stretch_mode = 5
+flip_h = true
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="VBoxContainer/Bottom Line/Progress Indicator/Control"]
+autoplay = "spin"
+libraries = {
+"": SubResource("AnimationLibrary_ed1ow")
+}
+
+[node name="Label" type="Label" parent="VBoxContainer/Bottom Line/Progress Indicator"]
+layout_mode = 2
+text = "Running tests..."
 
 [node name="VSeparator2" type="VSeparator" parent="VBoxContainer/Bottom Line"]
 layout_mode = 2
 
-[node name="Glob Label" type="Label" parent="VBoxContainer/Bottom Line"]
+[node name="Glob" type="HBoxContainer" parent="VBoxContainer/Bottom Line"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+
+[node name="Glob Label" type="Label" parent="VBoxContainer/Bottom Line/Glob"]
 layout_mode = 2
 text = "Test glob:"
 
-[node name="Glob LineEdit" type="LineEdit" parent="VBoxContainer/Bottom Line"]
+[node name="Glob LineEdit" type="LineEdit" parent="VBoxContainer/Bottom Line/Glob"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-text = "res://*.test.gd"
+text = "res://tests/*.test.gd"
 
 [node name="VSeparator4" type="VSeparator" parent="VBoxContainer/Bottom Line"]
 layout_mode = 2

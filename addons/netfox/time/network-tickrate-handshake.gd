@@ -40,7 +40,7 @@ signal on_tickrate_mismatch(peer: int, tickrate: int)
 ## [br][br]
 ## Called by [_NetworkTime], no need to call manually.
 func run() -> void:
-	if multiplayer.is_server():
+	if _is_authority():
 		# Broadcast tickrate
 		_submit_tickrate.rpc(NetworkTime.tickrate)
 		
@@ -61,7 +61,7 @@ func _ready() -> void:
 	name = "NetworkTickrateHandshake"
 
 func _handle_new_peer(peer: int) -> void:
-	if multiplayer.is_server():
+	if _is_authority():
 		_submit_tickrate.rpc_id(peer, NetworkTime.tickrate)
 
 func _handle_tickrate_mismatch(peer: int, tickrate: int) -> void:
@@ -74,20 +74,24 @@ func _handle_tickrate_mismatch(peer: int, tickrate: int) -> void:
 					NetworkTime.tickrate, peer, tickrate
 				])
 		DISCONNECT:
-			if multiplayer.is_server():
+			if _is_authority():
 				_logger.warning("Peer #%d's tickrate of %dtps differs from expected %dtps! Disconnecting.", [
 					peer, tickrate, NetworkTime.tickrate
 				])
 				multiplayer.multiplayer_peer.disconnect_peer(peer)
 		ADJUST:
-			if not multiplayer.is_server():
+			if not _is_authority():
 				_logger.info("Local tickrate %dtps differs from tickrate of host at %dtps! Adjusting.", [
 					NetworkTime.tickrate, tickrate
 				])
 				# TODO: Make tickrate mutable at user's digression
-				ProjectSettings.set_setting(&"netfox/time/tickrate", tickrate)
+				NetworkTime._tickrate = tickrate
 		SIGNAL:
 			on_tickrate_mismatch.emit(peer, tickrate)
+
+func _is_authority() -> bool:
+	# HACK: This method is here to ease testing; pretending to be a client is messy from a unit test
+	return multiplayer.is_server()
 
 @rpc("any_peer", "reliable", "call_remote")
 func _submit_tickrate(tickrate: int) -> void:

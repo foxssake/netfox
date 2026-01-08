@@ -8,20 +8,24 @@ var redundancy: int = 4:
 var _history: _PropertyHistoryBuffer
 var _properties: Array[PropertyEntry]
 var _property_cache: PropertyCache
+var _schema_handler: _NetworkSchema
 
 var _version := 0
 var _has_received := false
 
 var _logger := NetfoxLogger._for_netfox("RedundantHistoryEncoder")
 
+func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache, p_schema_handler: _NetworkSchema):
+	_history = p_history
+	_property_cache = p_property_cache
+	_schema_handler = p_schema_handler
+
 func get_redundancy() -> int:
 	return redundancy
 
 func set_redundancy(p_redundancy: int):
 	if p_redundancy <= 0:
-		_logger.warning(
-			"Attempting to set redundancy to %d, which would send no data!", [p_redundancy]
-		)
+		_logger.warning("Attempting to set redundancy to %d, which would send no data!", [p_redundancy])
 		return
 
 	redundancy = p_redundancy
@@ -31,10 +35,12 @@ func set_properties(properties: Array[PropertyEntry]) -> void:
 		_version = (_version + 1) % 256
 		_properties = properties.duplicate()
 
-func encode(tick: int, properties: Array[PropertyEntry]) -> Array:
+func encode(tick: int, properties: Array[PropertyEntry]) -> PackedByteArray:
 	if _history.is_empty():
-		return []
-	var data := []
+		return PackedByteArray()
+
+	var buffer := StreamPeerBuffer.new()
+	buffer.put_u8(_version)
 
 	for i in range(mini(redundancy, _history.size())):
 		var offset_tick := tick - i
@@ -43,16 +49,21 @@ func encode(tick: int, properties: Array[PropertyEntry]) -> Array:
 
 		var snapshot := _history.get_snapshot(offset_tick)
 		for property in properties:
-			data.append(snapshot.get_value(property.to_string()))
+			var path := property.to_string()
+			var value := snapshot.get_value(path)
+			_schema_handler.encode(path, value, buffer)
 
-	data.append(_version)
-	return data
+	return buffer.data_array
 
-func decode(data: Array, properties: Array[PropertyEntry]) -> Array[_PropertySnapshot]:
-	if data.is_empty() or properties.is_empty():
-		return []
-	
-	var packet_version := data.pop_back() as int
+func decode(data: PackedByteArray, properties: Array[PropertyEntry]) -> Array[_PropertySnapshot]:
+	var result: Array[_PropertySnapshot] = []
+
+	if data.is_empty():
+		return result
+
+	var buffer := StreamPeerBuffer.new()
+	buffer.data_array = data
+	var packet_version := buffer.get_u8()
 
 	if packet_version != _version:
 		if not _has_received:
@@ -61,21 +72,24 @@ func decode(data: Array, properties: Array[PropertyEntry]) -> Array[_PropertySna
 		else:
 			# Version mismatch, can't parse
 			_logger.warning("Version mismatch! own: %d, received: %s", [_version, packet_version])
-			return []
-	
-	var result: Array[_PropertySnapshot] = []
-	var redundancy := data.size() / properties.size()
-	result.assign(range(redundancy)
-		.map(func(__): return _PropertySnapshot.new())
-	)
-
-	for i in range(data.size()):
-		var offset_idx := i / properties.size()
-		var prop_idx := i % properties.size()
-
-		result[offset_idx].set_value(properties[prop_idx].to_string(), data[i])
+			return result
 
 	_has_received = true
+
+	while buffer.get_available_bytes() > 0:
+		var snapshot = _PropertySnapshot.new()
+
+		for property in properties:
+			# Stop if we run out of data mid-snapshot
+			if buffer.get_available_bytes() == 0:
+				break
+
+			var path := property.to_string()
+			var value := _schema_handler.decode(path, buffer)
+
+			snapshot.set_value(path, value)
+
+		result.append(snapshot)
 
 	return result
 
@@ -109,8 +123,3 @@ func apply(tick: int, snapshots: Array[_PropertySnapshot], sender: int = 0) -> i
 			earliest_new_tick = offset_tick
 
 	return earliest_new_tick
-
-
-func _init(p_history: _PropertyHistoryBuffer, p_property_cache: PropertyCache):
-	_history = p_history
-	_property_cache = p_property_cache

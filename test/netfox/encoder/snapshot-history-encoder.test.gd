@@ -20,8 +20,9 @@ func before_case(__):
 	target_history = _PropertyHistoryBuffer.new()
 	property_cache = PropertyCache.new(root_node)
 
-	source_encoder = _SnapshotHistoryEncoder.new(source_history, property_cache)
-	target_encoder = _SnapshotHistoryEncoder.new(target_history, property_cache)
+	var schema := _NetworkSchema.new({})
+	source_encoder = _SnapshotHistoryEncoder.new(source_history, property_cache, schema)
+	target_encoder = _SnapshotHistoryEncoder.new(target_history, property_cache, schema)
 
 	source_encoder.set_properties(property_entries)
 	target_encoder.set_properties(property_entries)

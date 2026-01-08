@@ -61,9 +61,18 @@ func _get_suite() -> VestDefs.Suite:
 			await call(method["name"])
 
 		for method in case_methods:
-			test(method["name"].trim_prefix("test").capitalize(), func(): await call(method["name"]))
+			var method_name := method["name"] as String
+			var test_name := method_name.trim_prefix("test").trim_suffix("__only").capitalize()
+			var callback := func(): await call(method["name"])
+			var is_only := _is_only(method_name)
+
+			test(test_name, callback, is_only, method_name)
 
 		for method in parametric_methods:
+			var method_name := method["name"] as String
+			var test_name := method_name.trim_prefix("test").trim_suffix("__only").capitalize()
+			var is_only := _is_only(method_name)
+
 			var param_provider_name := method["default_args"][0] as String
 			if not has_method(param_provider_name):
 				push_warning(
@@ -80,7 +89,12 @@ func _get_suite() -> VestDefs.Suite:
 
 			for i in range(params.size()):
 				test(
-					"%s#%d %s" % [method["name"].trim_prefix("test").capitalize(), i+1, params[i]],
-					func(): await callv(method["name"], params[i])
+					"%s#%d %s" % [test_name, i+1, params[i]],
+					func(): await callv(method["name"], params[i]),
+					is_only,
+					method_name
 				)
 	)
+
+func _is_only(name: String) -> bool:
+	return name.ends_with("__only")
