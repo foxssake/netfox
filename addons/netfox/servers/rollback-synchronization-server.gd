@@ -110,6 +110,16 @@ func synchronize_state(tick: int) -> void:
 		_submit_state.rpc(_serialize_snapshot(state_snapshot))
 		_logger.info("Broadcast full state for @%d", [tick])
 
+func _serialize_full_state(snapshot: Snapshot, buffer: StreamPeerBuffer) -> void:
+	# Write tick
+	buffer.put_u32(snapshot.tick) # TODO: Schemas.varint()
+	
+	# For each node
+	for node in snapshot.nodes():
+		# Write identifier
+		pass
+		# Write properties as-is
+
 func _serialize_snapshot(snapshot: Snapshot) -> Variant:
 	var serialized_properties := []
 

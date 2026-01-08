@@ -22,6 +22,16 @@ func suite() -> void:
 		["uint32", NetworkSchemas.uint32(), 107, 4],
 		["uint64", NetworkSchemas.uint64(), 107, 8],
 		
+		# Test values are max representable values in `n` bytes
+		["varuint 8", NetworkSchemas.varuint(),		127, 1],
+		["varuint 16", NetworkSchemas.varuint(),	16383, 2],
+		["varuint 24", NetworkSchemas.varuint(),	2097151, 3],
+		["varuint 32", NetworkSchemas.varuint(),	268435455, 4],
+		["varuint 40", NetworkSchemas.varuint(),	34359738367, 5],
+		["varuint 48", NetworkSchemas.varuint(),	4398046511103, 6],
+		["varuint 56", NetworkSchemas.varuint(),	562949953421311, 7],
+		["varuint 64", NetworkSchemas.varuint(),	72057594037927935, 8],
+		
 		["sfrac8", NetworkSchemas.sfrac8(), -63. / 255., 1],
 		["sfrac16", NetworkSchemas.sfrac16(), -63. / 255., 2],
 		["sfrac32", NetworkSchemas.sfrac32(), -63. / 255., 4],
@@ -69,7 +79,11 @@ func suite() -> void:
 		["transform3f64", NetworkSchemas.transform3f64(), Transform3D.IDENTITY.rotated(Vector3.ONE, 37.), 96],
 		
 		["array", NetworkSchemas.array_of(NetworkSchemas.uint16()), [1, 2, 3], 8],
-		["dictionary", NetworkSchemas.dictionary(NetworkSchemas.uint16(), NetworkSchemas.uint16()), { 1: 32, 2: 48 }, 10]
+		["dictionary", NetworkSchemas.dictionary(NetworkSchemas.uint16(), NetworkSchemas.uint16()), { 1: 32, 2: 48 }, 10],
+		
+		["netref id8", NetworkSchemas.netref(), NetworkIdentityServer.NetworkIdentityReference.of_id(12), 1],
+		["netref id16", NetworkSchemas.netref(), NetworkIdentityServer.NetworkIdentityReference.of_id(138), 2],
+		["netref name", NetworkSchemas.netref(), NetworkIdentityServer.NetworkIdentityReference.of_full_name("path"), 9]
 	]
 
 	for case in cases:
@@ -84,8 +98,8 @@ func suite() -> void:
 			buffer.seek(0)
 			var decoded = serializer.decode(buffer)
 
-			expect_equal(decoded, value)
-			expect_equal(buffer.data_array.size(), expected_size)
+			expect_equal(decoded, value, "Value mismatch! Expected %s, got %s" % [value, decoded])
+			expect_equal(buffer.data_array.size(), expected_size, "Size mismatch! Expected %d, got %d" % [expected_size, buffer.data_array.size(), expected_size])
 		)
 
 	test("should handle negative degrees", func():

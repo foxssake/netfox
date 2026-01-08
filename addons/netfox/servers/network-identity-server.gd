@@ -105,6 +105,46 @@ class NetworkIdentifier:
 	func get_full_name() -> String:
 		return _full_name
 
+	func reference_for(peer: int) -> NetworkIdentityReference:
+		if has_id_for(peer):
+			return NetworkIdentityReference.of_id(get_id_for(peer))
+		else:
+			return NetworkIdentityReference.of_full_name(get_full_name())
+
+class NetworkIdentityReference:
+	var _full_name: String = ""
+	var _id: int = -1
+
+	static func of_full_name(full_name: String) -> NetworkIdentityReference:
+		var reference := NetworkIdentityReference.new()
+		reference._full_name = full_name
+		return reference
+
+	static func of_id(id: int) -> NetworkIdentityReference:
+		var reference := NetworkIdentityReference.new()
+		reference._id = id
+		return reference
+
+	func has_id() -> bool:
+		return _id > 0
+
+	func get_id() -> int:
+		return _id
+
+	func get_full_name() -> String:
+		return _full_name
+
+	func equals(other: Variant) -> bool:
+		if other is NetworkIdentityReference:
+			return _full_name == other._full_name and _id == other._id
+		return false
+
+	func _to_string() -> String:
+		if has_id():
+			return "NetworkIdentityReference#%d" % [_id, _full_name]
+		else:
+			return "NetworkIdentityReference(%s)" % [_full_name]
+
 # TODO: Private
 class IdentityNotification:
 	var peer: int

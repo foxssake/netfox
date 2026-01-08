@@ -30,6 +30,9 @@ func set_property(node: Node, property: NodePath, value: Variant, is_authoritati
 	data[RecordedProperty.key_of(node, property)] = value
 	_is_authoritative[RecordedProperty.key_of(node, property)] = is_authoritative
 
+func get_property(node: Node, property: NodePath) -> Variant:
+	return data[RecordedProperty.key_of(node, property)]
+
 func merge_property(node: Node, property: NodePath, value: Variant, is_authoritative: bool = false) -> bool:
 	var prop_key := RecordedProperty.key_of(node, property)
 	if is_authoritative or not _is_authoritative.get(prop_key, false):
@@ -85,6 +88,23 @@ func has_node(node: Node, require_auth: bool = false) -> bool:
 
 		return true
 	return false
+
+func get_properties_of_node(node: Node) -> Array[NodePath]:
+	var properties := [] as Array[NodePath]
+	for entry in data.keys():
+		var entry_node := entry[0] as Node
+		var entry_path := entry[1] as NodePath
+		if entry_node == node:
+			properties.append(entry_path)
+	return properties
+
+func nodes() -> Array[Node]:
+	var nodes := [] as Array[Node]
+	for entry in data.keys():
+		var entry_node := entry[0] as Node
+		if not nodes.has(entry_node):
+			nodes.append(entry_node)
+	return nodes
 
 func _to_string() -> String:
 	var result := "Snapshot(#%d" % [tick]
