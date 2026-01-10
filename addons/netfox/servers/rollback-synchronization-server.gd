@@ -104,6 +104,7 @@ func synchronize_state(tick: int) -> void:
 	is_diff = false # TODO: Remove once diff states are supported
 
 	# Transmit
+	# TODO: Support diff states
 	if is_diff:
 		for peer in multiplayer.get_peers():
 			if not _ackd_tick.has(peer):
@@ -138,6 +139,9 @@ func _serialize_full_state_for(peer: int, snapshot: Snapshot, buffer: StreamPeer
 		buffer = StreamPeerBuffer.new()
 
 	var netref := NetworkSchemas.netref()
+	var varuint := NetworkSchemas.varuint()
+	
+	var node_buffer := StreamPeerBuffer.new()
 	
 	# Write tick
 	buffer.put_u32(snapshot.tick)
@@ -159,37 +163,68 @@ func _serialize_full_state_for(peer: int, snapshot: Snapshot, buffer: StreamPeer
 		# node yet
 		
 		# Write properties as-is
+		# First into a buffer, so we can start with the state size
+		node_buffer.clear()
 		for property in get_properties_of(node):
 			var value := snapshot.get_property(node, property)
-			_serialize_property(node, property, value, buffer)
+			_serialize_property(node, property, value, node_buffer)
+		
+		# Indicate state size for the node
+		varuint.encode(node_buffer.data_array.size(), buffer)
+		
+		# Write node state
+		buffer.put_data(node_buffer.data_array)
 
 	return buffer.data_array
 
 func _deserialize_full_state_of(peer: int, buffer: StreamPeerBuffer, is_auth: bool = true) -> Snapshot:
 	var netref := NetworkSchemas.netref()
+	var varuint := NetworkSchemas.varuint()
+	var node_buffer := StreamPeerBuffer.new()
 	
 	# Read tick
 	var tick := buffer.get_u32()
 	var snapshot := Snapshot.new(tick)
 	
 	while buffer.get_available_bytes() > 0:
-		# Read identity reference
+		# Read identity reference, data size, and data
+		# TODO: Configurable upper limit on how much netfox is allowed to read here?
 		var idref := netref.decode(buffer) as NetworkIdentityServer.NetworkIdentityReference
+		var node_data_size := varuint.decode(buffer) as int
+		node_buffer.data_array = buffer.get_partial_data(node_data_size)[1]
 		
 		# Resolve to identifier
 		var identifier := NetworkIdentityServer.resolve_reference(peer, idref)
 		if not identifier:
 			# TODO: Handle unknown IDs gracefully
-			_logger.error("Received unknown identity reference %s, discarding rest of the snapshot", [idref])
+			# TODO: Test that unknown nodes are INDEED SKIPPED
+			_logger.error("Received unknown identity reference %s, skipping data", [idref])
 			break
 		var node := identifier.get_subject() as Node
 		
 		# Read properties
 		for property in get_properties_of(node):
-			var value := _deserialize_property(node, property, buffer)
+			# TODO: Test if less bytes remain than an entire property ( e.g. 2 bytes )
+			if node_buffer.get_available_bytes() == 0: break
+
+			var value := _deserialize_property(node, property, node_buffer)
 			snapshot.set_property(node, property, value, is_auth)
 	
 	return snapshot
+
+func _serialize_input_of(peer: int, snapshots: Array[Snapshot], buffer: StreamPeerBuffer = null) -> PackedByteArray:
+	# TODO
+	assert(snapshots.size() < 255, "Can't serialize more than 255 input ticks in a single packet!")
+	assert(snapshots.size() <= 1 or snapshots.front().tick <= snapshots.back().tick, "Snapshots are not continuous!")
+	
+	if buffer == null:
+		buffer = StreamPeerBuffer.new()
+
+	return buffer.data_array
+
+func _deserialize_input_of(peer: int, buffer: StreamPeerBuffer, is_auth: bool = true) -> Array[Snapshot]:
+	# TODO
+	return []
 
 func _serialize_property(node: Node, property: NodePath, value: Variant, buffer: StreamPeerBuffer) -> void:
 	var serializer := _schemas.get(RecordedProperty.key_of(node, property), _fallback_schema) as NetworkSchemaSerializer
