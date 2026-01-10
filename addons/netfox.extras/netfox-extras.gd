@@ -109,8 +109,7 @@ func _enter_tree():
 		add_setting(setting)
 
 	for autoload in AUTOLOADS:
-		var key := "autoload/%s" % autoload.name
-		if not ProjectSettings.has_setting(key):
+		if not has_autoload(autoload.name):
 			add_autoload_singleton(autoload.name, autoload.path)
 	
 	for type in TYPES:
@@ -124,7 +123,8 @@ func _exit_tree():
 			remove_setting(setting)
 
 	for autoload in AUTOLOADS:
-		remove_autoload_singleton(autoload.name)
+		if has_autoload(autoload.name):
+			remove_autoload_singleton(autoload.name)
 	
 	for type in TYPES:
 		remove_custom_type(type.name)
@@ -149,6 +149,9 @@ func remove_setting(setting: Dictionary):
 		return
 	
 	ProjectSettings.clear(setting.name)
+
+func has_autoload(name: String) -> bool:
+	return ProjectSettings.has_setting("autoload/" + name)
 
 func _render_tool_menu():
 	_free_tool_menu()
