@@ -66,7 +66,7 @@ func get_properties_of(node: Node) -> Array[NodePath]:
 
 # TODO: Make this testable somehow, I beg of you
 func synchronize_input(tick: int) -> void:
-	var encoded_snapshots := []
+	var snapshots := [] as Array[Snapshot]
 
 	for offset in _input_redundancy:
 		# Grab snapshot from RollbackHistoryServer
@@ -80,9 +80,11 @@ func synchronize_input(tick: int) -> void:
 
 		# Transmit
 		# _logger.debug("Submitting input: %s", [input_snapshot])
-		encoded_snapshots.append(_serialize_snapshot(input_snapshot))
+		snapshots.append(input_snapshot)
 
-	_submit_input.rpc(encoded_snapshots)
+	# TODO: Option to not broadcast input
+	for peer in multiplayer.get_peers():
+		_submit_input.rpc_id(peer, _serialize_input_for(peer, snapshots))
 
 # TODO: Make this testable somehow, I beg of you
 func synchronize_state(tick: int) -> void:
@@ -212,19 +214,33 @@ func _deserialize_full_state_of(peer: int, buffer: StreamPeerBuffer, is_auth: bo
 	
 	return snapshot
 
-func _serialize_input_of(peer: int, snapshots: Array[Snapshot], buffer: StreamPeerBuffer = null) -> PackedByteArray:
-	# TODO
-	assert(snapshots.size() < 255, "Can't serialize more than 255 input ticks in a single packet!")
-	assert(snapshots.size() <= 1 or snapshots.front().tick <= snapshots.back().tick, "Snapshots are not continuous!")
+func _serialize_input_for(peer: int, snapshots: Array[Snapshot], buffer: StreamPeerBuffer = null) -> PackedByteArray:
+	var varuint := NetworkSchemas.varuint()
 	
 	if buffer == null:
 		buffer = StreamPeerBuffer.new()
 
+	for snapshot in snapshots:
+		# TODO: Rename method
+		var serialized := _serialize_full_state_for(peer, snapshot)
+		
+		# Write size and snapshot
+		varuint.encode(serialized.size(), buffer)
+		buffer.put_data(serialized)
+
 	return buffer.data_array
 
 func _deserialize_input_of(peer: int, buffer: StreamPeerBuffer, is_auth: bool = true) -> Array[Snapshot]:
-	# TODO
-	return []
+	var varuint := NetworkSchemas.varuint()
+	
+	var snapshots := [] as Array[Snapshot]
+	while buffer.get_available_bytes() > 0:
+		var snapshot_size := varuint.decode(buffer)
+		var snapshot_buffer := StreamPeerBuffer.new()
+		snapshot_buffer.data_array = buffer.get_partial_data(snapshot_size)[1]
+		
+		snapshots.append(_deserialize_full_state_of(peer, snapshot_buffer, is_auth))
+	return snapshots
 
 func _serialize_property(node: Node, property: NodePath, value: Variant, buffer: StreamPeerBuffer) -> void:
 	var serializer := _schemas.get(RecordedProperty.key_of(node, property), _fallback_schema) as NetworkSchemaSerializer
@@ -275,9 +291,12 @@ func _deserialize_snapshot(data: Variant) -> Snapshot:
 	return snapshot
 
 @rpc("any_peer", "call_remote", "reliable")
-func _submit_input(encoded_snapshots: Array):
-	for snapshot_data in encoded_snapshots:
-		var snapshot := _deserialize_snapshot(snapshot_data)
+func _submit_input(data: PackedByteArray):
+	var sender := multiplayer.get_remote_sender_id()
+	var buffer := StreamPeerBuffer.new()
+	buffer.data_array = data
+
+	for snapshot in _deserialize_input_of(sender, buffer):
 	#	_logger.debug("Received input snapshot: %s", [snapshot])
 
 		# TODO: Sanitize
