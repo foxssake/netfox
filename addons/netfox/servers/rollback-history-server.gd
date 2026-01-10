@@ -74,7 +74,7 @@ func trim_history(earliest_tick: int) -> void:
 
 # TODO: Keep snapshots private
 func get_snapshot(tick: int) -> Snapshot:
-	return _snapshots.get(tick)
+	return _snapshots.get(tick) as Snapshot
 
 # TODO: Keep snapshots private
 func merge_snapshot(snapshot: Snapshot) -> Snapshot:

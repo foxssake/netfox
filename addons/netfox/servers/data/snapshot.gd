@@ -5,8 +5,8 @@ var tick: int
 var data: Dictionary = {} # RecordedProperty to Variant value
 var _is_authoritative: Dictionary = {} # Property key to bool, not present means false
 
-static func make_patch(from: Snapshot, to: Snapshot, tick: int = from.tick, include_new: bool = true) -> Snapshot:
-	var patch := Snapshot.new(to.tick)
+static func make_patch(from: Snapshot, to: Snapshot, tick: int = to.tick, include_new: bool = true) -> Snapshot:
+	var patch := Snapshot.new(tick)
 	
 	for prop_key in from.data:
 		# TODO: This works if both props are auth - handle if that differs
@@ -17,7 +17,7 @@ static func make_patch(from: Snapshot, to: Snapshot, tick: int = from.tick, incl
 	if include_new:
 		for prop_key in to.data:
 			# TODO: This works if both props are auth - handle if that differs
-			if from.data.has(prop_key) and from.data[prop_key] != to.data[prop_key]:
+			if not from.data.has(prop_key):
 				patch.data[prop_key] = to.data[prop_key]
 				patch._is_authoritative[prop_key] = to._is_authoritative[prop_key]
 	
@@ -127,9 +127,25 @@ func nodes() -> Array[Node]:
 			nodes.append(entry_node)
 	return nodes
 
+func is_empty() -> bool:
+	return data.is_empty()
+
+func equals(other) -> bool:
+	if other is Snapshot:
+		return tick == other.tick and data == other.data and _is_authoritative == other._is_authoritative
+	else:
+		return false
+
 func _to_string() -> String:
 	var result := "Snapshot(#%d" % [tick]
 	for entry in data:
 		result += ", %s(%s): %s" % [entry, _is_authoritative.get(entry, false), data[entry]]
 	result += ")"
 	return result
+
+func _to_vest():
+	return {
+		"tick": tick,
+		"data": data,
+		"is_auth": _is_authoritative
+	}

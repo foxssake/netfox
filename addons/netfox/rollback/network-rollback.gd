@@ -341,8 +341,6 @@ func _rollback() -> void:
 	_resim_from = mini(_resim_from, NetworkTime.tick - 1)
 	_logger.debug("Simulating range @%d>@%d using %s", [_resim_from, NetworkTime.tick, range_source])
 
-	_earliest_input = -1
-	_latest_state = -1
 #	_resim_from = maxi(1, history_start + 1)
 
 	# Only set _is_rollback *after* emitting before_loop
@@ -362,6 +360,9 @@ func _rollback() -> void:
 			[from, to, history_limit]
 		)
 		from = NetworkTime.tick - history_limit
+
+	_earliest_input = -1
+	_latest_state = -1
 
 	# for tick in from .. to:
 	_rollback_from = from

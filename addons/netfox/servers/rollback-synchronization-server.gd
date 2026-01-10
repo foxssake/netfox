@@ -7,8 +7,8 @@ class_name _RollbackSynchronizationServer
 var _input_properties: Array = []
 var _state_properties: Array = []
 
-var _full_state_interval := 24		# TODO: Config
-var _state_ack_interval := 1		# TODO: Config
+var _full_state_interval := 0		# TODO: Config
+var _state_ack_interval := 2		# TODO: Config
 var _ackd_tick := {} # peer id to ack'd tick
 
 var _schemas := {} # RecordedProperty key to NetworkSchemaSerializer
@@ -97,7 +97,7 @@ func synchronize_state(tick: int) -> void:
 	var state_snapshot := snapshot.filtered_to_properties(_state_properties)
 	
 	# Figure out whether to send full- or diff state
-	var is_diff := false
+	var is_diff := true # false
 	if _full_state_interval <= 0:
 		is_diff = true
 	elif _full_state_interval >= 1 and (tick % _full_state_interval) != 0:
@@ -118,7 +118,7 @@ func synchronize_state(tick: int) -> void:
 			
 			if not reference_snapshot:
 				# Reference snapshot not in history, send full state
-				_logger.warning("Tick @%d not present in history, can't use it as reference for peer #%d", [reference_tick, peer])
+				_logger.warning("Tick @%d not present in history, can't use it as reference for peer #%d ( ack: %s )", [reference_tick, peer, _ackd_tick])
 				_submit_full_state.rpc_id(peer, _serialize_full_state_for(peer, state_snapshot))
 				_logger.info("Sent full state for @%d to #%d", [tick, peer])
 				continue
@@ -126,7 +126,9 @@ func synchronize_state(tick: int) -> void:
 			# TODO: Optimize, don't create two snapshots
 			reference_snapshot = reference_snapshot.filtered_to_auth().filtered_to_properties(_state_properties)
 			
-			var diff_snapshot := Snapshot.make_patch(state_snapshot, reference_snapshot)
+			_logger.debug("Sending diff state for @%d to #@%d, relative to @%d", [tick, peer, reference_tick])
+			
+			var diff_snapshot := Snapshot.make_patch(reference_snapshot, state_snapshot, tick)
 			_submit_diff_state.rpc_id(peer, _serialize_diff_state_of(peer, diff_snapshot, reference_tick))
 #			_submit_state.rpc_id(peer, _serialize_snapshot(state_snapshot))
 #			_logger.info("Sent diff state for @%d <- @%d to #%d", [tick, reference_tick, peer])
@@ -335,46 +337,6 @@ func _deserialize_property(node: Node, property: NodePath, buffer: StreamPeerBuf
 	var serializer := _schemas.get(RecordedProperty.key_of(node, property), _fallback_schema) as NetworkSchemaSerializer
 	return serializer.decode(buffer)
 
-func _serialize_snapshot(snapshot: Snapshot) -> Variant:
-	var serialized_properties := []
-
-	for entry in snapshot.data.keys():
-		var node := entry[0] as Node
-		var property := entry[1] as NodePath
-		var value = snapshot.data[entry]
-		var is_auth := snapshot._is_authoritative.get(entry, false)
-
-		if not is_auth:
-			# Don't broadcast data we're not sure about
-			continue
-
-		serialized_properties.append([str(node.get_path()), str(property), value, is_auth])
-
-	serialized_properties.append(snapshot.tick)
-	return serialized_properties
-
-func _deserialize_snapshot(data: Variant) -> Snapshot:
-	var values := data as Array
-	var tick := values.pop_back() as int
-	
-	var snapshot := Snapshot.new(tick)
-	for entry in values:
-		var entry_data := entry as Array
-
-		var node_path := entry_data[0] as String
-		var property := entry_data[1] as String
-		var value = entry_data[2]
-		var is_auth := entry_data[3] as bool
-
-		var node := get_tree().root.get_node(node_path)
-		if not node:
-			_logger.warning("Can't find node at path %s, ignoring", [node_path])
-			continue
-
-		snapshot.set_property(node, property, value, is_auth)
-	
-	return snapshot
-
 @rpc("any_peer", "call_remote", "reliable")
 func _submit_input(data: PackedByteArray):
 	var sender := multiplayer.get_remote_sender_id()
@@ -391,7 +353,7 @@ func _submit_input(data: PackedByteArray):
 
 		on_input.emit(snapshot)
 
-@rpc("any_peer", "call_remote", "unreliable")
+@rpc("any_peer", "call_remote", "unreliable_ordered")
 func _submit_full_state(data: PackedByteArray):
 	var buffer := StreamPeerBuffer.new()
 	buffer.data_array = data
@@ -401,7 +363,7 @@ func _submit_full_state(data: PackedByteArray):
 	
 	_ingest_state(sender, snapshot)
 
-@rpc("any_peer", "call_remote", "unreliable")
+@rpc("any_peer", "call_remote", "unreliable_ordered")
 func _submit_diff_state(data: PackedByteArray):
 	var buffer := StreamPeerBuffer.new()
 	buffer.data_array = data
@@ -410,6 +372,7 @@ func _submit_diff_state(data: PackedByteArray):
 	var diff := _deserialize_diff_state_of(sender, buffer)
 	var reference_tick := diff.reference_tick
 	var reference_snapshot := RollbackHistoryServer.get_snapshot(reference_tick)
+	_logger.debug("Received diff state for @%d, relative to @%d", [diff.snapshot.tick, reference_tick])
 	if not reference_snapshot:
 		_logger.warning("Reference tick %d missing for #%d, ignoring", [reference_tick, sender])
 		return
@@ -428,6 +391,7 @@ func _ingest_state(sender: int, snapshot: Snapshot) -> void:
 #	_logger.debug("Merged state; %s", [merged])
 
 	if _state_ack_interval >= 1 and (snapshot.tick % _state_ack_interval) == 0:
+		_logger.debug("ACK'ing state @%d from #%d", [snapshot.tick, sender])
 		_ack_state.rpc_id(sender, snapshot.tick)
 
 	on_state.emit(snapshot)
@@ -436,6 +400,7 @@ func _ingest_state(sender: int, snapshot: Snapshot) -> void:
 func _ack_state(tick: int):
 	var sender := multiplayer.get_remote_sender_id()
 	_ackd_tick[sender] = maxi(tick, _ackd_tick.get(sender, tick))
+	_logger.debug("Received ACK for state @%d from #%d, new is %d", [tick, sender, _ackd_tick[sender]])
 
 class DiffSnapshot:
 	var snapshot: Snapshot

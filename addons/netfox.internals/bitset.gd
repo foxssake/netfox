@@ -22,7 +22,6 @@ func _init(bit_count: int):
 	
 	_data = PackedByteArray()
 	_data.resize(bytes)
-	_data.fill(0) # TODO: Test if this is needed
 	
 	_bit_count = bit_count
 
