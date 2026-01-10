@@ -26,12 +26,21 @@ static func make_patch(from: Snapshot, to: Snapshot, tick: int = from.tick, incl
 func _init(p_tick: int):
 	tick = p_tick
 
+func duplicate() -> Snapshot:
+	var result := Snapshot.new(tick)
+	result.data = data.duplicate()
+	result._is_authoritative = _is_authoritative.duplicate()
+	return result
+
 func set_property(node: Node, property: NodePath, value: Variant, is_authoritative: bool = false) -> void:
 	data[RecordedProperty.key_of(node, property)] = value
 	_is_authoritative[RecordedProperty.key_of(node, property)] = is_authoritative
 
 func get_property(node: Node, property: NodePath) -> Variant:
 	return data[RecordedProperty.key_of(node, property)]
+
+func has_property(node: Node, property: NodePath) -> bool:
+	return data.has(RecordedProperty.key_of(node, property))
 
 func merge_property(node: Node, property: NodePath, value: Variant, is_authoritative: bool = false) -> bool:
 	var prop_key := RecordedProperty.key_of(node, property)

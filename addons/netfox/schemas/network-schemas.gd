@@ -57,7 +57,10 @@ static func uint64() -> NetworkSchemaSerializer:
 
 # TODO: Docs
 static func varuint() -> NetworkSchemaSerializer:
-	return _VaruintSerializer.new()
+	return _VaruintSerializer.instance
+
+static func _varbits() -> NetworkSchemaSerializer:
+	return _VariableBitsetSerializer.instance
 
 ## Serialize signed integers as 8 bits.
 ## [br][br]
@@ -521,6 +524,8 @@ class _Int64Serializer extends NetworkSchemaSerializer:
 	func decode(b: StreamPeerBuffer) -> Variant: return b.get_64()
 
 class _VaruintSerializer extends NetworkSchemaSerializer:
+	static var instance := _VaruintSerializer.new()
+
 	func encode(v: Variant, b: StreamPeerBuffer) -> void:
 		var value := v as int
 		for __ in 8:									# Bounded while loop
@@ -546,6 +551,52 @@ class _VaruintSerializer extends NetworkSchemaSerializer:
 			if not continuator:
 				break
 		return value
+
+class _VariableBitsetSerializer extends NetworkSchemaSerializer:
+	static var instance := _VariableBitsetSerializer.new()
+	
+	func encode(v: Variant, b: StreamPeerBuffer) -> void:
+		var bitset := v as _Bitset
+		if bitset.is_empty():
+			b.put_u8(0)
+			return
+
+		for i in range(0, bitset.bit_count(), 7):
+			var byte := 0
+
+			# Set bits
+			if bitset.bit_count() > i + 0 and bitset.get_bit(i + 0): byte |= 0x01
+			if bitset.bit_count() > i + 1 and bitset.get_bit(i + 1): byte |= 0x02
+			if bitset.bit_count() > i + 2 and bitset.get_bit(i + 2): byte |= 0x04
+			if bitset.bit_count() > i + 3 and bitset.get_bit(i + 3): byte |= 0x08
+			if bitset.bit_count() > i + 4 and bitset.get_bit(i + 4): byte |= 0x10
+			if bitset.bit_count() > i + 5 and bitset.get_bit(i + 5): byte |= 0x20
+			if bitset.bit_count() > i + 6 and bitset.get_bit(i + 6): byte |= 0x40
+			
+			# Set highest bit if there's more bytes to read
+			if bitset.bit_count() > i + 7: byte |= 80
+
+			b.put_u8(byte)
+
+	func decode(b: StreamPeerBuffer) -> Variant:
+		var bools := []
+		
+		while true:
+			var byte := b.get_u8()
+			
+			bools.append(byte & 0x01)
+			bools.append(byte & 0x02)
+			bools.append(byte & 0x04)
+			bools.append(byte & 0x08)
+			bools.append(byte & 0x10)
+			bools.append(byte & 0x20)
+			bools.append(byte & 0x40)
+			
+			# Stop if no more data to read
+			if byte & 0x80 == 0:
+				break
+
+		return _Bitset.of_bools(bools)
 
 class _Float16Serializer extends NetworkSchemaSerializer:
 	func encode(v: Variant, b: StreamPeerBuffer) -> void:

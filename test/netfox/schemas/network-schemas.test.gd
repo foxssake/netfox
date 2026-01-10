@@ -83,7 +83,10 @@ func suite() -> void:
 		
 		["netref id8", NetworkSchemas.netref(), NetworkIdentityServer.NetworkIdentityReference.of_id(12), 1],
 		["netref id16", NetworkSchemas.netref(), NetworkIdentityServer.NetworkIdentityReference.of_id(138), 2],
-		["netref name", NetworkSchemas.netref(), NetworkIdentityServer.NetworkIdentityReference.of_full_name("path"), 9]
+		["netref name", NetworkSchemas.netref(), NetworkIdentityServer.NetworkIdentityReference.of_full_name("path"), 9],
+		
+		# Private
+		["varbits", NetworkSchemas._varbits(), _Bitset.of_bools([0, 1, 0, 1, 1, 0, 1]), 1]
 	]
 
 	for case in cases:
