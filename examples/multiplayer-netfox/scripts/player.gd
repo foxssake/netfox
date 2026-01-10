@@ -23,8 +23,8 @@ func _rollback_tick(delta, _tick, _is_fresh):
 		velocity.x = direction.x * speed
 		velocity.z = direction.z * speed
 	else:
-		velocity.x = move_toward(velocity.x, 0, speed)
-		velocity.z = move_toward(velocity.z, 0, speed)
+		velocity.x = 0. * move_toward(velocity.x, 0, speed)
+		velocity.z = 0. * move_toward(velocity.z, 0, speed)
 
 	# move_and_slide assumes physics delta
 	# multiplying velocity by NetworkTime.physics_factor compensates for it
