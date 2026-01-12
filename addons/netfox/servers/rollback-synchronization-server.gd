@@ -7,7 +7,8 @@ class_name _RollbackSynchronizationServer
 var _input_properties: Array = []
 var _state_properties: Array = []
 
-var _full_state_interval := 0		# TODO: Config
+var _enable_diff_states := false	# TODO: Config
+var _full_state_interval := 24		# TODO: Config
 var _state_ack_interval := 2		# TODO: Config
 var _ackd_tick := {} # peer id to ack'd tick
 
@@ -99,15 +100,16 @@ func synchronize_state(tick: int) -> void:
 		return
 
 	# Filter to state properties
-	var state_snapshot := snapshot.filtered_to_properties(_state_properties)
+	var state_snapshot := snapshot.filtered_to_properties(_state_properties).filtered_to_owned()
 	
 	# Figure out whether to send full- or diff state
-	var is_diff := true # false
-	if _full_state_interval <= 0:
-		is_diff = true
-	elif _full_state_interval >= 1 and (tick % _full_state_interval) != 0:
-		# TODO: Something better than modulo logic? --^
-		is_diff = true
+	var is_diff := false
+	if _enable_diff_states:
+		if _full_state_interval <= 0:
+			is_diff = true
+		elif _full_state_interval >= 1 and (tick % _full_state_interval) != 0:
+			# TODO: Something better than modulo logic? --^
+			is_diff = true
 
 	# Transmit
 	if is_diff:

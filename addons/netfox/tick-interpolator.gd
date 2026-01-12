@@ -136,6 +136,7 @@ func _process(_delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
 
+	return # TODO: Remove
 	_interpolate(_state_from, _state_to, NetworkTime.tick_factor)
 
 func _reprocess_settings() -> void:
