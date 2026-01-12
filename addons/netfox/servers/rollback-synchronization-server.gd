@@ -381,7 +381,8 @@ func _submit_diff_state(data: PackedByteArray):
 	snapshot.merge(diff.snapshot)
 	snapshot.tick = diff.snapshot.tick
 	
-	_ingest_state(sender, snapshot)
+	# TODO: Using `snapshot` doesn't work
+	_ingest_state(sender, diff.snapshot)
 
 func _ingest_state(sender: int, snapshot: Snapshot) -> void:
 	# TODO: Sanitize
