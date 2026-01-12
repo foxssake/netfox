@@ -34,6 +34,7 @@ RollbackSimulationServer="*res://addons/netfox/servers/rollback-simulation-serve
 RollbackHistoryServer="*res://addons/netfox/servers/rollback-history-server.gd"
 RollbackSynchronizationServer="*res://addons/netfox/servers/rollback-synchronization-server.gd"
 NetworkIdentityServer="*res://addons/netfox/servers/network-identity-server.gd"
+NetworkCommandServer="*res://addons/netfox/servers/network-command-server.gd"
 
 [display]
 

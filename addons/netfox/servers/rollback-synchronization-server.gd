@@ -16,6 +16,11 @@ var _fallback_schema := NetworkSchemas.variant()
 
 var _input_redundancy := 3			# TODO: Config
 
+@onready var _cmd_full_state := NetworkCommandServer.register_command_at(_NetworkCommands.FULL_STATE, _handle_full_state, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
+@onready var _cmd_diff_state := NetworkCommandServer.register_command_at(_NetworkCommands.DIFF_STATE, _handle_diff_state, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
+@onready var _cmd_ack_state := NetworkCommandServer.register_command_at(_NetworkCommands.ACKD_STATE, _handle_ack_state, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
+@onready var _cmd_input := NetworkCommandServer.register_command_at(_NetworkCommands.INPUT, _handle_input, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
+
 static var _logger := NetfoxLogger._for_netfox("RollbackSynchronizationServer")
 
 signal on_input(snapshot: Snapshot)
@@ -84,7 +89,7 @@ func synchronize_input(tick: int) -> void:
 
 	# TODO: Option to not broadcast input
 	for peer in multiplayer.get_peers():
-		_submit_input.rpc_id(peer, _serialize_input_for(peer, snapshots))
+		_cmd_input.send(_serialize_input_for(peer, snapshots), peer)
 
 # TODO: Make this testable somehow, I beg of you
 func synchronize_state(tick: int) -> void:
@@ -109,7 +114,7 @@ func synchronize_state(tick: int) -> void:
 		for peer in multiplayer.get_peers():
 			if not _ackd_tick.has(peer):
 				# We don't know any state the peer knows, send full state
-				_submit_full_state.rpc_id(peer, _serialize_full_state_for(peer, state_snapshot))
+				_cmd_full_state.send(_serialize_full_state_for(peer, state_snapshot), peer)
 				_logger.info("Sent full state for @%d to #%d", [tick, peer])
 				continue
 
@@ -119,22 +124,19 @@ func synchronize_state(tick: int) -> void:
 			if not reference_snapshot:
 				# Reference snapshot not in history, send full state
 				_logger.warning("Tick @%d not present in history, can't use it as reference for peer #%d ( ack: %s )", [reference_tick, peer, _ackd_tick])
-				_submit_full_state.rpc_id(peer, _serialize_full_state_for(peer, state_snapshot))
+				_cmd_full_state.send(_serialize_full_state_for(peer, state_snapshot), peer)
 				_logger.info("Sent full state for @%d to #%d", [tick, peer])
 				continue
 
 			# TODO: Optimize, don't create two snapshots
 			reference_snapshot = reference_snapshot.filtered_to_auth().filtered_to_properties(_state_properties)
 			
-			_logger.debug("Sending diff state for @%d to #@%d, relative to @%d", [tick, peer, reference_tick])
-			
 			var diff_snapshot := Snapshot.make_patch(reference_snapshot, state_snapshot, tick)
-			_submit_diff_state.rpc_id(peer, _serialize_diff_state_of(peer, diff_snapshot, reference_tick))
-#			_submit_state.rpc_id(peer, _serialize_snapshot(state_snapshot))
-#			_logger.info("Sent diff state for @%d <- @%d to #%d", [tick, reference_tick, peer])
+			_cmd_diff_state.send(_serialize_diff_state_of(peer, diff_snapshot, reference_tick), peer)
+			_logger.info("Sent diff state for @%d <- @%d to #%d", [tick, reference_tick, peer])
 	else:
 		for peer in multiplayer.get_peers():
-			_submit_full_state.rpc_id(peer, _serialize_full_state_for(peer, state_snapshot))
+			_cmd_full_state.send(_serialize_full_state_for(peer, state_snapshot), peer)
 
 func _serialize_full_state_for(peer: int, snapshot: Snapshot, buffer: StreamPeerBuffer = null) -> PackedByteArray:
 	if buffer == null:
@@ -199,7 +201,7 @@ func _deserialize_full_state_of(peer: int, buffer: StreamPeerBuffer, is_auth: bo
 		if not identifier:
 			# TODO: Handle unknown IDs gracefully
 			# TODO: Test that unknown nodes are INDEED SKIPPED
-			_logger.error("Received unknown identity reference %s, skipping data", [idref])
+			_logger.warning("Received unknown identity reference %s, skipping data", [idref])
 			break
 		var node := identifier.get_subject() as Node
 		
@@ -242,7 +244,7 @@ func _serialize_diff_state_of(peer: int, snapshot: Snapshot, reference_tick: int
 		netref.encode(idref, buffer)
 
 		node_buffer.clear()
-		
+
 		# TODO: Create bitset of changed properties
 		# TODO: Write changed properties into `node_buffer`
 		var properties := get_properties_of(node)
@@ -289,7 +291,7 @@ func _deserialize_diff_state_of(peer: int, buffer: StreamPeerBuffer, is_auth: bo
 		if not identifier:
 			# TODO: Handle unknown IDs gracefully
 			# TODO: Test that unknown nodes are INDEED SKIPPED
-			_logger.error("Received unknown identity reference %s, skipping data", [idref])
+			_logger.warning("Received unknown identity reference %s, skipping data", [idref])
 			break
 		var node := identifier.get_subject() as Node
 		
@@ -337,9 +339,7 @@ func _deserialize_property(node: Node, property: NodePath, buffer: StreamPeerBuf
 	var serializer := _schemas.get(RecordedProperty.key_of(node, property), _fallback_schema) as NetworkSchemaSerializer
 	return serializer.decode(buffer)
 
-@rpc("any_peer", "call_remote", "reliable")
-func _submit_input(data: PackedByteArray):
-	var sender := multiplayer.get_remote_sender_id()
+func _handle_input(sender: int, data: PackedByteArray):
 	var buffer := StreamPeerBuffer.new()
 	buffer.data_array = data
 
@@ -353,22 +353,18 @@ func _submit_input(data: PackedByteArray):
 
 		on_input.emit(snapshot)
 
-@rpc("any_peer", "call_remote", "unreliable_ordered")
-func _submit_full_state(data: PackedByteArray):
+func _handle_full_state(sender: int, data: PackedByteArray):
 	var buffer := StreamPeerBuffer.new()
 	buffer.data_array = data
 
-	var sender := multiplayer.get_remote_sender_id()
 	var snapshot := _deserialize_full_state_of(sender, buffer)
 	
 	_ingest_state(sender, snapshot)
 
-@rpc("any_peer", "call_remote", "unreliable_ordered")
-func _submit_diff_state(data: PackedByteArray):
+func _handle_diff_state(sender: int, data: PackedByteArray):
 	var buffer := StreamPeerBuffer.new()
 	buffer.data_array = data
 
-	var sender := multiplayer.get_remote_sender_id()
 	var diff := _deserialize_diff_state_of(sender, buffer)
 	var reference_tick := diff.reference_tick
 	var reference_snapshot := RollbackHistoryServer.get_snapshot(reference_tick)
@@ -393,13 +389,14 @@ func _ingest_state(sender: int, snapshot: Snapshot) -> void:
 
 	if _state_ack_interval >= 1 and (snapshot.tick % _state_ack_interval) == 0:
 		_logger.debug("ACK'ing state @%d from #%d", [snapshot.tick, sender])
-		_ack_state.rpc_id(sender, snapshot.tick)
+		var buffer := StreamPeerBuffer.new()
+		buffer.put_u32(snapshot.tick)
+		_cmd_ack_state.send(buffer.data_array, sender)
 
 	on_state.emit(snapshot)
 
-@rpc("any_peer", "call_remote", "unreliable")
-func _ack_state(tick: int):
-	var sender := multiplayer.get_remote_sender_id()
+func _handle_ack_state(sender: int, data: PackedByteArray):
+	var tick := data.decode_u32(0)
 	_ackd_tick[sender] = maxi(tick, _ackd_tick.get(sender, tick))
 	_logger.debug("Received ACK for state @%d from #%d, new is %d", [tick, sender, _ackd_tick[sender]])
 

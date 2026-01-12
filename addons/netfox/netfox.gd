@@ -161,6 +161,10 @@ const AUTOLOADS: Array[Dictionary] = [
 	{
 		"name": "NetworkIdentityServer",
 		"path": ROOT + "/servers/network-identity-server.gd"
+	},
+	{
+		"name": "NetworkCommandServer",
+		"path": ROOT + "/servers/network-command-server.gd"
 	}
 ]
 
