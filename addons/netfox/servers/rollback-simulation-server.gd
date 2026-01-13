@@ -138,9 +138,6 @@ func simulate(delta: float, tick: int) -> void:
 	# Run callbacks and clear group
 	for node in nodes:
 		_current_object = node
-		# TODO: Remove after investigation sesh
-		if is_predicting(snapshot, node):
-			continue
 
 		var callback := _callbacks[node] as Callable
 		var is_fresh := is_tick_fresh_for(node, tick)

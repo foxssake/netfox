@@ -253,10 +253,10 @@ func _serialize_diff_state_for(peer: int, snapshot: Snapshot, reference_tick: in
 		
 		for i in properties.size():
 			var property := properties[i]
-			assert(snapshot.is_auth(node, property), "Trying to serialize non-auth state property!")
-
 			if not snapshot.has_property(node, property):
 				continue
+
+			assert(snapshot.is_auth(node, property), "Trying to serialize non-auth state property!")
 
 			changed_bits.set_bit(i)
 			var value := snapshot.get_property(node, property)
