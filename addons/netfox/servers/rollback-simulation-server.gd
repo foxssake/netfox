@@ -70,14 +70,22 @@ func get_nodes_to_simulate(snapshot: Snapshot) -> Array[Node]:
 
 	return result
 
+# TODO: *Thorough* test for node predict rules
 func is_predicting(snapshot: Snapshot, node: Node) -> bool:
-	if not node.is_multiplayer_authority():
+	var is_owned := node.is_multiplayer_authority()
+	var is_inputless := not _input_for.has(node)
+	var has_input := false if is_inputless else snapshot.has_node(_input_for[node], true)
+	
+	if not is_owned and has_input:
+		# We don't own the node, but we own input for it - not (input) predicting
+		return false
+	if not is_owned:
 		# We don't own the node, so we can only guess - i.e. predict
 		return true
-	if not _input_for.has(node):
+	if is_owned and is_inputless:
 		# We own the node, node doesn't depend on input, we're sure
 		return false
-	if not snapshot.has_node(_input_for[node], true):
+	if is_owned and not has_input:
 		# We own the node, node depends on input, we don't have data for input - predict
 		return true
 	# We own the node and we have data for node's input - we're sure
@@ -94,9 +102,9 @@ func get_simulated_object() -> Object:
 
 func is_tick_fresh_for(node: Node, tick: int) -> bool:
 	if not _simulated_ticks.has(node):
-		return false
+		return true
 	var ticks := _simulated_ticks.get(node) as Array[int]
-	return ticks.has(tick)
+	return not ticks.has(tick)
 
 func set_tick_simulated_for(node: Node, tick: int) -> void:
 	if not _simulated_ticks.has(node):
@@ -115,7 +123,7 @@ func simulate(delta: float, tick: int) -> void:
 	var snapshot := RollbackHistoryServer.get_snapshot(tick)
 	var nodes := get_nodes_to_simulate(snapshot)
 	_predicted_nodes.clear()
-	_logger.debug("Simulating %d nodes: %s", [nodes.size(), nodes])
+	_logger.trace("Simulating %d nodes: %s", [nodes.size(), nodes])
 
 	# Sort based on SceneTree order
 	for node in nodes:
@@ -130,6 +138,9 @@ func simulate(delta: float, tick: int) -> void:
 	# Run callbacks and clear group
 	for node in nodes:
 		_current_object = node
+		# TODO: Remove after investigation sesh
+		if is_predicting(snapshot, node):
+			continue
 
 		var callback := _callbacks[node] as Callable
 		var is_fresh := is_tick_fresh_for(node, tick)

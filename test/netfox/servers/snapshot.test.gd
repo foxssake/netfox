@@ -61,3 +61,10 @@ func suite() -> void:
 			expect_equal(applied, to)
 		)
 	)
+	
+	define("merge_property()", func():
+		test("auth should override non-auth", func(): todo())
+		test("auth should update auth", func(): todo())
+		test("non-auth should not update auth", func(): todo())
+		test("non-auth should update non-auth", func(): todo())
+	)

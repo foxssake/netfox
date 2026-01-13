@@ -7,7 +7,7 @@ class_name _RollbackSynchronizationServer
 var _input_properties: Array = []
 var _state_properties: Array = []
 
-var _enable_diff_states := false	# TODO: Config
+var _enable_diff_states := true		# TODO: Config
 var _full_state_interval := 24		# TODO: Config
 var _state_ack_interval := 2		# TODO: Config
 var _ackd_tick := {} # peer id to ack'd tick
@@ -76,7 +76,7 @@ func synchronize_input(tick: int) -> void:
 
 	for offset in _input_redundancy:
 		# Grab snapshot from RollbackHistoryServer
-		var snapshot := RollbackHistoryServer.get_snapshot(tick + offset)
+		var snapshot := RollbackHistoryServer.get_snapshot(tick - offset)
 		if not snapshot:
 			break
 
@@ -100,7 +100,7 @@ func synchronize_state(tick: int) -> void:
 		return
 
 	# Filter to state properties
-	var state_snapshot := snapshot.filtered_to_properties(_state_properties).filtered_to_owned()
+	var state_snapshot := snapshot.filtered_to_properties(_state_properties).filtered_to_auth().filtered_to_owned()
 	
 	# Figure out whether to send full- or diff state
 	var is_diff := false
@@ -117,7 +117,7 @@ func synchronize_state(tick: int) -> void:
 			if not _ackd_tick.has(peer):
 				# We don't know any state the peer knows, send full state
 				_cmd_full_state.send(_serialize_full_state_for(peer, state_snapshot), peer)
-				_logger.info("Sent full state for @%d to #%d", [tick, peer])
+				_logger.trace("Sent full state for @%d to #%d", [tick, peer])
 				continue
 
 			var reference_tick := _ackd_tick[peer] as int
@@ -127,15 +127,15 @@ func synchronize_state(tick: int) -> void:
 				# Reference snapshot not in history, send full state
 				_logger.warning("Tick @%d not present in history, can't use it as reference for peer #%d ( ack: %s )", [reference_tick, peer, _ackd_tick])
 				_cmd_full_state.send(_serialize_full_state_for(peer, state_snapshot), peer)
-				_logger.info("Sent full state for @%d to #%d", [tick, peer])
+				_logger.trace("Sent full state for @%d to #%d", [tick, peer])
 				continue
 
 			# TODO: Optimize, don't create two snapshots
 			reference_snapshot = reference_snapshot.filtered_to_auth().filtered_to_properties(_state_properties)
 			
 			var diff_snapshot := Snapshot.make_patch(reference_snapshot, state_snapshot, tick)
-			_cmd_diff_state.send(_serialize_diff_state_of(peer, diff_snapshot, reference_tick), peer)
-			_logger.info("Sent diff state for @%d <- @%d to #%d", [tick, reference_tick, peer])
+			_cmd_diff_state.send(_serialize_diff_state_for(peer, diff_snapshot, reference_tick), peer)
+			_logger.trace("Sent diff state for @%d <- @%d to #%d", [tick, reference_tick, peer])
 	else:
 		for peer in multiplayer.get_peers():
 			_cmd_full_state.send(_serialize_full_state_for(peer, state_snapshot), peer)
@@ -155,8 +155,7 @@ func _serialize_full_state_for(peer: int, snapshot: Snapshot, buffer: StreamPeer
 	
 	# For each node
 	for node in snapshot.nodes():
-		if not node.is_multiplayer_authority():
-			continue
+		assert(node.is_multiplayer_authority(), "Trying to serialize state for non-owned node!")
 
 		# Write identifier
 		var identifier := NetworkIdentityServer.get_identifier_of(node)
@@ -170,6 +169,7 @@ func _serialize_full_state_for(peer: int, snapshot: Snapshot, buffer: StreamPeer
 		# First into a buffer, so we can start with the state size
 		node_buffer.clear()
 		for property in get_properties_of(node):
+			assert(snapshot.is_auth(node, property), "Trying to serialize non-auth state property!")
 			var value := snapshot.get_property(node, property)
 			_serialize_property(node, property, value, node_buffer)
 		
@@ -217,7 +217,7 @@ func _deserialize_full_state_of(peer: int, buffer: StreamPeerBuffer, is_auth: bo
 	
 	return snapshot
 
-func _serialize_diff_state_of(peer: int, snapshot: Snapshot, reference_tick: int, buffer: StreamPeerBuffer = null) -> PackedByteArray:
+func _serialize_diff_state_for(peer: int, snapshot: Snapshot, reference_tick: int, buffer: StreamPeerBuffer = null) -> PackedByteArray:
 	if buffer == null:
 		buffer = StreamPeerBuffer.new()
 
@@ -234,8 +234,7 @@ func _serialize_diff_state_of(peer: int, snapshot: Snapshot, reference_tick: int
 
 	# For each node
 	for node in snapshot.nodes():
-		if not node.is_multiplayer_authority():
-			continue
+		assert(node.is_multiplayer_authority(), "Trying to serialize state for non-owned node!")
 
 		# Write identifier
 		var identifier := NetworkIdentityServer.get_identifier_of(node)
@@ -254,6 +253,8 @@ func _serialize_diff_state_of(peer: int, snapshot: Snapshot, reference_tick: int
 		
 		for i in properties.size():
 			var property := properties[i]
+			assert(snapshot.is_auth(node, property), "Trying to serialize non-auth state property!")
+
 			if not snapshot.has_property(node, property):
 				continue
 
@@ -345,9 +346,10 @@ func _handle_input(sender: int, data: PackedByteArray):
 	var buffer := StreamPeerBuffer.new()
 	buffer.data_array = data
 
-	for snapshot in _deserialize_input_of(sender, buffer):
-	#	_logger.debug("Received input snapshot: %s", [snapshot])
+	var snapshots := _deserialize_input_of(sender, buffer)
+	_logger.debug("Received input snapshots: %s", [snapshots])
 
+	for snapshot in snapshots:
 		# TODO: Sanitize
 
 		var merged := RollbackHistoryServer.merge_snapshot(snapshot)
@@ -370,7 +372,7 @@ func _handle_diff_state(sender: int, data: PackedByteArray):
 	var diff := _deserialize_diff_state_of(sender, buffer)
 	var reference_tick := diff.reference_tick
 	var reference_snapshot := RollbackHistoryServer.get_snapshot(reference_tick)
-	_logger.debug("Received diff state for @%d, relative to @%d", [diff.snapshot.tick, reference_tick])
+	_logger.trace("Received diff state for @%d, relative to @%d", [diff.snapshot.tick, reference_tick])
 	if not reference_snapshot:
 		_logger.warning("Reference tick %d missing for #%d, ignoring", [reference_tick, sender])
 		return
@@ -387,10 +389,11 @@ func _ingest_state(sender: int, snapshot: Snapshot) -> void:
 #	_logger.debug("Received state snapshot: %s", [snapshot])
 
 	var merged := RollbackHistoryServer.merge_snapshot(snapshot)
+	_logger.debug("Ingested state: %s", [snapshot])
 #	_logger.debug("Merged state; %s", [merged])
 
 	if _state_ack_interval >= 1 and (snapshot.tick % _state_ack_interval) == 0:
-		_logger.debug("ACK'ing state @%d from #%d", [snapshot.tick, sender])
+		_logger.trace("ACK'ing state @%d from #%d", [snapshot.tick, sender])
 		var buffer := StreamPeerBuffer.new()
 		buffer.put_u32(snapshot.tick)
 		_cmd_ack_state.send(buffer.data_array, sender)
@@ -400,7 +403,7 @@ func _ingest_state(sender: int, snapshot: Snapshot) -> void:
 func _handle_ack_state(sender: int, data: PackedByteArray):
 	var tick := data.decode_u32(0)
 	_ackd_tick[sender] = maxi(tick, _ackd_tick.get(sender, tick))
-	_logger.debug("Received ACK for state @%d from #%d, new is %d", [tick, sender, _ackd_tick[sender]])
+	_logger.trace("Received ACK for state @%d from #%d, new is %d", [tick, sender, _ackd_tick[sender]])
 
 class DiffSnapshot:
 	var snapshot: Snapshot

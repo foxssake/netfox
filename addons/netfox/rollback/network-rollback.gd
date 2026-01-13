@@ -304,13 +304,23 @@ func _ready():
 	)
 	
 	RollbackSynchronizationServer.on_input.connect(func(snapshot: Snapshot):
+		if snapshot.is_empty():
+			return
 		if _earliest_input < 0 or snapshot.tick < _earliest_input:
+			_logger.debug("Ingested input @%d, earliest @%d->@%d", [snapshot.tick, _earliest_input, snapshot.tick])
 			_earliest_input = snapshot.tick
+		else:
+			_logger.debug("Ingested input @%d, earliest @%d->@%d", [snapshot.tick, _earliest_input, _earliest_input])
 	)
 	
 	RollbackSynchronizationServer.on_state.connect(func(snapshot: Snapshot):
+		if snapshot.is_empty():
+			return
 		if _latest_state < 0 or snapshot.tick > _latest_state:
+			_logger.debug("Ingested state @%d, latest @%d->@%d", [snapshot.tick, _latest_state, snapshot.tick])
 			_latest_state = snapshot.tick
+		else:
+			_logger.debug("Ingested state @%d, latest @%d->@%d", [snapshot.tick, _latest_state, _latest_state])
 	)
 
 func _exit_tree():
@@ -332,10 +342,10 @@ func _rollback() -> void:
 	
 	# TODO: Move to RollbackSimulationServer?
 	var range_source = "notif"
-	if _earliest_input >= 0:
+	if _earliest_input >= 0 and _earliest_input <= _resim_from:
 		range_source = "earliest input"
 		_resim_from = mini(_resim_from, _earliest_input)
-	if _latest_state >= 0:
+	if _latest_state >= 0 and _latest_state <= _resim_from:
 		range_source = "latest state"
 		_resim_from = mini(_resim_from, _latest_state)
 	_resim_from = mini(_resim_from, NetworkTime.tick - 1)
