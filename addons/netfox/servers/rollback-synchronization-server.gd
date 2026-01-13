@@ -246,8 +246,6 @@ func _serialize_diff_state_for(peer: int, snapshot: Snapshot, reference_tick: in
 
 		node_buffer.clear()
 
-		# TODO: Create bitset of changed properties
-		# TODO: Write changed properties into `node_buffer`
 		var properties := get_properties_of(node)
 		var changed_bits := _Bitset.new(properties.size())
 		
@@ -352,6 +350,9 @@ func _handle_input(sender: int, data: PackedByteArray):
 	for snapshot in snapshots:
 		# TODO: Sanitize
 
+		# TODO: Only merge inputs we don't have yet, so clients don't cheat by
+		#       overriding their earlier choices. Only emit signal for snapshots
+		#       that contain new input.
 		var merged := RollbackHistoryServer.merge_snapshot(snapshot)
 	#	_logger.debug("Merged input; %s", [merged])
 
