@@ -85,7 +85,7 @@ func synchronize_input(tick: int) -> void:
 		var input_snapshot := snapshot.filtered_to_properties(_input_properties).filtered_to_owned()
 
 		# Transmit
-		# _logger.debug("Submitting input: %s", [input_snapshot])
+		_logger.trace("Submitting input: %s", [input_snapshot])
 		snapshots.append(input_snapshot)
 
 	# TODO: Option to not broadcast input
@@ -345,7 +345,7 @@ func _handle_input(sender: int, data: PackedByteArray):
 	buffer.data_array = data
 
 	var snapshots := _deserialize_input_of(sender, buffer)
-	_logger.debug("Received input snapshots: %s", [snapshots])
+	_logger.trace("Received input snapshots: %s", [snapshots])
 
 	for snapshot in snapshots:
 		# TODO: Sanitize
@@ -354,7 +354,7 @@ func _handle_input(sender: int, data: PackedByteArray):
 		#       overriding their earlier choices. Only emit signal for snapshots
 		#       that contain new input.
 		var merged := RollbackHistoryServer.merge_snapshot(snapshot)
-	#	_logger.debug("Merged input; %s", [merged])
+		_logger.trace("Ingested input: %s", [snapshot])
 
 		on_input.emit(snapshot)
 
@@ -389,8 +389,14 @@ func _ingest_state(sender: int, snapshot: Snapshot) -> void:
 	# TODO: Sanitize
 #	_logger.debug("Received state snapshot: %s", [snapshot])
 
+	var stored_snapshot := RollbackHistoryServer.get_snapshot(snapshot.tick)
+	if stored_snapshot:
+		var diff := Snapshot.make_patch(stored_snapshot, snapshot, snapshot.tick, false)
+		if not diff.is_empty():
+			_logger.debug("Reconciled state diff: %s", [diff])
+	
 	var merged := RollbackHistoryServer.merge_snapshot(snapshot)
-	_logger.debug("Ingested state: %s", [snapshot])
+	_logger.trace("Ingested state: %s", [snapshot])
 #	_logger.debug("Merged state; %s", [merged])
 
 	if _state_ack_interval >= 1 and (snapshot.tick % _state_ack_interval) == 0:

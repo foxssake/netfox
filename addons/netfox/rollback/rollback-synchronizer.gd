@@ -116,11 +116,16 @@ func process_settings() -> void:
 		if not _state_nodes.has(state_node):
 			_state_nodes.append(state_node)
 
+	# Register simulation callbacks
 	for node in nodes:
 		RollbackSimulationServer.register(node._rollback_tick)
+		_registered_nodes.append(node)
+		
+	# Both simulated and state nodes depend on all inputs
+	# TODO: Write tests for setups where a node is synchronized but not simulated
+	for node in nodes + _state_nodes:
 		for input_node in _input_nodes:
 			RollbackSimulationServer.register_input_for(node, input_node)
-		_registered_nodes.append(node)
 
 	# Register identifiers
 	# TODO: Somehow deregister on destroy

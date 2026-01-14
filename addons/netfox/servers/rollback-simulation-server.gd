@@ -45,6 +45,7 @@ func deregister_node(node: Node) -> void:
 	deregister(_callbacks.get(node))
 
 func register_input_for(node: Node, input: Node) -> void:
+	# TODO: Support multiple input nodes per node
 	_input_for[node] = input
 
 func deregister_input(node: Node) -> void:

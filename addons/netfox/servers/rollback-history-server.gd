@@ -44,10 +44,17 @@ func record_tick(tick: int, properties: Array, predicted_nodes: Array[Node]) -> 
 		var property := entry[1] as NodePath
 		var is_auth := node.is_multiplayer_authority() and not predicted_nodes.has(node)
 		
+		# HACK: Figure out proper API
+		# Passing in `RollbackSimulationServer.get_predicted_nodes()` accounts
+		# for *simulated* nodes, but not for nodes with *just* state
+		if properties == _state_properties:
+			if RollbackSimulationServer.is_predicting(snapshot, node):
+				is_auth = false
+		
 		if snapshot.merge_property(node, property, RecordedProperty.extract(entry), is_auth):
 			updated.append([node, property, RecordedProperty.extract(entry), is_auth])
 
-	_logger.debug("Recorded %d tick @%d: %s", [properties.size(), tick, snapshot])
+	_logger.debug("Recorded %d props for tick @%d: %s", [properties.size(), tick, snapshot])
 
 func record_input(tick: int) -> void:
 	record_tick(tick, _input_properties, [])

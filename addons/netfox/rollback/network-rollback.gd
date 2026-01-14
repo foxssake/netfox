@@ -307,20 +307,20 @@ func _ready():
 		if snapshot.is_empty():
 			return
 		if _earliest_input < 0 or snapshot.tick < _earliest_input:
-			_logger.debug("Ingested input @%d, earliest @%d->@%d", [snapshot.tick, _earliest_input, snapshot.tick])
+			_logger.trace("Ingested input @%d, earliest @%d->@%d", [snapshot.tick, _earliest_input, snapshot.tick])
 			_earliest_input = snapshot.tick
 		else:
-			_logger.debug("Ingested input @%d, earliest @%d->@%d", [snapshot.tick, _earliest_input, _earliest_input])
+			_logger.trace("Ingested input @%d, earliest @%d->@%d", [snapshot.tick, _earliest_input, _earliest_input])
 	)
 	
 	RollbackSynchronizationServer.on_state.connect(func(snapshot: Snapshot):
 		if snapshot.is_empty():
 			return
 		if _latest_state < 0 or snapshot.tick > _latest_state:
-			_logger.debug("Ingested state @%d, latest @%d->@%d", [snapshot.tick, _latest_state, snapshot.tick])
+			_logger.trace("Ingested state @%d, latest @%d->@%d", [snapshot.tick, _latest_state, snapshot.tick])
 			_latest_state = snapshot.tick
 		else:
-			_logger.debug("Ingested state @%d, latest @%d->@%d", [snapshot.tick, _latest_state, _latest_state])
+			_logger.trace("Ingested state @%d, latest @%d->@%d", [snapshot.tick, _latest_state, _latest_state])
 	)
 
 func _exit_tree():
