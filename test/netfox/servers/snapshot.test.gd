@@ -68,3 +68,9 @@ func suite() -> void:
 		test("non-auth should not update auth", func(): todo())
 		test("non-auth should update non-auth", func(): todo())
 	)
+
+	define("filtered()", func():
+		test("should return empty", func(): todo())
+		test("should return identical", func(): todo())
+		test("should remove property", func(): todo())
+	)

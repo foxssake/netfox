@@ -7,6 +7,8 @@ class_name _RollbackSynchronizationServer
 var _input_properties: Array = []
 var _state_properties: Array = []
 
+var _visibility_filters := {} # Node to PeerVisibilityFilter
+
 var _enable_diff_states := true		# TODO: Config
 var _full_state_interval := 24		# TODO: Config
 var _state_ack_interval := 2		# TODO: Config
@@ -56,6 +58,20 @@ func register_schema(node: Node, property: NodePath, serializer: NetworkSchemaSe
 func deregister_schema(node: Node, property: NodePath) -> void:
 	var key := RecordedProperty.key_of(node, property)
 	_schemas.erase(key)
+
+func register_visibility_filter(node: Node, filter: PeerVisibilityFilter) -> void:
+	_visibility_filters[node] = filter
+
+func deregister_visibility_filter(node: Node) -> void:
+	_visibility_filters.erase(node)
+
+func is_property_visible_to(peer: int, node: Node, property: NodePath) -> bool:
+	# TODO: Cache visibilities
+	var filter := _visibility_filters.get(node) as PeerVisibilityFilter
+	if not filter:
+		return true
+	else:
+		return filter.get_visibility_for(peer)
 
 # TODO: Optimize
 func get_properties_of(node: Node) -> Array[NodePath]:
@@ -111,34 +127,43 @@ func synchronize_state(tick: int) -> void:
 			# TODO: Something better than modulo logic? --^
 			is_diff = true
 
-	# Transmit
+	var full_state_peers := [] as Array[int]
+	var diff_state_peers := [] as Array[int]
+
 	if is_diff:
-		for peer in multiplayer.get_peers():
-			if not _ackd_tick.has(peer):
-				# We don't know any state the peer knows, send full state
-				_cmd_full_state.send(_serialize_full_state_for(peer, state_snapshot), peer)
-				_logger.trace("Sent full state for @%d to #%d", [tick, peer])
-				continue
-
-			var reference_tick := _ackd_tick[peer] as int
-			var reference_snapshot := RollbackHistoryServer.get_snapshot(reference_tick)
-			
-			if not reference_snapshot:
-				# Reference snapshot not in history, send full state
-				_logger.warning("Tick @%d not present in history, can't use it as reference for peer #%d ( ack: %s )", [reference_tick, peer, _ackd_tick])
-				_cmd_full_state.send(_serialize_full_state_for(peer, state_snapshot), peer)
-				_logger.trace("Sent full state for @%d to #%d", [tick, peer])
-				continue
-
-			# TODO: Optimize, don't create two snapshots
-			reference_snapshot = reference_snapshot.filtered_to_auth().filtered_to_properties(_state_properties)
-			
-			var diff_snapshot := Snapshot.make_patch(reference_snapshot, state_snapshot, tick)
-			_cmd_diff_state.send(_serialize_diff_state_for(peer, diff_snapshot, reference_tick), peer)
-			_logger.trace("Sent diff state for @%d <- @%d to #%d", [tick, reference_tick, peer])
+		diff_state_peers.assign(multiplayer.get_peers())
 	else:
-		for peer in multiplayer.get_peers():
-			_cmd_full_state.send(_serialize_full_state_for(peer, state_snapshot), peer)
+		full_state_peers.assign(multiplayer.get_peers())
+
+	# Send diff states
+	for peer in diff_state_peers:
+		if not _ackd_tick.has(peer):
+			# We don't know any state the peer knows, send full state
+			full_state_peers.append(peer)
+			continue
+
+		var reference_tick := _ackd_tick[peer] as int
+		var reference_snapshot := RollbackHistoryServer.get_snapshot(reference_tick)
+
+		if not reference_snapshot:
+			# Reference snapshot not in history, send full state
+			_logger.warning("Tick @%d not present in history, can't use it as reference for peer #%d ( ack: %s )", [reference_tick, peer, _ackd_tick])
+			full_state_peers.append(peer)
+			continue
+
+		# TODO: Optimize, don't create two snapshots
+		reference_snapshot = reference_snapshot.filtered_to_auth().filtered_to_properties(_state_properties)
+
+		var diff_snapshot := Snapshot.make_patch(reference_snapshot, state_snapshot, tick)
+		diff_snapshot = diff_snapshot.filtered(func(node, prop): return is_property_visible_to(peer, node, prop))
+
+		_cmd_diff_state.send(_serialize_diff_state_for(peer, diff_snapshot, reference_tick), peer)
+		_logger.trace("Sent diff state for @%d <- @%d to #%d", [tick, reference_tick, peer])
+
+	# Send full states
+	for peer in full_state_peers:
+		var peer_snapshot := state_snapshot.filtered(func(node, prop): return is_property_visible_to(peer, node, prop))
+		_cmd_full_state.send(_serialize_full_state_for(peer, peer_snapshot), peer)
 
 func _serialize_full_state_for(peer: int, snapshot: Snapshot, buffer: StreamPeerBuffer = null) -> PackedByteArray:
 	if buffer == null:
@@ -393,10 +418,10 @@ func _ingest_state(sender: int, snapshot: Snapshot) -> void:
 	if stored_snapshot:
 		var diff := Snapshot.make_patch(stored_snapshot, snapshot, snapshot.tick, false)
 		if not diff.is_empty():
-			_logger.debug("Reconciled state diff: %s", [diff])
+			_logger.trace("Reconciled state diff: %s", [diff])
 	
 	var merged := RollbackHistoryServer.merge_snapshot(snapshot)
-	_logger.trace("Ingested state: %s", [snapshot])
+	_logger.debug("Ingested state: %s", [snapshot])
 #	_logger.debug("Merged state; %s", [merged])
 
 	if _state_ack_interval >= 1 and (snapshot.tick % _state_ack_interval) == 0:

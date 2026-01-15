@@ -97,6 +97,20 @@ func filtered_to_owned() -> Snapshot:
 	
 	return snapshot
 
+func filtered(filter: Callable) -> Snapshot:
+	var snapshot := Snapshot.new(tick)
+
+	for property in data:
+		var node := RecordedProperty.get_node(property)
+		var prop := RecordedProperty.get_property(property)
+		if not filter.call(node, prop):
+			continue
+
+		snapshot.data[property] = data[property]
+		snapshot._is_authoritative[property] = _is_authoritative[property]
+
+	return snapshot
+
 func has_node(node: Node, require_auth: bool = false) -> bool:
 	for entry in data.keys():
 		var entry_node := entry[0] as Node

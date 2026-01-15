@@ -103,12 +103,14 @@ func process_settings() -> void:
 	nodes = nodes.filter(func(it): return NetworkRollback.is_rollback_aware(it))
 	nodes.erase(self)
 
+	# Gather nodes with input props
 	_input_nodes.clear()
 	for prop in _input_property_config.get_properties():
 		var input_node := prop.node
 		if not _input_nodes.has(input_node):
 			_input_nodes.append(input_node)
 
+	# Gather nodes with state props
 	# TODO: Move tracking nodes to property configs?
 	_state_nodes.clear()
 	for prop in _state_property_config.get_properties():
@@ -131,6 +133,11 @@ func process_settings() -> void:
 	# TODO: Somehow deregister on destroy
 	for node in _state_nodes + _input_nodes:
 		NetworkIdentityServer.register_node(node)
+
+	# Register visibility filter
+	# TODO: Somehow deregister on destroy
+	for node in _state_nodes:
+		RollbackSynchronizationServer.register_visibility_filter(node, visibility_filter)
 
 ## Process settings based on authority.
 ## [br][br]

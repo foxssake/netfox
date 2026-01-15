@@ -54,7 +54,7 @@ func record_tick(tick: int, properties: Array, predicted_nodes: Array[Node]) -> 
 		if snapshot.merge_property(node, property, RecordedProperty.extract(entry), is_auth):
 			updated.append([node, property, RecordedProperty.extract(entry), is_auth])
 
-	_logger.debug("Recorded %d props for tick @%d: %s", [properties.size(), tick, snapshot])
+	_logger.trace("Recorded %d props for tick @%d: %s", [properties.size(), tick, snapshot])
 
 func record_input(tick: int) -> void:
 	record_tick(tick, _input_properties, [])
@@ -68,7 +68,7 @@ func restore_tick(tick: int) -> bool:
 		return false
 
 	var snapshot := _snapshots[tick] as Snapshot
-	_logger.debug("Restoring snapshot: %s", [snapshot])
+	_logger.trace("Restoring snapshot: %s", [snapshot])
 	snapshot.apply()
 	return true
 
