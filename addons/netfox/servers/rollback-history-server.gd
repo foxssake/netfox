@@ -60,7 +60,8 @@ func record_tick(tick: int, snapshots: Dictionary, properties: Array, predicted_
 		# Passing in `RollbackSimulationServer.get_predicted_nodes()` accounts
 		# for *simulated* nodes, but not for nodes with *just* state
 		if properties == _state_properties:
-			if RollbackSimulationServer.is_predicting(snapshot, node):
+			var input_snapshot := _rollback_input_snapshots.get(tick) as Snapshot
+			if RollbackSimulationServer.is_predicting(input_snapshot, node):
 				is_auth = false
 		
 		if snapshot.merge_property(node, property, RecordedProperty.extract(entry), is_auth):

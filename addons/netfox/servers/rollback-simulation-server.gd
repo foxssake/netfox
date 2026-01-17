@@ -75,8 +75,12 @@ func get_nodes_to_simulate(input_snapshot: Snapshot) -> Array[Node]:
 func is_predicting(input_snapshot: Snapshot, node: Node) -> bool:
 	var is_owned := node.is_multiplayer_authority()
 	var is_inputless := not _input_for.has(node)
-	var has_input := false if is_inputless else input_snapshot.has_node(_input_for[node], true)
-	
+	var has_input := false if is_inputless else true
+
+	# TODO: Avoid supporting null snapshots if possible
+	if not is_inputless and input_snapshot:
+		has_input = input_snapshot.has_node(_input_for[node], true)
+
 	if not is_owned and has_input:
 		# We don't own the node, but we own input for it - not (input) predicting
 		return false

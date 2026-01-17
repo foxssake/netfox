@@ -18,7 +18,7 @@ var _ackd_tick := {} # peer id to ack'd tick
 var _last_sync_state_sent := Snapshot.new(0)
 var _last_sync_tick_recvd := -1
 var _sync_enable_diffs := true		# TODO: Config
-var _sync_full_interval := 4		# TODO: Config
+var _sync_full_interval := 24		# TODO: Config
 var _sync_full_next := -1
 
 var _schemas := {} # RecordedProperty key to NetworkSchemaSerializer
@@ -135,6 +135,11 @@ func synchronize_state(tick: int) -> void:
 	# Filter to state properties
 	var state_snapshot := snapshot.filtered_to_auth().filtered_to_owned()
 	
+	# TODO: Early exit if we don't have auth state props
+	if state_snapshot.is_empty():
+		# Nothing to send
+		return
+	
 	# Figure out whether to send full- or diff state
 	var is_diff := false
 	if _enable_diff_states:
@@ -175,12 +180,21 @@ func synchronize_state(tick: int) -> void:
 		diff_snapshot = diff_snapshot.filtered(func(node, prop): return is_property_visible_to(peer, node, prop))
 
 		_cmd_diff_state.send(_serialize_diff_state_for(peer, diff_snapshot, reference_tick), peer)
-		_logger.trace("Sent diff state for @%d <- @%d to #%d", [tick, reference_tick, peer])
+		_logger.debug("Sent diff state for @%d <- @%d to #%d", [tick, reference_tick, peer])
+			
+		NetworkPerformance.push_full_state(state_snapshot.data) # TODO: Ugh...
+		NetworkPerformance.push_sent_state(diff_snapshot.data) # TODO: Ugh...
+		_logger.debug("Pushed diff state metrics: %d sent, %d full", [diff_snapshot.data.size(), state_snapshot.data.size()])
 
 	# Send full states
 	for peer in full_state_peers:
 		var peer_snapshot := state_snapshot.filtered(func(node, prop): return is_property_visible_to(peer, node, prop))
 		_cmd_full_state.send(_serialize_full_state_for(peer, peer_snapshot), peer)
+		_logger.debug("Sent full state to #%d: %s", [peer, peer_snapshot])
+
+		NetworkPerformance.push_full_state(peer_snapshot.data) # TODO: Ugh...
+		NetworkPerformance.push_sent_state(peer_snapshot.data) # TODO: Ugh...
+		_logger.debug("Pushed full state metrics: %d sent, %d full", [peer_snapshot.data.size(), peer_snapshot.data.size()])
 
 func synchronize_sync_state(tick: int) -> void:
 	# TODO: Reduce copy-paste
@@ -199,6 +213,9 @@ func synchronize_sync_state(tick: int) -> void:
 		for peer in multiplayer.get_peers():
 			var peer_snapshot := state_snapshot.filtered(func(node, prop): return is_property_visible_to(peer, node, prop))
 			_cmd_full_sync.send(_serialize_full_state_for(peer, peer_snapshot), peer)
+			
+			NetworkPerformance.push_full_state(peer_snapshot.data) # TODO: Ugh...
+			NetworkPerformance.push_sent_state(peer_snapshot.data) # TODO: Ugh...
 	else:
 		_sync_full_next -= 1
 		var diff := Snapshot.make_patch(_last_sync_state_sent, state_snapshot)
@@ -207,6 +224,9 @@ func synchronize_sync_state(tick: int) -> void:
 		for peer in multiplayer.get_peers():
 			var peer_snapshot := diff.filtered(func(node, prop): return is_property_visible_to(peer, node, prop))
 			_cmd_diff_sync.send(_serialize_diff_state_for(peer, peer_snapshot, 0), peer)
+			
+			NetworkPerformance.push_full_state(state_snapshot.data) # TODO: Ugh...
+			NetworkPerformance.push_sent_state(peer_snapshot.data) # TODO: Ugh...
 
 	# Remember last sent state for diffing
 	_last_sync_state_sent = state_snapshot
@@ -437,6 +457,25 @@ func _handle_full_state(sender: int, data: PackedByteArray):
 	
 	_ingest_state(sender, snapshot)
 
+func _handle_diff_state(sender: int, data: PackedByteArray):
+	var buffer := StreamPeerBuffer.new()
+	buffer.data_array = data
+
+	var diff := _deserialize_diff_state_of(sender, buffer)
+	var reference_tick := diff.reference_tick
+	var reference_snapshot := RollbackHistoryServer.get_rollback_state_snapshot(reference_tick)
+	_logger.trace("Received diff state for @%d, relative to @%d", [diff.snapshot.tick, reference_tick])
+	if not reference_snapshot:
+		_logger.warning("Reference tick %d missing for #%d, ignoring", [reference_tick, sender])
+		return
+
+	var snapshot := reference_snapshot.duplicate()
+	snapshot.merge(diff.snapshot)
+	snapshot.tick = diff.snapshot.tick
+	
+	# TODO: Using `snapshot` doesn't work
+	_ingest_state(sender, diff.snapshot)
+
 func _handle_full_sync(sender: int, data: PackedByteArray):
 	var buffer := StreamPeerBuffer.new()
 	buffer.data_array = data
@@ -457,25 +496,6 @@ func _handle_diff_sync(sender: int, data: PackedByteArray):
 	RollbackHistoryServer.merge_synchronizer_state(snapshot)
 	_logger.debug("Ingested sync state diff: %s", [snapshot])
 
-func _handle_diff_state(sender: int, data: PackedByteArray):
-	var buffer := StreamPeerBuffer.new()
-	buffer.data_array = data
-
-	var diff := _deserialize_diff_state_of(sender, buffer)
-	var reference_tick := diff.reference_tick
-	var reference_snapshot := RollbackHistoryServer.get_rollback_state_snapshot(reference_tick)
-	_logger.trace("Received diff state for @%d, relative to @%d", [diff.snapshot.tick, reference_tick])
-	if not reference_snapshot:
-		_logger.warning("Reference tick %d missing for #%d, ignoring", [reference_tick, sender])
-		return
-
-	var snapshot := reference_snapshot.duplicate()
-	snapshot.merge(diff.snapshot)
-	snapshot.tick = diff.snapshot.tick
-	
-	# TODO: Using `snapshot` doesn't work
-	_ingest_state(sender, diff.snapshot)
-
 func _ingest_state(sender: int, snapshot: Snapshot) -> void:
 	# TODO: Sanitize
 #	_logger.debug("Received state snapshot: %s", [snapshot])
@@ -487,7 +507,7 @@ func _ingest_state(sender: int, snapshot: Snapshot) -> void:
 			_logger.trace("Reconciled state diff: %s", [diff])
 	
 	var merged := RollbackHistoryServer.merge_rollback_state(snapshot)
-	_logger.trace("Ingested state: %s", [snapshot])
+	_logger.debug("Ingested state: %s", [snapshot])
 #	_logger.debug("Merged state; %s", [merged])
 
 	if _state_ack_interval >= 1 and (snapshot.tick % _state_ack_interval) == 0:
