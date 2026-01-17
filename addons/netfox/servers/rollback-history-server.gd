@@ -75,7 +75,26 @@ func record_state(tick: int) -> void:
 	record_tick(tick, _rollback_state_snapshots, _state_properties, RollbackSimulationServer.get_predicted_nodes())
 
 func record_sync_state(tick: int) -> void:
-	record_tick(tick, _sync_state_snapshots, _sync_state_properties, [])
+	# TODO: Reduce duplication
+	# Record values
+	var snapshot := Snapshot.new(tick)
+	for entry in _sync_state_properties:
+		var node := entry[0] as Node
+		var property := entry[1] as NodePath
+		var is_auth := node.is_multiplayer_authority()
+		if not is_auth:
+			continue
+
+		snapshot.merge_property(node, property, RecordedProperty.extract(entry), is_auth)
+
+	if snapshot.is_empty():
+		# No auth data in snapshot, nothing to do
+		return
+
+	if not _sync_state_snapshots.has(tick):
+		_sync_state_snapshots[tick] = snapshot
+	else:
+		(_sync_state_snapshots[tick] as Snapshot).merge(snapshot)
 
 # TODO: Private
 func restore_tick(tick: int, snapshots: Dictionary) -> bool:

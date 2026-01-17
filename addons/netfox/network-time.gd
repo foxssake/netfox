@@ -556,6 +556,7 @@ func _loop() -> void:
 	_last_process_time = _clock.get_time()
 	while _next_tick_time < _last_process_time and ticks_in_loop < max_ticks_per_frame:
 		if ticks_in_loop == 0:
+			RollbackHistoryServer.restore_synchronizer_state(tick)
 			before_tick_loop.emit()
 
 		before_tick.emit(ticktime, tick)
@@ -569,10 +570,9 @@ func _loop() -> void:
 		_tick += 1
 		ticks_in_loop += 1
 		_next_tick_time += ticktime
-
-		RollbackHistoryServer.restore_synchronizer_state(tick)
 	
 	if ticks_in_loop > 0:
+		RollbackHistoryServer.restore_synchronizer_state(tick)
 		after_tick_loop.emit()
 
 func _process(delta: float) -> void:
