@@ -271,6 +271,7 @@ func is_just_mutated(target: Object, p_tick: int = tick) -> bool:
 		return false
 
 ## Register that a node has submitted its input for a specific tick
+# TODO: Make sure this works
 func register_input_submission(root_node: Node, tick: int) -> void:
 	if not _input_submissions.has(root_node):
 		_input_submissions[root_node] = tick
@@ -280,18 +281,21 @@ func register_input_submission(root_node: Node, tick: int) -> void:
 ## Get the latest input tick submitted by a specific root node
 ## [br][br]
 ## Returns [code]-1[/code] if no input was submitted for the node, ever.
+# TODO: Make sure this works
 func get_latest_input_tick(root_node: Node) -> int:
 	if _input_submissions.has(root_node):
 		return _input_submissions[root_node]
 	return -1
 
 ## Check if a node has submitted input for a specific tick (or later)
+# TODO: Make sure this works
 func has_input_for_tick(root_node: Node, tick: int) -> bool:
 	return _input_submissions.has(root_node) and _input_submissions[root_node] >= tick
 
 ## Free all input submission data for a node
 ## [br][br]
 ## Use this once the node is freed.
+# TODO: Make sure this works
 func free_input_submission_data_for(root_node: Node) -> void:
 	_input_submissions.erase(root_node)
 

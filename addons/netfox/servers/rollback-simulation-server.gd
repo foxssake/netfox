@@ -161,3 +161,8 @@ func simulate(delta: float, tick: int) -> void:
 
 func get_predicted_nodes() -> Array[Node]:
 	return _predicted_nodes
+
+func get_controlled_by(input: Node) -> Array[Node]:
+	var result := [] as Array[Node]
+	result.assign(_input_graph.get_linked_from(input))
+	return result

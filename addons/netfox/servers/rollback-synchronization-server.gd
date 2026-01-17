@@ -7,9 +7,9 @@ var _sync_state_properties: Array = [] as Array[Array]
 
 var _visibility_filters := {} # Node to PeerVisibilityFilter
 
-var _enable_diff_states := true		# TODO: Config
-var _rb_enable_diffs := true		# TODO: Config
-var _rb_full_interval := 24			# TODO: Config
+var _rb_enable_input_broadcast := false	# TODO: Config
+var _rb_enable_diffs := true			# TODO: Config
+var _rb_full_interval := 24				# TODO: Config
 var _rb_full_next := -1
 
 var _last_sync_state_sent := Snapshot.new(0)
@@ -101,21 +101,29 @@ func get_properties_of(node: Node) -> Array[NodePath]:
 # TODO: Make this testable somehow, I beg of you
 func synchronize_input(tick: int) -> void:
 	var snapshots := [] as Array[Snapshot]
+	var notified_peers := _Set.new()
 
-	if false:
+	if not _rb_enable_input_broadcast:
 		# Grab owned input objects
 		var input_objects := _Set.new()
 		for prop in _input_properties:
 			var node := RecordedProperty.get_node(prop)
 			input_objects.add(node)
 
-		var notified_peers := _Set.new()
 		# for each input object
 		for input_object in input_objects:
-			pass
 			# Grab state objects controlled by input
-			# Create set with peers owning state objects
-		# Only send input to peers in set
+			var controlled_nodes := RollbackSimulationServer.get_controlled_by(input_object)
+
+			# Notify peers owning nodes about the input
+			for node in controlled_nodes:
+				notified_peers.add(node.get_multiplayer_authority())
+	else:
+		for peer in multiplayer.get_peers():
+			notified_peers.add(peer)
+
+	notified_peers.erase(multiplayer.get_unique_id())
+	# Only send input to peers in set
 
 	for offset in _input_redundancy:
 		# Grab snapshot from RollbackHistoryServer
@@ -131,8 +139,8 @@ func synchronize_input(tick: int) -> void:
 		_logger.trace("Submitting input: %s", [input_snapshot])
 		snapshots.append(input_snapshot)
 
-	# TODO: Option to not broadcast input
-	for peer in multiplayer.get_peers():
+	_logger.trace("Submitting input to peers: %s", [notified_peers])
+	for peer in notified_peers:
 		_cmd_input.send(_serialize_input_for(peer, snapshots), peer)
 
 # TODO: Make this testable somehow, I beg of you
@@ -184,6 +192,8 @@ func synchronize_state(tick: int) -> void:
 			NetworkPerformance.push_full_state(state_snapshot.data) # TODO: Ugh...
 			NetworkPerformance.push_sent_state(diff.data) # TODO: Ugh...
 	else:
+		_rb_full_next = _rb_full_interval
+
 		# Send full states
 		for peer in multiplayer.get_peers():
 			var peer_snapshot := state_snapshot.filtered(func(node, prop): return is_property_visible_to(peer, node, prop))
@@ -493,7 +503,7 @@ func _handle_full_sync(sender: int, data: PackedByteArray):
 
 	# TODO: Reduce copy-paste
 	RollbackHistoryServer.merge_synchronizer_state(snapshot)
-	_logger.debug("Ingested sync state: %s", [snapshot])
+	_logger.trace("Ingested sync state: %s", [snapshot])
 
 func _handle_diff_sync(sender: int, data: PackedByteArray):
 	var buffer := StreamPeerBuffer.new()
@@ -503,7 +513,7 @@ func _handle_diff_sync(sender: int, data: PackedByteArray):
 
 	# TODO: Reduce copy-paste
 	RollbackHistoryServer.merge_synchronizer_state(snapshot)
-	_logger.debug("Ingested sync state diff: %s", [snapshot])
+	_logger.trace("Ingested sync state diff: %s", [snapshot])
 
 func _ingest_state(sender: int, snapshot: Snapshot) -> void:
 	# TODO: Sanitize
@@ -516,6 +526,6 @@ func _ingest_state(sender: int, snapshot: Snapshot) -> void:
 			_logger.trace("Reconciled state diff: %s", [diff])
 	
 	var merged := RollbackHistoryServer.merge_rollback_state(snapshot)
-	_logger.debug("Ingested state: %s", [snapshot])
+	_logger.trace("Ingested state: %s", [snapshot])
 
 	on_state.emit(snapshot)
