@@ -6,6 +6,7 @@ class_name _RollbackSynchronizationServer
 
 var _input_properties: Array = []
 var _state_properties: Array = []
+var _sync_state_properties: Array = [] as Array[Array]
 
 var _visibility_filters := {} # Node to PeerVisibilityFilter
 
@@ -23,6 +24,8 @@ var _input_redundancy := 3			# TODO: Config
 @onready var _cmd_diff_state := NetworkCommandServer.register_command_at(_NetworkCommands.DIFF_STATE, _handle_diff_state, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
 @onready var _cmd_ack_state := NetworkCommandServer.register_command_at(_NetworkCommands.ACKD_STATE, _handle_ack_state, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
 @onready var _cmd_input := NetworkCommandServer.register_command_at(_NetworkCommands.INPUT, _handle_input, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
+
+@onready var _cmd_full_sync := NetworkCommandServer.register_command_at(_NetworkCommands.FULL_SYNC, _handle_full_sync, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
 
 static var _logger := NetfoxLogger._for_netfox("RollbackSynchronizationServer")
 
@@ -51,6 +54,12 @@ func register_input(node: Node, property: NodePath) -> void:
 func deregister_input(node: Node, property: NodePath) -> void:
 	deregister_property(node, property, _input_properties)
 
+func register_sync_state(node: Node, property: NodePath) -> void:
+	register_property(node, property, _sync_state_properties)
+
+func deregister_sync_state(node: Node, property: NodePath) -> void:
+	deregister_property(node, property, _sync_state_properties)
+
 func register_schema(node: Node, property: NodePath, serializer: NetworkSchemaSerializer) -> void:
 	var key := RecordedProperty.key_of(node, property)
 	_schemas[key] = serializer
@@ -77,10 +86,11 @@ func is_property_visible_to(peer: int, node: Node, property: NodePath) -> bool:
 func get_properties_of(node: Node) -> Array[NodePath]:
 	var result := [] as Array[NodePath]
 	
-	for property in _state_properties + _input_properties:
+	# TODO: Split method? Or somehow avoid this merge
+	for property in _state_properties + _input_properties + _sync_state_properties:
 		var prop_node := RecordedProperty.get_node(property)
 		var prop_path := RecordedProperty.get_property(property)
-		
+
 		if node == prop_node:
 			result.append(prop_path)
 	
@@ -92,13 +102,13 @@ func synchronize_input(tick: int) -> void:
 
 	for offset in _input_redundancy:
 		# Grab snapshot from RollbackHistoryServer
-		var snapshot := RollbackHistoryServer.get_snapshot(tick - offset)
+		var snapshot := RollbackHistoryServer.get_rollback_input_snapshot(tick - offset)
 		if not snapshot:
 			break
 
 		# Filter to input properties
 		# TODO: Optimize, avoid making two copies
-		var input_snapshot := snapshot.filtered_to_properties(_input_properties).filtered_to_owned()
+		var input_snapshot := snapshot.filtered_to_owned()
 
 		# Transmit
 		_logger.trace("Submitting input: %s", [input_snapshot])
@@ -111,12 +121,12 @@ func synchronize_input(tick: int) -> void:
 # TODO: Make this testable somehow, I beg of you
 func synchronize_state(tick: int) -> void:
 	# Grab snapshot from RollbackHistoryServer
-	var snapshot := RollbackHistoryServer.get_snapshot(tick)
+	var snapshot := RollbackHistoryServer.get_rollback_state_snapshot(tick)
 	if not snapshot:
 		return
 
 	# Filter to state properties
-	var state_snapshot := snapshot.filtered_to_properties(_state_properties).filtered_to_auth().filtered_to_owned()
+	var state_snapshot := snapshot.filtered_to_auth().filtered_to_owned()
 	
 	# Figure out whether to send full- or diff state
 	var is_diff := false
@@ -143,7 +153,7 @@ func synchronize_state(tick: int) -> void:
 			continue
 
 		var reference_tick := _ackd_tick[peer] as int
-		var reference_snapshot := RollbackHistoryServer.get_snapshot(reference_tick)
+		var reference_snapshot := RollbackHistoryServer.get_rollback_state_snapshot(reference_tick)
 
 		if not reference_snapshot:
 			# Reference snapshot not in history, send full state
@@ -152,7 +162,7 @@ func synchronize_state(tick: int) -> void:
 			continue
 
 		# TODO: Optimize, don't create two snapshots
-		reference_snapshot = reference_snapshot.filtered_to_auth().filtered_to_properties(_state_properties)
+		reference_snapshot = reference_snapshot.filtered_to_auth()
 
 		var diff_snapshot := Snapshot.make_patch(reference_snapshot, state_snapshot, tick)
 		diff_snapshot = diff_snapshot.filtered(func(node, prop): return is_property_visible_to(peer, node, prop))
@@ -164,6 +174,21 @@ func synchronize_state(tick: int) -> void:
 	for peer in full_state_peers:
 		var peer_snapshot := state_snapshot.filtered(func(node, prop): return is_property_visible_to(peer, node, prop))
 		_cmd_full_state.send(_serialize_full_state_for(peer, peer_snapshot), peer)
+
+func synchronize_sync_state(tick: int) -> void:
+	# TODO: Reduce copy-paste
+	# Grab snapshot from RollbackHistoryServer
+	var snapshot := RollbackHistoryServer.get_synchronizer_state_snapshot(tick)
+	if not snapshot:
+		return
+
+	# Filter to state properties
+	var state_snapshot := snapshot.filtered_to_auth().filtered_to_owned()
+	
+	# Send full states
+	for peer in multiplayer.get_peers():
+		var peer_snapshot := state_snapshot.filtered(func(node, prop): return is_property_visible_to(peer, node, prop))
+		_cmd_full_sync.send(_serialize_full_state_for(peer, peer_snapshot), peer)
 
 func _serialize_full_state_for(peer: int, snapshot: Snapshot, buffer: StreamPeerBuffer = null) -> PackedByteArray:
 	if buffer == null:
@@ -378,7 +403,7 @@ func _handle_input(sender: int, data: PackedByteArray):
 		# TODO: Only merge inputs we don't have yet, so clients don't cheat by
 		#       overriding their earlier choices. Only emit signal for snapshots
 		#       that contain new input.
-		var merged := RollbackHistoryServer.merge_snapshot(snapshot)
+		var merged := RollbackHistoryServer.merge_rollback_input(snapshot)
 		_logger.trace("Ingested input: %s", [snapshot])
 
 		on_input.emit(snapshot)
@@ -391,13 +416,32 @@ func _handle_full_state(sender: int, data: PackedByteArray):
 	
 	_ingest_state(sender, snapshot)
 
+func _handle_full_sync(sender: int, data: PackedByteArray):
+	var buffer := StreamPeerBuffer.new()
+	buffer.data_array = data
+
+	var snapshot := _deserialize_full_state_of(sender, buffer)
+
+	# TODO: Reduce copy-paste
+	var original_tick := snapshot.tick
+	
+	# Merge received tick onto every tick from received to current PLUS ONE
+	# We need to override the next tick too with the snapshot data, so on the
+	# next loop, the received data will be used as the starting point.
+	# Without doing so, the client will record guessed values and display those,
+	# hiding state received from the server.
+	for tick in range(original_tick, NetworkTime.tick + 2):
+		snapshot.tick = tick
+		RollbackHistoryServer.merge_synchronizer_state(snapshot)
+		_logger.debug("Ingested sync state: %s", [snapshot])
+
 func _handle_diff_state(sender: int, data: PackedByteArray):
 	var buffer := StreamPeerBuffer.new()
 	buffer.data_array = data
 
 	var diff := _deserialize_diff_state_of(sender, buffer)
 	var reference_tick := diff.reference_tick
-	var reference_snapshot := RollbackHistoryServer.get_snapshot(reference_tick)
+	var reference_snapshot := RollbackHistoryServer.get_rollback_state_snapshot(reference_tick)
 	_logger.trace("Received diff state for @%d, relative to @%d", [diff.snapshot.tick, reference_tick])
 	if not reference_snapshot:
 		_logger.warning("Reference tick %d missing for #%d, ignoring", [reference_tick, sender])
@@ -414,14 +458,14 @@ func _ingest_state(sender: int, snapshot: Snapshot) -> void:
 	# TODO: Sanitize
 #	_logger.debug("Received state snapshot: %s", [snapshot])
 
-	var stored_snapshot := RollbackHistoryServer.get_snapshot(snapshot.tick)
+	var stored_snapshot := RollbackHistoryServer.get_rollback_state_snapshot(snapshot.tick)
 	if stored_snapshot:
 		var diff := Snapshot.make_patch(stored_snapshot, snapshot, snapshot.tick, false)
 		if not diff.is_empty():
 			_logger.trace("Reconciled state diff: %s", [diff])
 	
-	var merged := RollbackHistoryServer.merge_snapshot(snapshot)
-	_logger.debug("Ingested state: %s", [snapshot])
+	var merged := RollbackHistoryServer.merge_rollback_state(snapshot)
+	_logger.trace("Ingested state: %s", [snapshot])
 #	_logger.debug("Merged state; %s", [merged])
 
 	if _state_ack_interval >= 1 and (snapshot.tick % _state_ack_interval) == 0:

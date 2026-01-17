@@ -1,10 +1,14 @@
 extends Node
 class_name _RollbackHistoryServer
+# TODO: Rename to Network(ed?)HistoryServer
 
 var _input_properties: Array = []
 var _state_properties: Array = []
+var _sync_state_properties: Array = [] # [node, property] tuples
 
-var _snapshots: Dictionary = {} # tick to Snapshot
+var _rollback_input_snapshots: Dictionary = {} # tick to Snapshot
+var _rollback_state_snapshots: Dictionary = {} # tick to Snapshot
+var _sync_state_snapshots: Dictionary = {} # tick to Snapshot
 
 static var _logger := NetfoxLogger._for_netfox("RollbackHistoryServer")
 
@@ -30,12 +34,20 @@ func register_input(node: Node, property: NodePath) -> void:
 func deregister_input(node: Node, property: NodePath) -> void:
 	deregister_property(node, property, _input_properties)
 
-func record_tick(tick: int, properties: Array, predicted_nodes: Array[Node]) -> void:
+func register_sync_state(node: Node, property: NodePath) -> void:
+	register_property(node, property, _sync_state_properties)
+
+func deregister_sync_state(node: Node, property: NodePath) -> void:
+	deregister_property(node, property, _sync_state_properties)
+
+# TODO: Private
+# TODO: Replace `predicted_nodes` with a filter callable
+func record_tick(tick: int, snapshots: Dictionary, properties: Array, predicted_nodes: Array[Node]) -> void:
 	# Ensure snapshot
-	var snapshot := _snapshots.get(tick) as Snapshot
+	var snapshot := snapshots.get(tick) as Snapshot
 	if snapshot == null:
 		snapshot = Snapshot.new(tick)
-		_snapshots[tick] = snapshot
+		snapshots[tick] = snapshot
 
 	# Record values
 	var updated := []
@@ -57,53 +69,94 @@ func record_tick(tick: int, properties: Array, predicted_nodes: Array[Node]) -> 
 	_logger.trace("Recorded %d props for tick @%d: %s", [properties.size(), tick, snapshot])
 
 func record_input(tick: int) -> void:
-	record_tick(tick, _input_properties, [])
+	record_tick(tick, _rollback_input_snapshots, _input_properties, [])
 
 func record_state(tick: int) -> void:
-	# TODO: Servers preferably shouldn't depend on eachother
-	record_tick(tick, _state_properties, RollbackSimulationServer.get_predicted_nodes())
+	record_tick(tick, _rollback_state_snapshots, _state_properties, RollbackSimulationServer.get_predicted_nodes())
 
-func restore_tick(tick: int) -> bool:
-	if not _snapshots.has(tick):
+func record_sync_state(tick: int) -> void:
+	record_tick(tick, _sync_state_snapshots, _sync_state_properties, [])
+
+# TODO: Private
+func restore_tick(tick: int, snapshots: Dictionary) -> bool:
+	# TODO: Prettier recreation of HistoryBuffer logic and / or reuse HistoryBuffer
+	if snapshots.is_empty() or tick < snapshots.keys().min():
 		return false
+	while not snapshots.has(tick) and tick >= snapshots.keys().min():
+		tick -= 1
 
-	var snapshot := _snapshots[tick] as Snapshot
-	_logger.trace("Restoring snapshot: %s", [snapshot])
+	var snapshot := snapshots[tick] as Snapshot
+	if snapshots == _sync_state_snapshots:
+		_logger.debug("Restoring snapshot: %s", [snapshot])
 	snapshot.apply()
 	return true
 
+func restore_rollback_input(tick: int) -> bool:
+	return restore_tick(tick, _rollback_input_snapshots)
+
+func restore_rollback_state(tick: int) -> bool:
+	return restore_tick(tick, _rollback_state_snapshots)
+
+func restore_synchronizer_state(tick: int) -> bool:
+	return restore_tick(tick, _sync_state_snapshots)
+
 func trim_history(earliest_tick: int) -> void:
-	while not _snapshots.is_empty():
-		var earliest_stored_tick := _snapshots.keys().min()
-		if earliest_stored_tick >= earliest_tick:
-			break
-		_snapshots.erase(earliest_stored_tick)
+	var snapshot_pools := [_rollback_input_snapshots, _rollback_state_snapshots, _sync_state_snapshots] as Array[Dictionary]
+
+	for snapshots in snapshot_pools:
+		while not snapshots.is_empty():
+			var earliest_stored_tick := snapshots.keys().min()
+			if earliest_stored_tick >= earliest_tick:
+				break
+			snapshots.erase(earliest_stored_tick)
 
 # TODO: Keep snapshots private
-func get_snapshot(tick: int) -> Snapshot:
-	return _snapshots.get(tick) as Snapshot
+# TODO: Private
+func get_snapshot(tick: int, snapshots: Dictionary) -> Snapshot:
+	return snapshots.get(tick) as Snapshot
+
+func get_rollback_input_snapshot(tick: int) -> Snapshot:
+	return get_snapshot(tick, _rollback_input_snapshots)
+
+func get_rollback_state_snapshot(tick: int) -> Snapshot:
+	return get_snapshot(tick, _rollback_state_snapshots)
+
+func get_synchronizer_state_snapshot(tick: int) -> Snapshot:
+	return get_snapshot(tick, _sync_state_snapshots)
 
 # TODO: Keep snapshots private
-func merge_snapshot(snapshot: Snapshot) -> Snapshot:
+func merge_snapshot(snapshot: Snapshot, snapshots: Dictionary) -> Snapshot:
 	var tick := snapshot.tick
-	if not _snapshots.has(snapshot.tick):
-		_snapshots[tick] = snapshot
+	if not snapshots.has(snapshot.tick):
+		snapshots[tick] = snapshot
 		return snapshot
 
-	var stored_snapshot := _snapshots[tick] as Snapshot
+	var stored_snapshot := snapshots[tick] as Snapshot
 	stored_snapshot.merge(snapshot)
-#	_snapshots[tick] = stored_snapshot
 
 	return stored_snapshot
 
+func merge_rollback_input(snapshot: Snapshot) -> Snapshot:
+	return merge_snapshot(snapshot, _rollback_input_snapshots)
+
+func merge_rollback_state(snapshot: Snapshot) -> Snapshot:
+	return merge_snapshot(snapshot, _rollback_state_snapshots)
+
+func merge_synchronizer_state(snapshot: Snapshot) -> Snapshot:
+	return merge_snapshot(snapshot, _sync_state_snapshots)
+
 func get_data_age_for(what: Node, tick: int) -> int:
-	if _snapshots.is_empty():
+	if _rollback_state_snapshots.is_empty() and _rollback_input_snapshots.is_empty():
 		return -1
 
-	for i in range(tick, _snapshots.keys().min() - 1, -1):
-		if not _snapshots.has(i):
-			continue
-		var snapshot := get_snapshot(i)
-		if snapshot.has_node(what, true):
+	var earliest_tick := mini(_rollback_state_snapshots.keys().min(), _rollback_input_snapshots.keys().min())
+	for i in range(tick, earliest_tick - 1, -1):
+		var input_snapshot := get_rollback_input_snapshot(i)
+		var state_snapshot := get_rollback_state_snapshot(i)
+
+		var has_input := input_snapshot != null and input_snapshot.has_node(what, true)
+		var has_state := state_snapshot != null and state_snapshot.has_node(what, true)
+
+		if has_input or has_state:
 			return tick - i
 	return -1

@@ -51,9 +51,9 @@ func register_input_for(node: Node, input: Node) -> void:
 func deregister_input(node: Node) -> void:
 	_input_for.erase(node)
 
-func get_nodes_to_simulate(snapshot: Snapshot) -> Array[Node]:
+func get_nodes_to_simulate(input_snapshot: Snapshot) -> Array[Node]:
 	var result: Array[Node] = []
-	if not snapshot:
+	if not input_snapshot:
 		return []
 
 	for node in _callbacks.keys():
@@ -63,7 +63,7 @@ func get_nodes_to_simulate(snapshot: Snapshot) -> Array[Node]:
 			continue
 
 		var input := _input_for[node] as Node
-		if not snapshot.has_node(input, true):
+		if not input_snapshot.has_node(input, true):
 			# We don't have input for node, don't simulate
 			continue
 
@@ -72,10 +72,10 @@ func get_nodes_to_simulate(snapshot: Snapshot) -> Array[Node]:
 	return result
 
 # TODO: *Thorough* test for node predict rules
-func is_predicting(snapshot: Snapshot, node: Node) -> bool:
+func is_predicting(input_snapshot: Snapshot, node: Node) -> bool:
 	var is_owned := node.is_multiplayer_authority()
 	var is_inputless := not _input_for.has(node)
-	var has_input := false if is_inputless else snapshot.has_node(_input_for[node], true)
+	var has_input := false if is_inputless else input_snapshot.has_node(_input_for[node], true)
 	
 	if not is_owned and has_input:
 		# We don't own the node, but we own input for it - not (input) predicting
@@ -121,8 +121,9 @@ func trim_ticks_simulated(beginning: int) -> void:
 func simulate(delta: float, tick: int) -> void:
 	_current_object = null
 
-	var snapshot := RollbackHistoryServer.get_snapshot(tick)
-	var nodes := get_nodes_to_simulate(snapshot)
+	var input_snapshot := RollbackHistoryServer.get_rollback_input_snapshot(tick)
+	var state_snapshot := RollbackHistoryServer.get_rollback_state_snapshot(tick)
+	var nodes := get_nodes_to_simulate(input_snapshot)
 	_predicted_nodes.clear()
 	_logger.trace("Simulating %d nodes: %s", [nodes.size(), nodes])
 
@@ -133,7 +134,7 @@ func simulate(delta: float, tick: int) -> void:
 
 	# Determine predicted nodes
 	for node in _callbacks.keys():
-		if is_predicting(snapshot, node):
+		if is_predicting(input_snapshot, node):
 			_predicted_nodes.append(node)
 
 	# Run callbacks and clear group

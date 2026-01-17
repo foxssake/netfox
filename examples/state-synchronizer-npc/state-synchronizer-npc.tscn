@@ -1,9 +1,20 @@
-[gd_scene load_steps=5 format=3 uid="uid://cl3qmgo4c2nfh"]
+[gd_scene load_steps=7 format=3 uid="uid://cl3qmgo4c2nfh"]
 
 [ext_resource type="PackedScene" uid="uid://cngy6hs8ohodj" path="res://examples/shared/scenes/map-square.tscn" id="1_mm3em"]
 [ext_resource type="PackedScene" uid="uid://cncdbq72u50j3" path="res://examples/shared/scenes/environment.tscn" id="2_ykbn6"]
 [ext_resource type="PackedScene" uid="uid://badtpsxn5lago" path="res://examples/shared/ui/network-popup.tscn" id="3_mhiy8"]
+[ext_resource type="Script" path="res://examples/shared/scripts/simple-time-display.gd" id="4_4w44e"]
 [ext_resource type="PackedScene" uid="uid://ru7kvgw7wjew" path="res://examples/state-synchronizer-npc/scenes/wanderer.tscn" id="4_47wiq"]
+
+[sub_resource type="GDScript" id="GDScript_hpcpy"]
+script/source = "extends Label
+
+func _process(_dt):
+	if multiplayer.is_server():
+		text = \"Server\"
+	else:
+		text = \"Client\"
+"
 
 [node name="state-synchronizer-npc" type="Node3D"]
 
@@ -25,6 +36,19 @@ offset_left = -180.0
 offset_top = -120.0
 offset_right = 180.0
 offset_bottom = 120.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Time Display" type="Label" parent="UI/VBoxContainer"]
+layout_mode = 2
+script = ExtResource("4_4w44e")
+
+[node name="Label" type="Label" parent="UI/VBoxContainer"]
+layout_mode = 2
+script = SubResource("GDScript_hpcpy")
 
 [node name="NPCs" type="Node" parent="."]
 

@@ -559,12 +559,18 @@ func _loop() -> void:
 			before_tick_loop.emit()
 
 		before_tick.emit(ticktime, tick)
+
 		on_tick.emit(ticktime, tick)
+
+		RollbackHistoryServer.record_sync_state(tick + 1)
+		RollbackSynchronizationServer.synchronize_sync_state(tick + 1)
 		after_tick.emit(ticktime, tick)
 		
 		_tick += 1
 		ticks_in_loop += 1
 		_next_tick_time += ticktime
+
+		RollbackHistoryServer.restore_synchronizer_state(tick)
 	
 	if ticks_in_loop > 0:
 		after_tick_loop.emit()

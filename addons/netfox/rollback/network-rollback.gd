@@ -349,7 +349,7 @@ func _rollback() -> void:
 		range_source = "latest state"
 		_resim_from = mini(_resim_from, _latest_state)
 	_resim_from = mini(_resim_from, NetworkTime.tick - 1)
-	_logger.debug("Simulating range @%d>@%d using %s", [_resim_from, NetworkTime.tick, range_source])
+	_logger.trace("Simulating range @%d>@%d using %s", [_resim_from, NetworkTime.tick, range_source])
 
 #	_resim_from = maxi(1, history_start + 1)
 
@@ -385,7 +385,8 @@ func _rollback() -> void:
 		#	Done individually by Rewindables ( usually Rollback Synchronizers )
 		#	Restore input and state for tick
 		_rollback_stage = _STAGE_PREPARE
-		RollbackHistoryServer.restore_tick(tick)
+		RollbackHistoryServer.restore_rollback_input(tick)
+		RollbackHistoryServer.restore_rollback_state(tick)
 		on_prepare_tick.emit(tick)
 		after_prepare_tick.emit(tick)
 
@@ -408,7 +409,7 @@ func _rollback() -> void:
 
 	# Restore display state
 	_rollback_stage = _STAGE_AFTER
-	RollbackHistoryServer.restore_tick(display_tick)
+	RollbackHistoryServer.restore_rollback_state(display_tick)
 	RollbackHistoryServer.trim_history(history_start)
 	RollbackSimulationServer.trim_ticks_simulated(history_start)
 	after_loop.emit()
