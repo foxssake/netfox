@@ -4,6 +4,8 @@ var _next_id := 0
 var _identifiers := {} # object to NetworkIdentifier
 var _push_queue := [] as Array[IdentityNotification]
 
+@onready var _cmd_ids := NetworkCommandServer.register_command_at(_NetworkCommands.IDS, _handle_ids)
+
 static var _logger := NetfoxLogger._for_netfox("NetworkIdentityServer")
 
 func register(what: Object, path: String) -> void:
@@ -53,7 +55,7 @@ func flush_queue() -> void:
 		ids[item.peer][item.identifier.get_full_name()] = item.identifier.get_local_id()
 
 	for peer in ids:
-		_submit_ids.rpc_id(peer, ids[peer])
+		_cmd_ids.send(_serialize_ids(ids[peer]), peer)
 
 func _get_identifier_by_name(full_name: String) -> NetworkIdentifier:
 	# TODO: Optimize, probably by caching
@@ -75,9 +77,8 @@ func _make_id() -> int:
 	_next_id += 1
 	return _next_id
 
-@rpc("any_peer", "call_remote", "unreliable")
-func _submit_ids(ids: Dictionary) -> void:
-	var sender := multiplayer.get_remote_sender_id()
+func _handle_ids(sender: int, data: PackedByteArray) -> void:
+	var ids := _deserialize_ids(data)
 
 	for full_name in ids:
 		var id := ids[full_name] as int
@@ -88,6 +89,32 @@ func _submit_ids(ids: Dictionary) -> void:
 			_logger.debug("Received identifier for unknown object with full name %s, id #%d", [full_name, id])
 			continue
 		identifier.set_id_for(sender, id)
+
+func _serialize_ids(ids: Dictionary) -> PackedByteArray:
+	var buffer := StreamPeerBuffer.new()
+	var varuint := NetworkSchemas.varuint()
+
+	for full_name in ids.keys():
+		var id := ids[full_name] as int
+
+		buffer.put_utf8_string(full_name)
+		varuint.encode(ids[full_name], buffer)
+
+	return buffer.data_array
+
+func _deserialize_ids(data: PackedByteArray) -> Dictionary:
+	var ids := {}
+	var varuint := NetworkSchemas.varuint()
+	var buffer := StreamPeerBuffer.new()
+	buffer.data_array = data
+
+	while buffer.get_available_bytes() > 0:
+		var full_name := buffer.get_utf8_string()
+		var id := varuint.decode(buffer) as int
+
+		ids[full_name] = id
+
+	return ids
 
 # TODO: Consider private
 class NetworkIdentifier:
