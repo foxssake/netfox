@@ -5,8 +5,6 @@ var confidence: float = 1.
 
 @onready var _rollback_synchronizer := $"../RollbackSynchronizer" as RollbackSynchronizer
 
-var logger := NetfoxLogger.new("example", "Input")
-
 func _ready():
 	super()
 	NetworkRollback.after_prepare_tick.connect(_predict)
@@ -21,19 +19,16 @@ func _gather():
 func _predict(_t):
 	if not _rollback_synchronizer.is_predicting():
 		# Not predicting, nothing to do
-#		logger.info("Input is current")
 		confidence = 1.
 		return
 	
 	if not _rollback_synchronizer.has_input():
-		logger.info("No input to predict from")
 		confidence = 0.
 		return
 	
 	# Decay input over a short time
 	var decay_time := NetworkTime.seconds_to_ticks(.05)
 	var input_age := _rollback_synchronizer.get_input_age()
-	logger.info("Predicting after %d ticks" % [input_age])
 	
 	# **ALWAYS** cast either side to float, otherwise the integer-integer 
 	# division yields either 1 or 0 confidence

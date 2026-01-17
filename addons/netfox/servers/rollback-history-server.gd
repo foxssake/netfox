@@ -166,7 +166,7 @@ func merge_synchronizer_state(snapshot: Snapshot) -> Snapshot:
 	return merge_snapshot(snapshot, _sync_state_snapshots)
 
 func get_data_age_for(what: Node, tick: int) -> int:
-	if _rollback_state_snapshots.is_empty() and _rollback_input_snapshots.is_empty():
+	if _rollback_state_snapshots.is_empty() or _rollback_input_snapshots.is_empty():
 		return -1
 
 	var earliest_tick := mini(_rollback_state_snapshots.keys().min(), _rollback_input_snapshots.keys().min())

@@ -100,7 +100,6 @@ func is_predicting(input_snapshot: Snapshot, node: Node) -> bool:
 	return false
 
 func is_predicting_current() -> bool:
-	# TODO: Breaks Forest Brawl?
 	if not _current_object or not is_instance_valid(_current_object):
 		return false
 	return _predicted_nodes.has(_current_object)
