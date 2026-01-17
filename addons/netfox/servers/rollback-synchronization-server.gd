@@ -18,8 +18,8 @@ var _ackd_tick := {} # peer id to ack'd tick
 var _last_sync_state_sent := Snapshot.new(0)
 var _last_sync_tick_recvd := -1
 var _sync_enable_diffs := true		# TODO: Config
-var _sync_full_interval := 24		# TODO: Config
-var _sync_full_next := 0
+var _sync_full_interval := 4		# TODO: Config
+var _sync_full_next := -1
 
 var _schemas := {} # RecordedProperty key to NetworkSchemaSerializer
 var _fallback_schema := NetworkSchemas.variant()
@@ -192,7 +192,7 @@ func synchronize_sync_state(tick: int) -> void:
 	# Filter to state properties
 	var state_snapshot := snapshot.filtered_to_auth().filtered_to_owned()
 	
-	if false: # not _sync_enable_diffs or _sync_full_next <= 0:
+	if not _sync_enable_diffs or _sync_full_next <= 0:
 		_sync_full_next = _sync_full_interval
 
 		# Send full states
