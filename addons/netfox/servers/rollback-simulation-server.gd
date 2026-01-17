@@ -4,13 +4,12 @@ class_name _RollbackSimulationServer
 # node to callback
 # TODO: Consider allowing any Object, not just nodes
 var _callbacks := {}
-# node to input node
-# TODO: Support multiple input nodes for a single simulated node
-var _input_for := {}
 # node to array of ticks
 # used for is_fresh
 # TODO: Refactor to ringbuffer containing sets of nodes?
 var _simulated_ticks := {}
+
+var _input_graph := _Graph.new() # Links inputs to objects controlled by them
 
 # Currently simulated object
 var _current_object: Object = null
@@ -38,18 +37,17 @@ func deregister(callback: Callable) -> void:
 	if _callbacks[object] != callback: return
 
 	_callbacks.erase(object)
-	_input_for.erase(object)
+	_input_graph.erase(object)
 	_simulated_ticks.erase(object)
 
 func deregister_node(node: Node) -> void:
 	deregister(_callbacks.get(node))
 
 func register_input_for(node: Node, input: Node) -> void:
-	# TODO: Support multiple input nodes per node
-	_input_for[node] = input
+	_input_graph.link(input, node)
 
-func deregister_input(node: Node) -> void:
-	_input_for.erase(node)
+func deregister_input(node: Node, input: Node) -> void:
+	_input_graph.unlink(input, node)
 
 func get_nodes_to_simulate(input_snapshot: Snapshot) -> Array[Node]:
 	var result: Array[Node] = []
@@ -57,13 +55,15 @@ func get_nodes_to_simulate(input_snapshot: Snapshot) -> Array[Node]:
 		return []
 
 	for node in _callbacks.keys():
-		if not _input_for.has(node):
+		var inputs := [] as Array[Node]
+		inputs.assign(_input_graph.get_linked_to(node))
+
+		if inputs.is_empty():
 			# Node has no input, simulate it
 			result.append(node)
 			continue
 
-		var input := _input_for[node] as Node
-		if not input_snapshot.has_node(input, true):
+		if not input_snapshot.has_nodes(inputs, true):
 			# We don't have input for node, don't simulate
 			continue
 
@@ -73,13 +73,16 @@ func get_nodes_to_simulate(input_snapshot: Snapshot) -> Array[Node]:
 
 # TODO: *Thorough* test for node predict rules
 func is_predicting(input_snapshot: Snapshot, node: Node) -> bool:
+	var input_nodes := [] as Array[Node]
+	input_nodes.assign(_input_graph.get_linked_to(node))
+
 	var is_owned := node.is_multiplayer_authority()
-	var is_inputless := not _input_for.has(node)
+	var is_inputless := input_nodes.is_empty()
 	var has_input := false if is_inputless else true
 
 	# TODO: Avoid supporting null snapshots if possible
 	if not is_inputless and input_snapshot:
-		has_input = input_snapshot.has_node(_input_for[node], true)
+		has_input = input_snapshot.has_nodes(input_nodes, true)
 
 	if not is_owned and has_input:
 		# We don't own the node, but we own input for it - not (input) predicting

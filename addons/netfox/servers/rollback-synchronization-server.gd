@@ -102,6 +102,21 @@ func get_properties_of(node: Node) -> Array[NodePath]:
 func synchronize_input(tick: int) -> void:
 	var snapshots := [] as Array[Snapshot]
 
+	if false:
+		# Grab owned input objects
+		var input_objects := _Set.new()
+		for prop in _input_properties:
+			var node := RecordedProperty.get_node(prop)
+			input_objects.add(node)
+
+		var notified_peers := _Set.new()
+		# for each input object
+		for input_object in input_objects:
+			pass
+			# Grab state objects controlled by input
+			# Create set with peers owning state objects
+		# Only send input to peers in set
+
 	for offset in _input_redundancy:
 		# Grab snapshot from RollbackHistoryServer
 		var snapshot := RollbackHistoryServer.get_rollback_input_snapshot(tick - offset)

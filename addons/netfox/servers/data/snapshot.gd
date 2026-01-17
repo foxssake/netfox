@@ -116,7 +116,20 @@ func has_node(node: Node, require_auth: bool = false) -> bool:
 		var entry_node := entry[0] as Node
 		if entry_node != node:
 			continue
-		
+
+		var is_auth := _is_authoritative.get(entry, false) as bool
+		if require_auth and not is_auth:
+			continue
+
+		return true
+	return false
+
+func has_nodes(nodes: Array[Node], require_auth: bool = false) -> bool:
+	for entry in data.keys():
+		var entry_node := entry[0] as Node
+		if not nodes.has(entry_node):
+			continue
+
 		var is_auth := _is_authoritative.get(entry, false) as bool
 		if require_auth and not is_auth:
 			continue
