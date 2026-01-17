@@ -8,7 +8,7 @@ func suite():
 		var graph := _Graph.new()
 		graph.link("foo", "bar")
 
-		expect(graph.has_link("foo", "bar"))
+		expect_linked(graph, "foo", "bar")
 		expect_equal(graph.get_linked_from("foo"), ["bar"])
 		expect_equal(graph.get_linked_to("bar"), ["foo"])
 	)
@@ -20,8 +20,8 @@ func suite():
 
 		graph.unlink("foo", "bar")
 
-		expect_not(graph.has_link("foo", "bar"))
-		expect(graph.has_link("quix", "baz"))
+		expect_unlinked(graph, "foo", "bar")
+		expect_linked(graph, "quix", "baz")
 		expect_empty(graph.get_linked_from("foo"))
 		expect_empty(graph.get_linked_to("bar"))
 	)
@@ -31,10 +31,18 @@ func suite():
 		graph.link("foo", "bar")
 		graph.link("foo", "baz")
 		graph.link("quix", "baz")
+		graph.link("oof", "foo")
 		
 		graph.erase("foo")
 		
-		expect_not(graph.has_link("foo", "bar"), "Link was not erased!")
-		expect_not(graph.has_link("foo", "baz"), "Link was not erased!")
-		expect(graph.has_link("quix", "baz"), "Link was erased!")
+		expect_unlinked(graph, "foo", "bar")
+		expect_unlinked(graph, "foo", "baz")
+		expect_unlinked(graph, "oof", "foo")
+		expect_linked(graph, "quix", "baz")
 	)
+
+func expect_linked(graph: _Graph, from: Variant, to: Variant):
+	expect(graph.has_link(from, to), "Link %s -> %s was not present!")
+
+func expect_unlinked(graph: _Graph, from: Variant, to: Variant):
+	expect_not(graph.has_link(from, to), "Link %s -> %s was present!" % [from, to])
