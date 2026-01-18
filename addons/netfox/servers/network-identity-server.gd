@@ -7,6 +7,9 @@ var _next_id := 0
 var _identifiers := {} # object to NetworkIdentifier
 var _push_queue := [] as Array[IdentityNotification]
 
+var _identifier_by_name := {} # full name to NetworkIdentifier
+var _identifier_by_id := {} # peer to (id to NetworkIdentifier)
+
 var _cmd_ids: _NetworkCommandServer.Command
 
 static var _logger := NetfoxLogger._for_netfox("NetworkIdentityServer")
@@ -26,12 +29,24 @@ func register(what: Object, path: String) -> void:
 	
 	var identifier := NetworkIdentifier.new(what, path, _make_id(), multiplayer.get_unique_id())
 	_identifiers[what] = identifier
+	_identifier_by_name[identifier.get_full_name()] = identifier
+
+	identifier.on_id.connect(func(peer: int, id: int): _update_id_cache(identifier, peer, id))
+	_update_id_cache(identifier, multiplayer.get_unique_id(), identifier.get_local_id())
 
 func deregister(what: Object) -> void:
+	if not _identifiers.has(what):
+		return
+
+	var identifier := _identifiers[what] as NetworkIdentifier
 	_identifiers.erase(what)
+	_identifier_by_name.erase(identifier.get_full_name())
+	_erase_from_id_cache(identifier)
 
 func clear() -> void:
 	_identifiers.clear()
+	_identifier_by_name.clear()
+	_identifier_by_id.clear()
 	_next_id = 0
 
 func register_node(node: Node) -> void:
@@ -70,24 +85,31 @@ func flush_queue() -> void:
 		_cmd_ids.send(_serialize_ids(ids[peer]), peer)
 
 func _get_identifier_by_name(full_name: String) -> NetworkIdentifier:
-	# TODO: Optimize, probably by caching
-	for value in _identifiers.values() as Array:
-		var identifier := value as NetworkIdentifier
-		if identifier.get_full_name() == full_name:
-			return identifier
-	return null
+	return _identifier_by_name.get(full_name)
 
 func _get_identifier_by_id(peer: int, id: int) -> NetworkIdentifier:
-	# TODO: Optimize, probably by caching
-	for value in _identifiers.values() as Array:
-		var identifier := value as NetworkIdentifier
-		if identifier.get_id_for(peer) == id:
-			return identifier
-	return null
+	return _identifier_by_id.get(peer, {}).get(id, null)
 
 func _make_id() -> int:
 	_next_id += 1
 	return _next_id
+
+func _update_id_cache(identifier: NetworkIdentifier, peer: int, id: int) -> void:
+	if not _identifier_by_id.has(peer):
+		_identifier_by_id[peer] = { id: identifier }
+	else:
+		_identifier_by_id[peer][id] = identifier
+
+func _erase_from_id_cache(identifier: NetworkIdentifier) -> void:
+	for peer in identifier.get_known_peers():
+		if not _identifier_by_id.has(peer):
+			# nani?
+			continue
+
+		var cache := _identifier_by_id.get(peer) as Dictionary
+		cache.erase(identifier.get_id_for(peer))
+		if cache.is_empty():
+			_identifier_by_id.erase(peer)
 
 func _handle_ids(sender: int, data: PackedByteArray) -> void:
 	var ids := _deserialize_ids(data)
@@ -135,6 +157,8 @@ class NetworkIdentifier:
 	var _ids: Dictionary = {} # peer to id
 	var _local_id: int
 
+	signal on_id(peer: int, id: int)
+
 	func _init(subject: Object, full_name: String, local_id: int, local_peer: int):
 		_subject = subject
 		_full_name = full_name
@@ -149,16 +173,23 @@ class NetworkIdentifier:
 		return _ids.get(peer, -1)
 
 	func set_id_for(peer: int, id: int) -> void:
+		assert(not _ids.has(peer), "ID for peer #%d is already set!" % [peer])
 		_ids[peer] = id
+		on_id.emit(peer, id)
 
 	func get_local_id() -> int:
 		return _local_id
-		
+
 	func get_full_name() -> String:
 		return _full_name
-		
+
 	func get_subject() -> Object:
 		return _subject
+
+	func get_known_peers() -> Array[int]:
+		var result := [] as Array[int]
+		result.assign(_ids.keys())
+		return result
 
 	func reference_for(peer: int) -> NetworkIdentityReference:
 		if has_id_for(peer):

@@ -26,7 +26,9 @@ func after_case(__):
 func suite() -> void:
 	define("resolve_reference()", func():
 		# 6.04us/7.08us, 26.75us/32.29us, 211.05us/240.66us, 4.55ms/4.35ms
-		for case in [[16, 256], [128, 256], [1024, 64], [16384, 64]]:
+		# ??/3.69us, ??/3.74us, ??/3.81us, ??/3.99us
+		# 2.73us/3.63us, 2.73us/3.72us, 2.68us/3.68us, 2.91us/3.95us
+		for case in [[16, 512], [128, 512], [1024, 512], [16384, 512]]:
 			var count := case[0] as int
 			var batch := case[1] as int
 
