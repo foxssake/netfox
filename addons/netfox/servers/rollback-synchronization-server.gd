@@ -17,10 +17,15 @@ var _sync_enable_diffs := true		# TODO: Config
 var _sync_full_interval := 24		# TODO: Config
 var _sync_full_next := -1
 
+# TODO: Swap to (object to (property to NetworkSchemaSerializer))
 var _schemas := {} # RecordedProperty key to NetworkSchemaSerializer
 var _fallback_schema := NetworkSchemas.variant()
 
 var _input_redundancy := 3			# TODO: Config
+
+var _dense_serializer := _DenseSnapshotSerializer.new(_schemas)
+var _sparse_serializer := _SparseSnapshotSerializer.new(_schemas)
+var _redundant_serializer := _RedundantSnapshotSerializer.new(_schemas)
 
 @onready var _cmd_full_state := NetworkCommandServer.register_command_at(_NetworkCommands.FULL_STATE, _handle_full_state, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
 @onready var _cmd_diff_state := NetworkCommandServer.register_command_at(_NetworkCommands.DIFF_STATE, _handle_diff_state, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
@@ -134,7 +139,8 @@ func synchronize_input(tick: int) -> void:
 
 	_logger.trace("Submitting input to peers: %s", [notified_peers])
 	for peer in notified_peers:
-		_cmd_input.send(_serialize_input_for(peer, snapshots), peer)
+		var data := _redundant_serializer.write_for(peer, snapshots, _rb_input_properties)
+		_cmd_input.send(data, peer)
 
 # TODO: Make this testable somehow, I beg of you
 func synchronize_state(tick: int) -> void:
@@ -181,7 +187,8 @@ func synchronize_state(tick: int) -> void:
 				# Peer can't see any changes, send nothing
 				continue
 
-			_cmd_diff_state.send(_serialize_diff_state_for(peer, peer_diff), peer)
+			var data := _sparse_serializer.write_for(peer, peer_diff, _rb_state_properties)
+			_cmd_diff_state.send(data, peer)
 
 			NetworkPerformance.push_full_state(state_snapshot.data) # TODO: Ugh...
 			NetworkPerformance.push_sent_state(diff.data) # TODO: Ugh...
@@ -195,7 +202,8 @@ func synchronize_state(tick: int) -> void:
 				# Peer can't see anything, send nothing
 				continue
 
-			_cmd_full_state.send(_serialize_full_state_for(peer, peer_snapshot), peer)
+			var data := _dense_serializer.write_for(peer, peer_snapshot, _rb_state_properties)
+			_cmd_full_state.send(data, peer)
 			_logger.trace("Sent full state to #%d: %s", [peer, peer_snapshot])
 
 			NetworkPerformance.push_full_state(peer_snapshot.data) # TODO: Ugh...
@@ -231,8 +239,9 @@ func synchronize_sync_state(tick: int) -> void:
 				# Peer can't see anything, send nothing
 				continue
 
-			_cmd_full_sync.send(_serialize_full_state_for(peer, peer_snapshot), peer)
-			
+			var data := _dense_serializer.write_for(peer, peer_snapshot, _sync_state_properties)
+			_cmd_full_sync.send(data, peer)
+
 			NetworkPerformance.push_full_state(peer_snapshot.data) # TODO: Ugh...
 			NetworkPerformance.push_sent_state(peer_snapshot.data) # TODO: Ugh...
 	else:
@@ -247,217 +256,20 @@ func synchronize_sync_state(tick: int) -> void:
 				# Nothing changed, don't send anything
 				continue
 
-			_cmd_diff_sync.send(_serialize_diff_state_for(peer, peer_snapshot), peer)
-			
+			var data := _sparse_serializer.write_for(peer, peer_snapshot, _sync_state_properties)
+			_cmd_diff_sync.send(data, peer)
+
 			NetworkPerformance.push_full_state(state_snapshot.data) # TODO: Ugh...
 			NetworkPerformance.push_sent_state(peer_snapshot.data) # TODO: Ugh...
 
 	# Remember last sent state for diffing
 	_last_sync_state_sent = state_snapshot
 
-func _serialize_full_state_for(peer: int, snapshot: Snapshot, buffer: StreamPeerBuffer = null) -> PackedByteArray:
-	if buffer == null:
-		buffer = StreamPeerBuffer.new()
-
-	var netref := NetworkSchemas._netref()
-	var varuint := NetworkSchemas.varuint()
-	
-	var node_buffer := StreamPeerBuffer.new()
-	
-	# Write tick
-	buffer.put_u32(snapshot.tick)
-	# TODO: Include property config hash to detect mismatches
-	
-	# For each node
-	for node in snapshot.nodes():
-		assert(node.is_multiplayer_authority(), "Trying to serialize state for non-owned node!")
-
-		# Write identifier
-		var identifier := NetworkIdentityServer.get_identifier_of(node)
-		if not identifier:
-			_logger.error("Can't synchronize node %s, identifier missing!", [node])
-			continue
-		var idref := identifier.reference_for(peer)
-		netref.encode(idref, buffer)
-		
-		# Write properties as-is
-		# First into a buffer, so we can start with the state size
-		node_buffer.clear()
-		for property in get_properties_of(node):
-			assert(snapshot.is_auth(node, property), "Trying to serialize non-auth state property!")
-			var value := snapshot.get_property(node, property)
-			_serialize_property(node, property, value, node_buffer)
-		
-		# Indicate state size for the node
-		varuint.encode(node_buffer.data_array.size(), buffer)
-		
-		# Write node state
-		buffer.put_data(node_buffer.data_array)
-
-	return buffer.data_array
-
-func _deserialize_full_state_of(peer: int, buffer: StreamPeerBuffer, is_auth: bool = true) -> Snapshot:
-	var netref := NetworkSchemas._netref()
-	var varuint := NetworkSchemas.varuint()
-	var node_buffer := StreamPeerBuffer.new()
-	
-	# Read tick
-	var tick := buffer.get_u32()
-	var snapshot := Snapshot.new(tick)
-	# TODO: Include property config hash to detect mismatches
-	
-	while buffer.get_available_bytes() > 0:
-		# Read identity reference, data size, and data
-		# TODO: Configurable upper limit on how much netfox is allowed to read here?
-		var idref := netref.decode(buffer) as _NetworkIdentityReference
-		var node_data_size := varuint.decode(buffer) as int
-		node_buffer.data_array = buffer.get_partial_data(node_data_size)[1]
-		
-		# Resolve to identifier
-		var identifier := NetworkIdentityServer.resolve_reference(peer, idref)
-		if not identifier:
-			# TODO: Handle unknown IDs gracefully
-			# TODO: Test that unknown nodes are INDEED SKIPPED
-			_logger.warning("Received unknown identity reference %s, skipping data", [idref])
-			break
-		var node := identifier.get_subject() as Node
-		
-		# Read properties
-		for property in get_properties_of(node):
-			# TODO: Test if less bytes remain than an entire property ( e.g. 2 bytes )
-			if node_buffer.get_available_bytes() == 0: break
-
-			var value := _deserialize_property(node, property, node_buffer)
-			snapshot.set_property(node, property, value, is_auth)
-	
-	return snapshot
-
-func _serialize_diff_state_for(peer: int, snapshot: Snapshot, buffer: StreamPeerBuffer = null) -> PackedByteArray:
-	if buffer == null:
-		buffer = StreamPeerBuffer.new()
-
-	var netref := NetworkSchemas._netref()
-	var varuint := NetworkSchemas.varuint()
-	var varbits := NetworkSchemas._varbits()
-	
-	var node_buffer := StreamPeerBuffer.new()
-	
-	# Write ticks
-	buffer.put_u32(snapshot.tick)
-	# TODO: Include property config hash to detect mismatches
-
-	# For each node
-	for node in snapshot.nodes():
-		assert(node.is_multiplayer_authority(), "Trying to serialize state for non-owned node!")
-
-		# Write identifier
-		var identifier := NetworkIdentityServer.get_identifier_of(node)
-		if not identifier:
-			_logger.error("Can't synchronize node %s, identifier missing!", [node])
-			continue
-		var idref := identifier.reference_for(peer)
-		netref.encode(idref, buffer)
-
-		node_buffer.clear()
-
-		var properties := get_properties_of(node)
-		var changed_bits := _Bitset.new(properties.size())
-		
-		for i in properties.size():
-			var property := properties[i]
-			if not snapshot.has_property(node, property):
-				continue
-
-			assert(snapshot.is_auth(node, property), "Trying to serialize non-auth state property!")
-
-			changed_bits.set_bit(i)
-			var value := snapshot.get_property(node, property)
-			_serialize_property(node, property, value, node_buffer)
-		
-		varuint.encode(node_buffer.data_array.size(), buffer)	# Node props len
-		varbits.encode(changed_bits, buffer)					# Changed prop bits
-		buffer.put_data(node_buffer.data_array)					# Changed props
-	
-	return buffer.data_array
-
-func _deserialize_diff_state_of(peer: int, buffer: StreamPeerBuffer, is_auth: bool = true) -> Snapshot:
-	var netref := NetworkSchemas._netref()
-	var varuint := NetworkSchemas.varuint()
-	var varbits := NetworkSchemas._varbits()
-	var node_buffer := StreamPeerBuffer.new()
-	
-	# Grab ticks
-	var tick := buffer.get_u32()
-	# TODO: Include property config hash to detect mismatches
-	
-	var snapshot := Snapshot.new(tick)
-	
-	while buffer.get_available_bytes() > 0:
-		# Read header, including identity reference
-		# TODO: Configurable upper limit on how much netfox is allowed to read here?
-		var idref := netref.decode(buffer) as _NetworkIdentityReference
-		var node_data_size := varuint.decode(buffer) as int
-		var changed_bits := varbits.decode(buffer) as _Bitset
-		node_buffer.data_array = buffer.get_partial_data(node_data_size)[1]
-		
-		# Resolve to identifier
-		var identifier := NetworkIdentityServer.resolve_reference(peer, idref)
-		if not identifier:
-			# TODO: Handle unknown IDs gracefully
-			# TODO: Test that unknown nodes are INDEED SKIPPED
-			_logger.warning("Received unknown identity reference %s, skipping data", [idref])
-			break
-		var node := identifier.get_subject() as Node
-		
-		# Read changed properties
-		var properties := get_properties_of(node)
-		for idx in changed_bits.get_set_indices():
-			var property := properties[idx]
-			var value := _deserialize_property(node, property, node_buffer)
-			snapshot.set_property(node, property, value, is_auth)
-	return snapshot
-
-func _serialize_input_for(peer: int, snapshots: Array[Snapshot], buffer: StreamPeerBuffer = null) -> PackedByteArray:
-	var varuint := NetworkSchemas.varuint()
-	
-	if buffer == null:
-		buffer = StreamPeerBuffer.new()
-
-	for snapshot in snapshots:
-		# TODO: Rename method
-		var serialized := _serialize_full_state_for(peer, snapshot)
-		
-		# Write size and snapshot
-		varuint.encode(serialized.size(), buffer)
-		buffer.put_data(serialized)
-
-	return buffer.data_array
-
-func _deserialize_input_of(peer: int, buffer: StreamPeerBuffer, is_auth: bool = true) -> Array[Snapshot]:
-	var varuint := NetworkSchemas.varuint()
-	
-	var snapshots := [] as Array[Snapshot]
-	while buffer.get_available_bytes() > 0:
-		var snapshot_size := varuint.decode(buffer)
-		var snapshot_buffer := StreamPeerBuffer.new()
-		snapshot_buffer.data_array = buffer.get_partial_data(snapshot_size)[1]
-		
-		snapshots.append(_deserialize_full_state_of(peer, snapshot_buffer, is_auth))
-	return snapshots
-
-func _serialize_property(node: Node, property: NodePath, value: Variant, buffer: StreamPeerBuffer) -> void:
-	var serializer := _schemas.get(RecordedProperty.key_of(node, property), _fallback_schema) as NetworkSchemaSerializer
-	serializer.encode(value, buffer)
-
-func _deserialize_property(node: Node, property: NodePath, buffer: StreamPeerBuffer) -> Variant:
-	var serializer := _schemas.get(RecordedProperty.key_of(node, property), _fallback_schema) as NetworkSchemaSerializer
-	return serializer.decode(buffer)
-
 func _handle_input(sender: int, data: PackedByteArray):
 	var buffer := StreamPeerBuffer.new()
 	buffer.data_array = data
 
-	var snapshots := _deserialize_input_of(sender, buffer)
+	var snapshots := _redundant_serializer.read_from(sender, _rb_input_properties, buffer, true)
 	_logger.trace("Received input snapshots: %s", [snapshots])
 
 	for snapshot in snapshots:
@@ -475,7 +287,7 @@ func _handle_full_state(sender: int, data: PackedByteArray):
 	var buffer := StreamPeerBuffer.new()
 	buffer.data_array = data
 
-	var snapshot := _deserialize_full_state_of(sender, buffer)
+	var snapshot := _dense_serializer.read_from(sender, _rb_state_properties, buffer, true)
 	
 	_ingest_state(sender, snapshot)
 
@@ -483,7 +295,7 @@ func _handle_diff_state(sender: int, data: PackedByteArray):
 	var buffer := StreamPeerBuffer.new()
 	buffer.data_array = data
 
-	var diff := _deserialize_diff_state_of(sender, buffer)
+	var diff := _sparse_serializer.read_from(sender, _rb_state_properties, buffer)
 	_logger.trace("Received diff state for @%d", [diff.tick])
 	
 	# TODO: Using `snapshot` doesn't work
@@ -493,7 +305,7 @@ func _handle_full_sync(sender: int, data: PackedByteArray):
 	var buffer := StreamPeerBuffer.new()
 	buffer.data_array = data
 
-	var snapshot := _deserialize_full_state_of(sender, buffer)
+	var snapshot := _dense_serializer.read_from(sender, _sync_state_properties, buffer, true)
 
 	# TODO: Reduce copy-paste
 	RollbackHistoryServer.merge_synchronizer_state(snapshot)
@@ -503,7 +315,7 @@ func _handle_diff_sync(sender: int, data: PackedByteArray):
 	var buffer := StreamPeerBuffer.new()
 	buffer.data_array = data
 
-	var snapshot := _deserialize_diff_state_of(sender, buffer)
+	var snapshot := _sparse_serializer.read_from(sender, _sync_state_properties, buffer)
 
 	# TODO: Reduce copy-paste
 	RollbackHistoryServer.merge_synchronizer_state(snapshot)

@@ -62,17 +62,6 @@ func apply() -> void:
 		var value = data[prop_key]
 		RecordedProperty.apply(prop_key, value)
 
-func filtered_to_properties(prop_keys: Array) -> Snapshot:
-	var snapshot := Snapshot.new(tick)
-
-	for property in prop_keys:
-		if not data.has(property):
-			continue
-		snapshot.data[property] = data[property]
-		snapshot._is_authoritative[property] = _is_authoritative[property]
-
-	return snapshot
-
 func filtered_to_auth() -> Snapshot:
 	var snapshot := Snapshot.new(tick)
 
