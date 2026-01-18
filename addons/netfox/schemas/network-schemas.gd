@@ -463,9 +463,8 @@ static func dictionary(key_serializer: NetworkSchemaSerializer = variant(),
 	size_serializer: NetworkSchemaSerializer = uint16()) -> NetworkSchemaSerializer:
 	return _DictionarySerializer.new(key_serializer, value_serializer, size_serializer)
 
-# TODO: Docs
-# TODO: Consider parameterized ID serializer
-static func netref() -> NetworkSchemaSerializer:
+# Serializes [_NetworkIdentityReference] objects
+static func _netref() -> NetworkSchemaSerializer:
 	return _NetworkIdentityReferenceSerializer.new()
 
 # Serializer classes
@@ -859,7 +858,7 @@ class _NetworkIdentityReferenceSerializer extends NetworkSchemaSerializer:
 	static var varuint := _VaruintSerializer.new()
 	
 	func encode(v: Variant, b: StreamPeerBuffer) -> void:
-		var ref := v as NetworkIdentityServer.NetworkIdentityReference
+		var ref := v as _NetworkIdentityReference
 		if ref.has_id():
 			varuint.encode(ref.get_id(), b)
 		else:
@@ -872,6 +871,6 @@ class _NetworkIdentityReferenceSerializer extends NetworkSchemaSerializer:
 		var id := varuint.decode(b) as int
 		if id == 0:
 			var full_name := b.get_utf8_string()
-			return NetworkIdentityServer.NetworkIdentityReference.of_full_name(full_name)
+			return _NetworkIdentityReference.of_full_name(full_name)
 		else:
-			return NetworkIdentityServer.NetworkIdentityReference.of_id(id)
+			return _NetworkIdentityReference.of_id(id)

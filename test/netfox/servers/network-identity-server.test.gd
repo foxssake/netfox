@@ -107,7 +107,7 @@ func suite() -> void:
 			var identifier := identity_server.get_identifier_of(node)
 			
 			# Resolve
-			var reference := _NetworkIdentityServer.NetworkIdentityReference.of_id(identifier.get_local_id())
+			var reference := _NetworkIdentityReference.of_id(identifier.get_local_id())
 			expect_equal(identity_server.resolve_reference(1, reference), identifier)
 		)
 
@@ -117,12 +117,12 @@ func suite() -> void:
 			var identifier := identity_server.get_identifier_of(node)
 			
 			# Resolve
-			var reference := _NetworkIdentityServer.NetworkIdentityReference.of_full_name(identifier.get_full_name())
+			var reference := _NetworkIdentityReference.of_full_name(identifier.get_full_name())
 			expect_equal(identity_server.resolve_reference(1, reference), identifier)
 		)
 
 		test("should return null on unknown", func():
-			var reference := _NetworkIdentityServer.NetworkIdentityReference.of_full_name("Unknown Node")
+			var reference := _NetworkIdentityReference.of_full_name("Unknown Node")
 			expect_null(identity_server.resolve_reference(1, reference))
 		)
 	)

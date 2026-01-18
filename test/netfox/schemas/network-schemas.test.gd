@@ -81,9 +81,9 @@ func suite() -> void:
 		["array", NetworkSchemas.array_of(NetworkSchemas.uint16()), [1, 2, 3], 8],
 		["dictionary", NetworkSchemas.dictionary(NetworkSchemas.uint16(), NetworkSchemas.uint16()), { 1: 32, 2: 48 }, 10],
 		
-		["netref id8", NetworkSchemas.netref(), NetworkIdentityServer.NetworkIdentityReference.of_id(12), 1],
-		["netref id16", NetworkSchemas.netref(), NetworkIdentityServer.NetworkIdentityReference.of_id(138), 2],
-		["netref name", NetworkSchemas.netref(), NetworkIdentityServer.NetworkIdentityReference.of_full_name("path"), 9],
+		["netref id8", NetworkSchemas._netref(), _NetworkIdentityReference.of_id(12), 1],
+		["netref id16", NetworkSchemas._netref(), _NetworkIdentityReference.of_id(138), 2],
+		["netref name", NetworkSchemas._netref(), _NetworkIdentityReference.of_full_name("path"), 9],
 		
 		# Private
 		["varbits", NetworkSchemas._varbits(), _Bitset.of_bools([0, 1, 0, 1, 1, 0, 1]), 1]

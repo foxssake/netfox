@@ -49,13 +49,13 @@ func suite() -> void:
 
 				benchmark("resolve by ID", func(__):
 					var id := (randi() % count) as int
-					var reference := _NetworkIdentityServer.NetworkIdentityReference.of_id(id)
+					var reference := _NetworkIdentityReference.of_id(id)
 					identity_server.resolve_reference(1, reference, false)
 				).with_batch_size(batch).with_duration(1.).run()
 
 				benchmark("resolve by name", func(__):
 					var id := (randi() % count) as int
-					var reference := _NetworkIdentityServer.NetworkIdentityReference.of_full_name("/root/Node %d" % id)
+					var reference := _NetworkIdentityReference.of_full_name("/root/Node %d" % id)
 					identity_server.resolve_reference(1, reference, false)
 				).with_batch_size(batch).with_duration(1.).run()
 

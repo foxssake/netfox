@@ -265,7 +265,7 @@ func _serialize_full_state_for(peer: int, snapshot: Snapshot, buffer: StreamPeer
 	if buffer == null:
 		buffer = StreamPeerBuffer.new()
 
-	var netref := NetworkSchemas.netref()
+	var netref := NetworkSchemas._netref()
 	var varuint := NetworkSchemas.varuint()
 	
 	var node_buffer := StreamPeerBuffer.new()
@@ -303,7 +303,7 @@ func _serialize_full_state_for(peer: int, snapshot: Snapshot, buffer: StreamPeer
 	return buffer.data_array
 
 func _deserialize_full_state_of(peer: int, buffer: StreamPeerBuffer, is_auth: bool = true) -> Snapshot:
-	var netref := NetworkSchemas.netref()
+	var netref := NetworkSchemas._netref()
 	var varuint := NetworkSchemas.varuint()
 	var node_buffer := StreamPeerBuffer.new()
 	
@@ -315,7 +315,7 @@ func _deserialize_full_state_of(peer: int, buffer: StreamPeerBuffer, is_auth: bo
 	while buffer.get_available_bytes() > 0:
 		# Read identity reference, data size, and data
 		# TODO: Configurable upper limit on how much netfox is allowed to read here?
-		var idref := netref.decode(buffer) as NetworkIdentityServer.NetworkIdentityReference
+		var idref := netref.decode(buffer) as _NetworkIdentityReference
 		var node_data_size := varuint.decode(buffer) as int
 		node_buffer.data_array = buffer.get_partial_data(node_data_size)[1]
 		
@@ -342,7 +342,7 @@ func _serialize_diff_state_for(peer: int, snapshot: Snapshot, buffer: StreamPeer
 	if buffer == null:
 		buffer = StreamPeerBuffer.new()
 
-	var netref := NetworkSchemas.netref()
+	var netref := NetworkSchemas._netref()
 	var varuint := NetworkSchemas.varuint()
 	var varbits := NetworkSchemas._varbits()
 	
@@ -387,7 +387,7 @@ func _serialize_diff_state_for(peer: int, snapshot: Snapshot, buffer: StreamPeer
 	return buffer.data_array
 
 func _deserialize_diff_state_of(peer: int, buffer: StreamPeerBuffer, is_auth: bool = true) -> Snapshot:
-	var netref := NetworkSchemas.netref()
+	var netref := NetworkSchemas._netref()
 	var varuint := NetworkSchemas.varuint()
 	var varbits := NetworkSchemas._varbits()
 	var node_buffer := StreamPeerBuffer.new()
@@ -401,7 +401,7 @@ func _deserialize_diff_state_of(peer: int, buffer: StreamPeerBuffer, is_auth: bo
 	while buffer.get_available_bytes() > 0:
 		# Read header, including identity reference
 		# TODO: Configurable upper limit on how much netfox is allowed to read here?
-		var idref := netref.decode(buffer) as NetworkIdentityServer.NetworkIdentityReference
+		var idref := netref.decode(buffer) as _NetworkIdentityReference
 		var node_data_size := varuint.decode(buffer) as int
 		var changed_bits := varbits.decode(buffer) as _Bitset
 		node_buffer.data_array = buffer.get_partial_data(node_data_size)[1]
