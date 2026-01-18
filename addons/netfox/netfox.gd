@@ -145,6 +145,26 @@ const AUTOLOADS: Array[Dictionary] = [
 	{
 		"name": "NetworkPerformance",
 		"path": ROOT + "/network-performance.gd"
+	},
+	{
+		"name": "RollbackSimulationServer",
+		"path": ROOT + "/servers/rollback-simulation-server.gd"
+	},
+	{
+		"name": "RollbackHistoryServer",
+		"path": ROOT + "/servers/rollback-history-server.gd"
+	},
+	{
+		"name": "RollbackSynchronizationServer",
+		"path": ROOT + "/servers/rollback-synchronization-server.gd"
+	},
+	{
+		"name": "NetworkIdentityServer",
+		"path": ROOT + "/servers/network-identity-server.gd"
+	},
+	{
+		"name": "NetworkCommandServer",
+		"path": ROOT + "/servers/network-command-server.gd"
 	}
 ]
 

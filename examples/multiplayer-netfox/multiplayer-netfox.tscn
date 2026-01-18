@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://b2nbnsert06me"]
+[gd_scene load_steps=9 format=3 uid="uid://b2nbnsert06me"]
 
 [ext_resource type="Script" path="res://examples/multiplayer-netfox/scripts/player-spawner.gd" id="1_ngijx"]
 [ext_resource type="PackedScene" uid="uid://k3y73rql2u6e" path="res://examples/multiplayer-netfox/characters/player.tscn" id="2_xjsod"]
@@ -13,6 +13,16 @@ sky_material = SubResource("ProceduralSkyMaterial_rrbfu")
 [sub_resource type="Environment" id="Environment_ef1wp"]
 background_mode = 2
 sky = SubResource("Sky_g0uhm")
+
+[sub_resource type="GDScript" id="GDScript_s4com"]
+script/source = "extends Label
+
+func _process(_dt):
+	if multiplayer.is_server():
+		text = \"Server\"
+	else:
+		text = \"Client\"
+"
 
 [node name="Game Scene" type="Node3D"]
 
@@ -86,8 +96,15 @@ grow_vertical = 2
 [node name="Network Popup" parent="UI" instance=ExtResource("4_lq3lq")]
 layout_mode = 1
 
-[node name="Time Display" type="Label" parent="UI"]
-layout_mode = 0
+[node name="VBoxContainer" type="VBoxContainer" parent="UI"]
+layout_mode = 1
 offset_right = 40.0
-offset_bottom = 23.0
+offset_bottom = 40.0
+
+[node name="Time Display" type="Label" parent="UI/VBoxContainer"]
+layout_mode = 2
 script = ExtResource("4_n66wk")
+
+[node name="Label" type="Label" parent="UI/VBoxContainer"]
+layout_mode = 2
+script = SubResource("GDScript_s4com")

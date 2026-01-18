@@ -45,22 +45,9 @@ var diff_ack_interval: int = 0 # TODO: Don't tie to a network rollback setting?
 ## Decides which peers will receive updates
 var visibility_filter := PeerVisibilityFilter.new()
 
-var _property_cache: PropertyCache
-var _property_config: _PropertyConfig = _PropertyConfig.new()
 var _properties_dirty: bool = false
-
-var _schema: _NetworkSchema
-
-var _state_history := _PropertyHistoryBuffer.new()
-
-# Collaborators
-var _full_state_encoder: _SnapshotHistoryEncoder
-var _diff_state_encoder: _DiffHistoryEncoder
-
-# State
-var _ackd_state: Dictionary = {}
-var _next_full_state_tick: int
-var _next_diff_ack_tick: int
+var _registered_properties := [] as Array[PropertyEntry]
+var _schema_props := [] as Array[PropertyEntry]
 
 var _is_initialized: bool = false
 
@@ -70,24 +57,20 @@ static var _logger := NetfoxLogger._for_netfox("StateSynchronizer")
 ## [br][br]
 ## Call this after any change to configuration.
 func process_settings() -> void:
-	_property_cache = PropertyCache.new(root)
-	_property_config.set_properties_from_paths(properties, _property_cache)
+	# Remove old configuration
+	for property in _registered_properties:
+		RollbackHistoryServer.deregister_sync_state(property.node, property.property)
+		RollbackSynchronizationServer.deregister_sync_state(property.node, property.property)
 
-	_full_state_encoder = _SnapshotHistoryEncoder.new(_state_history, _property_cache, _schema)
-	_diff_state_encoder = _DiffHistoryEncoder.new(_state_history, _property_cache, _schema)
-
-	_diff_state_encoder.add_properties(_property_config.get_properties())
-
-	_next_full_state_tick = NetworkTime.tick
-	_next_diff_ack_tick = NetworkTime.tick
-
-	# Scatter full state sends, so not all nodes send at the same tick
-	if is_inside_tree():
-		_next_full_state_tick += hash(root.get_path()) % maxi(1, full_state_interval)
-		_next_diff_ack_tick += hash(root.get_path()) % maxi(1, diff_ack_interval)
-	else:
-		_next_full_state_tick += hash(root.name) % maxi(1, full_state_interval)
-		_next_diff_ack_tick += hash(root.name) % maxi(1, diff_ack_interval)
+	# Register new configuration
+	_registered_properties.clear()
+	for property_spec in properties:
+		var property := PropertyEntry.parse(root, property_spec)
+		_registered_properties.append(property)
+		RollbackHistoryServer.register_sync_state(property.node, property.property)
+		RollbackSynchronizationServer.register_sync_state(property.node, property.property)
+		# TODO: Somehow deregister on destroy
+		NetworkIdentityServer.register_node(property.node)
 
 	_is_initialized = true
 
@@ -123,9 +106,17 @@ func add_state(node: Variant, property: String) -> void:
 ##    })
 ## [/codeblock]
 func set_schema(schema: Dictionary) -> void:
-	_schema = _NetworkSchema.new(schema)
-	_properties_dirty = true
-	_reprocess_settings.call_deferred()
+	# Remove previous schema
+	for entry in _schema_props:
+		RollbackSynchronizationServer.deregister_schema(entry.node, entry.property)
+	_schema_props.clear()
+
+	# Register new schema
+	for prop in schema:
+		var prop_entry := PropertyEntry.parse(root, prop)
+		var serializer := schema[prop] as NetworkSchemaSerializer
+		RollbackSynchronizationServer.register_schema(prop_entry.node, prop_entry.property, serializer)
+		_schema_props.append(prop_entry)
 
 func _notification(what) -> void:
 	if what == NOTIFICATION_EDITOR_PRE_SAVE:
@@ -144,14 +135,6 @@ func _get_configuration_warnings() -> PackedStringArray:
 			add_state(node, prop)
 	)
 
-func _connect_signals() -> void:
-	NetworkTime.after_tick.connect(_after_tick)
-	NetworkTime.after_tick_loop.connect(_after_loop)
-
-func _disconnect_signals() -> void:
-	NetworkTime.after_tick.disconnect(_after_tick)
-	NetworkTime.after_tick_loop.disconnect(_after_loop)
-
 func _enter_tree() -> void:
 	if Engine.is_editor_hint():
 		return
@@ -161,27 +144,7 @@ func _enter_tree() -> void:
 	if not visibility_filter.get_parent():
 		add_child(visibility_filter)
 
-	_connect_signals.call_deferred()
 	process_settings.call_deferred()
-
-func _exit_tree() -> void:
-	if Engine.is_editor_hint():
-		return
-
-	_disconnect_signals()
-
-func _after_tick(_dt: float, tick: int) -> void:
-	if is_multiplayer_authority():
-		# Submit snapshot
-		var state := _PropertySnapshot.extract(_property_config.get_properties())
-		_state_history.set_snapshot(tick, state)
-		_broadcast_state(tick, state)
-	elif not _state_history.is_empty():
-		var state := _state_history.get_history(tick)
-		state.apply(_property_cache)
-
-func _after_loop() -> void:
-	_state_history.trim(NetworkTime.tick - NetworkRollback.history_limit) # TODO: Don't tie to rollback?
 
 func _reprocess_settings() -> void:
 	if not _properties_dirty:
@@ -189,100 +152,3 @@ func _reprocess_settings() -> void:
 
 	_properties_dirty = false
 	process_settings()
-
-func _broadcast_state(tick: int, state: _PropertySnapshot) -> void:
-	var is_sending_diffs := NetworkRollback.enable_diff_states # TODO: Don't tie to a rollback setting?
-	var is_full_state_tick := not is_sending_diffs or (full_state_interval > 0 and tick > _next_full_state_tick)
-
-	if is_full_state_tick:
-		# Broadcast new full state
-		for peer in visibility_filter.get_rpc_target_peers():
-			_send_full_state(tick, peer)
-
-		# Adjust next full state if sending diffs
-		if is_sending_diffs:
-			_next_full_state_tick = tick + full_state_interval
-	else:
-		# Send diffs to each peer
-		for peer in visibility_filter.get_visible_peers():
-			var reference_tick := _ackd_state.get(peer, -1) as int
-			if reference_tick < 0 or not _state_history.has(reference_tick):
-				# Peer hasn't ack'd any tick, or we don't have the ack'd tick
-				# Send full state
-				_logger.trace("Reference tick @%d not found for peer #%s, sending full tick", [reference_tick, peer])
-				_send_full_state(tick, peer)
-				continue
-
-			# Prepare diff
-			var diff_state_data := _diff_state_encoder.encode(tick, reference_tick, _property_config.get_properties())
-			
-			if _diff_state_encoder.get_full_snapshot().size() == _diff_state_encoder.get_encoded_snapshot().size():
-				# State is completely different, send full state
-				_send_full_state(tick, peer)
-			else:
-				# Send only diff
-				_submit_diff_state.rpc_id(peer, diff_state_data, tick, reference_tick)
-
-				# Push metrics
-				NetworkPerformance.push_full_state(_diff_state_encoder.get_full_snapshot())
-				NetworkPerformance.push_sent_state(_diff_state_encoder.get_encoded_snapshot())
-
-func _send_full_state(tick: int, peer: int = 0) -> void:
-	var full_state_snapshot := _state_history.get_snapshot(tick).as_dictionary()
-	var full_state_data := _full_state_encoder.encode(tick, _property_config.get_properties())
-
-	_submit_full_state.rpc_id(peer, full_state_data, tick)
-
-	if peer <= 0:
-		NetworkPerformance.push_full_state_broadcast(full_state_snapshot)
-		NetworkPerformance.push_sent_state_broadcast(full_state_snapshot)
-	else:
-		NetworkPerformance.push_full_state(full_state_snapshot)
-		NetworkPerformance.push_sent_state(full_state_snapshot)
-
-# `serialized_state` is a serialized _PropertySnapshot
-@rpc("any_peer", "unreliable_ordered", "call_remote")
-func _submit_full_state(data: PackedByteArray, tick: int) -> void:
-	if not _is_initialized: return
-
-	var sender := multiplayer.get_remote_sender_id()
-	var snapshot := _full_state_encoder.decode(data, _property_config.get_properties_owned_by(sender))
-	
-	if not _full_state_encoder.apply(tick, snapshot, sender):
-		# Invalid data
-		return
-
-	if NetworkRollback.enable_diff_states:
-		_ack_full_state.rpc_id(sender, tick)
-
-# State is a serialized _PropertySnapshot (Dictionary[String, Variant])
-@rpc("any_peer", "unreliable_ordered", "call_remote")
-func _submit_diff_state(data: PackedByteArray, tick: int, reference_tick: int) -> void:
-	if not _is_initialized: return
-
-	var sender = multiplayer.get_remote_sender_id()
-	var diff_snapshot := _diff_state_encoder.decode(data, _property_config.get_properties_owned_by(sender))
-	if not _diff_state_encoder.apply(tick, diff_snapshot, reference_tick, sender):
-		# Invalid data
-		return
-
-	if NetworkRollback.enable_diff_states:
-		if diff_ack_interval > 0 and tick > _next_diff_ack_tick:
-			_ack_diff_state.rpc_id(sender, tick)
-			_next_diff_ack_tick = tick + diff_ack_interval
-
-@rpc("any_peer", "reliable", "call_remote")
-func _ack_full_state(tick: int) -> void:
-	var sender_id := multiplayer.get_remote_sender_id()
-	_ackd_state[sender_id] = tick
-
-	_logger.trace("Peer %d ack'd full state for tick %d", [sender_id, tick])
-
-@rpc("any_peer", "unreliable_ordered", "call_remote")
-func _ack_diff_state(tick: int) -> void:
-	if not _is_initialized: return
-
-	var sender_id := multiplayer.get_remote_sender_id()
-	_ackd_state[sender_id] = tick
-
-	_logger.trace("Peer %d ack'd diff state for tick %d", [sender_id, tick])

@@ -1,10 +1,21 @@
-[gd_scene load_steps=6 format=3 uid="uid://dliw6lntsr5ce"]
+[gd_scene load_steps=8 format=3 uid="uid://dliw6lntsr5ce"]
 
 [ext_resource type="PackedScene" uid="uid://cncdbq72u50j3" path="res://examples/shared/scenes/environment.tscn" id="1_vhod1"]
 [ext_resource type="Script" path="res://examples/shared/scripts/player-spawner.gd" id="2_7yqbt"]
 [ext_resource type="PackedScene" uid="uid://bd40plic1m6fb" path="res://examples/visibility-filtering/scenes/player.tscn" id="3_ohgyy"]
 [ext_resource type="Script" path="res://examples/visibility-filtering/scripts/visibility-manager.gd" id="4_jies5"]
 [ext_resource type="PackedScene" uid="uid://badtpsxn5lago" path="res://examples/shared/ui/network-popup.tscn" id="4_ujnwk"]
+[ext_resource type="Script" path="res://examples/shared/scripts/simple-time-display.gd" id="6_lqh40"]
+
+[sub_resource type="GDScript" id="GDScript_fdk23"]
+script/source = "extends Label
+
+func _process(_dt):
+	if multiplayer.is_server():
+		text = \"Server\"
+	else:
+		text = \"Client\"
+"
 
 [node name="Visibility Filtering Example" type="Node3D"]
 
@@ -85,3 +96,15 @@ offset_left = -180.0
 offset_top = -120.0
 offset_right = 180.0
 offset_bottom = 120.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI"]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Time Display" type="Label" parent="UI/VBoxContainer"]
+layout_mode = 2
+script = ExtResource("6_lqh40")
+
+[node name="Label" type="Label" parent="UI/VBoxContainer"]
+layout_mode = 2
+script = SubResource("GDScript_fdk23")

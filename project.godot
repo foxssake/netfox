@@ -30,11 +30,18 @@ NetworkEvents="*res://addons/netfox/network-events.gd"
 NetworkPerformance="*res://addons/netfox/network-performance.gd"
 WindowTiler="*res://addons/netfox.extras/window-tiler.gd"
 NetworkSimulator="*res://addons/netfox.extras/network-simulator.gd"
+RollbackSimulationServer="*res://addons/netfox/servers/rollback-simulation-server.gd"
+RollbackHistoryServer="*res://addons/netfox/servers/rollback-history-server.gd"
+RollbackSynchronizationServer="*res://addons/netfox/servers/rollback-synchronization-server.gd"
+NetworkIdentityServer="*res://addons/netfox/servers/network-identity-server.gd"
+NetworkCommandServer="*res://addons/netfox/servers/network-command-server.gd"
 
 [display]
 
 window/size/viewport_width=540
 window/size/viewport_height=540
+window/size/transparent=true
+window/per_pixel_transparency/allowed=true
 window/vsync/vsync_mode=0
 
 [editor_plugins]
@@ -126,11 +133,13 @@ escape={
 general/clear_settings=false
 time/tickrate=24
 extras/auto_tile_windows=true
-autoconnect/enabled=false
+autoconnect/enabled=true
+autoconnect/simulated_latency_ms=100
 
 [rendering]
 
 lights_and_shadows/directional_shadow/soft_shadow_filter_quality=3
+viewport/transparent_background=true
 anti_aliasing/quality/screen_space_aa=1
 
 [vest]

@@ -28,7 +28,7 @@ mesh = SubResource("SphereMesh_lew78")
 [node name="StateSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("1_dmbj5")
 root = NodePath("..")
-properties = Array[String]([":position", ":rotation", ":scale"])
+properties = Array[String]([":position", ":quaternion"])
 
 [node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("3_nyirf")
