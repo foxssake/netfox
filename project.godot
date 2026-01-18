@@ -134,7 +134,6 @@ general/clear_settings=false
 time/tickrate=24
 extras/auto_tile_windows=true
 autoconnect/enabled=true
-autoconnect/simulated_latency_ms=100
 
 [rendering]
 
@@ -146,3 +145,4 @@ anti_aliasing/quality/screen_space_aa=1
 
 tests_root="res://test/"
 new_test_location=2
+test_name_patterns=PackedStringArray("*.test.gd", "*.perf.gd")

@@ -1,9 +1,9 @@
 extends Node
 class_name _RollbackSynchronizationServer
 
-var _input_properties: Array = []
-var _state_properties: Array = []
-var _sync_state_properties: Array = [] as Array[Array]
+var _rb_input_properties := _PropertyPool.new()
+var _rb_state_properties := _PropertyPool.new()
+var _sync_state_properties := _PropertyPool.new()
 
 var _visibility_filters := {} # Node to PeerVisibilityFilter
 
@@ -45,22 +45,22 @@ func deregister_property(node: Node, property: NodePath, pool: Array) -> void:
 	pool.erase([node, property])
 
 func register_state(node: Node, property: NodePath) -> void:
-	register_property(node, property, _state_properties)
+	_rb_state_properties.add(node, property)
 
 func deregister_state(node: Node, property: NodePath) -> void:
-	deregister_property(node, property, _state_properties)
+	_rb_state_properties.erase(node, property)
 
 func register_input(node: Node, property: NodePath) -> void:
-	register_property(node, property, _input_properties)
+	_rb_input_properties.add(node, property)
 
 func deregister_input(node: Node, property: NodePath) -> void:
-	deregister_property(node, property, _input_properties)
+	_rb_input_properties.erase(node, property)
 
 func register_sync_state(node: Node, property: NodePath) -> void:
-	register_property(node, property, _sync_state_properties)
+	_sync_state_properties.add(node, property)
 
 func deregister_sync_state(node: Node, property: NodePath) -> void:
-	deregister_property(node, property, _sync_state_properties)
+	_sync_state_properties.erase(node, property)
 
 func register_schema(node: Node, property: NodePath, serializer: NetworkSchemaSerializer) -> void:
 	var key := RecordedProperty.key_of(node, property)
@@ -84,18 +84,14 @@ func is_property_visible_to(peer: int, node: Node, property: NodePath) -> bool:
 	else:
 		return filter.get_visibility_for(peer)
 
-# TODO: Optimize
 func get_properties_of(node: Node) -> Array[NodePath]:
 	var result := [] as Array[NodePath]
-	
-	# TODO: Split method? Or somehow avoid this merge
-	for property in _state_properties + _input_properties + _sync_state_properties:
-		var prop_node := RecordedProperty.get_node(property)
-		var prop_path := RecordedProperty.get_property(property)
 
-		if node == prop_node:
-			result.append(prop_path)
-	
+	# TODO: Split method? Or somehow avoid this merge
+	result.append_array(_rb_input_properties.get_properties_of(node))
+	result.append_array(_rb_state_properties.get_properties_of(node))
+	result.append_array(_sync_state_properties.get_properties_of(node))
+
 	return result
 
 # TODO: Make this testable somehow, I beg of you
@@ -105,15 +101,11 @@ func synchronize_input(tick: int) -> void:
 
 	if not _rb_enable_input_broadcast:
 		# Grab owned input objects
-		var input_objects := _Set.new()
-		for prop in _input_properties:
-			var node := RecordedProperty.get_node(prop)
-			input_objects.add(node)
-
-		# for each input object
-		for input_object in input_objects:
+		for input_subject in _rb_input_properties.get_subjects():
+			assert(input_subject is Node, "Only nodes for now!")
+			
 			# Grab state objects controlled by input
-			var controlled_nodes := RollbackSimulationServer.get_controlled_by(input_object)
+			var controlled_nodes := RollbackSimulationServer.get_controlled_by(input_subject)
 
 			# Notify peers owning nodes about the input
 			for node in controlled_nodes:
@@ -133,6 +125,7 @@ func synchronize_input(tick: int) -> void:
 
 		# Filter to input properties
 		# TODO: Optimize, avoid making two copies
+		# TODO: Filter to only synchronized props
 		var input_snapshot := snapshot.filtered_to_owned()
 
 		# Transmit
@@ -152,6 +145,7 @@ func synchronize_state(tick: int) -> void:
 		return
 
 	# Filter to state properties
+	# TODO: Filter to only synchronized props
 	var state_snapshot := snapshot.filtered_to_auth().filtered_to_owned()
 	
 	# TODO: Early exit if we don't have auth state props
@@ -473,7 +467,7 @@ func _handle_input(sender: int, data: PackedByteArray):
 		#       overriding their earlier choices. Only emit signal for snapshots
 		#       that contain new input.
 		var merged := RollbackHistoryServer.merge_rollback_input(snapshot)
-		_logger.trace("Ingested input: %s", [snapshot])
+		_logger.debug("Ingested input: %s", [snapshot])
 
 		on_input.emit(snapshot)
 
@@ -526,6 +520,6 @@ func _ingest_state(sender: int, snapshot: Snapshot) -> void:
 			_logger.trace("Reconciled state diff: %s", [diff])
 	
 	var merged := RollbackHistoryServer.merge_rollback_state(snapshot)
-	_logger.trace("Ingested state: %s", [snapshot])
+	_logger.debug("Ingested state: %s", [snapshot])
 
 	on_state.emit(snapshot)

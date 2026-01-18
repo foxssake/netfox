@@ -2,12 +2,12 @@ extends Node
 class_name _RollbackHistoryServer
 # TODO: Rename to Network(ed?)HistoryServer
 
-var _input_properties: Array = []
-var _state_properties: Array = []
-var _sync_state_properties: Array = [] # [node, property] tuples
+var _rb_input_properties := _PropertyPool.new()
+var _rb_state_properties := _PropertyPool.new()
+var _sync_state_properties := _PropertyPool.new()
 
-var _rollback_input_snapshots: Dictionary = {} # tick to Snapshot
-var _rollback_state_snapshots: Dictionary = {} # tick to Snapshot
+var _rb_input_snapshots: Dictionary = {} # tick to Snapshot
+var _rb_state_snapshots: Dictionary = {} # tick to Snapshot
 var _sync_state_snapshots: Dictionary = {} # tick to Snapshot
 
 static var _logger := NetfoxLogger._for_netfox("RollbackHistoryServer")
@@ -23,82 +23,55 @@ func deregister_property(node: Node, property: NodePath, pool: Array) -> void:
 	pool.erase([node, property])
 
 func register_state(node: Node, property: NodePath) -> void:
-	register_property(node, property, _state_properties)
+	_rb_state_properties.add(node, property)
 
 func deregister_state(node: Node, property: NodePath) -> void:
-	deregister_property(node, property, _state_properties)
+	_rb_state_properties.erase(node, property)
 
 func register_input(node: Node, property: NodePath) -> void:
-	register_property(node, property, _input_properties)
+	_rb_input_properties.add(node, property)
 
 func deregister_input(node: Node, property: NodePath) -> void:
-	deregister_property(node, property, _input_properties)
+	_rb_input_properties.erase(node, property)
 
 func register_sync_state(node: Node, property: NodePath) -> void:
-	register_property(node, property, _sync_state_properties)
+	_sync_state_properties.add(node, property)
 
 func deregister_sync_state(node: Node, property: NodePath) -> void:
-	deregister_property(node, property, _sync_state_properties)
+	_sync_state_properties.erase(node, property)
 
-# TODO: Private
-# TODO: Replace `predicted_nodes` with a filter callable
-func record_tick(tick: int, snapshots: Dictionary, properties: Array, predicted_nodes: Array[Node]) -> void:
+func _record(tick: int, snapshots: Dictionary, property_pool: _PropertyPool, only_auth: bool, auth_filter: Callable) -> void:
 	# Ensure snapshot
 	var snapshot := snapshots.get(tick) as Snapshot
+	var is_new := false
 	if snapshot == null:
 		snapshot = Snapshot.new(tick)
 		snapshots[tick] = snapshot
+		is_new = true
 
 	# Record values
-	var updated := []
-	for entry in properties:
-		var node := entry[0] as Node
-		var property := entry[1] as NodePath
-		var is_auth := node.is_multiplayer_authority() and not predicted_nodes.has(node)
-		
-		# HACK: Figure out proper API
-		# Passing in `RollbackSimulationServer.get_predicted_nodes()` accounts
-		# for *simulated* nodes, but not for nodes with *just* state
-		if properties == _state_properties:
-			var input_snapshot := _rollback_input_snapshots.get(tick) as Snapshot
-			if RollbackSimulationServer.is_predicting(input_snapshot, node):
-				is_auth = false
-		
-		if snapshot.merge_property(node, property, RecordedProperty.extract(entry), is_auth):
-			updated.append([node, property, RecordedProperty.extract(entry), is_auth])
+	var updates := []
+	for subject in property_pool.get_subjects():
+		assert(subject is Node, "Only nodes supported for now!")
 
-	_logger.trace("Recorded %d props for tick @%d: %s", [properties.size(), tick, snapshot])
-
-func record_input(tick: int) -> void:
-	record_tick(tick, _rollback_input_snapshots, _input_properties, [])
-
-func record_state(tick: int) -> void:
-	record_tick(tick, _rollback_state_snapshots, _state_properties, RollbackSimulationServer.get_predicted_nodes())
-
-func record_sync_state(tick: int) -> void:
-	# TODO: Reduce duplication
-	# Record values
-	var snapshot := Snapshot.new(tick)
-	for entry in _sync_state_properties:
-		var node := entry[0] as Node
-		var property := entry[1] as NodePath
-		var is_auth := node.is_multiplayer_authority()
-		if not is_auth:
+		var is_auth := auth_filter.call(subject)
+		if only_auth and not is_auth:
 			continue
 
-		snapshot.merge_property(node, property, RecordedProperty.extract(entry), is_auth)
+		for property in property_pool.get_properties_of(subject):
+			var value := subject.get_indexed(property)
+			if snapshot.merge_property(subject, property, value, is_auth):
+				updates.append([subject, property, value, is_auth])
 
-	if snapshot.is_empty():
-		# No auth data in snapshot, nothing to do
-		return
+	match snapshots:
+		_rb_input_snapshots:
+			_logger.debug("Updates to%s input @%d: %s" % [" new" if is_new else "", tick, updates])
+			_logger.debug("Recorded input @%d: %s", [tick, snapshot])
+		_rb_state_snapshots:
+			_logger.debug("Updates to%s state @%d: %s" % [" new" if is_new else "", tick, updates])
+			_logger.debug("Recorded state @%d: %s", [tick, snapshot])
 
-	if not _sync_state_snapshots.has(tick):
-		_sync_state_snapshots[tick] = snapshot
-	else:
-		(_sync_state_snapshots[tick] as Snapshot).merge(snapshot)
-
-# TODO: Private
-func restore_tick(tick: int, snapshots: Dictionary) -> bool:
+func _restore(tick: int, snapshots: Dictionary) -> bool:
 	# TODO: Prettier recreation of HistoryBuffer logic and / or reuse HistoryBuffer
 	if snapshots.is_empty() or tick < snapshots.keys().min():
 		return false
@@ -106,22 +79,45 @@ func restore_tick(tick: int, snapshots: Dictionary) -> bool:
 		tick -= 1
 
 	var snapshot := snapshots[tick] as Snapshot
-	if snapshots == _sync_state_snapshots:
-		_logger.debug("Restoring snapshot: %s", [snapshot])
 	snapshot.apply()
+	
+	match snapshots:
+		_rb_input_snapshots: _logger.debug("Restored input @%d: %s", [tick, snapshot])
+		_rb_state_snapshots: _logger.debug("Restored state @%d: %s", [tick, snapshot])
+	
 	return true
 
+func record_input(tick: int) -> void:
+	_record(tick, _rb_input_snapshots, _rb_input_properties, false, func(subject: Node):
+		return subject.is_multiplayer_authority()
+	)
+
+func record_state(tick: int) -> void:
+	var input_snapshot := get_rollback_input_snapshot(tick - 1)
+	_record(tick, _rb_state_snapshots, _rb_state_properties, false, func(subject: Node):
+		if not subject.is_multiplayer_authority():
+			return false
+		if RollbackSimulationServer.is_predicting(input_snapshot, subject):
+			return false
+		return true
+	)
+
+func record_sync_state(tick: int) -> void:
+	_record(tick, _sync_state_snapshots, _sync_state_properties, true, func(subject: Node):
+		return subject.is_multiplayer_authority()
+	)
+
 func restore_rollback_input(tick: int) -> bool:
-	return restore_tick(tick, _rollback_input_snapshots)
+	return _restore(tick, _rb_input_snapshots)
 
 func restore_rollback_state(tick: int) -> bool:
-	return restore_tick(tick, _rollback_state_snapshots)
+	return _restore(tick, _rb_state_snapshots)
 
 func restore_synchronizer_state(tick: int) -> bool:
-	return restore_tick(tick, _sync_state_snapshots)
+	return _restore(tick, _sync_state_snapshots)
 
 func trim_history(earliest_tick: int) -> void:
-	var snapshot_pools := [_rollback_input_snapshots, _rollback_state_snapshots, _sync_state_snapshots] as Array[Dictionary]
+	var snapshot_pools := [_rb_input_snapshots, _rb_state_snapshots, _sync_state_snapshots] as Array[Dictionary]
 
 	for snapshots in snapshot_pools:
 		while not snapshots.is_empty():
@@ -136,10 +132,10 @@ func get_snapshot(tick: int, snapshots: Dictionary) -> Snapshot:
 	return snapshots.get(tick) as Snapshot
 
 func get_rollback_input_snapshot(tick: int) -> Snapshot:
-	return get_snapshot(tick, _rollback_input_snapshots)
+	return get_snapshot(tick, _rb_input_snapshots)
 
 func get_rollback_state_snapshot(tick: int) -> Snapshot:
-	return get_snapshot(tick, _rollback_state_snapshots)
+	return get_snapshot(tick, _rb_state_snapshots)
 
 func get_synchronizer_state_snapshot(tick: int) -> Snapshot:
 	return get_snapshot(tick, _sync_state_snapshots)
@@ -157,19 +153,19 @@ func merge_snapshot(snapshot: Snapshot, snapshots: Dictionary) -> Snapshot:
 	return stored_snapshot
 
 func merge_rollback_input(snapshot: Snapshot) -> Snapshot:
-	return merge_snapshot(snapshot, _rollback_input_snapshots)
+	return merge_snapshot(snapshot, _rb_input_snapshots)
 
 func merge_rollback_state(snapshot: Snapshot) -> Snapshot:
-	return merge_snapshot(snapshot, _rollback_state_snapshots)
+	return merge_snapshot(snapshot, _rb_state_snapshots)
 
 func merge_synchronizer_state(snapshot: Snapshot) -> Snapshot:
 	return merge_snapshot(snapshot, _sync_state_snapshots)
 
 func get_data_age_for(what: Node, tick: int) -> int:
-	if _rollback_state_snapshots.is_empty() or _rollback_input_snapshots.is_empty():
+	if _rb_state_snapshots.is_empty() or _rb_input_snapshots.is_empty():
 		return -1
 
-	var earliest_tick := mini(_rollback_state_snapshots.keys().min(), _rollback_input_snapshots.keys().min())
+	var earliest_tick := mini(_rb_state_snapshots.keys().min(), _rb_input_snapshots.keys().min())
 	for i in range(tick, earliest_tick - 1, -1):
 		var input_snapshot := get_rollback_input_snapshot(i)
 		var state_snapshot := get_rollback_state_snapshot(i)

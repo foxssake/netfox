@@ -78,7 +78,7 @@ func is_predicting(input_snapshot: Snapshot, node: Node) -> bool:
 
 	var is_owned := node.is_multiplayer_authority()
 	var is_inputless := input_nodes.is_empty()
-	var has_input := false if is_inputless else true
+	var has_input := false
 
 	# TODO: Avoid supporting null snapshots if possible
 	if not is_inputless and input_snapshot:
