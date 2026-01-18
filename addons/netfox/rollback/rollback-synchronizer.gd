@@ -337,6 +337,7 @@ func _ready() -> void:
 		await NetworkTime.after_sync
 
 	process_settings.call_deferred()
+	multiplayer.connected_to_server.connect(process_settings)
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_EDITOR_PRE_SAVE:

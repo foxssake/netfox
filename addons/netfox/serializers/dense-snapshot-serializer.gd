@@ -18,7 +18,8 @@ func write_for(peer: int, snapshot: Snapshot, properties: _PropertyPool, buffer:
 	# TODO: Include property config hash to detect mismatches
 
 	# For each node
-	for node in snapshot.nodes():
+	for subject in properties.get_subjects():
+		var node := subject as Node
 		assert(node.is_multiplayer_authority(), "Trying to serialize state for non-owned node!")
 
 		# Write identifier
@@ -29,7 +30,12 @@ func write_for(peer: int, snapshot: Snapshot, properties: _PropertyPool, buffer:
 		# First into a buffer, so we can start with the state size
 		node_buffer.clear()
 		for property in properties.get_properties_of(node):
+			# TODO: Subject-level auth tracking so we don't have to do this check for every property
+			if not snapshot.is_auth(node, property): continue
+
+			assert(snapshot.has_property(node, property), "Trying to serialize missing property %s on subject %s!" % [property, node])
 			assert(snapshot.is_auth(node, property), "Trying to serialize non-auth state property!")
+
 			var value := snapshot.get_property(node, property)
 			_write_property(node, property, value, node_buffer)
 

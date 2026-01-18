@@ -146,6 +146,12 @@ func _enter_tree() -> void:
 
 	process_settings.call_deferred()
 
+func _ready():
+	# Reprocess authority
+	# Important if nodes are pre-placed in the scene - node starts as owned by
+	# us ( offline peer is 1 ), but once we connect, we no longer own the node
+	multiplayer.connected_to_server.connect(process_settings)
+
 func _reprocess_settings() -> void:
 	if not _properties_dirty:
 		return
