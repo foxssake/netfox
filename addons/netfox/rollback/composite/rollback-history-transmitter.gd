@@ -202,7 +202,7 @@ func _send_full_state(tick: int, peer: int = 0) -> void:
 		NetworkPerformance.push_sent_state(full_state_snapshot)
 
 func _notification(what):
-	if what == NOTIFICATION_PREDELETE:
+	if what == NOTIFICATION_PREDELETE and is_instance_valid(NetworkRollback):
 		NetworkRollback.free_input_submission_data_for(root)
 
 @rpc("any_peer", "unreliable", "call_remote")
