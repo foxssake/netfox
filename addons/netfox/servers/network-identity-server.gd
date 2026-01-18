@@ -49,6 +49,8 @@ func clear() -> void:
 	_identifier_by_id.clear()
 	_next_id = 0
 
+# TODO: Handle peer disconnect by clearing up data
+
 func register_node(node: Node) -> void:
 	if not node.is_inside_tree():
 		_logger.error("Can't register node %s that is not inside tree!", [node])
