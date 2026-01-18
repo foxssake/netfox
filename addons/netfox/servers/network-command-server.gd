@@ -33,7 +33,7 @@ func register_command(handler: Callable) -> Command:
 
 func register_command_at(idx: int, handler: Callable, mode: MultiplayerPeer.TransferMode = MultiplayerPeer.TRANSFER_MODE_RELIABLE, channel: int = 0) -> Command:
 	assert(not _commands.has(idx), "Command #%d is already taken!" % idx)
-	var command := Command.new(idx, handler, mode, channel)
+	var command := Command.new(self, idx, handler, mode, channel)
 	_commands[idx] = command
 	
 	_next_idx = maxi(_next_idx, idx + 1)
@@ -47,19 +47,22 @@ func send_command(idx: int, data: PackedByteArray, target_peer: int = 0, mode: M
 		_packet_transport.send(idx, data, target_peer, mode, channel)
 
 class Command:
+	var _command_server: _NetworkCommandServer
+
 	var _idx: int
 	var _handler: Callable
 	var _mode: MultiplayerPeer.TransferMode
 	var _channel: int
 
-	func _init(p_idx: int, p_handler: Callable, p_mode: MultiplayerPeer.TransferMode, p_channel: int):
+	func _init(p_command_server: _NetworkCommandServer, p_idx: int, p_handler: Callable, p_mode: MultiplayerPeer.TransferMode, p_channel: int):
+		_command_server = p_command_server
 		_idx = p_idx
 		_handler = p_handler
 		_mode = p_mode
 		_channel = p_channel
 
 	func send(data: PackedByteArray, target_peer: int = 0) -> void:
-		NetworkCommandServer.send_command(_idx, data, target_peer, _mode, _channel)
+		_command_server.send_command(_idx, data, target_peer, _mode, _channel)
 
 	func handle(sender: int, data: PackedByteArray) -> void:
 		_handler.call(sender, data)

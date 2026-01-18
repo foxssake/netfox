@@ -1,18 +1,30 @@
 extends Node
+class_name _NetworkIdentityServer
+
+var _command_server: _NetworkCommandServer
 
 var _next_id := 0
 var _identifiers := {} # object to NetworkIdentifier
 var _push_queue := [] as Array[IdentityNotification]
 
-@onready var _cmd_ids := NetworkCommandServer.register_command_at(_NetworkCommands.IDS, _handle_ids)
+var _cmd_ids: _NetworkCommandServer.Command
 
 static var _logger := NetfoxLogger._for_netfox("NetworkIdentityServer")
+
+func _init(p_command_server: _NetworkCommandServer = null):
+	_command_server = p_command_server
+
+func _ready():
+	if not _command_server:
+		_command_server = NetworkCommandServer
+
+	_cmd_ids = _command_server.register_command_at(_NetworkCommands.IDS, _handle_ids)
 
 func register(what: Object, path: String) -> void:
 	if _identifiers.has(what):
 		return
 	
-	var identifier := NetworkIdentifier.new(what, path, _make_id())
+	var identifier := NetworkIdentifier.new(what, path, _make_id(), multiplayer.get_unique_id())
 	_identifiers[what] = identifier
 
 func deregister(what: Object) -> void:
@@ -33,7 +45,7 @@ func deregister_node(node: Node) -> void:
 
 # TODO: Consider specific queries, NetworkIdentifier might be an impl detail
 func get_identifier_of(what: Object) -> NetworkIdentifier:
-	return _identifiers[what]
+	return _identifiers.get(what)
 
 func resolve_reference(peer: int, identity_reference: NetworkIdentityReference, allow_queue: bool = true) -> NetworkIdentifier:
 	if identity_reference.has_id():
@@ -123,10 +135,11 @@ class NetworkIdentifier:
 	var _ids: Dictionary = {} # peer to id
 	var _local_id: int
 
-	func _init(subject: Object, full_name: String, local_id: int):
+	func _init(subject: Object, full_name: String, local_id: int, local_peer: int):
 		_subject = subject
 		_full_name = full_name
 		_local_id = local_id
+		_ids[local_peer] = local_id
 
 	func has_id_for(peer: int) -> bool:
 		# TODO: Also return true for local peer, just to be correct
@@ -152,6 +165,9 @@ class NetworkIdentifier:
 			return NetworkIdentityReference.of_id(get_id_for(peer))
 		else:
 			return NetworkIdentityReference.of_full_name(get_full_name())
+
+	func _to_string() -> String:
+		return "NetworkIdentifier(%s)" % [_full_name]
 
 class NetworkIdentityReference:
 	var _full_name: String = ""
