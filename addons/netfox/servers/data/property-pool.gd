@@ -3,6 +3,16 @@ class_name _PropertyPool
 
 var _properties_by_subject := {} # object to property array
 
+static func of(entries: Array[Array]) -> _PropertyPool:
+	var pool := _PropertyPool.new()
+
+	for entry in entries:
+		var subject := entry[0] as Object
+		var property := entry[1] as NodePath
+		pool.add(subject, property)
+
+	return pool
+
 func add(subject: Object, property: NodePath) -> void:
 	if has(subject, property):
 		return

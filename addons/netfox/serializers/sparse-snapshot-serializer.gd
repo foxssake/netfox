@@ -40,7 +40,6 @@ func write_for(peer: int, snapshot: Snapshot, properties: _PropertyPool, filter:
 		
 		for i in node_props.size():
 			var property := node_props[i]
-			# TODO: Node-level auth tracking
 			if not snapshot.has_property(node, property):
 				continue
 

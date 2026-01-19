@@ -24,6 +24,21 @@ static func make_patch(from: Snapshot, to: Snapshot, tick: int = to.tick) -> Sna
 
 	return patch
 
+# Each entry should be [subject, property, value]
+static func of(tick: int, entries: Array[Array], auth_subjects: Array[Object]) -> Snapshot:
+	var snapshot := Snapshot.new(tick)
+	for entry in entries:
+		var subject := entry[0] as Object
+		var property := entry[1] as NodePath
+		var value := entry[2] as Variant
+
+		snapshot.set_property(subject, property, value)
+
+	for subject in auth_subjects:
+		snapshot.set_auth(subject, true)
+
+	return snapshot
+
 func _init(p_tick: int):
 	tick = p_tick
 
