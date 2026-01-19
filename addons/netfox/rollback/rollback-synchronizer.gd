@@ -244,8 +244,12 @@ func is_predicting() -> bool:
 ## Call this when the input is too old to base predictions on. This call is
 ## ignored if [member enable_prediction] is false.
 func ignore_prediction(node: Node) -> void:
-	# TODO: Does this even make sense in its current form?
-	return
+	# Not needed, netfox records properties as non-auth if predicting
+	# Once the data is received from the owner, it won't be overwritten by
+	# predictions.
+	#
+	# This method may see some use again, otherwise it will be deprecated.
+	pass
 
 ## Get the tick of the last known input.
 ## [br][br]

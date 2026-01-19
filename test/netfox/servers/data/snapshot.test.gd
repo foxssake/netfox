@@ -8,50 +8,59 @@ func suite() -> void:
 
 	define("make_patch()", func():
 		test("should return empty on same", func():
-			var snapshot := Snapshot.new(1)
-			snapshot.set_property(node, "position", Vector3.ZERO, true)
-			snapshot.set_property(node, "scale", Vector3.ONE, true)
+			var snapshot := Snapshot.of(0, [
+				[node, "position", Vector3.ZERO],
+				[node, "scale", Vector3.ONE]
+			], [node])
 			
 			expect_empty(Snapshot.make_patch(snapshot, snapshot))
 		)
 		
 		test("should include differing property", func():
-			var from := Snapshot.new(1)
-			from.set_property(node, "position", Vector3.ZERO, true)
-			from.set_property(node, "scale", Vector3.ONE, true)
+			var from := Snapshot.of(0, [
+				[node, "position", Vector3.ZERO],
+				[node, "scale", Vector3.ONE]
+			], [node])
 			
-			var to := Snapshot.new(2)
-			to.set_property(node, "position", Vector3.ONE, true)
-			to.set_property(node, "scale", Vector3.ONE, true)
+			var to := Snapshot.of(0, [
+				[node, "position", Vector3.ONE],
+				[node, "scale", Vector3.ONE]
+			], [node])
 			
-			var expected := Snapshot.new(2)
-			expected.set_property(node, "position", Vector3.ONE, true)
+			var expected := Snapshot.of(0, [
+				[node, "position", Vector3.ONE]
+			], [node])
 			
 			expect_equal(Snapshot.make_patch(from, to), expected)
 		)
 		
 		test("should include new property", func():
-			var from := Snapshot.new(1)
-			from.set_property(node, "position", Vector3.ZERO, true)
+			var from := Snapshot.of(0, [
+				[node, "position", Vector3.ZERO]
+			], [node])
 			
-			var to := Snapshot.new(2)
-			to.set_property(node, "position", Vector3.ZERO, true)
-			to.set_property(node, "scale", Vector3.ONE, true)
+			var to := Snapshot.of(0, [
+				[node, "position", Vector3.ZERO],
+				[node, "scale", Vector3.ONE]
+			], [node])
 			
-			var expected := Snapshot.new(2)
-			expected.set_property(node, "scale", Vector3.ONE, true)
+			var expected := Snapshot.of(0, [
+				[node, "scale", Vector3.ONE]
+			], [node])
 			
 			expect_equal(Snapshot.make_patch(from, to), expected)
 		)
 		
 		test("patch should yield `to` on merge", func():
-			var from := Snapshot.new(1)
-			from.set_property(node, "position", Vector3.ZERO, true)
-			from.set_property(node, "scale", Vector3.ONE, true)
+			var from := Snapshot.of(0, [
+				[node, "position", Vector3.ZERO],
+				[node, "scale", Vector3.ONE]
+			], [node])
 			
-			var to := Snapshot.new(2)
-			to.set_property(node, "position", Vector3.ONE, true)
-			to.set_property(node, "scale", Vector3.ONE, true)
+			var to := Snapshot.of(0, [
+				[node, "position", Vector3.ONE],
+				[node, "scale", Vector3.ONE]
+			], [node])
 			
 			var patch := Snapshot.make_patch(from, to)
 			var applied := from.duplicate()

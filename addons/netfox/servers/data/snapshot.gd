@@ -3,7 +3,7 @@ class_name Snapshot
 
 var tick: int
 var _data := {} # object to (property to variant)
-var _is_authoritative := {} # object to bool, absent means false
+var _auth_subjects := _Set.new()
 
 static func make_patch(from: Snapshot, to: Snapshot, tick: int = to.tick) -> Snapshot:
 	var patch := Snapshot.new(tick)
@@ -45,11 +45,14 @@ func _init(p_tick: int):
 func duplicate() -> Snapshot:
 	var result := Snapshot.new(tick)
 	result._data = _data.duplicate(true)
-	result._is_authoritative = _is_authoritative.duplicate()
+	result._auth_subjects = _auth_subjects.duplicate()
 	return result
 
 func set_auth(subject: Object, is_auth: bool) -> void:
-	_is_authoritative[subject] = is_auth
+	if is_auth:
+		_auth_subjects.add(subject)
+	else:
+		_auth_subjects.erase(subject)
 
 func set_property(subject: Object, property: NodePath, value: Variant) -> void:
 	if not _data.has(subject):
@@ -71,19 +74,27 @@ func has_property(subject: Object, property: NodePath) -> bool:
 		return false
 	return true
 
-func merge(snapshot: Snapshot) -> void:
+func merge(snapshot: Snapshot) -> bool:
+	var has_changed := false
+
 	for subject in snapshot._data:
 		if not _data.has(subject):
 			# We have no data of the subject, copy all
 			_data[subject] = snapshot._data[subject].duplicate()
 			set_auth(subject, snapshot.is_auth(subject))
+			has_changed = true
 			continue
 
 		if snapshot.is_auth(subject) or not is_auth(subject):
 			var own_props := _data[subject] as Dictionary
 			var their_props := snapshot._data[subject] as Dictionary
+
+			has_changed = has_changed or own_props != their_props
+
 			own_props.merge(their_props, true)
 			set_auth(subject, snapshot.is_auth(subject))
+
+	return has_changed
 
 func apply() -> void:
 	for subject in _data:
@@ -104,7 +115,7 @@ func sanitize(sender: int) -> void:
 func has_subject(subject: Object, require_auth: bool = false) -> bool:
 	if not _data.has(subject):
 		return false
-	if require_auth and not _is_authoritative.get(subject, false):
+	if require_auth and not is_auth(subject):
 		return false
 	return true
 
@@ -114,10 +125,11 @@ func has_subjects(subjects: Array, require_auth: bool = false) -> bool:
 			return false
 	return true
 
-func get_properties_of_node(node: Node) -> Array[NodePath]:
-	var properties := [] as Array[NodePath]
-	properties.assign(_data.get(node, []))
-	return properties
+func get_subjects() -> Array:
+	return _data.keys()
+
+func get_auth_subjects() -> Array:
+	return _auth_subjects.values()
 
 func is_empty() -> bool:
 	return _data.is_empty()
@@ -129,11 +141,11 @@ func size() -> int:
 	return result
 
 func is_auth(subject: Object) -> bool:
-	return _is_authoritative.get(subject, false)
+	return _auth_subjects.has(subject)
 
 func equals(other) -> bool:
 	if other is Snapshot:
-		return tick == other.tick and _data == other._data and _is_authoritative == other._is_authoritative
+		return tick == other.tick and _data == other._data and _auth_subjects.equals(other._auth_subjects)
 	else:
 		return false
 
@@ -142,7 +154,7 @@ func _to_string() -> String:
 	for subject in _data:
 		for property in _data[subject]:
 			var value = _data[subject][property]
-			result += ", %s:%s(%s): %s" % [subject, property, _is_authoritative.get(subject, false), value]
+			result += ", %s:%s(%s): %s" % [subject, property, is_auth(subject), value]
 	result += ")"
 	return result
 
@@ -150,5 +162,5 @@ func _to_vest():
 	return {
 		"tick": tick,
 		"data": _data,
-		"is_auth": _is_authoritative
+		"auth_subjects": _auth_subjects
 	}

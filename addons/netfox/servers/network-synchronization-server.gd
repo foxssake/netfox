@@ -91,12 +91,11 @@ func deregister(node: Node) -> void:
 	_visibility_filters.erase(node)
 
 func is_node_visible_to(peer: int, node: Node) -> bool:
-	# TODO: Cache visibilities
 	var filter := _visibility_filters.get(node) as PeerVisibilityFilter
 	if not filter:
 		return true
 	else:
-		return filter.get_visibility_for(peer)
+		return filter.get_visible_peers().has(peer)
 
 # TODO: Make this testable somehow, I beg of you
 func synchronize_input(tick: int) -> void:
@@ -257,18 +256,13 @@ func _handle_input(sender: int, data: PackedByteArray):
 	buffer.data_array = data
 
 	var snapshots := _redundant_serializer.read_from(sender, _rb_input_properties, buffer, true)
-	_logger.trace("Received input snapshots: %s", [snapshots])
 
 	for snapshot in snapshots:
 		snapshot.sanitize(sender)
 
-		# TODO: Only merge inputs we don't have yet, so clients don't cheat by
-		#       overriding their earlier choices. Only emit signal for snapshots
-		#       that contain new input.
-		var merged := NetworkHistoryServer.merge_rollback_input(snapshot)
-		_logger.debug("Ingested input: %s", [snapshot])
-
-		on_input.emit(snapshot)
+		if NetworkHistoryServer.merge_rollback_input(snapshot):
+			_logger.debug("Ingested input: %s", [snapshot])
+			on_input.emit(snapshot)
 
 func _handle_full_state(sender: int, data: PackedByteArray):
 	var buffer := StreamPeerBuffer.new()
@@ -311,7 +305,7 @@ func _ingest_state(sender: int, snapshot: Snapshot) -> void:
 	snapshot.sanitize(sender)
 #	_logger.debug("Received state snapshot: %s", [snapshot])
 
-	var merged := NetworkHistoryServer.merge_rollback_state(snapshot)
+	NetworkHistoryServer.merge_rollback_state(snapshot)
 	_logger.debug("Ingested state: %s", [snapshot])
 
 	on_state.emit(snapshot)

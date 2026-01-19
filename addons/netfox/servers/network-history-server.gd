@@ -75,25 +75,14 @@ func get_rollback_state_snapshot(tick: int) -> Snapshot:
 func get_synchronizer_state_snapshot(tick: int) -> Snapshot:
 	return _sync_state_snapshots.get_at(tick)
 
-func merge_snapshot(snapshot: Snapshot, snapshots: _HistoryBuffer) -> Snapshot:
-	var tick := snapshot.tick
-	if not snapshots.has_at(snapshot.tick):
-		snapshots.set_at(tick, snapshot)
-		return snapshot
+func merge_rollback_input(snapshot: Snapshot) -> bool:
+	return _merge(snapshot, _rb_input_snapshots, true)
 
-	var stored_snapshot := snapshots.get_at(tick) as Snapshot
-	stored_snapshot.merge(snapshot)
+func merge_rollback_state(snapshot: Snapshot) -> bool:
+	return _merge(snapshot, _rb_state_snapshots)
 
-	return stored_snapshot
-
-func merge_rollback_input(snapshot: Snapshot) -> Snapshot:
-	return merge_snapshot(snapshot, _rb_input_snapshots)
-
-func merge_rollback_state(snapshot: Snapshot) -> Snapshot:
-	return merge_snapshot(snapshot, _rb_state_snapshots)
-
-func merge_synchronizer_state(snapshot: Snapshot) -> Snapshot:
-	return merge_snapshot(snapshot, _sync_state_snapshots)
+func merge_synchronizer_state(snapshot: Snapshot) -> bool:
+	return _merge(snapshot, _sync_state_snapshots)
 
 func get_input_age_for(subjects: Array, tick: int) -> int:
 	return _get_age_for(subjects, tick, _rb_input_snapshots)
@@ -147,6 +136,29 @@ func _restore(tick: int, snapshots: _HistoryBuffer) -> bool:
 		_rb_state_snapshots: _logger.debug("Restored state @%d: %s", [tick, snapshot])
 	
 	return true
+
+func _merge(snapshot: Snapshot, snapshots: _HistoryBuffer, reverse: bool = false) -> bool:
+	var tick := snapshot.tick
+
+	if not snapshots.has_at(snapshot.tick):
+		snapshots.set_at(tick, snapshot)
+		return true
+
+	var original_snapshot := snapshots.get_at(tick) as Snapshot
+	if reverse:
+		var original_subjects := original_snapshot.get_auth_subjects()
+		var incoming_subjects := snapshot.get_auth_subjects()
+
+		# Merge the original snapshot on top of the incoming
+		# This prevents players from changing history, e.g. rewrite their past
+		# inputs
+		snapshots.set_at(tick, snapshot)
+		snapshot.merge(original_snapshot)
+
+		# Only return true if we've received inputs for a new node
+		return incoming_subjects.any(func(it): return not original_subjects.has(it))
+	else:
+		return original_snapshot.merge(snapshot)
 
 func _get_age_for(subjects: Array, tick: int, snapshots: _HistoryBuffer) -> int:
 	var at := tick

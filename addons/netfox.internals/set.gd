@@ -46,6 +46,9 @@ func equals(other) -> bool:
 func _to_string():
 	return "Set" + str(values())
 
+func _to_vest():
+	return _data.keys()
+
 func _iter_init(arg) -> bool:
 	_iterator_idx = 0
 	return _can_iterate()

@@ -47,6 +47,7 @@ func deregister_input(node: Node, input: Node) -> void:
 
 func get_nodes_to_simulate(input_snapshot: Snapshot) -> Array[Node]:
 	var result: Array[Node] = []
+	var tick := input_snapshot.tick
 	if not input_snapshot:
 		return []
 
@@ -56,6 +57,11 @@ func get_nodes_to_simulate(input_snapshot: Snapshot) -> Array[Node]:
 
 		if inputs.is_empty():
 			# Node has no input, simulate it
+			result.append(node)
+			continue
+
+		if NetworkRollback.is_mutated(node, tick):
+			# Node is mutated, must simulate
 			result.append(node)
 			continue
 
@@ -156,4 +162,9 @@ func simulate(delta: float, tick: int) -> void:
 func get_controlled_by(input: Node) -> Array[Node]:
 	var result := [] as Array[Node]
 	result.assign(_input_graph.get_linked_from(input))
+	return result
+
+func get_inputs_of(node: Node) -> Array[Node]:
+	var result := [] as Array[Node]
+	result.assign(_input_graph.get_linked_to(node))
 	return result

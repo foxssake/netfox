@@ -85,7 +85,6 @@ var display_tick: int:
 ## with input latency higher than network latency.
 ## [br][br]
 ## [i]read-only[/i], you can change this in the project settings
-
 var input_delay: int:
 	get:
 		return _input_delay
@@ -100,7 +99,6 @@ var input_delay: int:
 ## in transmission, the next (n-1) packets will contain the data for it.
 ## [br][br]
 ## [i]read-only[/i], you can change this in the project settings
-
 var input_redundancy: int:
 	get:
 		return max(1, _input_redundancy)
@@ -168,7 +166,6 @@ var _rollback_stage: String = ""
 var _is_rollback: bool = false
 var _simulated_nodes: _Set = _Set.new()
 var _mutated_nodes: Dictionary = {}
-var _input_submissions: Dictionary = {}
 
 var _earliest_input := -1
 var _latest_state := -1
@@ -271,33 +268,34 @@ func is_just_mutated(target: Object, p_tick: int = tick) -> bool:
 		return false
 
 ## Register that a node has submitted its input for a specific tick
-# TODO: Make sure this works
-func register_input_submission(root_node: Node, tick: int) -> void:
-	if not _input_submissions.has(root_node):
-		_input_submissions[root_node] = tick
-	else:
-		_input_submissions[root_node] = maxi(_input_submissions[root_node], tick)
+## @deprecated
+func register_input_submission(_node: Node, _tick: int) -> void:
+	pass
 
-## Get the latest input tick submitted by a specific root node
+## Get the latest input tick submitted for a specific node
 ## [br][br]
 ## Returns [code]-1[/code] if no input was submitted for the node, ever.
-# TODO: Make sure this works
-func get_latest_input_tick(root_node: Node) -> int:
-	if _input_submissions.has(root_node):
-		return _input_submissions[root_node]
-	return -1
+func get_latest_input_tick(node: Node) -> int:
+	var input_nodes := RollbackSimulationServer.get_inputs_of(node)
+	var reference_tick := NetworkTime.tick
+	var input_age := NetworkHistoryServer.get_input_age_for(input_nodes, reference_tick)
+
+	if input_age >= 0:
+		return reference_tick - input_age
+	else:
+		return -1
 
 ## Check if a node has submitted input for a specific tick (or later)
-# TODO: Make sure this works
-func has_input_for_tick(root_node: Node, tick: int) -> bool:
-	return _input_submissions.has(root_node) and _input_submissions[root_node] >= tick
+func has_input_for_tick(node: Node, tick: int) -> bool:
+	var latest_input := get_latest_input_tick(node)
+	return latest_input != -1 and latest_input >= tick
 
 ## Free all input submission data for a node
 ## [br][br]
 ## Use this once the node is freed.
-# TODO: Make sure this works
-func free_input_submission_data_for(root_node: Node) -> void:
-	_input_submissions.erase(root_node)
+## @deprecated
+func free_input_submission_data_for(_node: Node) -> void:
+	pass
 
 func _ready():
 	NetfoxLogger.register_tag(_get_rollback_tag)
@@ -343,19 +341,16 @@ func _rollback() -> void:
 	# Ask all rewindables to submit their earliest inputs
 	_resim_from = NetworkTime.tick
 	before_loop.emit()
-	
-	# TODO: Move to RollbackSimulationServer?
+
 	var range_source = "notif"
 	if _earliest_input >= 0 and _earliest_input <= _resim_from:
 		range_source = "earliest input"
-		_resim_from = mini(_resim_from, _earliest_input)
+		_resim_from = _earliest_input
 	if _latest_state >= 0 and _latest_state <= _resim_from:
 		range_source = "latest state"
-		_resim_from = mini(_resim_from, _latest_state)
+		_resim_from = _latest_state
 	_resim_from = mini(_resim_from, NetworkTime.tick - 1)
 	_logger.trace("Simulating range @%d>@%d using %s", [_resim_from, NetworkTime.tick, range_source])
-
-#	_resim_from = maxi(1, history_start + 1)
 
 	# Only set _is_rollback *after* emitting before_loop
 	_is_rollback = true
