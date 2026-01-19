@@ -10,19 +10,19 @@ var _sync_owned_state_properties := _PropertyPool.new()
 
 var _visibility_filters := {} # Node to PeerVisibilityFilter
 
-var _rb_enable_input_broadcast := false	# TODO: Config
-var _rb_enable_diffs := true			# TODO: Config
-var _rb_full_interval := 24				# TODO: Config
+var _rb_enable_input_broadcast := ProjectSettings.get_setting("netfox/rollback/enable_input_broadcast", false)
+var _rb_enable_diffs := NetworkRollback.enable_diff_states
+var _rb_full_interval := ProjectSettings.get_setting("netfox/rollback/full_state_interval", 24)
 var _rb_full_next := -1
 
 var _last_sync_state_sent := Snapshot.new(0)
-var _sync_enable_diffs := true		# TODO: Config
-var _sync_full_interval := 24		# TODO: Config
+var _sync_enable_diffs := ProjectSettings.get_setting("netfox/state_synchronizer/enable_diff_states", true)
+var _sync_full_interval := ProjectSettings.get_setting("netfox/state_synchronizer/full_state_interval", 24)
 var _sync_full_next := -1
 
 var _schemas := _NetworkSchema.new()
 
-var _input_redundancy := 3			# TODO: Config
+var _input_redundancy := NetworkRollback.input_redundancy
 
 var _dense_serializer := _DenseSnapshotSerializer.new(_schemas)
 var _sparse_serializer := _SparseSnapshotSerializer.new(_schemas)

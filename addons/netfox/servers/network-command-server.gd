@@ -6,7 +6,7 @@ var _rpc_transport := RPCTransport.new()
 var _packet_transport := PacketTransport.new()
 var _commands := {} # id to `Command`
 
-var _use_rpcs := false # TODO: Config
+var _use_raw := ProjectSettings.get_setting("netfox/general/use_raw_commands", false)
 
 static var _logger := NetfoxLogger._for_netfox("NetworkCommandServer")
 
@@ -41,10 +41,10 @@ func register_command_at(idx: int, handler: Callable, mode: MultiplayerPeer.Tran
 	return command
 
 func send_command(idx: int, data: PackedByteArray, target_peer: int = 0, mode: MultiplayerPeer.TransferMode = MultiplayerPeer.TRANSFER_MODE_RELIABLE, channel: int = 0) -> void:
-	if _use_rpcs:
-		_rpc_transport.send(idx, data, target_peer, mode, channel)
-	else:
+	if _use_raw:
 		_packet_transport.send(idx, data, target_peer, mode, channel)
+	else:
+		_rpc_transport.send(idx, data, target_peer, mode, channel)
 
 class Command:
 	var _command_server: _NetworkCommandServer

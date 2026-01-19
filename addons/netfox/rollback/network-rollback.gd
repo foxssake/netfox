@@ -303,8 +303,8 @@ func _ready():
 	NetfoxLogger.register_tag(_get_rollback_tag)
 	NetworkTime.after_tick_loop.connect(_rollback)
 	NetworkTime.after_tick.connect(func(_dt, tick):
-		RollbackHistoryServer.record_input(tick)
-		RollbackSynchronizationServer.synchronize_input(tick)
+		RollbackHistoryServer.record_input(tick + input_delay)
+		RollbackSynchronizationServer.synchronize_input(tick + input_delay)
 	)
 	
 	RollbackSynchronizationServer.on_input.connect(func(snapshot: Snapshot):

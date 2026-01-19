@@ -18,7 +18,6 @@ func write_for(peer: int, snapshot: Snapshot, properties: _PropertyPool, filter:
 
 	# Write ticks
 	buffer.put_u32(snapshot.tick)
-	# TODO: Include property config hash to detect mismatches
 
 	# For each node
 	for subject in properties.get_subjects():
@@ -66,8 +65,6 @@ func read_from(peer: int, properties: _PropertyPool, buffer: StreamPeerBuffer, i
 	
 	# Grab ticks
 	var tick := buffer.get_u32()
-	# TODO: Include property config hash to detect mismatches
-	
 	var snapshot := Snapshot.new(tick)
 	
 	while buffer.get_available_bytes() > 0:

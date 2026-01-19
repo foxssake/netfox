@@ -10,6 +10,11 @@ var SETTINGS: Array[Dictionary] = [
 		"value": true,
 		"type": TYPE_BOOL
 	},
+	{
+		"name": "netfox/general/use_raw_commands",
+		"value": false,
+		"type": TYPE_BOOL
+	},
 	# Logging
 	NetfoxLogger._make_setting("netfox/logging/netfox_log_level"),
 	# Time settings
@@ -113,9 +118,34 @@ var SETTINGS: Array[Dictionary] = [
 		"hint_string": "0,4,or_greater"
 	},
 	{
+		"name": "netfox/rollback/enable_input_broadcast",
+		"value": false,
+		"type": TYPE_BOOL
+	},
+	{
 		"name": "netfox/rollback/enable_diff_states",
 		"value": true,
 		"type": TYPE_BOOL
+	},
+	{
+		"name": "netfox/rollback/full_state_interval",
+		"value": 24,
+		"type": TYPE_INT,
+		"hint": PROPERTY_HINT_RANGE,
+		"hint_string": "0,60,or_greater"
+	},
+	# StateSynchronizer
+	{
+		"name": "netfox/state_synchronizer/enable_diff_states",
+		"value": true,
+		"type": TYPE_BOOL
+	},
+	{
+		"name": "netfox/state_synchronizer/full_state_interval",
+		"value": 24,
+		"type": TYPE_INT,
+		"hint": PROPERTY_HINT_RANGE,
+		"hint_string": "0,60,or_greater"
 	},
 	# Events
 	{
