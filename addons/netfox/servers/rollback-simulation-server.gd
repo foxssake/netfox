@@ -73,7 +73,6 @@ func get_nodes_to_simulate(input_snapshot: Snapshot) -> Array[Node]:
 
 	return result
 
-# TODO: *Thorough* test for node predict rules
 func is_predicting(input_snapshot: Snapshot, node: Node) -> bool:
 	var input_nodes := [] as Array[Node]
 	input_nodes.assign(_input_graph.get_linked_to(node))
