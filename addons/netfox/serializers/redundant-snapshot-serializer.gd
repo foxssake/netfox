@@ -16,7 +16,7 @@ func write_for(peer: int, snapshots: Array[Snapshot], properties: _PropertyPool,
 	if buffer == null:
 		buffer = StreamPeerBuffer.new()
 
-	# TODO: How about encoding the first snapshot as-is, and then the rest as diffs
+	# TODO(#???): How about encoding the first snapshot as-is, and then the rest as diffs
 	for snapshot in snapshots:
 		var serialized := _dense_serializer.write_for(peer, snapshot, properties)
 

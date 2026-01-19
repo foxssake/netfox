@@ -29,6 +29,11 @@ func register_sync_state(node: Node, property: NodePath) -> void:
 func deregister_sync_state(node: Node, property: NodePath) -> void:
 	_sync_state_properties.erase(node, property)
 
+func deregister(node: Node) -> void:
+	_rb_state_properties.erase_subject(node)
+	_rb_input_properties.erase_subject(node)
+	_sync_state_properties.erase_subject(node)
+
 func record_input(tick: int) -> void:
 	_record(tick, _rb_input_snapshots, _rb_input_properties, false, func(subject: Node):
 		return subject.is_multiplayer_authority()

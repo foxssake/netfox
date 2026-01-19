@@ -23,6 +23,9 @@ func erase(subject: Object, property: NodePath) -> void:
 	if subject_schema.is_empty():
 		_serializers.erase(subject)
 
+func erase_subject(subject: Object) -> void:
+	_serializers.erase(subject)
+
 func encode(subject: Object, property: NodePath, value: Variant, buffer: StreamPeerBuffer) -> void:
 	_get_serializer(subject, property).encode(value, buffer)
 

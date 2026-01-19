@@ -49,7 +49,7 @@ func clear() -> void:
 	_identifier_by_id.clear()
 	_next_id = 0
 
-# TODO: Handle peer disconnect by clearing up data
+# TODO(#???): Handle peer disconnect by clearing up data
 
 func register_node(node: Node) -> void:
 	if not node.is_inside_tree():
@@ -118,7 +118,7 @@ func _handle_ids(sender: int, data: PackedByteArray) -> void:
 		var identifier := _get_identifier_by_name(full_name)
 		if not identifier:
 			# Probably deleted since then
-			# TODO: Queue in case node was not registered *yet*
+			# TODO(#???): Queue in case node was not registered *yet*
 			_logger.debug("Received identifier for unknown object with full name %s, id #%d", [full_name, id])
 			continue
 		identifier.set_id_for(sender, id)

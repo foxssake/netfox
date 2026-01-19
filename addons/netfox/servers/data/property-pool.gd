@@ -38,6 +38,9 @@ func erase(subject: Object, property: NodePath) -> void:
 func erase_subject(subject: Object) -> void:
 	_properties_by_subject.erase(subject)
 
+func clear() -> void:
+	_properties_by_subject.clear()
+
 func get_properties_of(subject: Object) -> Array[NodePath]:
 	var properties := [] as Array[NodePath]
 	properties.assign(_properties_by_subject.get(subject, []))
@@ -50,3 +53,10 @@ func get_subjects() -> Array[Object]:
 
 func is_empty() -> bool:
 	return _properties_by_subject.is_empty()
+
+func set_from_paths(root: Node, paths: Array[String]) -> void:
+	clear()
+
+	for path in paths:
+		var prop := PropertyEntry.parse(root, path)
+		add(prop.node, prop.property)

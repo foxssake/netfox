@@ -35,7 +35,9 @@ func deregister(callback: Callable) -> void:
 	_simulated_ticks.erase(object)
 
 func deregister_node(node: Node) -> void:
-	deregister(_callbacks.get(node))
+	if _callbacks.has(node):
+		deregister(_callbacks[node])
+	_input_graph.erase(node)
 
 func register_input_for(node: Node, input: Node) -> void:
 	_input_graph.link(input, node)

@@ -46,8 +46,8 @@ var diff_ack_interval: int = 0
 var visibility_filter := PeerVisibilityFilter.new()
 
 var _properties_dirty: bool = false
-var _registered_properties := [] as Array[PropertyEntry]
-var _schema_props := [] as Array[PropertyEntry]
+var _properties := _PropertyPool.new()
+var _schema_nodes := _Set.new()
 
 var _is_initialized: bool = false
 
@@ -58,19 +58,18 @@ static var _logger := NetfoxLogger._for_netfox("StateSynchronizer")
 ## Call this after any change to configuration.
 func process_settings() -> void:
 	# Remove old configuration
-	for property in _registered_properties:
-		NetworkHistoryServer.deregister_sync_state(property.node, property.property)
-		NetworkSynchronizationServer.deregister_sync_state(property.node, property.property)
+	for node in _properties.get_subjects():
+		for property in _properties.get_properties_of(node):
+			NetworkHistoryServer.deregister_sync_state(node, property)
+			NetworkSynchronizationServer.deregister_sync_state(node, property)
 
 	# Register new configuration
-	_registered_properties.clear()
-	for property_spec in properties:
-		var property := PropertyEntry.parse(root, property_spec)
-		_registered_properties.append(property)
-		NetworkHistoryServer.register_sync_state(property.node, property.property)
-		NetworkSynchronizationServer.register_sync_state(property.node, property.property)
-		# TODO: Somehow deregister on destroy
-		NetworkIdentityServer.register_node(property.node)
+	_properties.set_from_paths(root, properties)
+	for node in _properties.get_subjects():
+		for property in _properties.get_properties_of(node):
+			NetworkHistoryServer.register_sync_state(node, property)
+			NetworkSynchronizationServer.register_sync_state(node, property)
+			NetworkIdentityServer.register_node(node)
 
 	_is_initialized = true
 
@@ -107,20 +106,25 @@ func add_state(node: Variant, property: String) -> void:
 ## [/codeblock]
 func set_schema(schema: Dictionary) -> void:
 	# Remove previous schema
-	for entry in _schema_props:
-		NetworkSynchronizationServer.deregister_schema(entry.node, entry.property)
-	_schema_props.clear()
+	for node in _schema_nodes:
+		NetworkSynchronizationServer.deregister_schema_for(node)
+	_schema_nodes.clear()
 
 	# Register new schema
 	for prop in schema:
 		var prop_entry := PropertyEntry.parse(root, prop)
 		var serializer := schema[prop] as NetworkSchemaSerializer
 		NetworkSynchronizationServer.register_schema(prop_entry.node, prop_entry.property, serializer)
-		_schema_props.append(prop_entry)
+		_schema_nodes.add(prop_entry.node)
 
 func _notification(what) -> void:
 	if what == NOTIFICATION_EDITOR_PRE_SAVE:
 		update_configuration_warnings()
+	elif what == NOTIFICATION_PREDELETE:
+		for node in _properties.get_subjects():
+			NetworkSynchronizationServer.deregister(node)
+			NetworkHistoryServer.deregister(node)
+			NetworkIdentityServer.deregister(node)
 
 func _get_configuration_warnings() -> PackedStringArray:
 	if not root:

@@ -68,28 +68,25 @@ var diff_ack_interval: int = 0
 ## Decides which peers will receive updates
 var visibility_filter := PeerVisibilityFilter.new()
 
-var _state_property_config: _PropertyConfig = _PropertyConfig.new()
-var _input_property_config: _PropertyConfig = _PropertyConfig.new()
-
-var _input_nodes := [] as Array[Node]
-var _state_nodes := [] as Array[Node]
-var _schema_props := [] as Array[Array] # [node, property path] tuples
+var _state_properties := _PropertyPool.new()
+var _input_properties := _PropertyPool.new()
+var _sim_nodes := [] as Array[Node]
+var _schema_nodes := _Set.new()
 
 var _properties_dirty: bool = false
 var _property_cache := PropertyCache.new(root)
 
 static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("RollbackSynchronizer")
 
-var _registered_nodes: Array[Node] = []
-
 ## Process settings.
 ## [br][br]
 ## Call this after any change to configuration. Updates based on authority too
 ## ( calls process_authority ).
 func process_settings() -> void:
-	# Deregister all nodes
-	for node in _registered_nodes:
+	# Deregister simulated, state and input nodes
+	for node in _sim_nodes + _state_properties.get_subjects() + _input_properties.get_subjects():
 		RollbackSimulationServer.deregister_node(node)
+	_sim_nodes.clear()
 
 	# Clear
 	_property_cache.root = root
@@ -103,41 +100,23 @@ func process_settings() -> void:
 	nodes = nodes.filter(func(it): return NetworkRollback.is_rollback_aware(it))
 	nodes.erase(self)
 
-	# Gather nodes with input props
-	_input_nodes.clear()
-	for prop in _input_property_config.get_properties():
-		var input_node := prop.node
-		if not _input_nodes.has(input_node):
-			_input_nodes.append(input_node)
-
-	# Gather nodes with state props
-	# TODO: Move tracking nodes to property configs?
-	_state_nodes.clear()
-	for prop in _state_property_config.get_properties():
-		var state_node := prop.node
-		if not _state_nodes.has(state_node):
-			_state_nodes.append(state_node)
-
 	# Register simulation callbacks
 	for node in nodes:
 		RollbackSimulationServer.register(node._rollback_tick)
-		_registered_nodes.append(node)
+		_sim_nodes.append(node)
 		
 	# Both simulated and state nodes depend on all inputs
 	# TODO: Write tests for setups where a node is synchronized but not simulated
-	# TODO: Deregister eventually
-	for node in nodes + _state_nodes:
-		for input_node in _input_nodes:
+	for node in nodes + _state_properties.get_subjects():
+		for input_node in _input_properties.get_subjects():
 			RollbackSimulationServer.register_input_for(node, input_node)
 
 	# Register identifiers
-	# TODO: Somehow deregister on destroy
-	for node in _state_nodes + _input_nodes:
+	for node in _state_properties.get_subjects() + _input_properties.get_subjects():
 		NetworkIdentityServer.register_node(node)
 
 	# Register visibility filter
-	# TODO: Somehow deregister on destroy
-	for node in _state_nodes:
+	for node in _state_properties.get_subjects():
 		NetworkSynchronizationServer.register_visibility_filter(node, visibility_filter)
 
 ## Process settings based on authority.
@@ -147,37 +126,30 @@ func process_settings() -> void:
 ## peers.
 func process_authority():
 	# Deregister all recorded properties
-	for prop in _get_recorded_state_props():
-		NetworkHistoryServer.deregister_state(prop.node, prop.property)
+	for node in _state_properties.get_subjects():
+		for property in _state_properties.get_properties_of(node):
+			NetworkHistoryServer.deregister_state(node, property)
+			NetworkSynchronizationServer.deregister_state(node, property)
 
-	for prop in _get_recorded_input_props():
-		NetworkHistoryServer.deregister_input(prop.node, prop.property)
-
-	for prop in _input_property_config.get_properties():
-		NetworkSynchronizationServer.deregister_input(prop.node, prop.property)
-
-	for prop in _state_property_config.get_properties():
-		NetworkSynchronizationServer.deregister_state(prop.node, prop.property)
+	for node in _input_properties.get_subjects():
+		for property in _input_properties.get_properties_of(node):
+			NetworkHistoryServer.deregister_input(node, property)
+			NetworkSynchronizationServer.deregister_input(node, property)
 
 	# Process authority
-	_state_property_config.local_peer_id = multiplayer.get_unique_id()
-	_input_property_config.local_peer_id = multiplayer.get_unique_id()
-
-	_state_property_config.set_properties_from_paths(state_properties, _property_cache)
-	_input_property_config.set_properties_from_paths(input_properties, _property_cache)
+	_state_properties.set_from_paths(root, state_properties)
+	_input_properties.set_from_paths(root, input_properties)
 
 	# Register new recorded properties
-	for prop in _get_recorded_state_props():
-		NetworkHistoryServer.register_state(prop.node, prop.property)
+	for node in _state_properties.get_subjects():
+		for property in _state_properties.get_properties_of(node):
+			NetworkHistoryServer.register_state(node, property)
+			NetworkSynchronizationServer.register_state(node, property)
 
-	for prop in _get_recorded_input_props():
-		NetworkHistoryServer.register_input(prop.node, prop.property)
-
-	for prop in _input_property_config.get_properties():
-		NetworkSynchronizationServer.register_input(prop.node, prop.property)
-
-	for prop in _state_property_config.get_properties():
-		NetworkSynchronizationServer.register_state(prop.node, prop.property)
+	for node in _input_properties.get_subjects():
+		for property in _input_properties.get_properties_of(node):
+			NetworkHistoryServer.register_input(node, property)
+			NetworkSynchronizationServer.register_input(node, property)
 
 ## Add a state property.
 ## [br][br]
@@ -228,18 +200,16 @@ func add_input(node: Variant, property: String) -> void:
 ## [/codeblock]
 func set_schema(schema: Dictionary) -> void:
 	# Remove previous schema
-	for entry in _schema_props:
-		var node = entry[0]
-		var property_path = entry[1]
-		NetworkSynchronizationServer.deregister_schema(node, property_path)
-	_schema_props.clear()
+	for node in _schema_nodes:
+		NetworkSynchronizationServer.deregister_schema_for(node)
+	_schema_nodes.clear()
 
 	# Register new schema
 	for prop in schema:
 		var prop_entry := PropertyEntry.parse(root, prop)
 		var serializer := schema[prop] as NetworkSchemaSerializer
 		NetworkSynchronizationServer.register_schema(prop_entry.node, prop_entry.property, serializer)
-		_schema_props.append([prop_entry.node, prop_entry.property])
+		_schema_nodes.add(prop_entry.node)
 
 ## Check if input is available for the current tick.
 ## [br][br]
@@ -258,7 +228,7 @@ func has_input() -> bool:
 func get_input_age() -> int:
 	# TODO: Cache these after prepare tick?
 	var max_age := 0
-	for input_node in _input_nodes:
+	for input_node in _input_properties.get_subjects():
 		var age := NetworkHistoryServer.get_data_age_for(input_node, NetworkRollback.tick)
 		max_age = maxi(age, max_age)
 		if age < 0:
@@ -302,7 +272,7 @@ func get_last_known_input() -> int:
 	# TODO: Is there an easier way?
 	var max_age := 0
 	var latest_tick := NetworkTime.tick + 1
-	for input_node in _input_nodes:
+	for input_node in _input_properties.get_subjects():
 		var age := NetworkHistoryServer.get_data_age_for(input_node, latest_tick)
 		if age >= 0:
 			max_age = maxi(age, max_age)
@@ -318,7 +288,7 @@ func get_last_known_state() -> int:
 	# TODO: Is there an easier way?
 	var max_age := 0
 	var latest_tick := NetworkTime.tick + 1
-	for state_node in _registered_nodes:
+	for state_node in _state_properties.get_subjects():
 		var age := NetworkHistoryServer.get_data_age_for(state_node, latest_tick)
 		if age >= 0:
 			max_age = maxi(age, max_age)
@@ -338,6 +308,12 @@ func _ready() -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_EDITOR_PRE_SAVE:
 		update_configuration_warnings()
+	elif what == NOTIFICATION_PREDELETE:
+		for node in _sim_nodes + _state_properties.get_subjects() + _input_properties.get_subjects():
+			RollbackSimulationServer.deregister_node(node)
+			NetworkSynchronizationServer.deregister(node)
+			NetworkIdentityServer.deregister_node(node)
+			NetworkHistoryServer.deregister(node)
 
 func _get_configuration_warnings() -> PackedStringArray:
 	if not root:
@@ -381,15 +357,3 @@ func _reprocess_settings() -> void:
 
 	_properties_dirty = false
 	process_settings()
-
-func _get_recorded_state_props() -> Array[PropertyEntry]:
-	return _state_property_config.get_properties()
-
-func _get_owned_state_props() -> Array[PropertyEntry]:
-	return _state_property_config.get_owned_properties()
-
-func _get_recorded_input_props() -> Array[PropertyEntry]:
-	return _input_property_config.get_owned_properties()
-
-func _get_owned_input_props() -> Array[PropertyEntry]:
-	return _input_property_config.get_owned_properties()

@@ -73,10 +73,21 @@ func register_schema(node: Node, property: NodePath, serializer: NetworkSchemaSe
 func deregister_schema(node: Node, property: NodePath) -> void:
 	_schemas.erase(node, property)
 
+func deregister_schema_for(node: Node) -> void:
+	_schemas.erase_subject(node)
+
 func register_visibility_filter(node: Node, filter: PeerVisibilityFilter) -> void:
 	_visibility_filters[node] = filter
 
 func deregister_visibility_filter(node: Node) -> void:
+	_visibility_filters.erase(node)
+
+func deregister(node: Node) -> void:
+	_rb_state_properties.erase_subject(node)
+	_rb_input_properties.erase_subject(node)
+	_rb_owned_state_properties.erase_subject(node)
+	_rb_owned_input_properties.erase_subject(node)
+	_sync_state_properties.erase_subject(node)
 	_visibility_filters.erase(node)
 
 func is_node_visible_to(peer: int, node: Node) -> bool:
