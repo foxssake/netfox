@@ -185,7 +185,6 @@ func process_authority():
 ## [NodePath] pointing to a node, or an actual [Node] instance. If the given
 ## property is already tracked, this method does nothing.
 func add_state(node: Variant, property: String):
-	# TODO: Rewrite
 	var property_path := PropertyEntry.make_path(root, node, property)
 	if not property_path or state_properties.has(property_path):
 		return
@@ -200,7 +199,6 @@ func add_state(node: Variant, property: String):
 ## [NodePath] pointing to a node, or an actual [Node] instance. If the given
 ## property is already tracked, this method does nothing.
 func add_input(node: Variant, property: String) -> void:
-	# TODO: Rewrite
 	var property_path := PropertyEntry.make_path(root, node, property)
 	if not property_path or input_properties.has(property_path):
 		return
@@ -258,7 +256,6 @@ func has_input() -> bool:
 ## [br][br]
 ## Calling this when [member has_input] is false will yield an error.
 func get_input_age() -> int:
-	# TODO: input-prediction example desyncs
 	# TODO: Cache these after prepare tick?
 	var max_age := 0
 	for input_node in _input_nodes:
@@ -287,7 +284,6 @@ func is_predicting() -> bool:
 ## Call this when the input is too old to base predictions on. This call is
 ## ignored if [member enable_prediction] is false.
 func ignore_prediction(node: Node) -> void:
-	# TODO: Rewrite
 	# TODO: Does this even make sense in its current form?
 	return
 

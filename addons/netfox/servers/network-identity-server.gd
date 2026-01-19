@@ -60,7 +60,6 @@ func register_node(node: Node) -> void:
 func deregister_node(node: Node) -> void:
 	deregister(node)
 
-# TODO: Consider specific queries, NetworkIdentifier might be an impl detail
 func get_identifier_of(what: Object) -> _NetworkIdentifier:
 	return _identifiers.get(what)
 

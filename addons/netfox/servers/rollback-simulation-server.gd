@@ -1,13 +1,8 @@
 extends Node
 class_name _RollbackSimulationServer
 
-# node to callback
-# TODO: Consider allowing any Object, not just nodes
-var _callbacks := {}
-# node to array of ticks
-# used for is_fresh
-# TODO: Refactor to ringbuffer containing sets of nodes?
-var _simulated_ticks := {}
+var _callbacks := {}		# node to callback
+var _simulated_ticks := {}	# node to array of ticks
 
 var _input_graph := _Graph.new() # Links inputs to objects controlled by them
 
@@ -79,7 +74,6 @@ func is_predicting(input_snapshot: Snapshot, node: Node) -> bool:
 	var is_inputless := input_nodes.is_empty()
 	var has_input := false
 
-	# TODO: Avoid supporting null snapshots if possible
 	if not is_inputless and input_snapshot:
 		has_input = input_snapshot.has_nodes(input_nodes, true)
 

@@ -146,6 +146,9 @@ func nodes() -> Array[Node]:
 func is_empty() -> bool:
 	return data.is_empty()
 
+func size() -> int:
+	return data.size()
+
 func is_auth(node: Node, property: NodePath) -> bool:
 	return _is_authoritative.get(RecordedProperty.key_of(node, property), false)
 

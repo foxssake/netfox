@@ -30,12 +30,12 @@ var _dense_serializer := _DenseSnapshotSerializer.new(_schemas)
 var _sparse_serializer := _SparseSnapshotSerializer.new(_schemas)
 var _redundant_serializer := _RedundantSnapshotSerializer.new(_schemas)
 
-@onready var _cmd_full_state := NetworkCommandServer.register_command_at(_NetworkCommands.FULL_STATE, _handle_full_state, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
-@onready var _cmd_diff_state := NetworkCommandServer.register_command_at(_NetworkCommands.DIFF_STATE, _handle_diff_state, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
+@onready var _cmd_full_state := NetworkCommandServer.register_command_at(_NetworkCommands.RB_FULL_STATE, _handle_full_state, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
+@onready var _cmd_diff_state := NetworkCommandServer.register_command_at(_NetworkCommands.RB_DIFF_STATE, _handle_diff_state, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
 @onready var _cmd_input := NetworkCommandServer.register_command_at(_NetworkCommands.INPUT, _handle_input, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
 
-@onready var _cmd_full_sync := NetworkCommandServer.register_command_at(_NetworkCommands.FULL_SYNC, _handle_full_sync, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
-@onready var _cmd_diff_sync := NetworkCommandServer.register_command_at(_NetworkCommands.DIFF_SYNC, _handle_diff_sync, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
+@onready var _cmd_full_sync := NetworkCommandServer.register_command_at(_NetworkCommands.SYNC_FULL, _handle_full_sync, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
+@onready var _cmd_diff_sync := NetworkCommandServer.register_command_at(_NetworkCommands.SYNC_DIFF, _handle_diff_sync, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
 
 static var _logger := NetfoxLogger._for_netfox("RollbackSynchronizationServer")
 
@@ -178,8 +178,8 @@ func synchronize_state(tick: int) -> void:
 			var data := _sparse_serializer.write_for(peer, peer_diff, _rb_owned_state_properties)
 			_cmd_diff_state.send(data, peer)
 
-			NetworkPerformance.push_full_state(snapshot.data) # TODO: Ugh...
-			NetworkPerformance.push_sent_state(diff.data) # TODO: Ugh...
+			NetworkPerformance.push_full_state_props(snapshot.size())
+			NetworkPerformance.push_sent_state_props(diff.size())
 	else:
 		_rb_full_next = _rb_full_interval
 
@@ -195,12 +195,15 @@ func synchronize_state(tick: int) -> void:
 			_cmd_full_state.send(data, peer)
 			_logger.trace("Sent full state to #%d: %s", [peer, peer_snapshot])
 
-			NetworkPerformance.push_full_state(peer_snapshot.data) # TODO: Ugh...
-			NetworkPerformance.push_sent_state(peer_snapshot.data) # TODO: Ugh...
+			NetworkPerformance.push_full_state_props(peer_snapshot.size())
+			NetworkPerformance.push_sent_state_props(peer_snapshot.size())
 			_logger.debug("Pushed full state metrics: %d sent, %d full", [peer_snapshot.data.size(), peer_snapshot.data.size()])
 
 func synchronize_sync_state(tick: int) -> void:
-	# TODO: Reduce copy-paste
+	# We don't own sync state, nothing to synchronize
+	if _sync_owned_state_properties.is_empty():
+		return
+
 	# Grab snapshot from RollbackHistoryServer
 	var snapshot := RollbackHistoryServer.get_synchronizer_state_snapshot(tick)
 	if not snapshot:
@@ -228,8 +231,8 @@ func synchronize_sync_state(tick: int) -> void:
 			var data := _dense_serializer.write_for(peer, peer_snapshot, _sync_owned_state_properties)
 			_cmd_full_sync.send(data, peer)
 
-			NetworkPerformance.push_full_state(peer_snapshot.data) # TODO: Ugh...
-			NetworkPerformance.push_sent_state(peer_snapshot.data) # TODO: Ugh...
+			NetworkPerformance.push_full_state_props(peer_snapshot.size())
+			NetworkPerformance.push_sent_state_props(peer_snapshot.size())
 	else:
 		_sync_full_next -= 1
 		var diff := Snapshot.make_patch(_last_sync_state_sent, snapshot)
@@ -246,8 +249,8 @@ func synchronize_sync_state(tick: int) -> void:
 			var data := _sparse_serializer.write_for(peer, peer_snapshot, _sync_owned_state_properties)
 			_cmd_diff_sync.send(data, peer)
 
-			NetworkPerformance.push_full_state(snapshot.data) # TODO: Ugh...
-			NetworkPerformance.push_sent_state(peer_snapshot.data) # TODO: Ugh...
+			NetworkPerformance.push_full_state_props(snapshot.size())
+			NetworkPerformance.push_sent_state_props(peer_snapshot.size())
 
 	# Remember last sent state for diffing
 	# NOTE: This is a shared instance, theoretically shouldn't screw things up

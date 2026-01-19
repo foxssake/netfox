@@ -23,7 +23,7 @@ class_name StateSynchronizer
 ## [br][br]
 ## Only considered if [member _NetworkRollback.enable_diff_states] is true.
 @export_range(0, 128, 1, "or_greater")
-var full_state_interval: int = 24 # TODO: Don't tie to a network rollback setting?
+var full_state_interval: int = 24
 
 ## Ticks to wait between unreliably acknowledging diff states.
 ## [br][br]
@@ -40,7 +40,7 @@ var full_state_interval: int = 24 # TODO: Don't tie to a network rollback settin
 ## [br][br]
 ## Only considered if [member _NetworkRollback.enable_diff_states] is true.
 @export_range(0, 128, 1, "or_greater")
-var diff_ack_interval: int = 0 # TODO: Don't tie to a network rollback setting?
+var diff_ack_interval: int = 0
 
 ## Decides which peers will receive updates
 var visibility_filter := PeerVisibilityFilter.new()
