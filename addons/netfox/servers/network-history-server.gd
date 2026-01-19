@@ -95,21 +95,11 @@ func merge_rollback_state(snapshot: Snapshot) -> Snapshot:
 func merge_synchronizer_state(snapshot: Snapshot) -> Snapshot:
 	return merge_snapshot(snapshot, _sync_state_snapshots)
 
-func get_data_age_for(what: Node, tick: int) -> int:
-	if _rb_state_snapshots.is_empty() or _rb_input_snapshots.is_empty():
-		return -1
+func get_input_age_for(subjects: Array, tick: int) -> int:
+	return _get_age_for(subjects, tick, _rb_input_snapshots)
 
-	var earliest_tick := mini(_rb_state_snapshots.keys().min(), _rb_input_snapshots.keys().min())
-	for i in range(tick, earliest_tick - 1, -1):
-		var input_snapshot := get_rollback_input_snapshot(i)
-		var state_snapshot := get_rollback_state_snapshot(i)
-
-		var has_input := input_snapshot != null and input_snapshot.has_subject(what, true)
-		var has_state := state_snapshot != null and state_snapshot.has_subject(what, true)
-
-		if has_input or has_state:
-			return tick - i
-	return -1
+func get_state_age_for(subjects: Array, tick: int) -> int:
+	return _get_age_for(subjects, tick, _rb_state_snapshots)
 
 func _record(tick: int, snapshots: _HistoryBuffer, property_pool: _PropertyPool, only_auth: bool, auth_filter: Callable) -> void:
 	# Ensure snapshot
@@ -129,8 +119,8 @@ func _record(tick: int, snapshots: _HistoryBuffer, property_pool: _PropertyPool,
 
 		if only_auth and not is_auth:
 			continue
-#		if not is_auth and snapshot.is_auth(subject):
-#			continue
+		if not is_auth and snapshot.is_auth(subject):
+			continue
 
 		for property in property_pool.get_properties_of(subject):
 			snapshot.record_property(subject, property)
@@ -157,3 +147,18 @@ func _restore(tick: int, snapshots: _HistoryBuffer) -> bool:
 		_rb_state_snapshots: _logger.debug("Restored state @%d: %s", [tick, snapshot])
 	
 	return true
+
+func _get_age_for(subjects: Array, tick: int, snapshots: _HistoryBuffer) -> int:
+	var at := tick
+
+	# Bounded while loop
+	for i in range(1024):
+		if not snapshots.has_latest_at(at):
+			return -1
+
+		at = snapshots.get_latest_index_at(at)
+		var snapshot := snapshots.get_at(at) as Snapshot
+		if snapshot.has_subjects(subjects, true):
+			return tick - at
+
+	return -1

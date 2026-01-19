@@ -260,7 +260,7 @@ func _handle_input(sender: int, data: PackedByteArray):
 	_logger.trace("Received input snapshots: %s", [snapshots])
 
 	for snapshot in snapshots:
-		# TODO: Sanitize
+		snapshot.sanitize(sender)
 
 		# TODO: Only merge inputs we don't have yet, so clients don't cheat by
 		#       overriding their earlier choices. Only emit signal for snapshots
@@ -292,6 +292,7 @@ func _handle_full_sync(sender: int, data: PackedByteArray):
 	buffer.data_array = data
 
 	var snapshot := _dense_serializer.read_from(sender, _sync_state_properties, buffer, true)
+	snapshot.sanitize(sender)
 
 	NetworkHistoryServer.merge_synchronizer_state(snapshot)
 	_logger.trace("Ingested sync state: %s", [snapshot])
@@ -301,12 +302,13 @@ func _handle_diff_sync(sender: int, data: PackedByteArray):
 	buffer.data_array = data
 
 	var snapshot := _sparse_serializer.read_from(sender, _sync_state_properties, buffer)
+	snapshot.sanitize(sender)
 
 	NetworkHistoryServer.merge_synchronizer_state(snapshot)
 	_logger.trace("Ingested sync diff: %s", [snapshot])
 
 func _ingest_state(sender: int, snapshot: Snapshot) -> void:
-	# TODO: Sanitize
+	snapshot.sanitize(sender)
 #	_logger.debug("Received state snapshot: %s", [snapshot])
 
 	var merged := NetworkHistoryServer.merge_rollback_state(snapshot)

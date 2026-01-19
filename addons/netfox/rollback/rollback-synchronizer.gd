@@ -223,18 +223,8 @@ func has_input() -> bool:
 ## [br][br]
 ## The available input may be from the current tick, or from multiple ticks ago.
 ## This number of tick is the input's age.
-## [br][br]
-## Calling this when [member has_input] is false will yield an error.
 func get_input_age() -> int:
-	# TODO: Cache these after prepare tick?
-	var max_age := 0
-	for input_node in _input_properties.get_subjects():
-		var age := NetworkHistoryServer.get_data_age_for(input_node, NetworkRollback.tick)
-		max_age = maxi(age, max_age)
-		if age < 0:
-			# TODO: Error, somehow
-			return -1
-	return max_age
+	return NetworkHistoryServer.get_input_age_for(_input_properties.get_subjects(), NetworkRollback.tick)
 
 ## Check if the current tick is predicted.
 ## [br][br]
@@ -269,14 +259,7 @@ func ignore_prediction(node: Node) -> void:
 ## [br][br]
 ## Returns -1 if there's no known input.
 func get_last_known_input() -> int:
-	# TODO: Is there an easier way?
-	var max_age := 0
-	var latest_tick := NetworkTime.tick + 1
-	for input_node in _input_properties.get_subjects():
-		var age := NetworkHistoryServer.get_data_age_for(input_node, latest_tick)
-		if age >= 0:
-			max_age = maxi(age, max_age)
-	return latest_tick - max_age
+	return NetworkHistoryServer.get_input_age_for(_input_properties.get_subjects(), NetworkTime.tick)
 
 ## Get the tick of the last known state.
 ## [br][br]
@@ -285,14 +268,7 @@ func get_last_known_input() -> int:
 ## data may change as new input arrives. For peers that don't own state, this
 ## will be the tick of the latest state received from the state owner.
 func get_last_known_state() -> int:
-	# TODO: Is there an easier way?
-	var max_age := 0
-	var latest_tick := NetworkTime.tick + 1
-	for state_node in _state_properties.get_subjects():
-		var age := NetworkHistoryServer.get_data_age_for(state_node, latest_tick)
-		if age >= 0:
-			max_age = maxi(age, max_age)
-	return latest_tick - max_age
+	return NetworkHistoryServer.get_state_age_for(_state_properties.get_subjects(), NetworkTime.tick)
 
 func _ready() -> void:
 	if Engine.is_editor_hint():
