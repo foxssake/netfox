@@ -14,8 +14,7 @@ var _input_graph := _Graph.new() # Links inputs to objects controlled by them
 # Currently simulated object
 var _current_object: Object = null
 # Predicted nodes for next simulation
-# TODO: _Set?
-var _predicted_nodes := [] as Array[Node]
+var _predicted_nodes := _Set.new()
 
 var _group := StringName("__nf_rollback_sim" + str(get_instance_id()))
 
@@ -141,7 +140,7 @@ func simulate(delta: float, tick: int) -> void:
 	# Determine predicted nodes
 	for node in _callbacks.keys():
 		if is_predicting(input_snapshot, node):
-			_predicted_nodes.append(node)
+			_predicted_nodes.add(node)
 
 	# Run callbacks and clear group
 	for node in nodes:
@@ -157,9 +156,6 @@ func simulate(delta: float, tick: int) -> void:
 
 	# Metrics
 	NetworkPerformance.push_rollback_nodes_simulated(nodes.size())
-
-func get_predicted_nodes() -> Array[Node]:
-	return _predicted_nodes
 
 func get_controlled_by(input: Node) -> Array[Node]:
 	var result := [] as Array[Node]
