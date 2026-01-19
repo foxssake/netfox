@@ -10,8 +10,6 @@ var _use_raw := ProjectSettings.get_setting("netfox/general/use_raw_commands", f
 
 static var _logger := NetfoxLogger._for_netfox("NetworkCommandServer")
 
-# TODO: Update time synchronizer to use commands
-
 func _ready():
 	add_child(_rpc_transport, true)
 	add_child(_packet_transport, true)
