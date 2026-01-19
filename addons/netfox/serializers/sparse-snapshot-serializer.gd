@@ -4,24 +4,30 @@ class_name _SparseSnapshotSerializer
 static func _static_init():
 	_logger = NetfoxLogger._for_netfox("SparseSnapshotSerializer")
 
-func write_for(peer: int, snapshot: Snapshot, properties: _PropertyPool, buffer: StreamPeerBuffer = null) -> PackedByteArray:
+func write_for(peer: int, snapshot: Snapshot, properties: _PropertyPool, filter: Callable = _default_filter, buffer: StreamPeerBuffer = null) -> PackedByteArray:
 	if buffer == null:
 		buffer = StreamPeerBuffer.new()
 
 	var netref := NetworkSchemas._netref()
 	var varuint := NetworkSchemas.varuint()
 	var varbits := NetworkSchemas._varbits()
-	
+
 	var node_buffer := StreamPeerBuffer.new()
-	
+
+	var has_data := false
+
 	# Write ticks
 	buffer.put_u32(snapshot.tick)
 	# TODO: Include property config hash to detect mismatches
 
 	# For each node
 	for subject in properties.get_subjects():
+		if not filter.call(subject): continue
+		if not snapshot.is_auth(subject): continue
+
 		var node := subject as Node
 		assert(node.is_multiplayer_authority(), "Trying to serialize state for non-owned node!")
+		assert(snapshot.is_auth(node), "Trying to serialize non-auth state node!")
 
 		# Write identifier
 		if _write_identifier(node, peer, buffer) != OK:
@@ -35,10 +41,8 @@ func write_for(peer: int, snapshot: Snapshot, properties: _PropertyPool, buffer:
 		for i in node_props.size():
 			var property := node_props[i]
 			# TODO: Node-level auth tracking
-			if not snapshot.has_property(node, property) or not snapshot.is_auth(node, property):
+			if not snapshot.has_property(node, property):
 				continue
-
-			assert(snapshot.is_auth(node, property), "Trying to serialize non-auth state property!")
 
 			changed_bits.set_bit(i)
 			var value := snapshot.get_property(node, property)
@@ -47,8 +51,13 @@ func write_for(peer: int, snapshot: Snapshot, properties: _PropertyPool, buffer:
 		varuint.encode(node_buffer.data_array.size(), buffer)	# Node props len
 		varbits.encode(changed_bits, buffer)					# Changed prop bits
 		buffer.put_data(node_buffer.data_array)					# Changed props
-	
-	return buffer.data_array
+		has_data = true
+
+	if has_data:
+		return buffer.data_array
+	else:
+		# Return an empty buffer if we ended up not serializing anything
+		return PackedByteArray()
 
 func read_from(peer: int, properties: _PropertyPool, buffer: StreamPeerBuffer, is_auth: bool = true) -> Snapshot:
 	var netref := NetworkSchemas._netref()
@@ -84,5 +93,6 @@ func read_from(peer: int, properties: _PropertyPool, buffer: StreamPeerBuffer, i
 		for idx in changed_bits.get_set_indices():
 			var property := node_props[idx]
 			var value := _read_property(node, property, node_buffer)
-			snapshot.set_property(node, property, value, is_auth)
+			snapshot.set_property(node, property, value)
+		snapshot.set_auth(node, is_auth)
 	return snapshot

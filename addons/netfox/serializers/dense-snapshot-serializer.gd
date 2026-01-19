@@ -4,7 +4,7 @@ class_name _DenseSnapshotSerializer
 static func _static_init():
 	_logger = NetfoxLogger._for_netfox("DenseSnapshotSerializer")
 
-func write_for(peer: int, snapshot: Snapshot, properties: _PropertyPool, buffer: StreamPeerBuffer = null) -> PackedByteArray:
+func write_for(peer: int, snapshot: Snapshot, properties: _PropertyPool, filter: Callable = _default_filter, buffer: StreamPeerBuffer = null) -> PackedByteArray:
 	if buffer == null:
 		buffer = StreamPeerBuffer.new()
 
@@ -13,14 +13,20 @@ func write_for(peer: int, snapshot: Snapshot, properties: _PropertyPool, buffer:
 
 	var node_buffer := StreamPeerBuffer.new()
 
+	var has_data := false
+
 	# Write tick
 	buffer.put_u32(snapshot.tick)
 	# TODO: Include property config hash to detect mismatches
 
 	# For each node
 	for subject in properties.get_subjects():
+		if not filter.call(subject): continue
+		if not snapshot.is_auth(subject): continue
+
 		var node := subject as Node
 		assert(node.is_multiplayer_authority(), "Trying to serialize state for non-owned node!")
+		assert(snapshot.is_auth(node), "Trying to serialize non-auth state node!")
 
 		# Write identifier
 		if _write_identifier(node, peer, buffer) != OK:
@@ -30,11 +36,7 @@ func write_for(peer: int, snapshot: Snapshot, properties: _PropertyPool, buffer:
 		# First into a buffer, so we can start with the state size
 		node_buffer.clear()
 		for property in properties.get_properties_of(node):
-			# TODO: Subject-level auth tracking so we don't have to do this check for every property
-			if not snapshot.is_auth(node, property): continue
-
 			assert(snapshot.has_property(node, property), "Trying to serialize missing property %s on subject %s!" % [property, node])
-			assert(snapshot.is_auth(node, property), "Trying to serialize non-auth state property!")
 
 			var value := snapshot.get_property(node, property)
 			_write_property(node, property, value, node_buffer)
@@ -45,7 +47,12 @@ func write_for(peer: int, snapshot: Snapshot, properties: _PropertyPool, buffer:
 		# Write node state
 		buffer.put_data(node_buffer.data_array)
 
-	return buffer.data_array
+		has_data = true
+
+	if has_data:
+		return buffer.data_array
+	else:
+		return PackedByteArray()
 
 func read_from(peer: int, properties: _PropertyPool, buffer: StreamPeerBuffer, is_auth: bool = true) -> Snapshot:
 	var netref := NetworkSchemas._netref()
@@ -79,6 +86,7 @@ func read_from(peer: int, properties: _PropertyPool, buffer: StreamPeerBuffer, i
 			if node_buffer.get_available_bytes() == 0: break
 
 			var value := _read_property(node, property, node_buffer)
-			snapshot.set_property(node, property, value, is_auth)
+			snapshot.set_property(node, property, value)
+		snapshot.set_auth(node, is_auth)
 
 	return snapshot

@@ -20,9 +20,7 @@ var _sync_enable_diffs := true		# TODO: Config
 var _sync_full_interval := 24		# TODO: Config
 var _sync_full_next := -1
 
-# TODO: Swap to (object to (property to NetworkSchemaSerializer))
-var _schemas := {} # RecordedProperty key to NetworkSchemaSerializer
-var _fallback_schema := NetworkSchemas.variant()
+var _schemas := _NetworkSchema.new()
 
 var _input_redundancy := 3			# TODO: Config
 
@@ -70,12 +68,10 @@ func deregister_sync_state(node: Node, property: NodePath) -> void:
 	_sync_owned_state_properties.erase(node, property)
 
 func register_schema(node: Node, property: NodePath, serializer: NetworkSchemaSerializer) -> void:
-	var key := RecordedProperty.key_of(node, property)
-	_schemas[key] = serializer
+	_schemas.add(node, property, serializer)
 
 func deregister_schema(node: Node, property: NodePath) -> void:
-	var key := RecordedProperty.key_of(node, property)
-	_schemas.erase(key)
+	_schemas.erase(node, property)
 
 func register_visibility_filter(node: Node, filter: PeerVisibilityFilter) -> void:
 	_visibility_filters[node] = filter
@@ -83,7 +79,7 @@ func register_visibility_filter(node: Node, filter: PeerVisibilityFilter) -> voi
 func deregister_visibility_filter(node: Node) -> void:
 	_visibility_filters.erase(node)
 
-func is_property_visible_to(peer: int, node: Node, property: NodePath) -> bool:
+func is_node_visible_to(peer: int, node: Node) -> bool:
 	# TODO: Cache visibilities
 	var filter := _visibility_filters.get(node) as PeerVisibilityFilter
 	if not filter:
@@ -101,6 +97,9 @@ func synchronize_input(tick: int) -> void:
 	var notified_peers := _Set.new()
 
 	if not _rb_enable_input_broadcast:
+		# If input broadcast is off, find which peers need to know our inputs
+		# That is all peers who own state controlled by our input
+
 		# Grab owned input objects
 		for input_subject in _rb_owned_input_properties.get_subjects():
 			# Grab state objects controlled by input
@@ -110,19 +109,20 @@ func synchronize_input(tick: int) -> void:
 			for node in controlled_nodes:
 				notified_peers.add(node.get_multiplayer_authority())
 	else:
+		# If input broadcast is on, send inputs to everyone
 		for peer in multiplayer.get_peers():
 			notified_peers.add(peer)
 
+	# Make sure to not send input to ourselves
 	notified_peers.erase(multiplayer.get_unique_id())
-	# Only send input to peers in set
 
+	# Prepare snapshot package
 	for offset in _input_redundancy:
 		# Grab snapshot from RollbackHistoryServer
 		var snapshot := RollbackHistoryServer.get_rollback_input_snapshot(tick - offset)
 		if not snapshot:
 			break
 
-		# Transmit
 		_logger.trace("Submitting input: %s", [snapshot])
 		snapshots.append(snapshot)
 
@@ -169,13 +169,13 @@ func synchronize_state(tick: int) -> void:
 
 		# Send diff states
 		for peer in multiplayer.get_peers():
-			# TODO: Filter property set instead?
-			var peer_diff := diff.filtered(func(node, prop): return is_property_visible_to(peer, node, prop))
-			if peer_diff.is_empty():
+			var filter := func(subject): return is_node_visible_to(peer, subject)
+
+			var data := _sparse_serializer.write_for(peer, diff, _rb_owned_state_properties, filter)
+			if data.is_empty():
 				# Peer can't see any changes, send nothing
 				continue
 
-			var data := _sparse_serializer.write_for(peer, peer_diff, _rb_owned_state_properties)
 			_cmd_diff_state.send(data, peer)
 
 			NetworkPerformance.push_full_state_props(snapshot.size())
@@ -185,19 +185,17 @@ func synchronize_state(tick: int) -> void:
 
 		# Send full states
 		for peer in multiplayer.get_peers():
-			# TODO: Filter property set instead?
-			var peer_snapshot := snapshot.filtered(func(node, prop): return is_property_visible_to(peer, node, prop))
-			if peer_snapshot.is_empty():
+			var filter := func(subject): return is_node_visible_to(peer, subject)
+
+			var data := _dense_serializer.write_for(peer, snapshot, _rb_owned_state_properties, filter)
+			if data.is_empty():
 				# Peer can't see anything, send nothing
 				continue
 
-			var data := _dense_serializer.write_for(peer, peer_snapshot, _rb_owned_state_properties)
 			_cmd_full_state.send(data, peer)
-			_logger.trace("Sent full state to #%d: %s", [peer, peer_snapshot])
 
-			NetworkPerformance.push_full_state_props(peer_snapshot.size())
-			NetworkPerformance.push_sent_state_props(peer_snapshot.size())
-			_logger.debug("Pushed full state metrics: %d sent, %d full", [peer_snapshot.data.size(), peer_snapshot.data.size()])
+			NetworkPerformance.push_full_state_props(snapshot.size())
+			NetworkPerformance.push_sent_state_props(snapshot.size())
 
 func synchronize_sync_state(tick: int) -> void:
 	# We don't own sync state, nothing to synchronize
@@ -222,35 +220,34 @@ func synchronize_sync_state(tick: int) -> void:
 
 		# Send full states
 		for peer in multiplayer.get_peers():
-			var peer_snapshot := snapshot.filtered(func(node, prop): return is_property_visible_to(peer, node, prop))
+			var filter := func(subject): return is_node_visible_to(peer, subject)
 
-			if peer_snapshot.is_empty():
+			var data := _dense_serializer.write_for(peer, snapshot, _sync_owned_state_properties, filter)
+			if data.is_empty():
 				# Peer can't see anything, send nothing
 				continue
 
-			var data := _dense_serializer.write_for(peer, peer_snapshot, _sync_owned_state_properties)
 			_cmd_full_sync.send(data, peer)
 
-			NetworkPerformance.push_full_state_props(peer_snapshot.size())
-			NetworkPerformance.push_sent_state_props(peer_snapshot.size())
+			NetworkPerformance.push_full_state_props(snapshot.size())
+			NetworkPerformance.push_sent_state_props(snapshot.size())
 	else:
 		_sync_full_next -= 1
 		var diff := Snapshot.make_patch(_last_sync_state_sent, snapshot)
 
 		# Send diffs
 		for peer in multiplayer.get_peers():
-			var peer_snapshot := diff.filtered(func(node, prop): return is_property_visible_to(peer, node, prop))
+			var filter := func(subject): return is_node_visible_to(peer, subject)
 
-			if peer_snapshot.is_empty():
-				# Nothing changed, don't send anything
+			var data := _sparse_serializer.write_for(peer, diff, _sync_owned_state_properties, filter)
+			if data.is_empty():
+				# Peer can't see anything, send nothing
 				continue
 
-			var me := multiplayer.get_unique_id()
-			var data := _sparse_serializer.write_for(peer, peer_snapshot, _sync_owned_state_properties)
 			_cmd_diff_sync.send(data, peer)
 
 			NetworkPerformance.push_full_state_props(snapshot.size())
-			NetworkPerformance.push_sent_state_props(peer_snapshot.size())
+			NetworkPerformance.push_sent_state_props(diff.size())
 
 	# Remember last sent state for diffing
 	# NOTE: This is a shared instance, theoretically shouldn't screw things up

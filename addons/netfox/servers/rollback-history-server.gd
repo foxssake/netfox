@@ -107,8 +107,8 @@ func get_data_age_for(what: Node, tick: int) -> int:
 		var input_snapshot := get_rollback_input_snapshot(i)
 		var state_snapshot := get_rollback_state_snapshot(i)
 
-		var has_input := input_snapshot != null and input_snapshot.has_node(what, true)
-		var has_state := state_snapshot != null and state_snapshot.has_node(what, true)
+		var has_input := input_snapshot != null and input_snapshot.has_subject(what, true)
+		var has_state := state_snapshot != null and state_snapshot.has_subject(what, true)
 
 		if has_input or has_state:
 			return tick - i
@@ -129,13 +129,16 @@ func _record(tick: int, snapshots: Dictionary, property_pool: _PropertyPool, onl
 		assert(subject is Node, "Only nodes supported for now!")
 
 		var is_auth := auth_filter.call(subject)
+
 		if only_auth and not is_auth:
 			continue
+#		if not is_auth and snapshot.is_auth(subject):
+#			continue
 
 		for property in property_pool.get_properties_of(subject):
-			var value := subject.get_indexed(property)
-			if snapshot.merge_property(subject, property, value, is_auth):
-				updates.append([subject, property, value, is_auth])
+			snapshot.record_property(subject, property)
+			updates.append([subject, property, snapshot.get_property(subject, property), is_auth])
+		snapshot.set_auth(subject, is_auth)
 
 	match snapshots:
 		_rb_input_snapshots:

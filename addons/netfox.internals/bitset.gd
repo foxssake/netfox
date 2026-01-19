@@ -4,16 +4,12 @@ class_name _Bitset
 var _data: PackedByteArray
 var _bit_count: int
 
-# TODO: Tests
-
-
 static func of_bools(values: Array) -> _Bitset:
 	var result := _Bitset.new(values.size())
 	for i in values.size():
 		if values[i]:
 			result.set_bit(i)
 	return result
-
 
 func _init(bit_count: int):
 	var bytes := bit_count / 8

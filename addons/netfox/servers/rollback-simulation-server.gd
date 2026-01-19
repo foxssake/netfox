@@ -57,7 +57,7 @@ func get_nodes_to_simulate(input_snapshot: Snapshot) -> Array[Node]:
 			result.append(node)
 			continue
 
-		if not input_snapshot.has_nodes(inputs, true):
+		if not input_snapshot.has_subjects(inputs, true):
 			# We don't have input for node, don't simulate
 			continue
 
@@ -75,7 +75,7 @@ func is_predicting(input_snapshot: Snapshot, node: Node) -> bool:
 	var has_input := false
 
 	if not is_inputless and input_snapshot:
-		has_input = input_snapshot.has_nodes(input_nodes, true)
+		has_input = input_snapshot.has_subjects(input_nodes, true)
 
 	if not is_owned and has_input:
 		# We don't own the node, but we own input for it - not (input) predicting

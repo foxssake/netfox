@@ -6,7 +6,7 @@ var _dense_serializer: _DenseSnapshotSerializer
 static func _static_init():
 	_logger = NetfoxLogger._for_netfox("RedundantSnapshotSerializer")
 
-func _init(p_schemas: Dictionary):
+func _init(p_schemas: _NetworkSchema):
 	super(p_schemas)
 	_dense_serializer = _DenseSnapshotSerializer.new(_schemas)
 

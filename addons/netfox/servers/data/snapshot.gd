@@ -2,25 +2,26 @@ extends RefCounted
 class_name Snapshot
 
 var tick: int
-var data: Dictionary = {} # RecordedProperty to Variant value
-var _is_authoritative: Dictionary = {} # Property key to bool, not present means false
+var _data := {} # object to (property to variant)
+var _is_authoritative := {} # object to bool, absent means false
 
-static func make_patch(from: Snapshot, to: Snapshot, tick: int = to.tick, include_new: bool = true) -> Snapshot:
+static func make_patch(from: Snapshot, to: Snapshot, tick: int = to.tick) -> Snapshot:
 	var patch := Snapshot.new(tick)
-	
-	for prop_key in from.data:
-		# TODO: This works if both props are auth - handle if that differs
-		if to.data.has(prop_key) and from.data[prop_key] != to.data[prop_key]:
-			patch.data[prop_key] = to.data[prop_key]
-			patch._is_authoritative[prop_key] = to._is_authoritative[prop_key]
 
-	if include_new:
-		for prop_key in to.data:
-			# TODO: This works if both props are auth - handle if that differs
-			if not from.data.has(prop_key):
-				patch.data[prop_key] = to.data[prop_key]
-				patch._is_authoritative[prop_key] = to._is_authoritative[prop_key]
-	
+	for subject in from._data:
+		# Target has no knowledge of subject, don't patch
+		if not to._data.has(subject):
+			continue
+		# Only patch to auth subjects
+		if not to.is_auth(subject):
+			continue
+
+		for property in to._data[subject]:
+			# Target snapshot has different value, patch it
+			if from.get_property(subject, property) != to.get_property(subject, property):
+				patch.set_property(subject, property, to.get_property(subject, property))
+		patch.set_auth(subject, to.is_auth(subject))
+
 	return patch
 
 func _init(p_tick: int):
@@ -28,146 +29,101 @@ func _init(p_tick: int):
 
 func duplicate() -> Snapshot:
 	var result := Snapshot.new(tick)
-	result.data = data.duplicate()
+	result._data = _data.duplicate(true)
 	result._is_authoritative = _is_authoritative.duplicate()
 	return result
 
-func set_property(node: Node, property: NodePath, value: Variant, is_authoritative: bool = false) -> void:
-	data[RecordedProperty.key_of(node, property)] = value
-	_is_authoritative[RecordedProperty.key_of(node, property)] = is_authoritative
+func set_auth(subject: Object, is_auth: bool) -> void:
+	_is_authoritative[subject] = is_auth
 
-func get_property(node: Node, property: NodePath) -> Variant:
-	return data[RecordedProperty.key_of(node, property)]
+func set_property(subject: Object, property: NodePath, value: Variant) -> void:
+	if not _data.has(subject):
+		_data[subject] = { property: value }
+	else:
+		_data[subject][property] = value
 
-func has_property(node: Node, property: NodePath) -> bool:
-	return data.has(RecordedProperty.key_of(node, property))
+func record_property(subject: Object, property: NodePath) -> void:
+	var value := subject.get_indexed(property)
+	set_property(subject, property, value)
 
-func merge_property(node: Node, property: NodePath, value: Variant, is_authoritative: bool = false) -> bool:
-	var prop_key := RecordedProperty.key_of(node, property)
-	if is_authoritative or not _is_authoritative.get(prop_key, false):
-		data[prop_key] = value
-		_is_authoritative[prop_key] = is_authoritative
-		return true
-	return false
+func get_property(subject: Object, property: NodePath) -> Variant:
+	return _data.get(subject, {}).get(property)
+
+func has_property(subject: Object, property: NodePath) -> bool:
+	if not _data.has(subject):
+		return false
+	if not _data[subject].has(property):
+		return false
+	return true
 
 func merge(snapshot: Snapshot) -> void:
-	for prop_key in snapshot.data:
-		# Merge properties that we don't have, or don't have it authoritatively
-		if snapshot._is_authoritative.get(prop_key, false) or not _is_authoritative.get(prop_key, false):
-			data[prop_key] = snapshot.data[prop_key]
-			_is_authoritative[prop_key] = snapshot._is_authoritative[prop_key]
+	for subject in snapshot._data:
+		if not _data.has(subject):
+			# We have no data of the subject, copy all
+			_data[subject] = snapshot._data[subject].duplicate()
+			set_auth(subject, snapshot.is_auth(subject))
+			continue
+
+		if snapshot.is_auth(subject) or not is_auth(subject):
+			var own_props := _data[subject] as Dictionary
+			var their_props := snapshot._data[subject] as Dictionary
+			own_props.merge(their_props, true)
+			set_auth(subject, snapshot.is_auth(subject))
 
 func apply() -> void:
-	for prop_key in data:
-		var value = data[prop_key]
-		RecordedProperty.apply(prop_key, value)
+	for subject in _data:
+		for property in _data[subject]:
+			var value = _data[subject][property]
+			(subject as Object).set_indexed(property, value)
 
-func filtered_to_auth() -> Snapshot:
-	var snapshot := Snapshot.new(tick)
+func has_subject(subject: Object, require_auth: bool = false) -> bool:
+	if not _data.has(subject):
+		return false
+	if require_auth and not _is_authoritative.get(subject, false):
+		return false
+	return true
 
-	for property in data:
-		if not _is_authoritative[property]:
-			continue
-
-		snapshot.data[property] = data[property]
-		snapshot._is_authoritative[property] = _is_authoritative[property]
-
-	return snapshot
-
-func filtered_to_owned() -> Snapshot:
-	var snapshot := Snapshot.new(tick)
-
-	for property in data:
-		if not RecordedProperty.get_node(property).is_multiplayer_authority():
-			continue
-
-		snapshot.data[property] = data[property]
-		snapshot._is_authoritative[property] = _is_authoritative[property]
-	
-	return snapshot
-
-func filtered(filter: Callable) -> Snapshot:
-	var snapshot := Snapshot.new(tick)
-
-	for property in data:
-		var node := RecordedProperty.get_node(property)
-		var prop := RecordedProperty.get_property(property)
-		if not filter.call(node, prop):
-			continue
-
-		snapshot.data[property] = data[property]
-		snapshot._is_authoritative[property] = _is_authoritative[property]
-
-	return snapshot
-
-func has_node(node: Node, require_auth: bool = false) -> bool:
-	for entry in data.keys():
-		var entry_node := entry[0] as Node
-		if entry_node != node:
-			continue
-
-		var is_auth := _is_authoritative.get(entry, false) as bool
-		if require_auth and not is_auth:
-			continue
-
-		return true
-	return false
-
-func has_nodes(nodes: Array[Node], require_auth: bool = false) -> bool:
-	for entry in data.keys():
-		var entry_node := entry[0] as Node
-		if not nodes.has(entry_node):
-			continue
-
-		var is_auth := _is_authoritative.get(entry, false) as bool
-		if require_auth and not is_auth:
-			continue
-
-		return true
-	return false
+func has_subjects(subjects: Array, require_auth: bool = false) -> bool:
+	for subject in subjects:
+		if not has_subject(subject, require_auth):
+			return false
+	return true
 
 func get_properties_of_node(node: Node) -> Array[NodePath]:
 	var properties := [] as Array[NodePath]
-	for entry in data.keys():
-		var entry_node := entry[0] as Node
-		var entry_path := entry[1] as NodePath
-		if entry_node == node:
-			properties.append(entry_path)
+	properties.assign(_data.get(node, []))
 	return properties
 
-func nodes() -> Array[Node]:
-	var nodes := [] as Array[Node]
-	for entry in data.keys():
-		var entry_node := entry[0] as Node
-		if not nodes.has(entry_node):
-			nodes.append(entry_node)
-	return nodes
-
 func is_empty() -> bool:
-	return data.is_empty()
+	return _data.is_empty()
 
 func size() -> int:
-	return data.size()
+	var result := 0
+	for subject in _data:
+		result += (_data[subject] as Dictionary).size()
+	return result
 
-func is_auth(node: Node, property: NodePath) -> bool:
-	return _is_authoritative.get(RecordedProperty.key_of(node, property), false)
+func is_auth(subject: Object) -> bool:
+	return _is_authoritative.get(subject, false)
 
 func equals(other) -> bool:
 	if other is Snapshot:
-		return tick == other.tick and data == other.data and _is_authoritative == other._is_authoritative
+		return tick == other.tick and _data == other._data and _is_authoritative == other._is_authoritative
 	else:
 		return false
 
 func _to_string() -> String:
 	var result := "Snapshot(#%d" % [tick]
-	for entry in data:
-		result += ", %s(%s): %s" % [entry, _is_authoritative.get(entry, false), data[entry]]
+	for subject in _data:
+		for property in _data[subject]:
+			var value = _data[subject][property]
+			result += ", %s:%s(%s): %s" % [subject, property, _is_authoritative.get(subject, false), value]
 	result += ")"
 	return result
 
 func _to_vest():
 	return {
 		"tick": tick,
-		"data": data,
+		"data": _data,
 		"is_auth": _is_authoritative
 	}

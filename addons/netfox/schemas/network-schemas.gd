@@ -55,7 +55,13 @@ static func uint32() -> NetworkSchemaSerializer:
 static func uint64() -> NetworkSchemaSerializer:
 	return _Uint64Serializer.new()
 
-# TODO: Docs
+## Serialize an unsigned integer as a variable amount of bytes.
+## [br][br]
+## Each byte contains 7 bits of data. The 8th bit indicates whether there are
+## more bytes left. Thus, small numbers fitting into 7 bits will be encoded as
+## a single byte, while larger numbers take more space as they increase.
+## [br][br]
+## Final size is 1 byte for every 7 bits of numeric data.
 static func varuint() -> NetworkSchemaSerializer:
 	return _VaruintSerializer.instance
 
