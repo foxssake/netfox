@@ -1,5 +1,5 @@
 extends Node
-class_name _RollbackSynchronizationServer
+class_name _NetworkSynchronizationServer
 
 var _rb_input_properties := _PropertyPool.new()
 var _rb_state_properties := _PropertyPool.new()
@@ -13,12 +13,12 @@ var _visibility_filters := {} # Node to PeerVisibilityFilter
 var _rb_enable_input_broadcast := ProjectSettings.get_setting("netfox/rollback/enable_input_broadcast", false)
 var _rb_enable_diffs := NetworkRollback.enable_diff_states
 var _rb_full_interval := ProjectSettings.get_setting("netfox/rollback/full_state_interval", 24)
-var _rb_full_next := -1
+var _rb_full_scheduler := _IntervalScheduler.new(_rb_full_interval)
 
 var _last_sync_state_sent := Snapshot.new(0)
 var _sync_enable_diffs := ProjectSettings.get_setting("netfox/state_synchronizer/enable_diff_states", true)
 var _sync_full_interval := ProjectSettings.get_setting("netfox/state_synchronizer/full_state_interval", 24)
-var _sync_full_next := -1
+var _sync_full_scheduler := _IntervalScheduler.new(_sync_full_interval)
 
 var _schemas := _NetworkSchema.new()
 
@@ -35,7 +35,7 @@ var _redundant_serializer := _RedundantSnapshotSerializer.new(_schemas)
 @onready var _cmd_full_sync := NetworkCommandServer.register_command_at(_NetworkCommands.SYNC_FULL, _handle_full_sync, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
 @onready var _cmd_diff_sync := NetworkCommandServer.register_command_at(_NetworkCommands.SYNC_DIFF, _handle_diff_sync, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
 
-static var _logger := NetfoxLogger._for_netfox("RollbackSynchronizationServer")
+static var _logger := NetfoxLogger._for_netfox("NetworkSynchronizationServer")
 
 signal on_input(snapshot: Snapshot)
 signal on_state(snapshot: Snapshot)
@@ -118,8 +118,8 @@ func synchronize_input(tick: int) -> void:
 
 	# Prepare snapshot package
 	for offset in _input_redundancy:
-		# Grab snapshot from RollbackHistoryServer
-		var snapshot := RollbackHistoryServer.get_rollback_input_snapshot(tick - offset)
+		# Grab snapshot from NetworkHistoryServer
+		var snapshot := NetworkHistoryServer.get_rollback_input_snapshot(tick - offset)
 		if not snapshot:
 			break
 
@@ -137,8 +137,8 @@ func synchronize_state(tick: int) -> void:
 	if _rb_owned_state_properties.is_empty():
 		return
 
-	# Grab snapshot from RollbackHistoryServer
-	var snapshot := RollbackHistoryServer.get_rollback_state_snapshot(tick)
+	# Grab snapshot from NetworkHistoryServer
+	var snapshot := NetworkHistoryServer.get_rollback_state_snapshot(tick)
 	if not snapshot:
 		# No data for tick
 		return
@@ -148,20 +148,30 @@ func synchronize_state(tick: int) -> void:
 		return
 	
 	# Figure out whether to send full- or diff state
-	var is_diff := false
-	if _rb_enable_diffs:
-		if _rb_full_interval <= 0:
-			is_diff = true
-		elif _rb_full_next < 0:
-			is_diff = true
+	var is_full := _rb_full_scheduler.is_now()
+	if not _rb_enable_diffs:
+		is_full = true
 
 	# Check if we have history to diff to
-	var reference_snapshot := RollbackHistoryServer.get_rollback_state_snapshot(tick - 1)
+	var reference_snapshot := NetworkHistoryServer.get_rollback_state_snapshot(tick - 1)
 	if not reference_snapshot:
-		is_diff = false
+		is_full = true
 
-	if is_diff:
-		_rb_full_next -= 1
+	if is_full:
+		# Send full states
+		for peer in multiplayer.get_peers():
+			var filter := func(subject): return is_node_visible_to(peer, subject)
+
+			var data := _dense_serializer.write_for(peer, snapshot, _rb_owned_state_properties, filter)
+			if data.is_empty():
+				# Peer can't see anything, send nothing
+				continue
+
+			_cmd_full_state.send(data, peer)
+
+			NetworkPerformance.push_full_state_props(snapshot.size())
+			NetworkPerformance.push_sent_state_props(snapshot.size())
+	else:
 		var diff := Snapshot.make_patch(reference_snapshot, snapshot)
 		if diff.is_empty():
 			# Nothing changed, don't send anything
@@ -180,44 +190,23 @@ func synchronize_state(tick: int) -> void:
 
 			NetworkPerformance.push_full_state_props(snapshot.size())
 			NetworkPerformance.push_sent_state_props(diff.size())
-	else:
-		_rb_full_next = _rb_full_interval
-
-		# Send full states
-		for peer in multiplayer.get_peers():
-			var filter := func(subject): return is_node_visible_to(peer, subject)
-
-			var data := _dense_serializer.write_for(peer, snapshot, _rb_owned_state_properties, filter)
-			if data.is_empty():
-				# Peer can't see anything, send nothing
-				continue
-
-			_cmd_full_state.send(data, peer)
-
-			NetworkPerformance.push_full_state_props(snapshot.size())
-			NetworkPerformance.push_sent_state_props(snapshot.size())
 
 func synchronize_sync_state(tick: int) -> void:
 	# We don't own sync state, nothing to synchronize
 	if _sync_owned_state_properties.is_empty():
 		return
 
-	# Grab snapshot from RollbackHistoryServer
-	var snapshot := RollbackHistoryServer.get_synchronizer_state_snapshot(tick)
+	# Grab snapshot from NetworkHistoryServer
+	var snapshot := NetworkHistoryServer.get_synchronizer_state_snapshot(tick)
 	if not snapshot:
 		return
 
 	# Figure out whether to send full- or diff state
-	var is_diff := false
-	if _sync_enable_diffs:
-		if _sync_full_interval <= 0:
-			is_diff = true
-		elif _sync_full_next < 0:
-			is_diff = true
+	var is_full := _sync_full_scheduler.is_now()
+	if not _sync_enable_diffs:
+		is_full = true
 
-	if not is_diff:
-		_sync_full_next = _sync_full_interval
-
+	if is_full:
 		# Send full states
 		for peer in multiplayer.get_peers():
 			var filter := func(subject): return is_node_visible_to(peer, subject)
@@ -232,7 +221,6 @@ func synchronize_sync_state(tick: int) -> void:
 			NetworkPerformance.push_full_state_props(snapshot.size())
 			NetworkPerformance.push_sent_state_props(snapshot.size())
 	else:
-		_sync_full_next -= 1
 		var diff := Snapshot.make_patch(_last_sync_state_sent, snapshot)
 
 		# Send diffs
@@ -266,7 +254,7 @@ func _handle_input(sender: int, data: PackedByteArray):
 		# TODO: Only merge inputs we don't have yet, so clients don't cheat by
 		#       overriding their earlier choices. Only emit signal for snapshots
 		#       that contain new input.
-		var merged := RollbackHistoryServer.merge_rollback_input(snapshot)
+		var merged := NetworkHistoryServer.merge_rollback_input(snapshot)
 		_logger.debug("Ingested input: %s", [snapshot])
 
 		on_input.emit(snapshot)
@@ -294,7 +282,7 @@ func _handle_full_sync(sender: int, data: PackedByteArray):
 
 	var snapshot := _dense_serializer.read_from(sender, _sync_state_properties, buffer, true)
 
-	RollbackHistoryServer.merge_synchronizer_state(snapshot)
+	NetworkHistoryServer.merge_synchronizer_state(snapshot)
 	_logger.trace("Ingested sync state: %s", [snapshot])
 
 func _handle_diff_sync(sender: int, data: PackedByteArray):
@@ -303,14 +291,14 @@ func _handle_diff_sync(sender: int, data: PackedByteArray):
 
 	var snapshot := _sparse_serializer.read_from(sender, _sync_state_properties, buffer)
 
-	RollbackHistoryServer.merge_synchronizer_state(snapshot)
+	NetworkHistoryServer.merge_synchronizer_state(snapshot)
 	_logger.trace("Ingested sync diff: %s", [snapshot])
 
 func _ingest_state(sender: int, snapshot: Snapshot) -> void:
 	# TODO: Sanitize
 #	_logger.debug("Received state snapshot: %s", [snapshot])
 
-	var merged := RollbackHistoryServer.merge_rollback_state(snapshot)
+	var merged := NetworkHistoryServer.merge_rollback_state(snapshot)
 	_logger.debug("Ingested state: %s", [snapshot])
 
 	on_state.emit(snapshot)

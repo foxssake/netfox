@@ -64,7 +64,6 @@ func read_from(peer: int, properties: _PropertyPool, buffer: StreamPeerBuffer, i
 
 	while buffer.get_available_bytes() > 0:
 		# Read identity reference, data size, and data
-		# TODO: Configurable upper limit on how much netfox is allowed to read here?
 		var idref := netref.decode(buffer) as _NetworkIdentityReference
 		var node_data_size := varuint.decode(buffer) as int
 		node_buffer.data_array = buffer.get_partial_data(node_data_size)[1]

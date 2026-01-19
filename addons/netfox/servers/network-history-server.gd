@@ -1,6 +1,5 @@
 extends Node
-class_name _RollbackHistoryServer
-# TODO: Rename to Network(ed?)HistoryServer
+class_name _NetworkHistoryServer
 
 var _rb_input_properties := _PropertyPool.new()
 var _rb_state_properties := _PropertyPool.new()
@@ -10,7 +9,7 @@ var _rb_input_snapshots: Dictionary = {} # tick to Snapshot
 var _rb_state_snapshots: Dictionary = {} # tick to Snapshot
 var _sync_state_snapshots: Dictionary = {} # tick to Snapshot
 
-static var _logger := NetfoxLogger._for_netfox("RollbackHistoryServer")
+static var _logger := NetfoxLogger._for_netfox("NetworkHistoryServer")
 
 func register_state(node: Node, property: NodePath) -> void:
 	_rb_state_properties.add(node, property)

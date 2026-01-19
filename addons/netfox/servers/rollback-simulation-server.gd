@@ -120,8 +120,8 @@ func trim_ticks_simulated(beginning: int) -> void:
 func simulate(delta: float, tick: int) -> void:
 	_current_object = null
 
-	var input_snapshot := RollbackHistoryServer.get_rollback_input_snapshot(tick)
-	var state_snapshot := RollbackHistoryServer.get_rollback_state_snapshot(tick)
+	var input_snapshot := NetworkHistoryServer.get_rollback_input_snapshot(tick)
+	var state_snapshot := NetworkHistoryServer.get_rollback_state_snapshot(tick)
 	var nodes := get_nodes_to_simulate(input_snapshot)
 	_predicted_nodes.clear()
 	_logger.trace("Simulating %d nodes: %s", [nodes.size(), nodes])

@@ -138,7 +138,7 @@ func process_settings() -> void:
 	# Register visibility filter
 	# TODO: Somehow deregister on destroy
 	for node in _state_nodes:
-		RollbackSynchronizationServer.register_visibility_filter(node, visibility_filter)
+		NetworkSynchronizationServer.register_visibility_filter(node, visibility_filter)
 
 ## Process settings based on authority.
 ## [br][br]
@@ -148,16 +148,16 @@ func process_settings() -> void:
 func process_authority():
 	# Deregister all recorded properties
 	for prop in _get_recorded_state_props():
-		RollbackHistoryServer.deregister_state(prop.node, prop.property)
+		NetworkHistoryServer.deregister_state(prop.node, prop.property)
 
 	for prop in _get_recorded_input_props():
-		RollbackHistoryServer.deregister_input(prop.node, prop.property)
+		NetworkHistoryServer.deregister_input(prop.node, prop.property)
 
 	for prop in _input_property_config.get_properties():
-		RollbackSynchronizationServer.deregister_input(prop.node, prop.property)
+		NetworkSynchronizationServer.deregister_input(prop.node, prop.property)
 
 	for prop in _state_property_config.get_properties():
-		RollbackSynchronizationServer.deregister_state(prop.node, prop.property)
+		NetworkSynchronizationServer.deregister_state(prop.node, prop.property)
 
 	# Process authority
 	_state_property_config.local_peer_id = multiplayer.get_unique_id()
@@ -168,16 +168,16 @@ func process_authority():
 
 	# Register new recorded properties
 	for prop in _get_recorded_state_props():
-		RollbackHistoryServer.register_state(prop.node, prop.property)
+		NetworkHistoryServer.register_state(prop.node, prop.property)
 
 	for prop in _get_recorded_input_props():
-		RollbackHistoryServer.register_input(prop.node, prop.property)
+		NetworkHistoryServer.register_input(prop.node, prop.property)
 
 	for prop in _input_property_config.get_properties():
-		RollbackSynchronizationServer.register_input(prop.node, prop.property)
+		NetworkSynchronizationServer.register_input(prop.node, prop.property)
 
 	for prop in _state_property_config.get_properties():
-		RollbackSynchronizationServer.register_state(prop.node, prop.property)
+		NetworkSynchronizationServer.register_state(prop.node, prop.property)
 
 ## Add a state property.
 ## [br][br]
@@ -231,14 +231,14 @@ func set_schema(schema: Dictionary) -> void:
 	for entry in _schema_props:
 		var node = entry[0]
 		var property_path = entry[1]
-		RollbackSynchronizationServer.deregister_schema(node, property_path)
+		NetworkSynchronizationServer.deregister_schema(node, property_path)
 	_schema_props.clear()
 
 	# Register new schema
 	for prop in schema:
 		var prop_entry := PropertyEntry.parse(root, prop)
 		var serializer := schema[prop] as NetworkSchemaSerializer
-		RollbackSynchronizationServer.register_schema(prop_entry.node, prop_entry.property, serializer)
+		NetworkSynchronizationServer.register_schema(prop_entry.node, prop_entry.property, serializer)
 		_schema_props.append([prop_entry.node, prop_entry.property])
 
 ## Check if input is available for the current tick.
@@ -259,7 +259,7 @@ func get_input_age() -> int:
 	# TODO: Cache these after prepare tick?
 	var max_age := 0
 	for input_node in _input_nodes:
-		var age := RollbackHistoryServer.get_data_age_for(input_node, NetworkRollback.tick)
+		var age := NetworkHistoryServer.get_data_age_for(input_node, NetworkRollback.tick)
 		max_age = maxi(age, max_age)
 		if age < 0:
 			# TODO: Error, somehow
@@ -303,7 +303,7 @@ func get_last_known_input() -> int:
 	var max_age := 0
 	var latest_tick := NetworkTime.tick + 1
 	for input_node in _input_nodes:
-		var age := RollbackHistoryServer.get_data_age_for(input_node, latest_tick)
+		var age := NetworkHistoryServer.get_data_age_for(input_node, latest_tick)
 		if age >= 0:
 			max_age = maxi(age, max_age)
 	return latest_tick - max_age
@@ -319,7 +319,7 @@ func get_last_known_state() -> int:
 	var max_age := 0
 	var latest_tick := NetworkTime.tick + 1
 	for state_node in _registered_nodes:
-		var age := RollbackHistoryServer.get_data_age_for(state_node, latest_tick)
+		var age := NetworkHistoryServer.get_data_age_for(state_node, latest_tick)
 		if age >= 0:
 			max_age = maxi(age, max_age)
 	return latest_tick - max_age

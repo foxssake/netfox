@@ -59,16 +59,16 @@ static var _logger := NetfoxLogger._for_netfox("StateSynchronizer")
 func process_settings() -> void:
 	# Remove old configuration
 	for property in _registered_properties:
-		RollbackHistoryServer.deregister_sync_state(property.node, property.property)
-		RollbackSynchronizationServer.deregister_sync_state(property.node, property.property)
+		NetworkHistoryServer.deregister_sync_state(property.node, property.property)
+		NetworkSynchronizationServer.deregister_sync_state(property.node, property.property)
 
 	# Register new configuration
 	_registered_properties.clear()
 	for property_spec in properties:
 		var property := PropertyEntry.parse(root, property_spec)
 		_registered_properties.append(property)
-		RollbackHistoryServer.register_sync_state(property.node, property.property)
-		RollbackSynchronizationServer.register_sync_state(property.node, property.property)
+		NetworkHistoryServer.register_sync_state(property.node, property.property)
+		NetworkSynchronizationServer.register_sync_state(property.node, property.property)
 		# TODO: Somehow deregister on destroy
 		NetworkIdentityServer.register_node(property.node)
 
@@ -108,14 +108,14 @@ func add_state(node: Variant, property: String) -> void:
 func set_schema(schema: Dictionary) -> void:
 	# Remove previous schema
 	for entry in _schema_props:
-		RollbackSynchronizationServer.deregister_schema(entry.node, entry.property)
+		NetworkSynchronizationServer.deregister_schema(entry.node, entry.property)
 	_schema_props.clear()
 
 	# Register new schema
 	for prop in schema:
 		var prop_entry := PropertyEntry.parse(root, prop)
 		var serializer := schema[prop] as NetworkSchemaSerializer
-		RollbackSynchronizationServer.register_schema(prop_entry.node, prop_entry.property, serializer)
+		NetworkSynchronizationServer.register_schema(prop_entry.node, prop_entry.property, serializer)
 		_schema_props.append(prop_entry)
 
 func _notification(what) -> void:

@@ -181,11 +181,11 @@ const AUTOLOADS: Array[Dictionary] = [
 		"path": ROOT + "/servers/rollback-simulation-server.gd"
 	},
 	{
-		"name": "RollbackHistoryServer",
+		"name": "NetworkHistoryServer",
 		"path": ROOT + "/servers/rollback-history-server.gd"
 	},
 	{
-		"name": "RollbackSynchronizationServer",
+		"name": "NetworkSynchronizationServer",
 		"path": ROOT + "/servers/rollback-synchronization-server.gd"
 	},
 	{

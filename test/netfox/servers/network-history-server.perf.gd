@@ -1,7 +1,7 @@
 extends VestTest
 
 func get_suite_name() -> String:
-	return "RollbackHistoryServer"
+	return "NetworkHistoryServer"
 
 var idx := 0
 
@@ -17,24 +17,24 @@ func suite():
 			# Register nodes
 			idx = 0
 			benchmark("register()", func(__):
-				RollbackHistoryServer.register_state(nodes[idx], "name")
+				NetworkHistoryServer.register_state(nodes[idx], "name")
 				idx += 1
 			).with_iterations(count).with_batch_size(count).run()
 			
 			# Record
 			benchmark("record()", func(__):
-				RollbackHistoryServer.record_state(0)
+				NetworkHistoryServer.record_state(0)
 			).with_duration(1.).with_batch_size(16).run()
 			
 			# Restore
 			benchmark("restore()", func(__):
-				RollbackHistoryServer.restore_rollback_state(0)
+				NetworkHistoryServer.restore_rollback_state(0)
 			).with_duration(1.).with_batch_size(16).run()
 			
 			# Deregister nodes
 			idx = 0
 			benchmark("deregister()", func(__):
-				RollbackHistoryServer.deregister_state(nodes[idx], "name")
+				NetworkHistoryServer.deregister_state(nodes[idx], "name")
 				idx += 1
 			).with_iterations(count).with_batch_size(count).run()
 			

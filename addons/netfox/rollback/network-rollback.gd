@@ -303,11 +303,11 @@ func _ready():
 	NetfoxLogger.register_tag(_get_rollback_tag)
 	NetworkTime.after_tick_loop.connect(_rollback)
 	NetworkTime.after_tick.connect(func(_dt, tick):
-		RollbackHistoryServer.record_input(tick + input_delay)
-		RollbackSynchronizationServer.synchronize_input(tick + input_delay)
+		NetworkHistoryServer.record_input(tick + input_delay)
+		NetworkSynchronizationServer.synchronize_input(tick + input_delay)
 	)
 	
-	RollbackSynchronizationServer.on_input.connect(func(snapshot: Snapshot):
+	NetworkSynchronizationServer.on_input.connect(func(snapshot: Snapshot):
 		if snapshot.is_empty():
 			return
 		if _earliest_input < 0 or snapshot.tick < _earliest_input:
@@ -317,7 +317,7 @@ func _ready():
 			_logger.trace("Ingested input @%d, earliest @%d->@%d", [snapshot.tick, _earliest_input, _earliest_input])
 	)
 	
-	RollbackSynchronizationServer.on_state.connect(func(snapshot: Snapshot):
+	NetworkSynchronizationServer.on_state.connect(func(snapshot: Snapshot):
 		if snapshot.is_empty():
 			return
 		if _latest_state < 0 or snapshot.tick > _latest_state:
@@ -389,8 +389,8 @@ func _rollback() -> void:
 		#	Done individually by Rewindables ( usually Rollback Synchronizers )
 		#	Restore input and state for tick
 		_rollback_stage = _STAGE_PREPARE
-		RollbackHistoryServer.restore_rollback_input(tick)
-		RollbackHistoryServer.restore_rollback_state(tick)
+		NetworkHistoryServer.restore_rollback_input(tick)
+		NetworkHistoryServer.restore_rollback_state(tick)
 		on_prepare_tick.emit(tick)
 		after_prepare_tick.emit(tick)
 
@@ -407,14 +407,14 @@ func _rollback() -> void:
 
 		# Record state for tick + 1
 		_rollback_stage = _STAGE_RECORD
-		RollbackHistoryServer.record_state(tick + 1)
-		RollbackSynchronizationServer.synchronize_state(tick + 1)
+		NetworkHistoryServer.record_state(tick + 1)
+		NetworkSynchronizationServer.synchronize_state(tick + 1)
 		on_record_tick.emit(tick + 1)
 
 	# Restore display state
 	_rollback_stage = _STAGE_AFTER
-	RollbackHistoryServer.restore_rollback_state(display_tick)
-	RollbackHistoryServer.trim_history(history_start)
+	NetworkHistoryServer.restore_rollback_state(display_tick)
+	NetworkHistoryServer.trim_history(history_start)
 	RollbackSimulationServer.trim_ticks_simulated(history_start)
 	after_loop.emit()
 
