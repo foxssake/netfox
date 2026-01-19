@@ -9,3 +9,11 @@ func to_buffer(data: PackedByteArray) -> StreamPeerBuffer:
 	var buffer := StreamPeerBuffer.new()
 	buffer.data_array = data
 	return buffer
+
+func get_subject() -> Node3D:
+	var subject := Node3D.new()
+
+	Vest.get_tree().root.add_child.call_deferred(subject)
+	await subject.ready
+
+	return subject

@@ -69,17 +69,15 @@ func read_from(peer: int, properties: _PropertyPool, buffer: StreamPeerBuffer, i
 		node_buffer.data_array = buffer.get_partial_data(node_data_size)[1]
 
 		# Resolve to identifier
-		var identifier := NetworkIdentityServer.resolve_reference(peer, idref)
+		var identifier := _get_identity_server().resolve_reference(peer, idref)
 		if not identifier:
 			# TODO(#???): Handle unknown IDs gracefully
-			# TODO: Test that unknown nodes are INDEED SKIPPED
 			_logger.warning("Received unknown identity reference %s, skipping data", [idref])
 			continue
 		var node := identifier.get_subject() as Node
 
 		# Read properties
 		for property in properties.get_properties_of(node):
-			# TODO: Test if less bytes remain than an entire property ( e.g. 2 bytes )
 			if node_buffer.get_available_bytes() == 0: break
 
 			var value := _read_property(node, property, node_buffer)

@@ -45,7 +45,7 @@ func write_for(peer: int, snapshot: Snapshot, properties: _PropertyPool, filter:
 			changed_bits.set_bit(i)
 			var value := snapshot.get_property(node, property)
 			_write_property(node, property, value, node_buffer)
-		
+
 		varuint.encode(node_buffer.data_array.size(), buffer)	# Node props len
 		varbits.encode(changed_bits, buffer)					# Changed prop bits
 		buffer.put_data(node_buffer.data_array)					# Changed props
@@ -62,27 +62,26 @@ func read_from(peer: int, properties: _PropertyPool, buffer: StreamPeerBuffer, i
 	var varuint := NetworkSchemas.varuint()
 	var varbits := NetworkSchemas._varbits()
 	var node_buffer := StreamPeerBuffer.new()
-	
+
 	# Grab ticks
 	var tick := buffer.get_u32()
 	var snapshot := Snapshot.new(tick)
-	
+
 	while buffer.get_available_bytes() > 0:
 		# Read header, including identity reference
 		var idref := netref.decode(buffer) as _NetworkIdentityReference
 		var node_data_size := varuint.decode(buffer) as int
 		var changed_bits := varbits.decode(buffer) as _Bitset
 		node_buffer.data_array = buffer.get_partial_data(node_data_size)[1]
-		
+
 		# Resolve to identifier
-		var identifier := NetworkIdentityServer.resolve_reference(peer, idref)
+		var identifier := _get_identity_server().resolve_reference(peer, idref)
 		if not identifier:
 			# TODO(#???): Handle unknown IDs gracefully
-			# TODO: Test that unknown nodes are INDEED SKIPPED
 			_logger.warning("Received unknown identity reference %s, skipping data", [idref])
 			break
 		var node := identifier.get_subject() as Node
-		
+
 		# Read changed properties
 		var node_props := properties.get_properties_of(node)
 		for idx in changed_bits.get_set_indices():
