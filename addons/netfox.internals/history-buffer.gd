@@ -2,69 +2,125 @@ extends RefCounted
 class_name _HistoryBuffer
 
 # Maps ticks (int) to arbitrary data
-var _buffer: Dictionary = {}
+var _capacity := 64
+var _buffer := []
+var _previous := []
 
-func get_snapshot(tick: int):
-	if _buffer.has(tick):
-		return _buffer[tick]
-	else:
-		return null
+var _tail := 0
+var _head := 0
 
-func set_snapshot(tick: int, data):
-	_buffer[tick] = data
+static func of(capacity: int, data: Dictionary) -> _HistoryBuffer:
+	var history_buffer := _HistoryBuffer.new(capacity)
+	for idx in data:
+		history_buffer.set_at(idx, data[idx])
+	return history_buffer
 
-func get_buffer() -> Dictionary:
-	return _buffer
+func _init(capacity: int = 64):
+	_capacity = capacity
+	_buffer.resize(_capacity)
+	_previous.resize(_capacity)
 
-func get_earliest_tick() -> int:
-	return _buffer.keys().min()
+func duplicate(deep: bool = false) -> _HistoryBuffer:
+	var buffer := _HistoryBuffer.new(_capacity)
 
-func get_latest_tick() -> int:
-	return _buffer.keys().max()
+	buffer._buffer = _buffer.duplicate(deep)
+	buffer._previous = _previous.duplicate()
+	buffer._tail = _tail
+	buffer._head = _head
 
-func get_closest_tick(tick: int) -> int:
-	if _buffer.has(tick):
-		return tick
+	return buffer
 
-	if _buffer.is_empty():
-		return -1
+func push(value: Variant) -> void:
+	_buffer[_head % _capacity] = value
+	_previous[_head % _capacity] = _head
+	_head += 1
+	_tail += maxi(0, size() - capacity())
 
-	var earliest_tick = get_earliest_tick()
-	if tick < earliest_tick:
-		return earliest_tick
+func pop() -> Variant:
+	assert(is_not_empty(), "History buffer is empty!")
 
-	var latest_tick = get_latest_tick()
-	if tick > latest_tick:
-		return latest_tick
+	var value = _buffer[_tail % _capacity]
+	_tail += 1
+	return value
 
-	return _buffer.keys() \
-		.filter(func (key): return key < tick) \
-		.max()
+func set_at(at: int, value: Variant) -> void:
+	# Why does this need so many branches?
+	if is_empty():
+		# Buffer is empty, jump to specified index
+		_tail = at
+		_head = at
+		push(value)
+	elif at < _tail:
+		# Trying to set something before tail, ignore
+		return
+	elif at == _head:
+		# Simply adding a new item
+		push(value)
+	elif at < _head:
+		_buffer[at % _capacity] = value
+		# Update prev-buffer
+		for i in range(at, _head):
+			if _previous[i % _capacity] == i:
+				break
+			_previous[i % _capacity] = at
+	elif at >= _head + _capacity:
+		# We're leaving all data behind
+		_tail = at
+		_head = at
+		push(value)
+	elif at >= _head:
+		var previous := _head - 1
+		while _head < at:
+			_previous[_head % _capacity] = previous
+			_head += 1
+		_tail += maxi(0, size() - _capacity)
 
-func get_history(tick: int):
-	var closest_tick = get_closest_tick(tick)
-	return _buffer.get(closest_tick)
+		push(value)
 
-func trim(earliest_tick_to_keep: int):
-	var ticks := _buffer.keys()
-	for tick in ticks:
-		if tick < earliest_tick_to_keep:
-			_buffer.erase(tick)
+func has_at(at: int) -> bool:
+	if is_empty(): return false
+	if at < _tail: return false
+	if at >= _head: return false
+	return _previous[at % _capacity] == at
 
-func clear():
-	_buffer.clear()
+func get_at(at: int, default: Variant = null) -> Variant:
+	if not has_at(at):
+		return default
+	return _buffer[at % _capacity]
+
+func has_latest_at(at: int) -> bool:
+	if is_empty(): return false
+	if at < _tail: return false
+	return true
 
 func size() -> int:
-	return _buffer.size()
+	return _head - _tail
+
+func capacity() -> int:
+	return _capacity
+
+func get_earliest_index() -> int:
+	return _tail
+
+func get_latest_index() -> int:
+	return _head - 1
+
+func get_latest_index_at(at: int) -> int:
+	if not has_latest_at(at):
+		return -1
+	if at >= _head:
+		return get_latest_index()
+
+	return _previous[at % _capacity]
+
+func get_latest_at(at: int) -> Variant:
+	return get_at(get_latest_index_at(at))
+
+func clear():
+	_tail = _head
 
 func is_empty() -> bool:
-	return _buffer.is_empty()
+	return size() == 0
 
-func has(tick) -> bool:
-	return _buffer.has(tick)
-
-func ticks() -> Array:
-	return _buffer.keys()
-
-func erase(tick):
-	_buffer.erase(tick)
+func is_not_empty() -> bool:
+	return not is_empty()

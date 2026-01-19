@@ -5,9 +5,12 @@ var _rb_input_properties := _PropertyPool.new()
 var _rb_state_properties := _PropertyPool.new()
 var _sync_state_properties := _PropertyPool.new()
 
-var _rb_input_snapshots: Dictionary = {} # tick to Snapshot
-var _rb_state_snapshots: Dictionary = {} # tick to Snapshot
-var _sync_state_snapshots: Dictionary = {} # tick to Snapshot
+var _rb_history_size := NetworkRollback.history_limit
+var _sync_history_size := ProjectSettings.get_setting("netfox/state_synchronizer/history_limit", 64) as int
+
+var _rb_input_snapshots := _HistoryBuffer.new(_rb_history_size)
+var _rb_state_snapshots := _HistoryBuffer.new(_rb_history_size)
+var _sync_state_snapshots := _HistoryBuffer.new(_sync_history_size)
 
 static var _logger := NetfoxLogger._for_netfox("NetworkHistoryServer")
 
@@ -63,32 +66,22 @@ func restore_rollback_state(tick: int) -> bool:
 func restore_synchronizer_state(tick: int) -> bool:
 	return _restore(tick, _sync_state_snapshots)
 
-func trim_history(earliest_tick: int) -> void:
-	var snapshot_pools := [_rb_input_snapshots, _rb_state_snapshots, _sync_state_snapshots] as Array[Dictionary]
-
-	for snapshots in snapshot_pools:
-		while not snapshots.is_empty():
-			var earliest_stored_tick := snapshots.keys().min()
-			if earliest_stored_tick >= earliest_tick:
-				break
-			snapshots.erase(earliest_stored_tick)
-
 func get_rollback_input_snapshot(tick: int) -> Snapshot:
-	return _rb_input_snapshots.get(tick)
+	return _rb_input_snapshots.get_at(tick)
 
 func get_rollback_state_snapshot(tick: int) -> Snapshot:
-	return _rb_state_snapshots.get(tick)
+	return _rb_state_snapshots.get_at(tick)
 
 func get_synchronizer_state_snapshot(tick: int) -> Snapshot:
-	return _sync_state_snapshots.get(tick)
+	return _sync_state_snapshots.get_at(tick)
 
-func merge_snapshot(snapshot: Snapshot, snapshots: Dictionary) -> Snapshot:
+func merge_snapshot(snapshot: Snapshot, snapshots: _HistoryBuffer) -> Snapshot:
 	var tick := snapshot.tick
-	if not snapshots.has(snapshot.tick):
-		snapshots[tick] = snapshot
+	if not snapshots.has_at(snapshot.tick):
+		snapshots.set_at(tick, snapshot)
 		return snapshot
 
-	var stored_snapshot := snapshots[tick] as Snapshot
+	var stored_snapshot := snapshots.get_at(tick) as Snapshot
 	stored_snapshot.merge(snapshot)
 
 	return stored_snapshot
@@ -118,13 +111,13 @@ func get_data_age_for(what: Node, tick: int) -> int:
 			return tick - i
 	return -1
 
-func _record(tick: int, snapshots: Dictionary, property_pool: _PropertyPool, only_auth: bool, auth_filter: Callable) -> void:
+func _record(tick: int, snapshots: _HistoryBuffer, property_pool: _PropertyPool, only_auth: bool, auth_filter: Callable) -> void:
 	# Ensure snapshot
-	var snapshot := snapshots.get(tick) as Snapshot
+	var snapshot := snapshots.get_at(tick) as Snapshot
 	var is_new := false
-	if snapshot == null:
+	if not snapshot:
 		snapshot = Snapshot.new(tick)
-		snapshots[tick] = snapshot
+		snapshots.set_at(tick, snapshot)
 		is_new = true
 
 	# Record values
@@ -152,14 +145,11 @@ func _record(tick: int, snapshots: Dictionary, property_pool: _PropertyPool, onl
 			_logger.debug("Updates to%s state @%d: %s" % [" new" if is_new else "", tick, updates])
 			_logger.debug("Recorded state @%d: %s", [tick, snapshot])
 
-func _restore(tick: int, snapshots: Dictionary) -> bool:
-	# TODO: Prettier recreation of HistoryBuffer logic and / or reuse HistoryBuffer
-	if snapshots.is_empty() or tick < snapshots.keys().min():
+func _restore(tick: int, snapshots: _HistoryBuffer) -> bool:
+	if not snapshots.has_latest_at(tick):
 		return false
-	while not snapshots.has(tick) and tick >= snapshots.keys().min():
-		tick -= 1
 
-	var snapshot := snapshots[tick] as Snapshot
+	var snapshot := snapshots.get_latest_at(tick) as Snapshot
 	snapshot.apply()
 	
 	match snapshots:

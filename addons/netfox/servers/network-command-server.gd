@@ -6,7 +6,7 @@ var _rpc_transport := RPCTransport.new()
 var _packet_transport := PacketTransport.new()
 var _commands := {} # id to `Command`
 
-var _use_raw := ProjectSettings.get_setting("netfox/general/use_raw_commands", false)
+var _use_raw := ProjectSettings.get_setting("netfox/general/use_raw_commands", false) as bool
 
 static var _logger := NetfoxLogger._for_netfox("NetworkCommandServer")
 

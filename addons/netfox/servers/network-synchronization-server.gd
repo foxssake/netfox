@@ -10,14 +10,14 @@ var _sync_owned_state_properties := _PropertyPool.new()
 
 var _visibility_filters := {} # Node to PeerVisibilityFilter
 
-var _rb_enable_input_broadcast := ProjectSettings.get_setting("netfox/rollback/enable_input_broadcast", false)
+var _rb_enable_input_broadcast := ProjectSettings.get_setting("netfox/rollback/enable_input_broadcast", false) as bool
 var _rb_enable_diffs := NetworkRollback.enable_diff_states
-var _rb_full_interval := ProjectSettings.get_setting("netfox/rollback/full_state_interval", 24)
+var _rb_full_interval := ProjectSettings.get_setting("netfox/rollback/full_state_interval", 24) as int
 var _rb_full_scheduler := _IntervalScheduler.new(_rb_full_interval)
 
 var _last_sync_state_sent := Snapshot.new(0)
-var _sync_enable_diffs := ProjectSettings.get_setting("netfox/state_synchronizer/enable_diff_states", true)
-var _sync_full_interval := ProjectSettings.get_setting("netfox/state_synchronizer/full_state_interval", 24)
+var _sync_enable_diffs := ProjectSettings.get_setting("netfox/state_synchronizer/enable_diff_states", true) as bool
+var _sync_full_interval := ProjectSettings.get_setting("netfox/state_synchronizer/full_state_interval", 24) as int
 var _sync_full_scheduler := _IntervalScheduler.new(_sync_full_interval)
 
 var _schemas := _NetworkSchema.new()

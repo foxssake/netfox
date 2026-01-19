@@ -141,6 +141,11 @@ var SETTINGS: Array[Dictionary] = [
 		"type": TYPE_BOOL
 	},
 	{
+		"name": "netfox/state_synchronizer/history_limit",
+		"value": 64,
+		"type": TYPE_INT
+	},
+	{
 		"name": "netfox/state_synchronizer/full_state_interval",
 		"value": 24,
 		"type": TYPE_INT,

@@ -414,7 +414,6 @@ func _rollback() -> void:
 	# Restore display state
 	_rollback_stage = _STAGE_AFTER
 	NetworkHistoryServer.restore_rollback_state(display_tick)
-	NetworkHistoryServer.trim_history(history_start)
 	RollbackSimulationServer.trim_ticks_simulated(history_start)
 	after_loop.emit()
 
