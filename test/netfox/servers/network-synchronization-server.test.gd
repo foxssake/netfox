@@ -32,7 +32,7 @@ func suite() -> void:
 			servers.history_server().record_input(0)
 			servers.synchronization_server().synchronize_input(0)
 
-			skip() # TODO: Somehow setup a live client-server connection
+			skip() # Somehow setup a live client-server connection
 		)
 	)
 
