@@ -1,6 +1,11 @@
 extends Node
 class_name _NetworkSynchronizationServer
 
+var _command_server: _NetworkCommandServer
+var _history_server: _NetworkHistoryServer
+var _identity_server: _NetworkIdentityServer
+var _simulation_server: _RollbackSimulationServer
+
 var _rb_input_properties := _PropertyPool.new()
 var _rb_state_properties := _PropertyPool.new()
 var _rb_owned_input_properties := _PropertyPool.new()
@@ -24,16 +29,16 @@ var _schemas := _NetworkSchema.new()
 
 var _input_redundancy := NetworkRollback.input_redundancy
 
-var _dense_serializer := _DenseSnapshotSerializer.new(_schemas)
-var _sparse_serializer := _SparseSnapshotSerializer.new(_schemas)
-var _redundant_serializer := _RedundantSnapshotSerializer.new(_schemas)
+var _dense_serializer: _DenseSnapshotSerializer
+var _sparse_serializer: _SparseSnapshotSerializer
+var _redundant_serializer: _RedundantSnapshotSerializer
 
-@onready var _cmd_full_state := NetworkCommandServer.register_command_at(_NetworkCommands.RB_FULL_STATE, _handle_full_state, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
-@onready var _cmd_diff_state := NetworkCommandServer.register_command_at(_NetworkCommands.RB_DIFF_STATE, _handle_diff_state, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
-@onready var _cmd_input := NetworkCommandServer.register_command_at(_NetworkCommands.INPUT, _handle_input, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
+var _cmd_full_state: NetworkCommandServer.Command
+var _cmd_diff_state: NetworkCommandServer.Command
+var _cmd_input: NetworkCommandServer.Command
 
-@onready var _cmd_full_sync := NetworkCommandServer.register_command_at(_NetworkCommands.SYNC_FULL, _handle_full_sync, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
-@onready var _cmd_diff_sync := NetworkCommandServer.register_command_at(_NetworkCommands.SYNC_DIFF, _handle_diff_sync, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
+var _cmd_full_sync: NetworkCommandServer.Command
+var _cmd_diff_sync: NetworkCommandServer.Command
 
 static var _logger := NetfoxLogger._for_netfox("NetworkSynchronizationServer")
 
@@ -97,7 +102,6 @@ func is_node_visible_to(peer: int, node: Node) -> bool:
 	else:
 		return filter.get_visible_peers().has(peer)
 
-# TODO: Make this testable somehow, I beg of you
 func synchronize_input(tick: int) -> void:
 	# We don't own inputs, nothing to synchronize
 	if _rb_owned_input_properties.is_empty():
@@ -141,7 +145,6 @@ func synchronize_input(tick: int) -> void:
 		var data := _redundant_serializer.write_for(peer, snapshots, _rb_owned_input_properties)
 		_cmd_input.send(data, peer)
 
-# TODO: Make this testable somehow, I beg of you
 func synchronize_state(tick: int) -> void:
 	# We don't own state, nothing to synchronize
 	if _rb_owned_state_properties.is_empty():
@@ -250,6 +253,37 @@ func synchronize_sync_state(tick: int) -> void:
 	# Remember last sent state for diffing
 	# NOTE: This is a shared instance, theoretically shouldn't screw things up
 	_last_sync_state_sent = snapshot
+
+func _init(
+		p_command_server: _NetworkCommandServer = null,
+		p_history_server: _NetworkHistoryServer = null,
+		p_identity_server: _NetworkIdentityServer = null,
+		p_simulation_server: _RollbackSimulationServer = null
+	):
+	_command_server = p_command_server
+	_history_server = p_history_server
+	_identity_server = p_identity_server
+	_simulation_server = p_simulation_server
+
+func _ready():
+	# Ensure dependencies
+	if not _command_server: _command_server = NetworkCommandServer
+	if not _history_server: _history_server = NetworkHistoryServer
+	if not _identity_server: _identity_server = NetworkIdentityServer
+	if not _simulation_server: _simulation_server = RollbackSimulationServer
+
+	# Setup serializers
+	_dense_serializer = _DenseSnapshotSerializer.new(_schemas, _identity_server)
+	_sparse_serializer = _SparseSnapshotSerializer.new(_schemas, _identity_server)
+	_redundant_serializer = _RedundantSnapshotSerializer.new(_schemas, _identity_server)
+
+	# Setup commands
+	_cmd_full_state = _command_server.register_command_at(_NetworkCommands.RB_FULL_STATE, _handle_full_state, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
+	_cmd_diff_state = _command_server.register_command_at(_NetworkCommands.RB_DIFF_STATE, _handle_diff_state, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
+	_cmd_input = _command_server.register_command_at(_NetworkCommands.INPUT, _handle_input, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
+
+	_cmd_full_sync = _command_server.register_command_at(_NetworkCommands.SYNC_FULL, _handle_full_sync, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
+	_cmd_diff_sync = _command_server.register_command_at(_NetworkCommands.SYNC_DIFF, _handle_diff_sync, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
 
 func _handle_input(sender: int, data: PackedByteArray):
 	var buffer := StreamPeerBuffer.new()

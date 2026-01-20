@@ -10,6 +10,11 @@ static func of(items: Array) -> _Set:
 		result.add(item)
 	return result
 
+func duplicate(deep: bool = false) -> _Set:
+	var result := _Set.new()
+	result._data = _data.duplicate(deep)
+	return result
+
 func add(value):
 	_data[value] = true
 

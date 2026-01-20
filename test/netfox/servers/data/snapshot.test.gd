@@ -5,6 +5,7 @@ func get_suite_name() -> String:
 
 func suite() -> void:
 	var node := Node3D.new()
+	var other_node := Node3D.new()
 
 	define("make_patch()", func():
 		test("should return empty on same", func():
@@ -71,15 +72,76 @@ func suite() -> void:
 		)
 	)
 	
-	define("merge_property()", func():
-		test("auth should override non-auth", func(): todo())
-		test("auth should update auth", func(): todo())
-		test("non-auth should not update auth", func(): todo())
-		test("non-auth should update non-auth", func(): todo())
-	)
+	define("merge()", func():
+		test("auth should override non-auth", func():
+			var snapshot := Snapshot.of(0, [
+				[node, "position", Vector3.ZERO],
+				[other_node, "position", Vector3.ZERO]
+			], [])
 
-	define("filtered()", func():
-		test("should return empty", func(): todo())
-		test("should return identical", func(): todo())
-		test("should remove property", func(): todo())
+			var patch := Snapshot.of(0, [
+				[node, "position", Vector3.ONE],
+				[other_node, "position", Vector3.ONE]
+			], [node])
+
+			expect_true(snapshot.merge(patch))
+			expect_equal(snapshot, Snapshot.of(0, [
+				[node, "position", Vector3.ONE],
+				[other_node, "position", Vector3.ONE]
+			], [node]))
+		)
+
+		test("auth should update auth", func():
+			var snapshot := Snapshot.of(0, [
+				[node, "position", Vector3.ZERO],
+				[other_node, "position", Vector3.ZERO]
+			], [node])
+
+			var patch := Snapshot.of(0, [
+				[node, "position", Vector3.ONE],
+				[other_node, "position", Vector3.ONE]
+			], [node])
+
+			expect_true(snapshot.merge(patch))
+			expect_equal(snapshot, Snapshot.of(0, [
+				[node, "position", Vector3.ONE],
+				[other_node, "position", Vector3.ONE]
+			], [node]))
+		)
+
+		test("non-auth should not update auth", func():
+			var snapshot := Snapshot.of(0, [
+				[node, "position", Vector3.ZERO],
+				[other_node, "position", Vector3.ZERO]
+			], [node])
+
+			var patch := Snapshot.of(0, [
+				[node, "position", Vector3.ONE],
+				[other_node, "position", Vector3.ONE]
+			], [])
+
+			expect_true(snapshot.merge(patch))
+			expect_equal(snapshot, Snapshot.of(0, [
+				[node, "position", Vector3.ZERO],
+				[other_node, "position", Vector3.ONE]
+			], [node]))
+		)
+
+		test("non-auth should update non-auth", func():
+			var snapshot := Snapshot.of(0, [
+				[node, "position", Vector3.ZERO],
+				[other_node, "position", Vector3.ZERO]
+			], [])
+
+			var patch := Snapshot.of(0, [
+				[node, "position", Vector3.ONE],
+				[other_node, "position", Vector3.ONE]
+			], [])
+
+			expect_true(snapshot.merge(patch))
+			expect_equal(snapshot, Snapshot.of(0, [
+				[node, "position", Vector3.ONE],
+				[other_node, "position", Vector3.ONE]
+			], []))
+		)
 	)

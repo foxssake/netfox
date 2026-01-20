@@ -1,6 +1,8 @@
 extends Node
 class_name _RollbackSimulationServer
 
+var _history_server: _NetworkHistoryServer
+
 var _callbacks := {}		# node to callback
 var _simulated_ticks := {}	# node to array of ticks
 
@@ -167,3 +169,10 @@ func get_inputs_of(node: Node) -> Array[Node]:
 	var result := [] as Array[Node]
 	result.assign(_input_graph.get_linked_to(node))
 	return result
+
+func _init(p_history_server: _NetworkHistoryServer = null):
+	_history_server = p_history_server
+
+func _ready():
+	# Ensure dependencies
+	if not _history_server: _history_server = NetworkHistoryServer
