@@ -187,11 +187,11 @@ const AUTOLOADS: Array[Dictionary] = [
 	},
 	{
 		"name": "NetworkHistoryServer",
-		"path": ROOT + "/servers/rollback-history-server.gd"
+		"path": ROOT + "/servers/network-history-server.gd"
 	},
 	{
 		"name": "NetworkSynchronizationServer",
-		"path": ROOT + "/servers/rollback-synchronization-server.gd"
+		"path": ROOT + "/servers/network-synchronization-server.gd"
 	},
 	{
 		"name": "NetworkIdentityServer",
