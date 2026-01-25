@@ -13,6 +13,9 @@ static func set_tick(network_tick: int, rollback_tick: int) -> void:
 	set_network_tick(network_tick)
 	set_rollback_tick(rollback_tick)
 
+static func set_tickrate(tickrate: int) -> void:
+	NetworkTime._tickrate = tickrate
+
 static func in_rollback(callback: Callable) -> void:
 	NetworkRollback._is_rollback = true
 	callback.call()
