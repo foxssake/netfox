@@ -8,7 +8,7 @@ var _stored_states: int = 0
 
 
 func _init_physics_space() -> void:
-	physics_space = get_viewport().world_2d.space
+	physics_space = get_viewport().world_3d.space
 	PhysicsServer3D.space_set_active(physics_space, false)
 
 	_state = StateManager3D.new()
