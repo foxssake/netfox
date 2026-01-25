@@ -2,13 +2,13 @@
 extends Node
 class_name PredictiveSynchronizer
 
-## Similar to [RollbackSynchronizer], this class manages local variables in a rollback context
-## for predictive simulation without networking.
-## [br][br]
+## Similar to [RollbackSynchronizer], this class manages local variables in a 
+## rollback context for predictive simulation without networking.
+##
 ## This is a simplified version that focuses on local state management.
 ## [br][br]
 ## Like [RollbackSynchronizer], it automatically discovers nodes 
-## with a [code]_predict_tick(delta: float, tick: int)[/code]
+## with a [code]_rollback_tick(delta: float, tick: int)[/code]
 ## method and calls them during the prediction phase.
 
 ## The root node for resolving node paths in properties. Defaults to the parent
@@ -50,7 +50,7 @@ func process_settings() -> void:
 	# Gather all prediction-aware nodes to call during prediction ticks
 	_nodes = root.find_children("*")
 	_nodes.push_front(root)
-	_nodes = _nodes.filter(func(n): return n.has_method(&"_predict_tick"))
+	_nodes = _nodes.filter(func(n): return NetworkRollback.is_rollback_aware(n))
 	_nodes.erase(self)
 
 	_state_property_config.set_properties_from_paths(state_properties, _property_cache)
@@ -104,7 +104,7 @@ func _on_record_tick(tick: int) -> void:
 func _run_prediction_tick(tick: int) -> void:
 	for node in _nodes:
 		var is_fresh := _freshness_store.is_fresh(node, tick)
-		node._predict_tick(NetworkTime.ticktime, tick, is_fresh)
+		NetworkRollback.process_rollback(node, NetworkTime.ticktime, tick, is_fresh)
 		_freshness_store.notify_processed(node, tick)
 
 func _enter_tree() -> void:
