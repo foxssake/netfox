@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://foxssake.github.io/netfox/latest/netfox/nodes/state-synchronizer/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://foxssake.github.io/netfox/latest/netfox/nodes/predictive-synchronizer/" />
       <link rel="shortcut icon" href="../../../img/favicon.ico" />
-    <title>StateSynchronizer - netfox</title>
+    <title>PredictiveSynchronizer - netfox</title>
     <link rel="stylesheet" href="../../../css/theme.css" />
     <link rel="stylesheet" href="../../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
@@ -16,9 +16,9 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "StateSynchronizer";
-        var mkdocs_page_input_path = "netfox/nodes/state-synchronizer.md";
-        var mkdocs_page_url = "/netfox/latest/netfox/nodes/state-synchronizer/";
+        var mkdocs_page_name = "PredictiveSynchronizer";
+        var mkdocs_page_input_path = "netfox/nodes/predictive-synchronizer.md";
+        var mkdocs_page_url = "/netfox/latest/netfox/nodes/predictive-synchronizer/";
       </script>
     
     <!--[if lt IE 9]>
@@ -142,17 +142,25 @@
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../rollback-synchronizer/">RollbackSynchronizer</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../predictive-synchronizer/">PredictiveSynchronizer</a>
-                </li>
-                <li class="toctree-l2 current"><a class="reference internal current" href="#">StateSynchronizer</a>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">PredictiveSynchronizer</a>
     <ul class="current">
-    <li class="toctree-l3"><a class="reference internal" href="#configuring-state">Configuring state</a>
+    <li class="toctree-l3"><a class="reference internal" href="#key-differences-from-rollbacksynchronizer">Key Differences from RollbackSynchronizer</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#changing-configuration">Changing configuration</a>
+    <li class="toctree-l3"><a class="reference internal" href="#configuration">Configuration</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#basic-setup">Basic Setup</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#when-to-use-statesynchronizer-and-multiplayersynchronizer">When to use StateSynchronizer and MultiplayerSynchronizer</a>
+    <li class="toctree-l4"><a class="reference internal" href="#root-node">Root Node</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#state-properties">State Properties</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#writing-prediction-aware-scripts">Writing Prediction-Aware Scripts</a>
     </li>
     </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../state-synchronizer/">StateSynchronizer</a>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../rewindable-action/">RewindableAction</a>
                 </li>
@@ -207,7 +215,7 @@
     <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
           <li class="breadcrumb-item">netfox</li>
           <li class="breadcrumb-item">Nodes</li>
-      <li class="breadcrumb-item active">StateSynchronizer</li>
+      <li class="breadcrumb-item active">PredictiveSynchronizer</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -216,53 +224,54 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="statesynchronizer">StateSynchronizer</h1>
-<p>Synchronizes state from the node's authority to other peers.</p>
-<p>Similar to Godot's <a href="https://docs.godotengine.org/en/stable/classes/class_multiplayersynchronizer.html">MultiplayerSynchronizer</a>, but is tied to the <a href="../../guides/network-time/">network tick
-loop</a>. Works well with <a href="../tick-interpolator/">TickInterpolator</a>.</p>
-<p>One way to use this node is to synchronize logic that runs only on the server,
-for example NPC's in your games. The NPC's are controlled fully by the server,
-and their state is synchronized to the clients by the <em>StateSynchronizer</em>
-nodes.</p>
-<h2 id="configuring-state">Configuring state</h2>
-<p>To use <em>StateSynchronizer</em>, add it as a child to the target node, specify the
-root node, and configure which properties to synchronize:</p>
-<p><img alt="StateSynchronizer configuration" src="../../assets/state-synchronizer-config.png" /></p>
-<p><em>Root</em> specifies the root node for resolving properties. Best practice dictates
-to add <em>StateSynchronizer</em> under its target, so <em>Root</em> will most often be the
-<em>StateSynchronizer</em>'s parent node.</p>
-<p><em>Properties</em> are recorded for each tick on the node's authority ( usually the
-server ), and broadcast to other peers. These are analogous to
-<a href="../rollback-synchronizer/">RollbackSynchronizer</a>'s <em>state properties</em>.</p>
-<p>See <a href="../../guides/property-paths/">Property paths</a> on how to specify properties.</p>
-<h2 id="changing-configuration">Changing configuration</h2>
-<p><em>StateSynchronizer</em> has to do some setup work whenever the state or the
-input properties change.</p>
-<p>By default, this work is done upon instantiation. If you need to change
-properties during runtime, make sure to call <code>process_settings()</code>, otherwise
-<em>StateSynchronizer</em> won't apply the changes.</p>
-<p>You can change the node's authority without calling <code>process_settings()</code> again.
-Make sure that the authority is changed the same way on all peers, to avoid
-discrepancies.</p>
-<h2 id="when-to-use-statesynchronizer-and-multiplayersynchronizer">When to use StateSynchronizer and MultiplayerSynchronizer</h2>
-<p>Part of the design philosophy of netfox is to build <em>on top of</em> Godot's
-networking tools, instead of <em>replacing</em> them.</p>
-<p>Both <a href="https://docs.godotengine.org/en/stable/classes/class_multiplayersynchronizer.html">MultiplayerSynchronizer</a> and StateSynchronizer can be used to synchronize
-state from authority to the rest of the peers.</p>
-<p><a href="https://docs.godotengine.org/en/stable/classes/class_multiplayersynchronizer.html">MultiplayerSynchronizer</a> uses its own timer, and is independent of netfox's
-<a href="../../guides/network-time/">network tick loop</a>. It can also do delta updates, and manage visibility per
-peer. Since it is not tied to netfox's tick loop, it does not work with
-<a href="../tick-interpolator/">TickInterpolator</a>.</p>
-<p>StateSynchronizer records all the properties specified and broadcasts them
-as-is to all peers. This does not include visiblity or delta updates. The
-broadcast happens on every network tick. This node is explicitly designed to
-work with <a href="../tick-interpolator/">TickInterpolator</a>.</p>
-<hr />
-<p>You can use StateSynchronizer for properties that you want to be interpolated,
-like position, rotation, or any other visual properties.</p>
-<p>You can use <a href="https://docs.godotengine.org/en/stable/classes/class_multiplayersynchronizer.html">MultiplayerSynchronizer</a> for properties that either don't need
-interpolation ( e.g. a unit's HP ), or specifically need one of
-<a href="https://docs.godotengine.org/en/stable/classes/class_multiplayersynchronizer.html">MultiplayerSynchronizer</a>'s features.</p>
+                <h1 id="predictivesynchronizer">PredictiveSynchronizer</h1>
+<p>An un-networked version of <a href="../rollback-synchronizer/">RollbackSynchronizer</a> which manages states during
+the rollback loop. Its main use case is for short lived or highly
+deterministic scenarios where using <a href="../rollback-synchronizer/">RollbackSynchronizer</a> isn't practical or
+necessary.</p>
+<h2 id="key-differences-from-rollbacksynchronizer">Key Differences from RollbackSynchronizer</h2>
+<p>Same same, but different.</p>
+<ul>
+<li><strong>No networking</strong> - Operates entirely locally</li>
+<li><strong>No input properties</strong> - Only manages state properties</li>
+</ul>
+<h2 id="configuration">Configuration</h2>
+<h3 id="basic-setup">Basic Setup</h3>
+<p>Add <em>PredictiveSynchronizer</em> as a child to your target node and configure:</p>
+<p><img alt="PredictiveSynchronizer configuration" src="../../assets/predictive-synchronizer-config.png" /></p>
+<h3 id="root-node">Root Node</h3>
+<p>The <em>Root</em> property specifies the root node for resolving state properties.
+Following the same pattern as <a href="../rollback-synchronizer/">RollbackSynchronizer</a>, it's recommended to add
+<em>PredictiveSynchronizer</em> under its target node, making the parent the root.</p>
+<h3 id="state-properties">State Properties</h3>
+<p><em>State properties</em> are recorded for each tick and restored during rollback,
+just like in <a href="../rollback-synchronizer/">RollbackSynchronizer</a>. The key difference is that these states
+are only managed locally - they're never transmitted across the network.</p>
+<p>See <a href="../../guides/property-paths/">Property paths</a> for details on specifying properties.</p>
+<h2 id="writing-prediction-aware-scripts">Writing Prediction-Aware Scripts</h2>
+<p><em>PredictiveSynchronizer</em> automatically discovers nodes with a
+<code>_rollback_tick()</code> method under the specified root. During rollback, it will
+call that method for each tick.</p>
+<p>Implement <code>_rollback_tick()</code> in your scripts:</p>
+<div class="highlight"><pre><span></span><code><span class="k">extends</span><span class="w"> </span><span class="n">ShapeCast3D</span>
+
+<span class="err">@</span><span class="k">export</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">projectile_speed</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">50.0</span>
+
+<span class="k">func</span><span class="w"> </span><span class="n">_rollback_tick</span><span class="p">(</span><span class="n">delta</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="p">,</span><span class="w"> </span><span class="n">tick</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">int</span><span class="p">,</span><span class="w"> </span><span class="n">is_fresh</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">bool</span><span class="p">):</span>
+<span class="w">    </span><span class="n">shape_cast</span><span class="o">.</span><span class="n">force_shapecast_update</span><span class="p">()</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">is_colliding</span><span class="p">():</span>
+<span class="w">        </span><span class="n">handle_collision</span><span class="p">()</span>
+
+<span class="w">    </span><span class="n">global_position</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">transform</span><span class="o">.</span><span class="n">basis</span><span class="o">.</span><span class="n">z</span><span class="o">.</span><span class="n">normalized</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">projectile_speed</span>
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Both <em>PredictiveSynchronizer</em> and <em>RollbackSynchronizer</em> use the same
+callback method. They are intended to manage separate nodes - having the
+same node be managed both by <em>RollbackSynchronizer</em> and
+<em>PredictiveSynchronizer</em> is not supported, and may lead to janky behavior.</p>
+</div>
               
             </div>
           </div>
@@ -282,10 +291,10 @@ interpolation ( e.g. a unit's HP ), or specifically need one of
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../predictive-synchronizer/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../rollback-synchronizer/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../rewindable-action/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../state-synchronizer/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
