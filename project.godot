@@ -23,13 +23,13 @@ Async="*res://examples/shared/scripts/async.gd"
 GameEvents="*res://examples/forest-brawl/scripts/game-events.gd"
 Noray="*res://addons/netfox.noray/noray.gd"
 PacketHandshake="*res://addons/netfox.noray/packet-handshake.gd"
+WindowTiler="*res://addons/netfox.extras/window-tiler.gd"
+NetworkSimulator="*res://addons/netfox.extras/network-simulator.gd"
 NetworkTime="*res://addons/netfox/network-time.gd"
 NetworkTimeSynchronizer="*res://addons/netfox/network-time-synchronizer.gd"
 NetworkRollback="*res://addons/netfox/rollback/network-rollback.gd"
 NetworkEvents="*res://addons/netfox/network-events.gd"
 NetworkPerformance="*res://addons/netfox/network-performance.gd"
-WindowTiler="*res://addons/netfox.extras/window-tiler.gd"
-NetworkSimulator="*res://addons/netfox.extras/network-simulator.gd"
 RollbackSimulationServer="*res://addons/netfox/servers/rollback-simulation-server.gd"
 NetworkHistoryServer="*res://addons/netfox/servers/network-history-server.gd"
 NetworkSynchronizationServer="*res://addons/netfox/servers/network-synchronization-server.gd"
@@ -134,6 +134,7 @@ general/clear_settings=false
 time/tickrate=24
 extras/auto_tile_windows=true
 autoconnect/enabled=true
+autoconnect/simulated_latency_ms=50
 
 [rendering]
 

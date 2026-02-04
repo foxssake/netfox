@@ -384,9 +384,9 @@ func _rollback() -> void:
 		#	Done individually by Rewindables ( usually Rollback Synchronizers )
 		#	Restore input and state for tick
 		_rollback_stage = _STAGE_PREPARE
+		on_prepare_tick.emit(tick)
 		NetworkHistoryServer.restore_rollback_input(tick)
 		NetworkHistoryServer.restore_rollback_state(tick)
-		on_prepare_tick.emit(tick)
 		after_prepare_tick.emit(tick)
 
 		# Simulate rollback tick
@@ -396,21 +396,21 @@ func _rollback() -> void:
 		#		If authority: Latest input >= tick >= Latest state
 		#		If not: Latest input >= tick >= Earliest input
 		_rollback_stage = _STAGE_SIMULATE
-		RollbackSimulationServer.simulate(NetworkTime.ticktime, tick)
 		on_process_tick.emit(tick)
+		RollbackSimulationServer.simulate(NetworkTime.ticktime, tick)
 		after_process_tick.emit(tick)
 
 		# Record state for tick + 1
 		_rollback_stage = _STAGE_RECORD
+		on_record_tick.emit(tick + 1)
 		NetworkHistoryServer.record_state(tick + 1)
 		NetworkSynchronizationServer.synchronize_state(tick + 1)
-		on_record_tick.emit(tick + 1)
 
 	# Restore display state
 	_rollback_stage = _STAGE_AFTER
+	after_loop.emit()
 	NetworkHistoryServer.restore_rollback_state(display_tick)
 	RollbackSimulationServer.trim_ticks_simulated(history_start)
-	after_loop.emit()
 
 	# Cleanup
 	_mutated_nodes.clear()

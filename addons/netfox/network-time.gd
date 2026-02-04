@@ -556,24 +556,24 @@ func _loop() -> void:
 	_last_process_time = _clock.get_time()
 	while _next_tick_time < _last_process_time and ticks_in_loop < max_ticks_per_frame:
 		if ticks_in_loop == 0:
-			NetworkHistoryServer.restore_synchronizer_state(tick)
 			before_tick_loop.emit()
+			NetworkHistoryServer.restore_synchronizer_state(tick)
 
 		before_tick.emit(ticktime, tick)
 
 		on_tick.emit(ticktime, tick)
 
+		after_tick.emit(ticktime, tick)
 		NetworkHistoryServer.record_sync_state(tick + 1)
 		NetworkSynchronizationServer.synchronize_sync_state(tick + 1)
-		after_tick.emit(ticktime, tick)
 		
 		_tick += 1
 		ticks_in_loop += 1
 		_next_tick_time += ticktime
 	
 	if ticks_in_loop > 0:
-		NetworkHistoryServer.restore_synchronizer_state(tick)
 		after_tick_loop.emit()
+		NetworkHistoryServer.restore_synchronizer_state(tick)
 
 func _process(delta: float) -> void:
 	_process_delta = delta
