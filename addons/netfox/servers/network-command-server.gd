@@ -69,6 +69,12 @@ func is_command_packet(packet: PackedByteArray) -> bool:
 		return true
 	return _packet_transport.is_command_packet(packet)
 
+## Return the prefix bytes for command packets
+## [br][br]
+## Can be used to avoid conflicts between command packets and game packets.
+func get_command_packet_prefix() -> PackedByteArray:
+	return _packet_prefix
+
 func _handle_command(sender: int, idx: int, data: PackedByteArray) -> void:
 	var command := _commands.get(idx) as Command
 	if not command:
