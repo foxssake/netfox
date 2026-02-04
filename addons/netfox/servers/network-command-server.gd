@@ -15,7 +15,7 @@ class_name _NetworkCommandServer
 ## [method SceneMultiplayer.send_bytes]. This is an opt-in feature - if the game
 ## is already using [method SceneMultiplayer.send_bytes], it needs to be aware
 ## of commands, and must check each packet whether it's a command or one of its
-## own packets. To check if a command is a packet, use [method
+## own packets. To check if a packet is a command, use [method
 ## is_command_packet].
 
 var _packet_prefix := PackedByteArray([0, 78, 70]) # "\0nf"
