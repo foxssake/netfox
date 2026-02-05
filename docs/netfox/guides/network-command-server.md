@@ -82,6 +82,12 @@ converting it using [var_to_bytes()] and [bytes_to_var()].
 However, for cases where bandwidth matters, this allows users to encode data in
 a way that fits best.
 
+## Settings
+
+netfox ▸ General ▸ Use Raw Commands
+
+: When enabled, netfox will transmit commands as raw packets, instead of RPCs.
+
 
 [SceneMultiplayer.send_bytes()]: https://docs.godotengine.org/en/stable/classes/class_scenemultiplayer.html#class-scenemultiplayer-method-send-bytes
 [var_to_bytes()]: https://docs.godotengine.org/en/stable/classes/class_%40globalscope.html#class-globalscope-method-var-to-bytes
