@@ -49,7 +49,7 @@ var _property_cache: PropertyCache
 var _property_config: _PropertyConfig = _PropertyConfig.new()
 var _properties_dirty: bool = false
 
-var _schema: _NetworkSchema
+var _schema: _NetworkSchema = _NetworkSchema.new({})
 
 var _state_history := _PropertyHistoryBuffer.new()
 
