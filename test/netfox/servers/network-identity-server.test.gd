@@ -65,12 +65,12 @@ func suite() -> void:
 
 			# Deregister
 			identity_server.deregister_node(node)
-			expect_null(identity_server.get_identifier_of(node))
+			expect_null(identity_server._get_identifier_of(node))
 		)
 
 		test("should do nothing on unknown", func():
 			identity_server.deregister_node(orphan_node)
-			expect_null(identity_server.get_identifier_of(orphan_node))
+			expect_null(identity_server._get_identifier_of(orphan_node))
 		)
 	)
 	
@@ -83,8 +83,8 @@ func suite() -> void:
 			var full_name := identifier.get_full_name()
 			
 			# Try and resolve some unknown identities
-			identity_server.resolve_reference(2, identifier.reference_for(2))
-			identity_server.resolve_reference(3, identifier.reference_for(3))
+			identity_server._resolve_reference(2, identifier.reference_for(2))
+			identity_server._resolve_reference(3, identifier.reference_for(3))
 			
 			# Flush queue
 			identity_server.flush_queue()
@@ -100,7 +100,7 @@ func suite() -> void:
 		)
 	)
 	
-	define("resolve_reference()", func():
+	define("_resolve_reference()", func():
 		test("should return by id", func():
 			# Register node
 			identity_server.register_node(node)
@@ -108,7 +108,7 @@ func suite() -> void:
 			
 			# Resolve
 			var reference := _NetworkIdentityReference.of_id(identifier.get_local_id())
-			expect_equal(identity_server.resolve_reference(1, reference), identifier)
+			expect_equal(identity_server._resolve_reference(1, reference), identifier)
 		)
 
 		test("should return by name", func():
@@ -118,11 +118,11 @@ func suite() -> void:
 			
 			# Resolve
 			var reference := _NetworkIdentityReference.of_full_name(identifier.get_full_name())
-			expect_equal(identity_server.resolve_reference(1, reference), identifier)
+			expect_equal(identity_server._resolve_reference(1, reference), identifier)
 		)
 
 		test("should return null on unknown", func():
 			var reference := _NetworkIdentityReference.of_full_name("Unknown Node")
-			expect_null(identity_server.resolve_reference(1, reference))
+			expect_null(identity_server._resolve_reference(1, reference))
 		)
 	)
