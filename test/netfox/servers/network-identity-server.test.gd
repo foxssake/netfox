@@ -42,7 +42,7 @@ func suite() -> void:
 			identity_server.register_node(node)
 
 			# Assert for identifier
-			var identifier := identity_server.get_identifier_of(node)
+			var identifier := identity_server._get_identifier_of(node)
 			expect_not_null(identifier)
 			expect_equal(identifier.get_full_name(), "/root/Node")
 		)
@@ -52,7 +52,7 @@ func suite() -> void:
 			identity_server.register_node(orphan_node)
 
 			# Assert for identifier
-			var identifier := identity_server.get_identifier_of(orphan_node)
+			var identifier := identity_server._get_identifier_of(orphan_node)
 			expect_null(identifier)
 		)
 	)
@@ -61,7 +61,7 @@ func suite() -> void:
 		test("should remove known", func():
 			# Register node
 			identity_server.register_node(node)
-			expect_not_null(identity_server.get_identifier_of(node))
+			expect_not_null(identity_server._get_identifier_of(node))
 
 			# Deregister
 			identity_server.deregister_node(node)
@@ -79,7 +79,7 @@ func suite() -> void:
 			# Register node
 			identity_server.register_node(node)
 			
-			var identifier := identity_server.get_identifier_of(node)
+			var identifier := identity_server._get_identifier_of(node)
 			var full_name := identifier.get_full_name()
 			
 			# Try and resolve some unknown identities
@@ -104,7 +104,7 @@ func suite() -> void:
 		test("should return by id", func():
 			# Register node
 			identity_server.register_node(node)
-			var identifier := identity_server.get_identifier_of(node)
+			var identifier := identity_server._get_identifier_of(node)
 			
 			# Resolve
 			var reference := _NetworkIdentityReference.of_id(identifier.get_local_id())
@@ -114,7 +114,7 @@ func suite() -> void:
 		test("should return by name", func():
 			# Register node
 			identity_server.register_node(node)
-			var identifier := identity_server.get_identifier_of(node)
+			var identifier := identity_server._get_identifier_of(node)
 			
 			# Resolve
 			var reference := _NetworkIdentityReference.of_full_name(identifier.get_full_name())

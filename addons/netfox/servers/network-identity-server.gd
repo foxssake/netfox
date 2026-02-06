@@ -1,6 +1,23 @@
 extends Node
 class_name _NetworkIdentityServer
 
+## Tracks identities for use over the network
+##
+## Internally, netfox sends packets that refer to specific nodes, e.g. to
+## synchronize their state. Nodes are referenced based on their path in the
+## scene tree. To save on bandwidth, node paths are replaced with numeric IDs
+## when possible.
+## [br][br]
+## This class manages these numerical IDs and their broadcast among peers.
+## [br][br]
+## Each node that is to be referred to over the network must be registered using
+## [method register_node]. It is best to deregister freed nodes using [method
+## deregister_node].
+## [br][br]
+## Node registration and deregistration are done automatically by the high-level
+## nodes ( like RollbackSynchronizer ), and usually doesn't need to be done
+## manually.
+
 var _command_server: _NetworkCommandServer
 
 var _next_id := 0
@@ -23,7 +40,70 @@ func _ready():
 
 	_cmd_ids = _command_server.register_command_at(_NetworkCommands.IDS, _handle_ids)
 
-func register(what: Object, path: String) -> void:
+# TODO(#561): Handle peer disconnect by clearing up data
+
+## Register a node
+## [br][br]
+## Once a node is registered, it can be referred to over the network. The same
+## node must be registered with the same node path on all peers.
+func register_node(node: Node) -> void:
+	if not node.is_inside_tree():
+		_logger.error("Can't register node %s that is not inside tree!", [node])
+		return
+	_register(node, node.get_path())
+
+## Deregister a node, freeing all identity data associated with it
+func deregister_node(node: Node) -> void:
+	_deregister(node)
+
+## Clear all identities
+func clear() -> void:
+	_identifiers.clear()
+	_identifier_by_name.clear()
+	_identifier_by_id.clear()
+	_next_id = 0
+
+## Queue sending the numeric ID of [param node] to [param peer]
+## [br][br]
+## This happens automatically when the [param node] is first referred to in a
+## packet. This method allows frontloading that, at a more feasible moment.
+## [br][br]
+## This method does not send any data. To force sending identifiers, use [method
+## flush_queue].
+func queue_identifier_for(node: Node, peer: int) -> bool:
+	var identifier := _get_identifier_of(node)
+	if not identifier:
+		return false
+	_queue_for(identifier, peer)
+	return true
+
+## Broadcast all identities queued for synchronization
+## [br][br]
+## Flushed automatically by default
+func flush_queue() -> void:
+	for peer in _push_queue:
+		_cmd_ids.send(_serialize_ids(_push_queue[peer]), peer)
+	_push_queue.clear()
+
+func _get_identifier_of(what: Object) -> _NetworkIdentifier:
+	return _identifiers.get(what)
+
+func _resolve_reference(peer: int, identity_reference: _NetworkIdentityReference, allow_queue: bool = true) -> _NetworkIdentifier:
+	if identity_reference.has_id():
+		return _get_identifier_by_id(peer, identity_reference.get_id())
+	else:
+		var identifier := _get_identifier_by_name(identity_reference.get_full_name())
+		if allow_queue and identifier:
+			_queue_for(identifier, peer)
+		return identifier
+
+func _queue_for(identifier: _NetworkIdentifier, peer: int) -> void:
+	if not _push_queue.has(peer):
+		_push_queue[peer] = { identifier.get_full_name(): identifier.get_id_for(peer) }
+	else: 
+		_push_queue[peer][identifier.get_full_name()] = identifier.get_id_for(peer)
+
+func _register(what: Object, path: String) -> void:
 	if _identifiers.has(what):
 		return
 	
@@ -34,7 +114,7 @@ func register(what: Object, path: String) -> void:
 	identifier.on_id.connect(func(peer: int, id: int): _update_id_cache(identifier, peer, id))
 	_update_id_cache(identifier, multiplayer.get_unique_id(), identifier.get_local_id())
 
-func deregister(what: Object) -> void:
+func _deregister(what: Object) -> void:
 	if not _identifiers.has(what):
 		return
 
@@ -43,45 +123,6 @@ func deregister(what: Object) -> void:
 	_identifier_by_name.erase(identifier.get_full_name())
 	_erase_from_id_cache(identifier)
 
-func clear() -> void:
-	_identifiers.clear()
-	_identifier_by_name.clear()
-	_identifier_by_id.clear()
-	_next_id = 0
-
-# TODO(#561): Handle peer disconnect by clearing up data
-
-func register_node(node: Node) -> void:
-	if not node.is_inside_tree():
-		_logger.error("Can't register node %s that is not inside tree!", [node])
-		return
-	register(node, node.get_path())
-
-func deregister_node(node: Node) -> void:
-	deregister(node)
-
-func get_identifier_of(what: Object) -> _NetworkIdentifier:
-	return _identifiers.get(what)
-
-func resolve_reference(peer: int, identity_reference: _NetworkIdentityReference, allow_queue: bool = true) -> _NetworkIdentifier:
-	if identity_reference.has_id():
-		return _get_identifier_by_id(peer, identity_reference.get_id())
-	else:
-		var identifier := _get_identifier_by_name(identity_reference.get_full_name())
-		if allow_queue and identifier:
-			queue_for(identifier, peer)
-		return identifier
-
-func queue_for(identifier: _NetworkIdentifier, peer: int) -> void:
-	if not _push_queue.has(peer):
-		_push_queue[peer] = { identifier.get_full_name(): identifier.get_id_for(peer) }
-	else: 
-		_push_queue[peer][identifier.get_full_name()] = identifier.get_id_for(peer)
-
-func flush_queue() -> void:
-	for peer in _push_queue:
-		_cmd_ids.send(_serialize_ids(_push_queue[peer]), peer)
-	_push_queue.clear()
 
 func _get_identifier_by_name(full_name: String) -> _NetworkIdentifier:
 	return _identifier_by_name.get(full_name)
