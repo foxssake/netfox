@@ -1,0 +1,39 @@
+[remap]
+
+importer="scene"
+importer_version=1
+type="PackedScene"
+uid="uid://rx0fioc73ab3"
+path="res://.godot/imported/Door_Closed.gltf-5052f4d09b39aca559065611b6697803.scn"
+
+[deps]
+
+source_file="res://examples/multiplayer-job-queue/models/Quaternius Cube World Kit/Door_Closed.gltf"
+dest_files=["res://.godot/imported/Door_Closed.gltf-5052f4d09b39aca559065611b6697803.scn"]
+
+[params]
+
+nodes/root_type="Node3D"
+nodes/root_name="Scene Root"
+nodes/apply_root_scale=true
+nodes/root_scale=1.0
+meshes/ensure_tangents=true
+meshes/generate_lods=true
+meshes/create_shadow_meshes=true
+meshes/light_baking=1
+meshes/lightmap_texel_size=0.2
+skins/use_named_skins=true
+animation/import=true
+animation/fps=30
+animation/trimming=false
+animation/remove_immutable_tracks=true
+import_script/path=""
+_subresources={
+"nodes": {
+"PATH:Door_Closed2": {
+"generate/physics": true,
+"physics/shape_type": 1
+}
+}
+}
+gltf/embedded_image_handling=1

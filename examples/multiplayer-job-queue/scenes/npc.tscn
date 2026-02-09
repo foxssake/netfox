@@ -1,0 +1,23 @@
+[gd_scene load_steps=5 format=3 uid="uid://m0umd5vwpscw"]
+
+[ext_resource type="Script" path="res://examples/multiplayer-job-queue/scripts/npc.gd" id="1_kys4n"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_orxks"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_52gqo"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_7j03s"]
+size = Vector3(0.4, 0.2, 0.2)
+
+[node name="npc" type="StaticBody3D"]
+script = ExtResource("1_kys4n")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_orxks")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_52gqo")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.517619, 0.495629)
+mesh = SubResource("BoxMesh_7j03s")
