@@ -50,8 +50,9 @@ func set_at(at: int, value: Variant) -> void:
 		_tail = at
 		_head = at
 		push(value)
-	elif at < _tail:
-		# Trying to set something before tail, ignore
+	elif at < _head - capacity():
+		# Trying to set something that would wrap back around and overwrite
+		# current data
 		return
 	elif at == _head:
 		# Simply adding a new item

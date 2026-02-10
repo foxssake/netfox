@@ -131,6 +131,9 @@ func get_subjects() -> Array:
 func get_auth_subjects() -> Array:
 	return _auth_subjects.values()
 
+func get_subject_properties(subject: Object) -> Array:
+	return _data.get(subject, {}).keys()
+
 func is_empty() -> bool:
 	return _data.is_empty()
 
