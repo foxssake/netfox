@@ -1,0 +1,1044 @@
+[gd_scene load_steps=26 format=3 uid="uid://dbnx63lgo7288"]
+
+[ext_resource type="Texture2D" uid="uid://cdb8di7e1p6h6" path="res://icon.png" id="1_6gbgt"]
+[ext_resource type="Theme" uid="uid://cg8p4yow3i3ly" path="res://examples/forest-brawl/ui/menu-theme.tres" id="1_xmgyy"]
+[ext_resource type="Texture2D" uid="uid://4vyxbqthy3nf" path="res://examples/forest-brawl/ui/gauss-bg.png" id="2_f45cx"]
+[ext_resource type="AudioStream" uid="uid://b1tjkexft6b6p" path="res://examples/forest-brawl/sounds/switch/switch1.ogg" id="2_fg4qs"]
+[ext_resource type="AudioStream" uid="uid://cr7ui6x21ywtf" path="res://examples/forest-brawl/sounds/switch/switch2.ogg" id="3_x70pt"]
+[ext_resource type="AudioStream" uid="uid://b175yiuxb4out" path="res://examples/forest-brawl/sounds/switch/switch3.ogg" id="4_gji41"]
+[ext_resource type="Texture2D" uid="uid://c6bp4x3j4l27k" path="res://examples/forest-brawl/ui/die-icon.svg" id="4_w03d4"]
+[ext_resource type="AudioStream" uid="uid://br4qdiu4g7uuc" path="res://examples/forest-brawl/sounds/switch/switch4.ogg" id="5_6auhi"]
+[ext_resource type="AudioStream" uid="uid://ct4mldhp1j0p1" path="res://examples/forest-brawl/sounds/switch/switch5.ogg" id="6_47cu0"]
+[ext_resource type="AudioStream" uid="uid://b51qiut02m5hq" path="res://examples/forest-brawl/sounds/switch/switch6.ogg" id="7_g4pxc"]
+[ext_resource type="AudioStream" uid="uid://cg2pl8kegpluj" path="res://examples/forest-brawl/sounds/switch/switch7.ogg" id="8_si12f"]
+[ext_resource type="AudioStream" uid="uid://cwpvdoq22ewxj" path="res://examples/forest-brawl/sounds/switch/switch8.ogg" id="9_j72q5"]
+[ext_resource type="AudioStream" uid="uid://vopvgimi40ci" path="res://examples/forest-brawl/sounds/click/click_001.ogg" id="10_xypl4"]
+[ext_resource type="AudioStream" uid="uid://d4fnb7fq15ud7" path="res://examples/forest-brawl/sounds/click/click_002.ogg" id="11_6mefx"]
+[ext_resource type="AudioStream" uid="uid://xm1rrumqubqo" path="res://examples/forest-brawl/sounds/click/click_003.ogg" id="12_880g4"]
+[ext_resource type="AudioStream" uid="uid://pya5p1mgjj0r" path="res://examples/forest-brawl/sounds/click/click_004.ogg" id="13_iojt7"]
+[ext_resource type="AudioStream" uid="uid://dgxn16sobxnj6" path="res://examples/forest-brawl/sounds/click/click_005.ogg" id="14_uoh15"]
+
+[sub_resource type="GDScript" id="GDScript_hv8dj"]
+script/source = "extends Control
+
+@onready var audio_player := %\"UI Audio\" as AudioStreamPlayer
+
+@export var toggle_sounds: Array[AudioStream] = []
+@export var click_sounds: Array[AudioStream] = []
+
+func _ready():
+	# Hide when game starts
+	NetworkEvents.on_client_start.connect(func(__): hide())
+	NetworkEvents.on_server_start.connect(func(): hide())
+	
+	# Show when game ends
+	NetworkEvents.on_client_stop.connect(func(__): show())
+	NetworkEvents.on_server_stop.connect(func(): show())
+
+	# Make sure the main menu is visible by default
+	for child in get_children():
+		if child is Control:
+			child.hide()
+
+	for i in range(2):
+		get_child(i).show()
+
+	# Play a sound when something is toggled
+	for control in find_children(\"*\", \"Control\"):
+		if control is CheckButton or control is CheckBox:
+			var toggle := control as Button
+			toggle.toggled.connect(func(__): _play_random_sfx(toggle_sounds, -4))
+		elif control is Button:
+			var button := control as Button
+			button.pressed.connect(func(): _play_random_sfx(click_sounds, +8))
+
+func _play_random_sfx(pool: Array[AudioStream], gain_db: float = 0.0) -> void:
+	if pool.is_empty():
+		return
+
+	var sfx := pool.pick_random() as AudioStream
+	audio_player.stream = sfx
+	audio_player.volume_db = gain_db
+	audio_player.play()
+"
+
+[sub_resource type="GDScript" id="GDScript_jmdql"]
+script/source = "extends Control
+
+@onready var quick_play_button := $\"Quick Play Button\" as Button
+@onready var find_game_button := $\"Find a Game Button\" as Button
+@onready var play_lan_button := $\"Play LAN Button\" as Button
+@onready var settings_button := $\"Settings Button\" as Button
+@onready var quit_button := $\"Quit Button\" as Button
+
+@onready var quick_play_menu := %\"Quick Play Menu\" as Control
+@onready var games_menu := %\"Games Menu\" as Control
+@onready var lan_menu := %\"LAN Menu\" as Control
+@onready var settings_menu := %\"Settings Menu\" as Control
+
+func _ready() -> void:
+	quick_play_button.pressed.connect(_quick_play)
+	find_game_button.pressed.connect(_find_game)
+	play_lan_button.pressed.connect(_play_lan)
+	settings_button.pressed.connect(_settings)
+	quit_button.pressed.connect(_quit)
+
+func _quick_play() -> void:
+	_switch_to(quick_play_menu)
+
+func _find_game() -> void:
+	_switch_to(games_menu)
+
+func _play_lan() -> void:
+	_switch_to(lan_menu)
+
+func _settings() -> void:
+	_switch_to(settings_menu)
+
+func _quit() -> void:
+	get_tree().quit()
+
+# TODO: Deduplicate?
+func _switch_to(menu: Control) -> void:
+	menu.show()
+	hide()
+"
+
+[sub_resource type="GDScript" id="GDScript_pewsl"]
+script/source = "extends Control
+
+@onready var label := $Label as Label
+@onready var back_button := $\"HBoxContainer/Back Button\" as Button
+@onready var host_button := $\"HBoxContainer/Host Button\" as Button
+
+@onready var main_menu := %\"Main Menu\" as Control
+
+func is_active() -> bool:
+	return is_visible_in_tree()
+
+func _ready() -> void:
+	visibility_changed.connect(func():
+		if is_visible_in_tree(): _execute()
+		else: _cancel()
+	)
+	
+	back_button.pressed.connect(_back)
+	host_button.pressed.connect(_host)
+
+func _execute() -> void:
+	label.text = \"Connecting to services...\"
+	var err := await ForestBrawlConnector.connect_to_any_service_host()
+	if err != OK:
+		label.text = \"Connection failed: %s\" % [error_string(err)]
+		return
+
+	label.text = \"Looking for games...\"
+	var expanded_search := false
+	var search_time := 0.0
+	var lobby: NohubLobby
+
+	while is_active():
+		await get_tree().create_timer(1.0).timeout
+		search_time += 1.0
+		
+		var response := await ForestBrawlConnector.nohub().list_lobbies()
+		if not response.is_success():
+			label.text = \"nohub error: %s\" % [response.error().message]
+		
+		# Only consider quick-play lobbies
+		var lobbies := response.value()\\
+			.filter(func (it: NohubLobby):
+				return it.data.get(\"quick-play\", \"\") == \"enabled\" or expanded_search
+				)
+
+		if not lobbies.is_empty():
+			# TODO: More advanced strategies?
+			lobby = lobbies.pick_random()
+			break
+
+		if search_time > 5.0 and not expanded_search:
+			label.text = \"Expanding search...\"
+			expanded_search = true
+
+	if not is_active():
+		return
+
+	label.text = \"Joining...\"
+	var response := await ForestBrawlConnector.nohub().join_lobby(lobby.id)
+	if not response.is_success():
+		label.text = \"nohub error: %s\" % [response.error().message]
+
+	var address := response.value()
+	print(\"Joining address: %s\" % [address])
+	err = ForestBrawlConnector.join(address)
+	if err != OK:
+		label.text = \"Couldn't join %s: %s\" % [address, error_string(err)]
+
+func _cancel() -> void:
+	pass
+
+func _back() -> void:
+	_switch_to(main_menu)
+
+func _host() -> void:
+	label.text = \"Creating lobby...\"
+	
+	# Create lobby
+	var lobby_name := \"Quick Play #%x\" % [randi_range(0x10000000, 0xFFFFFFFF)]
+	var player_capacity := 8
+	var address := \"noray://%s/%s\" % [ForestBrawlConnector.noray_address(), Noray.oid]
+	
+	var response := await ForestBrawlConnector.host_quick_play(address, player_capacity)
+	if not response.is_success():
+		label.text = \"Lobby fail: %s\" % [response.error().message]
+	
+	# Start game
+	label.text = \"Starting...\"
+	var err := await ForestBrawlConnector.host_noray()
+	if err != OK:
+		label.text = \"Fail: %s\" % [error_string(err)]
+
+# TODO: Deduplicate?
+func _switch_to(menu: Control) -> void:
+	menu.show()
+	hide()
+"
+
+[sub_resource type="Animation" id="Animation_7nw6r"]
+resource_name = "spin"
+length = 1.5
+loop_mode = 1
+step = 0.0416667
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:modulate")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.75, 1.5),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0.501961), Color(1, 1, 1, 1), Color(1, 1, 1, 0.501961)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_dy8vn"]
+_data = {
+"spin": SubResource("Animation_7nw6r")
+}
+
+[sub_resource type="GDScript" id="GDScript_2payw"]
+script/source = "extends Control
+
+@onready var presets_option := $\"MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer/Presets Option\" as OptionButton
+@onready var noray_input := $\"MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer/noray Input\" as LineEdit
+@onready var nohub_input := $\"MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer/nohub Input\" as LineEdit
+@onready var connect_button := $\"MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer/Connect Button\" as Button
+@onready var status_label := $\"MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer/Status Label\" as Label
+@onready var dock_button := $\"MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/Dock Button\" as Button
+
+@onready var lobbies_container := $\"MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/ScrollContainer/Lobbies Container\" as GridContainer
+@onready var lobby_name_input := $\"MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/GridContainer/Lobby Name Input\" as LineEdit
+@onready var lobby_player_limit_input := $\"MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/GridContainer/Lobby Player Limit Input\" as LineEdit
+@onready var back_button := $\"MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/HBoxContainer/Back Button\" as Button
+@onready var host_button := $\"MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/HBoxContainer/Host Button\" as Button
+
+@onready var dock_container := $MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer as Control
+@onready var dock_panel := $MarginContainer/HBoxContainer/PanelContainer
+
+@onready var main_menu := %\"Main Menu\" as Control
+
+var _poll_interval := 2.
+var _poll_wait := 0.
+
+var _is_hosting := false
+
+func is_active() -> bool:
+	return is_visible_in_tree()
+
+func _ready() -> void:
+	# TODO: Deduplicate?
+	visibility_changed.connect(func():
+		if is_visible_in_tree(): _execute()
+		else: _cancel()
+	, CONNECT_DEFERRED)
+	
+	presets_option.item_selected.connect(_select_preset)
+	connect_button.pressed.connect(_connect)
+	dock_button.pressed.connect(_dock)
+	back_button.pressed.connect(_back)
+	host_button.pressed.connect(_host)
+	
+	# Populate presets
+	presets_option.clear()
+	for hosts in ForestBrawlConnector.known_service_hosts:
+		presets_option.add_item(hosts.name)
+	presets_option.select(0)
+	_select_preset(0)
+
+func _process(dt: float) -> void:
+	if not is_active():
+		return
+
+	# Poll lobbies
+	_poll_wait -= dt
+	if _poll_wait < 0.0 and ForestBrawlConnector.is_connected_to_services():
+		print(\"Listing lobbies...\")
+		_poll_wait = _poll_interval
+		var response := await ForestBrawlConnector.nohub().list_lobbies()
+		if not response.is_success():
+			print(\"Failed listing lobbies: %s\" % [response])
+		else:
+			print(\"Found lobbies: %s\" % [response.value()])
+			_render_lobbies(response.value())
+
+func _execute() -> void:
+	_connect()
+
+func _cancel() -> void:
+	_disconnect()
+	_render_lobbies([])
+
+func _select_preset(idx: int) -> void:
+	var preset := ForestBrawlConnector.known_service_hosts[idx]
+	noray_input.text = preset.noray_address
+	nohub_input.text = preset.nohub_address
+
+func _connect() -> void:
+	_disconnect()
+
+	status_label.text = \"Status: Connecting...\"
+	var err := await ForestBrawlConnector.connect_to_services(noray_input.text, nohub_input.text)
+	if err != OK:
+		print(\"Failed to connect to services: \", error_string(err))
+		_disconnect()
+	else:
+		status_label.text = \"Status: Online\"
+
+func _disconnect() -> void:
+	if not _is_hosting:
+		ForestBrawlConnector.disconnect_from_services()
+	status_label.text = \"Status: Offline\"
+	_is_hosting = false
+
+func _dock() -> void:
+	if dock_container.visible:
+		dock_container.hide()
+		dock_button.text = \">\"
+	else:
+		dock_container.show()
+		dock_button.text = \"<\"
+	dock_panel.size_flags_horizontal ^= Control.SIZE_EXPAND
+
+func _back() -> void:
+	_switch_to(main_menu)
+
+func _host() -> void:
+	if not ForestBrawlConnector.is_connected_to_services():
+		return
+
+	var lobby_name := lobby_name_input.text
+	var lobby_limit := lobby_player_limit_input.text
+
+	var noray_address := ForestBrawlConnector.noray_address()
+	
+	if not lobby_name:
+		print(\"Lobby name can't be empty!\")
+		return
+	if not lobby_limit.is_valid_int():
+		print(\"Player limit is not a number!\")
+		return
+	if int(lobby_limit) <= 0:
+		print(\"Invalid player limit!\")
+		return
+
+	var player_limit := int(lobby_limit)
+	var address := \"noray://%s/%s\" % [noray_address, Noray.oid]
+
+	var response := await ForestBrawlConnector.host_lobby(lobby_name, address, player_limit)
+	if not response.is_success():
+		print(\"Failed to create lobby! \", response)
+		return
+	else:
+		print(\"Created lobby! \", response.value())
+		_poll_wait = -1.
+
+	var err := await ForestBrawlConnector.host_noray()
+	if err != OK:
+		prints(\"Failed to host game:\", error_string(err))
+		return
+
+	# Success!
+	_is_hosting = true
+
+func _join(lobby_id: String) -> void:
+	if not ForestBrawlConnector.is_connected_to_services():
+		return
+
+	print(\"Attempting to join lobby #%s\" % [lobby_id])
+	var response := await ForestBrawlConnector.nohub().join_lobby(lobby_id)
+	if not response.is_success():
+		print(\"Failed to join lobby %s: %s\" % [lobby_id, response])
+		return
+
+	var address := response.value()
+	print(\"Received address: %s\" % address)
+	ForestBrawlConnector.join(address)
+
+# TODO: Deduplicate?
+func _switch_to(menu: Control) -> void:
+	menu.show()
+	hide()
+
+func _render_lobbies(lobbies: Array[NohubLobby]) -> void:
+	# Clear container, retain header
+	var children := lobbies_container.get_children()
+	for i in range(lobbies_container.columns, lobbies_container.get_child_count()):
+		children[i].queue_free()
+
+	# Render list
+	for lobby in lobbies:
+		var name_label := Label.new()
+		name_label.text = lobby.data.get(\"name\", \"???\")
+
+		var players_label := Label.new()
+		players_label.text = \"%s / %s\" % [lobby.data.get(\"player-count\", \"?\"), lobby.data.get(\"player-capacity\", \"?\")]
+
+		var join_button := Button.new()
+		join_button.text = \">\"
+		join_button.tooltip_text = \"Join this lobby\"
+		join_button.pressed.connect(func(): _join(lobby.id))
+
+		lobbies_container.add_child(name_label)
+		lobbies_container.add_child(players_label)
+		lobbies_container.add_child(join_button)
+"
+
+[sub_resource type="GDScript" id="GDScript_u7g6r"]
+script/source = "extends Control
+
+@onready var main_menu := %\"Main Menu\" as Control
+
+@onready var host_input := $\"MarginContainer/VBoxContainer/GridContainer/Host Input\" as LineEdit
+@onready var port_input := $\"MarginContainer/VBoxContainer/GridContainer/Port Input\" as LineEdit
+
+@onready var back_button := $\"MarginContainer/VBoxContainer/HBoxContainer/Back Button\" as Button
+@onready var connect_button := $\"MarginContainer/VBoxContainer/HBoxContainer/Connect Button\" as Button
+@onready var host_button := $\"MarginContainer/VBoxContainer/HBoxContainer/Host Button\" as Button
+
+func _ready():
+	back_button.pressed.connect(_back)
+	connect_button.pressed.connect(_connect)
+	host_button.pressed.connect(_host)
+
+func _back():
+	_switch_to(main_menu)
+
+func _connect():
+	var host := host_input.text
+	var port = _get_port()
+	
+	var peer := ENetMultiplayerPeer.new()
+	var err := peer.create_client(host, port)
+	if err != OK:
+		push_error(\"Failed to start client: %s\" % [error_string(err)])
+		return
+
+	multiplayer.multiplayer_peer = peer
+
+	while peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTING:
+		peer.poll()
+		await get_tree().process_frame
+
+	if peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
+		push_error(\"Failed to connect!\")
+		return
+
+	get_parent_control().hide() # Success
+
+func _host():
+	var port := _get_port()
+
+	var peer := ENetMultiplayerPeer.new()
+	var err := peer.create_server(port)
+	if err != OK:
+		push_error(\"Failed to start server: %s\" % [error_string(err)])
+		return
+
+	multiplayer.multiplayer_peer = peer
+	get_parent_control().hide() # Success
+
+# TODO: Deduplicate?
+func _switch_to(menu: Control) -> void:
+	menu.show()
+	hide()
+
+func _get_port() -> int:
+	if not port_input.text.is_valid_int():
+		return 16384
+	else:
+		return int(port_input.text)
+"
+
+[sub_resource type="GDScript" id="GDScript_xlfi6"]
+script/source = "extends Control
+
+@onready var confirm_button := $\"MarginContainer/Settings VBox/HBoxContainer/Confirm Button\" as Button
+@onready var main_menu := %\"Main Menu\" as Control
+
+@onready var player_name_input := $\"MarginContainer/Settings VBox/Player Name/Player Name Input\" as LineEdit
+@onready var randomize_button := $\"MarginContainer/Settings VBox/Player Name/Randomize Button\" as Button
+@onready var always_randomize_checkbox := $\"MarginContainer/Settings VBox/Always Randomize CheckBox\" as CheckBox
+@onready var force_relay_checkbox := $\"MarginContainer/Settings VBox/Force relay CheckBox\"
+@onready var fullscreen_toggle := $\"MarginContainer/Settings VBox/GridContainer/Fullscreen CheckButton\" as CheckButton
+@onready var vsync_toggle := $\"MarginContainer/Settings VBox/GridContainer/V-Sync CheckButton\" as CheckButton
+@onready var confine_mouse_toggle := $\"MarginContainer/Settings VBox/GridContainer/Confine Mouse CheckButton\" as CheckButton
+@onready var volume_slider := $\"MarginContainer/Settings VBox/Volume/Volume Slider\" as HSlider
+
+var _settings: ForestBrawlSettings
+
+func _ready() -> void:
+	visibility_changed.connect(func():
+		if is_visible_in_tree(): _execute()
+		else: _cancel()
+	)
+	
+	_settings = ForestBrawlSettings.load()
+	_apply_settings(_settings)
+	
+	player_name_input.text_changed.connect(func(__): _on_change())
+	always_randomize_checkbox.toggled.connect(func(__): _on_change())
+	force_relay_checkbox.toggled.connect(func(__): _on_change())
+	fullscreen_toggle.toggled.connect(func(__): _on_change())
+	vsync_toggle.toggled.connect(func(__): _on_change())
+	confine_mouse_toggle.toggled.connect(func(__): _on_change())
+	volume_slider.changed.connect(func(__): _on_change())
+
+	confirm_button.pressed.connect(_confirm)
+	randomize_button.pressed.connect(_randomize_name)
+
+func _execute() -> void:
+	_settings = ForestBrawlSettings.load()
+	_render_settings(_settings)
+
+func _cancel() -> void:
+	if _settings:
+		_settings.save()
+		ForestBrawlSettings.set_active(_settings)
+		print(\"Saved settings: %s\" % _settings.serialize())
+
+func _randomize_name():
+	player_name_input.text = NameProvider.name()
+
+func _confirm() -> void:
+	_switch_to(main_menu)
+
+func _on_change() -> void:
+	_settings = _read_settings()
+	_apply_settings(_settings)
+
+func _render_settings(settings: ForestBrawlSettings) -> void:
+	player_name_input.text = settings.player_name
+	always_randomize_checkbox.set_pressed_no_signal(settings.randomize_name)
+	force_relay_checkbox.set_pressed_no_signal(settings.force_relay)
+	fullscreen_toggle.set_pressed_no_signal(settings.full_screen)
+	vsync_toggle.set_pressed_no_signal(settings.vsync)
+	confine_mouse_toggle.set_pressed_no_signal(settings.confine_mouse)
+	volume_slider.set_value_no_signal(lerpf(volume_slider.min_value, volume_slider.max_value, settings.master_volume))
+
+func _read_settings() -> ForestBrawlSettings:
+	var settings := ForestBrawlSettings.new()
+	
+	settings.player_name = player_name_input.text
+	settings.randomize_name = always_randomize_checkbox.button_pressed
+	settings.force_relay = force_relay_checkbox.button_pressed
+	settings.full_screen = fullscreen_toggle.button_pressed
+	settings.vsync = vsync_toggle.button_pressed
+	settings.confine_mouse = confine_mouse_toggle.button_pressed
+	settings.master_volume = inverse_lerp(volume_slider.min_value, volume_slider.max_value, volume_slider.value)
+	
+	return settings
+
+func _apply_settings(settings: ForestBrawlSettings) -> void:
+	# Randomize name
+	player_name_input.editable = not settings.randomize_name
+
+	# Full screen
+	if settings.full_screen:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+	else:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+
+	# V-sync
+	if settings.vsync:
+		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_ADAPTIVE)
+	else:
+		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
+
+	# Confine mouse
+	if settings.confine_mouse:
+		DisplayServer.mouse_set_mode(DisplayServer.MOUSE_MODE_CONFINED)
+	else:
+		DisplayServer.mouse_set_mode(DisplayServer.MOUSE_MODE_VISIBLE)
+
+	# Volume
+	var volume = lerp(-60, 0, settings.master_volume)
+	var mute = volume < -59.5
+	
+	AudioServer.set_bus_volume_db(0, volume)
+	AudioServer.set_bus_mute(0, mute)
+
+# TODO: Deduplicate?
+func _switch_to(menu: Control) -> void:
+	menu.show()
+	hide()
+"
+
+[node name="Menu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_xmgyy")
+script = SubResource("GDScript_hv8dj")
+toggle_sounds = Array[AudioStream]([ExtResource("2_fg4qs"), ExtResource("3_x70pt"), ExtResource("4_gji41"), ExtResource("5_6auhi"), ExtResource("6_47cu0"), ExtResource("7_g4pxc"), ExtResource("8_si12f"), ExtResource("9_j72q5")])
+click_sounds = Array[AudioStream]([ExtResource("10_xypl4"), ExtResource("11_6mefx"), ExtResource("12_880g4"), ExtResource("13_iojt7"), ExtResource("14_uoh15")])
+
+[node name="TextureRect" type="TextureRect" parent="."]
+modulate = Color(0, 0, 0, 0.501961)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_f45cx")
+stretch_mode = 6
+
+[node name="Main Menu" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+script = SubResource("GDScript_jmdql")
+
+[node name="Quick Play Button" type="Button" parent="Main Menu"]
+layout_mode = 2
+theme_type_variation = &"MainMenuButton"
+text = "Quick Play"
+flat = true
+
+[node name="Find a Game Button" type="Button" parent="Main Menu"]
+layout_mode = 2
+theme_type_variation = &"MainMenuButton"
+text = "Find a Game"
+flat = true
+
+[node name="Play LAN Button" type="Button" parent="Main Menu"]
+layout_mode = 2
+theme_type_variation = &"MainMenuButton"
+text = "Play on LAN"
+flat = true
+
+[node name="Settings Button" type="Button" parent="Main Menu"]
+layout_mode = 2
+theme_type_variation = &"MainMenuButton"
+text = "Settings"
+flat = true
+
+[node name="Quit Button" type="Button" parent="Main Menu"]
+layout_mode = 2
+theme_type_variation = &"MainMenuButton"
+text = "Quit"
+flat = true
+
+[node name="Quick Play Menu" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+script = SubResource("GDScript_pewsl")
+
+[node name="Label" type="Label" parent="Quick Play Menu"]
+layout_mode = 2
+theme_type_variation = &"HeaderLarge"
+text = "Searching..."
+horizontal_alignment = 1
+
+[node name="Spinner" type="TextureRect" parent="Quick Play Menu"]
+modulate = Color(1, 1, 1, 0.501961)
+layout_mode = 2
+texture = ExtResource("1_6gbgt")
+stretch_mode = 5
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Quick Play Menu/Spinner"]
+autoplay = "spin"
+libraries = {
+"": SubResource("AnimationLibrary_dy8vn")
+}
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Quick Play Menu"]
+layout_mode = 2
+alignment = 1
+
+[node name="Back Button" type="Button" parent="Quick Play Menu/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+text = "Back"
+
+[node name="Host Button" type="Button" parent="Quick Play Menu/HBoxContainer"]
+layout_mode = 2
+text = "Host"
+
+[node name="Games Menu" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(960, 540)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_2payw")
+
+[node name="MarginContainer" type="MarginContainer" parent="Games Menu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Games Menu/MarginContainer"]
+layout_mode = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="Games Menu/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="GridContainer" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="Presets Label" type="Label" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Presets:"
+
+[node name="Presets Option" type="OptionButton" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+allow_reselect = true
+
+[node name="noray Label" type="Label" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "noray:"
+
+[node name="noray Input" type="LineEdit" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="nohub Label" type="Label" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "nohub:"
+
+[node name="nohub Input" type="LineEdit" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Connect Button" type="Button" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Connect"
+
+[node name="Status Label" type="Label" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Status: "
+
+[node name="Dock Button" type="Button" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer/HBoxContainer"]
+layout_mode = 2
+text = "<"
+
+[node name="PanelContainer2" type="PanelContainer" parent="Games Menu/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+
+[node name="MarginContainer2" type="MarginContainer" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Title Label" type="Label" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"HeaderMedium"
+text = "Games"
+horizontal_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Lobbies Container" type="GridContainer" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+columns = 3
+
+[node name="Name Header" type="Label" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/ScrollContainer/Lobbies Container"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"EmbossLabel"
+text = "Name"
+
+[node name="Players Header" type="Label" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/ScrollContainer/Lobbies Container"]
+layout_mode = 2
+theme_type_variation = &"EmbossLabel"
+text = "Players"
+
+[node name="Tail Header" type="Label" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/ScrollContainer/Lobbies Container"]
+custom_minimum_size = Vector2(32, 0)
+layout_mode = 2
+theme_type_variation = &"EmbossLabel"
+text = " "
+
+[node name="GridContainer" type="GridContainer" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="Name Label" type="Label" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Lobby name"
+
+[node name="Player Limit Label" type="Label" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Player Limit"
+
+[node name="Lobby Name Input" type="LineEdit" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Lobby Player Limit Input" type="LineEdit" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/GridContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Back Button" type="Button" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Back"
+
+[node name="Host Button" type="Button" parent="Games Menu/MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Host Game"
+
+[node name="LAN Menu" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(480, 320)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_u7g6r")
+
+[node name="MarginContainer" type="MarginContainer" parent="LAN Menu"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="LAN Menu/MarginContainer"]
+layout_mode = 2
+
+[node name="Title Label" type="Label" parent="LAN Menu/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"HeaderMedium"
+text = "Play on LAN"
+horizontal_alignment = 1
+
+[node name="GridContainer" type="GridContainer" parent="LAN Menu/MarginContainer/VBoxContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="Host Label" type="Label" parent="LAN Menu/MarginContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Host: "
+
+[node name="Host Input" type="LineEdit" parent="LAN Menu/MarginContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "localhost"
+
+[node name="Port Label" type="Label" parent="LAN Menu/MarginContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+text = "Port: "
+
+[node name="Port Input" type="LineEdit" parent="LAN Menu/MarginContainer/VBoxContainer/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "16384"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="LAN Menu/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 10
+alignment = 1
+
+[node name="Back Button" type="Button" parent="LAN Menu/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Back"
+
+[node name="Connect Button" type="Button" parent="LAN Menu/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Connect"
+
+[node name="Host Button" type="Button" parent="LAN Menu/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Host"
+
+[node name="Settings Menu" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(480, 320)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_xlfi6")
+
+[node name="MarginContainer" type="MarginContainer" parent="Settings Menu"]
+layout_mode = 2
+
+[node name="Settings VBox" type="VBoxContainer" parent="Settings Menu/MarginContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Title Label" type="Label" parent="Settings Menu/MarginContainer/Settings VBox"]
+layout_mode = 2
+theme_type_variation = &"HeaderMedium"
+text = "Settings"
+horizontal_alignment = 1
+
+[node name="Player Name" type="HBoxContainer" parent="Settings Menu/MarginContainer/Settings VBox"]
+layout_mode = 2
+
+[node name="Player Name Label" type="Label" parent="Settings Menu/MarginContainer/Settings VBox/Player Name"]
+layout_mode = 2
+text = "Player Name:"
+
+[node name="Player Name Input" type="LineEdit" parent="Settings Menu/MarginContainer/Settings VBox/Player Name"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Nameless Brawler"
+clear_button_enabled = true
+
+[node name="Randomize Button" type="Button" parent="Settings Menu/MarginContainer/Settings VBox/Player Name"]
+custom_minimum_size = Vector2(32, 0)
+layout_mode = 2
+tooltip_text = "Generate a random name"
+icon = ExtResource("4_w03d4")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Always Randomize CheckBox" type="CheckBox" parent="Settings Menu/MarginContainer/Settings VBox"]
+layout_mode = 2
+text = "Always randomize name"
+
+[node name="Force relay CheckBox" type="CheckBox" parent="Settings Menu/MarginContainer/Settings VBox"]
+layout_mode = 2
+text = "Force relay"
+
+[node name="HSeparator" type="HSeparator" parent="Settings Menu/MarginContainer/Settings VBox"]
+visible = false
+layout_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="Settings Menu/MarginContainer/Settings VBox"]
+layout_mode = 2
+columns = 8
+
+[node name="Fullscreen Label" type="Label" parent="Settings Menu/MarginContainer/Settings VBox/GridContainer"]
+layout_mode = 2
+text = "Fullscreen:"
+
+[node name="Fullscreen CheckButton" type="CheckButton" parent="Settings Menu/MarginContainer/Settings VBox/GridContainer"]
+layout_mode = 2
+
+[node name="V-Sync Label" type="Label" parent="Settings Menu/MarginContainer/Settings VBox/GridContainer"]
+layout_mode = 2
+text = "V-Sync:"
+
+[node name="V-Sync CheckButton" type="CheckButton" parent="Settings Menu/MarginContainer/Settings VBox/GridContainer"]
+layout_mode = 2
+
+[node name="Confine Mouse Label" type="Label" parent="Settings Menu/MarginContainer/Settings VBox/GridContainer"]
+layout_mode = 2
+text = "Confine mouse:"
+
+[node name="Confine Mouse CheckButton" type="CheckButton" parent="Settings Menu/MarginContainer/Settings VBox/GridContainer"]
+layout_mode = 2
+
+[node name="HSeparator2" type="HSeparator" parent="Settings Menu/MarginContainer/Settings VBox"]
+visible = false
+layout_mode = 2
+
+[node name="Volume" type="HBoxContainer" parent="Settings Menu/MarginContainer/Settings VBox"]
+layout_mode = 2
+
+[node name="Volume Label" type="Label" parent="Settings Menu/MarginContainer/Settings VBox/Volume"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Volume:"
+
+[node name="Volume Slider" type="HSlider" parent="Settings Menu/MarginContainer/Settings VBox/Volume"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+size_flags_stretch_ratio = 3.0
+value = 100.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Settings Menu/MarginContainer/Settings VBox"]
+layout_mode = 2
+size_flags_vertical = 10
+alignment = 1
+
+[node name="Confirm Button" type="Button" parent="Settings Menu/MarginContainer/Settings VBox/HBoxContainer"]
+layout_mode = 2
+text = "Confirm"
+
+[node name="UI Audio" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true

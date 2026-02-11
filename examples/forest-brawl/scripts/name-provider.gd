@@ -7,7 +7,7 @@ static var _animals: PackedStringArray
 static func _pick_random(from: PackedStringArray) -> String:
 	return from[randi_range(0, from.size()-1)]
 
-static func name():
+static func name() -> String:
 	return ("%s %s" % [
 		NameProvider._pick_random(NameProvider._adjectives),
 		NameProvider._pick_random(NameProvider._animals)

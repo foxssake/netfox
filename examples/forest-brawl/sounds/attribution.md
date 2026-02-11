@@ -109,6 +109,31 @@ Files:
 *"Slide Whistle, Descending, A.wav"* by [InspectorJ], under the [Attribution
 4.0] license. No changes were made to the original sound effect.
 
+## Switch sounds
+
+[Source](https://kenney.nl/assets/ui-audio)
+
+Played in menus when toggling items.
+
+Files:
+* `switch/*`
+
+*UI Audio* by [Kenney], under the [Creative Commons CC0] license. No changes
+were made to the original sound effect.
+
+## Click sounds
+
+[Source](https://kenney.nl/assets/interface-sounds)
+
+Played in menus when pressing button.
+
+Files:
+* `click/*`
+
+*Interface Sounds* by [Kenney], under the [Creative Commons CC0] license. No
+changes were made to the original sound effect.
+
+
 [studiomandragore]: https://freesound.org/people/studiomandragore/
 [qubodup]: https://freesound.org/people/qubodup/
 [Breviceps]: https://freesound.org/people/Breviceps/sounds/452998/
@@ -117,8 +142,10 @@ Files:
 [oganesson]: https://freesound.org/people/oganesson/
 [silversatyr]: https://freesound.org/people/silversatyr/
 [InspectorJ]: https://freesound.org/people/InspectorJ/
+[Kenney]: https://kenney.nl/
 
 
 [Creative Commons 0]: https://creativecommons.org/publicdomain/zero/1.0/
 [Attribution 3.0]: https://creativecommons.org/licenses/by/3.0/
 [Attribution 4.0]: https://creativecommons.org/licenses/by/4.0/
+[Creative Commons CC0]: https://creativecommons.org/publicdomain/zero/1.0/
