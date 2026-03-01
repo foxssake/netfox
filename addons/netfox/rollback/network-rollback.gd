@@ -278,12 +278,8 @@ func register_input_submission(_node: Node, _tick: int) -> void:
 func get_latest_input_tick(node: Node) -> int:
 	var input_nodes := RollbackSimulationServer.get_inputs_of(node)
 	var reference_tick := NetworkTime.tick
-	var input_age := NetworkHistoryServer.get_input_age_for(input_nodes, reference_tick)
 
-	if input_age >= 0:
-		return reference_tick - input_age
-	else:
-		return -1
+	return NetworkHistoryServer.get_latest_input_for(input_nodes, reference_tick)
 
 ## Check if a node has submitted input for a specific tick (or later)
 func has_input_for_tick(node: Node, tick: int) -> bool:
@@ -304,7 +300,7 @@ func _ready():
 		NetworkHistoryServer.record_input(tick + input_delay)
 		NetworkSynchronizationServer.synchronize_input(tick + input_delay)
 	)
-	
+
 	NetworkSynchronizationServer.on_input.connect(func(snapshot: Snapshot):
 		if snapshot.is_empty():
 			return
@@ -314,11 +310,12 @@ func _ready():
 		else:
 			_logger.trace("Ingested input @%d, earliest @%d->@%d", [snapshot.tick, _earliest_input, _earliest_input])
 	)
-	
+
 	NetworkSynchronizationServer.on_state.connect(func(snapshot: Snapshot):
 		if snapshot.is_empty():
 			return
-		if _latest_state < 0 or snapshot.tick > _latest_state:
+		if _latest_state < 0 or snapshot.tick < _latest_state:
+			# TODO: Actually, by 'latest' state, track earliest tick and resim from there
 			_logger.trace("Ingested state @%d, latest @%d->@%d", [snapshot.tick, _latest_state, snapshot.tick])
 			_latest_state = snapshot.tick
 		else:

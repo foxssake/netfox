@@ -104,7 +104,7 @@ func process_settings() -> void:
 	for node in nodes:
 		RollbackSimulationServer.register(node._rollback_tick)
 		_sim_nodes.append(node)
-		
+
 	# Both simulated and state nodes depend on all inputs
 	# TODO(#564): Write tests for setups where a node is synchronized but not simulated
 	for node in nodes + _state_properties.get_subjects():

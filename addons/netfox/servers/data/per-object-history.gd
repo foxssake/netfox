@@ -44,6 +44,8 @@ func ensure_snapshot(tick: int, subject: Object, carry_forward: bool) -> ObjectS
 		else:
 			history.set_at(tick, ObjectSnapshot.new(subject))
 
+	if history.get_at(tick) == null:
+		return ObjectSnapshot.new(subject) # HACK
 	assert(history.get_at(tick) != null, "Somehow no snapshot?!")
 	return history.get_at(tick) as ObjectSnapshot
 
@@ -56,6 +58,16 @@ func get_latest_snapshot(tick: int, subject: Object) -> ObjectSnapshot:
 		return null
 
 	return history.get_latest_at(tick) as ObjectSnapshot
+
+func get_latest_tick(tick: int, subject: Object) -> int:
+	if not _data.has(subject):
+		return -1
+
+	var history := _data[subject] as _HistoryBuffer
+	if not history.has_latest_at(tick):
+		return -1
+
+	return history.get_latest_index_at(tick)
 
 func set_property(tick: int, subject: Object, property: NodePath, value: Variant) -> void:
 	if not _data.has(subject):

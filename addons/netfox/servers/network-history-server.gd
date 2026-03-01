@@ -117,6 +117,9 @@ func merge_synchronizer_state(snapshot: Snapshot) -> bool:
 func get_input_age_for(subjects: Array, tick: int) -> int:
 	return _get_age_for(subjects, tick, _rb_input_snapshots)
 
+func get_latest_input_for(subjects: Array, tick: int) -> int:
+	return _get_latest_for(subjects, tick, _rb_input_history)
+
 func get_state_age_for(subjects: Array, tick: int) -> int:
 	return _get_age_for(subjects, tick, _rb_state_snapshots)
 
@@ -130,7 +133,7 @@ func _record_history(tick: int, history: _PerObjectHistory, property_pool: _Prop
 			continue
 		if not is_auth and history.is_auth(tick, subject):
 			continue
-		
+
 		var snapshot := history.ensure_snapshot(tick, subject, false) #!!
 		assert(not property_pool.get_properties_of(subject).is_empty(), "Subject present in property pool without properties! Please report a bug!")
 		for property in property_pool.get_properties_of(subject):
@@ -197,11 +200,11 @@ func _restore(tick: int, snapshots: _HistoryBuffer) -> bool:
 
 	var snapshot := snapshots.get_latest_at(tick) as Snapshot
 	snapshot.apply()
-	
+
 #	match snapshots:
 #		_rb_input_snapshots: _logger.debug("Restored input @%d: %s", [tick, snapshot])
 #		_rb_state_snapshots: _logger.debug("Restored state @%d: %s", [tick, snapshot])
-	
+
 	return true
 
 func _merge_uh_please(snapshot: Snapshot, history: _PerObjectHistory, reverse: bool = false) -> bool:
@@ -212,30 +215,42 @@ func _merge_uh_please(snapshot: Snapshot, history: _PerObjectHistory, reverse: b
 		# TODO: Warn?
 		return false
 
+	_logger.debug("Merging snapshot: %s", [snapshot])
+	_logger.debug("Subjects: %s", [snapshot.get_subjects()])
 	for subject in snapshot.get_subjects():
+		_logger.debug("Ensuring snapshot for %s for @%d", [subject, tick])
 		var object_snapshot := history.ensure_snapshot(tick, subject, not reverse) # TODO: Check if carry-forward is valid here
+		if not object_snapshot:
+			_logger.error("fucking snapshot missing")
+			continue
+		_logger.debug("Using snapshot %s", [object_snapshot])
 
 		# Never overwrite auth data
+		_logger.debug("Local auth: %s; Remote auth: %s", [object_snapshot.is_auth(), snapshot.is_auth(subject)])
 		if object_snapshot.is_auth() and not snapshot.is_auth(subject):
+			_logger.debug("Skipping snapshot, won't overwrite auth")
 			continue
 
 		for property in snapshot.get_subject_properties(subject):
 			# If merging in reverse, don't update anything that we already have
 			# a value for - only accept previously unknown property values
 			if reverse and object_snapshot.has_value(property):
-				_logger.debug(
-					"Rejecting incoming %s:%s=%s for reverse merge, already have %s locally: %s",
-					[subject, property, snapshot.get_property(subject, property), object_snapshot.get_value(property), object_snapshot]
-				)
+				if snapshot.get_property(subject, property) != object_snapshot.get_value(property):
+					_logger.debug(
+						"Rejecting incoming %s:%s=%s for reverse merge, already have %s locally: %s",
+						[subject, property, snapshot.get_property(subject, property), object_snapshot.get_value(property), object_snapshot]
+					)
 				continue
 
 			var original_value := object_snapshot.get_value(property)
 			var new_value := snapshot.get_property(subject, property)
 
 			object_snapshot.set_value(property, new_value)
+			_logger.debug("Changed %s:%s - %s -> %s", [subject, property, original_value, new_value])
 			if not has_updated and original_value != new_value:
 				has_updated = true
 		object_snapshot.set_auth(snapshot.is_auth(subject))
+		_logger.debug("Final snapshot: %s", [object_snapshot])
 		match history:
 			_rb_input_history: _logger.debug("Merged input @%d: %s", [tick, object_snapshot])
 
@@ -267,6 +282,7 @@ func _merge(snapshot: Snapshot, snapshots: _HistoryBuffer, reverse: bool = false
 func _get_age_for(subjects: Array, tick: int, snapshots: _HistoryBuffer) -> int:
 	var at := tick
 
+	# TODO: Rewrite, we now have per-object history
 	# Bounded while loop
 	for i in range(1024):
 		if not snapshots.has_latest_at(at):
@@ -278,3 +294,18 @@ func _get_age_for(subjects: Array, tick: int, snapshots: _HistoryBuffer) -> int:
 			return tick - at
 
 	return -1
+
+func _get_latest_for(subjects: Array, tick: int, history: _PerObjectHistory) -> int:
+	var latest := -1
+
+	for subject in subjects:
+		var subject_latest := history.get_latest_tick(tick, subject)
+		if subject_latest < 0:
+			continue
+
+		if latest < 0:
+			latest = subject_latest
+		else:
+			latest = mini(latest, subject_latest)
+
+	return latest
