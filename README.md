@@ -174,7 +174,7 @@ page!
 
 <a href="https://store.steampowered.com/app/3952070/Nitro_Turtles/">
 
-![Nitro Turtles](./assets/showcase/nitro-turtles.jpg)
+![Nitro Turtles](docs/assets/showcase/nitro-turtles.jpg)
 
 </a>
 
