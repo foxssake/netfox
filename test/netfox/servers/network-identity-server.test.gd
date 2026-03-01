@@ -17,7 +17,7 @@ func before_case(__):
 	identity_server = _NetworkIdentityServer.new(command_server)
 
 	node = Node.new()
-	node.name = "Node"
+	node.name = "Identified Node"
 
 	orphan_node = Node.new()
 
@@ -44,7 +44,7 @@ func suite() -> void:
 			# Assert for identifier
 			var identifier := identity_server._get_identifier_of(node)
 			expect_not_null(identifier)
-			expect_equal(identifier.get_full_name(), "/root/Node")
+			expect_equal(identifier.get_full_name(), "/root/Identified Node")
 		)
 		
 		test("should fail on node node in tree", func():
