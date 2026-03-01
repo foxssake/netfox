@@ -46,7 +46,7 @@ func deregister(node: Node) -> void:
 	_sync_history.erase_subject(node)
 
 func record_input(tick: int) -> void:
-	_record(tick, _rb_input_snapshots, _rb_input_properties, false, func(subject: Node):
+	_record(tick, _rb_input_snapshots, _rb_input_properties, true, func(subject: Node):
 		return subject.is_multiplayer_authority()
 	)
 	_record_history(tick, _rb_input_history, _rb_input_properties, true, func(subject: Node):
