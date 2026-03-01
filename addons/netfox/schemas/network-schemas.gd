@@ -55,6 +55,16 @@ static func uint32() -> NetworkSchemaSerializer:
 static func uint64() -> NetworkSchemaSerializer:
 	return _Uint64Serializer.new()
 
+## Serialize an unsigned integer as a variable amount of bytes.
+## [br][br]
+## Each byte contains 7 bits of data. The 8th bit indicates whether there are
+## more bytes left. Thus, small numbers fitting into 7 bits will be encoded as
+## a single byte, while larger numbers take more space as they increase.
+## [br][br]
+## Final size is 1 byte for every 7 bits of numeric data.
+static func varuint() -> NetworkSchemaSerializer:
+	return _VaruintSerializer.instance
+
 ## Serialize signed integers as 8 bits.
 ## [br][br]
 ## Final size is 1 byte.
@@ -456,6 +466,10 @@ static func dictionary(key_serializer: NetworkSchemaSerializer = variant(),
 	size_serializer: NetworkSchemaSerializer = uint16()) -> NetworkSchemaSerializer:
 	return _DictionarySerializer.new(key_serializer, value_serializer, size_serializer)
 
+# Serializes [_NetworkIdentityReference] objects
+static func _netref() -> NetworkSchemaSerializer:
+	return _NetworkIdentityReferenceSerializer.new()
+
 # Serializer classes
 
 class _VariantSerializer extends NetworkSchemaSerializer:
@@ -494,6 +508,35 @@ class _Uint32Serializer extends NetworkSchemaSerializer:
 class _Uint64Serializer extends NetworkSchemaSerializer:
 	func encode(v: Variant, b: StreamPeerBuffer) -> void: b.put_u64(v)
 	func decode(b: StreamPeerBuffer) -> Variant: return b.get_u64()
+
+class _VaruintSerializer extends NetworkSchemaSerializer:
+	static var instance := _VaruintSerializer.new()
+
+	func encode(v: Variant, b: StreamPeerBuffer) -> void:
+		var value := v as int
+		for __ in 8:									# Bounded while loop
+			var nominator := value & 0b0111_1111		# Grab the lowest 7 bits
+			var continuator := value > 0b0111_1111		# Continue if more bits
+			var cont_bit := 0b1000_0000 if continuator else 0
+			var byte := nominator | cont_bit			# Combine into 1 byte
+			value = value >> 7							# Discard lower 7 bits
+			b.put_u8(byte)								# Save byte
+
+			# Stop if no more bytes to write
+			if not continuator:
+				break
+
+	func decode(b: StreamPeerBuffer) -> Variant:
+		var value := 0
+		for i in 8:
+			var byte := b.get_u8()
+			var nominator := byte & 0b0111_1111
+			var continuator := (byte & 0b1000_0000) != 0
+			value += nominator << (i * 7)
+			
+			if not continuator:
+				break
+		return value
 
 class _Int8Serializer extends NetworkSchemaSerializer:
 	func encode(v: Variant, b: StreamPeerBuffer) -> void: b.put_8(v)
@@ -767,3 +810,24 @@ class _DictionarySerializer extends NetworkSchemaSerializer:
 			dictionary[key] = value
 		
 		return dictionary
+
+class _NetworkIdentityReferenceSerializer extends NetworkSchemaSerializer:
+	static var varuint := _VaruintSerializer.new()
+
+	func encode(v: Variant, b: StreamPeerBuffer) -> void:
+		var ref := v as _NetworkIdentityReference
+		if ref.has_id():
+			varuint.encode(ref.get_id(), b)
+		else:
+			b.put_u8(0)
+			# TODO(#562): Get rid of Godot's prepended 32 bits of string length
+			# TODO(#562): Write is easy, prefer not manually iterating till \0 on read
+			b.put_utf8_string(ref.get_full_name())
+
+	func decode(b: StreamPeerBuffer) -> Variant:
+		var id := varuint.decode(b) as int
+		if id == 0:
+			var full_name := b.get_utf8_string()
+			return _NetworkIdentityReference.of_full_name(full_name)
+		else:
+			return _NetworkIdentityReference.of_id(id)
