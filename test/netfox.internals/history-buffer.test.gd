@@ -31,10 +31,16 @@ func suite() -> void:
 	)
 
 	define("set_at()", func():
-		test("should ignore behind tail", func():
+		test("should set behind tail", func():
 			var buffer := filled_buffer.duplicate()
-			buffer.set_at(-2, 4)
-			expect_not(buffer.has_at(-2))
+			buffer.set_at(1, 4)
+			expect(buffer.has_at(1))
+		)
+
+		test("should not set behind limit", func():
+			var buffer := filled_buffer.duplicate()
+			buffer.set_at(-64, 4)
+			expect_not(buffer.has_at(-64))
 		)
 
 		test("should update prev buffer if in bounds", func():

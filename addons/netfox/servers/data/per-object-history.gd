@@ -44,8 +44,8 @@ func ensure_snapshot(tick: int, subject: Object, carry_forward: bool) -> ObjectS
 		else:
 			history.set_at(tick, ObjectSnapshot.new(subject))
 
-	if history.get_at(tick) == null:
-		return ObjectSnapshot.new(subject) # HACK
+#	if history.get_at(tick) == null:
+#		return ObjectSnapshot.new(subject) # HACK
 	assert(history.get_at(tick) != null, "Somehow no snapshot?!")
 	return history.get_at(tick) as ObjectSnapshot
 
