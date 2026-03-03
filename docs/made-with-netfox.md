@@ -45,6 +45,25 @@ and maybe—just maybe—eat something that doesn’t squeak.
 
 [:simple-steam: Steam](https://store.steampowered.com/app/3204000/Chrome_Carnage/)
 
+## Nitro Turtles
+
+<a href="https://store.steampowered.com/app/3952070/Nitro_Turtles/" markdown>
+![Nitro Turtles](./assets/showcase/nitro-turtles.jpg)
+</a>
+
+Nitro Turtles is a racing game about super fast turtles! Reach insane speeds
+with awesome shell-attached gadgets, compete in crazy races with friends, and
+sprint across the finish line to claim ultimate turtle victory! To be the
+fastest turtle around, you'll need to master shell gadget usage, learn every
+shortcut imaginable, and maybe even consider using performance-enhancing
+seaweed\*.
+
+!!!note
+    Performance-enhancing seaweed has not been tested for safety and likely has
+    numerous side effects
+
+[:simple-steam: Steam](https://store.steampowered.com/app/3952070/Nitro_Turtles/)
+
 ## Your game here!
 
 Building something cool with *netfox*? Whether it's a game, an app, tool, or
