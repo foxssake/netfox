@@ -22,6 +22,7 @@ class_name StateSynchronizer
 ## for every tick.
 ## [br][br]
 ## Only considered if [member _NetworkRollback.enable_diff_states] is true.
+## @deprecated: This can now be configured in the project settings.
 @export_range(0, 128, 1, "or_greater")
 var full_state_interval: int = 24
 
@@ -39,6 +40,7 @@ var full_state_interval: int = 24
 ## reduced.
 ## [br][br]
 ## Only considered if [member _NetworkRollback.enable_diff_states] is true.
+## @deprecated: This can now be configured in the project settings.
 @export_range(0, 128, 1, "or_greater")
 var diff_ack_interval: int = 0
 

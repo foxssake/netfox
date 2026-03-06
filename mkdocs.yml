@@ -54,12 +54,14 @@ nav:
       - 'netfox/guides/property-paths.md'
       - 'netfox/guides/network-rollback.md'
       - 'netfox/guides/network-performance.md'
+      - 'netfox/guides/network-command-server.md'
       - 'netfox/guides/network-schemas.md'
       - 'netfox/guides/visibility-management.md'
       - 'netfox/guides/netfox-sharp.md'
     - Nodes:
       - 'netfox/nodes/tick-interpolator.md'
       - 'netfox/nodes/rollback-synchronizer.md'
+      - 'netfox/nodes/predictive-synchronizer.md'
       - 'netfox/nodes/state-synchronizer.md'
       - 'netfox/nodes/rewindable-action.md'
   - netfox.noray:

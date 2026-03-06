@@ -17,7 +17,7 @@ func before_case(__):
 	identity_server = _NetworkIdentityServer.new(command_server)
 
 	node = Node.new()
-	node.name = "Node"
+	node.name = "Identified Node"
 
 	orphan_node = Node.new()
 
@@ -42,9 +42,9 @@ func suite() -> void:
 			identity_server.register_node(node)
 
 			# Assert for identifier
-			var identifier := identity_server.get_identifier_of(node)
+			var identifier := identity_server._get_identifier_of(node)
 			expect_not_null(identifier)
-			expect_equal(identifier.get_full_name(), "/root/Node")
+			expect_equal(identifier.get_full_name(), "/root/Identified Node")
 		)
 		
 		test("should fail on node node in tree", func():
@@ -52,7 +52,7 @@ func suite() -> void:
 			identity_server.register_node(orphan_node)
 
 			# Assert for identifier
-			var identifier := identity_server.get_identifier_of(orphan_node)
+			var identifier := identity_server._get_identifier_of(orphan_node)
 			expect_null(identifier)
 		)
 	)
@@ -61,16 +61,16 @@ func suite() -> void:
 		test("should remove known", func():
 			# Register node
 			identity_server.register_node(node)
-			expect_not_null(identity_server.get_identifier_of(node))
+			expect_not_null(identity_server._get_identifier_of(node))
 
 			# Deregister
 			identity_server.deregister_node(node)
-			expect_null(identity_server.get_identifier_of(node))
+			expect_null(identity_server._get_identifier_of(node))
 		)
 
 		test("should do nothing on unknown", func():
 			identity_server.deregister_node(orphan_node)
-			expect_null(identity_server.get_identifier_of(orphan_node))
+			expect_null(identity_server._get_identifier_of(orphan_node))
 		)
 	)
 	
@@ -79,12 +79,12 @@ func suite() -> void:
 			# Register node
 			identity_server.register_node(node)
 			
-			var identifier := identity_server.get_identifier_of(node)
+			var identifier := identity_server._get_identifier_of(node)
 			var full_name := identifier.get_full_name()
 			
 			# Try and resolve some unknown identities
-			identity_server.resolve_reference(2, identifier.reference_for(2))
-			identity_server.resolve_reference(3, identifier.reference_for(3))
+			identity_server._resolve_reference(2, identifier.reference_for(2))
+			identity_server._resolve_reference(3, identifier.reference_for(3))
 			
 			# Flush queue
 			identity_server.flush_queue()
@@ -100,35 +100,29 @@ func suite() -> void:
 		)
 	)
 	
-	define("resolve_reference()", func():
+	define("_resolve_reference()", func():
 		test("should return by id", func():
 			# Register node
 			identity_server.register_node(node)
-			var identifier := identity_server.get_identifier_of(node)
+			var identifier := identity_server._get_identifier_of(node)
 			
 			# Resolve
 			var reference := _NetworkIdentityReference.of_id(identifier.get_local_id())
-			expect_equal(identity_server.resolve_reference(1, reference), identifier)
+			expect_equal(identity_server._resolve_reference(1, reference), identifier)
 		)
 
 		test("should return by name", func():
 			# Register node
 			identity_server.register_node(node)
-			var identifier := identity_server.get_identifier_of(node)
+			var identifier := identity_server._get_identifier_of(node)
 			
 			# Resolve
 			var reference := _NetworkIdentityReference.of_full_name(identifier.get_full_name())
-			expect_equal(identity_server.resolve_reference(1, reference), identifier)
+			expect_equal(identity_server._resolve_reference(1, reference), identifier)
 		)
 
 		test("should return null on unknown", func():
 			var reference := _NetworkIdentityReference.of_full_name("Unknown Node")
-			expect_null(identity_server.resolve_reference(1, reference))
+			expect_null(identity_server._resolve_reference(1, reference))
 		)
 	)
-
-class TestingCommandServer extends _NetworkCommandServer:
-	var commands_sent := [] as Array[Array]
-
-	func send_command(idx: int, data: PackedByteArray, target_peer: int = 0, mode: MultiplayerPeer.TransferMode = MultiplayerPeer.TRANSFER_MODE_RELIABLE, channel: int = 0) -> void:
-		commands_sent.append([idx, data, target_peer, mode, channel])
