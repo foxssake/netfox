@@ -22,7 +22,7 @@ func _read_property(node: Node, property: NodePath, buffer: StreamPeerBuffer) ->
 
 func _write_identifier(subject: Object, peer: int, buffer: StreamPeerBuffer) -> Error:
 	var netref := NetworkSchemas._netref()
-	var identifier := _get_identity_server().get_identifier_of(subject)
+	var identifier := _get_identity_server()._get_identifier_of(subject)
 	if not identifier:
 		_logger.error("Can't synchronize %s, identifier missing!", [subject])
 		return ERR_DOES_NOT_EXIST

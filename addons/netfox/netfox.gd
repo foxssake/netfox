@@ -277,3 +277,6 @@ func remove_setting(setting: Dictionary) -> void:
 		return
 
 	ProjectSettings.clear(setting.name)
+
+func has_autoload(name: String) -> bool:
+	return ProjectSettings.has_setting("autoload/" + name)

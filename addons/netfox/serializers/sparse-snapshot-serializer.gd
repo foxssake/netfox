@@ -75,7 +75,7 @@ func read_from(peer: int, properties: _PropertyPool, buffer: StreamPeerBuffer, i
 		node_buffer.data_array = buffer.get_partial_data(node_data_size)[1]
 
 		# Resolve to identifier
-		var identifier := _get_identity_server().resolve_reference(peer, idref)
+		var identifier := _get_identity_server()._resolve_reference(peer, idref)
 		if not identifier:
 			# TODO(#563): Handle unknown IDs gracefully
 			_logger.warning("Received unknown identity reference %s, skipping data", [idref])
