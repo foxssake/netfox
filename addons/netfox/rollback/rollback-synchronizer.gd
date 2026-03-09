@@ -32,23 +32,11 @@ class_name RollbackSynchronizer
 ## for every tick.
 ## [br][br]
 ## Only considered if [member _NetworkRollback.enable_diff_states] is true.
+## @deprecated: This can now be configured in the project settings.
 @export_range(0, 128, 1, "or_greater")
 var full_state_interval: int = 24
 
-## Ticks to wait between unreliably acknowledging diff states.
-## [br][br]
-## This can reduce the amount of properties sent in diff states, due to clients
-## more often acknowledging received states. To avoid introducing hickups, these
-## are sent unreliably.
-## [br][br]
-## If set to 0, diff states will never be acknowledged. If set to 1, all diff
-## states will be acknowledged. If set higher, ack's will be sent regularly, but
-## not for every diff state.
-## [br][br]
-## If enabled, it's worth to tune this setting until network traffic is actually
-## reduced.
-## [br][br]
-## Only considered if [member _NetworkRollback.enable_diff_states] is true.
+## @deprecated: This is no longer used.
 @export_range(0, 128, 1, "or_greater")
 var diff_ack_interval: int = 0
 
@@ -62,6 +50,7 @@ var diff_ack_interval: int = 0
 ## This will broadcast input to all peers, turning this off will limit to
 ## sending it to the server only. Turning this off is recommended to save
 ## bandwidth and reduce cheating risks.
+## @deprecated: This can now be configured in the project settings.
 @export var enable_input_broadcast: bool = true
 
 # Make sure this exists from the get-go, just not in the scene tree
@@ -263,7 +252,7 @@ func ignore_prediction(node: Node) -> void:
 ## [br][br]
 ## Returns -1 if there's no known input.
 func get_last_known_input() -> int:
-	return NetworkHistoryServer.get_input_age_for(_input_properties.get_subjects(), NetworkTime.tick)
+	return NetworkHistoryServer.get_latest_input_for(_input_properties.get_subjects(), NetworkTime.tick)
 
 ## Get the tick of the last known state.
 ## [br][br]

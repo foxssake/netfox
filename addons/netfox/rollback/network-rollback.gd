@@ -168,7 +168,7 @@ var _simulated_nodes: _Set = _Set.new()
 var _mutated_nodes: Dictionary = {}
 
 var _earliest_input := -1
-var _latest_state := -1
+var _earliest_state := -1
 
 const _STAGE_BEFORE := "B"
 const _STAGE_PREPARE := "P"
@@ -301,26 +301,8 @@ func _ready():
 		NetworkSynchronizationServer.synchronize_input(tick + input_delay)
 	)
 
-	NetworkSynchronizationServer.on_input.connect(func(snapshot: Snapshot):
-		if snapshot.is_empty():
-			return
-		if _earliest_input < 0 or snapshot.tick < _earliest_input:
-			_logger.trace("Ingested input @%d, earliest @%d->@%d", [snapshot.tick, _earliest_input, snapshot.tick])
-			_earliest_input = snapshot.tick
-		else:
-			_logger.trace("Ingested input @%d, earliest @%d->@%d", [snapshot.tick, _earliest_input, _earliest_input])
-	)
-
-	NetworkSynchronizationServer.on_state.connect(func(snapshot: Snapshot):
-		if snapshot.is_empty():
-			return
-		if _latest_state < 0 or snapshot.tick < _latest_state:
-			# TODO: Actually, by 'latest' state, track earliest tick and resim from there
-			_logger.trace("Ingested state @%d, latest @%d->@%d", [snapshot.tick, _latest_state, snapshot.tick])
-			_latest_state = snapshot.tick
-		else:
-			_logger.trace("Ingested state @%d, latest @%d->@%d", [snapshot.tick, _latest_state, _latest_state])
-	)
+	NetworkSynchronizationServer.on_input.connect(_handle_input)
+	NetworkSynchronizationServer.on_state.connect(_handle_state)
 
 func _exit_tree():
 	NetfoxLogger.free_tag(_get_rollback_tag)
@@ -339,13 +321,14 @@ func _rollback() -> void:
 	_resim_from = NetworkTime.tick
 	before_loop.emit()
 
+	# Figure out where to start rollback from
 	var range_source = "notif"
 	if _earliest_input >= 0 and _earliest_input <= _resim_from:
 		range_source = "earliest input"
 		_resim_from = _earliest_input
-	if _latest_state >= 0 and _latest_state <= _resim_from:
+	if _earliest_state >= 0 and _earliest_state <= _resim_from:
 		range_source = "latest state"
-		_resim_from = _latest_state
+		_resim_from = _earliest_state
 	_resim_from = mini(_resim_from, NetworkTime.tick - 1)
 	_logger.trace("Simulating range @%d>@%d using %s", [_resim_from, NetworkTime.tick, range_source])
 
@@ -368,7 +351,7 @@ func _rollback() -> void:
 		from = NetworkTime.tick - history_limit
 
 	_earliest_input = -1
-	_latest_state = -1
+	_earliest_state = -1
 
 	# for tick in from .. to:
 	_rollback_from = from
@@ -412,6 +395,24 @@ func _rollback() -> void:
 	# Cleanup
 	_mutated_nodes.clear()
 	_is_rollback = false
+
+func _handle_input(snapshot: Snapshot):
+	if snapshot.is_empty():
+		return
+	if _earliest_input < 0 or snapshot.tick < _earliest_input:
+		_logger.trace("Ingested input @%d, earliest @%d->@%d", [snapshot.tick, _earliest_input, snapshot.tick])
+		_earliest_input = snapshot.tick
+	else:
+		_logger.trace("Ingested input @%d, earliest @%d->@%d", [snapshot.tick, _earliest_input, _earliest_input])
+
+func _handle_state(snapshot: Snapshot):
+	if snapshot.is_empty():
+		return
+	if _earliest_state < 0 or snapshot.tick < _earliest_state:
+		_logger.trace("Ingested state @%d, latest @%d->@%d", [snapshot.tick, _earliest_state, snapshot.tick])
+		_earliest_state = snapshot.tick
+	else:
+		_logger.trace("Ingested state @%d, latest @%d->@%d", [snapshot.tick, _earliest_state, _earliest_state])
 
 # Insight 1:
 #	state(x) = simulate(state(x - 1), input(x - 1))

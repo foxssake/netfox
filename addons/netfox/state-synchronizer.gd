@@ -26,21 +26,7 @@ class_name StateSynchronizer
 @export_range(0, 128, 1, "or_greater")
 var full_state_interval: int = 24
 
-## Ticks to wait between unreliably acknowledging diff states.
-## [br][br]
-## This can reduce the amount of properties sent in diff states, due to clients
-## more often acknowledging received states. To avoid introducing hickups, these
-## are sent unreliably.
-## [br][br]
-## If set to 0, diff states will never be acknowledged. If set to 1, all diff
-## states will be acknowledged. If set higher, ack's will be sent regularly, but
-## not for every diff state.
-## [br][br]
-## If enabled, it's worth to tune this setting until network traffic is actually
-## reduced.
-## [br][br]
-## Only considered if [member _NetworkRollback.enable_diff_states] is true.
-## @deprecated: This can now be configured in the project settings.
+## @deprecated: This is no longer used.
 @export_range(0, 128, 1, "or_greater")
 var diff_ack_interval: int = 0
 
@@ -68,10 +54,12 @@ func process_settings() -> void:
 	# Register new configuration
 	_properties.set_from_paths(root, properties)
 	for node in _properties.get_subjects():
+		NetworkSynchronizationServer.register_visibility_filter(node, visibility_filter)
+		NetworkIdentityServer.register_node(node)
+
 		for property in _properties.get_properties_of(node):
 			NetworkHistoryServer.register_sync_state(node, property)
 			NetworkSynchronizationServer.register_sync_state(node, property)
-			NetworkIdentityServer.register_node(node)
 
 	_is_initialized = true
 

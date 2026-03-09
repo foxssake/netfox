@@ -98,14 +98,25 @@ func merge_synchronizer_state(snapshot: Snapshot) -> bool:
 	_merge_snapshot(snapshot, _sync_state_snapshots, true)
 	return _merge_history(snapshot, _sync_history)
 
-func get_input_age_for(subjects: Array, tick: int) -> int:
-	return _get_age_for(subjects, tick, _rb_input_snapshots)
-
 func get_latest_input_for(subjects: Array, tick: int) -> int:
 	return _get_latest_for(subjects, tick, _rb_input_history)
 
+func get_input_age_for(subjects: Array, tick: int) -> int:
+	var latest_input := get_latest_input_for(subjects, tick)
+	if latest_input < 0:
+		return -1
+	else:
+		return tick - latest_input
+
+func get_latest_state_for(subjects: Array, tick: int) -> int:
+	return _get_latest_for(subjects, tick, _rb_state_history)
+
 func get_state_age_for(subjects: Array, tick: int) -> int:
-	return _get_age_for(subjects, tick, _rb_state_snapshots)
+	var latest_state := get_latest_state_for(subjects, tick)
+	if latest_state < 0:
+		return -1
+	else:
+		return tick - latest_state
 
 func _record(tick: int, history: _PerObjectHistory, snapshots: _HistoryBuffer, property_pool: _PropertyPool, only_auth: bool, auth_filter: Callable) -> void:
 	var snapshot := snapshots.get_at(tick, Snapshot.new(tick)) as Snapshot
@@ -228,6 +239,7 @@ func _merge_history(snapshot: Snapshot, history: _PerObjectHistory, reverse: boo
 	return has_updated
 
 func _get_age_for(subjects: Array, tick: int, snapshots: _HistoryBuffer) -> int:
+	# Find the latest tick where
 	var at := tick
 
 	# TODO: Rewrite, we now have per-object history
@@ -257,3 +269,18 @@ func _get_latest_for(subjects: Array, tick: int, history: _PerObjectHistory) -> 
 			latest = mini(latest, subject_latest)
 
 	return latest
+
+func _get_earliest_for(subjects: Array, tick: int, history: _PerObjectHistory) -> int:
+	var earliest := -1
+
+	for subject in subjects:
+		var subject_latest := history.get_latest_tick(tick, subject)
+		if subject_latest < 0:
+			return -1
+
+		if earliest < 0:
+			earliest = earliest
+		else:
+			earliest = mini(earliest, subject_latest)
+
+	return earliest
