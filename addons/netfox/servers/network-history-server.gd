@@ -143,9 +143,9 @@ func _record(tick: int, history: _PerObjectHistory, snapshots: _HistoryBuffer, p
 
 		match history:
 			_rb_input_history:
-				_logger.debug("Recorded input @%d: %s", [tick, snapshot])
+				_logger.trace("Recorded input @%d: %s", [tick, snapshot])
 			_rb_state_history:
-				_logger.debug("Recorded state @%d: %s", [tick, snapshot])
+				_logger.trace("Recorded state @%d: %s", [tick, snapshot])
 
 func _restore_latest(tick: int, history: _PerObjectHistory) -> bool:
 	var any_applied := false
@@ -160,8 +160,8 @@ func _restore_latest(tick: int, history: _PerObjectHistory) -> bool:
 			any_applied = true
 
 			match history:
-				_rb_input_history: _logger.debug("Restored input @%d: %s", [tick, snapshot])
-				_rb_state_history: _logger.debug("Restored state @%d: %s", [tick, snapshot])
+				_rb_input_history: _logger.trace("Restored input @%d: %s", [tick, snapshot])
+				_rb_state_history: _logger.trace("Restored state @%d: %s", [tick, snapshot])
 
 	return any_applied
 
@@ -189,71 +189,35 @@ func _merge_snapshot(snapshot: Snapshot, snapshots: _HistoryBuffer, reverse: boo
 		return original_snapshot.merge(snapshot)
 
 func _merge_history(snapshot: Snapshot, history: _PerObjectHistory, reverse: bool = false) -> bool:
-	# TODO: Update snapshot history too, not just the per-object history
 	var tick := snapshot.tick
 	var has_updated := false
 
-	if tick < NetworkRollback.history_start: # TODO: Local variable?
-		# TODO: Warn?
+	if tick < NetworkRollback.history_start:
+		_logger.warning("Snapshot being merged is too old! (@%d)", [tick])
 		return false
 
-	_logger.debug("Merging snapshot: %s", [snapshot])
-	_logger.debug("Subjects: %s", [snapshot.get_subjects()])
 	for subject in snapshot.get_subjects():
-		_logger.debug("Ensuring snapshot for %s for @%d", [subject, tick])
-		var object_snapshot := history.ensure_snapshot(tick, subject, not reverse) # TODO: Check if carry-forward is valid here
-		if not object_snapshot:
-			_logger.error("fucking snapshot missing")
-			continue
-		_logger.debug("Using snapshot %s", [object_snapshot])
+		var object_snapshot := history.ensure_snapshot(tick, subject, not reverse)
 
 		# Never overwrite auth data
-		_logger.debug("Local auth: %s; Remote auth: %s", [object_snapshot.is_auth(), snapshot.is_auth(subject)])
 		if object_snapshot.is_auth() and not snapshot.is_auth(subject):
-			_logger.debug("Skipping snapshot, won't overwrite auth")
 			continue
 
 		for property in snapshot.get_subject_properties(subject):
 			# If merging in reverse, don't update anything that we already have
 			# a value for - only accept previously unknown property values
 			if reverse and object_snapshot.has_value(property):
-				if snapshot.get_property(subject, property) != object_snapshot.get_value(property):
-					_logger.debug(
-						"Rejecting incoming %s:%s=%s for reverse merge, already have %s locally: %s",
-						[subject, property, snapshot.get_property(subject, property), object_snapshot.get_value(property), object_snapshot]
-					)
 				continue
 
 			var original_value := object_snapshot.get_value(property)
 			var new_value := snapshot.get_property(subject, property)
 
 			object_snapshot.set_value(property, new_value)
-			_logger.debug("Changed %s:%s - %s -> %s", [subject, property, original_value, new_value])
 			if not has_updated and original_value != new_value:
 				has_updated = true
 		object_snapshot.set_auth(snapshot.is_auth(subject))
-		_logger.debug("Final snapshot: %s", [object_snapshot])
-		match history:
-			_rb_input_history: _logger.debug("Merged input @%d: %s", [tick, object_snapshot])
 
 	return has_updated
-
-func _get_age_for(subjects: Array, tick: int, snapshots: _HistoryBuffer) -> int:
-	# Find the latest tick where
-	var at := tick
-
-	# TODO: Rewrite, we now have per-object history
-	# Bounded while loop
-	for i in range(1024):
-		if not snapshots.has_latest_at(at):
-			return -1
-
-		at = snapshots.get_latest_index_at(at)
-		var snapshot := snapshots.get_at(at) as Snapshot
-		if snapshot.has_subjects(subjects, true):
-			return tick - at
-
-	return -1
 
 func _get_latest_for(subjects: Array, tick: int, history: _PerObjectHistory) -> int:
 	var latest := -1
