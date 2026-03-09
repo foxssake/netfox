@@ -1,6 +1,9 @@
 extends RefCounted
 class_name ObjectSnapshot
 
+# Represents snapshot data for a single object, by storing the object's values
+# for specified properties
+
 var _object: Object
 var _is_auth: bool = false
 var _data: Dictionary = {}

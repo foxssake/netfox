@@ -1,6 +1,8 @@
 extends RefCounted
 class_name _PropertyPool
 
+# Stores a set of properties, with each property belonging to a subject
+
 var _properties_by_subject := {} # object to property array
 
 static func of(entries: Array[Array]) -> _PropertyPool:

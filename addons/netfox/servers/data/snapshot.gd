@@ -1,6 +1,8 @@
 extends RefCounted
 class_name Snapshot
 
+# Stores property values of multiple subjects, recorded for a specific tick
+
 var tick: int
 var _data := {} # object to (property to variant)
 var _auth_subjects := _Set.new()

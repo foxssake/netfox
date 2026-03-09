@@ -1,6 +1,9 @@
 extends RefCounted
 class_name _PerObjectHistory
 
+# Stores a per-object history of ObjectSnapshots
+# Each managed object has its own timeline of snapshots
+
 var _history_size: int
 var _data := {} # Object to _HistoryBuffer
 
@@ -38,15 +41,12 @@ func ensure_snapshot(tick: int, subject: Object, carry_forward: bool) -> ObjectS
 	if not history.has_at(tick):
 		if not history.has_latest_at(tick):
 			history.set_at(tick, ObjectSnapshot.new(subject))
-			push_warning("Set @%d to new snapshot, no latest: %s" % [tick, history.get_at(tick)])
 		elif carry_forward:
 			history.set_at(tick, history.get_latest_at(tick).duplicate())
 		else:
 			history.set_at(tick, ObjectSnapshot.new(subject))
 
-#	if history.get_at(tick) == null:
-#		return ObjectSnapshot.new(subject) # HACK
-	assert(history.get_at(tick) != null, "Somehow no snapshot?!")
+	assert(history.get_at(tick) != null, "Failed to ensure snapshot!")
 	return history.get_at(tick) as ObjectSnapshot
 
 func get_latest_snapshot(tick: int, subject: Object) -> ObjectSnapshot:
