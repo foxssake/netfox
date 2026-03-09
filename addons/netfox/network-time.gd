@@ -469,6 +469,7 @@ func stop() -> void:
 	_tickrate_handshake.stop()
 	_state = _STATE_INACTIVE
 	_synced_peers.clear()
+	_tick = 0
 
 	if multiplayer.peer_disconnected.is_connected(_handle_peer_disconnect):
 		multiplayer.peer_disconnected.disconnect(_handle_peer_disconnect)
