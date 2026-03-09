@@ -1,6 +1,9 @@
 extends RefCounted
 class_name _Graph
 
+# Represents a graph, in the sense of a set of nodes, arbitrarily connected by
+# links
+
 var _links_from := {} # `from` to `to[]`
 var _links_to := {} # `to` to `from[]`
 

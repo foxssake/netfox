@@ -1,6 +1,8 @@
 extends RefCounted
 class_name _IntervalScheduler
 
+# Returns true on every nth `is_now()` call
+
 var interval := 1
 var _idx := 0
 

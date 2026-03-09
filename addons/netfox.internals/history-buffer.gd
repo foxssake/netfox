@@ -1,7 +1,8 @@
 extends RefCounted
 class_name _HistoryBuffer
 
-# Maps ticks (int) to arbitrary data
+# Maps ticks (int) to arbitrary data, stored in a sliding ring buffer
+
 var _capacity := 64
 var _buffer := []
 var _previous := []
@@ -75,6 +76,7 @@ func set_at(at: int, value: Variant) -> void:
 
 		push(value)
 	elif at >= _head:
+		# Skipping forward a bit
 		var previous := _head - 1
 		while _head < at:
 			_previous[_head % _capacity] = previous

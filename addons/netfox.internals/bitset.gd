@@ -1,6 +1,8 @@
 extends RefCounted
 class_name _Bitset
 
+# Stores a list of booleans, representing them efficiently as a PackedByteArray
+
 var _data: PackedByteArray
 var _bit_count: int
 

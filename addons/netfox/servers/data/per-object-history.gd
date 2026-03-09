@@ -21,7 +21,7 @@ func is_auth(tick: int, subject: Object) -> bool:
 		return false
 
 	var snapshot := history.get_at(tick) as ObjectSnapshot
-	return snapshot._is_auth
+	return snapshot.is_auth()
 
 func erase_subject(subject: Object) -> void:
 	_data.erase(subject)

@@ -22,6 +22,8 @@ func register(callback: Callable) -> void:
 		_logger.error("Trying to register callback that belongs to an invalid object!")
 		return
 
+	assert(callback.get_object() is Node, "Only nodes supported for now!")
+
 	_callbacks[callback.get_object()] = callback
 
 func deregister(callback: Callable) -> void:
