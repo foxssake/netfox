@@ -278,12 +278,12 @@ func _ready():
 	_redundant_serializer = _RedundantSnapshotSerializer.new(_schemas, _identity_server)
 
 	# Setup commands
-	_cmd_full_state = _command_server.register_command_at(_NetworkCommands.RB_FULL_STATE, _handle_full_state, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
-	_cmd_diff_state = _command_server.register_command_at(_NetworkCommands.RB_DIFF_STATE, _handle_diff_state, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
-	_cmd_input = _command_server.register_command_at(_NetworkCommands.INPUT, _handle_input, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
+	_cmd_full_state = _command_server.register_command(_handle_full_state, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
+	_cmd_diff_state = _command_server.register_command(_handle_diff_state, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
+	_cmd_input = _command_server.register_command(_handle_input, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
 
-	_cmd_full_sync = _command_server.register_command_at(_NetworkCommands.SYNC_FULL, _handle_full_sync, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
-	_cmd_diff_sync = _command_server.register_command_at(_NetworkCommands.SYNC_DIFF, _handle_diff_sync, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
+	_cmd_full_sync = _command_server.register_command(_handle_full_sync, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
+	_cmd_diff_sync = _command_server.register_command(_handle_diff_sync, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
 
 func _handle_input(sender: int, data: PackedByteArray):
 	var buffer := StreamPeerBuffer.new()
