@@ -133,7 +133,7 @@ func synchronize_input(tick: int) -> void:
 		# Grab owned input objects
 		for input_subject in _rb_owned_input_properties.get_subjects():
 			# Grab state objects controlled by input
-			var controlled_nodes := RollbackSimulationServer.get_controlled_by(input_subject)
+			var controlled_nodes := RollbackSimulationServer._get_controlled_by(input_subject)
 
 			# Notify peers owning nodes about the input
 			for node in controlled_nodes:
@@ -310,7 +310,7 @@ func _handle_input(sender: int, data: PackedByteArray):
 	for snapshot in snapshots:
 		snapshot.sanitize(sender)
 
-		_logger.debug("Ingesting input: %s", [snapshot])
+		_logger.trace("Ingesting input: %s", [snapshot])
 		if NetworkHistoryServer._merge_rollback_input(snapshot):
 			_on_input.emit(snapshot)
 
@@ -355,6 +355,6 @@ func _ingest_state(sender: int, snapshot: Snapshot) -> void:
 	snapshot.sanitize(sender)
 
 	NetworkHistoryServer._merge_rollback_state(snapshot)
-	_logger.debug("Ingested state: %s", [snapshot])
+	_logger.trace("Ingested state: %s", [snapshot])
 
 	_on_state.emit(snapshot)

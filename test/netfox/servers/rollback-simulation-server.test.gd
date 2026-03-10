@@ -17,7 +17,7 @@ func suite() -> void:
 			state_node.set_multiplayer_authority(2)
 			RollbackSimulationServer.register_rollback_input_for(state_node, input_node)
 
-			expect(RollbackSimulationServer.is_predicting(input_snapshot, state_node))
+			expect(RollbackSimulationServer._is_predicting(input_snapshot, state_node))
 		)
 
 		test("should predict owned node without input", func():
@@ -27,7 +27,7 @@ func suite() -> void:
 
 			RollbackSimulationServer.register_rollback_input_for(state_node, input_node)
 
-			expect(RollbackSimulationServer.is_predicting(input_snapshot, state_node))
+			expect(RollbackSimulationServer._is_predicting(input_snapshot, state_node))
 		)
 
 		test("should predict non-owned inputless", func():
@@ -36,14 +36,14 @@ func suite() -> void:
 
 			state_node.set_multiplayer_authority(2)
 
-			expect(RollbackSimulationServer.is_predicting(input_snapshot, state_node))
+			expect(RollbackSimulationServer._is_predicting(input_snapshot, state_node))
 		)
 
 		test("should not predict owned inputless", func():
 			var input_snapshot := Snapshot.new(0)
 			var state_node := await get_node()
 
-			expect_not(RollbackSimulationServer.is_predicting(input_snapshot, state_node))
+			expect_not(RollbackSimulationServer._is_predicting(input_snapshot, state_node))
 		)
 
 		test("should not predict owned with input", func():
@@ -53,7 +53,7 @@ func suite() -> void:
 
 			RollbackSimulationServer.register_rollback_input_for(state_node, input_node)
 
-			expect_not(RollbackSimulationServer.is_predicting(input_snapshot, state_node))
+			expect_not(RollbackSimulationServer._is_predicting(input_snapshot, state_node))
 		)
 	)
 
@@ -68,7 +68,7 @@ func suite() -> void:
 			
 			var snapshot := Snapshot.new(1)
 			
-			expect_empty(server.get_nodes_to_simulate(snapshot))
+			expect_empty(server._get_nodes_to_simulate(snapshot))
 		)
 		
 		test("should simulate with input", func():
@@ -83,7 +83,7 @@ func suite() -> void:
 			snapshot.set_property(input_node, "editor_description", "Test input node")
 			snapshot.set_auth(input_node, true)
 			
-			expect_equal(server.get_nodes_to_simulate(snapshot), [node])
+			expect_equal(server._get_nodes_to_simulate(snapshot), [node])
 		)
 		
 		test("should simulate mutated", func():
@@ -97,7 +97,7 @@ func suite() -> void:
 			var snapshot := Snapshot.new(1)
 			NetworkRollback.mutate(node)
 			
-			expect_equal(server.get_nodes_to_simulate(snapshot), [node])
+			expect_equal(server._get_nodes_to_simulate(snapshot), [node])
 		)
 	)
 

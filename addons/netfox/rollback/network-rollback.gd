@@ -276,7 +276,7 @@ func register_rollback_input_submission(_node: Node, _tick: int) -> void:
 ## [br][br]
 ## Returns [code]-1[/code] if no input was submitted for the node, ever.
 func get_latest_input_tick(node: Node) -> int:
-	var input_nodes := RollbackSimulationServer.get_inputs_of(node)
+	var input_nodes := RollbackSimulationServer._get_inputs_of(node)
 	var reference_tick := NetworkTime.tick
 
 	return NetworkHistoryServer.get_latest_input_for(input_nodes, reference_tick)
@@ -393,7 +393,7 @@ func _rollback() -> void:
 	_rollback_stage = _STAGE_AFTER
 	after_loop.emit()
 	NetworkHistoryServer._restore_rollback_state(display_tick)
-	RollbackSimulationServer.trim_ticks_simulated(history_start)
+	RollbackSimulationServer._trim_ticks_simulated(history_start)
 
 	# Cleanup
 	_mutated_nodes.clear()

@@ -1,6 +1,20 @@
 extends Node
 class_name _RollbackSimulationServer
 
+## Runs gameplay simulation during rollback
+##
+## Rollback involves restoring the game state to an earlier point in time and
+## re-running game logic from there. This class tracks which nodes participate
+## in rollback, which of them need to be actually simulated, and runs the
+## simulation itself.
+## [br][br]
+## Node simulation honors scene tree order. Processing order and physics
+## processing order are [b]not[/b] considered.
+## [br][br]
+## To participate in rollback, call [method register] using the method to call
+## to simulate the node. Only one [Callable] can be actively registered per
+## node.
+
 var _history_server: _NetworkHistoryServer
 
 var _callbacks := {}		# node to callback
@@ -17,6 +31,7 @@ var _group := StringName("__nf_rollback_sim" + str(get_instance_id()))
 
 static var _logger := NetfoxLogger._for_netfox("RollbackSimulationServer")
 
+## Register a [param]callback[/param] to run as part of the rollback loop
 func register(callback: Callable) -> void:
 	if not is_instance_valid(callback.get_object()):
 		_logger.error("Trying to register callback that belongs to an invalid object!")
@@ -26,6 +41,7 @@ func register(callback: Callable) -> void:
 
 	_callbacks[callback.get_object()] = callback
 
+## Deregister a [param]callback[/param] from the rollback loop
 func deregister(callback: Callable) -> void:
 	if not callback or not callback.is_valid(): return
 
@@ -38,18 +54,65 @@ func deregister(callback: Callable) -> void:
 	_input_graph.erase(object)
 	_simulated_ticks.erase(object)
 
+## Deregister a [param]node[/param] from the rollback loop
 func deregister_node(node: Node) -> void:
 	if _callbacks.has(node):
 		deregister(_callbacks[node])
 	_input_graph.erase(node)
 
+## Register [param]input[/param] as providing input for [param]node[/param]
 func register_rollback_input_for(node: Node, input: Node) -> void:
 	_input_graph.link(input, node)
 
+## Deregister [param]input[/param] from providing input for [param]node[/param]
 func deregister_rollback_input(node: Node, input: Node) -> void:
 	_input_graph.unlink(input, node)
 
-func get_nodes_to_simulate(input_snapshot: Snapshot) -> Array[Node]:
+## Return true if the currently simulated node is being predicted
+func is_predicting_current() -> bool:
+	if not _current_object or not is_instance_valid(_current_object):
+		return false
+	return _predicted_nodes.has(_current_object)
+
+## Get the currently simulated object
+func get_simulated_object() -> Object:
+	return _current_object
+
+## Simulate a tick
+func simulate(delta: float, tick: int) -> void:
+	_current_object = null
+
+	var input_snapshot := NetworkHistoryServer._get_rollback_input_snapshot(tick)
+	var state_snapshot := NetworkHistoryServer._get_rollback_state_snapshot(tick)
+	var nodes := _get_nodes_to_simulate(input_snapshot)
+	_predicted_nodes.clear()
+
+	# Sort based on SceneTree order
+	for node in nodes:
+		node.add_to_group(_group)
+	nodes = get_tree().get_nodes_in_group(_group)
+
+	# Determine predicted nodes
+	for node in _callbacks.keys():
+		if _is_predicting(input_snapshot, node):
+			_predicted_nodes.add(node)
+
+	# Run callbacks and clear group
+	for node in nodes:
+		_current_object = node
+
+		var callback := _callbacks[node] as Callable
+		var is_fresh := _is_tick_fresh_for(node, tick)
+		callback.call(delta, tick, is_fresh)
+		node.remove_from_group(_group)
+
+		_current_object = null
+		_set_tick_simulated_for(node, tick)
+
+	# Metrics
+	NetworkPerformance.push_rollback_nodes_simulated(nodes.size())
+
+func _get_nodes_to_simulate(input_snapshot: Snapshot) -> Array[Node]:
 	var result: Array[Node] = []
 	if not input_snapshot:
 		return []
@@ -77,7 +140,7 @@ func get_nodes_to_simulate(input_snapshot: Snapshot) -> Array[Node]:
 
 	return result
 
-func is_predicting(input_snapshot: Snapshot, node: Node) -> bool:
+func _is_predicting(input_snapshot: Snapshot, node: Node) -> bool:
 	var input_nodes := [] as Array[Node]
 	input_nodes.assign(_input_graph.get_linked_to(node))
 
@@ -103,70 +166,29 @@ func is_predicting(input_snapshot: Snapshot, node: Node) -> bool:
 	# We own the node and we have data for node's input - we're sure
 	return false
 
-func is_predicting_current() -> bool:
-	if not _current_object or not is_instance_valid(_current_object):
-		return false
-	return _predicted_nodes.has(_current_object)
-
-func get_simulated_object() -> Object:
-	return _current_object
-
-func is_tick_fresh_for(node: Node, tick: int) -> bool:
+func _is_tick_fresh_for(node: Node, tick: int) -> bool:
 	if not _simulated_ticks.has(node):
 		return true
 	var ticks := _simulated_ticks.get(node) as Array[int]
 	return not ticks.has(tick)
 
-func set_tick_simulated_for(node: Node, tick: int) -> void:
+func _set_tick_simulated_for(node: Node, tick: int) -> void:
 	if not _simulated_ticks.has(node):
 		_simulated_ticks[node] = [tick] as Array[int]
 	else:
 		_simulated_ticks[node].append(tick)
 
-func trim_ticks_simulated(beginning: int) -> void:
+func _trim_ticks_simulated(beginning: int) -> void:
 	for object in _simulated_ticks:
 		_simulated_ticks[object] = _simulated_ticks[object]\
 			.filter(func(tick): return tick >= beginning)
 
-func simulate(delta: float, tick: int) -> void:
-	_current_object = null
-
-	var input_snapshot := NetworkHistoryServer._get_rollback_input_snapshot(tick)
-	var state_snapshot := NetworkHistoryServer._get_rollback_state_snapshot(tick)
-	var nodes := get_nodes_to_simulate(input_snapshot)
-	_predicted_nodes.clear()
-
-	# Sort based on SceneTree order
-	for node in nodes:
-		node.add_to_group(_group)
-	nodes = get_tree().get_nodes_in_group(_group)
-
-	# Determine predicted nodes
-	for node in _callbacks.keys():
-		if is_predicting(input_snapshot, node):
-			_predicted_nodes.add(node)
-
-	# Run callbacks and clear group
-	for node in nodes:
-		_current_object = node
-
-		var callback := _callbacks[node] as Callable
-		var is_fresh := is_tick_fresh_for(node, tick)
-		callback.call(delta, tick, is_fresh)
-		node.remove_from_group(_group)
-
-		_current_object = null
-		set_tick_simulated_for(node, tick)
-
-	# Metrics
-	NetworkPerformance.push_rollback_nodes_simulated(nodes.size())
-
-func get_controlled_by(input: Node) -> Array[Node]:
+func _get_controlled_by(input: Node) -> Array[Node]:
 	var result := [] as Array[Node]
 	result.assign(_input_graph.get_linked_from(input))
 	return result
 
-func get_inputs_of(node: Node) -> Array[Node]:
+func _get_inputs_of(node: Node) -> Array[Node]:
 	var result := [] as Array[Node]
 	result.assign(_input_graph.get_linked_to(node))
 	return result
