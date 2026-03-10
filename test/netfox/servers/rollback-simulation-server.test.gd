@@ -15,7 +15,7 @@ func suite() -> void:
 			var input_snapshot := Snapshot.of(1, [[input_node, "name", "Input"]], [])
 
 			state_node.set_multiplayer_authority(2)
-			RollbackSimulationServer.register_input_for(state_node, input_node)
+			RollbackSimulationServer.register_rollback_input_for(state_node, input_node)
 
 			expect(RollbackSimulationServer.is_predicting(input_snapshot, state_node))
 		)
@@ -25,7 +25,7 @@ func suite() -> void:
 			var state_node := await get_node()
 			var input_node := await get_node()
 
-			RollbackSimulationServer.register_input_for(state_node, input_node)
+			RollbackSimulationServer.register_rollback_input_for(state_node, input_node)
 
 			expect(RollbackSimulationServer.is_predicting(input_snapshot, state_node))
 		)
@@ -51,7 +51,7 @@ func suite() -> void:
 			var input_node := await get_node()
 			var input_snapshot := Snapshot.of(1, [[input_node, "name", "Input"]], [input_node])
 
-			RollbackSimulationServer.register_input_for(state_node, input_node)
+			RollbackSimulationServer.register_rollback_input_for(state_node, input_node)
 
 			expect_not(RollbackSimulationServer.is_predicting(input_snapshot, state_node))
 		)
@@ -64,7 +64,7 @@ func suite() -> void:
 			
 			var server := _RollbackSimulationServer.new()
 			server.register(node._rollback_tick)
-			server.register_input_for(node, input_node)
+			server.register_rollback_input_for(node, input_node)
 			
 			var snapshot := Snapshot.new(1)
 			
@@ -77,7 +77,7 @@ func suite() -> void:
 			
 			var server := _RollbackSimulationServer.new()
 			server.register(node._rollback_tick)
-			server.register_input_for(node, input_node)
+			server.register_rollback_input_for(node, input_node)
 			
 			var snapshot := Snapshot.new(1)
 			snapshot.set_property(input_node, "editor_description", "Test input node")
@@ -92,7 +92,7 @@ func suite() -> void:
 			
 			var server := _RollbackSimulationServer.new()
 			server.register(node._rollback_tick)
-			server.register_input_for(node, input_node)
+			server.register_rollback_input_for(node, input_node)
 			
 			var snapshot := Snapshot.new(1)
 			NetworkRollback.mutate(node)

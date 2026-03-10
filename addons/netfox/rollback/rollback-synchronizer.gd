@@ -91,14 +91,14 @@ func process_settings() -> void:
 
 	# Register simulation callbacks
 	for node in nodes:
-		RollbackSimulationServer.register(node._rollback_tick)
+		RollbackSimulationServer.register(NetworkRollback._get_rollback_method(node))
 		_sim_nodes.append(node)
 
 	# Both simulated and state nodes depend on all inputs
 	# TODO(#564): Write tests for setups where a node is synchronized but not simulated
 	for node in nodes + _state_properties.get_subjects():
 		for input_node in _input_properties.get_subjects():
-			RollbackSimulationServer.register_input_for(node, input_node)
+			RollbackSimulationServer.register_rollback_input_for(node, input_node)
 
 	# Register identifiers
 	for node in _state_properties.get_subjects() + _input_properties.get_subjects():
@@ -117,13 +117,13 @@ func process_authority():
 	# Deregister all recorded properties
 	for node in _state_properties.get_subjects():
 		for property in _state_properties.get_properties_of(node):
-			NetworkHistoryServer.deregister_state(node, property)
-			NetworkSynchronizationServer.deregister_state(node, property)
+			NetworkHistoryServer.deregister_rollback_state(node, property)
+			NetworkSynchronizationServer.deregister_rollback_state(node, property)
 
 	for node in _input_properties.get_subjects():
 		for property in _input_properties.get_properties_of(node):
-			NetworkHistoryServer.deregister_input(node, property)
-			NetworkSynchronizationServer.deregister_input(node, property)
+			NetworkHistoryServer.deregister_rollback_input(node, property)
+			NetworkSynchronizationServer.deregister_rollback_input(node, property)
 
 	# Process authority
 	_state_properties.set_from_paths(root, state_properties)
@@ -132,13 +132,13 @@ func process_authority():
 	# Register new recorded properties
 	for node in _state_properties.get_subjects():
 		for property in _state_properties.get_properties_of(node):
-			NetworkHistoryServer.register_state(node, property)
-			NetworkSynchronizationServer.register_state(node, property)
+			NetworkHistoryServer.register_rollback_state(node, property)
+			NetworkSynchronizationServer.register_rollback_state(node, property)
 
 	for node in _input_properties.get_subjects():
 		for property in _input_properties.get_properties_of(node):
-			NetworkHistoryServer.register_input(node, property)
-			NetworkSynchronizationServer.register_input(node, property)
+			NetworkHistoryServer.register_rollback_input(node, property)
+			NetworkSynchronizationServer.register_rollback_input(node, property)
 
 ## Add a state property.
 ## [br][br]

@@ -43,10 +43,10 @@ func deregister_node(node: Node) -> void:
 		deregister(_callbacks[node])
 	_input_graph.erase(node)
 
-func register_input_for(node: Node, input: Node) -> void:
+func register_rollback_input_for(node: Node, input: Node) -> void:
 	_input_graph.link(input, node)
 
-func deregister_input(node: Node, input: Node) -> void:
+func deregister_rollback_input(node: Node, input: Node) -> void:
 	_input_graph.unlink(input, node)
 
 func get_nodes_to_simulate(input_snapshot: Snapshot) -> Array[Node]:
@@ -131,11 +131,10 @@ func trim_ticks_simulated(beginning: int) -> void:
 func simulate(delta: float, tick: int) -> void:
 	_current_object = null
 
-	var input_snapshot := NetworkHistoryServer.get_rollback_input_snapshot(tick)
-	var state_snapshot := NetworkHistoryServer.get_rollback_state_snapshot(tick)
+	var input_snapshot := NetworkHistoryServer._get_rollback_input_snapshot(tick)
+	var state_snapshot := NetworkHistoryServer._get_rollback_state_snapshot(tick)
 	var nodes := get_nodes_to_simulate(input_snapshot)
 	_predicted_nodes.clear()
-	_logger.trace("Simulating %d nodes: %s", [nodes.size(), nodes])
 
 	# Sort based on SceneTree order
 	for node in nodes:

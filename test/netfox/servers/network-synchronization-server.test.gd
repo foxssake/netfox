@@ -23,13 +23,13 @@ func suite() -> void:
 
 			other_node.set_multiplayer_authority(2)
 
-			servers.history_server().register_input(owned_node, "position")
-			servers.history_server().register_input(other_node, "position")
+			servers.history_server().register_rollback_input(owned_node, "position")
+			servers.history_server().register_rollback_input(other_node, "position")
 
-			servers.synchronization_server().register_input(owned_node, "position")
-			servers.synchronization_server().register_input(other_node, "position")
+			servers.synchronization_server().register_rollback_input(owned_node, "position")
+			servers.synchronization_server().register_rollback_input(other_node, "position")
 
-			servers.history_server().record_input(0)
+			servers.history_server()._record_rollback_input(0)
 			servers.synchronization_server().synchronize_input(0)
 
 			skip() # Somehow setup a live client-server connection

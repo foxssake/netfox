@@ -49,7 +49,7 @@ func process_settings() -> void:
 	_state_properties.set_from_paths(root, state_properties)
 	for subject in _state_properties.get_subjects():
 		for property in _state_properties.get_properties_of(subject):
-			NetworkHistoryServer.register_state(subject, property)
+			NetworkHistoryServer.register_rollback_state(subject, property)
 
 	# Simulated notes to participate in rollback
 	for node in _sim_nodes:

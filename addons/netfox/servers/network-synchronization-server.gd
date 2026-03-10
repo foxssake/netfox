@@ -1,11 +1,26 @@
 extends Node
 class_name _NetworkSynchronizationServer
 
+## Synchronizes properties over the network
+##
+## Handles synchronization of rollback and state properties (
+## [RollbackSynchronizer] and [StateSynchronizer] ), while respecting visibility
+## filters and schemas for serialization.
+## [br][br]
+## Packets are sent per tick, instead of per object. So for every simulated
+## rollback tick, a packet is sent with states, and for every recorded input,
+## a packet is sent with the inputs.
+## [br][br]
+## Optionally, diff states can be used, sending only the property values that
+## have changed, saving on bandwidth.
+
+# Dependencies
 var _command_server: _NetworkCommandServer
 var _history_server: _NetworkHistoryServer
 var _identity_server: _NetworkIdentityServer
 var _simulation_server: _RollbackSimulationServer
 
+# Configuration
 var _rb_input_properties := _PropertyPool.new()
 var _rb_state_properties := _PropertyPool.new()
 var _rb_owned_input_properties := _PropertyPool.new()
@@ -20,14 +35,14 @@ var _rb_enable_diffs := NetworkRollback.enable_diff_states
 var _rb_full_interval := ProjectSettings.get_setting("netfox/rollback/full_state_interval", 24) as int
 var _rb_full_scheduler := _IntervalScheduler.new(_rb_full_interval)
 
+var _input_redundancy := NetworkRollback.input_redundancy
+
 var _last_sync_state_sent := Snapshot.new(0)
 var _sync_enable_diffs := ProjectSettings.get_setting("netfox/state_synchronizer/enable_diff_states", true) as bool
 var _sync_full_interval := ProjectSettings.get_setting("netfox/state_synchronizer/full_state_interval", 24) as int
 var _sync_full_scheduler := _IntervalScheduler.new(_sync_full_interval)
 
 var _schemas := _NetworkSchema.new()
-
-var _input_redundancy := NetworkRollback.input_redundancy
 
 var _dense_serializer: _DenseSnapshotSerializer
 var _sparse_serializer: _SparseSnapshotSerializer
@@ -42,24 +57,24 @@ var _cmd_diff_sync: NetworkCommandServer.Command
 
 static var _logger := NetfoxLogger._for_netfox("NetworkSynchronizationServer")
 
-signal on_input(snapshot: Snapshot)
-signal on_state(snapshot: Snapshot)
+signal _on_input(snapshot: Snapshot)
+signal _on_state(snapshot: Snapshot)
 
-func register_state(node: Node, property: NodePath) -> void:
+func register_rollback_state(node: Node, property: NodePath) -> void:
 	_rb_state_properties.add(node, property)
 	if node.is_multiplayer_authority():
 		_rb_owned_state_properties.add(node, property)
 
-func deregister_state(node: Node, property: NodePath) -> void:
+func deregister_rollback_state(node: Node, property: NodePath) -> void:
 	_rb_state_properties.erase(node, property)
 	_rb_owned_state_properties.erase(node, property)
 
-func register_input(node: Node, property: NodePath) -> void:
+func register_rollback_input(node: Node, property: NodePath) -> void:
 	_rb_input_properties.add(node, property)
 	if node.is_multiplayer_authority():
 		_rb_owned_input_properties.add(node, property)
 
-func deregister_input(node: Node, property: NodePath) -> void:
+func deregister_rollback_input(node: Node, property: NodePath) -> void:
 	_rb_input_properties.erase(node, property)
 	_rb_owned_input_properties.erase(node, property)
 
@@ -94,6 +109,7 @@ func deregister(node: Node) -> void:
 	_rb_owned_input_properties.erase_subject(node)
 	_sync_state_properties.erase_subject(node)
 	_visibility_filters.erase(node)
+	_schemas.erase_subject(node)
 
 func is_node_visible_to(peer: int, node: Node) -> bool:
 	var filter := _visibility_filters.get(node) as PeerVisibilityFilter
@@ -133,7 +149,7 @@ func synchronize_input(tick: int) -> void:
 	# Prepare snapshot package
 	for offset in _input_redundancy:
 		# Grab snapshot from NetworkHistoryServer
-		var snapshot := NetworkHistoryServer.get_rollback_input_snapshot(tick - offset)
+		var snapshot := NetworkHistoryServer._get_rollback_input_snapshot(tick - offset)
 		if not snapshot:
 			break
 
@@ -151,7 +167,7 @@ func synchronize_state(tick: int) -> void:
 		return
 
 	# Grab snapshot from NetworkHistoryServer
-	var snapshot := NetworkHistoryServer.get_rollback_state_snapshot(tick)
+	var snapshot := NetworkHistoryServer._get_rollback_state_snapshot(tick)
 	if not snapshot:
 		# No data for tick
 		return
@@ -166,7 +182,7 @@ func synchronize_state(tick: int) -> void:
 		is_full = true
 
 	# Check if we have history to diff to
-	var reference_snapshot := NetworkHistoryServer.get_rollback_state_snapshot(tick - 1)
+	var reference_snapshot := NetworkHistoryServer._get_rollback_state_snapshot(tick - 1)
 	if not reference_snapshot:
 		is_full = true
 
@@ -210,7 +226,7 @@ func synchronize_sync_state(tick: int) -> void:
 		return
 
 	# Grab snapshot from NetworkHistoryServer
-	var snapshot := NetworkHistoryServer.get_synchronizer_state_snapshot(tick)
+	var snapshot := NetworkHistoryServer._get_synchronizer_state_snapshot(tick)
 	if not snapshot:
 		return
 
@@ -295,8 +311,8 @@ func _handle_input(sender: int, data: PackedByteArray):
 		snapshot.sanitize(sender)
 
 		_logger.debug("Ingesting input: %s", [snapshot])
-		if NetworkHistoryServer.merge_rollback_input(snapshot):
-			on_input.emit(snapshot)
+		if NetworkHistoryServer._merge_rollback_input(snapshot):
+			_on_input.emit(snapshot)
 
 func _handle_full_state(sender: int, data: PackedByteArray):
 	var buffer := StreamPeerBuffer.new()
@@ -322,7 +338,7 @@ func _handle_full_sync(sender: int, data: PackedByteArray):
 	var snapshot := _dense_serializer.read_from(sender, _sync_state_properties, buffer, true)
 	snapshot.sanitize(sender)
 
-	NetworkHistoryServer.merge_synchronizer_state(snapshot)
+	NetworkHistoryServer._merge_synchronizer_state(snapshot)
 	_logger.trace("Ingested sync state: %s", [snapshot])
 
 func _handle_diff_sync(sender: int, data: PackedByteArray):
@@ -332,14 +348,13 @@ func _handle_diff_sync(sender: int, data: PackedByteArray):
 	var snapshot := _sparse_serializer.read_from(sender, _sync_state_properties, buffer)
 	snapshot.sanitize(sender)
 
-	NetworkHistoryServer.merge_synchronizer_state(snapshot)
+	NetworkHistoryServer._merge_synchronizer_state(snapshot)
 	_logger.trace("Ingested sync diff: %s", [snapshot])
 
 func _ingest_state(sender: int, snapshot: Snapshot) -> void:
 	snapshot.sanitize(sender)
-#	_logger.debug("Received state snapshot: %s", [snapshot])
 
-	NetworkHistoryServer.merge_rollback_state(snapshot)
+	NetworkHistoryServer._merge_rollback_state(snapshot)
 	_logger.debug("Ingested state: %s", [snapshot])
 
-	on_state.emit(snapshot)
+	_on_state.emit(snapshot)

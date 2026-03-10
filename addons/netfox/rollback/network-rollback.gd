@@ -269,7 +269,7 @@ func is_just_mutated(target: Object, p_tick: int = tick) -> bool:
 
 ## Register that a node has submitted its input for a specific tick
 ## @deprecated
-func register_input_submission(_node: Node, _tick: int) -> void:
+func register_rollback_input_submission(_node: Node, _tick: int) -> void:
 	pass
 
 ## Get the latest input tick submitted for a specific node
@@ -293,16 +293,19 @@ func has_input_for_tick(node: Node, tick: int) -> bool:
 func free_input_submission_data_for(_node: Node) -> void:
 	pass
 
+func _get_rollback_method(object: Object) -> Callable:
+	return object._rollback_tick
+
 func _ready():
 	NetfoxLogger.register_tag(_get_rollback_tag)
 	NetworkTime.after_tick_loop.connect(_rollback)
 	NetworkTime.after_tick.connect(func(_dt, tick):
-		NetworkHistoryServer.record_input(tick + input_delay)
+		NetworkHistoryServer._record_rollback_input(tick + input_delay)
 		NetworkSynchronizationServer.synchronize_input(tick + input_delay)
 	)
 
-	NetworkSynchronizationServer.on_input.connect(_handle_input)
-	NetworkSynchronizationServer.on_state.connect(_handle_state)
+	NetworkSynchronizationServer._on_input.connect(_handle_input)
+	NetworkSynchronizationServer._on_state.connect(_handle_state)
 
 func _exit_tree():
 	NetfoxLogger.free_tag(_get_rollback_tag)
@@ -365,8 +368,8 @@ func _rollback() -> void:
 		#	Restore input and state for tick
 		_rollback_stage = _STAGE_PREPARE
 		on_prepare_tick.emit(tick)
-		NetworkHistoryServer.restore_rollback_input(tick)
-		NetworkHistoryServer.restore_rollback_state(tick)
+		NetworkHistoryServer._restore_rollback_input(tick)
+		NetworkHistoryServer._restore_rollback_state(tick)
 		after_prepare_tick.emit(tick)
 
 		# Simulate rollback tick
@@ -383,13 +386,13 @@ func _rollback() -> void:
 		# Record state for tick + 1
 		_rollback_stage = _STAGE_RECORD
 		on_record_tick.emit(tick + 1)
-		NetworkHistoryServer.record_state(tick + 1)
+		NetworkHistoryServer._record_rollback_state(tick + 1)
 		NetworkSynchronizationServer.synchronize_state(tick + 1)
 
 	# Restore display state
 	_rollback_stage = _STAGE_AFTER
 	after_loop.emit()
-	NetworkHistoryServer.restore_rollback_state(display_tick)
+	NetworkHistoryServer._restore_rollback_state(display_tick)
 	RollbackSimulationServer.trim_ticks_simulated(history_start)
 
 	# Cleanup
