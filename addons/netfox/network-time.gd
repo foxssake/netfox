@@ -572,7 +572,7 @@ func _loop() -> void:
 
 	if ticks_in_loop > 0:
 		after_tick_loop.emit()
-		NetworkHistoryServer.restore_synchronizer_state(tick)
+		NetworkHistoryServer._restore_synchronizer_state(tick)
 
 func _process(delta: float) -> void:
 	_process_delta = delta
