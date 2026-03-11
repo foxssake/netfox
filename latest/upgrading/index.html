@@ -73,6 +73,8 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#version-specific-steps">Version-specific steps</a>
         <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#unreleased">Unreleased</a>
+    </li>
     <li class="toctree-l3"><a class="reference internal" href="#v111">v1.1.1</a>
     </li>
         </ul>
@@ -245,6 +247,20 @@ from 1.0.0 to 1.3.0, refer to the sections between the two versions, in this
 case v1.1.1. If there are no sections here for your version range, that means
 that the upgrade should need no extra action, aside from replacing the old
 netfox addon(s) with the new one(s).</p>
+<h3 id="unreleased">Unreleased</h3>
+<ul>
+<li><code>StateSynchronizer.full_state_interval</code> is deprecated - use project settings</li>
+<li><code>StateSynchronizer.diff_ack_interval</code> is deprecated and is ignored</li>
+<li><code>RollbackSynchronizer.full_state_interval</code> is deprecated - use project
+  settings</li>
+<li><code>RollbackSynchronizer.diff_ack_interval</code> is deprecated and is ignored</li>
+<li><code>RollbackSynchronizer.enable_input_broadcast</code> is deprecated - use project
+  settings</li>
+<li><code>NetworkRollback.register_rollback_input_submission()</code> is deprecated and does
+  nothing</li>
+<li><code>NetworkRollback.free_input_submission_data_for()</code> is deprecated and does
+  nothing</li>
+</ul>
 <h3 id="v111">v1.1.1</h3>
 <ul>
 <li>Remove <code>Interpolators</code> from the project autoloads, it's a static class now.</li>
