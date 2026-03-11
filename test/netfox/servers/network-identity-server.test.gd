@@ -94,7 +94,7 @@ func suite() -> void:
 			for i in command_server.commands_sent.size():
 				var command := command_server.commands_sent[i]
 
-				expect_equal(command[0], _NetworkCommands.IDS)		# Command id
+				expect_equal(command[0], 0)							# Command id
 				expect_equal(command[2], 2 + i)						# Peer
 				expect_equal(command[3], MultiplayerPeer.TRANSFER_MODE_RELIABLE)
 		)

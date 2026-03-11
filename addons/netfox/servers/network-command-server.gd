@@ -36,7 +36,7 @@ func _ready():
 	_packet_transport.on_receive.connect(_handle_command)
 
 ## Register a command at the next available ID
-func register_command(handler: Callable) -> Command:
+func register_command(handler: Callable, mode: MultiplayerPeer.TransferMode = MultiplayerPeer.TRANSFER_MODE_RELIABLE, channel: int = 0) -> Command:
 	var idx := _next_idx
 	_next_idx += 1
 	return register_command_at(idx, handler)

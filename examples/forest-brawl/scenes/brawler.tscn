@@ -148,6 +148,7 @@ script = ExtResource("7_cmfmx")
 root = NodePath("..")
 enable_prediction = true
 state_properties = Array[String]([":transform", ":velocity", ":speed", ":mass"])
+full_state_interval = 24
 diff_ack_interval = 4
 input_properties = Array[String](["Input:movement", "Input:aim"])
 enable_input_broadcast = false
