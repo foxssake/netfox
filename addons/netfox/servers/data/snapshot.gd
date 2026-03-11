@@ -1,5 +1,5 @@
 extends RefCounted
-class_name Snapshot
+class_name _Snapshot
 
 # Stores property values of multiple subjects, recorded for a specific tick
 
@@ -7,8 +7,8 @@ var tick: int
 var _data := {} # object to (property to variant)
 var _auth_subjects := _Set.new()
 
-static func make_patch(from: Snapshot, to: Snapshot, tick: int = to.tick) -> Snapshot:
-	var patch := Snapshot.new(tick)
+static func make_patch(from: _Snapshot, to: _Snapshot, tick: int = to.tick) -> _Snapshot:
+	var patch := _Snapshot.new(tick)
 
 	for subject in from._data:
 		# Target has no knowledge of subject, don't patch
@@ -27,8 +27,8 @@ static func make_patch(from: Snapshot, to: Snapshot, tick: int = to.tick) -> Sna
 	return patch
 
 # Each entry should be [subject, property, value]
-static func of(tick: int, entries: Array[Array], auth_subjects: Array[Object]) -> Snapshot:
-	var snapshot := Snapshot.new(tick)
+static func of(tick: int, entries: Array[Array], auth_subjects: Array[Object]) -> _Snapshot:
+	var snapshot := _Snapshot.new(tick)
 	for entry in entries:
 		var subject := entry[0] as Object
 		var property := entry[1] as NodePath
@@ -44,8 +44,8 @@ static func of(tick: int, entries: Array[Array], auth_subjects: Array[Object]) -
 func _init(p_tick: int):
 	tick = p_tick
 
-func duplicate() -> Snapshot:
-	var result := Snapshot.new(tick)
+func duplicate() -> _Snapshot:
+	var result := _Snapshot.new(tick)
 	result._data = _data.duplicate(true)
 	result._auth_subjects = _auth_subjects.duplicate()
 	return result
@@ -76,7 +76,7 @@ func has_property(subject: Object, property: NodePath) -> bool:
 		return false
 	return true
 
-func merge(snapshot: Snapshot) -> bool:
+func merge(snapshot: _Snapshot) -> bool:
 	var has_changed := false
 
 	for subject in snapshot._data:
@@ -149,13 +149,13 @@ func is_auth(subject: Object) -> bool:
 	return _auth_subjects.has(subject)
 
 func equals(other) -> bool:
-	if other is Snapshot:
+	if other is _Snapshot:
 		return tick == other.tick and _data == other._data and _auth_subjects.equals(other._auth_subjects)
 	else:
 		return false
 
 func _to_string() -> String:
-	var result := "Snapshot(#%d" % [tick]
+	var result := "_Snapshot(#%d" % [tick]
 	for subject in _data:
 		for property in _data[subject]:
 			var value = _data[subject][property]

@@ -14,7 +14,7 @@ func suite() -> void:
 
 			var nodes := get_nodes(node_count)
 
-			var snapshot := Snapshot.new(0)
+			var snapshot := _Snapshot.new(0)
 			for node in nodes:
 				for i in prop_count:
 					var prop := "property%d" % (i + 1)
@@ -37,8 +37,8 @@ func suite() -> void:
 
 			var nodes := get_nodes(node_count)
 
-			var base_snapshot := Snapshot.new(0)
-			var patch_snapshot := Snapshot.new(0)
+			var base_snapshot := _Snapshot.new(0)
+			var patch_snapshot := _Snapshot.new(0)
 
 			for node in nodes:
 				for i in prop_count:

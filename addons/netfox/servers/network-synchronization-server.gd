@@ -37,7 +37,7 @@ var _rb_full_scheduler := _IntervalScheduler.new(_rb_full_interval)
 
 var _input_redundancy := NetworkRollback.input_redundancy
 
-var _last_sync_state_sent := Snapshot.new(0)
+var _last_sync_state_sent := _Snapshot.new(0)
 var _sync_enable_diffs := ProjectSettings.get_setting("netfox/state_synchronizer/enable_diff_states", true) as bool
 var _sync_full_interval := ProjectSettings.get_setting("netfox/state_synchronizer/full_state_interval", 24) as int
 var _sync_full_scheduler := _IntervalScheduler.new(_sync_full_interval)
@@ -57,8 +57,8 @@ var _cmd_diff_sync: NetworkCommandServer.Command
 
 static var _logger := NetfoxLogger._for_netfox("NetworkSynchronizationServer")
 
-signal _on_input(snapshot: Snapshot)
-signal _on_state(snapshot: Snapshot)
+signal _on_input(snapshot: _Snapshot)
+signal _on_state(snapshot: _Snapshot)
 
 func register_rollback_state(node: Node, property: NodePath) -> void:
 	_rb_state_properties.add(node, property)
@@ -123,7 +123,7 @@ func synchronize_input(tick: int) -> void:
 	if _rb_owned_input_properties.is_empty():
 		return
 
-	var snapshots := [] as Array[Snapshot]
+	var snapshots := [] as Array[_Snapshot]
 	var notified_peers := _Set.new()
 
 	if not _rb_enable_input_broadcast:
@@ -201,7 +201,7 @@ func synchronize_state(tick: int) -> void:
 			NetworkPerformance.push_full_state_props(snapshot.size())
 			NetworkPerformance.push_sent_state_props(snapshot.size())
 	else:
-		var diff := Snapshot.make_patch(reference_snapshot, snapshot)
+		var diff := _Snapshot.make_patch(reference_snapshot, snapshot)
 		if diff.is_empty():
 			# Nothing changed, don't send anything
 			return
@@ -250,7 +250,7 @@ func synchronize_sync_state(tick: int) -> void:
 			NetworkPerformance.push_full_state_props(snapshot.size())
 			NetworkPerformance.push_sent_state_props(snapshot.size())
 	else:
-		var diff := Snapshot.make_patch(_last_sync_state_sent, snapshot)
+		var diff := _Snapshot.make_patch(_last_sync_state_sent, snapshot)
 
 		# Send diffs
 		for peer in multiplayer.get_peers():
@@ -351,7 +351,7 @@ func _handle_diff_sync(sender: int, data: PackedByteArray):
 	NetworkHistoryServer._merge_synchronizer_state(snapshot)
 	_logger.trace("Ingested sync diff: %s", [snapshot])
 
-func _ingest_state(sender: int, snapshot: Snapshot) -> void:
+func _ingest_state(sender: int, snapshot: _Snapshot) -> void:
 	snapshot.sanitize(sender)
 
 	NetworkHistoryServer._merge_rollback_state(snapshot)

@@ -399,7 +399,7 @@ func _rollback() -> void:
 	_mutated_nodes.clear()
 	_is_rollback = false
 
-func _handle_input(snapshot: Snapshot):
+func _handle_input(snapshot: _Snapshot):
 	if snapshot.is_empty():
 		return
 	if _earliest_input < 0 or snapshot.tick < _earliest_input:
@@ -408,7 +408,7 @@ func _handle_input(snapshot: Snapshot):
 	else:
 		_logger.trace("Ingested input @%d, earliest @%d->@%d", [snapshot.tick, _earliest_input, _earliest_input])
 
-func _handle_state(snapshot: Snapshot):
+func _handle_state(snapshot: _Snapshot):
 	if snapshot.is_empty():
 		return
 	if _earliest_state < 0 or snapshot.tick < _earliest_state:

@@ -11,7 +11,7 @@ func suite() -> void:
 		var subject := await get_subject()
 		NetworkIdentityServer.register_node(subject)
 
-		var snapshot := Snapshot.of(0, [
+		var snapshot := _Snapshot.of(0, [
 			[subject, "position", Vector3.ZERO],
 			[subject, "quaternion", Quaternion.from_euler(Vector3.ONE)],
 			[subject, "scale", Vector3.ONE]
@@ -54,12 +54,12 @@ func suite() -> void:
 
 		reader_identity_server.register_node(known_subject)
 
-		var snapshot := Snapshot.of(0, [
+		var snapshot := _Snapshot.of(0, [
 			[unknown_subject, "position", Vector3.ZERO],
 			[known_subject, "position", Vector3.ZERO]
 		], [known_subject, unknown_subject])
 
-		var expected := Snapshot.of(0, [
+		var expected := _Snapshot.of(0, [
 			[known_subject, "position", Vector3.ZERO]
 		], [known_subject])
 
@@ -76,7 +76,7 @@ func suite() -> void:
 		var subject := await get_subject()
 		NetworkIdentityServer.register_node(subject)
 
-		var snapshot := Snapshot.of(0, [
+		var snapshot := _Snapshot.of(0, [
 			[subject, "position", Vector3.ZERO],
 			[subject, "quaternion", Quaternion.from_euler(Vector3.ONE)],
 			[subject, "scale", Vector3.ONE]
@@ -88,7 +88,7 @@ func suite() -> void:
 			[subject, "scale"]
 		])
 
-		var expected := Snapshot.of(0, [
+		var expected := _Snapshot.of(0, [
 			[subject, "position", Vector3.ZERO],
 			[subject, "quaternion", Quaternion.from_euler(Vector3.ONE)],
 			[subject, "scale", null]

@@ -12,7 +12,7 @@ func suite() -> void:
 		test("should predict non-owned node", func():
 			var state_node := await get_node()
 			var input_node := await get_node()
-			var input_snapshot := Snapshot.of(1, [[input_node, "name", "Input"]], [])
+			var input_snapshot := _Snapshot.of(1, [[input_node, "name", "Input"]], [])
 
 			state_node.set_multiplayer_authority(2)
 			RollbackSimulationServer.register_rollback_input_for(state_node, input_node)
@@ -21,7 +21,7 @@ func suite() -> void:
 		)
 
 		test("should predict owned node without input", func():
-			var input_snapshot := Snapshot.new(0)
+			var input_snapshot := _Snapshot.new(0)
 			var state_node := await get_node()
 			var input_node := await get_node()
 
@@ -31,7 +31,7 @@ func suite() -> void:
 		)
 
 		test("should predict non-owned inputless", func():
-			var input_snapshot := Snapshot.new(0)
+			var input_snapshot := _Snapshot.new(0)
 			var state_node := await get_node()
 
 			state_node.set_multiplayer_authority(2)
@@ -40,7 +40,7 @@ func suite() -> void:
 		)
 
 		test("should not predict owned inputless", func():
-			var input_snapshot := Snapshot.new(0)
+			var input_snapshot := _Snapshot.new(0)
 			var state_node := await get_node()
 
 			expect_not(RollbackSimulationServer._is_predicting(input_snapshot, state_node))
@@ -49,7 +49,7 @@ func suite() -> void:
 		test("should not predict owned with input", func():
 			var state_node := await get_node()
 			var input_node := await get_node()
-			var input_snapshot := Snapshot.of(1, [[input_node, "name", "Input"]], [input_node])
+			var input_snapshot := _Snapshot.of(1, [[input_node, "name", "Input"]], [input_node])
 
 			RollbackSimulationServer.register_rollback_input_for(state_node, input_node)
 
@@ -66,7 +66,7 @@ func suite() -> void:
 			server.register(node._rollback_tick)
 			server.register_rollback_input_for(node, input_node)
 			
-			var snapshot := Snapshot.new(1)
+			var snapshot := _Snapshot.new(1)
 			
 			expect_empty(server._get_nodes_to_simulate(snapshot))
 		)
@@ -79,7 +79,7 @@ func suite() -> void:
 			server.register(node._rollback_tick)
 			server.register_rollback_input_for(node, input_node)
 			
-			var snapshot := Snapshot.new(1)
+			var snapshot := _Snapshot.new(1)
 			snapshot.set_property(input_node, "editor_description", "Test input node")
 			snapshot.set_auth(input_node, true)
 			
@@ -94,7 +94,7 @@ func suite() -> void:
 			server.register(node._rollback_tick)
 			server.register_rollback_input_for(node, input_node)
 			
-			var snapshot := Snapshot.new(1)
+			var snapshot := _Snapshot.new(1)
 			NetworkRollback.mutate(node)
 			
 			expect_equal(server._get_nodes_to_simulate(snapshot), [node])

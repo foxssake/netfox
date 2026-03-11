@@ -4,7 +4,7 @@ class_name _SparseSnapshotSerializer
 static func _static_init():
 	_logger = NetfoxLogger._for_netfox("SparseSnapshotSerializer")
 
-func write_for(peer: int, snapshot: Snapshot, properties: _PropertyPool, filter: Callable = _default_filter, buffer: StreamPeerBuffer = null) -> PackedByteArray:
+func write_for(peer: int, snapshot: _Snapshot, properties: _PropertyPool, filter: Callable = _default_filter, buffer: StreamPeerBuffer = null) -> PackedByteArray:
 	if buffer == null:
 		buffer = StreamPeerBuffer.new()
 
@@ -57,7 +57,7 @@ func write_for(peer: int, snapshot: Snapshot, properties: _PropertyPool, filter:
 		# Return an empty buffer if we ended up not serializing anything
 		return PackedByteArray()
 
-func read_from(peer: int, properties: _PropertyPool, buffer: StreamPeerBuffer, is_auth: bool = true) -> Snapshot:
+func read_from(peer: int, properties: _PropertyPool, buffer: StreamPeerBuffer, is_auth: bool = true) -> _Snapshot:
 	var netref := NetworkSchemas._netref()
 	var varuint := NetworkSchemas.varuint()
 	var varbits := NetworkSchemas._varbits()
@@ -65,7 +65,7 @@ func read_from(peer: int, properties: _PropertyPool, buffer: StreamPeerBuffer, i
 
 	# Grab ticks
 	var tick := buffer.get_u32()
-	var snapshot := Snapshot.new(tick)
+	var snapshot := _Snapshot.new(tick)
 
 	while buffer.get_available_bytes() > 0:
 		# Read header, including identity reference

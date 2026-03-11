@@ -14,17 +14,17 @@ func suite() -> void:
 		NetworkIdentityServer.register_node(subject)
 
 		var snapshots := [
-			Snapshot.of(0, [
+			_Snapshot.of(0, [
 				[subject, "position", Vector3(0., 0., 0.)],
 				[subject, "quaternion", Quaternion.from_euler(Vector3.ONE)],
 				[subject, "scale", Vector3(1., 1., 1.)]
 			], [subject]),
-			Snapshot.of(1, [
+			_Snapshot.of(1, [
 				[subject, "position", Vector3(1., 0., 0.)],
 				[subject, "quaternion", Quaternion.from_euler(Vector3.ZERO)],
 				[subject, "scale", Vector3(1., .5, 1.)]
 			], [subject])
-		] as Array[Snapshot]
+		] as Array[_Snapshot]
 
 		var props := _PropertyPool.of([
 			[subject, "position"],

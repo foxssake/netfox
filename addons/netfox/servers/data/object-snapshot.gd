@@ -1,5 +1,5 @@
 extends RefCounted
-class_name ObjectSnapshot
+class_name _ObjectSnapshot
 
 # Represents snapshot data for a single object, by storing the object's values
 # for specified properties
@@ -11,8 +11,8 @@ var _data: Dictionary = {}
 func _init(p_object: Object) -> void:
 	_object = p_object
 
-func duplicate() -> ObjectSnapshot:
-	var result := ObjectSnapshot.new(_object)
+func duplicate() -> _ObjectSnapshot:
+	var result := _ObjectSnapshot.new(_object)
 	result._is_auth = _is_auth
 	result._data = _data.duplicate()
 	return result

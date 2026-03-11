@@ -10,7 +10,7 @@ func _init(p_schemas: _NetworkSchema, p_identity_server: _NetworkIdentityServer 
 	super(p_schemas)
 	_dense_serializer = _DenseSnapshotSerializer.new(_schemas, p_identity_server)
 
-func write_for(peer: int, snapshots: Array[Snapshot], properties: _PropertyPool, buffer: StreamPeerBuffer = null) -> PackedByteArray:
+func write_for(peer: int, snapshots: Array[_Snapshot], properties: _PropertyPool, buffer: StreamPeerBuffer = null) -> PackedByteArray:
 	var varuint := NetworkSchemas.varuint()
 
 	if buffer == null:
@@ -26,10 +26,10 @@ func write_for(peer: int, snapshots: Array[Snapshot], properties: _PropertyPool,
 
 	return buffer.data_array
 
-func read_from(peer: int, properties: _PropertyPool, buffer: StreamPeerBuffer, is_auth: bool = true) -> Array[Snapshot]:
+func read_from(peer: int, properties: _PropertyPool, buffer: StreamPeerBuffer, is_auth: bool = true) -> Array[_Snapshot]:
 	var varuint := NetworkSchemas.varuint()
 
-	var snapshots := [] as Array[Snapshot]
+	var snapshots := [] as Array[_Snapshot]
 	while buffer.get_available_bytes() > 0:
 		var snapshot_size := varuint.decode(buffer)
 		var snapshot_buffer := StreamPeerBuffer.new()

@@ -23,13 +23,13 @@ func is_auth(tick: int, subject: Object) -> bool:
 	if not history.has_at(tick):
 		return false
 
-	var snapshot := history.get_at(tick) as ObjectSnapshot
+	var snapshot := history.get_at(tick) as _ObjectSnapshot
 	return snapshot.is_auth()
 
 func erase_subject(subject: Object) -> void:
 	_data.erase(subject)
 
-func ensure_snapshot(tick: int, subject: Object, carry_forward: bool) -> ObjectSnapshot:
+func ensure_snapshot(tick: int, subject: Object, carry_forward: bool) -> _ObjectSnapshot:
 	var has_subject := _data.has(subject)
 	if not _data.has(subject):
 		_data[subject] = _HistoryBuffer.new(_history_size)
@@ -40,16 +40,16 @@ func ensure_snapshot(tick: int, subject: Object, carry_forward: bool) -> ObjectS
 
 	if not history.has_at(tick):
 		if not history.has_latest_at(tick):
-			history.set_at(tick, ObjectSnapshot.new(subject))
+			history.set_at(tick, _ObjectSnapshot.new(subject))
 		elif carry_forward:
 			history.set_at(tick, history.get_latest_at(tick).duplicate())
 		else:
-			history.set_at(tick, ObjectSnapshot.new(subject))
+			history.set_at(tick, _ObjectSnapshot.new(subject))
 
 	assert(history.get_at(tick) != null, "Failed to ensure snapshot!")
-	return history.get_at(tick) as ObjectSnapshot
+	return history.get_at(tick) as _ObjectSnapshot
 
-func get_latest_snapshot(tick: int, subject: Object) -> ObjectSnapshot:
+func get_latest_snapshot(tick: int, subject: Object) -> _ObjectSnapshot:
 	if not _data.has(subject):
 		return null
 
@@ -57,7 +57,7 @@ func get_latest_snapshot(tick: int, subject: Object) -> ObjectSnapshot:
 	if not history.has_latest_at(tick):
 		return null
 
-	return history.get_latest_at(tick) as ObjectSnapshot
+	return history.get_latest_at(tick) as _ObjectSnapshot
 
 func get_latest_tick(tick: int, subject: Object) -> int:
 	if not _data.has(subject):
@@ -75,9 +75,9 @@ func set_property(tick: int, subject: Object, property: NodePath, value: Variant
 
 	var history := _data[subject] as _HistoryBuffer
 	if not history.has_at(tick):
-		history.set_at(tick, ObjectSnapshot.new(subject))
+		history.set_at(tick, _ObjectSnapshot.new(subject))
 
-	var snapshot := history.get_at(tick) as ObjectSnapshot
+	var snapshot := history.get_at(tick) as _ObjectSnapshot
 	snapshot.set_value(property, value)
 
 func has_property(tick: int, subject: Object, property: NodePath) -> bool:
@@ -88,7 +88,7 @@ func has_property(tick: int, subject: Object, property: NodePath) -> bool:
 	if not history.has_at(tick):
 		return false
 
-	var snapshot := history.get_at(tick) as ObjectSnapshot
+	var snapshot := history.get_at(tick) as _ObjectSnapshot
 	return snapshot.has_value(property)
 
 func get_property(tick: int, subject: Object, property: NodePath, default: Variant = null) -> Variant:
@@ -99,5 +99,5 @@ func get_property(tick: int, subject: Object, property: NodePath, default: Varia
 	if not history.has_at(tick):
 		return default
 
-	var snapshot := history.get_at(tick) as ObjectSnapshot
+	var snapshot := history.get_at(tick) as _ObjectSnapshot
 	return snapshot.get_value(property, default)

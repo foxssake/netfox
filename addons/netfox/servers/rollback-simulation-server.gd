@@ -112,7 +112,7 @@ func simulate(delta: float, tick: int) -> void:
 	# Metrics
 	NetworkPerformance.push_rollback_nodes_simulated(nodes.size())
 
-func _get_nodes_to_simulate(input_snapshot: Snapshot) -> Array[Node]:
+func _get_nodes_to_simulate(input_snapshot: _Snapshot) -> Array[Node]:
 	var result: Array[Node] = []
 	if not input_snapshot:
 		return []
@@ -140,7 +140,7 @@ func _get_nodes_to_simulate(input_snapshot: Snapshot) -> Array[Node]:
 
 	return result
 
-func _is_predicting(input_snapshot: Snapshot, node: Node) -> bool:
+func _is_predicting(input_snapshot: _Snapshot, node: Node) -> bool:
 	var input_nodes := [] as Array[Node]
 	input_nodes.assign(_input_graph.get_linked_to(node))
 

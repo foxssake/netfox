@@ -122,29 +122,29 @@ func _restore_rollback_state(tick: int) -> bool:
 func _restore_synchronizer_state(tick: int) -> bool:
 	return _restore_latest(tick, _sync_history)
 
-func _get_rollback_input_snapshot(tick: int) -> Snapshot:
+func _get_rollback_input_snapshot(tick: int) -> _Snapshot:
 	return _rb_input_snapshots.get_at(tick)
 
-func _get_rollback_state_snapshot(tick: int) -> Snapshot:
+func _get_rollback_state_snapshot(tick: int) -> _Snapshot:
 	return _rb_state_snapshots.get_at(tick)
 
-func _get_synchronizer_state_snapshot(tick: int) -> Snapshot:
+func _get_synchronizer_state_snapshot(tick: int) -> _Snapshot:
 	return _sync_state_snapshots.get_at(tick)
 
-func _merge_rollback_input(snapshot: Snapshot) -> bool:
+func _merge_rollback_input(snapshot: _Snapshot) -> bool:
 	_merge_snapshot(snapshot, _rb_input_snapshots, true)
 	return _merge_history(snapshot, _rb_input_history, true)
 
-func _merge_rollback_state(snapshot: Snapshot) -> bool:
+func _merge_rollback_state(snapshot: _Snapshot) -> bool:
 	_merge_snapshot(snapshot, _rb_state_snapshots, true)
 	return _merge_history(snapshot, _rb_state_history)
 
-func _merge_synchronizer_state(snapshot: Snapshot) -> bool:
+func _merge_synchronizer_state(snapshot: _Snapshot) -> bool:
 	_merge_snapshot(snapshot, _sync_state_snapshots, true)
 	return _merge_history(snapshot, _sync_history)
 
 func _record(tick: int, history: _PerObjectHistory, snapshots: _HistoryBuffer, property_pool: _PropertyPool, only_auth: bool, auth_filter: Callable) -> void:
-	var snapshot := snapshots.get_at(tick, Snapshot.new(tick)) as Snapshot
+	var snapshot := snapshots.get_at(tick, _Snapshot.new(tick)) as _Snapshot
 	if not snapshots.has_at(tick):
 		snapshots.set_at(tick, snapshot)
 
@@ -190,14 +190,14 @@ func _restore_latest(tick: int, history: _PerObjectHistory) -> bool:
 
 	return any_applied
 
-func _merge_snapshot(snapshot: Snapshot, snapshots: _HistoryBuffer, reverse: bool = false) -> bool:
+func _merge_snapshot(snapshot: _Snapshot, snapshots: _HistoryBuffer, reverse: bool = false) -> bool:
 	var tick := snapshot.tick
 
 	if not snapshots.has_at(snapshot.tick):
 		snapshots.set_at(tick, snapshot)
 		return true
 
-	var original_snapshot := snapshots.get_at(tick) as Snapshot
+	var original_snapshot := snapshots.get_at(tick) as _Snapshot
 	if reverse:
 		var original_subjects := original_snapshot.get_auth_subjects()
 		var incoming_subjects := snapshot.get_auth_subjects()
@@ -213,7 +213,7 @@ func _merge_snapshot(snapshot: Snapshot, snapshots: _HistoryBuffer, reverse: boo
 	else:
 		return original_snapshot.merge(snapshot)
 
-func _merge_history(snapshot: Snapshot, history: _PerObjectHistory, reverse: bool = false) -> bool:
+func _merge_history(snapshot: _Snapshot, history: _PerObjectHistory, reverse: bool = false) -> bool:
 	var tick := snapshot.tick
 	var has_updated := false
 
