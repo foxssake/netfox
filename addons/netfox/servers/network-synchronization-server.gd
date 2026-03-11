@@ -60,48 +60,69 @@ static var _logger := NetfoxLogger._for_netfox("NetworkSynchronizationServer")
 signal _on_input(snapshot: _Snapshot)
 signal _on_state(snapshot: _Snapshot)
 
+## Register a [param]property[/param] of [param]node[/param] to be synchronized
+## as rollback state
 func register_rollback_state(node: Node, property: NodePath) -> void:
 	_rb_state_properties.add(node, property)
 	if node.is_multiplayer_authority():
 		_rb_owned_state_properties.add(node, property)
 
+## Deregister a [param]property[/param] of [param]node[/param] from being
+## synchronized as rollback state
 func deregister_rollback_state(node: Node, property: NodePath) -> void:
 	_rb_state_properties.erase(node, property)
 	_rb_owned_state_properties.erase(node, property)
 
+## Register a [param]property[/param] of [param]node[/param] to be synchronized
+## as rollback input
 func register_rollback_input(node: Node, property: NodePath) -> void:
 	_rb_input_properties.add(node, property)
 	if node.is_multiplayer_authority():
 		_rb_owned_input_properties.add(node, property)
 
+## Deregister a [param]property[/param] of [param]node[/param] from being
+## synchronized as rollback input
 func deregister_rollback_input(node: Node, property: NodePath) -> void:
 	_rb_input_properties.erase(node, property)
 	_rb_owned_input_properties.erase(node, property)
 
+## Register a [param]property[/param] of [param]node[/param] to be synchronized
+## as synchronized state
 func register_sync_state(node: Node, property: NodePath) -> void:
 	_sync_state_properties.add(node, property)
 	if node.is_multiplayer_authority():
 		_sync_owned_state_properties.add(node, property)
 
+## Deregister a [param]property[/param] of [param]node[/param] from being
+## synchronized as synchronized state
 func deregister_sync_state(node: Node, property: NodePath) -> void:
 	_sync_state_properties.erase(node, property)
 	_sync_owned_state_properties.erase(node, property)
 
+## Register a [param]serializer[/param] to use when transmitting
+## [param]property[/param] of [param]node[/param] over the network
 func register_schema(node: Node, property: NodePath, serializer: NetworkSchemaSerializer) -> void:
 	_schemas.add(node, property, serializer)
 
+## Deregister any serializers used for [param]property[/param] on 
+## [param]node[/param] when transmitting over the network
 func deregister_schema(node: Node, property: NodePath) -> void:
 	_schemas.erase(node, property)
 
+## Deregister all serializers registered for any properties of
+## [param]node[/param]
 func deregister_schema_for(node: Node) -> void:
 	_schemas.erase_subject(node)
 
+## Register a visibility [param]filter[/param] for use with [param]node[/param]
 func register_visibility_filter(node: Node, filter: PeerVisibilityFilter) -> void:
 	_visibility_filters[node] = filter
 
+## Deregister the visibility filter used for [param]node[/param]
 func deregister_visibility_filter(node: Node) -> void:
 	_visibility_filters.erase(node)
 
+## Deregister any and all settings associated with [param]node[/param]
 func deregister(node: Node) -> void:
 	_rb_state_properties.erase_subject(node)
 	_rb_input_properties.erase_subject(node)
@@ -111,14 +132,14 @@ func deregister(node: Node) -> void:
 	_visibility_filters.erase(node)
 	_schemas.erase_subject(node)
 
-func is_node_visible_to(peer: int, node: Node) -> bool:
+func _is_node_visible_to(peer: int, node: Node) -> bool:
 	var filter := _visibility_filters.get(node) as PeerVisibilityFilter
 	if not filter:
 		return true
 	else:
 		return filter.get_visible_peers().has(peer)
 
-func synchronize_input(tick: int) -> void:
+func _synchronize_input(tick: int) -> void:
 	# We don't own inputs, nothing to synchronize
 	if _rb_owned_input_properties.is_empty():
 		return
@@ -161,7 +182,7 @@ func synchronize_input(tick: int) -> void:
 		var data := _redundant_serializer.write_for(peer, snapshots, _rb_owned_input_properties)
 		_cmd_input.send(data, peer)
 
-func synchronize_state(tick: int) -> void:
+func _synchronize_state(tick: int) -> void:
 	# We don't own state, nothing to synchronize
 	if _rb_owned_state_properties.is_empty():
 		return
@@ -189,7 +210,7 @@ func synchronize_state(tick: int) -> void:
 	if is_full:
 		# Send full states
 		for peer in multiplayer.get_peers():
-			var filter := func(subject): return is_node_visible_to(peer, subject)
+			var filter := func(subject): return _is_node_visible_to(peer, subject)
 
 			var data := _dense_serializer.write_for(peer, snapshot, _rb_owned_state_properties, filter)
 			if data.is_empty():
@@ -208,7 +229,7 @@ func synchronize_state(tick: int) -> void:
 
 		# Send diff states
 		for peer in multiplayer.get_peers():
-			var filter := func(subject): return is_node_visible_to(peer, subject)
+			var filter := func(subject): return _is_node_visible_to(peer, subject)
 
 			var data := _sparse_serializer.write_for(peer, diff, _rb_owned_state_properties, filter)
 			if data.is_empty():
@@ -220,7 +241,7 @@ func synchronize_state(tick: int) -> void:
 			NetworkPerformance.push_full_state_props(snapshot.size())
 			NetworkPerformance.push_sent_state_props(diff.size())
 
-func synchronize_sync_state(tick: int) -> void:
+func _synchronize_sync_state(tick: int) -> void:
 	# We don't own sync state, nothing to synchronize
 	if _sync_owned_state_properties.is_empty():
 		return
@@ -238,7 +259,7 @@ func synchronize_sync_state(tick: int) -> void:
 	if is_full:
 		# Send full states
 		for peer in multiplayer.get_peers():
-			var filter := func(subject): return is_node_visible_to(peer, subject)
+			var filter := func(subject): return _is_node_visible_to(peer, subject)
 
 			var data := _dense_serializer.write_for(peer, snapshot, _sync_owned_state_properties, filter)
 			if data.is_empty():
@@ -254,7 +275,7 @@ func synchronize_sync_state(tick: int) -> void:
 
 		# Send diffs
 		for peer in multiplayer.get_peers():
-			var filter := func(subject): return is_node_visible_to(peer, subject)
+			var filter := func(subject): return _is_node_visible_to(peer, subject)
 
 			var data := _sparse_serializer.write_for(peer, diff, _sync_owned_state_properties, filter)
 			if data.is_empty():

@@ -30,7 +30,7 @@ func suite() -> void:
 			servers.synchronization_server().register_rollback_input(other_node, "position")
 
 			servers.history_server()._record_rollback_input(0)
-			servers.synchronization_server().synchronize_input(0)
+			servers.synchronization_server()._synchronize_input(0)
 
 			skip() # Somehow setup a live client-server connection
 		)

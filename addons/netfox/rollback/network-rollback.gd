@@ -301,7 +301,7 @@ func _ready():
 	NetworkTime.after_tick_loop.connect(_rollback)
 	NetworkTime.after_tick.connect(func(_dt, tick):
 		NetworkHistoryServer._record_rollback_input(tick + input_delay)
-		NetworkSynchronizationServer.synchronize_input(tick + input_delay)
+		NetworkSynchronizationServer._synchronize_input(tick + input_delay)
 	)
 
 	NetworkSynchronizationServer._on_input.connect(_handle_input)
@@ -387,7 +387,7 @@ func _rollback() -> void:
 		_rollback_stage = _STAGE_RECORD
 		on_record_tick.emit(tick + 1)
 		NetworkHistoryServer._record_rollback_state(tick + 1)
-		NetworkSynchronizationServer.synchronize_state(tick + 1)
+		NetworkSynchronizationServer._synchronize_state(tick + 1)
 
 	# Restore display state
 	_rollback_stage = _STAGE_AFTER
