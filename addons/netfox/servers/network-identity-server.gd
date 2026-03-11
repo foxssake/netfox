@@ -38,7 +38,7 @@ func _ready():
 	if not _command_server:
 		_command_server = NetworkCommandServer
 
-	_cmd_ids = _command_server.register_command_at(_NetworkCommands.IDS, _handle_ids)
+	_cmd_ids = _command_server.register_command(_handle_ids, MultiplayerPeer.TRANSFER_MODE_RELIABLE)
 
 # TODO(#561): Handle peer disconnect by clearing up data
 

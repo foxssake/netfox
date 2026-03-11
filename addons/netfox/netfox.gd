@@ -118,9 +118,39 @@ var SETTINGS: Array[Dictionary] = [
 		"hint_string": "0,4,or_greater"
 	},
 	{
+		"name": "netfox/rollback/enable_input_broadcast",
+		"value": false,
+		"type": TYPE_BOOL
+	},
+	{
 		"name": "netfox/rollback/enable_diff_states",
 		"value": true,
 		"type": TYPE_BOOL
+	},
+	{
+		"name": "netfox/rollback/full_state_interval",
+		"value": 24,
+		"type": TYPE_INT,
+		"hint": PROPERTY_HINT_RANGE,
+		"hint_string": "0,60,or_greater"
+	},
+	# StateSynchronizer
+	{
+		"name": "netfox/state_synchronizer/enable_diff_states",
+		"value": true,
+		"type": TYPE_BOOL
+	},
+	{
+		"name": "netfox/state_synchronizer/history_limit",
+		"value": 64,
+		"type": TYPE_INT
+	},
+	{
+		"name": "netfox/state_synchronizer/full_state_interval",
+		"value": 24,
+		"type": TYPE_INT,
+		"hint": PROPERTY_HINT_RANGE,
+		"hint_string": "0,60,or_greater"
 	},
 	# Events
 	{
@@ -150,6 +180,22 @@ const AUTOLOADS: Array[Dictionary] = [
 	{
 		"name": "NetworkPerformance",
 		"path": ROOT + "/network-performance.gd"
+	},
+	{
+		"name": "RollbackSimulationServer",
+		"path": ROOT + "/servers/rollback-simulation-server.gd"
+	},
+	{
+		"name": "NetworkHistoryServer",
+		"path": ROOT + "/servers/network-history-server.gd"
+	},
+	{
+		"name": "NetworkSynchronizationServer",
+		"path": ROOT + "/servers/network-synchronization-server.gd"
+	},
+	{
+		"name": "NetworkIdentityServer",
+		"path": ROOT + "/servers/network-identity-server.gd"
 	},
 	{
 		"name": "NetworkCommandServer",

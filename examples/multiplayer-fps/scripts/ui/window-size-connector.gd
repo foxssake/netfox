@@ -14,7 +14,7 @@ func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
 
-	get_tree().get_root().size_changed.connect(_on_window_resized)
+	get_tree().get_root().size_changed.connect(func(): _on_window_resized(DisplayServer.window_get_size()))
 	_on_window_resized(DisplayServer.window_get_size())
 	
 func _on_window_resized(new_size: Vector2) -> void:
