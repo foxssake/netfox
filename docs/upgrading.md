@@ -30,6 +30,20 @@ case v1.1.1. If there are no sections here for your version range, that means
 that the upgrade should need no extra action, aside from replacing the old
 netfox addon(s) with the new one(s).
 
+### Unreleased
+
+* `StateSynchronizer.full_state_interval` is deprecated - use project settings
+* `StateSynchronizer.diff_ack_interval` is deprecated and is ignored
+* `RollbackSynchronizer.full_state_interval` is deprecated - use project
+  settings
+* `RollbackSynchronizer.diff_ack_interval` is deprecated and is ignored
+* `RollbackSynchronizer.enable_input_broadcast` is deprecated - use project
+  settings
+* `NetworkRollback.register_rollback_input_submission()` is deprecated and does
+  nothing
+* `NetworkRollback.free_input_submission_data_for()` is deprecated and does
+  nothing
+
 ### v1.1.1
 
 * Remove `Interpolators` from the project autoloads, it's a static class now.
