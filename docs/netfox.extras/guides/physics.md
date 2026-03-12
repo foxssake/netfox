@@ -25,6 +25,10 @@ stepping or use an alternate physics addon that exposes stepping.
     its builds are provided as-is, and are not associated with Godot nor the PR's
     author.
 
+!!!note
+    The current version of the Rapier drivers were tested against Godot Rapier
+    version **0.8.26**.
+
 ## Enabling Physics Engine Rollback
 
 To enable physics rollback, add the appropriate physics driver node to the root
