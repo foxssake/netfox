@@ -5,7 +5,7 @@ var _is_host := false
 var _is_client := false
 var _target_oid := ""
 
-static var _logger := _NetfoxLogger.new("forest-brawl", "ForestBrawlNorayConnector")
+static var _logger := NetfoxLogger.new("forest-brawl", "ForestBrawlNorayConnector")
 
 func _ready():
 	Noray.on_connect_nat.connect(_handle_connect_nat)

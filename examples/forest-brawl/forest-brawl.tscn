@@ -11,8 +11,8 @@
 [ext_resource type="PackedScene" uid="uid://b1vadi3ma8uiq" path="res://examples/forest-brawl/scenes/brawler-crown.tscn" id="11_eeeag"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/player-stats-display.gd" id="12_5kocp"]
 [ext_resource type="PackedScene" uid="uid://ojh5xofoserg" path="res://examples/forest-brawl/scenes/score_screen.tscn" id="14_85lvt"]
-[ext_resource type="PackedScene" uid="uid://dbnx63lgo7288" path="res://examples/forest-brawl/menu.tscn" id="16_3ljtn"]
-[ext_resource type="LabelSettings" uid="uid://b4u1aluftkajy" path="res://examples/forest-brawl/ui/player-stat-label.tres" id="17_48up8"]
+[ext_resource type="PackedScene" uid="uid://dbnx63lgo7288" path="res://examples/forest-brawl/ui/menu.tscn" id="16_3ljtn"]
+[ext_resource type="LabelSettings" uid="uid://b4u1aluftkajy" path="res://examples/forest-brawl/ui/assets/player-stat-label.tres" id="17_48up8"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_l686d"]
 font_size = 64

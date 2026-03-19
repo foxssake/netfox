@@ -1,0 +1,168 @@
+[gd_scene load_steps=5 format=3 uid="uid://b12i8xgq6bdcg"]
+
+[ext_resource type="Texture2D" uid="uid://cdb8di7e1p6h6" path="res://icon.png" id="1_xf6a6"]
+
+[sub_resource type="GDScript" id="GDScript_pewsl"]
+script/source = "extends Control
+
+@onready var label := $Label as Label
+@onready var back_button := $\"HBoxContainer/Back Button\" as Button
+@onready var host_button := $\"HBoxContainer/Host Button\" as Button
+
+@onready var main_menu := %\"Main Menu\" as Control
+
+func is_active() -> bool:
+	return is_visible_in_tree()
+
+func _ready() -> void:
+	visibility_changed.connect(func():
+		if is_visible_in_tree(): _execute()
+		else: _cancel()
+	)
+	
+	back_button.pressed.connect(_back)
+	host_button.pressed.connect(_host)
+
+func _execute() -> void:
+	label.text = \"Connecting to services...\"
+	var err := await ForestBrawlConnector.connect_to_any_service_host()
+	if err != OK:
+		label.text = \"Connection failed: %s\" % [error_string(err)]
+		return
+
+	label.text = \"Looking for games...\"
+	var expanded_search := false
+	var search_time := 0.0
+	var lobby: NohubLobby
+
+	while is_active():
+		await get_tree().create_timer(1.0).timeout
+		search_time += 1.0
+		
+		var response := await ForestBrawlConnector.nohub().list_lobbies()
+		if not response.is_success():
+			label.text = \"nohub error: %s\" % [response.error().message]
+		
+		# Only consider quick-play lobbies
+		var lobbies := response.value()\\
+			.filter(func (it: NohubLobby):
+				return it.data.get(\"quick-play\", \"\") == \"enabled\" or expanded_search
+				)
+
+		if not lobbies.is_empty():
+			# TODO: More advanced strategies?
+			lobby = lobbies.pick_random()
+			break
+
+		if search_time > 5.0 and not expanded_search:
+			label.text = \"Expanding search...\"
+			expanded_search = true
+
+	if not is_active():
+		return
+
+	label.text = \"Joining...\"
+	var response := await ForestBrawlConnector.nohub().join_lobby(lobby.id)
+	if not response.is_success():
+		label.text = \"nohub error: %s\" % [response.error().message]
+
+	var address := response.value()
+	print(\"Joining address: %s\" % [address])
+	err = ForestBrawlConnector.join(address)
+	if err != OK:
+		label.text = \"Couldn't join %s: %s\" % [address, error_string(err)]
+
+func _cancel() -> void:
+	pass
+
+func _back() -> void:
+	_switch_to(main_menu)
+
+func _host() -> void:
+	label.text = \"Creating lobby...\"
+	
+	# Create lobby
+	var lobby_name := \"Quick Play #%x\" % [randi_range(0x10000000, 0xFFFFFFFF)]
+	var player_capacity := 8
+	var address := \"noray://%s/%s\" % [ForestBrawlConnector.noray_address(), Noray.oid]
+	
+	var response := await ForestBrawlConnector.host_quick_play(address, player_capacity)
+	if not response.is_success():
+		label.text = \"Lobby fail: %s\" % [response.error().message]
+	
+	# Start game
+	label.text = \"Starting...\"
+	var err := await ForestBrawlConnector.host_noray()
+	if err != OK:
+		label.text = \"Fail: %s\" % [error_string(err)]
+
+# TODO: Deduplicate?
+func _switch_to(menu: Control) -> void:
+	menu.show()
+	hide()
+"
+
+[sub_resource type="Animation" id="Animation_7nw6r"]
+resource_name = "spin"
+length = 1.5
+loop_mode = 1
+step = 0.0416667
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:modulate")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.75, 1.5),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0.501961), Color(1, 1, 1, 1), Color(1, 1, 1, 0.501961)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_dy8vn"]
+_data = {
+"spin": SubResource("Animation_7nw6r")
+}
+
+[node name="Quick Play Menu" type="VBoxContainer"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+script = SubResource("GDScript_pewsl")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"HeaderLarge"
+text = "Searching..."
+horizontal_alignment = 1
+
+[node name="Spinner" type="TextureRect" parent="."]
+modulate = Color(1, 1, 1, 0.501961)
+layout_mode = 2
+texture = ExtResource("1_xf6a6")
+stretch_mode = 5
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Spinner"]
+autoplay = "spin"
+libraries = {
+"": SubResource("AnimationLibrary_dy8vn")
+}
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+alignment = 1
+
+[node name="Back Button" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+text = "Back"
+
+[node name="Host Button" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+text = "Host"

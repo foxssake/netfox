@@ -19,7 +19,7 @@ static var known_service_hosts: Array[ServiceHosts] = [
 ]
 
 static var _instance: ForestBrawlConnector
-static var _logger := _NetfoxLogger.new("forest-brawl", "ForestBrawlConnector")
+static var _logger := NetfoxLogger.new("forest-brawl", "ForestBrawlConnector")
 
 var _noray_connector: ForestBrawlNorayConnector
 

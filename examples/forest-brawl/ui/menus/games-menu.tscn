@@ -1,0 +1,133 @@
+[gd_scene load_steps=4 format=3 uid="uid://degb6xhfrndbp"]
+
+[ext_resource type="Script" path="res://examples/forest-brawl/ui/menus/games-menu.gd" id="1_1wudl"]
+[ext_resource type="PackedScene" uid="uid://dme5kt7xmwvur" path="res://examples/forest-brawl/ui/components/lobbies-container.tscn" id="2_rh7i6"]
+[ext_resource type="PackedScene" uid="uid://bg7e1fdnyu3ng" path="res://examples/forest-brawl/ui/components/new-lobby-form.tscn" id="3_wuo8r"]
+
+[node name="Games Menu" type="Control"]
+custom_minimum_size = Vector2(960, 540)
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_1wudl")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/HBoxContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/HBoxContainer/PanelContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="GridContainer" parent="MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="Presets Label" type="Label" parent="MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Presets:"
+
+[node name="Presets Option" type="OptionButton" parent="MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+allow_reselect = true
+
+[node name="noray Label" type="Label" parent="MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "noray:"
+
+[node name="noray Input" type="LineEdit" parent="MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="nohub Label" type="Label" parent="MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "nohub:"
+
+[node name="nohub Input" type="LineEdit" parent="MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Connect Button" type="Button" parent="MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Connect"
+
+[node name="Status Label" type="Label" parent="MarginContainer/HBoxContainer/PanelContainer/HBoxContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Status: "
+
+[node name="Dock Button" type="Button" parent="MarginContainer/HBoxContainer/PanelContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "<"
+
+[node name="PanelContainer2" type="PanelContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+
+[node name="MarginContainer2" type="MarginContainer" parent="MarginContainer/HBoxContainer/PanelContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Title Label" type="Label" parent="MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"HeaderMedium"
+text = "Games"
+horizontal_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Lobbies Container" parent="MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/ScrollContainer" instance=ExtResource("2_rh7i6")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="New Lobby Form" parent="MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer" instance=ExtResource("3_wuo8r")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Back Button" type="Button" parent="MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Back"
+
+[node name="Host Button" type="Button" parent="MarginContainer/HBoxContainer/PanelContainer2/MarginContainer2/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Host Game"
