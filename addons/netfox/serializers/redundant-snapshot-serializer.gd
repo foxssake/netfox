@@ -20,6 +20,9 @@ func write_for(peer: int, snapshots: Array[_Snapshot], properties: _PropertyPool
 	for snapshot in snapshots:
 		var serialized := _dense_serializer.write_for(peer, snapshot, properties)
 
+		if serialized.size() == 0:
+			continue
+		
 		# Write size and snapshot
 		varuint.encode(serialized.size(), buffer)
 		buffer.put_data(serialized)
@@ -32,6 +35,10 @@ func read_from(peer: int, properties: _PropertyPool, buffer: StreamPeerBuffer, i
 	var snapshots := [] as Array[_Snapshot]
 	while buffer.get_available_bytes() > 0:
 		var snapshot_size := varuint.decode(buffer)
+
+		if snapshot_size == 0:
+			break
+
 		var snapshot_buffer := StreamPeerBuffer.new()
 		snapshot_buffer.data_array = buffer.get_partial_data(snapshot_size)[1]
 		
