@@ -10,7 +10,8 @@ enum {			## Result status enum
 	TEST_TODO,	## Test is not implemented yet
 	TEST_FAIL,	## Test has failed
 	TEST_SKIP,	## Test was skipped
-	TEST_PASS	## Test passed
+	TEST_PASS,	## Test passed
+	TEST_MAX	## Represents the size of the result status enum
 }
 
 ## Test suite results.
@@ -26,9 +27,17 @@ class Suite:
 
 	## Get the number of test cases in the suite.[br]
 	## Includes the number of test cases in the suite, and recursively sums up
-	## the test cases in any of the nested suites.
+	## the test cases in any of the nested suites.[br]
+	## To count only the direct descendants, see [method plan_size].
 	func size() -> int:
 		return cases.size() + subsuites.reduce(func(acc, it): return acc + it.size(), 0)
+
+	## Return the number of items in the test plan.[br]
+	## Includes the number of test cases and subsuites in the suite. As opposed
+	## to [method size], this method doesn't include the test cases of the
+	## subsuites.
+	func plan_size() -> int:
+		return cases.size() + subsuites.size()
 
 	## Get the aggregate result of the test cases and suites contained in the
 	## suite.
@@ -43,6 +52,18 @@ class Suite:
 	## Get the aggregate result of the test suite, as a string.
 	func get_aggregate_status_string() -> String:
 		return VestResult.get_status_string(get_aggregate_status())
+
+	## Get an array of result statuses contained in the suite.
+	func get_unique_statuses() -> Array[int]:
+		var result := [] as Array[int]
+		for kase in cases:
+			if not result.has(kase.status):
+				result.push_back(kase.status)
+		for subsuite in subsuites:
+			for status in subsuite.get_unique_statuses():
+				if not result.has(status):
+					result.push_back(status)
+		return result
 
 	## Get the count of test cases and nested suites with the given result
 	## status.
@@ -78,8 +99,8 @@ class Case:
 	## The resulting status of the test run.
 	var status: int = TEST_VOID
 
-	## The message attached to this result.
-	var message: String = ""
+	# The messages attached to this result
+	var messages: Array[String] = []
 
 	## Custom data attached to this result.
 	var data: Dictionary = {}
@@ -99,7 +120,7 @@ class Case:
 		return {
 			"case": case._to_wire(),
 			"status": status,
-			"message": message,
+			"messages": messages.duplicate(),
 			"data": Vest.__.Serializer.serialize(data),
 			"assert_file": assert_file,
 			"assert_line": assert_line
@@ -110,7 +131,7 @@ class Case:
 
 		result.case = VestDefs.Case._from_wire(p_data["case"])
 		result.status = p_data["status"]
-		result.message = p_data["message"]
+		result.messages.assign(p_data["messages"])
 		result.data = p_data["data"]
 		result.assert_file = p_data["assert_file"]
 		result.assert_line = p_data["assert_line"]

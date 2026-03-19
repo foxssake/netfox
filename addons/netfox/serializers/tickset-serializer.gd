@@ -12,7 +12,10 @@ static func serialize(earliest_tick: int, latest_tick: int, active_ticks: _Set) 
 	buffer.put_u8(tickset_duration)
 
 	for tick in active_ticks:
-		assert(tick <= latest_tick, "Trying to serialize ticks beyond latest !")
+		# Don't serialize before range
+		if tick < earliest_tick: continue
+		# Don't serialize past range
+		if tick > latest_tick: break
 		buffer.put_u8(tick - earliest_tick)
 
 	return buffer.data_array

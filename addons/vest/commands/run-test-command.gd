@@ -1,24 +1,13 @@
 @tool
 extends Node
 
-static var _instance = null
-
-static func find():
-	return _instance
-
-static func execute() -> void:
-	if _instance:
-		_instance.create_test()
-	else:
-		push_warning("No instance of Create Test command found!")
-
 func run_test():
-	_run(false)
+	_run(false, Vest.__.ONLY_AUTO)
 
 func debug_test():
-	_run(true)
+	_run(true, Vest.__.ONLY_AUTO)
 
-func _run(is_debug: bool) -> void:
+func _run(is_debug: bool, only_mode: int) -> void:
 	var editor_interface := Vest._get_editor_interface()
 	var script_editor := editor_interface.get_script_editor() as ScriptEditor
 
@@ -34,7 +23,7 @@ func _run(is_debug: bool) -> void:
 
 	print_verbose("Running test \"%s\"" % [edited_script.resource_path])
 	var vest_ui := VestUI._get_ui()
-	vest_ui.run_script(edited_script, is_debug)
+	vest_ui.run_script(edited_script, is_debug, only_mode)
 
 func _is_ancestor_of(base_script: Script, script: Script) -> bool:
 	for i in range(128): # Prevent runaway loops
@@ -45,7 +34,6 @@ func _is_ancestor_of(base_script: Script, script: Script) -> bool:
 	return false
 
 func _ready():
-	_instance = self
 	var editor := Vest._get_editor_interface()
 	editor.get_command_palette().add_command("Run test", "vest/run-test", run_test, "F7")
 	editor.get_command_palette().add_command("Debug test", "vest/debug-test", debug_test, "Ctrl+F7")

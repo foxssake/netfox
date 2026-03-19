@@ -5,7 +5,7 @@ var _path: String
 var node: Node
 var property: String
 
-static var _logger := _NetfoxLogger.for_netfox("PropertyEntry")
+static var _logger := NetfoxLogger._for_netfox("PropertyEntry")
 
 func get_value() -> Variant:
 	return node.get_indexed(property)

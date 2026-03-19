@@ -35,7 +35,6 @@ class Answer:
 		if args.size() != expected_args.size():
 			return false
 		if args == expected_args:
-			print("Arg match!")
 			return true
 
 		# Do a lenient check, so users don't trip on unexpected diffs, like

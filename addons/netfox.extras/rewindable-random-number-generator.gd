@@ -20,7 +20,7 @@ var _rng: RandomNumberGenerator
 var _last_reset_tick := -1
 var _last_reset_rollback_tick := -1
 
-static var _logger := _NetfoxLogger.for_extras("RewindableRandomNumberGenerator")
+static var _logger := NetfoxLogger._for_extras("RewindableRandomNumberGenerator")
 
 func _init(p_seed: int):
 	_rng = RandomNumberGenerator.new()

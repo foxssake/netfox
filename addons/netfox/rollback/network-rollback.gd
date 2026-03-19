@@ -85,7 +85,6 @@ var display_tick: int:
 ## with input latency higher than network latency.
 ## [br][br]
 ## [i]read-only[/i], you can change this in the project settings
-
 var input_delay: int:
 	get:
 		return _input_delay
@@ -100,7 +99,6 @@ var input_delay: int:
 ## in transmission, the next (n-1) packets will contain the data for it.
 ## [br][br]
 ## [i]read-only[/i], you can change this in the project settings
-
 var input_redundancy: int:
 	get:
 		return max(1, _input_redundancy)
@@ -169,13 +167,16 @@ var _is_rollback: bool = false
 var _simulated_nodes: _Set = _Set.new()
 var _mutated_nodes: Dictionary = {}
 
+var _earliest_input := -1
+var _earliest_state := -1
+
 const _STAGE_BEFORE := "B"
 const _STAGE_PREPARE := "P"
 const _STAGE_SIMULATE := "S"
 const _STAGE_RECORD := "R"
 const _STAGE_AFTER := "A"
 
-static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkRollback")
+static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("NetworkRollback")
 
 ## Submit the resimulation start tick for the current loop.
 ##
@@ -266,12 +267,48 @@ func is_just_mutated(target: Object, p_tick: int = tick) -> bool:
 	else:
 		return false
 
+## Register that a node has submitted its input for a specific tick
+## @deprecated
+func register_rollback_input_submission(_node: Node, _tick: int) -> void:
+	pass
+
+## Get the latest input tick submitted for a specific node
+## [br][br]
+## Returns [code]-1[/code] if no input was submitted for the node, ever.
+func get_latest_input_tick(node: Node) -> int:
+	var input_nodes := RollbackSimulationServer._get_inputs_of(node)
+	var reference_tick := NetworkTime.tick
+
+	return NetworkHistoryServer.get_latest_input_for(input_nodes, reference_tick)
+
+## Check if a node has submitted input for a specific tick (or later)
+func has_input_for_tick(node: Node, tick: int) -> bool:
+	var latest_input := get_latest_input_tick(node)
+	return latest_input != -1 and latest_input >= tick
+
+## Free all input submission data for a node
+## [br][br]
+## Use this once the node is freed.
+## @deprecated
+func free_input_submission_data_for(_node: Node) -> void:
+	pass
+
+func _get_rollback_method(object: Object) -> Callable:
+	return object._rollback_tick
+
 func _ready():
-	_NetfoxLogger.register_tag(_get_rollback_tag)
+	NetfoxLogger.register_tag(_get_rollback_tag)
 	NetworkTime.after_tick_loop.connect(_rollback)
+	NetworkTime.after_tick.connect(func(_dt, tick):
+		NetworkHistoryServer._record_rollback_input(tick + input_delay)
+		NetworkSynchronizationServer._synchronize_input(tick + input_delay)
+	)
+
+	NetworkSynchronizationServer._on_input.connect(_handle_input)
+	NetworkSynchronizationServer._on_state.connect(_handle_state)
 
 func _exit_tree():
-	_NetfoxLogger.free_tag(_get_rollback_tag)
+	NetfoxLogger.free_tag(_get_rollback_tag)
 
 func _get_rollback_tag() -> String:
 	if _is_rollback:
@@ -286,6 +323,17 @@ func _rollback() -> void:
 	# Ask all rewindables to submit their earliest inputs
 	_resim_from = NetworkTime.tick
 	before_loop.emit()
+
+	# Figure out where to start rollback from
+	var range_source = "notif"
+	if _earliest_input >= 0 and _earliest_input <= _resim_from:
+		range_source = "earliest input"
+		_resim_from = _earliest_input
+	if _earliest_state >= 0 and _earliest_state <= _resim_from:
+		range_source = "latest state"
+		_resim_from = _earliest_state
+	_resim_from = mini(_resim_from, NetworkTime.tick - 1)
+	_logger.trace("Simulating range @%d>@%d using %s", [_resim_from, NetworkTime.tick, range_source])
 
 	# Only set _is_rollback *after* emitting before_loop
 	_is_rollback = true
@@ -305,6 +353,9 @@ func _rollback() -> void:
 		)
 		from = NetworkTime.tick - history_limit
 
+	_earliest_input = -1
+	_earliest_state = -1
+
 	# for tick in from .. to:
 	_rollback_from = from
 	_rollback_to = to
@@ -317,6 +368,8 @@ func _rollback() -> void:
 		#	Restore input and state for tick
 		_rollback_stage = _STAGE_PREPARE
 		on_prepare_tick.emit(tick)
+		NetworkHistoryServer._restore_rollback_input(tick)
+		NetworkHistoryServer._restore_rollback_state(tick)
 		after_prepare_tick.emit(tick)
 
 		# Simulate rollback tick
@@ -327,19 +380,42 @@ func _rollback() -> void:
 		#		If not: Latest input >= tick >= Earliest input
 		_rollback_stage = _STAGE_SIMULATE
 		on_process_tick.emit(tick)
+		RollbackSimulationServer.simulate(NetworkTime.ticktime, tick)
 		after_process_tick.emit(tick)
 
 		# Record state for tick + 1
 		_rollback_stage = _STAGE_RECORD
 		on_record_tick.emit(tick + 1)
+		NetworkHistoryServer._record_rollback_state(tick + 1)
+		NetworkSynchronizationServer._synchronize_state(tick + 1)
 
 	# Restore display state
 	_rollback_stage = _STAGE_AFTER
 	after_loop.emit()
+	NetworkHistoryServer._restore_rollback_state(display_tick)
+	RollbackSimulationServer._trim_ticks_simulated(history_start)
 
 	# Cleanup
 	_mutated_nodes.clear()
 	_is_rollback = false
+
+func _handle_input(snapshot: _Snapshot):
+	if snapshot.is_empty():
+		return
+	if _earliest_input < 0 or snapshot.tick < _earliest_input:
+		_logger.trace("Ingested input @%d, earliest @%d->@%d", [snapshot.tick, _earliest_input, snapshot.tick])
+		_earliest_input = snapshot.tick
+	else:
+		_logger.trace("Ingested input @%d, earliest @%d->@%d", [snapshot.tick, _earliest_input, _earliest_input])
+
+func _handle_state(snapshot: _Snapshot):
+	if snapshot.is_empty():
+		return
+	if _earliest_state < 0 or snapshot.tick < _earliest_state:
+		_logger.trace("Ingested state @%d, latest @%d->@%d", [snapshot.tick, _earliest_state, snapshot.tick])
+		_earliest_state = snapshot.tick
+	else:
+		_logger.trace("Ingested state @%d, latest @%d->@%d", [snapshot.tick, _earliest_state, _earliest_state])
 
 # Insight 1:
 #	state(x) = simulate(state(x - 1), input(x - 1))

@@ -3,6 +3,9 @@ extends Object
 var _define_stack: Array[VestDefs.Suite] = []
 var _result: VestResult.Case
 
+var _expected_count := 0
+var _actual_count := 0
+
 signal on_begin()
 signal on_suite_begin(suite: VestDefs.Suite)
 signal on_case_begin(case: VestDefs.Case)
@@ -10,9 +13,10 @@ signal on_case_finish(case: VestDefs.Case)
 signal on_suite_finish(case: VestDefs.Case)
 signal on_finish()
 
-func define(name: String, callback: Callable) -> VestDefs.Suite:
+func define(name: String, callback: Callable, is_only: bool = false) -> VestDefs.Suite:
 	var suite = VestDefs.Suite.new()
 	suite.name = name
+	suite.is_only = is_only
 	_define_stack.push_back(suite)
 
 	var userland_loc := _find_userland_stack_location()
@@ -27,16 +31,24 @@ func define(name: String, callback: Callable) -> VestDefs.Suite:
 
 	return suite
 
-func test(description: String, callback: Callable) -> void:
+func define_only(name: String, callback: Callable) -> VestDefs.Suite:
+	return await define(name, callback, true)
+
+func test(description: String, callback: Callable, is_only: bool = false, method_name: String = "") -> void:
 	var case_def := VestDefs.Case.new()
 	case_def.description = description
+	case_def.is_only = is_only
 	case_def.callback = callback
+	case_def.method_name = method_name
 
 	var userland_loc := _find_userland_stack_location()
 	case_def.definition_file = userland_loc[0]
 	case_def.definition_line = userland_loc[1]
 
 	_define_stack.back().cases.push_back(case_def)
+
+func test_only(description: String, callback: Callable, method_name: String = "") -> void:
+	await test(description, callback, true, method_name)
 
 func benchmark(name: String, callback: Callable) -> VestDefs.Benchmark:
 	var result := VestDefs.Benchmark.new()
@@ -79,13 +91,39 @@ func _init():
 	pass
 
 func _with_result(status: int, message: String, data: Dictionary):
+	if message:
+		_result.messages.append(message)
+
+	# Smartly gather "got" and "expected" data
+	# - If there's just one assert that sends these, have the values as-is
+	# - If multiple asserts send them, gather them into arrays for the user to check
+	if data.has("got"):
+		if _actual_count == 0:
+			_result.data["got"] = data["got"]
+		elif _actual_count == 1:
+			_result.data["got"] = [_result.data["got"], data["got"]]
+		elif _actual_count > 1:
+			_result.data["got"].append(data["got"])
+		data.erase("got")
+		_actual_count += 1
+
+	if data.has("expect"):
+		if _expected_count == 0:
+			_result.data["expect"] = data["expect"]
+		elif _expected_count == 1:
+			_result.data["expect"] = [_result.data["expect"], data["expect"]]
+		elif _expected_count > 1:
+			_result.data["expect"].append(data["expect"])
+		data.erase("expect")
+		_expected_count += 1
+
+	_result.data.merge(data, true)
+
 	if _result.status != VestResult.TEST_VOID and status == VestResult.TEST_PASS:
 		# Test already failed, don't override with PASS
 		return
 
 	_result.status = status
-	_result.message = message
-	_result.data.merge(data, true)
 
 	var userland_loc := _find_userland_stack_location()
 	_result.assert_file = userland_loc[0]
@@ -114,6 +152,9 @@ func _finish(what: Object):
 		await _emit_async(on_suite_finish, [what])
 		await after_suite(what)
 	elif what is VestDefs.Case:
+		_actual_count = 0
+		_expected_count = 0
+
 		await _emit_async(on_case_finish, [what])
 		await after_case(what)
 	else:

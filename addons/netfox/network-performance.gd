@@ -34,7 +34,7 @@ var _full_state_props_accum: int = 0
 var _sent_state_props: int = 0
 var _sent_state_props_accum: int = 0
 
-static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkPerformance")
+static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("NetworkPerformance")
 
 ## Check if performance monitoring is enabled.
 ## [br][br]
@@ -106,11 +106,17 @@ func get_sent_state_props_ratio() -> float:
 func push_full_state(state: Dictionary) -> void:
 	_full_state_props_accum += state.size()
 
+func push_full_state_props(count: int) -> void:
+	_full_state_props_accum += count
+
 func push_full_state_broadcast(state: Dictionary) -> void:
 	_full_state_props_accum += state.size() * (multiplayer.get_peers().size() - 1)
 
 func push_sent_state(state: Dictionary) -> void:
 	_sent_state_props_accum += state.size()
+
+func push_sent_state_props(count: int) -> void:
+	_sent_state_props_accum += count
 
 func push_sent_state_broadcast(state: Dictionary) -> void:
 	_sent_state_props_accum += state.size() * (multiplayer.get_peers().size() - 1)

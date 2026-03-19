@@ -20,7 +20,7 @@ See the root [README](../../README.md).
 
 ## Usage
 
-See the [docs](https://foxssake.github.io/netfox/netfox.noray/guides/noray/).
+See the [docs](https://foxssake.github.io/netfox/latest/netfox.noray/guides/noray/).
 
 For a full example, see [noray-bootstrapper.gd].
 

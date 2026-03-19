@@ -11,7 +11,7 @@ var _prefix: String = "netfox-window-tiler-%x" % [ProjectSettings.get_setting(&"
 var _sid: String = "%x" % [hash(int(Time.get_unix_time_from_system() / 2.))]
 var _uid: String = "%d" % [Time.get_unix_time_from_system() * 1000_0000.]
 
-static var _logger: _NetfoxLogger = _NetfoxLogger.for_extras("WindowTiler")
+static var _logger: NetfoxLogger = NetfoxLogger._for_extras("WindowTiler")
 
 func _ready() -> void:
 	# Running on a non-editor (export template) build

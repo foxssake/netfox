@@ -23,12 +23,24 @@ class Suite:
 	## Nested test suites contained in the suite
 	var suites: Array[VestDefs.Suite] = []
 
+	## If true, only this group of tests should run
+	var is_only: bool = false
+
 	## The resource path to the script that defined the suite
 	var definition_file: String = ""
 
 	## The line number of the suite definition. [br]
 	## Set to -1 for undetermined.
 	var definition_line: int = -1
+
+	## Return true if either this suite, one of its cases, or one of its
+	## subsuites is marked as only.
+	func has_only() -> bool:
+		if is_only:
+			return true
+
+		return cases.any(func(it): return it.is_only) or\
+			suites.any(func(it): return it.has_only())
 
 	## Get the number of test cases in the suite.[br]
 	## Includes the number of test cases in the suite, and recursively sums up
@@ -54,6 +66,12 @@ class Case:
 	## Test case description, displayed in reports
 	var description: String = ""
 
+	## The method defining the test case - empty if defined via [method VestTest.test]
+	var method_name: String = ""
+
+	## If true, only this test should run
+	var is_only: bool = false
+
 	## The method called to run the test case
 	var callback: Callable
 
@@ -70,6 +88,7 @@ class Case:
 	func _to_wire() -> Dictionary:
 		return {
 			"description": description,
+			"method_name": method_name,
 			"definition_file": definition_file,
 			"definition_line": definition_line
 		}
@@ -78,6 +97,7 @@ class Case:
 		var result := Case.new()
 
 		result.description = data["description"]
+		result.method_name = data["method_name"]
 		result.definition_file = data["definition_file"]
 		result.definition_line = data["definition_line"]
 
@@ -231,10 +251,10 @@ class Benchmark:
 		var batch_threshold := 0.001 # 1ms
 		if avg_batch_time <= batch_threshold and _enable_builtin_measures:
 			Vest.message((
-				"Benchmark \"%s\" has run with an average of %.6fms per batch. " +
+				"Benchmark \"%s\" has run with an average of %s per batch. " +
 				"This is probably faster than what can be reliably measured. " +
 				"To avoid this warning, increase the batch size to at least %s.") %
-				[name, avg_batch_time * 1000., ceil(_batch_size * batch_threshold / avg_batch_time * 1.1)]
+				[name, VestUI.format_duration(avg_batch_time), ceil(_batch_size * batch_threshold / avg_batch_time * 1.1)]
 			)
 
 		return self
@@ -306,9 +326,9 @@ class Benchmark:
 		# Add builtin measures
 		if _enable_builtin_measures:
 			result["iterations"] = _iterations
-			result["duration"] = "%.4fms" % [_duration * 1000.0]
+			result["duration"] = VestUI.format_duration(_duration)
 			result["iters/sec"] = get_iters_per_sec()
-			result["average iteration time"] = "%.4fms" % [get_avg_iteration_time() * 1000.0]
+			result["average iteration time"] = VestUI.format_duration(get_avg_iteration_time())
 
 		# Add benchmark data
 		result["name"] = name

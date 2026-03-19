@@ -10,7 +10,7 @@ var _reconcile_buffer: Array = []
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var _fired_tick: int = -1
 
-static var _logger: _NetfoxLogger = _NetfoxLogger.for_extras("NetworkWeapon")
+static var _logger: NetfoxLogger = NetfoxLogger._for_extras("NetworkWeapon")
 
 func _ready():
 	_rng.randomize()

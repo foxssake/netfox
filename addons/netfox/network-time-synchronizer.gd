@@ -103,7 +103,7 @@ var _adjust_steps: int =ProjectSettings.get_setting(&"netfox/time/sync_adjust_st
 var _panic_threshold: float = ProjectSettings.get_setting(&"netfox/time/recalibrate_threshold", 2.)
 
 var _active: bool = false
-static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkTimeSynchronizer")
+static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("NetworkTimeSynchronizer")
 
 # Samples are stored in a ring buffer
 var _sample_buffer: _RingBuffer
@@ -114,6 +114,11 @@ var _clock: NetworkClocks.SystemClock = NetworkClocks.SystemClock.new()
 var _offset: float = 0.
 var _rtt: float = 0.
 var _rtt_jitter: float = 0.
+
+@onready var _cmd_ping := NetworkCommandServer.register_command(_handle_ping, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
+@onready var _cmd_pong := NetworkCommandServer.register_command(_handle_pong, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
+@onready var _cmd_req_time := NetworkCommandServer.register_command(_handle_request_timestamp, MultiplayerPeer.TRANSFER_MODE_RELIABLE)
+@onready var _cmd_set_time := NetworkCommandServer.register_command(_handle_set_timestamp, MultiplayerPeer.TRANSFER_MODE_RELIABLE)
 
 ## Emitted after the initial time sync.
 ##
@@ -145,7 +150,7 @@ func start() -> void:
 		_sample_idx = 0
 		_sample_buffer = _RingBuffer.new(sync_samples)
 		
-		_request_timestamp.rpc_id(1)
+		_cmd_req_time.send(PackedByteArray(), 1)
 
 ## Stop the time synchronization loop.
 func stop() -> void:
@@ -162,14 +167,17 @@ func _loop() -> void:
 	on_initial_sync.emit()
 
 	while _active:
+		if multiplayer.is_server():
+			return stop()
+
 		var sample := NetworkClockSample.new()
 		_awaiting_samples[_sample_idx] = sample
-		
+
 		sample.ping_sent = _clock.get_time()
-		_send_ping.rpc_id(1, _sample_idx)
-		
+		_cmd_ping.send(var_to_bytes(_sample_idx), 1)
+
 		_sample_idx += 1
-		
+
 		await get_tree().create_timer(sync_interval).timeout
 
 func _discipline_clock() -> void:
@@ -232,15 +240,19 @@ func _discipline_clock() -> void:
 		
 		_offset = offset - nudge
 
-@rpc("any_peer", "call_remote", "unreliable")
-func _send_ping(idx: int) -> void:
+func _handle_ping(sender: int, data: PackedByteArray) -> void:
+	var idx := bytes_to_var(data) as int
 	var ping_received := _clock.get_time()
-	var sender := multiplayer.get_remote_sender_id()
 
-	_send_pong.rpc_id(sender, idx, ping_received, _clock.get_time())
+	_cmd_pong.send(var_to_bytes([idx, ping_received, _clock.get_time()]), sender)
 
-@rpc("any_peer", "call_remote", "unreliable")
-func _send_pong(idx: int, ping_received: float, pong_sent: float) -> void:
+func _handle_pong(sender: int, data: PackedByteArray) -> void:
+	var args := bytes_to_var(data)
+
+	var idx := args[0] as int
+	var ping_received := args[1] as float
+	var pong_sent := args[2] as float
+
 	var pong_received := _clock.get_time()
 	
 	if not _awaiting_samples.has(idx):
@@ -261,13 +273,13 @@ func _send_pong(idx: int, ping_received: float, pong_sent: float) -> void:
 	# Discipline clock based on new sample
 	_discipline_clock()
 
-@rpc("any_peer", "call_remote", "reliable")
-func _request_timestamp() -> void:
+func _handle_request_timestamp(sender: int, data: PackedByteArray) -> void:
 	_logger.debug("Requested initial timestamp @ %.4fs raw time", [_clock.get_raw_time()])
-	_set_timestamp.rpc_id(multiplayer.get_remote_sender_id(), _clock.get_time())
+	_cmd_set_time.send(var_to_bytes(_clock.get_time()), sender)
 
-@rpc("any_peer", "call_remote", "reliable")
-func _set_timestamp(timestamp: float) -> void:
+func _handle_set_timestamp(sender: int, data: PackedByteArray) -> void:
+	var timestamp := bytes_to_var(data) as float
+
 	_logger.debug("Received initial timestamp @ %.4fs raw time", [_clock.get_raw_time()])
 	_clock.set_time(timestamp)
 	_loop()

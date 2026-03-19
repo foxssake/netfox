@@ -33,6 +33,21 @@ func test_should_serialize_ticks():
 	expect_equal(deserialized[1], latest_tick)
 	expect_equal(deserialized[2], active_ticks)
 
+func test_should_serialize_only_range():
+	# Given
+	var earliest_tick = 16
+	var latest_tick = 20
+	var active_ticks = _Set.of([15, 16, 20, 24])
+
+	# When
+	var bytes = _TicksetSerializer.serialize(earliest_tick, latest_tick, active_ticks)
+	var deserialized = _TicksetSerializer.deserialize(bytes)
+
+	# Then
+	expect_equal(deserialized[0], earliest_tick)
+	expect_equal(deserialized[1], latest_tick)
+	expect_equal(deserialized[2], _Set.of([16, 20]))
+
 func test_should_fail_on_earliest_after_latest():
 	# Given
 	var earliest_tick = 42
