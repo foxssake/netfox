@@ -20,5 +20,8 @@ func _sanitize_limit_text() -> void:
 	var input := _player_limit_input.text
 	var sanitized := str(input.to_int())
 
+	if input.is_empty():
+		return
+
 	if input != sanitized:
 		_player_limit_input.text = sanitized
