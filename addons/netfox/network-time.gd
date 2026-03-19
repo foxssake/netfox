@@ -467,8 +467,12 @@ func start() -> int:
 func stop() -> void:
 	NetworkTimeSynchronizer.stop()
 	_tickrate_handshake.stop()
+	
+	# Reset state
 	_state = _STATE_INACTIVE
 	_synced_peers.clear()
+	_tick = 0
+	_initial_sync_done = false
 
 	if multiplayer.peer_disconnected.is_connected(_handle_peer_disconnect):
 		multiplayer.peer_disconnected.disconnect(_handle_peer_disconnect)
