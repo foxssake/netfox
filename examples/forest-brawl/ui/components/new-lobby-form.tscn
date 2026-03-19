@@ -1,0 +1,22 @@
+[gd_scene load_steps=2 format=3 uid="uid://bg7e1fdnyu3ng"]
+
+[ext_resource type="Script" path="res://examples/forest-brawl/ui/components/new-lobby-form.gd" id="1_f7iun"]
+
+[node name="New Lobby Form" type="GridContainer"]
+columns = 2
+script = ExtResource("1_f7iun")
+
+[node name="Name Label" type="Label" parent="."]
+layout_mode = 2
+text = "Lobby name"
+
+[node name="Player Limit Label" type="Label" parent="."]
+layout_mode = 2
+text = "Player Limit"
+
+[node name="Lobby Name Input" type="LineEdit" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Lobby Player Limit Input" type="LineEdit" parent="."]
+layout_mode = 2

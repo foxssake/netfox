@@ -1,0 +1,26 @@
+[gd_scene load_steps=2 format=3 uid="uid://dme5kt7xmwvur"]
+
+[ext_resource type="Script" path="res://examples/forest-brawl/ui/components/lobbies-container.gd" id="1_jutx1"]
+
+[node name="Lobbies Container" type="GridContainer"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+columns = 3
+script = ExtResource("1_jutx1")
+
+[node name="Name Header" type="Label" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"EmbossLabel"
+text = "Name"
+
+[node name="Players Header" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"EmbossLabel"
+text = "Players"
+
+[node name="Tail Header" type="Label" parent="."]
+custom_minimum_size = Vector2(32, 0)
+layout_mode = 2
+theme_type_variation = &"EmbossLabel"
+text = " "

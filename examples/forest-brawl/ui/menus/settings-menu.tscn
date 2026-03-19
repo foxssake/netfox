@@ -1,0 +1,123 @@
+[gd_scene load_steps=3 format=3 uid="uid://tevyyywvol8q"]
+
+[ext_resource type="Texture2D" uid="uid://c6bp4x3j4l27k" path="res://examples/forest-brawl/ui/assets/die-icon.svg" id="1_6hysw"]
+[ext_resource type="Script" path="res://examples/forest-brawl/ui/menus/settings-menu.gd" id="1_wodlp"]
+
+[node name="Settings Menu" type="PanelContainer"]
+custom_minimum_size = Vector2(480, 320)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_wodlp")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+
+[node name="Settings VBox" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Title Label" type="Label" parent="MarginContainer/Settings VBox"]
+layout_mode = 2
+theme_type_variation = &"HeaderMedium"
+text = "Settings"
+horizontal_alignment = 1
+
+[node name="Player Name" type="HBoxContainer" parent="MarginContainer/Settings VBox"]
+layout_mode = 2
+
+[node name="Player Name Label" type="Label" parent="MarginContainer/Settings VBox/Player Name"]
+layout_mode = 2
+text = "Player Name:"
+
+[node name="Player Name Input" type="LineEdit" parent="MarginContainer/Settings VBox/Player Name"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Nameless Brawler"
+clear_button_enabled = true
+
+[node name="Randomize Button" type="Button" parent="MarginContainer/Settings VBox/Player Name"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 0)
+layout_mode = 2
+tooltip_text = "Generate a random name"
+icon = ExtResource("1_6hysw")
+icon_alignment = 1
+expand_icon = true
+
+[node name="Always Randomize CheckBox" type="CheckBox" parent="MarginContainer/Settings VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Always randomize name"
+
+[node name="Force relay CheckBox" type="CheckBox" parent="MarginContainer/Settings VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Force relay"
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/Settings VBox"]
+visible = false
+layout_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="MarginContainer/Settings VBox"]
+layout_mode = 2
+columns = 8
+
+[node name="Fullscreen Label" type="Label" parent="MarginContainer/Settings VBox/GridContainer"]
+layout_mode = 2
+text = "Fullscreen:"
+
+[node name="Fullscreen CheckButton" type="CheckButton" parent="MarginContainer/Settings VBox/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="V-Sync Label" type="Label" parent="MarginContainer/Settings VBox/GridContainer"]
+layout_mode = 2
+text = "V-Sync:"
+
+[node name="V-Sync CheckButton" type="CheckButton" parent="MarginContainer/Settings VBox/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Confine Mouse Label" type="Label" parent="MarginContainer/Settings VBox/GridContainer"]
+layout_mode = 2
+text = "Confine mouse:"
+
+[node name="Confine Mouse CheckButton" type="CheckButton" parent="MarginContainer/Settings VBox/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="HSeparator2" type="HSeparator" parent="MarginContainer/Settings VBox"]
+visible = false
+layout_mode = 2
+
+[node name="Volume" type="HBoxContainer" parent="MarginContainer/Settings VBox"]
+layout_mode = 2
+
+[node name="Volume Label" type="Label" parent="MarginContainer/Settings VBox/Volume"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Volume:"
+
+[node name="Volume Slider" type="HSlider" parent="MarginContainer/Settings VBox/Volume"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+size_flags_stretch_ratio = 3.0
+value = 100.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/Settings VBox"]
+layout_mode = 2
+size_flags_vertical = 10
+alignment = 1
+
+[node name="Confirm Button" type="Button" parent="MarginContainer/Settings VBox/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Confirm"

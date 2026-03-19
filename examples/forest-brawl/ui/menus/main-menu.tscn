@@ -1,0 +1,43 @@
+[gd_scene load_steps=2 format=3 uid="uid://klvg0m327brv"]
+
+[ext_resource type="Script" path="res://examples/forest-brawl/ui/menus/main-menu.gd" id="1_0ww6k"]
+
+[node name="Main Menu" type="VBoxContainer"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+script = ExtResource("1_0ww6k")
+
+[node name="Quick Play Button" type="Button" parent="."]
+layout_mode = 2
+theme_type_variation = &"MainMenuButton"
+text = "Quick Play"
+flat = true
+
+[node name="Find a Game Button" type="Button" parent="."]
+layout_mode = 2
+theme_type_variation = &"MainMenuButton"
+text = "Find a Game"
+flat = true
+
+[node name="Play LAN Button" type="Button" parent="."]
+layout_mode = 2
+theme_type_variation = &"MainMenuButton"
+text = "Play on LAN"
+flat = true
+
+[node name="Settings Button" type="Button" parent="."]
+layout_mode = 2
+theme_type_variation = &"MainMenuButton"
+text = "Settings"
+flat = true
+
+[node name="Quit Button" type="Button" parent="."]
+layout_mode = 2
+theme_type_variation = &"MainMenuButton"
+text = "Quit"
+flat = true
