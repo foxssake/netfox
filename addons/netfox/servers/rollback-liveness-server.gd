@@ -1,4 +1,5 @@
 extends Node
+class_name _RollbackLivenessServer
 
 ## Tracks subject livenesses
 ##

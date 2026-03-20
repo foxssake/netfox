@@ -16,6 +16,7 @@ class_name _RollbackSimulationServer
 ## node.
 
 var _history_server: _NetworkHistoryServer
+var _liveness_server: _RollbackLivenessServer
 
 var _callbacks := {}		# node to callback
 var _simulated_ticks := {}	# node to array of ticks
@@ -119,6 +120,10 @@ func _get_nodes_to_simulate(input_snapshot: _Snapshot) -> Array[Node]:
 
 	var tick := input_snapshot.tick
 	for node in _callbacks.keys():
+		if not _liveness_server.is_alive(node, tick):
+			# Node is not alive in this tick
+			continue
+		
 		var inputs := [] as Array[Node]
 		inputs.assign(_input_graph.get_linked_to(node))
 
@@ -193,9 +198,11 @@ func _get_inputs_of(node: Node) -> Array[Node]:
 	result.assign(_input_graph.get_linked_to(node))
 	return result
 
-func _init(p_history_server: _NetworkHistoryServer = null):
+func _init(p_history_server: _NetworkHistoryServer = null, p_liveness_server: _RollbackLivenessServer = null):
 	_history_server = p_history_server
+	_liveness_server = p_liveness_server
 
 func _ready():
 	# Ensure dependencies
 	if not _history_server: _history_server = NetworkHistoryServer
+	if not _liveness_server: _liveness_server = RollbackLivenessServer
