@@ -27,7 +27,7 @@ error_in_file() {
   shift
 
   if [[ $IS_CI == "yes" ]]; then
-    echo "::error file=$FILE::$@"
+    echo "::error file=$FILE,line=1::$@"
   else
     print "[${RED}error${NC}]($FILE): $@"
   fi
