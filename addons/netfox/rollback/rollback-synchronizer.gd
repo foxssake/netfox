@@ -60,10 +60,10 @@ var visibility_filter := PeerVisibilityFilter.new()
 var _state_properties := _PropertyPool.new()
 var _input_properties := _PropertyPool.new()
 var _sim_nodes := [] as Array[Node]
+var _liveness_nodes := [] as Array[Node]
 var _schema_nodes := _Set.new()
 
 var _properties_dirty: bool = false
-var _property_cache := PropertyCache.new(root)
 
 static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("RollbackSynchronizer")
 
@@ -77,26 +77,26 @@ func process_settings() -> void:
 		RollbackSimulationServer.deregister_node(node)
 	_sim_nodes.clear()
 
-	# Clear
-	_property_cache.root = root
-	_property_cache.clear()
-
 	process_authority()
 
-	# Gather all rollback-aware nodes to simulate during rollbacks
-	var nodes := root.find_children("*") as Array[Node]
-	nodes.push_front(root)
-	nodes = nodes.filter(func(it): return NetworkRollback.is_rollback_aware(it))
-	nodes.erase(self)
+	# Register nodes for simulation and liveness
+	var managed_nodes := [root] + root.find_children("*")
+	for node in managed_nodes:
+		if NetworkRollback.is_rollback_aware(node):
+			RollbackSimulationServer.register(NetworkRollback._get_rollback_method(node))
+			_sim_nodes.append(node)
 
-	# Register simulation callbacks
-	for node in nodes:
-		RollbackSimulationServer.register(NetworkRollback._get_rollback_method(node))
-		_sim_nodes.append(node)
+		if NetworkRollback.is_rollback_liveness_aware(node) and not RollbackLivenessServer.is_registered(node):
+			var spawn_callback := NetworkRollback._get_rollback_spawn_method(node)
+			var despawn_callback := NetworkRollback._get_rollback_despawn_method(node)
+			var free_callback := NetworkRollback._get_rollback_destroy_method(node)
+
+			RollbackLivenessServer.register(node, spawn_callback, despawn_callback, free_callback)
+			_liveness_nodes.append(node)
 
 	# Both simulated and state nodes depend on all inputs
 	# TODO(#564): Write tests for setups where a node is synchronized but not simulated
-	for node in nodes + _state_properties.get_subjects():
+	for node in _sim_nodes + _state_properties.get_subjects():
 		for input_node in _input_properties.get_subjects():
 			RollbackSimulationServer.register_rollback_input_for(node, input_node)
 
@@ -283,6 +283,9 @@ func _notification(what: int) -> void:
 			NetworkSynchronizationServer.deregister(node)
 			NetworkIdentityServer.deregister_node(node)
 			NetworkHistoryServer.deregister(node)
+
+		for node in _liveness_nodes:
+			RollbackLivenessServer.deregister(node)
 
 func _get_configuration_warnings() -> PackedStringArray:
 	if not root:
