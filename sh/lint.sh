@@ -9,7 +9,7 @@ RESULT="ok"
 # Fix first if required
 if [[ $1 == "--fix" ]]; then
   for file in $FILES; do
-    echo "Fixing $file";
+    sed -i "s/[[:blank:]]\+$//g" $file
   done;
 fi;
 
