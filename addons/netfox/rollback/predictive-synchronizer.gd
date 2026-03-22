@@ -25,6 +25,7 @@ class_name PredictiveSynchronizer
 
 var _state_properties := _PropertyPool.new()
 var _sim_nodes: Array[Node] = []
+var _liveness_nodes: Array[Node] = []
 
 var _properties_dirty: bool = false
 
@@ -38,12 +39,24 @@ func process_settings() -> void:
 
 	for node in _sim_nodes:
 		RollbackSimulationServer.deregister_node(node)
+	_sim_nodes.clear()
+
+	var managed_nodes := root.find_children("*") as Array[Node]
+	managed_nodes.push_front(root)
 
 	# Gather all prediction-aware nodes to call during prediction ticks
-	_sim_nodes = root.find_children("*")
-	_sim_nodes.push_front(root)
-	_sim_nodes = _sim_nodes.filter(func(it): return NetworkRollback.is_rollback_aware(it))
-	_sim_nodes.erase(self)
+	for node in managed_nodes:
+		if NetworkRollback.is_rollback_aware(node):
+			_sim_nodes.append(node)
+			RollbackSimulationServer.register(NetworkRollback._get_rollback_method(node))
+
+		if NetworkRollback.is_rollback_liveness_aware(node) and not RollbackLivenessServer.is_registered(node):
+			var spawn_callback := NetworkRollback._get_rollback_spawn_method(node)
+			var despawn_callback := NetworkRollback._get_rollback_despawn_method(node)
+			var free_callback := NetworkRollback._get_rollback_destroy_method(node)
+
+			RollbackLivenessServer.register(node, spawn_callback, despawn_callback, free_callback)
+			_liveness_nodes.append(node)
 
 	# Keep history of state properties
 	_state_properties.set_from_paths(root, state_properties)
@@ -101,6 +114,8 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_PREDELETE:
 		for node in _sim_nodes:
 			RollbackSimulationServer.deregister_node(node)
+		for node in _liveness_nodes:
+			RollbackLivenessServer.deregister(node)
 		for subject in _state_properties.get_subjects():
 			NetworkHistoryServer.deregister(subject)
 

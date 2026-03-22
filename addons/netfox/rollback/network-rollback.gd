@@ -211,7 +211,19 @@ func is_rollback() -> bool:
 ## This is used by [RollbackSynchronizer] to see if it should simulate the
 ## given object during rollback.
 func is_rollback_aware(what: Object) -> bool:
-	return what.has_method(&"_rollback_tick")
+	return what.has_method("_rollback_tick")
+
+func is_rollback_liveness_aware(what: Object) -> bool:
+	return is_rollback_spawn_aware(what) or is_rollback_despawn_aware(what)
+
+func is_rollback_spawn_aware(what: Object) -> bool:
+	return what.has_method("_rollback_spawn")
+
+func is_rollback_despawn_aware(what: Object) -> bool:
+	return what.has_method("_rollback_despawn")
+
+func is_rollback_destroy_aware(what: Object) -> bool:
+	return what.has_method("_rollback_free")
 
 ## Calls the [code]_rollback_tick[/code] method on the target, running its
 ## simulation for the given rollback tick.
@@ -296,6 +308,26 @@ func free_input_submission_data_for(_node: Node) -> void:
 func _get_rollback_method(object: Object) -> Callable:
 	return object._rollback_tick
 
+func _get_rollback_spawn_method(object: Object) -> Callable:
+	if is_rollback_spawn_aware(object):
+		return object._rollback_spawn
+	else:
+		return func(): pass
+
+func _get_rollback_despawn_method(object: Object) -> Callable:
+	if is_rollback_despawn_aware(object):
+		return object._rollback_despawn
+	else:
+		return func(): pass
+
+func _get_rollback_destroy_method(object: Object) -> Callable:
+	if is_rollback_destroy_aware(object):
+		return object._rollback_free
+	else:
+		# TODO: Eventually introduce NetworkObjects or smth in
+		# #556/Arbitrary object support
+		return RollbackLivenessServer._free_subject.bind(object)
+
 func _ready():
 	NetfoxLogger.register_tag(_get_rollback_tag)
 	NetworkTime.after_tick_loop.connect(_rollback)
@@ -370,6 +402,7 @@ func _rollback() -> void:
 		on_prepare_tick.emit(tick)
 		NetworkHistoryServer._restore_rollback_input(tick)
 		NetworkHistoryServer._restore_rollback_state(tick)
+		RollbackLivenessServer.restore_liveness(tick)
 		after_prepare_tick.emit(tick)
 
 		# Simulate rollback tick
@@ -393,7 +426,9 @@ func _rollback() -> void:
 	_rollback_stage = _STAGE_AFTER
 	after_loop.emit()
 	NetworkHistoryServer._restore_rollback_state(display_tick)
+	RollbackLivenessServer.restore_liveness(display_tick)
 	RollbackSimulationServer._trim_ticks_simulated(history_start)
+	RollbackLivenessServer.free_old_subjects(history_start)
 
 	# Cleanup
 	_mutated_nodes.clear()
