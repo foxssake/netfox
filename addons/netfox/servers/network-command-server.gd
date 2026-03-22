@@ -11,7 +11,7 @@ class_name _NetworkCommandServer
 ## operations.
 ## [br][br]
 ## Commands are, by default, transmitted over regular RPCs. To use less data,
-## commands can also be transmitted as raw packets, using 
+## commands can also be transmitted as raw packets, using
 ## [method SceneMultiplayer.send_bytes]. This is an opt-in feature - if the game
 ## is already using [method SceneMultiplayer.send_bytes], it needs to be aware
 ## of commands, and must check each packet whether it's a command or one of its
@@ -49,9 +49,9 @@ func register_command_at(idx: int, handler: Callable, mode: MultiplayerPeer.Tran
 	assert(not _commands.has(idx), "Command #%d is already taken!" % idx)
 	var command := Command.new(self, idx, handler, mode, channel)
 	_commands[idx] = command
-	
+
 	_next_idx = maxi(_next_idx, idx + 1)
-	
+
 	return command
 
 ## Send a command with index and data
@@ -111,7 +111,7 @@ class Command:
 
 class _Transport extends Node:
 	signal on_receive(idx: int, data: PackedByteArray)
-	
+
 	func send(idx: int, data: PackedByteArray, target_peer: int, mode: MultiplayerPeer.TransferMode, channel: int) -> void:
 		pass
 
@@ -148,7 +148,7 @@ class _PacketTransport extends _Transport:
 		# Check header
 		if not is_command_packet(packet):
 			return
-		
+
 		# Grab data
 		buffer.seek(_packet_prefix.size())
 		var idx := buffer.get_u8()
@@ -162,12 +162,12 @@ class _RPCTransport extends _Transport:
 			MultiplayerPeer.TRANSFER_MODE_UNRELIABLE: _submit_unreliable.rpc_id(target_peer, idx, data)
 			MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED: _submit_unreliable_ordered.rpc_id(target_peer, idx, data)
 			MultiplayerPeer.TRANSFER_MODE_RELIABLE: _submit_reliable.rpc_id(target_peer, idx, data)
-	
+
 	@rpc("any_peer", "call_remote", "unreliable")
 	func _submit_unreliable(idx: int, data: PackedByteArray):
 		var sender := multiplayer.get_remote_sender_id()
 		on_receive.emit(sender, idx, data)
-	
+
 	@rpc("any_peer", "call_remote", "unreliable_ordered")
 	func _submit_unreliable_ordered(idx: int, data: PackedByteArray):
 		var sender := multiplayer.get_remote_sender_id()

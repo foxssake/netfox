@@ -16,7 +16,7 @@ func _ready() -> void:
 
 	get_tree().get_root().size_changed.connect(func(): _on_window_resized(DisplayServer.window_get_size()))
 	_on_window_resized(DisplayServer.window_get_size())
-	
+
 func _on_window_resized(new_size: Vector2) -> void:
 	for node in target_nodes:
 		if node and "size" in node:

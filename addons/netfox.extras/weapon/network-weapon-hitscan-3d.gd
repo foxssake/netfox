@@ -20,7 +20,7 @@ var _weapon: _NetworkWeaponProxy
 func fire() -> bool:
 	if not can_fire():
 		return false
-	
+
 	_apply_data(_get_data())
 	_after_fire()
 	return true
@@ -55,7 +55,7 @@ func _can_fire() -> bool:
 func _can_peer_use(peer_id: int) -> bool:
 	return true
 
-## Override this method to run any logic needed after successfully firing the 
+## Override this method to run any logic needed after successfully firing the
 ## weapon.
 ## [br][br]
 ## See [NetworkWeapon].

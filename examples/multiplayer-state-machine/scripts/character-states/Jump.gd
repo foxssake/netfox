@@ -30,6 +30,6 @@ func tick(delta, tick, is_fresh):
 	character.velocity *= NetworkTime.physics_factor
 	character.move_and_slide()
 	character.velocity /= NetworkTime.physics_factor
-	
+
 	if character.is_on_floor():
 		state_machine.transition(&"Idle")

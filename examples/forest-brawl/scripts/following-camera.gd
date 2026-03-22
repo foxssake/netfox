@@ -14,9 +14,9 @@ func _tick(delta: float, _t: int):
 
 	var desired_pos = target.global_position
 	desired_pos += transform.basis.z * distance
-	
+
 	var diff = desired_pos - global_position
 	var dst = diff.length()
 	diff = diff.normalized()
-	
+
 	global_position += diff * minf(dst / approach_time * delta, dst)

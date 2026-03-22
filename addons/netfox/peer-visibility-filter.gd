@@ -8,7 +8,7 @@ class_name PeerVisibilityFilter
 ## [br][br]
 ## By default, each peer's visibility is determined by
 ## [member default_visibility]. [br][br]
-## The default visibility can be overridden for individual peers using 
+## The default visibility can be overridden for individual peers using
 ## [method set_visibility_for] and [method unset_visibility_for].
 ## [br][br]
 ## Individual overrides can still be rejected by [i]filters[/i], which are
@@ -18,7 +18,7 @@ class_name PeerVisibilityFilter
 ## [member remove_visibility_filter].
 ## [br][br]
 ## To avoid taking up too much CPU time, visibilities are only recalculated on
-## a peer join or peer leave event by default. This can be changed by setting 
+## a peer join or peer leave event by default. This can be changed by setting
 ## [member update_mode]. Visibilities can also be manually updated using
 ## [member update_visibility].
 

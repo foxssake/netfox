@@ -104,7 +104,7 @@ func deregister_sync_state(node: Node, property: NodePath) -> void:
 func register_schema(node: Node, property: NodePath, serializer: NetworkSchemaSerializer) -> void:
 	_schemas.add(node, property, serializer)
 
-## Deregister any serializers used for [param]property[/param] on 
+## Deregister any serializers used for [param]property[/param] on
 ## [param]node[/param] when transmitting over the network
 func deregister_schema(node: Node, property: NodePath) -> void:
 	_schemas.erase(node, property)
@@ -196,7 +196,7 @@ func _synchronize_state(tick: int) -> void:
 	if snapshot.is_empty():
 		# Nothing to send
 		return
-	
+
 	# Figure out whether to send full- or diff state
 	var is_full := _rb_full_scheduler.is_now()
 	if not _rb_enable_diffs:
@@ -340,7 +340,7 @@ func _handle_full_state(sender: int, data: PackedByteArray):
 	buffer.data_array = data
 
 	var snapshot := _dense_serializer.read_from(sender, _rb_state_properties, buffer, true)
-	
+
 	_ingest_state(sender, snapshot)
 
 func _handle_diff_state(sender: int, data: PackedByteArray):

@@ -26,12 +26,12 @@ func can_fire() -> bool:
 func fire() -> Node:
 	if not can_fire():
 		return null
-	
+
 	var id: String = _generate_id()
 	var projectile = _spawn()
 	_save_projectile(projectile, id)
 	var data = _projectile_data[id]
-	
+
 	if not is_multiplayer_authority():
 		_request_projectile.rpc_id(get_multiplayer_authority(), id, NetworkTime.tick, data)
 	else:
@@ -72,13 +72,13 @@ func _can_fire() -> bool:
 
 ## Override this method to check if a given peer can use this weapon.
 ## [br][br]
-## Usually this should check if the weapon's owner is trying to fire it, but 
-## for some special cases this can be some different logic, e.g. weapons that 
+## Usually this should check if the weapon's owner is trying to fire it, but
+## for some special cases this can be some different logic, e.g. weapons that
 ## can be used by any player on a given team.
 func _can_peer_use(peer_id: int) -> bool:
 	return true
 
-## Override this method to run any logic needed after successfully firing the 
+## Override this method to run any logic needed after successfully firing the
 ## weapon.
 ## [br][br]
 ## This can be used to e.g. reset the firing cooldown or deduct ammo.
@@ -94,23 +94,23 @@ func _spawn() -> Node:
 ## Override this method to extract projectile data that should be synchronized
 ## over the network.
 ## [br][br]
-## This will be captured both locally and on the server, and will be used for 
+## This will be captured both locally and on the server, and will be used for
 ## reconciliation.
 func _get_data(projectile: Node) -> Dictionary:
 	return {}
 
-## Override this method to apply projectile data that should be synchronized 
+## Override this method to apply projectile data that should be synchronized
 ## over the network.
 ## [br][br]
-## This is used in cases where some other client fires a weapon and the server 
+## This is used in cases where some other client fires a weapon and the server
 ## instructs us to spawn a projectile for it.
 func _apply_data(projectile: Node, data: Dictionary):
 	pass
 
 ## Override this method to check if two projectile states can be reconciled.
 ## [br][br]
-## This can be used to prevent cheating, for example by not allowing the client 
-## to say it's firing from the other side of the map compared to its actual 
+## This can be used to prevent cheating, for example by not allowing the client
+## to say it's firing from the other side of the map compared to its actual
 ## position.
 ## [br][br]
 ## When this method returns false, the server will decline the projectile
@@ -122,7 +122,7 @@ func _is_reconcilable(projectile: Node, request_data: Dictionary, local_data: Di
 ## state.
 ## [br][br]
 ## Let's say the projectile travels in a straight line from its origin, but we
-## receive a different origin from the server. In this reconciliation step, 
+## receive a different origin from the server. In this reconciliation step,
 ## the projectile's position can be adjusted to account for the different origin.
 ## [br][br]
 ## Unless the use case is niche, the best practice is to consider the server's
@@ -134,10 +134,10 @@ func _save_projectile(projectile: Node, id: String, data: Dictionary = {}):
 	_projectiles[id] = projectile
 	projectile.name += " " + id
 	projectile.set_multiplayer_authority(get_multiplayer_authority())
-	
+
 	if data.is_empty():
 		data = _get_data(projectile)
-	
+
 	_projectile_data[id] = data
 
 func _before_tick_loop():
@@ -147,7 +147,7 @@ func _before_tick_loop():
 		var local_data = recon[1]
 		var response_data = recon[2]
 		var projectile_id = recon[3]
-		
+
 		if is_instance_valid(projectile):
 			_reconcile(projectile, local_data, response_data)
 		else:
@@ -175,17 +175,17 @@ func _request_projectile(id: String, tick: int, request_data: Dictionary):
 		_decline_projectile.rpc_id(sender, id)
 		_logger.error("Projectile %s rejected! Peer %s can't use this weapon now", [id, sender])
 		return
-	
+
 	# Validate incoming data
 	var projectile = _spawn()
 	var local_data: Dictionary = _get_data(projectile)
-	
+
 	if not _is_reconcilable(projectile, request_data, local_data):
 		projectile.queue_free()
 		_decline_projectile.rpc_id(sender, id)
 		_logger.error("Projectile %s rejected! Can't reconcile states: [%s, %s]", [id, request_data, local_data])
 		return
-	
+
 	_save_projectile(projectile, id, local_data)
 	_accept_projectile.rpc(id, tick, local_data)
 	_after_fire(projectile)
@@ -197,7 +197,7 @@ func _accept_projectile(id: String, tick: int, response_data: Dictionary):
 		return
 
 	_logger.info("Accepting projectile %s from %s", [id, multiplayer.get_remote_sender_id()])
-	
+
 	if _projectiles.has(id):
 		var projectile = _projectiles[id]
 		var local_data = _projectile_data[id]
@@ -214,10 +214,10 @@ func _accept_projectile(id: String, tick: int, response_data: Dictionary):
 func _decline_projectile(id: String):
 	if not _projectiles.has(id):
 		return
-	
+
 	var p = _projectiles[id]
 	if is_instance_valid(p):
 		p.queue_free()
-	
+
 	_projectiles.erase(id)
 	_projectile_data.erase(id)

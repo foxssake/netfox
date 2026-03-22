@@ -14,14 +14,14 @@ func _notification(what):
 	if what == NOTIFICATION_WM_WINDOW_FOCUS_IN:
 		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 		override_mouse = false
-		
+
 func _input(event: InputEvent) -> void:
 	if !is_multiplayer_authority(): return
-	
+
 	if event is InputEventMouseMotion:
 		mouse_rotation.y += event.relative.x * mouse_sensitivity
 		mouse_rotation.x += event.relative.y * mouse_sensitivity
-		
+
 	if event.is_action_pressed("escape"):
 		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 		override_mouse = true
@@ -39,7 +39,7 @@ func _gather():
 
 	jump = Input.is_action_pressed("move_jump")
 	fire = Input.is_action_pressed("mouse_weapon_fire")
-	
+
 	if override_mouse:
 		look_angle = Vector2.ZERO
 		mouse_rotation = Vector2.ZERO

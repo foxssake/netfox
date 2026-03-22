@@ -4,7 +4,7 @@ class_name NetfoxLogger
 ## Logger implementation for use with netfox
 ##
 ## NetfoxLoggers implement distinct log levels. These can be used to filter
-## which messages are actually emitted. All messages are output using [method 
+## which messages are actually emitted. All messages are output using [method
 ## @GlobalScope.print]. Warnings and errors are also pushed to the debug panel,
 ## using [method @GlobalScope.push_warning] and [method @GlobalScope.push_error]
 ## respectively, if [member push_to_debugger] is enabled.
@@ -12,7 +12,7 @@ class_name NetfoxLogger
 ## Every logger has a name, and belongs to a module. Logging level can be
 ## overridden per module, using [member module_log_level].
 ## [br][br]
-## Loggers also support tags. Tags can be used to provide extra pieces of 
+## Loggers also support tags. Tags can be used to provide extra pieces of
 ## information that are logged with each message. Some tags are provided by
 ## netfox. Additional tags can be added using [method register_tag].
 ##
@@ -77,7 +77,7 @@ static func register_tag(tag: Callable, priority: int = 0) -> void:
 
 	# Recalculate tag order
 	_ordered_tags.clear()
-	
+
 	var prio_groups = _tags.keys()
 	prio_groups.sort()
 
@@ -179,28 +179,28 @@ func _check_log_level(level: int) -> bool:
 	var cmp_level = log_level
 	if level < cmp_level:
 		return false
-	
+
 	if module_log_level.has(module):
 		var module_level = module_log_level.get(module)
 		return level >= module_level
-	
+
 	return true
 
 func _format_text(text: String, values: Array, level: int) -> String:
 	level = clampi(level, LOG_TRACE, LOG_ERROR)
-	
+
 	var result := PackedStringArray()
-	
+
 	result.append("[%s]" % [_LEVEL_PREFIXES[level]])
 	for tag in _ordered_tags:
 		result.append("[%s]" % [tag.call()])
 	result.append("[%s::%s] " % [module, name])
-	
+
 	if values.is_empty():
 		result.append(text)
 	else:
 		result.append(text % values)
-	
+
 	return "".join(result)
 
 func _log_text(text: String, values: Array, level: int):

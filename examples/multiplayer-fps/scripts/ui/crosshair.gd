@@ -17,7 +17,7 @@ func _ready() -> void:
 
 func _enter_tree() -> void:
 	if has_node("Sprite2D"): return
-	
+
 	sprite2d.name = "Sprite2D"
 	sprite2d.set_texture(crosshair_sprite)
 	sprite2d.scale = crosshair_scale;

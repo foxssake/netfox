@@ -23,7 +23,7 @@ func _handle_spawn(brawler: BrawlerController):
 
 func _handle_fall(brawler: BrawlerController):
 	var id = brawler.player_id
-	
+
 	# Update scores
 	if is_multiplayer_authority():
 		if NetworkTime.seconds_between(brawler.last_hit_tick, NetworkTime.tick) < hit_threshold_time \
@@ -32,10 +32,10 @@ func _handle_fall(brawler: BrawlerController):
 			_scores[hit_id] = _scores.get(hit_id, 0) + 1
 		else:
 			_scores[id] = _scores.get(id, 0) - 1
-			
+
 		GameEvents.on_scores_updated.emit(_scores)
 		_submit_scores.rpc(_scores)
-	
+
 	# Display scoreboard
 	if id == multiplayer.get_unique_id():
 		scorescreen.render(_render_scores())
@@ -55,7 +55,7 @@ func _submit_scores(scores: Dictionary):
 	print("Received new scores, updating %s -> %s" % [_scores, scores])
 	_scores = scores
 	GameEvents.on_scores_updated.emit(_scores)
-	
+
 	# Re-render scoreboard if visible
 	if scorescreen.active:
 		scorescreen.render(_render_scores())

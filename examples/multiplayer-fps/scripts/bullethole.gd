@@ -20,25 +20,25 @@ var pool := NodePool.new()
 func _ready():
 	pool.pool_limit = instance_limit
 	pool.spawn_root = get_tree().root.get_node("multiplayer-fps/Map/StaticBody3D")
-	
+
 	var decal_node: Decal = Decal.new()
 	decal_node.cull_mask = decal_mask
 	decal_node.layers = decal_layer
-	
+
 	pool.target_node = decal_node
 
 ## Creates a bullethole decal, applies the texture and rotation/position calculations and removes the bullethole after the pool is full
 func action(result: Dictionary) -> void:
 	var decal_node: Decal = pool.next()
 	create_bullethole.call_deferred(decal_node, result)
-	
+
 func create_bullethole(decal_node: Decal, result: Dictionary):
 	decal_node.texture_albedo = material.albedo_texture
 	decal_node.texture_emission = material.emission_texture
 	decal_node.texture_normal = material.normal_texture
 	decal_node.size = Vector3(
-		randf_range(hole_minimum_size, hole_maximum_size), 
-		0.02, 
+		randf_range(hole_minimum_size, hole_maximum_size),
+		0.02,
 		randf_range(hole_minimum_size, hole_maximum_size)
 	)
 

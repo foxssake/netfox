@@ -41,7 +41,7 @@ func _rollback_tick(tick: int):
 
 		var offset := Vector3(diff.x, max(0, diff.y), diff.z).normalized()
 		offset *= strength_factor * strength * f * NetworkTime.ticktime
-		
+
 		brawler.shove(offset)
 		NetworkRollback.mutate(brawler)
 
@@ -62,7 +62,7 @@ func _get_overlapping_brawlers() -> Array[BrawlerController]:
 	var query := PhysicsShapeQueryParameters3D.new()
 	query.shape = shape
 	query.transform = global_transform
-	
+
 	# TODO: Move map geo and brawlers to separate layers, so map doesn't clog up
 	# the 32 max_results - this would enable bigger collision shapes
 	var hits := state.intersect_shape(query)

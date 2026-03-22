@@ -21,16 +21,16 @@ func _predict(_t):
 		# Not predicting, nothing to do
 		confidence = 1.
 		return
-	
+
 	if not _rollback_synchronizer.has_input():
 		confidence = 0.
 		return
-	
+
 	# Decay input over a short time
 	var decay_time := NetworkTime.seconds_to_ticks(.05)
 	var input_age := _rollback_synchronizer.get_input_age()
-	
-	# **ALWAYS** cast either side to float, otherwise the integer-integer 
+
+	# **ALWAYS** cast either side to float, otherwise the integer-integer
 	# division yields either 1 or 0 confidence
 	confidence = input_age / float(decay_time)
 	confidence = clampf(1. - confidence, 0., 1.)

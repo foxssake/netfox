@@ -174,12 +174,12 @@ func _join(address: String) -> Error:
 	if uri.is_empty():
 		_logger.info("Failed to parse URI: %s", [address])
 		return ERR_PARSE_ERROR
-	
+
 	if uri["protocol"] == "noray":
 		# TODO: Support different hosts
 		var oid := uri["path"] as String
 		return _join_noray(oid)
-	
+
 	_logger.info("Unknown schema: %s" % [uri["protocol"]])
 	return ERR_UNAVAILABLE
 

@@ -11,10 +11,10 @@ var active: bool = false
 
 func render(scores: Dictionary):
 	clear()
-	
+
 	if not visible:
 		message_label.text = messages[randi() % messages.size()]
-	
+
 	for player_name in _sort_scores(scores):
 		var points = scores[player_name]
 		names_column.add_child(_make_label(str(player_name)))
@@ -32,7 +32,7 @@ func _process(delta):
 	var current = modulate.a
 	var target = 1.0 if active else 0.0
 	modulate.a = move_toward(current, target, delta / fade_time)
-	
+
 	visible = false if modulate.a < 0.05 else true
 
 func _make_label(text: String) -> Label:
@@ -47,10 +47,10 @@ func _sort_scores(scores: Dictionary) -> Array[String]:
 	var points = scores.values()
 	points.sort()
 	points.reverse()
-	
+
 	for score in points:
 		for player_name in scores:
 			if not result.has(player_name) and scores[player_name] == score:
 				result.push_back(player_name)
-	
+
 	return result

@@ -22,7 +22,7 @@ func tick(delta, tick, is_fresh):
 	character.velocity *= NetworkTime.physics_factor
 	character.move_and_slide()
 	character.velocity /= NetworkTime.physics_factor
-	
+
 	if input.jump:
 		state_machine.transition(&"Jump")
 	elif input_dir == Vector3.ZERO:

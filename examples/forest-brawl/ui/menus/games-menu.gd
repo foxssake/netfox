@@ -33,11 +33,11 @@ func _ready() -> void:
 	dock_button.pressed.connect(_dock)
 	back_button.pressed.connect(_back)
 	host_button.pressed.connect(_host)
-	
+
 	lobbies_container.on_join.connect(func(lobby_id: String):
 		_join(lobby_id)
 	)
-	
+
 	# Populate presets
 	presets_option.clear()
 	for hosts in ForestBrawlConnector.known_service_hosts:
@@ -107,7 +107,7 @@ func _host() -> void:
 	var lobby_limit := new_lobby_form.get_player_limit()
 
 	var noray_address := ForestBrawlConnector.noray_address()
-	
+
 	if not lobby_name:
 		_logger.warn("Lobby name can't be empty!")
 		return

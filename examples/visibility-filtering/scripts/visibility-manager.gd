@@ -18,10 +18,10 @@ func _rollback_tick(_t: int) -> void:
 	for peer in player_synchronizers:
 		var node := player_nodes[peer] as ExampleVisibilityFiltering.Player
 		var rbs := player_synchronizers[peer] as RollbackSynchronizer
-		
+
 		# We don't own state
 		if not rbs.is_multiplayer_authority(): continue
-		
+
 		# Only transmit data to players who can see us
 		for other_peer in player_synchronizers:
 			if other_peer == peer: continue

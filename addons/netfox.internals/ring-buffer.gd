@@ -13,7 +13,7 @@ func _init(p_capacity: int):
 
 func push(item):
 	_data[_head] = item
-	
+
 	_size += 1
 	_head = (_head + 1) % _capacity
 

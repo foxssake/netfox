@@ -28,7 +28,7 @@ func _handle_new_peer(id: int):
 func _handle_leave(id: int):
 	if not avatars.has(id):
 		return
-	
+
 	var avatar = avatars[id] as Node
 	avatar.queue_free()
 	avatars.erase(id)
@@ -45,12 +45,12 @@ func _spawn(id: int):
 	avatar.name += " #%d" % id
 	add_child(avatar)
 	avatar.global_position = get_next_spawn_point(id)
-	
+
 	# Avatar is always owned by server
 	avatar.set_multiplayer_authority(1)
 
 	print("Spawned avatar %s at %s" % [avatar.name, multiplayer.get_unique_id()])
-	
+
 	# Avatar's input object is owned by player
 	var input = avatar.find_child("Input")
 	if input != null:

@@ -34,7 +34,7 @@ func read_from(peer: int, properties: _PropertyPool, buffer: StreamPeerBuffer, i
 		var snapshot_size := varuint.decode(buffer)
 		var snapshot_buffer := StreamPeerBuffer.new()
 		snapshot_buffer.data_array = buffer.get_partial_data(snapshot_size)[1]
-		
+
 		var snapshot := _dense_serializer.read_from(peer, properties, snapshot_buffer, is_auth)
 		snapshots.append(snapshot)
 	return snapshots

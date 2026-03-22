@@ -14,7 +14,7 @@ var gravity: float = ProjectSettings.get_setting(&"physics/3d/default_gravity")
 
 func _ready():
 	position = Vector3(0, 4, 0)
-	
+
 	var player_id := input.get_multiplayer_authority()
 	var mesh := $MeshInstance3D as MeshInstance3D
 	var material := mesh.get_active_material(0).duplicate() as StandardMaterial3D
@@ -33,19 +33,19 @@ func _rollback_tick(dt, _t, _if):
 		velocity.y = input.movement.y * jump_strength
 	else:
 		velocity.y -= gravity * dt
-	
+
 	var movement := input.movement as Vector3
 	movement.y = 0.
-	
+
 	var reverse_factor = 1.
-	
+
 	if is_on_floor():
 		var accel := 0.
 		var steer := 0.
 		var brake := 0.
-		
+
 		var speed := velocity.length()
-		
+
 		if movement.is_zero_approx():
 			# Brake
 			brake = acceleration * 1. * dt
@@ -63,21 +63,21 @@ func _rollback_tick(dt, _t, _if):
 
 			steer = movement.x * turn_degrees
 			steer *= pow(clampf(speed / max_speed, 0., 1.), .5)
-		
+
 		if is_reversing:
 			reverse_factor = -1.
-		
+
 		brake = minf(brake, speed)
 		velocity += accel * reverse_factor * transform.basis.z - velocity.normalized() * brake
 		velocity = velocity.rotated(transform.basis.y, deg_to_rad(steer) * dt)
-		
+
 		if velocity.length() > max_speed:
 			velocity = velocity.normalized() * max_speed
-		
+
 	velocity *= NetworkTime.physics_factor
 	move_and_slide()
 	velocity /= NetworkTime.physics_factor
-	
+
 	# Face velocity
 	var look = velocity.normalized() * reverse_factor
 	if not look.is_zero_approx() and abs(look.y) < .95:

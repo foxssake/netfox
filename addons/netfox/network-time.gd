@@ -467,7 +467,7 @@ func start() -> int:
 func stop() -> void:
 	NetworkTimeSynchronizer.stop()
 	_tickrate_handshake.stop()
-	
+
 	# Reset state
 	_state = _STATE_INACTIVE
 	_synced_peers.clear()

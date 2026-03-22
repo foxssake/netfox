@@ -21,13 +21,13 @@ class PhysicsDriverToggle:
 			return errors
 
 		var enable := not is_enabled()
-		
+
 		var uid_files := get_files().map(func(it): return it + ".uid")
 		var renames = (get_files() + uid_files).map(func(it):
 			if enable: return [it + INACTIVE_SUFFIX, it]
 			else: return [it, it + INACTIVE_SUFFIX]
 		)
-		
+
 		for rename in renames:
 			var result := DirAccess.rename_absolute(rename[0], rename[1])
 			if result != OK:

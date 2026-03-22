@@ -30,5 +30,5 @@ func add_setting(setting: Dictionary):
 func remove_setting(setting: Dictionary):
 	if not ProjectSettings.has_setting(setting.name):
 		return
-	
+
 	ProjectSettings.clear(setting.name)

@@ -4,9 +4,33 @@
 # See: https://github.com/chalk/ansi-styles/blob/main/index.js
 NC="\033[0m";
 BOLD="\033[1m";
+RED="\033[31m";
+
+# Environment
+IS_CI="no"
+if [[ $GITHUB_ACTIONS != "" ]]; then IS_CI="yes"; fi
 
 print() {
   echo -e $@
+}
+
+error() {
+  if [[ $IS_CI == "yes" ]]; then
+    echo "::error::$@"
+  else
+    print "[${RED}error${NC}]: $@"
+  fi
+}
+
+error_in_file() {
+  FILE="$1"
+  shift
+
+  if [[ $IS_CI == "yes" ]]; then
+    echo "::error file=$FILE::$@"
+  else
+    print "[${RED}error${NC}]($FILE): $@"
+  fi
 }
 
 # Version and addon data for build
