@@ -18,7 +18,7 @@ print "::endgroup::"
 
 # Check results
 if [ ! -f "$VEST_LOG" ]; then
-  echo "::error::No test logs!"
+  error "No test logs!"
   exit 1
 fi
 
@@ -28,7 +28,7 @@ echo ""
 echo "::endgroup::"
 
 if grep "not ok" "$VEST_LOG"; then
-  echo "::error::There are failing test(s)!"
+  error "There are failing test(s)!"
   exit 1
 else
   print "Success!"

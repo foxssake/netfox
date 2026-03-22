@@ -23,7 +23,7 @@ for file in $FILES; do
 done;
 
 if [[ $RESULT != "ok" ]]; then
-  echo "Linting errors found!"
+  error "Linting errors found!"
   echo "Run $0 --fix to fix errors"
   exit 1
 fi

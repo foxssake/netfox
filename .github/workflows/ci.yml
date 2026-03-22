@@ -22,5 +22,7 @@ jobs:
           include-templates: false
       - name: Verify setup
         run: godot --version
+      - name: Lint
+        run: sh/lint.sh
       - name: Run tests
         run: sh/test.sh
