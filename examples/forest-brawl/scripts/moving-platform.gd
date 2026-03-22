@@ -16,12 +16,12 @@ func _ready():
 func _apply_tick(tick: int):
 	var previous_position = _get_position_for_tick(tick - 1)
 	global_position = _get_position_for_tick(tick)
-	
+
 	_velocity = (global_position - previous_position) / NetworkTime.ticktime
 
 func _get_position_for_tick(tick: int):
 	var distance_moved = NetworkTime.ticks_to_seconds(tick) * speed
 	var progress = distance_moved / _distance
 	progress = pingpong(progress, 1)
-	
+
 	return _origin.lerp(_target, progress)

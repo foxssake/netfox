@@ -17,14 +17,14 @@ func _set_target_node(new_node: Node) -> void:
 	clear()
 	_add_node_to_tree(target_node)
 	pool = [target_node]
-	
+
 func _add_node_to_tree(node: Node) -> void:
 	if !node.is_inside_tree():
 		if is_instance_valid(spawn_root):
 			spawn_root.add_child.call_deferred(node)
 		else:
 			add_child(node)
-			
+
 func next() -> Node:
 	var node: Node = pool.pop_front() if pool.size() >= pool_limit else pool[0].duplicate(duplicate_flag)
 	pool.append(node)

@@ -13,7 +13,7 @@ func _ready():
 func _handle_new_peer(id: int):
 	# Spawn an avatar for new player
 	_spawn(id)
-	
+
 	if not spawned_for_host and multiplayer.is_server():
 		# Spawn own avatar on host machine
 		# This is a bit cumbersome, as there's no "server started"

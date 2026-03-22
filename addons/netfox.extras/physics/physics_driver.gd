@@ -50,7 +50,7 @@ func on_prepare_tick(tick: int) -> void:
 
 func on_process_tick(_tick: int) -> void:
 	step_physics(NetworkTime.ticktime)
-		
+
 func after_tick_loop() -> void:
 	# Remove old snapshots
 	for i in snapshots.keys():

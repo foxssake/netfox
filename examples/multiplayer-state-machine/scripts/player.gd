@@ -18,13 +18,13 @@ var gravity = ProjectSettings.get_setting(&"physics/3d/default_gravity")
 func _ready():
 	# Set spawn position
 	position = Vector3(0, 4, 0)
-	
+
 	# Set starting state
 	state_machine.state = &"Idle"
 	state_machine.on_display_state_changed.connect(func(_old_state, _new_state):
 		current_state_label.text = state_machine.state
 	)
-	
+
 	# Ensure material is unique
 	mesh_instance.material_override = _material
 

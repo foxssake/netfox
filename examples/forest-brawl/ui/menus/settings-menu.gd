@@ -15,10 +15,10 @@ var _settings: ForestBrawlSettings
 
 func _ready() -> void:
 	super()
-	
+
 	_settings = ForestBrawlSettings.load()
 	_apply_settings(_settings)
-	
+
 	player_name_input.text_changed.connect(func(__): _on_change())
 	always_randomize_checkbox.toggled.connect(func(__): _on_change())
 	force_relay_checkbox.toggled.connect(func(__): _on_change())
@@ -61,7 +61,7 @@ func _render_settings(settings: ForestBrawlSettings) -> void:
 
 func _read_settings() -> ForestBrawlSettings:
 	var settings := ForestBrawlSettings.new()
-	
+
 	settings.player_name = player_name_input.text
 	settings.randomize_name = always_randomize_checkbox.button_pressed
 	settings.force_relay = force_relay_checkbox.button_pressed
@@ -69,7 +69,7 @@ func _read_settings() -> ForestBrawlSettings:
 	settings.vsync = vsync_toggle.button_pressed
 	settings.confine_mouse = confine_mouse_toggle.button_pressed
 	settings.master_volume = inverse_lerp(volume_slider.min_value, volume_slider.max_value, volume_slider.value)
-	
+
 	return settings
 
 func _apply_settings(settings: ForestBrawlSettings) -> void:
@@ -97,6 +97,6 @@ func _apply_settings(settings: ForestBrawlSettings) -> void:
 	# Volume
 	var volume = lerp(-60, 0, settings.master_volume)
 	var mute = volume < -59.5
-	
+
 	AudioServer.set_bus_volume_db(0, volume)
 	AudioServer.set_bus_mute(0, mute)

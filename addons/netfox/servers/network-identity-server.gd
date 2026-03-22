@@ -100,13 +100,13 @@ func _resolve_reference(peer: int, identity_reference: _NetworkIdentityReference
 func _queue_for(identifier: _NetworkIdentifier, peer: int) -> void:
 	if not _push_queue.has(peer):
 		_push_queue[peer] = { identifier.get_full_name(): identifier.get_id_for(peer) }
-	else: 
+	else:
 		_push_queue[peer][identifier.get_full_name()] = identifier.get_id_for(peer)
 
 func _register(what: Object, path: String) -> void:
 	if _identifiers.has(what):
 		return
-	
+
 	var identifier := _NetworkIdentifier.new(what, path, _make_id(), multiplayer.get_unique_id())
 	_identifiers[what] = identifier
 	_identifier_by_name[identifier.get_full_name()] = identifier

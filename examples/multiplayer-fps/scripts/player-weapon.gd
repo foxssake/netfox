@@ -20,7 +20,7 @@ func _can_peer_use(peer_id: int) -> bool:
 
 func _on_fire():
 	sound.play()
-	
+
 func _after_fire():
 	last_fire = NetworkTime.tick
 
@@ -28,7 +28,7 @@ func _on_hit(result: Dictionary):
 	bullethole.action(result)
 	if result.collider.has_method("damage"):
 		result.collider.damage()
-	
+
 func _tick(_delta: float, _t: int):
 	if input.fire:
 		fire()

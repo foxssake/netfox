@@ -47,7 +47,7 @@ func _spawn(id: int):
 	avatar.name += " #%d" % id
 	add_child(avatar)
 	avatar.global_position = get_next_spawn_point(id)
-	
+
 	# Avatar is always owned by server
 	avatar.set_multiplayer_authority(1)
 

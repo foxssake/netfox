@@ -56,7 +56,7 @@ func _ready():
 
 	if not player_name:
 		player_name = "Nameless Brawler #%s" % [player_id]
-	
+
 	# Set player color
 	var color = Color.from_hsv((hash(player_id) % 256) / 256.0, 1.0, 1.0)
 	var material: StandardMaterial3D = mesh.get_active_material(0)
@@ -69,7 +69,7 @@ func _ready():
 		":velocity": NetworkSchemas.vec3f32(),
 		":speed": NetworkSchemas.float32(),
 		":mass": NetworkSchemas.float32(),
-		
+
 		"Input:movement": NetworkSchemas.vec3f32(),
 		"Input:aim": NetworkSchemas.vec3f32()
 	})
@@ -85,13 +85,13 @@ func _process(delta):
 	var animated_velocity = animation_tree.get("parameters/Move/blend_position") as Vector2
 
 	animation_tree.set("parameters/Move/blend_position", animated_velocity.move_toward(relative_velocity, delta / 0.2))
-	
+
 	# Float
 	_force_update_is_on_floor()
 	var animated_float = animation_tree.get("parameters/Float/blend_amount") as float
 	var actual_float = 1.0 if not is_on_floor() else 0.0
 	animation_tree.set("parameters/Float/blend_amount", move_toward(animated_float, actual_float, delta / 0.2))
-	
+
 	# Speed
 	animation_tree.set("parameters/MoveScale/scale", speed / 3.75)
 	animation_tree.set("parameters/ThrowScale/scale", min(weapon.fire_cooldown / (10. / 24.), 1.0))
@@ -107,7 +107,7 @@ func _rollback_tick(delta, tick, is_fresh):
 		_snap_to_spawn()
 		velocity = Vector3.ZERO
 		last_hit_tick = -1
-		
+
 		if is_fresh:
 			GameEvents.on_brawler_respawn.emit(self)
 
@@ -120,7 +120,7 @@ func _rollback_tick(delta, tick, is_fresh):
 	_force_update_is_on_floor()
 	if not is_on_floor():
 		velocity.y -= gravity * delta
-	
+
 	# Stick to moving platforms
 	var platform_velocity := Vector3.ZERO
 	var collision_result := KinematicCollision3D.new()
@@ -142,7 +142,7 @@ func _rollback_tick(delta, tick, is_fresh):
 	else:
 		velocity.x = move_toward(velocity.x, 0, speed)
 		velocity.z = move_toward(velocity.z, 0, speed)
-	
+
 	# Aim
 	if input.aim:
 		transform = transform.looking_at(position + Vector3(input.aim.x, 0, input.aim.z), Vector3.UP, true).scaled_local(scale)
@@ -153,7 +153,7 @@ func _rollback_tick(delta, tick, is_fresh):
 	move_and_slide()
 	velocity /= NetworkTime.physics_factor
 	velocity -= platform_velocity
-	
+
 	# Death
 	if position.y < -death_depth and tick > respawn_tick and is_fresh:
 		var respawn_cooldown = respawn_time * NetworkTime.tickrate
@@ -171,7 +171,7 @@ func _snap_to_spawn():
 	var spawns = get_tree().get_nodes_in_group("Spawn Points")
 	var idx = hash(player_id + respawn_count * 39) % spawns.size()
 	var spawn = spawns[idx] as Node3D
-	
+
 	global_transform = spawn.global_transform
 
 func _force_update_is_on_floor():

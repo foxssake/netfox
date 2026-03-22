@@ -3,7 +3,7 @@ class_name NetworkTickrateHandshake
 
 ## Internal class to manage the tickrate handshake.
 ##
-## Whenever a new peer joins, they exchange their configured tickrate with the 
+## Whenever a new peer joins, they exchange their configured tickrate with the
 ## host. If the tickrate mismatches, a warning is emitted by default, as this is
 ## assumed to be a developer mistake.
 ## [br][br]
@@ -29,7 +29,7 @@ var mismatch_action: int = ProjectSettings.get_setting(&"netfox/time/tickrate_mi
 
 static var _logger := NetfoxLogger._for_netfox("NetworkTickrateHandshake")
 
-## Emitted when a tickrate mismatch is encountered, and [member mismatch_action] is set to 
+## Emitted when a tickrate mismatch is encountered, and [member mismatch_action] is set to
 ## [constant SIGNAL].
 signal on_tickrate_mismatch(peer: int, tickrate: int)
 
@@ -43,7 +43,7 @@ func run() -> void:
 	if _is_authority():
 		# Broadcast tickrate
 		_submit_tickrate.rpc(NetworkTime.tickrate)
-		
+
 		# Submit tickrate to anyone joining
 		multiplayer.peer_connected.connect(_handle_new_peer)
 	else:

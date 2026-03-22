@@ -11,7 +11,7 @@ func _tick(_delta: float, _tick: int):
 		var enet = get_tree().get_multiplayer().multiplayer_peer as ENetMultiplayerPeer
 		if enet == null:
 			return
-			
+
 		var server = enet.get_peer(1)
 		var last_rtt = server.get_statistic(ENetPacketPeer.PEER_LAST_ROUND_TRIP_TIME)
 		var last_variance = server.get_statistic(ENetPacketPeer.PEER_LAST_ROUND_TRIP_TIME_VARIANCE)

@@ -36,7 +36,7 @@ func write_for(peer: int, snapshot: _Snapshot, properties: _PropertyPool, filter
 
 		var node_props := properties.get_properties_of(node)
 		var changed_bits := _Bitset.new(node_props.size())
-		
+
 		for i in node_props.size():
 			var property := node_props[i]
 			if not snapshot.has_property(node, property):

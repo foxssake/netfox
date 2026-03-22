@@ -17,7 +17,7 @@ func _ready():
 func _connect():
 	var host := host_input.text
 	var port = _get_port()
-	
+
 	var peer := ENetMultiplayerPeer.new()
 	var err := peer.create_client(host, port)
 	if err != OK:

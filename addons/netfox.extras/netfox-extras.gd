@@ -5,7 +5,7 @@ const ROOT = "res://addons/netfox.extras"
 
 var SETTINGS = [
 	NetfoxLogger._make_setting("netfox/logging/netfox_extras_log_level"),
-	
+
 	# Window Tiler Settings
 	{
 		"name": "netfox/extras/auto_tile_windows",
@@ -22,7 +22,7 @@ var SETTINGS = [
 		"value": false,
 		"type": TYPE_BOOL
 	},
-	
+
 	# Autoconnect settings
 	{
 		"name": "netfox/autoconnect/enabled",
@@ -111,7 +111,7 @@ func _enter_tree():
 	for autoload in AUTOLOADS:
 		if not has_autoload(autoload.name):
 			add_autoload_singleton(autoload.name, autoload.path)
-	
+
 	for type in TYPES:
 		add_custom_type(type.name, type.base, load(type.script), load(type.icon))
 
@@ -125,7 +125,7 @@ func _exit_tree():
 	for autoload in AUTOLOADS:
 		if has_autoload(autoload.name):
 			remove_autoload_singleton(autoload.name)
-	
+
 	for type in TYPES:
 		remove_custom_type(type.name)
 
@@ -147,7 +147,7 @@ func add_setting(setting: Dictionary):
 func remove_setting(setting: Dictionary):
 	if not ProjectSettings.has_setting(setting.name):
 		return
-	
+
 	ProjectSettings.clear(setting.name)
 
 func has_autoload(name: String) -> bool:

@@ -83,14 +83,14 @@ func transition(new_state_name: StringName) -> bool:
 	if from_state:
 		if !new_state.can_enter(_state_object):
 			return false
-		
+
 		# Emit exit signal, allow handlers to prevent transition
 		_state_object.on_exit.emit(new_state, NetworkRollback.tick, _prevent_callable)
 		if _prevent_transition: return false
 
 	new_state.on_enter.emit(from_state, NetworkRollback.tick, _prevent_callable)
 	if _prevent_transition: return false
-	
+
 	# Transition valid, run callbacks
 	if is_instance_valid(from_state):
 		from_state.exit(new_state, NetworkRollback.tick)
@@ -108,7 +108,7 @@ func transition(new_state_name: StringName) -> bool:
 ## manually to force an update.
 func update_states() -> void:
 	_available_states.clear()
-	
+
 	for child in find_children("*", "RewindableState", false):
 		_available_states[child.name] = child
 

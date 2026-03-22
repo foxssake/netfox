@@ -27,14 +27,14 @@ func _gather():
 		Input.get_action_strength("move_jump"),
 		Input.get_axis("move_north", "move_south")
 	)
-	
+
 	# Aim
 	aim = Vector3(
 		Input.get_axis("aim_west", "aim_east"),
 		0.0,
 		Input.get_axis("aim_north", "aim_south")
 	)
-	
+
 	if aim.length():
 		# Prefer gamepad
 		# Reset timeout for mouse motion
@@ -48,11 +48,11 @@ func _gather():
 	else:
 		# Fall back to mouse projected to player height
 		aim = (_projected_target - _player.global_position).normalized()
-	
+
 	# Always aim horizontally, never up or down
 	aim.y = 0
 	aim = aim.normalized()
-	
+
 	# Hide mouse if inactive
 	if NetworkTime.local_time - _last_mouse_input >= switch_time:
 		DisplayServer.mouse_set_mode(
@@ -62,7 +62,7 @@ func _gather():
 		DisplayServer.mouse_set_mode(
 			DisplayServer.MOUSE_MODE_CONFINED if _confine_mouse else DisplayServer.MOUSE_MODE_VISIBLE
 		)
-	
+
 	is_firing = Input.is_action_pressed("weapon_fire")
 
 func _physics_process(_delta):

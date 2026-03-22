@@ -17,10 +17,10 @@ func _init(bit_count: int):
 	var bytes := bit_count / 8
 	if bit_count % 8 > 0:
 		bytes += 1
-	
+
 	_data = PackedByteArray()
 	_data.resize(bytes)
-	
+
 	_bit_count = bit_count
 
 func bit_count() -> int:
@@ -36,40 +36,40 @@ func get_bit(idx: int) -> bool:
 	assert(idx < _bit_count, "Accessing bit %d on bitset of size %d!" % [idx, _bit_count])
 	var byte_idx := idx / 8
 	var bit_idx := idx % 8
-	
+
 	return (_data[byte_idx] >> bit_idx) & 0x1 != 0
 
 func set_bit(idx: int) -> void:
 	assert(idx < _bit_count, "Accessing bit %d on bitset of size %d!" % [idx, _bit_count])
 	var byte_idx := idx / 8
 	var bit_idx := idx % 8
-	
+
 	_data[byte_idx] |= 0x1 << bit_idx
 
 func clear_bit(idx: int) -> void:
 	assert(idx < _bit_count, "Accessing bit %d on bitset of size %d!" % [idx, _bit_count])
 	var byte_idx := idx / 8
 	var bit_idx := idx % 8
-	
+
 	_data[byte_idx] &= ~(0x1 << bit_idx)
 
 func toggle_bit(idx: int) -> void:
 	assert(idx < _bit_count, "Accessing bit %d on bitset of size %d!" % [idx, _bit_count])
 	var byte_idx := idx / 8
 	var bit_idx := idx % 8
-	
+
 	_data[byte_idx] ^= 0x1 << bit_idx
 
 func get_set_indices() -> Array[int]:
 	var result := [] as Array[int]
 	for i in _data.size():
 		var byte := _data[i]
-		
+
 		if byte & 0x01: result.append(i * 8 + 0)
 		if byte & 0x02: result.append(i * 8 + 1)
 		if byte & 0x04: result.append(i * 8 + 2)
 		if byte & 0x08: result.append(i * 8 + 3)
-		
+
 		if byte & 0x10: result.append(i * 8 + 4)
 		if byte & 0x20: result.append(i * 8 + 5)
 		if byte & 0x40: result.append(i * 8 + 6)

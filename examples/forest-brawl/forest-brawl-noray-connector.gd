@@ -14,12 +14,12 @@ func _ready():
 func host() -> Error:
 	if Noray.local_port <= 0:
 		return ERR_UNCONFIGURED
-	
+
 	# Start host
 	var err = OK
 	var port = Noray.local_port
 	_logger.info("Starting host on port %s" % port)
-	
+
 	var peer = ENetMultiplayerPeer.new()
 	err = peer.create_server(port)
 	if err != OK:
@@ -28,17 +28,17 @@ func host() -> Error:
 
 	get_tree().get_multiplayer().multiplayer_peer = peer
 	_logger.info("Listening on port %s" % port)
-	
+
 	# Wait for server to start
 	while peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTING:
 		await get_tree().process_frame
-	
+
 	if peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
 		OS.alert("Failed to start server!")
 		return FAILED
-	
+
 	get_tree().get_multiplayer().server_relay = true
-	
+
 	_is_host = true
 	_is_client = false
 
@@ -77,20 +77,20 @@ func _handle_connect(address: String, port: int) -> Error:
 		return ERR_UNCONFIGURED
 
 	var err = OK
-	
+
 	if not _is_host and not _is_client:
 		_logger.info("Refusing connection, not running as client nor host")
 		err = ERR_UNAVAILABLE
-	
+
 	if _is_client:
 		var udp = PacketPeerUDP.new()
 		udp.bind(Noray.local_port)
 		udp.set_dest_address(address, port)
-		
+
 		_logger.info("Attempting handshake with %s:%s" % [address, port])
 		err = await PacketHandshake.over_packet_peer(udp)
 		udp.close()
-		
+
 		if err != OK:
 			if err == ERR_BUSY:
 				_logger.info("Handshake to %s:%s succeeded partially, attempting connection anyway" % [address, port])
@@ -108,12 +108,12 @@ func _handle_connect(address: String, port: int) -> Error:
 			return err
 
 		get_tree().get_multiplayer().multiplayer_peer = peer
-		
+
 		# Wait for connection to succeed
 		await Async.condition(
 			func(): return peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTING
 		)
-			
+
 		if peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
 			_logger.info("Failed to connect to %s:%s with status %s" % [address, port, peer.get_connection_status()])
 			get_tree().get_multiplayer().multiplayer_peer = null
@@ -122,9 +122,9 @@ func _handle_connect(address: String, port: int) -> Error:
 	if _is_host:
 		# We should already have the connection configured, only thing to do is a handshake
 		var peer = get_tree().get_multiplayer().multiplayer_peer as ENetMultiplayerPeer
-		
+
 		err = await PacketHandshake.over_enet_peer(peer, address, port)
-		
+
 		if err != OK:
 			_logger.info("Handshake to %s:%s failed: %s" % [address, port, error_string(err)])
 			return err

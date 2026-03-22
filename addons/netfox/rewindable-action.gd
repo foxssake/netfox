@@ -3,7 +3,7 @@ class_name RewindableAction
 
 ## Represents actions that may or may not happen, in a way compatible with
 ## rollback.
-## 
+##
 ## @experimental: This class is experimental!
 ## @tutorial(RewindableAction Guide): https://foxssake.github.io/netfox/latest/netfox/nodes/rewindable-action/
 

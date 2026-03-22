@@ -2,12 +2,12 @@
 extends Node
 class_name PredictiveSynchronizer
 
-## Similar to [RollbackSynchronizer], this class manages local variables in a 
+## Similar to [RollbackSynchronizer], this class manages local variables in a
 ## rollback context for predictive simulation without networking.
 ##
 ## This is a simplified version that focuses on local state management.
 ## [br][br]
-## Like [RollbackSynchronizer], it automatically discovers nodes 
+## Like [RollbackSynchronizer], it automatically discovers nodes
 ## with a [code]_rollback_tick(delta: float, tick: int)[/code]
 ## method and calls them during the prediction phase.
 

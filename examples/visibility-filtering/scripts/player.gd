@@ -18,14 +18,14 @@ func get_local() -> ExampleVisibilityFiltering.Player:
 
 func can_see(target: Node3D) -> bool:
 	var space := get_world_3d().direct_space_state
-	
+
 	var query := PhysicsRayQueryParameters3D.new()
 	query.collide_with_areas = false
 	query.collide_with_bodies = true
 	query.collision_mask = 2 # Only collide with level geometry
 	query.from = global_position
 	query.to = target.global_position
-	
+
 	return space.intersect_ray(query).is_empty()
 
 func _get_rollback_state_properties() -> Array:
@@ -88,7 +88,7 @@ func _rollback_tick(dt, _tick, _is_fresh: bool):
 
 func _physics_process(dt: float):
 	if Engine.is_editor_hint(): return
-	
+
 	# Determine visibility
 	var is_visible := true
 	if not is_local():

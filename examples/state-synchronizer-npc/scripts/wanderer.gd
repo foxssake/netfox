@@ -33,7 +33,7 @@ func _tick(dt: float, _t) -> void:
 		# We're at the target position, wait until rest time is up
 		target_velocity = Vector3.ZERO
 		_wander_timer -= dt
-		
+
 		if _wander_timer <= 0:
 			_reset_wander()
 	else:
@@ -44,7 +44,7 @@ func _tick(dt: float, _t) -> void:
 	if not velocity.is_zero_approx():
 		# Look in the direction we're going
 		look_at(position + velocity, Vector3.UP, true)
-	
+
 	velocity *= NetworkTime.physics_factor
 	move_and_slide()
 	velocity /= NetworkTime.physics_factor
@@ -58,7 +58,7 @@ func _generate_target() -> Vector3:
 		var angle := randf() * TAU
 		var distance := randf_range(wander_dst_min, wander_dst_max)
 		var target := position + distance * Vector3(cos(angle), 0, sin(angle))
-		
+
 		if wander_bounds.has_point(Vector2(target.x, target.z)):
 			return target
 

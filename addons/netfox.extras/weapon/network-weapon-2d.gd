@@ -21,7 +21,7 @@ func _init():
 	_weapon = _NetworkWeaponProxy.new()
 	add_child(_weapon, true, INTERNAL_MODE_BACK)
 	_weapon.owner = self
-	
+
 	_weapon.c_can_fire = _can_fire
 	_weapon.c_can_peer_use = _can_peer_use
 	_weapon.c_after_fire = _after_fire
@@ -59,10 +59,10 @@ func _apply_data(projectile: Node2D, data: Dictionary):
 func _is_reconcilable(projectile: Node2D, request_data: Dictionary, local_data: Dictionary) -> bool:
 	var req_transform = request_data["global_transform"] as Transform2D
 	var loc_transform = local_data["global_transform"] as Transform2D
-	
+
 	var request_pos = req_transform.origin
 	var local_pos = loc_transform.origin
-	
+
 	return request_pos.distance_to(local_pos) < distance_threshold
 
 func _reconcile(projectile: Node2D, local_data: Dictionary, remote_data: Dictionary):
