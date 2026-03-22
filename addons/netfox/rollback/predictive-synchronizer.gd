@@ -41,10 +41,8 @@ func process_settings() -> void:
 		RollbackSimulationServer.deregister_node(node)
 	_sim_nodes.clear()
 
-	var managed_nodes := root.find_children("*") as Array[Node]
-	managed_nodes.push_front(root)
-
 	# Gather all prediction-aware nodes to call during prediction ticks
+	var managed_nodes := [root] + root.find_children("*")
 	for node in managed_nodes:
 		if NetworkRollback.is_rollback_aware(node):
 			_sim_nodes.append(node)
