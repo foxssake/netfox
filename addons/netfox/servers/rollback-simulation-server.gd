@@ -123,7 +123,7 @@ func _get_nodes_to_simulate(input_snapshot: _Snapshot) -> Array[Node]:
 		if _liveness_server.is_registered(node) and not _liveness_server.is_alive(node, tick):
 			# Node is not alive in this tick
 			continue
-		
+
 		var inputs := [] as Array[Node]
 		inputs.assign(_input_graph.get_linked_to(node))
 

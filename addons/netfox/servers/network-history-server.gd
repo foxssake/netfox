@@ -71,7 +71,7 @@ func deregister(node: Node) -> void:
 		for value in history.values():
 			var snapshot := value as _Snapshot
 			snapshot.erase_subject(node)
-			
+
 			# Assert subjects
 			for subject in snapshot.get_subjects():
 				assert(is_instance_valid(subject), "Invalid subject!d")
