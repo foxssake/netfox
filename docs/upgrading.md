@@ -43,6 +43,7 @@ netfox addon(s) with the new one(s).
   nothing
 * `NetworkRollback.free_input_submission_data_for()` is deprecated and does
   nothing
+* The rollback debugger example was removed
 
 ### v1.1.1
 
