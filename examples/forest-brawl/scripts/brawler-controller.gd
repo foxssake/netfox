@@ -16,6 +16,7 @@ class_name BrawlerController
 @onready var rollback_synchronizer := $RollbackSynchronizer as RollbackSynchronizer
 @onready var animation_tree := $AnimationTree as AnimationTree
 @onready var weapon := $Weapon as BrawlerWeapon
+@onready var fire_action := $"Weapon/Fire Action" as RewindableAction
 @onready var mesh := $"bomber-guy/rig/Skeleton3D/Cube_008" as MeshInstance3D
 @onready var nametag := $Nametag as Label3D
 @onready var fall_sound := $"Fall Sound" as PlayRandomStream3D
@@ -52,7 +53,7 @@ func _ready():
 	_snap_to_spawn()
 
 	GameEvents.on_brawler_spawn.emit(self)
-	NetworkTime.on_tick.connect(_tick)
+	NetworkTime.after_tick_loop.connect(_after_tick_loop)
 
 	if not player_name:
 		player_name = "Nameless Brawler #%s" % [player_id]
@@ -96,12 +97,10 @@ func _process(delta):
 	animation_tree.set("parameters/MoveScale/scale", speed / 3.75)
 	animation_tree.set("parameters/ThrowScale/scale", min(weapon.fire_cooldown / (10. / 24.), 1.0))
 
-func _tick(_delta, tick):
-	# Run throw animation if firing
-	# TODO
-#	if weapon._last_fired == tick:
-#		animation_tree.set("parameters/Throw/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
-	pass
+func _after_tick_loop():
+	# Play anim if we have thrown a bomb
+	if fire_action.has_confirmed():
+			animation_tree.set("parameters/Throw/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
 
 func _rollback_tick(delta, tick, is_fresh):
 	# Respawn

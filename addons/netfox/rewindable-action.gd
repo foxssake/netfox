@@ -163,7 +163,7 @@ func _before_rollback_loop() -> void:
 		# Resimulate from earliest change
 		var earliest_change = _queued_changes.keys().min()
 		NetworkRollback.notify_resimulation_start(earliest_change)
-		_logger.trace("Submitted earliest tick %d from %s", [earliest_change, _queued_changes])
+		_logger.info("Submitted earliest tick %d from %s", [earliest_change, _queued_changes])
 
 		# Queue mutations
 		for mutated in _mutated_objects:

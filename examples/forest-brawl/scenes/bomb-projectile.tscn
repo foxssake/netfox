@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://8sru5hge6spx"]
+[gd_scene load_steps=15 format=3 uid="uid://8sru5hge6spx"]
 
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/bomb-projectile.gd" id="1_eudhi"]
 [ext_resource type="PackedScene" uid="uid://cn6ypxuayfwfl" path="res://examples/forest-brawl/models/kenney-platformer-kit/bomb.glb" id="1_lr6uq"]
@@ -38,10 +38,45 @@ tracks/1/keys = {
 "values": [Vector3(0, 0.523599, 0.523599), Vector3(0, 0, -0.523599), Vector3(0, 0.523599, 0.523599)]
 }
 
+[sub_resource type="Animation" id="Animation_wy47u"]
+resource_name = "birth"
+length = 0.166671
+step = 0.0416667
+tracks/0/type = "scale_3d"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Pivot")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = PackedFloat32Array(0, 1, 0.005, 0.005, 0.005, 0.166667, 1, 1, 1, 1)
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_2erlr"]
 _data = {
+"birth": SubResource("Animation_wy47u"),
 "idle": SubResource("Animation_e2wbv")
 }
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_qw1i5"]
+animation = &"birth"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_13rs3"]
+animation = &"idle"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_kd41k"]
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_m7ofg"]
+xfade_time = 0.25
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_nqnhi"]
+states/Start/position = Vector2(199, 100)
+states/birth/node = SubResource("AnimationNodeAnimation_qw1i5")
+states/birth/position = Vector2(372, 100)
+states/idle/node = SubResource("AnimationNodeAnimation_13rs3")
+states/idle/position = Vector2(610, 100)
+transitions = ["Start", "birth", SubResource("AnimationNodeStateMachineTransition_kd41k"), "birth", "idle", SubResource("AnimationNodeStateMachineTransition_m7ofg")]
 
 [node name="Bomb Projectile" type="ShapeCast3D"]
 shape = SubResource("SphereShape3D_pc5j5")
@@ -51,9 +86,10 @@ strength = 4.0
 effect = ExtResource("2_r3c2e")
 
 [node name="Pivot" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.988852, -0.148903, 0, 0.148903, -0.988852, 0, 0, 0)
 
 [node name="bomb" parent="Pivot" instance=ExtResource("1_lr6uq")]
-transform = Transform3D(0.75, -0.433013, 0.5, 0.5, 0.866026, 0, -0.433013, 0.25, 0.866025, 0, -0.226921, 0)
+transform = Transform3D(0.869442, 0.494023, 0.00344252, -0.494026, 0.869448, 0, -0.00299309, -0.00170069, 0.999994, 0, -0.226921, 0)
 
 [node name="PredictiveSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("4_wlsqx")
@@ -66,7 +102,11 @@ root = NodePath("..")
 properties = Array[String]([":position"])
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-autoplay = "idle"
 libraries = {
 "": SubResource("AnimationLibrary_2erlr")
 }
+
+[node name="AnimationTree" type="AnimationTree" parent="."]
+tree_root = SubResource("AnimationNodeStateMachine_nqnhi")
+anim_player = NodePath("../AnimationPlayer")
+active = true

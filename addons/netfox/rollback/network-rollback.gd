@@ -181,8 +181,10 @@ static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("NetworkRollback")
 ## Submit the resimulation start tick for the current loop.
 ##
 ## This is used to determine the resimulation range during each loop.
-func notify_resimulation_start(tick: int) -> void:
-	_resim_from = min(_resim_from, tick)
+func notify_resimulation_start(p_tick: int) -> void:
+	var v_history_start := history_start
+	_resim_from = min(_resim_from, p_tick)
+#	assert(p_tick > v_history_start + 4)
 
 ## Submit node for simulation.
 ##

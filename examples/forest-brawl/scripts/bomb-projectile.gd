@@ -11,14 +11,30 @@ var fired_by: Node
 var ghost_cooldown := 1
 
 @onready var animation_player := $AnimationPlayer as AnimationPlayer
+@onready var animation_tree := $AnimationTree as AnimationTree
+@onready var tick_interpolator := $TickInterpolator as TickInterpolator
 
 @onready var _original_mask := collision_mask
-
 @onready var _logger := NetfoxLogger.new("fb", self.name)
 
 func _ready():
 	distance_left = distance
 	animation_player.speed_scale = speed / 8. # Adapt animation to move speed
+
+	# Push inital movement to TickInterpolator
+	# This is to avoid the projectile appearing in place for a moment before
+	# starting to move
+	var offset := basis.z * speed * NetworkTime.ticktime
+
+	position -= offset
+	tick_interpolator.push_state()
+	position += offset
+	tick_interpolator.push_state()
+
+	# Hide for a bit so birth anim can kick in
+	hide()
+	await get_tree().create_timer(.05).timeout
+	show()
 
 func _rollback_tick(dt: float, _t: int, _if: bool) -> void:
 	var dst := speed * dt
@@ -27,7 +43,6 @@ func _rollback_tick(dt: float, _t: int, _if: bool) -> void:
 	distance_left -= dst
 
 	if distance_left < 0:
-		_logger.info("Ran out of range, despawning")
 		RollbackLivenessServer.despawn(self)
 		return
 
@@ -45,7 +60,7 @@ func _rollback_tick(dt: float, _t: int, _if: bool) -> void:
 	if hit_interval[0] != 1.0 or hit_interval[1] != 1.0 and not _is_ghost():
 		# Move to collision
 		position += motion * hit_interval[1]
-		_logger.info("Collided at %.2f%%, despawning", [hit_interval[1]])
+#		_logger.info("Collided at %.2f%%, despawning", [hit_interval[1]])
 		_explode()
 	else:
 		position += motion
@@ -54,12 +69,10 @@ func _rollback_tick(dt: float, _t: int, _if: bool) -> void:
 	ghost_cooldown -= 1
 
 func _rollback_spawn() -> void:
-	_logger.info("Respawn")
 	show()
 	collision_mask = _original_mask
 
 func _rollback_despawn() -> void:
-	_logger.info("Despawn")
 	hide()
 	_original_mask = collision_mask
 	collision_mask = 0
@@ -69,6 +82,7 @@ func _is_ghost() -> bool:
 
 func _explode():
 	RollbackLivenessServer.despawn(self)
+	return
 
 	if effect:
 		var spawn = effect.instantiate() as Node3D

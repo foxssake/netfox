@@ -65,7 +65,7 @@ func restore_liveness(tick: int) -> void:
 	for subject in _subjects():
 		var liveness := is_alive(subject, tick)
 		if _applied_liveness[subject] != liveness:
-			_logger.info("Restoring %s to %s liveness ( @%s;@%s)", [subject, liveness, _spawn_tick.get(subject), _despawn_tick.get(subject)])
+			_logger.trace("Restoring %s to %s liveness ( @%s;@%s)", [subject, liveness, _spawn_tick.get(subject), _despawn_tick.get(subject)])
 			if liveness: _respawn_callback[subject].call()
 			else: _despawn_callback[subject].call()
 			_applied_liveness[subject] = liveness
@@ -78,7 +78,7 @@ func free_old_subjects(threshold_tick: int = NetworkRollback.history_start) -> v
 			old_subjects.append(subject)
 
 	for subject in old_subjects:
-		_logger.info("Freeing %s as too old ( despawned at @%d )", [subject, _despawn_tick[subject]])
+		_logger.trace("Freeing %s as too old ( despawned at @%d )", [subject, _despawn_tick[subject]])
 		_destroy_callback[subject].call()
 		deregister(subject)
 
