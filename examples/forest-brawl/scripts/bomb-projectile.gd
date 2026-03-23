@@ -8,20 +8,28 @@ class_name BombProjectile
 
 var distance_left: float
 var fired_by: Node
-var is_first_tick: bool = true
+var ghost_cooldown := 1
+
+@onready var animation_player := $AnimationPlayer as AnimationPlayer
+
+@onready var _original_mask := collision_mask
+
+@onready var _logger := NetfoxLogger.new("fb", self.name)
 
 func _ready():
-	NetworkTime.on_tick.connect(_tick)
 	distance_left = distance
+	animation_player.speed_scale = speed / 8. # Adapt animation to move speed
 
-func _tick(delta, _t):
-	var dst = speed * delta
-	var motion = transform.basis.z * dst
+func _rollback_tick(dt: float, _t: int, _if: bool) -> void:
+	var dst := speed * dt
+	var motion := transform.basis.z * dst
 	target_position = Vector3.FORWARD * dst
 	distance_left -= dst
 
 	if distance_left < 0:
-		queue_free()
+		_logger.info("Ran out of range, despawning")
+		RollbackLivenessServer.despawn(self)
+		return
 
 	# Check if we've hit anyone
 	force_shapecast_update()
@@ -34,19 +42,33 @@ func _tick(delta, _t):
 	query.transform = global_transform
 
 	var hit_interval := space.cast_motion(query)
-	if hit_interval[0] != 1.0 or hit_interval[1] != 1.0 and not is_first_tick:
+	if hit_interval[0] != 1.0 or hit_interval[1] != 1.0 and not _is_ghost():
 		# Move to collision
 		position += motion * hit_interval[1]
+		_logger.info("Collided at %.2f%%, despawning", [hit_interval[1]])
 		_explode()
 	else:
 		position += motion
 
-	# Skip collisions for a single tick, no more
-	is_first_tick = false
+	# Skip collisions for some ticks
+	ghost_cooldown -= 1
+
+func _rollback_spawn() -> void:
+	_logger.info("Respawn")
+	show()
+	collision_mask = _original_mask
+
+func _rollback_despawn() -> void:
+	_logger.info("Despawn")
+	hide()
+	_original_mask = collision_mask
+	collision_mask = 0
+
+func _is_ghost() -> bool:
+	return ghost_cooldown > 0
 
 func _explode():
-	queue_free()
-	NetworkTime.on_tick.disconnect(_tick)
+	RollbackLivenessServer.despawn(self)
 
 	if effect:
 		var spawn = effect.instantiate() as Node3D
@@ -54,6 +76,3 @@ func _explode():
 		spawn.global_position = global_position
 		spawn.fired_by = fired_by
 		spawn.set_multiplayer_authority(get_multiplayer_authority())
-
-		if spawn is CPUParticles3D:
-			(spawn as CPUParticles3D).emitting = true

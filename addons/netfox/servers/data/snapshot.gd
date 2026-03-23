@@ -10,9 +10,12 @@ var _auth_subjects := _Set.new()
 static func make_patch(from: _Snapshot, to: _Snapshot, tick: int = to.tick) -> _Snapshot:
 	var patch := _Snapshot.new(tick)
 
-	for subject in from._data:
+	for subject in from.get_subjects():
+		if not is_instance_valid(subject):
+			# TODO: ?!
+			continue
 		# Target has no knowledge of subject, don't patch
-		if not to._data.has(subject):
+		if not to.has_subject(subject):
 			continue
 		# Only patch to auth subjects
 		if not to.is_auth(subject):
@@ -80,6 +83,10 @@ func merge(snapshot: _Snapshot) -> bool:
 	var has_changed := false
 
 	for subject in snapshot._data:
+		if not is_instance_valid(subject):
+			# TODO: ?!
+			continue
+
 		if not _data.has(subject):
 			# We have no data of the subject, copy all
 			_data[subject] = snapshot._data[subject].duplicate()
@@ -126,6 +133,11 @@ func has_subjects(subjects: Array, require_auth: bool = false) -> bool:
 		if not has_subject(subject, require_auth):
 			return false
 	return true
+
+# TODO: Test
+func erase_subject(subject: Object) -> void:
+	_data.erase(subject)
+	_auth_subjects.erase(subject)
 
 func get_subjects() -> Array:
 	return _data.keys()

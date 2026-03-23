@@ -56,13 +56,25 @@ func deregister_sync_state(node: Node, property: NodePath) -> void:
 ## Deregister a node, no longer tracking any property it had registered using
 ## any of the [code]register_*()[/code] methods
 func deregister(node: Node) -> void:
+	# Deregister properties
 	_rb_state_properties.erase_subject(node)
 	_rb_input_properties.erase_subject(node)
 	_sync_state_properties.erase_subject(node)
 
+	# Erase from per-object history
 	_rb_state_history.erase_subject(node)
 	_rb_input_history.erase_subject(node)
 	_sync_history.erase_subject(node)
+
+	# Erase from per-tick history
+	for history in [_rb_state_snapshots, _rb_input_snapshots, _sync_state_snapshots]:
+		for value in history.values():
+			var snapshot := value as _Snapshot
+			snapshot.erase_subject(node)
+			
+			# Assert subjects
+			for subject in snapshot.get_subjects():
+				assert(is_instance_valid(subject), "Invalid subject!d")
 
 ## Return the latest tick where any of the [param]subjects[/param] had rollback
 ## state data available

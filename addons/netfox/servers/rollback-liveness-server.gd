@@ -46,9 +46,10 @@ func deregister(subject: Node) -> void:
 	_spawn_tick.erase(subject)
 	_despawn_tick.erase(subject)
 
+# TODO(test): No ticks, spawn tick only, despawn tick only (???), spawn and despawn tick
 func is_alive(subject: Node, tick: int) -> bool:
 	var spawn_at := _spawn_tick.get(subject, tick + 1) as int
-	var despawn_at := _despawn_tick.get(subject, tick - 1) as int
+	var despawn_at := _despawn_tick.get(subject, tick + 1) as int
 
 	# NOTE: This will return live ON the despawn tick, and dead AFTER the
 	# despawn tick. This is so the deactivating game logic can run in rollback.
@@ -64,6 +65,7 @@ func restore_liveness(tick: int) -> void:
 	for subject in _subjects():
 		var liveness := is_alive(subject, tick)
 		if _applied_liveness[subject] != liveness:
+			_logger.info("Restoring %s to %s liveness ( @%s;@%s)", [subject, liveness, _spawn_tick.get(subject), _despawn_tick.get(subject)])
 			if liveness: _respawn_callback[subject].call()
 			else: _despawn_callback[subject].call()
 			_applied_liveness[subject] = liveness
@@ -76,6 +78,7 @@ func free_old_subjects(threshold_tick: int = NetworkRollback.history_start) -> v
 			old_subjects.append(subject)
 
 	for subject in old_subjects:
+		_logger.info("Freeing %s as too old ( despawned at @%d )", [subject, _despawn_tick[subject]])
 		_destroy_callback[subject].call()
 		deregister(subject)
 

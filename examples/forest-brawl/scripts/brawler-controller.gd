@@ -98,8 +98,10 @@ func _process(delta):
 
 func _tick(_delta, tick):
 	# Run throw animation if firing
-	if weapon.last_fire == tick:
-		animation_tree.set("parameters/Throw/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
+	# TODO
+#	if weapon._last_fired == tick:
+#		animation_tree.set("parameters/Throw/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
+	pass
 
 func _rollback_tick(delta, tick, is_fresh):
 	# Respawn

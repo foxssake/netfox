@@ -1,12 +1,47 @@
-[gd_scene load_steps=6 format=3 uid="uid://8sru5hge6spx"]
+[gd_scene load_steps=9 format=3 uid="uid://8sru5hge6spx"]
 
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/bomb-projectile.gd" id="1_eudhi"]
 [ext_resource type="PackedScene" uid="uid://cn6ypxuayfwfl" path="res://examples/forest-brawl/models/kenney-platformer-kit/bomb.glb" id="1_lr6uq"]
 [ext_resource type="PackedScene" uid="uid://6212jkmbikjq" path="res://examples/forest-brawl/scenes/explosion.tscn" id="2_r3c2e"]
 [ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="4_dyck1"]
+[ext_resource type="Script" path="res://addons/netfox/rollback/predictive-synchronizer.gd" id="4_wlsqx"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_pc5j5"]
 radius = 0.25
+
+[sub_resource type="Animation" id="Animation_e2wbv"]
+resource_name = "idle"
+loop_mode = 1
+step = 0.0416667
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Pivot:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(6.28319, 0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Pivot/bomb:rotation")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.5, 1.0008),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0.523599, 0.523599), Vector3(0, 0, -0.523599), Vector3(0, 0.523599, 0.523599)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_2erlr"]
+_data = {
+"idle": SubResource("Animation_e2wbv")
+}
 
 [node name="Bomb Projectile" type="ShapeCast3D"]
 shape = SubResource("SphereShape3D_pc5j5")
@@ -15,10 +50,23 @@ script = ExtResource("1_eudhi")
 strength = 4.0
 effect = ExtResource("2_r3c2e")
 
-[node name="bomb" parent="." instance=ExtResource("1_lr6uq")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.226921, 0)
+[node name="Pivot" type="Node3D" parent="."]
+
+[node name="bomb" parent="Pivot" instance=ExtResource("1_lr6uq")]
+transform = Transform3D(0.75, -0.433013, 0.5, 0.5, 0.866026, 0, -0.433013, 0.25, 0.866025, 0, -0.226921, 0)
+
+[node name="PredictiveSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("4_wlsqx")
+root = NodePath("..")
+state_properties = Array[String]([":position", ":distance_left", ":ghost_cooldown"])
 
 [node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("4_dyck1")
 root = NodePath("..")
-properties = Array[String]([":global_position"])
+properties = Array[String]([":position"])
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+autoplay = "idle"
+libraries = {
+"": SubResource("AnimationLibrary_2erlr")
+}

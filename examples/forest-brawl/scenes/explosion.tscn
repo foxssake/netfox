@@ -70,7 +70,9 @@ strength = 64.0
 shape = SubResource("SphereShape3D_0scc6")
 
 [node name="Explosion Particles" type="CPUParticles3D" parent="."]
+emitting = false
 amount = 32
+one_shot = true
 explosiveness = 0.8
 local_coords = true
 mesh = SubResource("SphereMesh_5d23i")
