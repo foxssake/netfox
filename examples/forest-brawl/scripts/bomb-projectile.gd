@@ -85,7 +85,7 @@ func _is_ghost() -> bool:
 
 func _explode(tick: int = NetworkRollback.tick):
 	RollbackLivenessServer.despawn(self)
-	
+
 	if _exploded_tick == tick and is_instance_valid(_explosion):
 		_explosion.global_position = global_position
 		return
@@ -99,7 +99,7 @@ func _explode(tick: int = NetworkRollback.tick):
 		spawn.global_position = global_position
 		spawn.fired_by = fired_by
 		spawn.set_multiplayer_authority(get_multiplayer_authority())
-		
+
 		_explosion = spawn
 
 	_exploded_tick = tick

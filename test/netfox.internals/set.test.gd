@@ -25,7 +25,7 @@ func test_should_have_known_items() -> void:
 	# Given
 	var set := _Set.new()
 	set.add(2)
-	
+
 	# When + Then
 	expect(set.has(2))
 
@@ -33,7 +33,7 @@ func test_should_not_have_unknown_items() -> void:
 	# Given
 	var set := _Set.new()
 	set.add(2)
-	
+
 	# When + Then
 	expect_not(set.has("Foo"))
 
@@ -43,7 +43,7 @@ func test_should_not_have_unknown_items() -> void:
 func test_new_set_should_be_empty() -> void:
 	# Given
 	var set := _Set.new()
-	
+
 	# Then
 	expect(set.is_empty())
 	expect_equal(set.size(), 0)
@@ -51,7 +51,7 @@ func test_new_set_should_be_empty() -> void:
 func test_set_should_not_be_empty() -> void:
 	# Given
 	var set := _Set.new()
-	
+
 	# When
 	set.add("foo")
 	set.add("bar")
@@ -116,7 +116,7 @@ func test_iterate_should_yield_values() -> void:
 func test_min_max() -> void:
 	# Given
 	var set := _Set.of([2, 1, 3])
-	
+
 	# When + Then
 	expect_equal(set.min(), 1)
 	expect_equal(set.max(), 3)

@@ -34,11 +34,11 @@ func apply_to(target: BrawlerController) -> void:
 #	assert(RollbackLivenessServer.is_alive(self, NetworkRollback.tick), "Applying inactive displacer!")
 	if not RollbackLivenessServer.is_alive(self, NetworkRollback.tick):
 		return
-		
+
 	var strength_factor := time_remaining / duration
 	strength_factor = clampf(strength_factor, 0., 1.)
 	strength_factor = pow(strength_factor, 2) * 4.
-	
+
 	var delta := target.global_position - global_position
 	var f := clampf(1.0 / (1.0 + delta.length_squared()), 0.0, 1.0)
 	if is_zero_approx(f):
@@ -51,7 +51,7 @@ func apply_to(target: BrawlerController) -> void:
 
 	if target != fired_by:
 		target.register_hit(fired_by)
-	
+
 func _enter_tree():
 	_displacers.add(self)
 

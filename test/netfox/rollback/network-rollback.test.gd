@@ -24,7 +24,7 @@ func suite() -> void:
 			expect(network_rollback.is_mutated(mutated_node, 10))
 			expect_not(network_rollback.is_just_mutated(mutated_node, 10))
 		)
-		
+
 		test("should just be mutated", func():
 			# Given
 			network_rollback.mutate(mutated_node, 8)
@@ -33,7 +33,7 @@ func suite() -> void:
 			expect(network_rollback.is_mutated(mutated_node, 8))
 			expect(network_rollback.is_just_mutated(mutated_node, 8))
 		)
-		
+
 		test("should not be mutated after", func():
 			# Given
 			network_rollback.mutate(mutated_node, 8)
@@ -42,7 +42,7 @@ func suite() -> void:
 			expect_not(network_rollback.is_mutated(mutated_node, 4))
 			expect_not(network_rollback.is_just_mutated(mutated_node, 4))
 		)
-		
+
 		test("unknown should not be mutated", func():
 			# Given nothing
 

@@ -49,7 +49,7 @@ func suite():
 			assert_that(filter.get_visible_peers()).is_equal_to([1, 3, 4])
 			assert_that(filter.get_rpc_target_peers()).is_equal_to([-2])
 		)
-		
+
 		test("should return peers with multiple excludes", func():
 			var filter := PeerVisibilityFilter.new()
 			filter.default_visibility = true
@@ -75,7 +75,7 @@ func suite():
 			assert_that(filter.get_visible_peers()).is_equal_to(peers)
 		)
 
-		test("should exclude on false", func(): 
+		test("should exclude on false", func():
 			var filter := PeerVisibilityFilter.new()
 			filter.default_visibility = true
 			filter.add_visibility_filter(func(_peer: int): return false)

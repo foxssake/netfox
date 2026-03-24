@@ -61,42 +61,42 @@ func suite() -> void:
 		test("should not simulate without input", func():
 			var node := RewindableNode.new()
 			var input_node := Node.new()
-			
+
 			var server := _RollbackSimulationServer.new()
 			server.register(node._rollback_tick)
 			server.register_rollback_input_for(node, input_node)
-			
+
 			var snapshot := _Snapshot.new(1)
-			
+
 			expect_empty(server._get_nodes_to_simulate(snapshot))
 		)
-		
+
 		test("should simulate with input", func():
 			var node := RewindableNode.new()
 			var input_node := Node.new()
-			
+
 			var server := _RollbackSimulationServer.new()
 			server.register(node._rollback_tick)
 			server.register_rollback_input_for(node, input_node)
-			
+
 			var snapshot := _Snapshot.new(1)
 			snapshot.set_property(input_node, "editor_description", "Test input node")
 			snapshot.set_auth(input_node, true)
-			
+
 			expect_equal(server._get_nodes_to_simulate(snapshot), [node])
 		)
-		
+
 		test("should simulate mutated", func():
 			var node := RewindableNode.new()
 			var input_node := Node.new()
-			
+
 			var server := _RollbackSimulationServer.new()
 			server.register(node._rollback_tick)
 			server.register_rollback_input_for(node, input_node)
-			
+
 			var snapshot := _Snapshot.new(1)
 			NetworkRollback.mutate(node)
-			
+
 			expect_equal(server._get_nodes_to_simulate(snapshot), [node])
 		)
 	)

@@ -13,65 +13,65 @@ func suite() -> void:
 				[node, "position", Vector3.ZERO],
 				[node, "scale", Vector3.ONE]
 			], [node])
-			
+
 			expect_empty(_Snapshot.make_patch(snapshot, snapshot))
 		)
-		
+
 		test("should include differing property", func():
 			var from := _Snapshot.of(0, [
 				[node, "position", Vector3.ZERO],
 				[node, "scale", Vector3.ONE]
 			], [node])
-			
+
 			var to := _Snapshot.of(0, [
 				[node, "position", Vector3.ONE],
 				[node, "scale", Vector3.ONE]
 			], [node])
-			
+
 			var expected := _Snapshot.of(0, [
 				[node, "position", Vector3.ONE]
 			], [node])
-			
+
 			expect_equal(_Snapshot.make_patch(from, to), expected)
 		)
-		
+
 		test("should include new property", func():
 			var from := _Snapshot.of(0, [
 				[node, "position", Vector3.ZERO]
 			], [node])
-			
+
 			var to := _Snapshot.of(0, [
 				[node, "position", Vector3.ZERO],
 				[node, "scale", Vector3.ONE]
 			], [node])
-			
+
 			var expected := _Snapshot.of(0, [
 				[node, "scale", Vector3.ONE]
 			], [node])
-			
+
 			expect_equal(_Snapshot.make_patch(from, to), expected)
 		)
-		
+
 		test("patch should yield `to` on merge", func():
 			var from := _Snapshot.of(0, [
 				[node, "position", Vector3.ZERO],
 				[node, "scale", Vector3.ONE]
 			], [node])
-			
+
 			var to := _Snapshot.of(0, [
 				[node, "position", Vector3.ONE],
 				[node, "scale", Vector3.ONE]
 			], [node])
-			
+
 			var patch := _Snapshot.make_patch(from, to)
 			var applied := from.duplicate()
 			applied.tick = to.tick
 			applied.merge(patch)
-			
+
 			expect_equal(applied, to)
 		)
 	)
-	
+
 	define("merge()", func():
 		test("auth should override non-auth", func():
 			var snapshot := _Snapshot.of(0, [
