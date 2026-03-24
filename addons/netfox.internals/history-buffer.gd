@@ -44,13 +44,12 @@ func pop() -> Variant:
 	_tail += 1
 	return value
 
-# TODO: Tests
 func values() -> Array:
 	var result := []
-	for i in _buffer.size():
-		if i == _previous[i]:
-			result.append(_buffer[i])
-	return []
+	for i in range(_tail, _head + 1):
+		if i == _previous[i % _capacity]:
+			result.append(_buffer[i % _capacity])
+	return result
 
 func set_at(at: int, value: Variant) -> void:
 	# Why does this need so many branches?

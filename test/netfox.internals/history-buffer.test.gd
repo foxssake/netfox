@@ -67,3 +67,21 @@ func suite() -> void:
 			expect_equal(buffer.size(), 1)
 		)
 	)
+
+	define("values()", func():
+		test("should return empty", func():
+			var buffer := empty_buffer.duplicate()
+			expect_equal(buffer.values(), [])
+		)
+
+		test("should return empty after clear", func():
+			var buffer := filled_buffer.duplicate()
+			buffer.clear()
+			expect_equal(buffer.values(), [])
+		)
+
+		test("should skip gaps", func():
+			var buffer := _HistoryBuffer.of(16, { 2: "hello", 4: "world", 15: "!"})
+			expect_equal(buffer.values(), ["hello", "world", "!"])
+		)
+	)
