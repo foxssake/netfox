@@ -9,6 +9,18 @@
 [sub_resource type="SphereShape3D" id="SphereShape3D_pc5j5"]
 radius = 0.25
 
+[sub_resource type="Animation" id="Animation_wy47u"]
+resource_name = "birth"
+length = 0.0833375
+step = 0.0416667
+tracks/0/type = "scale_3d"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Pivot")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = PackedFloat32Array(0, 1, 0.005, 0.005, 0.005, 0.0833333, 1, 1, 1, 1)
+
 [sub_resource type="Animation" id="Animation_e2wbv"]
 resource_name = "idle"
 loop_mode = 1
@@ -38,18 +50,6 @@ tracks/1/keys = {
 "values": [Vector3(0, 0.523599, 0.523599), Vector3(0, 0, -0.523599), Vector3(0, 0.523599, 0.523599)]
 }
 
-[sub_resource type="Animation" id="Animation_wy47u"]
-resource_name = "birth"
-length = 0.166671
-step = 0.0416667
-tracks/0/type = "scale_3d"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Pivot")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = PackedFloat32Array(0, 1, 0.005, 0.005, 0.005, 0.166667, 1, 1, 1, 1)
-
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_2erlr"]
 _data = {
 "birth": SubResource("Animation_wy47u"),
@@ -66,7 +66,7 @@ animation = &"idle"
 advance_mode = 2
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_m7ofg"]
-xfade_time = 0.25
+xfade_time = 0.05
 switch_mode = 2
 advance_mode = 2
 
@@ -86,10 +86,10 @@ strength = 4.0
 effect = ExtResource("2_r3c2e")
 
 [node name="Pivot" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -0.988852, -0.148903, 0, 0.148903, -0.988852, 0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 0.925881, 0.377815, 0, -0.377815, 0.925881, 0, 0, 0)
 
 [node name="bomb" parent="Pivot" instance=ExtResource("1_lr6uq")]
-transform = Transform3D(0.869442, 0.494023, 0.00344252, -0.494026, 0.869448, 0, -0.00299309, -0.00170069, 0.999994, 0, -0.226921, 0)
+transform = Transform3D(0.777802, -0.404681, 0.480892, 0.461554, 0.887113, 0, -0.426606, 0.221958, 0.876779, 0, -0.226921, 0)
 
 [node name="PredictiveSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("4_wlsqx")

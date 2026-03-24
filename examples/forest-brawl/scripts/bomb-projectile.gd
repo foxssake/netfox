@@ -17,6 +17,9 @@ var ghost_cooldown := 1
 @onready var _original_mask := collision_mask
 @onready var _logger := NetfoxLogger.new("fb", self.name)
 
+var _explosion: Node3D = null
+var _exploded_tick: int = -1
+
 func _ready():
 	distance_left = distance
 	animation_player.speed_scale = speed / 8. # Adapt animation to move speed
@@ -32,9 +35,9 @@ func _ready():
 	tick_interpolator.push_state()
 
 	# Hide for a bit so birth anim can kick in
-	hide()
-	await get_tree().create_timer(.05).timeout
-	show()
+#	hide()
+#	await get_tree().create_timer(.05).timeout
+#	show()
 
 func _rollback_tick(dt: float, _t: int, _if: bool) -> void:
 	var dst := speed * dt
@@ -80,9 +83,15 @@ func _rollback_despawn() -> void:
 func _is_ghost() -> bool:
 	return ghost_cooldown > 0
 
-func _explode():
+func _explode(tick: int = NetworkRollback.tick):
 	RollbackLivenessServer.despawn(self)
-	return
+	
+	if _exploded_tick == tick and is_instance_valid(_explosion):
+		_explosion.global_position = global_position
+		return
+
+	if _explosion:
+		_explosion.queue_free()
 
 	if effect:
 		var spawn = effect.instantiate() as Node3D
@@ -90,3 +99,7 @@ func _explode():
 		spawn.global_position = global_position
 		spawn.fired_by = fired_by
 		spawn.set_multiplayer_authority(get_multiplayer_authority())
+		
+		_explosion = spawn
+
+	_exploded_tick = tick
