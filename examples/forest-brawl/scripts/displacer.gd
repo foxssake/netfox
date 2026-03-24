@@ -1,39 +1,66 @@
 extends Node3D
+class_name Displacer
 
 @export var duration: float = 0.5
 @export var strength: float = 1.0
 @export var shape: Shape3D = SphereShape3D.new()
 
-var birth_tick: int
-var death_tick: int
-var despawn_tick: int
+var time_remaining := duration
 var fired_by: Node
 
 var _logger := NetfoxLogger.new("fb", "Displacer")
 
-func _ready():
-	birth_tick = NetworkTime.tick
-	death_tick = birth_tick + NetworkTime.seconds_to_ticks(duration)
-	despawn_tick = death_tick + NetworkRollback.history_limit
+static var _displacers := _Set.new()
 
-	NetworkRollback.on_process_tick.connect(_rollback_tick)
-	NetworkTime.on_tick.connect(_tick)
+static func all() -> Array[Displacer]:
+	var result := [] as Array[Displacer]
+	result.assign(_displacers.values())
+	return result
 
-	# Run from birth tick on next loop
-	NetworkRollback.notify_resimulation_start(birth_tick)
+func is_overlapping(target: BrawlerController) -> bool:
+	# TODO: Use physics eventually
+	return global_position.distance_to(target.global_position) < (shape as SphereShape3D).radius
 
-	(func():
-		_logger.debug("Created explosion at %s@%d", [global_position, birth_tick])
-	).call_deferred()
-
-func _rollback_tick(tick: int):
-	if tick < birth_tick or tick > death_tick:
-		# Tick outside of range
+func apply_to(target: BrawlerController) -> void:
+	# This should not happen, users should call `all()` to iterate currently
+	# active displacers
+#	assert(RollbackLivenessServer.is_alive(self, NetworkRollback.tick), "Applying inactive displacer!")
+	if not RollbackLivenessServer.is_alive(self, NetworkRollback.tick):
+		return
+		
+	var strength_factor := time_remaining / duration
+	strength_factor = clampf(strength_factor, 0., 1.)
+	strength_factor = pow(strength_factor, 2) * 4.
+	
+	var delta := target.global_position - global_position
+	var f := clampf(1.0 / (1.0 + delta.length_squared()), 0.0, 1.0)
+	if is_zero_approx(f):
 		return
 
-	var strength_factor := inverse_lerp(death_tick, birth_tick, tick)
+	var offset := Vector3(delta.x, max(0, delta.y), delta.z).normalized()
+	offset *= strength_factor * strength * f * NetworkTime.ticktime
+
+	target.shove(offset)
+
+	if target != fired_by:
+		target.register_hit(fired_by)
+	
+func _enter_tree():
+	_displacers.add(self)
+
+func _exit_tree():
+	_displacers.erase(self)
+
+func _rollback_tick(dt: float, _t: int, _if: bool) -> void:
+	time_remaining -= dt
+	if time_remaining < 0.:
+		RollbackLivenessServer.despawn(self)
+		return
+	return
+
+	var strength_factor := time_remaining / duration
 	strength_factor = clampf(strength_factor, 0., 1.)
-	strength_factor = pow(strength_factor, 2)
+	strength_factor = pow(strength_factor, 2) * 8
 
 	for brawler in _get_overlapping_brawlers():
 		var diff := brawler.global_position - global_position
@@ -43,20 +70,25 @@ func _rollback_tick(tick: int):
 		offset *= strength_factor * strength * f * NetworkTime.ticktime
 
 		brawler.shove(offset)
-		NetworkRollback.mutate(brawler)
+		# NetworkRollback.mutate(brawler)
 
 		if brawler != fired_by:
 			brawler.register_hit(fired_by)
 
-func _tick(_delta, tick):
-	if tick >= death_tick:
-		visible = false
+func _rollback_spawn() -> void:
+	show()
+	_displacers.add(self)
 
-	if tick > despawn_tick:
-		queue_free()
+func _rollback_despawn() -> void:
+	hide()
+	_displacers.erase(self)
 
 func _get_overlapping_brawlers() -> Array[BrawlerController]:
 	var result: Array[BrawlerController] = []
+	for brawler in BrawlerController.all():
+		if global_position.distance_to(brawler.global_position) < (shape as SphereShape3D).radius:
+			result.append(brawler)
+	return result
 
 	var state := get_world_3d().direct_space_state
 	var query := PhysicsShapeQueryParameters3D.new()

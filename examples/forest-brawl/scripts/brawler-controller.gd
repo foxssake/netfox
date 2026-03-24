@@ -46,6 +46,9 @@ func register_hit(from: BrawlerController):
 func shove(motion: Vector3):
 	move_and_collide(motion / mass)
 
+func _exit_tree():
+	GameEvents.on_brawler_despawn.emit(self)
+
 func _ready():
 	if not input:
 		input = $Input
@@ -65,6 +68,7 @@ func _ready():
 	material.albedo_color = color
 	mesh.set_surface_override_material(0, material)
 
+	# Specify schema
 	rollback_synchronizer.set_schema({
 		":transform": NetworkSchemas.transform3f32(),
 		":velocity": NetworkSchemas.vec3f32(),
@@ -72,7 +76,8 @@ func _ready():
 		":mass": NetworkSchemas.float32(),
 
 		"Input:movement": NetworkSchemas.vec3f32(),
-		"Input:aim": NetworkSchemas.vec3f32()
+		"Input:aim": NetworkSchemas.vec3f32(),
+		"Input:is_firing": NetworkSchemas.bool8()
 	})
 
 func _process(delta):
@@ -111,6 +116,11 @@ func _rollback_tick(delta, tick, is_fresh):
 
 		if is_fresh:
 			GameEvents.on_brawler_respawn.emit(self)
+
+	# Apply displacementatus
+	for displacer in Displacer.all():
+		if displacer.is_overlapping(self):
+			displacer.apply_to(self)
 
 	# Skip predictions
 	if rollback_synchronizer.is_predicting():
@@ -164,9 +174,6 @@ func _rollback_tick(delta, tick, is_fresh):
 		fall_sound.play_random()
 
 		GameEvents.on_brawler_fall.emit(self)
-
-func _exit_tree():
-	GameEvents.on_brawler_despawn.emit(self)
 
 func _snap_to_spawn():
 	var spawns = get_tree().get_nodes_in_group("Spawn Points")
