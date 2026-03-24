@@ -3,9 +3,18 @@ extends VestTest
 func get_suite_name() -> String:
 	return "RollbackSimulationServer"
 
+var testing_servers: TestingServers
+var simulation_server: RollbackSimulationServer
+
 func before_case(__):
 	# Makes sure local peer is 1, otherwise identifiers get random local IDs
 	Vest.get_tree().root.multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
+
+	testing_servers = await TestingServers.create()
+	simulation_server = testing_servers.simulation_server()
+
+func after_case(__):
+	testing_servers.queue_free()
 
 func suite() -> void:
 	define("is_predicting()", func():
@@ -15,9 +24,9 @@ func suite() -> void:
 			var input_snapshot := _Snapshot.of(1, [[input_node, "name", "Input"]], [])
 
 			state_node.set_multiplayer_authority(2)
-			RollbackSimulationServer.register_rollback_input_for(state_node, input_node)
+			simulation_server.register_rollback_input_for(state_node, input_node)
 
-			expect(RollbackSimulationServer._is_predicting(input_snapshot, state_node))
+			expect(simulation_server._is_predicting(input_snapshot, state_node))
 		)
 
 		test("should predict owned node without input", func():
@@ -25,9 +34,9 @@ func suite() -> void:
 			var state_node := await get_node()
 			var input_node := await get_node()
 
-			RollbackSimulationServer.register_rollback_input_for(state_node, input_node)
+			simulation_server.register_rollback_input_for(state_node, input_node)
 
-			expect(RollbackSimulationServer._is_predicting(input_snapshot, state_node))
+			expect(simulation_server._is_predicting(input_snapshot, state_node))
 		)
 
 		test("should predict non-owned inputless", func():
@@ -36,14 +45,14 @@ func suite() -> void:
 
 			state_node.set_multiplayer_authority(2)
 
-			expect(RollbackSimulationServer._is_predicting(input_snapshot, state_node))
+			expect(simulation_server._is_predicting(input_snapshot, state_node))
 		)
 
 		test("should not predict owned inputless", func():
 			var input_snapshot := _Snapshot.new(0)
 			var state_node := await get_node()
 
-			expect_not(RollbackSimulationServer._is_predicting(input_snapshot, state_node))
+			expect_not(simulation_server._is_predicting(input_snapshot, state_node))
 		)
 
 		test("should not predict owned with input", func():
@@ -51,9 +60,9 @@ func suite() -> void:
 			var input_node := await get_node()
 			var input_snapshot := _Snapshot.of(1, [[input_node, "name", "Input"]], [input_node])
 
-			RollbackSimulationServer.register_rollback_input_for(state_node, input_node)
+			simulation_server.register_rollback_input_for(state_node, input_node)
 
-			expect_not(RollbackSimulationServer._is_predicting(input_snapshot, state_node))
+			expect_not(simulation_server._is_predicting(input_snapshot, state_node))
 		)
 	)
 
@@ -62,48 +71,48 @@ func suite() -> void:
 			var node := RewindableNode.new()
 			var input_node := Node.new()
 
-			var server := _RollbackSimulationServer.new()
-			server.register(node._rollback_tick)
-			server.register_rollback_input_for(node, input_node)
+			simulation_server.register(node._rollback_tick)
+			simulation_server.register_rollback_input_for(node, input_node)
 
 			var snapshot := _Snapshot.new(1)
 
-			expect_empty(server._get_nodes_to_simulate(snapshot))
+			expect_empty(simulation_server._get_nodes_to_simulate(snapshot))
 		)
 
 		test("should simulate with input", func():
 			var node := RewindableNode.new()
 			var input_node := Node.new()
 
-			var server := _RollbackSimulationServer.new()
-			server.register(node._rollback_tick)
-			server.register_rollback_input_for(node, input_node)
+			simulation_server.register(node._rollback_tick)
+			simulation_server.register_rollback_input_for(node, input_node)
 
 			var snapshot := _Snapshot.new(1)
 			snapshot.set_property(input_node, "editor_description", "Test input node")
 			snapshot.set_auth(input_node, true)
 
-			expect_equal(server._get_nodes_to_simulate(snapshot), [node])
+			expect_equal(simulation_server._get_nodes_to_simulate(snapshot), [node])
 		)
 
 		test("should simulate mutated", func():
 			var node := RewindableNode.new()
 			var input_node := Node.new()
 
-			var server := _RollbackSimulationServer.new()
-			server.register(node._rollback_tick)
-			server.register_rollback_input_for(node, input_node)
+			simulation_server.register(node._rollback_tick)
+			simulation_server.register_rollback_input_for(node, input_node)
 
 			var snapshot := _Snapshot.new(1)
 			NetworkRollback.mutate(node)
 
-			expect_equal(server._get_nodes_to_simulate(snapshot), [node])
+			expect_equal(simulation_server._get_nodes_to_simulate(snapshot), [node])
 		)
 	)
 
 class RewindableNode extends Node:
 	func _rollback_tick(_dt, _t, _if) -> void:
 		pass
+
+	func _to_vest():
+		return "RewindableNode#" + str(get_instance_id())
 
 func get_node() -> Node:
 	var node := Node.new()
