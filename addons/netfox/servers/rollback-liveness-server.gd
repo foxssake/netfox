@@ -34,7 +34,7 @@ func register(subject: Node, respawn_callback: Callable, despawn_callback: Calla
 	_destroy_callback[subject] = destroy_callback
 
 	_applied_liveness[subject] = true
-	spawn(subject)
+	spawn(subject, spawn_tick)
 
 func is_registered(subject: Node) -> bool:
 	return _has_subject(subject)
@@ -48,6 +48,9 @@ func deregister(subject: Node) -> void:
 
 # TODO(test): No ticks, spawn tick only, despawn tick only (???), spawn and despawn tick
 func is_alive(subject: Node, tick: int) -> bool:
+	# Unknown subjects are always alive, don't despawn
+	if not is_registered(subject): return true
+
 	var spawn_at := _spawn_tick.get(subject, tick + 1) as int
 	var despawn_at := _despawn_tick.get(subject, tick + 1) as int
 
