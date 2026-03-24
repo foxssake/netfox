@@ -17,6 +17,13 @@ static func all() -> Array[Displacer]:
 	result.assign(_displacers.values())
 	return result
 
+static func overlapping(target: BrawlerController) -> Array[Displacer]:
+	var result := [] as Array[Displacer]
+	for displacer in _displacers.values():
+		if displacer.is_overlapping(target):
+			result.append(displacer)
+	return result
+
 func is_overlapping(target: BrawlerController) -> bool:
 	# TODO: Use physics eventually
 	return global_position.distance_to(target.global_position) < (shape as SphereShape3D).radius
