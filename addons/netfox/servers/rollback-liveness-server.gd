@@ -25,7 +25,7 @@ static var _logger := NetfoxLogger._for_netfox("RollbackLivenessServer")
 ## Register [param subject] for liveness tracking.
 ## [br][br]
 ## Whenever the subject needs to be (re)spawned or despawned,
-## [param respawn_callback] and [param despawn_callback] will be called, 
+## [param respawn_callback] and [param despawn_callback] will be called,
 ## respectively. Once it is sure that the subject won't be respawned,
 ## [param destroy_callback] will be called.
 ## [br][br]
@@ -106,7 +106,7 @@ func restore_liveness(tick: int) -> void:
 ## Destroy all dead subjects that won't be respawned.
 ## [br][br]
 ## [param threshold_tick] specifies the tick beyond which no rollback
-## will occur. By default, this is [member _NetworkRollback.history_start], 
+## will occur. By default, this is [member _NetworkRollback.history_start],
 ## because no ticks before that will be resimulated.
 func destroy_old_subjects(threshold_tick: int = NetworkRollback.history_start) -> void:
 	var old_subjects := []
