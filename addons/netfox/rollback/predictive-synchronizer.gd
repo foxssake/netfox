@@ -30,7 +30,7 @@ var _liveness_nodes: Array[Node] = []
 var _properties_dirty: bool = false
 
 ## Process settings.
-##
+## [br][br]
 ## Call this after any change to configuration.
 func process_settings() -> void:
 	# Deregister all nodes we've registered previously
@@ -65,6 +65,34 @@ func process_settings() -> void:
 	# Simulated notes to participate in rollback
 	for node in _sim_nodes:
 		RollbackSimulationServer.register(NetworkRollback._get_rollback_method(node))
+
+## Mark the spawn tick for all nodes managed by this synchronizer.
+## [br][br]
+## When rewinding to a tick earlier than the spawn tick, every managed node will
+## be deactivated.
+func spawn(p_tick: int = NetworkRollback.tick) -> void:
+	for node in _liveness_nodes:
+		RollbackLivenessServer.spawn(node, p_tick)
+
+## Mark the despawn tick for all nodes managed by this synchronizer.
+## [br][br]
+## When rewinding to a tick later than the despawn tick, every managed node will
+## be deactivated.
+func despawn(p_tick: int = NetworkRollback.tick) -> void:
+	for node in _liveness_nodes:
+		RollbackLivenessServer.despawn(node, p_tick)
+
+## Return true if nodes managed by this synchronizer are alive.
+## [br][br]
+## Note that this method assumes that all node liveness is managed by the 
+## synchronizer. If some node livenesses are handled separately, this method
+## may return the wrong liveness. In that case, use
+## [method _RollbackLivenessServer.is_alive] and check for individual
+## nodes.
+func is_alive(p_tick: int = NetworkRollback.tick) -> bool:
+	if _liveness_nodes.is_empty():
+		return true
+	return RollbackLivenessServer.is_alive(_liveness_nodes.front(), p_tick)
 
 func _ready() -> void:
 	if Engine.is_editor_hint():

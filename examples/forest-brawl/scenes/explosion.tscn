@@ -94,6 +94,7 @@ script = ExtResource("2_g53bu")
 shape = SubResource("SphereShape3D_ddj8d")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+visible = false
 mesh = SubResource("SphereMesh_k5smf")
 
 [node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="."]

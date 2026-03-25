@@ -8,11 +8,12 @@ class_name BombProjectile
 
 var distance_left: float
 var fired_by: Node
-var ghost_cooldown := 1
+var ghost_cooldown := 0
 
 @onready var animation_player := $AnimationPlayer as AnimationPlayer
 @onready var animation_tree := $AnimationTree as AnimationTree
 @onready var tick_interpolator := $TickInterpolator as TickInterpolator
+@onready var synchronizer := $PredictiveSynchronizer as PredictiveSynchronizer
 
 @onready var _original_mask := collision_mask
 @onready var _logger := NetfoxLogger.new("fb", self.name)
@@ -35,9 +36,11 @@ func _ready():
 	tick_interpolator.push_state()
 
 	# Hide for a bit so birth anim can kick in
-#	hide()
-#	await get_tree().create_timer(.05).timeout
-#	show()
+	# Only `show()` if we haven't exploded by then
+	hide()
+	await get_tree().create_timer(.05).timeout
+	if synchronizer.is_alive(NetworkTime.tick):
+		show()
 
 func _rollback_tick(dt: float, _t: int, _if: bool) -> void:
 	var dst := speed * dt
@@ -46,7 +49,7 @@ func _rollback_tick(dt: float, _t: int, _if: bool) -> void:
 	distance_left -= dst
 
 	if distance_left < 0:
-		RollbackLivenessServer.despawn(self)
+		synchronizer.despawn()
 		return
 
 	# Check if we've hit anyone
@@ -63,7 +66,6 @@ func _rollback_tick(dt: float, _t: int, _if: bool) -> void:
 	if hit_interval[0] != 1.0 or hit_interval[1] != 1.0 and not _is_ghost():
 		# Move to collision
 		position += motion * hit_interval[1]
-#		_logger.info("Collided at %.2f%%, despawning", [hit_interval[1]])
 		_explode()
 	else:
 		position += motion
@@ -84,7 +86,7 @@ func _is_ghost() -> bool:
 	return ghost_cooldown > 0
 
 func _explode(tick: int = NetworkRollback.tick):
-	RollbackLivenessServer.despawn(self)
+	synchronizer.despawn()
 
 	if _exploded_tick == tick and is_instance_valid(_explosion):
 		_explosion.global_position = global_position

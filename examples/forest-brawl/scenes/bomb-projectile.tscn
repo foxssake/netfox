@@ -86,10 +86,10 @@ strength = 4.0
 effect = ExtResource("2_r3c2e")
 
 [node name="Pivot" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.925881, 0.377815, 0, -0.377815, 0.925881, 0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, -0.913728, -0.406326, 0, 0.406326, -0.913728, 0, 0, 0)
 
 [node name="bomb" parent="Pivot" instance=ExtResource("1_lr6uq")]
-transform = Transform3D(0.777802, -0.404681, 0.480892, 0.461554, 0.887113, 0, -0.426606, 0.221958, 0.876779, 0, -0.226921, 0)
+transform = Transform3D(0.890002, 0.455249, 0.0253885, -0.455396, 0.89029, 0, -0.0226031, -0.0115618, 0.999677, 0, -0.226921, 0)
 
 [node name="PredictiveSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("4_wlsqx")

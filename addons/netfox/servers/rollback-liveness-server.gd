@@ -59,6 +59,13 @@ func spawn(subject: Node, tick: int = NetworkRollback.tick) -> void:
 	_spawn_tick[subject] = tick
 
 func despawn(subject: Node, tick: int = NetworkRollback.tick) -> void:
+	if not is_registered(subject):
+		_logger.warning(
+			"Trying to despawn unknown subject: %s; " +
+			"register it first using RollbackLivenessServer.register()",
+			[subject]
+		)
+		return
 	_despawn_tick[subject] = tick
 
 func restore_liveness(tick: int) -> void:
