@@ -84,7 +84,7 @@ func despawn(p_tick: int = NetworkRollback.tick) -> void:
 
 ## Return true if nodes managed by this synchronizer are alive.
 ## [br][br]
-## Note that this method assumes that all node liveness is managed by the 
+## Note that this method assumes that all node liveness is managed by the
 ## synchronizer. If some node livenesses are handled separately, this method
 ## may return the wrong liveness. In that case, use
 ## [method _RollbackLivenessServer.is_alive] and check for individual
