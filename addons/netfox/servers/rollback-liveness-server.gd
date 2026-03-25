@@ -22,6 +22,15 @@ var _applied_liveness := {}
 
 static var _logger := NetfoxLogger._for_netfox("RollbackLivenessServer")
 
+## Register [param subject] for liveness tracking.
+## [br][br]
+## Whenever the subject needs to be (re)spawned or despawned,
+## [param respawn_callback] and [param despawn_callback] will be called, 
+## respectively. Once it is sure that the subject won't be respawned,
+## [param destroy_callback] will be called.
+## [br][br]
+## Note that any [Callable] can be used. This could be a method on the subject
+## itself, or on any other object, e.g. a central orchestrator.
 func register(subject: Node, respawn_callback: Callable, despawn_callback: Callable, destroy_callback: Callable = _free_subject.bind(subject), spawn_tick: int = NetworkRollback.tick) -> void:
 	if is_registered(subject):
 		_logger.warning("Re-registering subject: %s", [subject])
@@ -34,9 +43,14 @@ func register(subject: Node, respawn_callback: Callable, despawn_callback: Calla
 	_applied_liveness[subject] = true
 	spawn(subject, spawn_tick)
 
+## Return true if [param subject] is registered for liveness tracking.
 func is_registered(subject: Node) -> bool:
 	return _has_subject(subject)
 
+## Deregister [param subject] from liveness tracking.
+## [br][br]
+## Note that its liveness will not be updated - if the subject was despawned
+## before being deregistered, it will not be respawned.
 func deregister(subject: Node) -> void:
 	_respawn_callback.erase(subject)
 	_despawn_callback.erase(subject)
@@ -44,6 +58,11 @@ func deregister(subject: Node) -> void:
 	_spawn_tick.erase(subject)
 	_despawn_tick.erase(subject)
 
+## Return true if [param subject] is alive at [param tick].
+## [br][br]
+## Unknown subjects will always be considered alive. [br]
+## If a subject is despawned, it will only become dead on the next tick. This
+## allows the despawn logic to run in rollback.
 func is_alive(subject: Node, tick: int) -> bool:
 	# Unknown subjects are always alive, don't despawn
 	if not is_registered(subject): return true
@@ -55,9 +74,11 @@ func is_alive(subject: Node, tick: int) -> bool:
 	# despawn tick. This is so the deactivating game logic can run in rollback.
 	return tick >= spawn_at and tick <= despawn_at
 
+## Mark the [param subject]'s spawn at [param tick].
 func spawn(subject: Node, tick: int = NetworkRollback.tick) -> void:
 	_spawn_tick[subject] = tick
 
+## Mark the [param subject]'s despawn at [param tick].
 func despawn(subject: Node, tick: int = NetworkRollback.tick) -> void:
 	if not is_registered(subject):
 		_logger.warning(
@@ -68,6 +89,11 @@ func despawn(subject: Node, tick: int = NetworkRollback.tick) -> void:
 		return
 	_despawn_tick[subject] = tick
 
+## Clear any previously set despawn tick for [param subject].
+func clear_despawn(subject: Node) -> void:
+	_despawn_tick.erase(subject)
+
+## Restore the liveness of all subjects as it was on [param tick].
 func restore_liveness(tick: int) -> void:
 	for subject in _subjects():
 		var liveness := is_alive(subject, tick)
@@ -77,6 +103,11 @@ func restore_liveness(tick: int) -> void:
 			else: _despawn_callback[subject].call()
 			_applied_liveness[subject] = liveness
 
+## Destroy all dead subjects that won't be respawned.
+## [br][br]
+## [param threshold_tick] specifies the tick beyond which no rollback
+## will occur. By default, this is [member _NetworkRollback.history_start], 
+## because no ticks before that will be resimulated.
 func destroy_old_subjects(threshold_tick: int = NetworkRollback.history_start) -> void:
 	var old_subjects := []
 	for subject in _subjects():
