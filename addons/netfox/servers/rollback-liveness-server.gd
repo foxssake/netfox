@@ -12,8 +12,6 @@ class_name _RollbackLivenessServer
 ## given tick, and then gets despawned at another. Once the subject is despawned
 ## it can't be spawned again.
 
-# TODO: Merge into NetworkHistoryServer?
-
 var _respawn_callback := {}
 var _despawn_callback := {}
 var _destroy_callback := {}
@@ -46,7 +44,6 @@ func deregister(subject: Node) -> void:
 	_spawn_tick.erase(subject)
 	_despawn_tick.erase(subject)
 
-# TODO(test): No ticks, spawn tick only, despawn tick only (???), spawn and despawn tick
 func is_alive(subject: Node, tick: int) -> bool:
 	# Unknown subjects are always alive, don't despawn
 	if not is_registered(subject): return true

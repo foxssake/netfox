@@ -11,9 +11,8 @@ static func make_patch(from: _Snapshot, to: _Snapshot, tick: int = to.tick) -> _
 	var patch := _Snapshot.new(tick)
 
 	for subject in from.get_subjects():
-		if not is_instance_valid(subject):
-			# TODO: ?!
-			continue
+		assert(is_instance_valid(subject))
+
 		# Target has no knowledge of subject, don't patch
 		if not to.has_subject(subject):
 			continue
@@ -83,9 +82,7 @@ func merge(snapshot: _Snapshot) -> bool:
 	var has_changed := false
 
 	for subject in snapshot._data:
-		if not is_instance_valid(subject):
-			# TODO: ?!
-			continue
+		assert(is_instance_valid(subject))
 
 		if not _data.has(subject):
 			# We have no data of the subject, copy all
@@ -134,7 +131,6 @@ func has_subjects(subjects: Array, require_auth: bool = false) -> bool:
 			return false
 	return true
 
-# TODO: Test
 func erase_subject(subject: Object) -> void:
 	_data.erase(subject)
 	_auth_subjects.erase(subject)

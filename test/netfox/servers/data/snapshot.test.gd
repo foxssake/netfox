@@ -145,3 +145,33 @@ func suite() -> void:
 			], []))
 		)
 	)
+
+	define("erase()", func():
+		test("should remove subject", func():
+			var snapshot := _Snapshot.of(0, [
+				[node, "position", Vector3.ZERO],
+				[node, "quaternion", Quaternion.IDENTITY],
+				[other_node, "position", Vector3.ONE]
+			], [])
+
+			snapshot.erase_subject(node)
+
+			expect_equal(snapshot, _Snapshot.of(0, [
+				[other_node, "position", Vector3.ONE]
+			], []))
+		)
+
+		test("should ignore unknown subject", func():
+			var snapshot := _Snapshot.of(0, [
+				[node, "position", Vector3.ZERO],
+				[node, "quaternion", Quaternion.IDENTITY]
+			], [])
+
+			snapshot.erase_subject(other_node)
+
+			expect_equal(snapshot, _Snapshot.of(0, [
+				[node, "position", Vector3.ZERO],
+				[node, "quaternion", Quaternion.IDENTITY]
+			], []))
+		)
+	)
