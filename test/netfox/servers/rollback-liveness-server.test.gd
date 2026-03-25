@@ -101,11 +101,11 @@ func suite() -> void:
 		)
 	)
 
-	define("free_old_subjects()", func():
+	define("destroy_old_subjects()", func():
 		test("should not free young subject", func():
 			register_subject(subject)
 
-			liveness_server.free_old_subjects(spawn_tick)
+			liveness_server.destroy_old_subjects(spawn_tick)
 			expect_not(subject.is_destroyed, "Should not free subject!")
 		)
 
@@ -113,7 +113,7 @@ func suite() -> void:
 			register_subject(subject)
 			liveness_server.despawn(subject, death_tick)
 
-			liveness_server.free_old_subjects(death_tick + 1)
+			liveness_server.destroy_old_subjects(death_tick + 1)
 			expect(subject.is_destroyed, "Should free subject!")
 		)
 	)

@@ -72,10 +72,6 @@ func deregister(node: Node) -> void:
 			var snapshot := value as _Snapshot
 			snapshot.erase_subject(node)
 
-			# Assert subjects
-			for subject in snapshot.get_subjects():
-				assert(is_instance_valid(subject), "Invalid subject!d")
-
 ## Return the latest tick where any of the [param]subjects[/param] had rollback
 ## state data available
 func get_latest_state_tick_for(subjects: Array, tick: int) -> int:

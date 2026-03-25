@@ -117,7 +117,7 @@ func _rollback_tick(delta, tick, is_fresh):
 		if is_fresh:
 			GameEvents.on_brawler_respawn.emit(self)
 
-	# Apply displacementatus
+	# Apply displacement
 	for displacer in Displacer.overlapping(self):
 		displacer.apply_to(self)
 

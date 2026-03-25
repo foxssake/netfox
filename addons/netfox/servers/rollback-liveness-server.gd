@@ -72,12 +72,12 @@ func restore_liveness(tick: int) -> void:
 	for subject in _subjects():
 		var liveness := is_alive(subject, tick)
 		if _applied_liveness[subject] != liveness:
-			_logger.trace("Restoring %s to %s liveness ( @%s;@%s)", [subject, liveness, _spawn_tick.get(subject), _despawn_tick.get(subject)])
+			_logger.trace("Restoring %s to %s liveness ( @%s;@%s )", [subject, liveness, _spawn_tick.get(subject), _despawn_tick.get(subject)])
 			if liveness: _respawn_callback[subject].call()
 			else: _despawn_callback[subject].call()
 			_applied_liveness[subject] = liveness
 
-func free_old_subjects(threshold_tick: int = NetworkRollback.history_start) -> void:
+func destroy_old_subjects(threshold_tick: int = NetworkRollback.history_start) -> void:
 	var old_subjects := []
 	for subject in _subjects():
 		if _despawn_tick.get(subject, threshold_tick + 1) < threshold_tick:
