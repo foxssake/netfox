@@ -4,6 +4,7 @@ class_name TestingServers
 var _command_server: CommandServer
 var _identity_server: _NetworkIdentityServer
 var _history_server: _NetworkHistoryServer
+var _liveness_server: _RollbackLivenessServer
 var _synchronization_server: _NetworkSynchronizationServer
 var _simulation_server: _RollbackSimulationServer
 
@@ -18,10 +19,11 @@ static func create() -> TestingServers:
 func _ready():
 	_command_server = CommandServer.new()
 	_history_server = _NetworkHistoryServer.new()
+	_liveness_server = _RollbackLivenessServer.new()
 	_identity_server = _NetworkIdentityServer.new(_command_server)
 	_synchronization_server = _NetworkSynchronizationServer.new(_command_server, _history_server, _identity_server, _simulation_server)
-	_simulation_server = _RollbackSimulationServer.new(_history_server)
-	var servers := [_command_server, _history_server, _identity_server, _synchronization_server, _simulation_server]
+	_simulation_server = _RollbackSimulationServer.new(_history_server, _liveness_server)
+	var servers := [_command_server, _history_server, _liveness_server, _identity_server, _synchronization_server, _simulation_server]
 
 	for server in servers:
 		add_child.call_deferred(server)
@@ -37,6 +39,9 @@ func identity_server() -> _NetworkIdentityServer:
 
 func history_server() -> _NetworkHistoryServer:
 	return _history_server
+
+func liveness_server() -> _RollbackLivenessServer:
+	return _liveness_server
 
 func synchronization_server() -> _NetworkSynchronizationServer:
 	return _synchronization_server

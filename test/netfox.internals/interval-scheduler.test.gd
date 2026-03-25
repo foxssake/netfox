@@ -18,7 +18,7 @@ func suite() -> void:
 		expect_true(interval.is_now())
 	)
 
-	test("should schedule on interval", func(): 
+	test("should schedule on interval", func():
 		var interval := _IntervalScheduler.new(3)
 		expect_false(interval.is_now())
 		expect_false(interval.is_now())

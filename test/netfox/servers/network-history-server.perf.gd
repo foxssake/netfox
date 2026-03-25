@@ -13,31 +13,31 @@ func suite():
 		test("%d nodes" % count, func():
 			# Create nodes
 			var nodes := await get_nodes(count)
-			
+
 			# Register nodes
 			idx = 0
 			benchmark("register()", func(__):
 				NetworkHistoryServer.register_rollback_state(nodes[idx], "name")
 				idx += 1
 			).with_iterations(count).with_batch_size(count).run()
-			
+
 			# Record
 			benchmark("record()", func(__):
 				NetworkHistoryServer._record_rollback_state(0)
 			).with_duration(1.).with_batch_size(16).run()
-			
+
 			# Restore
 			benchmark("restore()", func(__):
 				NetworkHistoryServer._restore_rollback_state(0)
 			).with_duration(1.).with_batch_size(16).run()
-			
+
 			# Deregister nodes
 			idx = 0
 			benchmark("deregister()", func(__):
 				NetworkHistoryServer.deregister_rollback_state(nodes[idx], "name")
 				idx += 1
 			).with_iterations(count).with_batch_size(count).run()
-			
+
 			# Free nodes
 			free_nodes(nodes)
 		)

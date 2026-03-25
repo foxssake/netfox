@@ -32,9 +32,9 @@ func suite():
 		graph.link("foo", "baz")
 		graph.link("quix", "baz")
 		graph.link("oof", "foo")
-		
+
 		graph.erase("foo")
-		
+
 		expect_unlinked(graph, "foo", "bar")
 		expect_unlinked(graph, "foo", "baz")
 		expect_unlinked(graph, "oof", "foo")

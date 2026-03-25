@@ -1,35 +1,45 @@
-extends NetworkWeapon3D
+extends Node3D
 class_name BrawlerWeapon
 
 @export var projectile: PackedScene
 @export var fire_cooldown: float = 0.15
 
-@onready var input: BrawlerInput = $"../Input"
+@onready var input := $"../Input" as BrawlerInput
 @onready var sound: AudioStreamPlayer3D = $AudioStreamPlayer3D
+@onready var fire_action := $"Fire Action" as RewindableAction
+@onready var rollback_synchronizer := $"../RollbackSynchronizer" as RollbackSynchronizer
 
-var last_fire: int = -1
+var _last_fired: int = -1
 
-static var _logger := NetfoxLogger.new("fb", "BrawlerWeapon")
+@onready var _logger := NetfoxLogger.new("fb", "BrawlerWeapon:" + owner.name)
 
 func _ready():
-	NetworkTime.on_tick.connect(_tick)
+	fire_action.mutate(self)
 
-func _can_fire() -> bool:
-	return NetworkTime.seconds_between(last_fire, NetworkTime.tick) >= fire_cooldown
+func _can_fire(tick: int) -> bool:
+	return NetworkTime.seconds_between(_last_fired, tick) >= fire_cooldown
 
-func _can_peer_use(peer_id: int) -> bool:
-	return peer_id == input.get_multiplayer_authority()
+func _rollback_tick(_dt: float, tick: int, _if: bool) -> void:
+	if not rollback_synchronizer.is_predicting():
+		# TODO: Document this
+		# NOTE: DO NOT set RewindableAction from a predicted tick, it will
+		# 		conflict with server auth
+		fire_action.set_active(input.is_firing and _can_fire(tick))
 
-func _after_fire(projectile: Node3D):
-	var bomb := projectile as BombProjectile
-	last_fire = get_fired_tick()
-	sound.play()
-
-	_logger.trace("[%s] Ticking new bomb %d -> %d", [bomb.name, get_fired_tick(), NetworkTime.tick])
-	for t in range(get_fired_tick(), NetworkTime.tick):
-		if bomb.is_queued_for_deletion():
-			break
-		bomb._tick(NetworkTime.ticktime, t)
+	match fire_action.get_status():
+		RewindableAction.CONFIRMING, RewindableAction.ACTIVE:
+			if not fire_action.has_context():
+				_logger.info("Firing")
+				var spawn := _spawn()
+				fire_action.set_context(spawn)
+				sound.play()
+			_last_fired = tick
+		RewindableAction.CANCELLING:
+			if fire_action.has_context():
+				_logger.info("Unfiring")
+				var spawn := fire_action.get_context() as Node3D
+				spawn.queue_free()
+				fire_action.erase_context()
 
 func _spawn() -> Node3D:
 	var bomb_projectile: BombProjectile = projectile.instantiate() as BombProjectile
@@ -38,7 +48,3 @@ func _spawn() -> Node3D:
 	bomb_projectile.fired_by = get_parent()
 
 	return bomb_projectile
-
-func _tick(_delta: float, _t: int):
-	if input.is_firing:
-		fire()

@@ -181,8 +181,8 @@ static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("NetworkRollback")
 ## Submit the resimulation start tick for the current loop.
 ##
 ## This is used to determine the resimulation range during each loop.
-func notify_resimulation_start(tick: int) -> void:
-	_resim_from = min(_resim_from, tick)
+func notify_resimulation_start(p_tick: int) -> void:
+	_resim_from = min(_resim_from, p_tick)
 
 ## Submit node for simulation.
 ##
@@ -201,17 +201,38 @@ func notify_simulated(node: Node) -> void:
 func is_simulated(node: Node) -> bool:
 	return _simulated_nodes.has(node)
 
-## Check if a network rollback is currently active.
+## Return true if a network rollback is currently active.
 func is_rollback() -> bool:
 	return _is_rollback
 
-## Checks if a given object is rollback-aware, i.e. has the
+## Return true if a given object is rollback-aware, i.e. has the
 ## [code]_rollback_tick[/code] method implemented.
-##
-## This is used by [RollbackSynchronizer] to see if it should simulate the
-## given object during rollback.
+## [br][br]
+## Used by [RollbackSynchronizer] and [PredictiveSynchronizer] to see if they
+## should simulate the given object during rollback.
 func is_rollback_aware(what: Object) -> bool:
-	return what.has_method(&"_rollback_tick")
+	return what.has_method("_rollback_tick")
+
+## Return true if a given object is rollback liveness aware, i.e. has any of the
+## liveness callbacks implemented.
+func is_rollback_liveness_aware(what: Object) -> bool:
+	return is_rollback_spawn_aware(what) or is_rollback_despawn_aware(what) \
+		or is_rollback_destroy_aware(what)
+
+## Return true if [param]what[/param] implements the
+## [code]_rollback_spawn[/code] callback.
+func is_rollback_spawn_aware(what: Object) -> bool:
+	return what.has_method("_rollback_spawn")
+
+## Return true if [param]what[/param] implements the
+## [code]_rollback_despawn[/code] callback.
+func is_rollback_despawn_aware(what: Object) -> bool:
+	return what.has_method("_rollback_despawn")
+
+## Return true if [param]what[/param] implements the
+## [code]_rollback_destroy[/code] callback.
+func is_rollback_destroy_aware(what: Object) -> bool:
+	return what.has_method("_rollback_destroy")
 
 ## Calls the [code]_rollback_tick[/code] method on the target, running its
 ## simulation for the given rollback tick.
@@ -296,6 +317,26 @@ func free_input_submission_data_for(_node: Node) -> void:
 func _get_rollback_method(object: Object) -> Callable:
 	return object._rollback_tick
 
+func _get_rollback_spawn_method(object: Object) -> Callable:
+	if is_rollback_spawn_aware(object):
+		return object._rollback_spawn
+	else:
+		return func(): pass
+
+func _get_rollback_despawn_method(object: Object) -> Callable:
+	if is_rollback_despawn_aware(object):
+		return object._rollback_despawn
+	else:
+		return func(): pass
+
+func _get_rollback_destroy_method(object: Object) -> Callable:
+	if is_rollback_destroy_aware(object):
+		return object._rollback_destroy
+	else:
+		# TODO: Eventually introduce NetworkObjects or smth in
+		# #556/Arbitrary object support
+		return RollbackLivenessServer._free_subject.bind(object)
+
 func _ready():
 	NetfoxLogger.register_tag(_get_rollback_tag)
 	NetworkTime.after_tick_loop.connect(_rollback)
@@ -370,6 +411,7 @@ func _rollback() -> void:
 		on_prepare_tick.emit(tick)
 		NetworkHistoryServer._restore_rollback_input(tick)
 		NetworkHistoryServer._restore_rollback_state(tick)
+		RollbackLivenessServer.restore_liveness(tick)
 		after_prepare_tick.emit(tick)
 
 		# Simulate rollback tick
@@ -393,7 +435,9 @@ func _rollback() -> void:
 	_rollback_stage = _STAGE_AFTER
 	after_loop.emit()
 	NetworkHistoryServer._restore_rollback_state(display_tick)
+	RollbackLivenessServer.restore_liveness(display_tick)
 	RollbackSimulationServer._trim_ticks_simulated(history_start)
+	RollbackLivenessServer.destroy_old_subjects(history_start)
 
 	# Cleanup
 	_mutated_nodes.clear()

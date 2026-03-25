@@ -75,6 +75,7 @@ func read_from(peer: int, properties: _PropertyPool, buffer: StreamPeerBuffer, i
 			_logger.warning("Received unknown identity reference %s, skipping data", [idref])
 			continue
 		var node := identifier.get_subject() as Node
+		assert(is_instance_valid(node), "Where node?")
 
 		# Read properties
 		for property in properties.get_properties_of(node):

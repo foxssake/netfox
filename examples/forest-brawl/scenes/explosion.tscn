@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://6212jkmbikjq"]
+[gd_scene load_steps=18 format=3 uid="uid://6212jkmbikjq"]
 
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/displacer.gd" id="1_acukw"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/explosion.gd" id="2_g53bu"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/play-random-3d.gd" id="4_vsx6y"]
 [ext_resource type="AudioStream" uid="uid://dk44nxlwr3m1o" path="res://examples/forest-brawl/sounds/boom2.wav" id="5_yr2wj"]
 [ext_resource type="AudioStream" uid="uid://yyc2x2137nqa" path="res://examples/forest-brawl/sounds/boom3.wav" id="6_fihgd"]
+[ext_resource type="Script" path="res://addons/netfox/rollback/predictive-synchronizer.gd" id="7_c7hrr"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_0scc6"]
 radius = 2.0
@@ -56,6 +57,8 @@ radius = 2.0
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6rsal"]
 transparency = 1
 albedo_color = Color(1, 0, 0, 0.25098)
+proximity_fade_enabled = true
+proximity_fade_distance = 0.25
 
 [sub_resource type="SphereMesh" id="SphereMesh_k5smf"]
 material = SubResource("StandardMaterial3D_6rsal")
@@ -70,7 +73,9 @@ strength = 64.0
 shape = SubResource("SphereShape3D_0scc6")
 
 [node name="Explosion Particles" type="CPUParticles3D" parent="."]
+emitting = false
 amount = 32
+one_shot = true
 explosiveness = 0.8
 local_coords = true
 mesh = SubResource("SphereMesh_5d23i")
@@ -96,3 +101,8 @@ mesh = SubResource("SphereMesh_k5smf")
 autoplay = true
 script = ExtResource("4_vsx6y")
 sounds = Array[AudioStream]([ExtResource("3_kw7x7"), ExtResource("5_yr2wj"), ExtResource("6_fihgd")])
+
+[node name="PredictiveSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("7_c7hrr")
+root = NodePath("..")
+state_properties = Array[String]([":time_remaining"])

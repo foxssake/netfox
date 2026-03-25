@@ -46,6 +46,7 @@ func ensure_snapshot(tick: int, subject: Object, carry_forward: bool) -> _Object
 		else:
 			history.set_at(tick, _ObjectSnapshot.new(subject))
 
+	# NOTE: This can happen if tick too old
 	assert(history.get_at(tick) != null, "Failed to ensure snapshot!")
 	return history.get_at(tick) as _ObjectSnapshot
 

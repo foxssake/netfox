@@ -35,7 +35,7 @@ func suite():
 		)
 	)
 
-	test("should return true only on the first tick", func(): 
+	test("should return true only on the first tick", func():
 		# Activate input
 		Input.action_press(action)
 		# Process

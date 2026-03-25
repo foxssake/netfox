@@ -200,6 +200,10 @@ const AUTOLOADS: Array[Dictionary] = [
 	{
 		"name": "NetworkCommandServer",
 		"path": ROOT + "/servers/network-command-server.gd"
+	},
+	{
+		"name": "RollbackLivenessServer",
+		"path": ROOT + "/servers/rollback-liveness-server.gd"
 	}
 ]
 

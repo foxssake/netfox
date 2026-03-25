@@ -16,6 +16,7 @@ class_name BrawlerController
 @onready var rollback_synchronizer := $RollbackSynchronizer as RollbackSynchronizer
 @onready var animation_tree := $AnimationTree as AnimationTree
 @onready var weapon := $Weapon as BrawlerWeapon
+@onready var fire_action := $"Weapon/Fire Action" as RewindableAction
 @onready var mesh := $"bomber-guy/rig/Skeleton3D/Cube_008" as MeshInstance3D
 @onready var nametag := $Nametag as Label3D
 @onready var fall_sound := $"Fall Sound" as PlayRandomStream3D
@@ -45,6 +46,9 @@ func register_hit(from: BrawlerController):
 func shove(motion: Vector3):
 	move_and_collide(motion / mass)
 
+func _exit_tree():
+	GameEvents.on_brawler_despawn.emit(self)
+
 func _ready():
 	if not input:
 		input = $Input
@@ -52,7 +56,7 @@ func _ready():
 	_snap_to_spawn()
 
 	GameEvents.on_brawler_spawn.emit(self)
-	NetworkTime.on_tick.connect(_tick)
+	NetworkTime.after_tick_loop.connect(_after_tick_loop)
 
 	if not player_name:
 		player_name = "Nameless Brawler #%s" % [player_id]
@@ -64,6 +68,7 @@ func _ready():
 	material.albedo_color = color
 	mesh.set_surface_override_material(0, material)
 
+	# Specify schema
 	rollback_synchronizer.set_schema({
 		":transform": NetworkSchemas.transform3f32(),
 		":velocity": NetworkSchemas.vec3f32(),
@@ -71,7 +76,8 @@ func _ready():
 		":mass": NetworkSchemas.float32(),
 
 		"Input:movement": NetworkSchemas.vec3f32(),
-		"Input:aim": NetworkSchemas.vec3f32()
+		"Input:aim": NetworkSchemas.vec3f32(),
+		"Input:is_firing": NetworkSchemas.bool8()
 	})
 
 func _process(delta):
@@ -96,10 +102,10 @@ func _process(delta):
 	animation_tree.set("parameters/MoveScale/scale", speed / 3.75)
 	animation_tree.set("parameters/ThrowScale/scale", min(weapon.fire_cooldown / (10. / 24.), 1.0))
 
-func _tick(_delta, tick):
-	# Run throw animation if firing
-	if weapon.last_fire == tick:
-		animation_tree.set("parameters/Throw/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
+func _after_tick_loop():
+	# Play anim if we have thrown a bomb
+	if fire_action.has_confirmed():
+			animation_tree.set("parameters/Throw/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
 
 func _rollback_tick(delta, tick, is_fresh):
 	# Respawn
@@ -110,6 +116,10 @@ func _rollback_tick(delta, tick, is_fresh):
 
 		if is_fresh:
 			GameEvents.on_brawler_respawn.emit(self)
+
+	# Apply displacement
+	for displacer in Displacer.overlapping(self):
+		displacer.apply_to(self)
 
 	# Skip predictions
 	if rollback_synchronizer.is_predicting():
@@ -163,9 +173,6 @@ func _rollback_tick(delta, tick, is_fresh):
 		fall_sound.play_random()
 
 		GameEvents.on_brawler_fall.emit(self)
-
-func _exit_tree():
-	GameEvents.on_brawler_despawn.emit(self)
 
 func _snap_to_spawn():
 	var spawns = get_tree().get_nodes_in_group("Spawn Points")

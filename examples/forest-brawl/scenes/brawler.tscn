@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://wi4owat0bml3"]
+[gd_scene load_steps=29 format=3 uid="uid://wi4owat0bml3"]
 
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/brawler-controller.gd" id="1_np8na"]
 [ext_resource type="Script" path="res://examples/forest-brawl/scripts/brawler-input.gd" id="2_m3v43"]
@@ -12,6 +12,7 @@
 [ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="7_cmfmx"]
 [ext_resource type="PackedScene" uid="uid://fctd5hkxnf2y" path="res://examples/forest-brawl/models/player/bomber-guy.glb" id="7_ij3cr"]
 [ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="8_pj7o0"]
+[ext_resource type="Script" path="res://addons/netfox/rewindable-action.gd" id="11_cac4q"]
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_gdp4i"]
 animation = &"Float"
@@ -143,14 +144,16 @@ fire_cooldown = 0.5
 [node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="Weapon"]
 stream = ExtResource("6_gh8ps")
 
+[node name="Fire Action" type="Node" parent="Weapon"]
+script = ExtResource("11_cac4q")
+
 [node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("7_cmfmx")
 root = NodePath("..")
 enable_prediction = true
-state_properties = Array[String]([":transform", ":velocity", ":speed", ":mass"])
-full_state_interval = 24
+state_properties = Array[String]([":transform", ":velocity", ":speed", ":mass", "Weapon:_last_fired"])
 diff_ack_interval = 4
-input_properties = Array[String](["Input:movement", "Input:aim"])
+input_properties = Array[String](["Input:movement", "Input:aim", "Input:is_firing"])
 enable_input_broadcast = false
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]

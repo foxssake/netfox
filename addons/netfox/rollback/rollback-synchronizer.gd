@@ -60,10 +60,10 @@ var visibility_filter := PeerVisibilityFilter.new()
 var _state_properties := _PropertyPool.new()
 var _input_properties := _PropertyPool.new()
 var _sim_nodes := [] as Array[Node]
+var _liveness_nodes := [] as Array[Node]
 var _schema_nodes := _Set.new()
 
 var _properties_dirty: bool = false
-var _property_cache := PropertyCache.new(root)
 
 static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("RollbackSynchronizer")
 
@@ -77,26 +77,26 @@ func process_settings() -> void:
 		RollbackSimulationServer.deregister_node(node)
 	_sim_nodes.clear()
 
-	# Clear
-	_property_cache.root = root
-	_property_cache.clear()
-
 	process_authority()
 
-	# Gather all rollback-aware nodes to simulate during rollbacks
-	var nodes := root.find_children("*") as Array[Node]
-	nodes.push_front(root)
-	nodes = nodes.filter(func(it): return NetworkRollback.is_rollback_aware(it))
-	nodes.erase(self)
+	# Register nodes for simulation and liveness
+	var managed_nodes := [root] + root.find_children("*")
+	for node in managed_nodes:
+		if NetworkRollback.is_rollback_aware(node):
+			RollbackSimulationServer.register(NetworkRollback._get_rollback_method(node))
+			_sim_nodes.append(node)
 
-	# Register simulation callbacks
-	for node in nodes:
-		RollbackSimulationServer.register(NetworkRollback._get_rollback_method(node))
-		_sim_nodes.append(node)
+		if NetworkRollback.is_rollback_liveness_aware(node) and not RollbackLivenessServer.is_registered(node):
+			var spawn_callback := NetworkRollback._get_rollback_spawn_method(node)
+			var despawn_callback := NetworkRollback._get_rollback_despawn_method(node)
+			var free_callback := NetworkRollback._get_rollback_destroy_method(node)
+
+			RollbackLivenessServer.register(node, spawn_callback, despawn_callback, free_callback)
+			_liveness_nodes.append(node)
 
 	# Both simulated and state nodes depend on all inputs
 	# TODO(#564): Write tests for setups where a node is synchronized but not simulated
-	for node in nodes + _state_properties.get_subjects():
+	for node in _sim_nodes + _state_properties.get_subjects():
 		for input_node in _input_properties.get_subjects():
 			RollbackSimulationServer.register_rollback_input_for(node, input_node)
 
@@ -263,6 +263,34 @@ func get_last_known_input() -> int:
 func get_last_known_state() -> int:
 	return NetworkHistoryServer.get_state_age_for(_state_properties.get_subjects(), NetworkTime.tick)
 
+## Mark the spawn tick for all nodes managed by this synchronizer.
+## [br][br]
+## When rewinding to a tick earlier than the spawn tick, every managed node will
+## be deactivated.
+func spawn(p_tick: int = NetworkRollback.tick) -> void:
+	for node in _liveness_nodes:
+		RollbackLivenessServer.spawn(node, p_tick)
+
+## Mark the despawn tick for all nodes managed by this synchronizer.
+## [br][br]
+## When rewinding to a tick later than the despawn tick, every managed node will
+## be deactivated.
+func despawn(p_tick: int = NetworkRollback.tick) -> void:
+	for node in _liveness_nodes:
+		RollbackLivenessServer.despawn(node, p_tick)
+
+## Return true if nodes managed by this synchronizer are alive.
+## [br][br]
+## Note that this method assumes that all node liveness is managed by the
+## synchronizer. If some node livenesses are handled separately, this method
+## may return the wrong liveness. In that case, use
+## [method _RollbackLivenessServer.is_alive] and check for individual
+## nodes.
+func is_alive(p_tick: int = NetworkRollback.tick) -> bool:
+	if _liveness_nodes.is_empty():
+		return true
+	return RollbackLivenessServer.is_alive(_liveness_nodes.front(), p_tick)
+
 func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
@@ -283,6 +311,9 @@ func _notification(what: int) -> void:
 			NetworkSynchronizationServer.deregister(node)
 			NetworkIdentityServer.deregister_node(node)
 			NetworkHistoryServer.deregister(node)
+
+		for node in _liveness_nodes:
+			RollbackLivenessServer.deregister(node)
 
 func _get_configuration_warnings() -> PackedStringArray:
 	if not root:

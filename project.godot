@@ -35,6 +35,7 @@ NetworkHistoryServer="*res://addons/netfox/servers/network-history-server.gd"
 NetworkSynchronizationServer="*res://addons/netfox/servers/network-synchronization-server.gd"
 NetworkIdentityServer="*res://addons/netfox/servers/network-identity-server.gd"
 NetworkCommandServer="*res://addons/netfox/servers/network-command-server.gd"
+RollbackLivenessServer="*res://addons/netfox/servers/rollback-liveness-server.gd"
 
 [display]
 

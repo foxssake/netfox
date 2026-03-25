@@ -3,7 +3,7 @@
 source sh/shared.sh
 
 MODE="lint"
-FILES="$(find addons/netfox* examples -name '*.gd')"
+FILES="$(find addons/netfox* examples test -name '*.gd')"
 RESULT="ok"
 
 # Fix first if required

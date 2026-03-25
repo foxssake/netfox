@@ -23,7 +23,7 @@ func suite() -> void:
 			benchmark("apply() - %dn/%dp" % [node_count, prop_count], func(__):
 				snapshot.apply()
 			).with_duration(1.).with_batch_size(batch_size).run()
-			
+
 			free_nodes(nodes)
 		)
 
@@ -49,7 +49,7 @@ func suite() -> void:
 			benchmark("merge() - %dn/%dp" % [node_count, prop_count], func(__):
 				base_snapshot.merge(patch_snapshot)
 			).with_duration(1.).with_batch_size(batch_size).run()
-			
+
 			free_nodes(nodes)
 		)
 

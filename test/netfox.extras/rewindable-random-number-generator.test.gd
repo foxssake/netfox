@@ -7,10 +7,10 @@ func suite():
 	test("should generate the same numbers for the same rollback tick in different loop", func():
 		NetworkMocks.in_rollback(func():
 			var rng := RewindableRandomNumberGenerator.new(0)
-			
+
 			NetworkMocks.set_tick(2, 4)
 			var first_batch := range(4).map(func(__): return rng.randi_range(0, 10))
-		
+
 			NetworkMocks.set_tick(3, 4)
 			var second_batch := range(4).map(func(__): return rng.randi_range(0, 10))
 
@@ -24,7 +24,7 @@ func suite():
 
 			NetworkMocks.set_tick(2, 4)
 			var first_batch := range(4).map(func(__): return rng.randi_range(0, 10))
-			
+
 			NetworkMocks.set_tick(2, 2)
 			var second_batch := range(4).map(func(__): return rng.randi_range(0, 10))
 

@@ -55,6 +55,7 @@ func _execute() -> void:
 	var response := await ForestBrawlConnector.nohub().join_lobby(lobby.id)
 	if not response.is_success():
 		status_label.text = "nohub error: %s" % [response.error().message]
+		return
 
 	var address := response.value()
 	print("Joining address: %s" % [address])

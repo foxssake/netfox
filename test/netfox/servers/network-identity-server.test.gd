@@ -12,7 +12,7 @@ var orphan_node: Node
 func before_case(__):
 	# Makes sure local peer is 1, otherwise identifiers get random local IDs
 	Vest.get_tree().root.multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
-	
+
 	command_server = TestingCommandServer.new()
 	identity_server = _NetworkIdentityServer.new(command_server)
 
@@ -46,7 +46,7 @@ func suite() -> void:
 			expect_not_null(identifier)
 			expect_equal(identifier.get_full_name(), "/root/Identified Node")
 		)
-		
+
 		test("should fail on node node in tree", func():
 			# Register node
 			identity_server.register_node(orphan_node)
@@ -73,22 +73,22 @@ func suite() -> void:
 			expect_null(identity_server._get_identifier_of(orphan_node))
 		)
 	)
-	
+
 	define("flush_queue()", func():
 		test("should send ids", func():
 			# Register node
 			identity_server.register_node(node)
-			
+
 			var identifier := identity_server._get_identifier_of(node)
 			var full_name := identifier.get_full_name()
-			
+
 			# Try and resolve some unknown identities
 			identity_server._resolve_reference(2, identifier.reference_for(2))
 			identity_server._resolve_reference(3, identifier.reference_for(3))
-			
+
 			# Flush queue
 			identity_server.flush_queue()
-			
+
 			# Check commands sent
 			expect_equal(command_server.commands_sent.size(), 2)
 			for i in command_server.commands_sent.size():
@@ -99,13 +99,13 @@ func suite() -> void:
 				expect_equal(command[3], MultiplayerPeer.TRANSFER_MODE_RELIABLE)
 		)
 	)
-	
+
 	define("_resolve_reference()", func():
 		test("should return by id", func():
 			# Register node
 			identity_server.register_node(node)
 			var identifier := identity_server._get_identifier_of(node)
-			
+
 			# Resolve
 			var reference := _NetworkIdentityReference.of_id(identifier.get_local_id())
 			expect_equal(identity_server._resolve_reference(1, reference), identifier)
@@ -115,7 +115,7 @@ func suite() -> void:
 			# Register node
 			identity_server.register_node(node)
 			var identifier := identity_server._get_identifier_of(node)
-			
+
 			# Resolve
 			var reference := _NetworkIdentityReference.of_full_name(identifier.get_full_name())
 			expect_equal(identity_server._resolve_reference(1, reference), identifier)
