@@ -38,6 +38,7 @@ nav:
       - 'netfox/tutorials/input-gathering-tips-and-tricks.md'
       - 'netfox/tutorials/predicting-input.md'
       - 'netfox/tutorials/using-rollbacksynchronizer-without-inputs.md'
+      - 'netfox/tutorials/spawning-and-despawning-in-rollback.md'
       - 'netfox/tutorials/modifying-objects-during-rollback.md'
       - 'netfox/tutorials/configuring-properties-from-code.md'
       - 'netfox/tutorials/rollback-caveats.md'
