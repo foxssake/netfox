@@ -29,6 +29,12 @@ export interface StrikeThroughToken {
   content: BBCode;
 }
 
+export interface UrlToken {
+  type: "url";
+  link: string;
+  content: BBCode | undefined;
+}
+
 export interface CodeToken {
   type: "code";
   code: string;
@@ -75,7 +81,7 @@ export interface UnknownToken {
 
 export type BBCodeToken = StringToken | LineBreakToken | 
   ItalicToken | BoldToken | UnderlineToken | StrikeThroughToken |
-  CodeToken | CodeBlockToken |
+  UrlToken | CodeToken | CodeBlockToken |
   MethodToken | ParamToken | MemberToken | ConstantToken | SignalToken |
   UnknownToken;
 
@@ -123,6 +129,12 @@ function parseAst(ast: TagNode[]): BBCodeToken[] {
     else if (node.tag === "s") tokens.push({ type: "s", content: parseAst(node.content as TagNode[]) })
     else if (node.tag === "code") tokens.push({ type: "code", code: node.content?.toString() ?? "" })
     else if (node.tag === "codeblock") tokens.push({ type: "codeblock", code: node.content?.toString() ?? "" })
+    else if (node.tag === "url") {
+      tokens.push({ type: "url", link: node.content?.toString() ?? "", content: undefined })
+    } else if (node.tag.startsWith("url=")) {
+      const link = node.tag.split("=").at(1)!!
+      tokens.push({ type: "url", link, content: parseAst(node.content as TagNode[])})
+    }
     else if (classMethodPattern.test(node.tag)) {
       const hit = classMethodPattern.exec(node.tag)!!
       tokens.push({ type: "method", class: hit[1]!!, name: hit[2]!!})

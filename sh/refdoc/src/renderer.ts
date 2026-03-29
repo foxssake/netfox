@@ -3,14 +3,18 @@ import type { Class } from "./class.types";
 import type { BBCode, BBCodeToken } from "./bb.parser";
 
 export interface Renderer {
-  render(classDB: ClassDB, targetDirectory: string): Promise<void>;
+  render(targetDirectory: string): Promise<void>;
 }
 
 export class MarkdownRenderer implements Renderer {
-  private renderPrivate = false;
+  constructor(
+    private classDB: ClassDB,
+    private renderPrivateMembers: boolean = false,
+    private renderPrivateMethods: boolean = false
+  ) {}
 
-  async render(classDB: ClassDB, targetDirectory: string): Promise<void> {
-    for (const classInfo of classDB.classes) {
+  async render(targetDirectory: string): Promise<void> {
+    for (const classInfo of this.classDB.classes) {
       const file = Bun.file(targetDirectory + "/" + classInfo.name + ".md")
 
       // Clear file before writing
@@ -22,9 +26,9 @@ export class MarkdownRenderer implements Renderer {
       sink.write(
         `# ${classInfo.name}\n\n` +
         `**Inherits:** ${classInfo.inherits}\n\n` +
-        `${this.renderBBCode(classInfo.briefDescription)}\n\n` + 
+        `${await this.renderBBCode(classInfo.briefDescription)}\n\n` + 
         `## Description\n\n` +
-        `${this.renderBBCode(classInfo.description) ?? "No description provided"}\n`)
+        `${await this.renderBBCode(classInfo.description) ?? "No description provided"}\n`)
 
       if (classInfo.tutorials.length) {
         sink.write("\n## Tutorials\n\n")
@@ -43,14 +47,14 @@ export class MarkdownRenderer implements Renderer {
         )
 
         for (const member of classInfo.members)
-          if (!member.isPrivate)
+          if (!member.isPrivate || this.renderPrivateMembers)
             if (member.default)
               sink.write(`| ${member.type} | ${member.name} | \`${member.default}\` |\n`)
             else
               sink.write(`| ${member.type} | ${member.name} |  |\n`)
       }
 
-      if (classInfo.methods.length) {
+      if (this.hasMethods(classInfo)) {
         sink.write(
           `\n## Methods\n\n` +
           `| Return Type | Name |\n` +
@@ -58,6 +62,9 @@ export class MarkdownRenderer implements Renderer {
         )
 
         for (const method of classInfo.methods) {
+          if (method.isPrivate && !this.renderPrivateMembers)
+            continue
+
           const type = method.returnType
           const name = method.name
           const params = method.params.map(p => `${p.type} ${p.name}`).join(", ")
@@ -76,7 +83,7 @@ export class MarkdownRenderer implements Renderer {
 
           sink.write(
             `### ${name} ( ${params} )\n\n` +
-            `${this.renderBBCode(signal.description) ?? "No description provided"}\n\n` + 
+            `${await this.renderBBCode(signal.description) ?? "No description provided"}\n\n` + 
             `---\n\n`
           )
         }
@@ -89,7 +96,7 @@ export class MarkdownRenderer implements Renderer {
           sink.write(
             `### ${constant.name}\n\n` + 
             `= \`${constant.value}\`\n\n` +
-            `${this.renderBBCode(constant.description)}\n\n`
+            `${await this.renderBBCode(constant.description)}\n\n`
           )
       }
 
@@ -102,7 +109,7 @@ export class MarkdownRenderer implements Renderer {
             sink.write(
               `### ${member.type} ${member.name}\n` + 
               (member.default ? `= \`${member.default}\`\n` : "") +
-              `${this.renderBBCode(member.description)}\n\n`
+              `${await this.renderBBCode(member.description)}\n\n`
             )
       }
 
@@ -118,7 +125,7 @@ export class MarkdownRenderer implements Renderer {
 
           sink.write(
             `### ${type} ${name} ( ${params} ) ${qualifiers}\n\n` + 
-            `${this.renderBBCode(description)}\n\n`)
+            `${await this.renderBBCode(description)}\n\n`)
         }
       }
 
@@ -127,7 +134,7 @@ export class MarkdownRenderer implements Renderer {
     }
   }
 
-  private renderBBCode(tokens: BBCode | undefined): string {
+  private async renderBBCode(tokens: BBCode | undefined): Promise<string> {
     if (tokens === undefined) return ""
 
     const result = []
@@ -137,13 +144,19 @@ export class MarkdownRenderer implements Renderer {
       else if(token.type === "br")
         result.push("\n")
       else if(token.type === "i")
-        result.push(`_${this.renderBBCode(token.content)}_`)
+        result.push(`_${await this.renderBBCode(token.content)}_`)
       else if(token.type === "b")
-        result.push(`**${this.renderBBCode(token.content)}**`)
+        result.push(`**${await this.renderBBCode(token.content)}**`)
       else if(token.type === "u")
-        result.push(`_${this.renderBBCode(token.content)}_`)
+        result.push(`_${await this.renderBBCode(token.content)}_`)
       else if(token.type === "s")
-        result.push(`~~${this.renderBBCode(token.content)}~~`)
+        result.push(`~~${await this.renderBBCode(token.content)}~~`)
+      else if(token.type === "url") {
+        if (token.content !== undefined)
+          result.push(`[${await this.renderBBCode(token.content)}](${token.link})`)
+        else
+          result.push(`<${token.link}>`)
+      }
       else if(token.type === "code")
         result.push(`\`${token.code}\``)
       else if(token.type === "codeblock")
@@ -158,22 +171,46 @@ export class MarkdownRenderer implements Renderer {
         result.push(`[${token.class ? token.class + "." : ""}${token.name}](#)`) // TODO: Link
       else if(token.type === "signal")
         result.push(`[${token.class ? token.class + "." : ""}${token.name}()](#)`) // TODO: Link
-      else {
-        result.push(
-          "\n\n```\n" +
-          JSON.stringify(token, undefined, 2) +
-          "\n```\n\n"
-        )
+      else if(token.type === "?") {
+        const className = token.tag.tag
+        const localClass = this.classDB.findByName(className)
+        const externalLink = localClass ? undefined : await this.classDB.lookupExternal(className)
+        if (localClass) {
+          // It's a link to a local class
+          result.push(`[${localClass?.name}](#)`) // TODO: Link
+        } else if (externalLink) {
+          result.push(`[${className}](${externalLink})`)
+        } else {
+          console.error("Failed to lookup class:", token.tag.tag)
+          this.pushUnknown(token, result)
+        }
+      } else {
+        this.pushUnknown(token, result)
       }
     }
 
     return result.join("")
   }
 
+  private pushUnknown(token: BBCodeToken, result: string[]) {
+    result.push(
+      "\n\n```\n" +
+      JSON.stringify(token, undefined, 2) +
+      "\n```\n\n"
+    )
+  }
+
   private hasMembers(classInfo: Class): boolean {
-    if (!this.renderPrivate)
+    if (!this.renderPrivateMembers)
       return classInfo.members.some(m => !m.isPrivate)
     else
       return classInfo.members.length > 0
+  }
+
+  private hasMethods(classInfo: Class): boolean {
+    if (!this.renderPrivateMethods)
+      return classInfo.methods.some(m => !m.isPrivate)
+    else
+      return classInfo.methods.length > 0
   }
 }

@@ -12,8 +12,8 @@ async function main() {
 
   await Bun.file("classdb.json").write(JSON.stringify(classdb.classes, undefined, 2))
 
-  const renderer = new MarkdownRenderer();
-  renderer.render(classdb, "out/");
+  const renderer = new MarkdownRenderer(classdb);
+  renderer.render("out/");
 }
 
 main();

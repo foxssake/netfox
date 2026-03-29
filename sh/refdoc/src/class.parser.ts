@@ -29,7 +29,7 @@ export function parseClass(classDocument: Document): Class {
     description: parseBBCode(e.querySelector("description")?.textContent?.trim()!!),
     returnType: e.querySelector("return")?.getAttribute("type")!!,
     params: parseParams(e),
-    isPrivate: e.getAttribute("name")?.startsWith("_") !== true
+    isPrivate: e.getAttribute("name")?.startsWith("_") === true
   }));
 
   const members: Member[] = [...classDocument.querySelectorAll("members>member")].map(e => ({
