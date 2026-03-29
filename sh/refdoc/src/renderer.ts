@@ -1,5 +1,6 @@
 import type { ClassDB } from "./classdb";
-import type { Class } from "./types";
+import type { Class } from "./class.types";
+import type { BBCode, BBCodeToken } from "./bb.parser";
 
 export interface Renderer {
   render(classDB: ClassDB, targetDirectory: string): Promise<void>;
@@ -11,15 +12,19 @@ export class MarkdownRenderer implements Renderer {
   async render(classDB: ClassDB, targetDirectory: string): Promise<void> {
     for (const classInfo of classDB.classes) {
       const file = Bun.file(targetDirectory + "/" + classInfo.name + ".md")
+
+      // Clear file before writing
+      if (await file.exists()) 
+        await file.write("")
       const sink = file.writer();
 
       // Overview
       sink.write(
         `# ${classInfo.name}\n\n` +
         `**Inherits:** ${classInfo.inherits}\n\n` +
-        `${classInfo.briefDescription}\n\n` + 
+        `${this.renderBBCode(classInfo.briefDescription)}\n\n` + 
         `## Description\n\n` +
-        `${classInfo.description ?? "No description provided"}\n`)
+        `${this.renderBBCode(classInfo.description) ?? "No description provided"}\n`)
 
       if (classInfo.tutorials.length) {
         sink.write("\n## Tutorials\n\n")
@@ -71,7 +76,7 @@ export class MarkdownRenderer implements Renderer {
 
           sink.write(
             `### ${name} ( ${params} )\n\n` +
-            `${signal.description ?? "No description provided"}\n\n` + 
+            `${this.renderBBCode(signal.description) ?? "No description provided"}\n\n` + 
             `---\n\n`
           )
         }
@@ -84,7 +89,7 @@ export class MarkdownRenderer implements Renderer {
           sink.write(
             `### ${constant.name}\n\n` + 
             `= \`${constant.value}\`\n\n` +
-            `${constant.description}\n\n`
+            `${this.renderBBCode(constant.description)}\n\n`
           )
       }
 
@@ -97,7 +102,7 @@ export class MarkdownRenderer implements Renderer {
             sink.write(
               `### ${member.type} ${member.name}\n` + 
               (member.default ? `= \`${member.default}\`\n` : "") +
-              `${member.description}\n\n`
+              `${this.renderBBCode(member.description)}\n\n`
             )
       }
 
@@ -113,13 +118,56 @@ export class MarkdownRenderer implements Renderer {
 
           sink.write(
             `### ${type} ${name} ( ${params} ) ${qualifiers}\n\n` + 
-            `${description}\n\n`)
+            `${this.renderBBCode(description)}\n\n`)
         }
       }
 
       sink.end()
       console.log(`Rendered ${file.name}`)
     }
+  }
+
+  private renderBBCode(tokens: BBCode | undefined): string {
+    if (tokens === undefined) return ""
+
+    const result = []
+    for (const token of tokens) {
+      if (token.type === "string")
+        result.push(token.text)
+      else if(token.type === "br")
+        result.push("\n")
+      else if(token.type === "i")
+        result.push(`_${this.renderBBCode(token.content)}_`)
+      else if(token.type === "b")
+        result.push(`**${this.renderBBCode(token.content)}**`)
+      else if(token.type === "u")
+        result.push(`_${this.renderBBCode(token.content)}_`)
+      else if(token.type === "s")
+        result.push(`~~${this.renderBBCode(token.content)}~~`)
+      else if(token.type === "code")
+        result.push(`\`${token.code}\``)
+      else if(token.type === "codeblock")
+        result.push("\n\n```" + token.code + "```\n\n")
+      else if(token.type === "method")
+        result.push(`[${token.class ? token.class + "." : ""}${token.name}()](#)`) // TODO: Link
+      else if (token.type === "param")
+        result.push(`\`${token.name}\``)
+      else if(token.type === "member")
+        result.push(`[${token.class ? token.class + "." : ""}${token.name}](#)`) // TODO: Link
+      else if(token.type === "constant")
+        result.push(`[${token.class ? token.class + "." : ""}${token.name}](#)`) // TODO: Link
+      else if(token.type === "signal")
+        result.push(`[${token.class ? token.class + "." : ""}${token.name}()](#)`) // TODO: Link
+      else {
+        result.push(
+          "\n\n```\n" +
+          JSON.stringify(token, undefined, 2) +
+          "\n```\n\n"
+        )
+      }
+    }
+
+    return result.join("")
   }
 
   private hasMembers(classInfo: Class): boolean {

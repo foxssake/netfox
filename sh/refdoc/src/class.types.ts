@@ -1,3 +1,4 @@
+import type { BBCode } from "./bb.parser";
 
 export interface Class {
   name: string;
@@ -6,8 +7,8 @@ export interface Class {
   xmlPath: string | undefined;
   srcPath: string| undefined;
 
-  briefDescription: string | undefined;
-  description: string | undefined;
+  briefDescription: BBCode | undefined;
+  description: BBCode | undefined;
 
   tutorials: Tutorial[];
 
@@ -27,7 +28,7 @@ export interface Method {
   name: string;
   qualifiers: string | undefined;
   returnType: string;
-  description: string;
+  description: BBCode;
   params: Parameter[];
   isPrivate: boolean;
 }
@@ -44,7 +45,7 @@ export interface Member {
   setter: string | undefined;
   getter: string | undefined;
   default: string | undefined;
-  description: string;
+  description: BBCode;
   isPrivate: boolean;
 }
 
@@ -52,13 +53,13 @@ export interface Constant {
   name: string;
   value: string;
   enum: string | undefined;
-  description: string;
+  description: BBCode;
   isPrivate: boolean;
 }
 
 export interface Signal {
   name: string;
-  description: string;
+  description: BBCode;
   params: Parameter[];
   isPrivate: boolean;
 }

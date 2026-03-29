@@ -1,6 +1,6 @@
 import { JSDOM } from "jsdom";
-import type { Class } from "./types";
-import { isFileBasedName, parseClass } from "./parser";
+import type { Class } from "./class.types";
+import { isFileBasedName, parseClass } from "./class.parser";
 import { readdir } from "node:fs/promises";
 
 export class ClassDB {

@@ -1,4 +1,5 @@
-import type { Class, Constant, Member, Method, Parameter, Signal, Tutorial } from "./types";
+import { parseBBCode } from "./bb.parser";
+import type { Class, Constant, Member, Method, Parameter, Signal, Tutorial } from "./class.types";
 
 function parseParams(root: Element): Parameter[] {
   return [...root.querySelectorAll("param" as string)].map(e => ({
@@ -13,18 +14,19 @@ export function parseClass(classDocument: Document): Class {
   const className = classTag?.getAttribute("name")!!
   const classInherits = classTag?.getAttribute("inherits")!!
 
-  const briefDescription = classDocument.querySelector("brief_description")?.textContent?.trim();
-  const description = classDocument.querySelector("description")?.textContent?.trim();
+  // TODO: Enable `undefined` values to exist
+  const briefDescription = parseBBCode(classDocument.querySelector("brief_description")?.textContent?.trim() ?? "");
+  const description = parseBBCode(classDocument.querySelector("description")?.textContent?.trim() ?? "");
 
   const tutorials: Tutorial[] = [...classDocument.querySelectorAll("tutorials>link")].map(e => ({
     title: e.getAttribute("title") ?? undefined,
-    link: e.textContent
+    link: e.parentNode?.textContent?.trim()!! // TODO: This will break with multiple tutorials
   }))
 
   const methods: Method[] = [...classDocument.querySelectorAll("methods>method")].map(e => ({
     name: e.getAttribute("name")!!,
     qualifiers: e.getAttribute("qualifiers") ?? undefined,
-    description: e.querySelector("description")?.textContent?.trim()!!,
+    description: parseBBCode(e.querySelector("description")?.textContent?.trim()!!),
     returnType: e.querySelector("return")?.getAttribute("type")!!,
     params: parseParams(e),
     isPrivate: e.getAttribute("name")?.startsWith("_") !== true
@@ -36,7 +38,7 @@ export function parseClass(classDocument: Document): Class {
     setter: e.getAttribute("setter") ?? undefined,
     getter: e.getAttribute("getter") ?? undefined,
     default: e.getAttribute("default") ?? undefined,
-    description: e.textContent.trim(),
+    description: parseBBCode(e.textContent.trim()),
     isPrivate: e.getAttribute("name")?.startsWith("_") === true
   }));
 
@@ -44,13 +46,13 @@ export function parseClass(classDocument: Document): Class {
     name: e.getAttribute("name")!!,
     value: e.getAttribute("value")!!,
     enum: e.getAttribute("enum") ?? undefined,
-    description: e.textContent.trim(),
+    description: parseBBCode(e.textContent.trim()),
     isPrivate: e.getAttribute("name")?.startsWith("_") === true
   }));
 
   const signals: Signal[] = [...classDocument.querySelectorAll("signals>signal")].map(e => ({
     name: e.getAttribute("name")!!,
-    description: e.querySelector("description")?.textContent?.trim()!!,
+    description: parseBBCode(e.querySelector("description")?.textContent?.trim()!!),
     params: parseParams(e),
     isPrivate: e.getAttribute("name")?.startsWith("_") === true
   }));
