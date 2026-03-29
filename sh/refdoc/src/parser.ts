@@ -1,4 +1,4 @@
-import type { Class, Constant, Member, Method, Parameter, Signal, Tutorial } from "./src/types";
+import type { Class, Constant, Member, Method, Parameter, Signal, Tutorial } from "./types";
 
 function parseParams(root: Element): Parameter[] {
   return [...root.querySelectorAll("param" as string)].map(e => ({
@@ -54,7 +54,9 @@ export function parseClass(classDocument: Document): Class {
   return {
     name: className,
     inherits: classInherits,
-    path: undefined,
+
+    xmlPath: undefined,
+    srcPath: undefined,
 
     briefDescription,
     description,
@@ -66,4 +68,8 @@ export function parseClass(classDocument: Document): Class {
     constants,
     signals
   }
+}
+
+export function isFileBasedName(className: string): boolean {
+  return className.includes(".gd") || className.includes("/") || className.includes("\\");
 }

@@ -1,25 +1,14 @@
-import parse from "@bbob/parser";
-import fs from "fs";
-import { JSDOM } from "jsdom";
-import { parseClass } from "./src/parser";
+import { ClassDB } from "./src/classdb";
 
+async function main() {
+  const dir = "../../apidocs/";
+  const src = "../../";
 
-interface FieldReference {
-  type: "member" | "method";
-  klass: string;
-  name: string;
-}
+  const classdb = (await ClassDB.fromDirectory(dir)).onlyNamedClasses();
+  await classdb.exploreLocations(src);
+  classdb.classes = classdb.classes.filter(c => c.srcPath?.startsWith("addons/netfox"))
 
-function main() {
-  const xml = fs.readFileSync("_NetworkTime.xml", { encoding: "utf8" });
-
-  const dom = new JSDOM(xml, {
-    contentType: "text/xml"
-  })
-  const classDocument = dom.window.document;
-  const classData = parseClass(classDocument);
-
-  console.log(JSON.stringify(classData, undefined, 2));
+  console.log(JSON.stringify(classdb.classes))
 }
 
 main();

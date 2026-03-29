@@ -2,7 +2,9 @@
 export interface Class {
   name: string;
   inherits: string;
-  path: string | undefined;
+
+  xmlPath: string | undefined;
+  srcPath: string| undefined;
 
   briefDescription: string | undefined;
   description: string | undefined;

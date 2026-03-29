@@ -1,0 +1,6601 @@
+[
+  {
+    "name": "NetworkTickrateHandshake",
+    "inherits": "Node",
+    "xmlPath": "../../apidocs//NetworkTickrateHandshake.xml",
+    "srcPath": "addons/netfox/time/network-tickrate-handshake.gd",
+    "briefDescription": "Internal class to manage the tickrate handshake.",
+    "description": "Whenever a new peer joins, they exchange their configured tickrate with the host. If the tickrate mismatches, a warning is emitted by default, as this is assumed to be a developer mistake. [br][br]However, if this is expected, different actions can be configured.",
+    "tutorials": [],
+    "methods": [
+      {
+        "name": "run",
+        "description": "Run the tickrate handshake. [br][br]This will connect to signals, so that every new peer receives tickrate info from the host. [br][br]Called by [_NetworkTime], no need to call manually.",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "stop",
+        "description": "Stop the tickrate handshake. [br][br]Called by [_NetworkTime], no need to call manually.",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_ready",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_handle_new_peer",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "peer",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_handle_tickrate_mismatch",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "peer",
+            "type": "int",
+            "index": 0
+          },
+          {
+            "name": "tickrate",
+            "type": "int",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "_is_authority",
+        "description": "",
+        "returnType": "bool",
+        "params": []
+      },
+      {
+        "name": "_submit_tickrate",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "tickrate",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      }
+    ],
+    "members": [
+      {
+        "name": "mismatch_action",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "get_setting(...)",
+        "description": "Configures what happens on a tickrate mismatch.[br]Defaults to [constant WARN], based on project settings."
+      },
+      {
+        "name": "_logger",
+        "type": "NetfoxLogger",
+        "setter": "",
+        "getter": "",
+        "default": "_for_netfox(...)",
+        "description": ""
+      }
+    ],
+    "constants": [
+      {
+        "name": "WARN",
+        "value": "0",
+        "description": "Emit a warning on tickrate mismatch"
+      },
+      {
+        "name": "DISCONNECT",
+        "value": "1",
+        "description": "Disconnect peer on tickrate mismatch[br]This is enforced by the host."
+      },
+      {
+        "name": "ADJUST",
+        "value": "2",
+        "description": "Adjust tickrate to the host's on mismatch"
+      },
+      {
+        "name": "SIGNAL",
+        "value": "3",
+        "description": "Emit [signal on_tickrate_mismatch] on mismatch[br]This is emitted on both host and client."
+      }
+    ],
+    "signals": [
+      {
+        "name": "on_tickrate_mismatch",
+        "description": "Emitted when a tickrate mismatch is encountered, and [member mismatch_action] is set to [constant SIGNAL].",
+        "params": [
+          {
+            "name": "peer",
+            "type": "int",
+            "index": 0
+          },
+          {
+            "name": "tickrate",
+            "type": "int",
+            "index": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "NetworkWeapon",
+    "inherits": "Node",
+    "xmlPath": "../../apidocs//NetworkWeapon.xml",
+    "srcPath": "addons/netfox.extras/weapon/network-weapon.gd",
+    "briefDescription": "Base class for creating responsive weapons, by spawning projectiles locally, but keeping control on the server.",
+    "description": "",
+    "tutorials": [],
+    "methods": [
+      {
+        "name": "_ready",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "can_fire",
+        "description": "Check whether this weapon can be fired.",
+        "returnType": "bool",
+        "params": []
+      },
+      {
+        "name": "fire",
+        "description": "Try to fire the weapon and return the projectile. [br][br]Returns null if the weapon can't be fired.",
+        "returnType": "Node",
+        "params": []
+      },
+      {
+        "name": "get_fired_tick",
+        "description": "Get the tick when the weapon was fired. [br][br]Whenever a weapon gets fired, it takes time for that event to be transmitted to the server. To account for this latency, the exact tick is sent along with other data, so weapon implementations can compensate for the latency. [br][br]One way to use this is to manually simulate the projectile after it's created:\n[codeblock]\nfunc _after_fire(projectile: Node3D):\n    last_fire = get_fired_tick()\n    sound.play()\n\n    for t in range(get_fired_tick(), NetworkTime.tick):\n        if projectile.is_queued_for_deletion():\n            break\n        projectile._tick(NetworkTime.ticktime, t)\n[/codeblock]",
+        "returnType": "int",
+        "params": []
+      },
+      {
+        "name": "_can_fire",
+        "description": "Override this method with your own can fire logic. [br][br]This can be used to implement e.g. firing cooldowns and ammo checks.",
+        "returnType": "bool",
+        "params": []
+      },
+      {
+        "name": "_can_peer_use",
+        "description": "Override this method to check if a given peer can use this weapon. [br][br]Usually this should check if the weapon's owner is trying to fire it, but for some special cases this can be some different logic, e.g. weapons that can be used by any player on a given team.",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "peer_id",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_after_fire",
+        "description": "Override this method to run any logic needed after successfully firing the weapon. [br][br]This can be used to e.g. reset the firing cooldown or deduct ammo.",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "projectile",
+            "type": "Node",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_spawn",
+        "description": "Override this method to spawn and initialize a projectile. [br][br]Make sure to return the projectile spawned!",
+        "returnType": "Node",
+        "params": []
+      },
+      {
+        "name": "_get_data",
+        "description": "Override this method to extract projectile data that should be synchronized over the network. [br][br]This will be captured both locally and on the server, and will be used for reconciliation.",
+        "returnType": "Dictionary",
+        "params": [
+          {
+            "name": "projectile",
+            "type": "Node",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_apply_data",
+        "description": "Override this method to apply projectile data that should be synchronized over the network. [br][br]This is used in cases where some other client fires a weapon and the server instructs us to spawn a projectile for it.",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "projectile",
+            "type": "Node",
+            "index": 0
+          },
+          {
+            "name": "data",
+            "type": "Dictionary",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "_is_reconcilable",
+        "description": "Override this method to check if two projectile states can be reconciled. [br][br]This can be used to prevent cheating, for example by not allowing the client to say it's firing from the other side of the map compared to its actual position. [br][br]When this method returns false, the server will decline the projectile request.",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "projectile",
+            "type": "Node",
+            "index": 0
+          },
+          {
+            "name": "request_data",
+            "type": "Dictionary",
+            "index": 1
+          },
+          {
+            "name": "local_data",
+            "type": "Dictionary",
+            "index": 2
+          }
+        ]
+      },
+      {
+        "name": "_reconcile",
+        "description": "Override this method to reconcile the initial local and remote projectile state. [br][br]Let's say the projectile travels in a straight line from its origin, but we receive a different origin from the server. In this reconciliation step, the projectile's position can be adjusted to account for the different origin. [br][br]Unless the use case is niche, the best practice is to consider the server's state as authorative.",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "projectile",
+            "type": "Node",
+            "index": 0
+          },
+          {
+            "name": "local_data",
+            "type": "Dictionary",
+            "index": 1
+          },
+          {
+            "name": "remote_data",
+            "type": "Dictionary",
+            "index": 2
+          }
+        ]
+      },
+      {
+        "name": "_save_projectile",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "projectile",
+            "type": "Node",
+            "index": 0
+          },
+          {
+            "name": "id",
+            "type": "String",
+            "index": 1
+          },
+          {
+            "name": "data",
+            "type": "Dictionary",
+            "index": 2
+          }
+        ]
+      },
+      {
+        "name": "_before_tick_loop",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_generate_id",
+        "description": "",
+        "returnType": "String",
+        "params": [
+          {
+            "name": "length",
+            "type": "int",
+            "index": 0
+          },
+          {
+            "name": "charset",
+            "type": "String",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "_request_projectile",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "id",
+            "type": "String",
+            "index": 0
+          },
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 1
+          },
+          {
+            "name": "request_data",
+            "type": "Dictionary",
+            "index": 2
+          }
+        ]
+      },
+      {
+        "name": "_accept_projectile",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "id",
+            "type": "String",
+            "index": 0
+          },
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 1
+          },
+          {
+            "name": "response_data",
+            "type": "Dictionary",
+            "index": 2
+          }
+        ]
+      },
+      {
+        "name": "_decline_projectile",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "id",
+            "type": "String",
+            "index": 0
+          }
+        ]
+      }
+    ],
+    "members": [
+      {
+        "name": "_projectiles",
+        "type": "Dictionary",
+        "setter": "",
+        "getter": "",
+        "default": "{}",
+        "description": ""
+      },
+      {
+        "name": "_projectile_data",
+        "type": "Dictionary",
+        "setter": "",
+        "getter": "",
+        "default": "{}",
+        "description": ""
+      },
+      {
+        "name": "_reconcile_buffer",
+        "type": "Array",
+        "setter": "",
+        "getter": "",
+        "default": "[]",
+        "description": ""
+      },
+      {
+        "name": "_rng",
+        "type": "RandomNumberGenerator",
+        "setter": "",
+        "getter": "",
+        "default": "new()",
+        "description": ""
+      },
+      {
+        "name": "_fired_tick",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "-1",
+        "description": ""
+      },
+      {
+        "name": "_logger",
+        "type": "NetfoxLogger",
+        "setter": "",
+        "getter": "",
+        "default": "_for_extras(...)",
+        "description": ""
+      }
+    ],
+    "constants": [],
+    "signals": []
+  },
+  {
+    "name": "NetworkWeapon2D",
+    "inherits": "Node2D",
+    "xmlPath": "../../apidocs//NetworkWeapon2D.xml",
+    "srcPath": "addons/netfox.extras/weapon/network-weapon-2d.gd",
+    "briefDescription": "A 2D-specific implementation of [NetworkWeapon].",
+    "description": "",
+    "tutorials": [],
+    "methods": [
+      {
+        "name": "can_fire",
+        "description": "",
+        "returnType": "bool",
+        "params": []
+      },
+      {
+        "name": "fire",
+        "description": "",
+        "returnType": "Node2D",
+        "params": []
+      },
+      {
+        "name": "get_fired_tick",
+        "description": "",
+        "returnType": "int",
+        "params": []
+      },
+      {
+        "name": "_init",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_can_fire",
+        "description": "See [NetworkWeapon]",
+        "returnType": "bool",
+        "params": []
+      },
+      {
+        "name": "_can_peer_use",
+        "description": "See [NetworkWeapon]",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "peer_id",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_after_fire",
+        "description": "See [NetworkWeapon]",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "projectile",
+            "type": "Node2D",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_spawn",
+        "description": "See [NetworkWeapon]",
+        "returnType": "Node2D",
+        "params": []
+      },
+      {
+        "name": "_get_data",
+        "description": "",
+        "returnType": "Dictionary",
+        "params": [
+          {
+            "name": "projectile",
+            "type": "Node2D",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_apply_data",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "projectile",
+            "type": "Node2D",
+            "index": 0
+          },
+          {
+            "name": "data",
+            "type": "Dictionary",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "_is_reconcilable",
+        "description": "",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "projectile",
+            "type": "Node2D",
+            "index": 0
+          },
+          {
+            "name": "request_data",
+            "type": "Dictionary",
+            "index": 1
+          },
+          {
+            "name": "local_data",
+            "type": "Dictionary",
+            "index": 2
+          }
+        ]
+      },
+      {
+        "name": "_reconcile",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "projectile",
+            "type": "Node2D",
+            "index": 0
+          },
+          {
+            "name": "local_data",
+            "type": "Dictionary",
+            "index": 1
+          },
+          {
+            "name": "remote_data",
+            "type": "Dictionary",
+            "index": 2
+          }
+        ]
+      }
+    ],
+    "members": [
+      {
+        "name": "distance_threshold",
+        "type": "float",
+        "setter": "",
+        "getter": "",
+        "default": "1.0",
+        "description": "Distance to consider too large during reconciliation checks."
+      },
+      {
+        "name": "_weapon",
+        "type": "_NetworkWeaponProxy",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      }
+    ],
+    "constants": [],
+    "signals": []
+  },
+  {
+    "name": "NetworkWeaponHitscan3D",
+    "inherits": "Node3D",
+    "xmlPath": "../../apidocs//NetworkWeaponHitscan3D.xml",
+    "srcPath": "addons/netfox.extras/weapon/network-weapon-hitscan-3d.gd",
+    "briefDescription": "A 3D-specific implementation of a networked hitscan (raycast) weapon.",
+    "description": "",
+    "tutorials": [],
+    "methods": [
+      {
+        "name": "fire",
+        "description": "Try to fire the weapon and return the projectile. [br][br]Returns true if the weapon was fired.",
+        "returnType": "bool",
+        "params": []
+      },
+      {
+        "name": "can_fire",
+        "description": "Check whether this weapon can be fired.",
+        "returnType": "bool",
+        "params": []
+      },
+      {
+        "name": "_init",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_can_fire",
+        "description": "Override this method with your own can fire logic. [br][br]See [NetworkWeapon].",
+        "returnType": "bool",
+        "params": []
+      },
+      {
+        "name": "_can_peer_use",
+        "description": "Override this method to check if a given peer can use this weapon. [br][br]See [NetworkWeapon].",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "peer_id",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_after_fire",
+        "description": "Override this method to run any logic needed after successfully firing the weapon. [br][br]See [NetworkWeapon].",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_spawn",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_get_data",
+        "description": "",
+        "returnType": "Dictionary",
+        "params": []
+      },
+      {
+        "name": "_apply_data",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "data",
+            "type": "Dictionary",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_is_reconcilable",
+        "description": "",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "request_data",
+            "type": "Dictionary",
+            "index": 0
+          },
+          {
+            "name": "local_data",
+            "type": "Dictionary",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "_reconcile",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "local_data",
+            "type": "Dictionary",
+            "index": 0
+          },
+          {
+            "name": "remote_data",
+            "type": "Dictionary",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "_on_hit",
+        "description": "Override to implement raycast hit logic. [br][br]The parameter is the result of a [method PhysicsDirectSpaceState3D.intersect_ray] call.",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "result",
+            "type": "Dictionary",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_on_fire",
+        "description": "Override to implement firing effects, like muzzle flash or sound.",
+        "returnType": "void",
+        "params": []
+      }
+    ],
+    "members": [
+      {
+        "name": "max_distance",
+        "type": "float",
+        "setter": "",
+        "getter": "",
+        "default": "1000.0",
+        "description": "Maximum distance to cast the ray"
+      },
+      {
+        "name": "collision_mask",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "4294967295",
+        "description": "Mask used to detect raycast hits"
+      },
+      {
+        "name": "exclude",
+        "type": "RID[]",
+        "setter": "",
+        "getter": "",
+        "default": "[]",
+        "description": "Colliders excluded from raycast hits"
+      },
+      {
+        "name": "_weapon",
+        "type": "_NetworkWeaponProxy",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      }
+    ],
+    "constants": [],
+    "signals": []
+  },
+  {
+    "name": "_NetworkPerformance",
+    "inherits": "Node",
+    "xmlPath": "../../apidocs//_NetworkPerformance.xml",
+    "srcPath": "addons/netfox/network-performance.gd",
+    "briefDescription": "",
+    "description": "",
+    "tutorials": [],
+    "methods": [
+      {
+        "name": "is_enabled",
+        "description": "Check if performance monitoring is enabled. [br][br]By default, monitoring is only enabled in debug builds ( see [method OS.is_debug_build] ). [br]Can be forced on with the [code]netfox_perf[/code] feature tag. [br]Can be forced off with the [code]netfox_noperf[/code] feature tag.",
+        "returnType": "bool",
+        "params": []
+      },
+      {
+        "name": "get_network_loop_duration_ms",
+        "description": "Get time spent in the last network tick loop, in millisec. [br]Note that this also includes time spent in the rollback tick loop.",
+        "returnType": "float",
+        "params": []
+      },
+      {
+        "name": "get_network_ticks",
+        "description": "Get the number of ticks simulated in the last network tick loop.",
+        "returnType": "int",
+        "params": []
+      },
+      {
+        "name": "get_rollback_loop_duration_ms",
+        "description": "Get time spent in the last rollback tick loop, in millisec.",
+        "returnType": "float",
+        "params": []
+      },
+      {
+        "name": "get_rollback_ticks",
+        "description": "Get the number of ticks resimulated in the last rollback tick loop.",
+        "returnType": "int",
+        "params": []
+      },
+      {
+        "name": "get_rollback_tick_duration_ms",
+        "description": "Get the average amount of time spent in a rollback tick during the last rollback loop, in millisec.",
+        "returnType": "float",
+        "params": []
+      },
+      {
+        "name": "get_rollback_nodes_simulated",
+        "description": "Get the number of nodes simulated during the last rollback loop.",
+        "returnType": "int",
+        "params": []
+      },
+      {
+        "name": "get_rollback_nodes_simulated_per_tick",
+        "description": "Get the number of nodes simulated per tick on average during the last rollback loop.",
+        "returnType": "float",
+        "params": []
+      },
+      {
+        "name": "push_rollback_nodes_simulated",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "count",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "get_full_state_props_count",
+        "description": "Get the number of properties in the full state recorded during the last tick loop.",
+        "returnType": "int",
+        "params": []
+      },
+      {
+        "name": "get_sent_state_props_count",
+        "description": "Get the number of properties actually sent during the last tick loop.",
+        "returnType": "int",
+        "params": []
+      },
+      {
+        "name": "get_sent_state_props_ratio",
+        "description": "Get the ratio of sent properties count to full state properties count.  See [member get_full_state_props_count][br]See [member get_sent_state_props_count]",
+        "returnType": "float",
+        "params": []
+      },
+      {
+        "name": "push_full_state",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "state",
+            "type": "Dictionary",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "push_full_state_props",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "count",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "push_full_state_broadcast",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "state",
+            "type": "Dictionary",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "push_sent_state",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "state",
+            "type": "Dictionary",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "push_sent_state_props",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "count",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "push_sent_state_broadcast",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "state",
+            "type": "Dictionary",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_ready",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_before_tick_loop",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_on_network_tick",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "_dt",
+            "type": "Variant",
+            "index": 0
+          },
+          {
+            "name": "_t",
+            "type": "Variant",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "_after_tick_loop",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_before_rollback_loop",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_on_rollback_tick",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "_t",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_after_rollback_loop",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_time",
+        "description": "",
+        "returnType": "float",
+        "params": []
+      }
+    ],
+    "members": [
+      {
+        "name": "_network_loop_start",
+        "type": "float",
+        "setter": "",
+        "getter": "",
+        "default": "0.0",
+        "description": ""
+      },
+      {
+        "name": "_network_loop_duration",
+        "type": "float",
+        "setter": "",
+        "getter": "",
+        "default": "0.0",
+        "description": ""
+      },
+      {
+        "name": "_network_ticks",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "0",
+        "description": ""
+      },
+      {
+        "name": "_network_ticks_accum",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "0",
+        "description": ""
+      },
+      {
+        "name": "_rollback_loop_start",
+        "type": "float",
+        "setter": "",
+        "getter": "",
+        "default": "0.0",
+        "description": ""
+      },
+      {
+        "name": "_rollback_loop_duration",
+        "type": "float",
+        "setter": "",
+        "getter": "",
+        "default": "0.0",
+        "description": ""
+      },
+      {
+        "name": "_rollback_ticks",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "0",
+        "description": ""
+      },
+      {
+        "name": "_rollback_ticks_accum",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "0",
+        "description": ""
+      },
+      {
+        "name": "_rollback_nodes_simulated",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "0",
+        "description": ""
+      },
+      {
+        "name": "_rollback_nodes_simulated_accum",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "0",
+        "description": ""
+      },
+      {
+        "name": "_full_state_props",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "0",
+        "description": ""
+      },
+      {
+        "name": "_full_state_props_accum",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "0",
+        "description": ""
+      },
+      {
+        "name": "_sent_state_props",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "0",
+        "description": ""
+      },
+      {
+        "name": "_sent_state_props_accum",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "0",
+        "description": ""
+      },
+      {
+        "name": "_logger",
+        "type": "NetfoxLogger",
+        "setter": "",
+        "getter": "",
+        "default": "_for_netfox(...)",
+        "description": ""
+      }
+    ],
+    "constants": [
+      {
+        "name": "NETWORK_LOOP_DURATION_MONITOR",
+        "value": "&\"netfox/Network loop duration (ms)\"",
+        "description": ""
+      },
+      {
+        "name": "ROLLBACK_LOOP_DURATION_MONITOR",
+        "value": "&\"netfox/Rollback loop duration (ms)\"",
+        "description": ""
+      },
+      {
+        "name": "NETWORK_TICKS_MONITOR",
+        "value": "&\"netfox/Network ticks simulated\"",
+        "description": ""
+      },
+      {
+        "name": "ROLLBACK_TICKS_MONITOR",
+        "value": "&\"netfox/Rollback ticks simulated\"",
+        "description": ""
+      },
+      {
+        "name": "ROLLBACK_TICK_DURATION_MONITOR",
+        "value": "&\"netfox/Rollback tick duration (ms)\"",
+        "description": ""
+      },
+      {
+        "name": "ROLLBACK_NODES_SIMULATED_MONITOR",
+        "value": "&\"netfox/Rollback nodes simulated\"",
+        "description": ""
+      },
+      {
+        "name": "ROLLBACK_NODES_SIMULATED_PER_TICK_MONITOR",
+        "value": "&\"netfox/Rollback nodes simulated per tick (avg)\"",
+        "description": ""
+      },
+      {
+        "name": "FULL_STATE_PROPERTIES_COUNT",
+        "value": "&\"netfox/Full state properties count\"",
+        "description": ""
+      },
+      {
+        "name": "SENT_STATE_PROPERTIES_COUNT",
+        "value": "&\"netfox/Sent state properties count\"",
+        "description": ""
+      },
+      {
+        "name": "SENT_STATE_PROPERTIES_RATIO",
+        "value": "&\"netfox/Sent state properties ratio\"",
+        "description": ""
+      }
+    ],
+    "signals": []
+  },
+  {
+    "name": "_NetworkSynchronizationServer",
+    "inherits": "Node",
+    "xmlPath": "../../apidocs//_NetworkSynchronizationServer.xml",
+    "srcPath": "addons/netfox/servers/network-synchronization-server.gd",
+    "briefDescription": "Synchronizes properties over the network",
+    "description": "Handles synchronization of rollback and state properties ( [RollbackSynchronizer] and [StateSynchronizer] ), while respecting visibility filters and schemas for serialization. [br][br]Packets are sent per tick, instead of per object. So for every simulated rollback tick, a packet is sent with states, and for every recorded input, a packet is sent with the inputs. [br][br]Optionally, diff states can be used, sending only the property values that have changed, saving on bandwidth.",
+    "tutorials": [],
+    "methods": [
+      {
+        "name": "register_rollback_state",
+        "description": "Register a [param]property[/param] of [param]node[/param] to be synchronized as rollback state",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 0
+          },
+          {
+            "name": "property",
+            "type": "NodePath",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "deregister_rollback_state",
+        "description": "Deregister a [param]property[/param] of [param]node[/param] from being synchronized as rollback state",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 0
+          },
+          {
+            "name": "property",
+            "type": "NodePath",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "register_rollback_input",
+        "description": "Register a [param]property[/param] of [param]node[/param] to be synchronized as rollback input",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 0
+          },
+          {
+            "name": "property",
+            "type": "NodePath",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "deregister_rollback_input",
+        "description": "Deregister a [param]property[/param] of [param]node[/param] from being synchronized as rollback input",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 0
+          },
+          {
+            "name": "property",
+            "type": "NodePath",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "register_sync_state",
+        "description": "Register a [param]property[/param] of [param]node[/param] to be synchronized as synchronized state",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 0
+          },
+          {
+            "name": "property",
+            "type": "NodePath",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "deregister_sync_state",
+        "description": "Deregister a [param]property[/param] of [param]node[/param] from being synchronized as synchronized state",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 0
+          },
+          {
+            "name": "property",
+            "type": "NodePath",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "register_schema",
+        "description": "Register a [param]serializer[/param] to use when transmitting [param]property[/param] of [param]node[/param] over the network",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 0
+          },
+          {
+            "name": "property",
+            "type": "NodePath",
+            "index": 1
+          },
+          {
+            "name": "serializer",
+            "type": "NetworkSchemaSerializer",
+            "index": 2
+          }
+        ]
+      },
+      {
+        "name": "deregister_schema",
+        "description": "Deregister any serializers used for [param]property[/param] on [param]node[/param] when transmitting over the network",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 0
+          },
+          {
+            "name": "property",
+            "type": "NodePath",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "deregister_schema_for",
+        "description": "Deregister all serializers registered for any properties of [param]node[/param]",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "register_visibility_filter",
+        "description": "Register a visibility [param]filter[/param] for use with [param]node[/param]",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 0
+          },
+          {
+            "name": "filter",
+            "type": "PeerVisibilityFilter",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "deregister_visibility_filter",
+        "description": "Deregister the visibility filter used for [param]node[/param]",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "deregister",
+        "description": "Deregister any and all settings associated with [param]node[/param]",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_is_node_visible_to",
+        "description": "",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "peer",
+            "type": "int",
+            "index": 0
+          },
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "_synchronize_input",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_synchronize_state",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_synchronize_sync_state",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_init",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "p_command_server",
+            "type": "_NetworkCommandServer",
+            "index": 0
+          },
+          {
+            "name": "p_history_server",
+            "type": "_NetworkHistoryServer",
+            "index": 1
+          },
+          {
+            "name": "p_identity_server",
+            "type": "_NetworkIdentityServer",
+            "index": 2
+          },
+          {
+            "name": "p_simulation_server",
+            "type": "_RollbackSimulationServer",
+            "index": 3
+          }
+        ]
+      },
+      {
+        "name": "_ready",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_handle_input",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "sender",
+            "type": "int",
+            "index": 0
+          },
+          {
+            "name": "data",
+            "type": "PackedByteArray",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "_handle_full_state",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "sender",
+            "type": "int",
+            "index": 0
+          },
+          {
+            "name": "data",
+            "type": "PackedByteArray",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "_handle_diff_state",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "sender",
+            "type": "int",
+            "index": 0
+          },
+          {
+            "name": "data",
+            "type": "PackedByteArray",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "_handle_full_sync",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "sender",
+            "type": "int",
+            "index": 0
+          },
+          {
+            "name": "data",
+            "type": "PackedByteArray",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "_handle_diff_sync",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "sender",
+            "type": "int",
+            "index": 0
+          },
+          {
+            "name": "data",
+            "type": "PackedByteArray",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "_ingest_state",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "sender",
+            "type": "int",
+            "index": 0
+          },
+          {
+            "name": "snapshot",
+            "type": "_Snapshot",
+            "index": 1
+          }
+        ]
+      }
+    ],
+    "members": [
+      {
+        "name": "_command_server",
+        "type": "_NetworkCommandServer",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "_history_server",
+        "type": "_NetworkHistoryServer",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "_identity_server",
+        "type": "_NetworkIdentityServer",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "_simulation_server",
+        "type": "_RollbackSimulationServer",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "_rb_input_properties",
+        "type": "_PropertyPool",
+        "setter": "",
+        "getter": "",
+        "default": "new()",
+        "description": ""
+      },
+      {
+        "name": "_rb_state_properties",
+        "type": "_PropertyPool",
+        "setter": "",
+        "getter": "",
+        "default": "new()",
+        "description": ""
+      },
+      {
+        "name": "_rb_owned_input_properties",
+        "type": "_PropertyPool",
+        "setter": "",
+        "getter": "",
+        "default": "new()",
+        "description": ""
+      },
+      {
+        "name": "_rb_owned_state_properties",
+        "type": "_PropertyPool",
+        "setter": "",
+        "getter": "",
+        "default": "new()",
+        "description": ""
+      },
+      {
+        "name": "_sync_state_properties",
+        "type": "_PropertyPool",
+        "setter": "",
+        "getter": "",
+        "default": "new()",
+        "description": ""
+      },
+      {
+        "name": "_sync_owned_state_properties",
+        "type": "_PropertyPool",
+        "setter": "",
+        "getter": "",
+        "default": "new()",
+        "description": ""
+      },
+      {
+        "name": "_visibility_filters",
+        "type": "Dictionary",
+        "setter": "",
+        "getter": "",
+        "default": "{}",
+        "description": ""
+      },
+      {
+        "name": "_rb_enable_input_broadcast",
+        "type": "bool",
+        "setter": "",
+        "getter": "",
+        "default": "<unknown>",
+        "description": ""
+      },
+      {
+        "name": "_rb_enable_diffs",
+        "type": "bool",
+        "setter": "",
+        "getter": "",
+        "default": "<unknown>",
+        "description": ""
+      },
+      {
+        "name": "_rb_full_interval",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "<unknown>",
+        "description": ""
+      },
+      {
+        "name": "_rb_full_scheduler",
+        "type": "_IntervalScheduler",
+        "setter": "",
+        "getter": "",
+        "default": "new(...)",
+        "description": ""
+      },
+      {
+        "name": "_input_redundancy",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "<unknown>",
+        "description": ""
+      },
+      {
+        "name": "_last_sync_state_sent",
+        "type": "_Snapshot",
+        "setter": "",
+        "getter": "",
+        "default": "new(...)",
+        "description": ""
+      },
+      {
+        "name": "_sync_enable_diffs",
+        "type": "bool",
+        "setter": "",
+        "getter": "",
+        "default": "<unknown>",
+        "description": ""
+      },
+      {
+        "name": "_sync_full_interval",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "<unknown>",
+        "description": ""
+      },
+      {
+        "name": "_sync_full_scheduler",
+        "type": "_IntervalScheduler",
+        "setter": "",
+        "getter": "",
+        "default": "new(...)",
+        "description": ""
+      },
+      {
+        "name": "_schemas",
+        "type": "_NetworkSchema",
+        "setter": "",
+        "getter": "",
+        "default": "new()",
+        "description": ""
+      },
+      {
+        "name": "_dense_serializer",
+        "type": "_DenseSnapshotSerializer",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "_sparse_serializer",
+        "type": "_SparseSnapshotSerializer",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "_redundant_serializer",
+        "type": "_RedundantSnapshotSerializer",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "_cmd_full_state",
+        "type": "_NetworkCommandServer.Command",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "_cmd_diff_state",
+        "type": "_NetworkCommandServer.Command",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "_cmd_input",
+        "type": "_NetworkCommandServer.Command",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "_cmd_full_sync",
+        "type": "_NetworkCommandServer.Command",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "_cmd_diff_sync",
+        "type": "_NetworkCommandServer.Command",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "_logger",
+        "type": "NetfoxLogger",
+        "setter": "",
+        "getter": "",
+        "default": "_for_netfox(...)",
+        "description": ""
+      }
+    ],
+    "constants": [],
+    "signals": [
+      {
+        "name": "_on_input",
+        "description": "",
+        "params": [
+          {
+            "name": "snapshot",
+            "type": "_Snapshot",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_on_state",
+        "description": "",
+        "params": [
+          {
+            "name": "snapshot",
+            "type": "_Snapshot",
+            "index": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "_NetworkTime",
+    "inherits": "Node",
+    "xmlPath": "../../apidocs//_NetworkTime.xml",
+    "srcPath": "addons/netfox/network-time.gd",
+    "briefDescription": "This class handles timing.",
+    "description": "",
+    "tutorials": [
+      {
+        "title": "NetworkTime Guide",
+        "link": ""
+      }
+    ],
+    "methods": [
+      {
+        "name": "start",
+        "description": "Start NetworkTime.  Once this is called, time will be synchronized and ticks will be consistently emitted. [br][br]On clients, the initial time sync must complete before any ticks are emitted. [br][br]To check if this initial sync is done, see [method is_initial_sync_done]. If you need a signal, see [signal after_sync]. [br][br]Returns [constant OK] on success.[br]Returns [constant ERR_ALREADY_IN_USE] if the tick loop is currently active.[br]Returns [constant ERR_UNAVAILABLE] if there's no available [MultiplayerPeer].",
+        "returnType": "int",
+        "params": []
+      },
+      {
+        "name": "stop",
+        "description": "Stop NetworkTime.  This will stop the time sync in the background, and no more ticks will be emitted until the next start.",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "is_initial_sync_done",
+        "description": "Check if the initial time sync is done.",
+        "returnType": "bool",
+        "params": []
+      },
+      {
+        "name": "is_client_synced",
+        "description": "Check if client's time sync is complete.  Using this from a client is considered an error.",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "peer_id",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "ticks_to_seconds",
+        "description": "Convert a duration of ticks to seconds.",
+        "returnType": "float",
+        "params": [
+          {
+            "name": "ticks",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "seconds_to_ticks",
+        "description": "Convert a duration of seconds to ticks.",
+        "returnType": "int",
+        "params": [
+          {
+            "name": "seconds",
+            "type": "float",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "seconds_between",
+        "description": "Calculate the duration between two ticks in seconds  [i]Note:[/i] Returns negative values if tick_to is smaller than tick_from",
+        "returnType": "float",
+        "params": [
+          {
+            "name": "tick_from",
+            "type": "int",
+            "index": 0
+          },
+          {
+            "name": "tick_to",
+            "type": "int",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "ticks_between",
+        "description": "Calculate the duration between two points in time as ticks  [i]Note:[/i] Returns negative values if seconds_to is smaller than seconds_from",
+        "returnType": "int",
+        "params": [
+          {
+            "name": "seconds_from",
+            "type": "float",
+            "index": 0
+          },
+          {
+            "name": "seconds_to",
+            "type": "float",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "_ready",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_exit_tree",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_get_tick_tag",
+        "description": "",
+        "returnType": "String",
+        "params": []
+      },
+      {
+        "name": "_loop",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_process",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "delta",
+            "type": "float",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_physics_process",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "delta",
+            "type": "float",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_notification",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "what",
+            "type": "Variant",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_is_active",
+        "description": "",
+        "returnType": "bool",
+        "params": []
+      },
+      {
+        "name": "_handle_peer_disconnect",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "peer",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_submit_sync_success",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      }
+    ],
+    "members": [
+      {
+        "name": "tickrate",
+        "type": "int",
+        "setter": "@tickrate_setter",
+        "getter": "@tickrate_getter",
+        "description": "Number of ticks per second.  [i]read-only[/i], you can change this in the project settings"
+      },
+      {
+        "name": "sync_to_physics",
+        "type": "bool",
+        "setter": "@sync_to_physics_setter",
+        "getter": "@sync_to_physics_getter",
+        "description": "Whether to sync the network ticks to physics updates.  When set to true, tickrate will be the same as the physics ticks per second, and the network tick loop will be run inside the physics update process.  [i]read-only[/i], you can change this in the project settings"
+      },
+      {
+        "name": "max_ticks_per_frame",
+        "type": "int",
+        "setter": "@max_ticks_per_frame_setter",
+        "getter": "@max_ticks_per_frame_getter",
+        "description": "Maximum number of ticks to simulate per frame.  If the game itself runs slower than the configured tickrate, multiple ticks will be run in a single go. However, to avoid an endless feedback loop of running too many ticks in a frame, which makes the game even slower, which results in even more ticks and so on, this setting is an upper limit on how many ticks can be simulated in a single go.  [i]read-only[/i], you can change this in the project settings"
+      },
+      {
+        "name": "time",
+        "type": "float",
+        "setter": "@time_setter",
+        "getter": "@time_getter",
+        "description": "Current network time in seconds.  Time is measured from the start of NetworkTime, in practice this is often the time from the server's start.  Use this value in cases where timestamps need to be shared with the server.  [i]Note:[/i] Time is continuously synced with the server. If the difference between local and server time is above a certain threshold, this value will be adjusted.  See [NetworkTimeSynchronizer]. See the setting [code]\"netfox/time/recalibrate_threshold\"[/code].  [i]read-only[/i]"
+      },
+      {
+        "name": "tick",
+        "type": "int",
+        "setter": "@tick_setter",
+        "getter": "@tick_getter",
+        "description": "Current network time in ticks.  Time is measured from the start of NetworkTime, in practice this is often the time from the server's start.  Use this value in cases where timestamps need to be shared with the server.  [i]Note:[/i] Time is continuously synced with the server. If the difference between local and server time is above a certain threshold, this value will be adjusted.  See [NetworkTimeSynchronizer]. See the setting [code]\"netfox/time/recalibrate_threshold\"[/code].  [i]read-only[/i]"
+      },
+      {
+        "name": "recalibrate_threshold",
+        "type": "float",
+        "setter": "@recalibrate_threshold_setter",
+        "getter": "@recalibrate_threshold_getter",
+        "description": "Threshold before recalibrating [member tick] and [member time].  Time is continuously synced to the server. In case the time difference is excessive between local and the server, both [code]tick[/code] and [code]time[/code] will be reset to the estimated server values. [br][br]This property determines the difference threshold in seconds for recalibration. [br][br][i]read-only[/i], you can change this in the project settings [br][br]"
+      },
+      {
+        "name": "stall_threshold",
+        "type": "float",
+        "setter": "@stall_threshold_setter",
+        "getter": "@stall_threshold_getter",
+        "description": "Seconds required to pass before considering the game stalled.  If the game becomes unresponsive for some time - e.g. it becomes minimized, unfocused, or freezes -, the game time needs to be readjusted. These stalls are detected by checking how much time passes between frames. If it's more than this threshold, it's considered a stall, and will be compensated against."
+      },
+      {
+        "name": "remote_tick",
+        "type": "int",
+        "setter": "@remote_tick_setter",
+        "getter": "@remote_tick_getter",
+        "description": "Current network time in ticks on the server.  This is value is only an estimate, and is regularly updated. This means that this value can and probably will change depending on network conditions. [br][br][i]read-only[/i] [br][br]"
+      },
+      {
+        "name": "remote_time",
+        "type": "float",
+        "setter": "@remote_time_setter",
+        "getter": "@remote_time_getter",
+        "description": "Current network time in seconds on the server.  This is value is only an estimate, and is regularly updated. This means that this value can and probably will change depending on network conditions. [br][br][i]read-only[/i] [br][br]"
+      },
+      {
+        "name": "remote_rtt",
+        "type": "float",
+        "setter": "@remote_rtt_setter",
+        "getter": "@remote_rtt_getter",
+        "description": "Estimated roundtrip time to server.  This value is updated regularly, during server time sync. Latency can be estimated as half of the roundtrip time. Returns the same as [member _NetworkTimeSynchronizer.rtt]. [br][br]Will always be 0 on servers. [br][br][i]read-only[/i]"
+      },
+      {
+        "name": "local_tick",
+        "type": "int",
+        "setter": "@local_tick_setter",
+        "getter": "@local_tick_getter",
+        "description": "Current network time in ticks.  On clients, this value is synced to the server [i]only once[/i] when joining the game. After that, it will increase monotonically, incrementing every single tick. [br][br]When hosting, this value is simply the number of ticks since game start. [br][br]This property can be used for things that require a timer that is guaranteed to be linear, i.e. no jumps in time. [br][br][i]read-only[/i] [br][br]"
+      },
+      {
+        "name": "local_time",
+        "type": "float",
+        "setter": "@local_time_setter",
+        "getter": "@local_time_getter",
+        "description": "Current network time in seconds.  On clients, this value is synced to the server [i]only once[/i] when joining the game. After that, it will increase monotonically, incrementing every single tick. [br][br]When hosting, this value is simply the seconds elapsed since game start. [br][br]This property can be used for things that require a timer that is guaranteed to be linear, i.e. no jumps in time. [br][br][i]read-only[/i] [br][br]"
+      },
+      {
+        "name": "ticktime",
+        "type": "float",
+        "setter": "@ticktime_setter",
+        "getter": "@ticktime_getter",
+        "description": "Amount of time a single tick takes, in seconds.  This is the reverse of tickrate  [i]read-only[/i]"
+      },
+      {
+        "name": "tick_factor",
+        "type": "float",
+        "setter": "@tick_factor_setter",
+        "getter": "@tick_factor_getter",
+        "description": "Percentage of where we are in time for the current tick.  0.0 - the current tick just happened[br]0.5 - we're halfway to the next tick[br]1.0 - the next tick is right about to be simulated[br][i]read-only[/i]"
+      },
+      {
+        "name": "physics_factor",
+        "type": "float",
+        "setter": "@physics_factor_setter",
+        "getter": "@physics_factor_getter",
+        "description": "Multiplier to get from physics process speeds to tick speeds.  Some methods, like CharacterBody's move_and_slide take velocity in units/sec and figure out the time delta on their own. However, they are not aware of netfox's time, so motion is all wrong in a network tick. For example, the network ticks run at 30 fps, while the game is running at 60fps, thus move_and_slide will also assume that it's running on 60fps, resulting in slower than expected movement.  To circument this, you can multiply any velocities with this variable, and get the desired speed. Don't forget to then divide by this value if it's a persistent variable ( e.g. CharacterBody's velocity ).  NOTE: This works correctly both in regular and in physics frames, but may yield different values.  [i]read-only[/i]"
+      },
+      {
+        "name": "clock_stretch_max",
+        "type": "float",
+        "setter": "@clock_stretch_max_setter",
+        "getter": "@clock_stretch_max_getter",
+        "description": "The maximum clock stretch factor allowed.  For more context on clock stretch, see [member clock_stretch_factor]. The minimum allowed clock stretch factor is derived as 1.0 / clock_stretch_max. Setting this to larger values will allow for quicker clock adjustment at the cost of bigger deviations in game speed. [br][br]Make sure to adjust this value based on the game's needs. [br][br][i]read-only[/i], you can change this in the project settings"
+      },
+      {
+        "name": "suppress_offline_peer_warning",
+        "type": "bool",
+        "setter": "@suppress_offline_peer_warning_setter",
+        "getter": "@suppress_offline_peer_warning_getter",
+        "description": "Suppress warning when calling [member start] with an [OfflineMultiplayerPeer] active."
+      },
+      {
+        "name": "clock_stretch_factor",
+        "type": "float",
+        "setter": "",
+        "getter": "@clock_stretch_factor_getter",
+        "description": "The currently used clock stretch factor.  As the game progresses, the simulation clock may be ahead of, or behind the host's remote clock. To compensate, whenever the simulation clock is ahead of the remote clock, the game will slightly slow down, to allow the remote clock to catch up. When the remote clock is ahead of the simulation clock, the game will run slightly faster to catch up with the remote clock. [br][br]This value indicates the current clock speed multiplier. Values over 1.0 indicate speeding up, under 1.0 indicate slowing down. [br][br]See [member clock_stretch_max] for clock stretch bounds.[br]See [_NetworkTimeSynchronizer] for more on the reference- and simulation clock. [br][br][i]read-only[/i]"
+      },
+      {
+        "name": "clock_offset",
+        "type": "float",
+        "setter": "",
+        "getter": "@clock_offset_getter",
+        "description": "The current estimated offset between the reference clock and the simulation clock.  Positive values mean the simulation clock is behind, and needs to run slightly faster to catch up. Negative values mean the simulation clock is ahead, and needs to slow down slightly. [br][br]See [member clock_stretch] for more clock speed adjustment. [br][br][i]read-only[/i]"
+      },
+      {
+        "name": "remote_clock_offset",
+        "type": "float",
+        "setter": "",
+        "getter": "@remote_clock_offset_getter",
+        "description": "The current estimated offset between the reference clock and the remote clock.  Positive values mean the reference clock is behind the remote clock. Negative values mean the reference clock is ahead of the remote clock. [br][br]Returns the same as [member _NetworkTimeSynchronizer.remote_offset]. [br][br][i]read-only[/i]"
+      },
+      {
+        "name": "_tickrate",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "get_setting(...)",
+        "description": ""
+      },
+      {
+        "name": "_sync_to_physics",
+        "type": "bool",
+        "setter": "",
+        "getter": "",
+        "default": "get_setting(...)",
+        "description": ""
+      },
+      {
+        "name": "_max_ticks_per_frame",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "get_setting(...)",
+        "description": ""
+      },
+      {
+        "name": "_recalibrate_threshold",
+        "type": "float",
+        "setter": "",
+        "getter": "",
+        "default": "get_setting(...)",
+        "description": ""
+      },
+      {
+        "name": "_stall_threshold",
+        "type": "float",
+        "setter": "",
+        "getter": "",
+        "default": "get_setting(...)",
+        "description": ""
+      },
+      {
+        "name": "_clock_stretch_max",
+        "type": "float",
+        "setter": "",
+        "getter": "",
+        "default": "get_setting(...)",
+        "description": ""
+      },
+      {
+        "name": "_suppress_offline_peer_warning",
+        "type": "bool",
+        "setter": "",
+        "getter": "",
+        "default": "get_setting(...)",
+        "description": ""
+      },
+      {
+        "name": "_state",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "0",
+        "description": ""
+      },
+      {
+        "name": "_tick",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "0",
+        "description": ""
+      },
+      {
+        "name": "_was_paused",
+        "type": "bool",
+        "setter": "",
+        "getter": "",
+        "default": "false",
+        "description": ""
+      },
+      {
+        "name": "_initial_sync_done",
+        "type": "Variant",
+        "setter": "",
+        "getter": "",
+        "default": "false",
+        "description": ""
+      },
+      {
+        "name": "_process_delta",
+        "type": "float",
+        "setter": "",
+        "getter": "",
+        "default": "0.0",
+        "description": ""
+      },
+      {
+        "name": "_next_tick_time",
+        "type": "float",
+        "setter": "",
+        "getter": "",
+        "default": "0.0",
+        "description": ""
+      },
+      {
+        "name": "_last_process_time",
+        "type": "float",
+        "setter": "",
+        "getter": "",
+        "default": "0.0",
+        "description": ""
+      },
+      {
+        "name": "_clock",
+        "type": "NetworkClocks.SteppingClock",
+        "setter": "",
+        "getter": "",
+        "default": "new()",
+        "description": ""
+      },
+      {
+        "name": "_clock_stretch_factor",
+        "type": "float",
+        "setter": "",
+        "getter": "",
+        "default": "1.0",
+        "description": ""
+      },
+      {
+        "name": "_tickrate_handshake",
+        "type": "NetworkTickrateHandshake",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "_synced_peers",
+        "type": "Dictionary",
+        "setter": "",
+        "getter": "",
+        "default": "{}",
+        "description": ""
+      },
+      {
+        "name": "_logger",
+        "type": "NetfoxLogger",
+        "setter": "",
+        "getter": "",
+        "default": "_for_netfox(...)",
+        "description": ""
+      }
+    ],
+    "constants": [
+      {
+        "name": "_STATE_INACTIVE",
+        "value": "0",
+        "description": ""
+      },
+      {
+        "name": "_STATE_SYNCING",
+        "value": "1",
+        "description": ""
+      },
+      {
+        "name": "_STATE_ACTIVE",
+        "value": "2",
+        "description": ""
+      }
+    ],
+    "signals": [
+      {
+        "name": "before_tick_loop",
+        "description": "Emitted before a tick loop is run.",
+        "params": []
+      },
+      {
+        "name": "before_tick",
+        "description": "Emitted before a tick is run.",
+        "params": [
+          {
+            "name": "delta",
+            "type": "float",
+            "index": 0
+          },
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "on_tick",
+        "description": "Emitted for every network tick.",
+        "params": [
+          {
+            "name": "delta",
+            "type": "float",
+            "index": 0
+          },
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "after_tick",
+        "description": "Emitted after every network tick.",
+        "params": [
+          {
+            "name": "delta",
+            "type": "float",
+            "index": 0
+          },
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "after_tick_loop",
+        "description": "Emitted after the tick loop is run.",
+        "params": []
+      },
+      {
+        "name": "after_sync",
+        "description": "Emitted after time is synchronized.  This happens once the NetworkTime is started, and the first time sync process concludes. When running as server, this is emitted instantly after started.",
+        "params": []
+      },
+      {
+        "name": "after_client_sync",
+        "description": "Emitted after a client synchronizes their time.  This is only emitted on the server, and is emitted when the client concludes their time sync process. This is useful as this event means that the client is ticking and gameplay has started on their end.",
+        "params": [
+          {
+            "name": "peer_id",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "on_tickrate_mismatch",
+        "description": "Emitted when a tickrate mismatch is encountered, and [member NetworkTickrateHandshake.mismatch_action] is set to [constant NetworkTickrateHandshake.SIGNAL].",
+        "params": [
+          {
+            "name": "peer",
+            "type": "int",
+            "index": 0
+          },
+          {
+            "name": "tickrate",
+            "type": "int",
+            "index": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "_ObjectSnapshot",
+    "inherits": "RefCounted",
+    "xmlPath": "../../apidocs//_ObjectSnapshot.xml",
+    "srcPath": "addons/netfox/servers/data/object-snapshot.gd",
+    "briefDescription": "",
+    "description": "",
+    "tutorials": [],
+    "methods": [
+      {
+        "name": "_init",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "p_object",
+            "type": "Object",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "duplicate",
+        "description": "",
+        "returnType": "_ObjectSnapshot",
+        "params": []
+      },
+      {
+        "name": "get_value",
+        "description": "",
+        "returnType": "Variant",
+        "params": [
+          {
+            "name": "property",
+            "type": "NodePath",
+            "index": 0
+          },
+          {
+            "name": "default",
+            "type": "Variant",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "set_value",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "property",
+            "type": "NodePath",
+            "index": 0
+          },
+          {
+            "name": "value",
+            "type": "Variant",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "has_value",
+        "description": "",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "property",
+            "type": "NodePath",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "record_property",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "property",
+            "type": "NodePath",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "apply",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "is_auth",
+        "description": "",
+        "returnType": "bool",
+        "params": []
+      },
+      {
+        "name": "set_auth",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "p_auth",
+            "type": "bool",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "properties",
+        "description": "",
+        "returnType": "Array",
+        "params": []
+      },
+      {
+        "name": "_to_string",
+        "description": "",
+        "returnType": "String",
+        "params": []
+      }
+    ],
+    "members": [
+      {
+        "name": "_object",
+        "type": "Object",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "_is_auth",
+        "type": "bool",
+        "setter": "",
+        "getter": "",
+        "default": "false",
+        "description": ""
+      },
+      {
+        "name": "_data",
+        "type": "Dictionary",
+        "setter": "",
+        "getter": "",
+        "default": "{}",
+        "description": ""
+      }
+    ],
+    "constants": [],
+    "signals": []
+  },
+  {
+    "name": "_PropertyPool",
+    "inherits": "RefCounted",
+    "xmlPath": "../../apidocs//_PropertyPool.xml",
+    "srcPath": "addons/netfox/servers/data/property-pool.gd",
+    "briefDescription": "",
+    "description": "",
+    "tutorials": [],
+    "methods": [
+      {
+        "name": "of",
+        "qualifiers": "static",
+        "description": "",
+        "returnType": "_PropertyPool",
+        "params": [
+          {
+            "name": "entries",
+            "type": "Array[]",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "add",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "subject",
+            "type": "Object",
+            "index": 0
+          },
+          {
+            "name": "property",
+            "type": "NodePath",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "has",
+        "description": "",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "subject",
+            "type": "Object",
+            "index": 0
+          },
+          {
+            "name": "property",
+            "type": "NodePath",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "erase",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "subject",
+            "type": "Object",
+            "index": 0
+          },
+          {
+            "name": "property",
+            "type": "NodePath",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "erase_subject",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "subject",
+            "type": "Object",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "clear",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "get_properties_of",
+        "description": "",
+        "returnType": "NodePath[]",
+        "params": [
+          {
+            "name": "subject",
+            "type": "Object",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "get_subjects",
+        "description": "",
+        "returnType": "Object[]",
+        "params": []
+      },
+      {
+        "name": "is_empty",
+        "description": "",
+        "returnType": "bool",
+        "params": []
+      },
+      {
+        "name": "set_from_paths",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "root",
+            "type": "Node",
+            "index": 0
+          },
+          {
+            "name": "paths",
+            "type": "String[]",
+            "index": 1
+          }
+        ]
+      }
+    ],
+    "members": [
+      {
+        "name": "_properties_by_subject",
+        "type": "Dictionary",
+        "setter": "",
+        "getter": "",
+        "default": "{}",
+        "description": ""
+      }
+    ],
+    "constants": [],
+    "signals": []
+  },
+  {
+    "name": "_RingBuffer",
+    "inherits": "RefCounted",
+    "xmlPath": "../../apidocs//_RingBuffer.xml",
+    "srcPath": "addons/netfox.internals/ring-buffer.gd",
+    "briefDescription": "",
+    "description": "",
+    "tutorials": [],
+    "methods": [
+      {
+        "name": "_init",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "p_capacity",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "push",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "item",
+            "type": "Variant",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "get_data",
+        "description": "",
+        "returnType": "Array",
+        "params": []
+      },
+      {
+        "name": "size",
+        "description": "",
+        "returnType": "int",
+        "params": []
+      },
+      {
+        "name": "is_empty",
+        "description": "",
+        "returnType": "bool",
+        "params": []
+      },
+      {
+        "name": "clear",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      }
+    ],
+    "members": [
+      {
+        "name": "_data",
+        "type": "Array",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "_capacity",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "_size",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "0",
+        "description": ""
+      },
+      {
+        "name": "_head",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "0",
+        "description": ""
+      }
+    ],
+    "constants": [],
+    "signals": []
+  },
+  {
+    "name": "_RollbackSimulationServer",
+    "inherits": "Node",
+    "xmlPath": "../../apidocs//_RollbackSimulationServer.xml",
+    "srcPath": "addons/netfox/servers/rollback-simulation-server.gd",
+    "briefDescription": "Runs gameplay simulation during rollback",
+    "description": "Rollback involves restoring the game state to an earlier point in time and re-running game logic from there. This class tracks which nodes participate in rollback, which of them need to be actually simulated, and runs the simulation itself. [br][br]Node simulation honors scene tree order. Processing order and physics processing order are [b]not[/b] considered. [br][br]To participate in rollback, call [method register] using the method to call to simulate the node. Only one [Callable] can be actively registered per node.",
+    "tutorials": [],
+    "methods": [
+      {
+        "name": "register",
+        "description": "Register a [param]callback[/param] to run as part of the rollback loop",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "callback",
+            "type": "Callable",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "deregister",
+        "description": "Deregister a [param]callback[/param] from the rollback loop",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "callback",
+            "type": "Callable",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "deregister_node",
+        "description": "Deregister a [param]node[/param] from the rollback loop",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "register_rollback_input_for",
+        "description": "Register [param]input[/param] as providing input for [param]node[/param]",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 0
+          },
+          {
+            "name": "input",
+            "type": "Node",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "deregister_rollback_input",
+        "description": "Deregister [param]input[/param] from providing input for [param]node[/param]",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 0
+          },
+          {
+            "name": "input",
+            "type": "Node",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "is_predicting_current",
+        "description": "Return true if the currently simulated node is being predicted",
+        "returnType": "bool",
+        "params": []
+      },
+      {
+        "name": "get_simulated_object",
+        "description": "Get the currently simulated object",
+        "returnType": "Object",
+        "params": []
+      },
+      {
+        "name": "simulate",
+        "description": "Simulate a tick",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "delta",
+            "type": "float",
+            "index": 0
+          },
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "_get_nodes_to_simulate",
+        "description": "",
+        "returnType": "Node[]",
+        "params": [
+          {
+            "name": "input_snapshot",
+            "type": "_Snapshot",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_is_predicting",
+        "description": "",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "input_snapshot",
+            "type": "_Snapshot",
+            "index": 0
+          },
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "_is_tick_fresh_for",
+        "description": "",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 0
+          },
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "_set_tick_simulated_for",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 0
+          },
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "_trim_ticks_simulated",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "beginning",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_get_controlled_by",
+        "description": "",
+        "returnType": "Node[]",
+        "params": [
+          {
+            "name": "input",
+            "type": "Node",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_get_inputs_of",
+        "description": "",
+        "returnType": "Node[]",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_init",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "p_history_server",
+            "type": "_NetworkHistoryServer",
+            "index": 0
+          },
+          {
+            "name": "p_liveness_server",
+            "type": "_RollbackLivenessServer",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "_ready",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      }
+    ],
+    "members": [
+      {
+        "name": "_history_server",
+        "type": "_NetworkHistoryServer",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "_liveness_server",
+        "type": "_RollbackLivenessServer",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "_callbacks",
+        "type": "Dictionary",
+        "setter": "",
+        "getter": "",
+        "default": "{}",
+        "description": ""
+      },
+      {
+        "name": "_simulated_ticks",
+        "type": "Dictionary",
+        "setter": "",
+        "getter": "",
+        "default": "{}",
+        "description": ""
+      },
+      {
+        "name": "_input_graph",
+        "type": "_Graph",
+        "setter": "",
+        "getter": "",
+        "default": "new()",
+        "description": ""
+      },
+      {
+        "name": "_current_object",
+        "type": "Object",
+        "setter": "",
+        "getter": "",
+        "default": "null",
+        "description": ""
+      },
+      {
+        "name": "_predicted_nodes",
+        "type": "_Set",
+        "setter": "",
+        "getter": "",
+        "default": "new()",
+        "description": ""
+      },
+      {
+        "name": "_group",
+        "type": "StringName",
+        "setter": "",
+        "getter": "",
+        "default": "StringName(...)",
+        "description": ""
+      },
+      {
+        "name": "_logger",
+        "type": "NetfoxLogger",
+        "setter": "",
+        "getter": "",
+        "default": "_for_netfox(...)",
+        "description": ""
+      }
+    ],
+    "constants": [],
+    "signals": []
+  },
+  {
+    "name": "_SparseSnapshotSerializer",
+    "inherits": "_BaseSnapshotSerializer",
+    "xmlPath": "../../apidocs//_SparseSnapshotSerializer.xml",
+    "srcPath": "addons/netfox/serializers/sparse-snapshot-serializer.gd",
+    "briefDescription": "",
+    "description": "",
+    "tutorials": [],
+    "methods": [
+      {
+        "name": "_static_init",
+        "qualifiers": "static",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "write_for",
+        "description": "",
+        "returnType": "PackedByteArray",
+        "params": [
+          {
+            "name": "peer",
+            "type": "int",
+            "index": 0
+          },
+          {
+            "name": "snapshot",
+            "type": "_Snapshot",
+            "index": 1
+          },
+          {
+            "name": "properties",
+            "type": "_PropertyPool",
+            "index": 2
+          },
+          {
+            "name": "filter",
+            "type": "Callable",
+            "index": 3
+          },
+          {
+            "name": "buffer",
+            "type": "StreamPeerBuffer",
+            "index": 4
+          }
+        ]
+      },
+      {
+        "name": "read_from",
+        "description": "",
+        "returnType": "_Snapshot",
+        "params": [
+          {
+            "name": "peer",
+            "type": "int",
+            "index": 0
+          },
+          {
+            "name": "properties",
+            "type": "_PropertyPool",
+            "index": 1
+          },
+          {
+            "name": "buffer",
+            "type": "StreamPeerBuffer",
+            "index": 2
+          },
+          {
+            "name": "is_auth",
+            "type": "bool",
+            "index": 3
+          }
+        ]
+      }
+    ],
+    "members": [],
+    "constants": [],
+    "signals": []
+  },
+  {
+    "name": "BaseNetInput",
+    "inherits": "Node",
+    "xmlPath": "../../apidocs//BaseNetInput.xml",
+    "srcPath": "addons/netfox.extras/base-net-input.gd",
+    "briefDescription": "Base class for Input nodes used with rollback.",
+    "description": "",
+    "tutorials": [],
+    "methods": [
+      {
+        "name": "_ready",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_gather",
+        "description": "Method for gathering input.  This method is supposed to be overridden with your input logic. The input data itself may be gathered outside of this method ( e.g. gathering it over multiple _process calls ), but this is the point where the input variables must be set.  [i]Note:[/i] This is only called for the local player's input nodes.",
+        "returnType": "void",
+        "params": []
+      }
+    ],
+    "members": [],
+    "constants": [],
+    "signals": []
+  },
+  {
+    "name": "NetworkSchemaSerializer",
+    "inherits": "RefCounted",
+    "xmlPath": "../../apidocs//NetworkSchemaSerializer.xml",
+    "srcPath": "addons/netfox/schemas/network-schema-serializer.gd",
+    "briefDescription": "Base class for serializers, to use with [NetworkSchemas]",
+    "description": "Each serializer must be able to encode and decode values passed to it. Data is stored in [StreamPeerBuffer] objects. [br][br]To implement a custom serializer, extend this class and pass an instance of it in place of a NetworkSchemaSerializer, for example to [method RollbackSynchronizer.set_schema].",
+    "tutorials": [
+      {
+        "title": "Network schemas",
+        "link": ""
+      }
+    ],
+    "methods": [
+      {
+        "name": "encode",
+        "description": "Encode [param value] into [param buffer]",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "value",
+            "type": "Variant",
+            "index": 0
+          },
+          {
+            "name": "buffer",
+            "type": "StreamPeerBuffer",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "decode",
+        "description": "Decode a value from [param buffer] and return it",
+        "returnType": "Variant",
+        "params": [
+          {
+            "name": "buffer",
+            "type": "StreamPeerBuffer",
+            "index": 0
+          }
+        ]
+      }
+    ],
+    "members": [],
+    "constants": [],
+    "signals": []
+  },
+  {
+    "name": "RewindableStateMachine",
+    "inherits": "Node",
+    "xmlPath": "../../apidocs//RewindableStateMachine.xml",
+    "srcPath": "addons/netfox.extras/state-machine/rewindable-state-machine.gd",
+    "briefDescription": "A state machine that can be used with rollback.",
+    "description": "It relies on [RollbackSynchronizer] to manage its state. State transitions are only triggered by gameplay code, and not by rollback reverting to an earlier state. [br][br]For this node to work correctly, a [RollbackSynchronizer] must be added as a sibling, and it must have the [RewindableStateMachine]'s [member state] property configured as a state property. [br][br]To implement states, extend the [RewindableState] class and add it as a child node.",
+    "tutorials": [
+      {
+        "title": "RewindableStateMachine Guide",
+        "link": ""
+      }
+    ],
+    "methods": [
+      {
+        "name": "transition",
+        "description": "Transition to a new state specified by [param new_state_name] and return true.  Finds the given state by name and transitions to it if possible. The new state's [method RewindableState.can_enter] callback decides if it can be entered from the current state. [br][br]Upon transitioning, [method RewindableState.exit] is called on the old state, and [method RewindableState.enter] is called on the new state. In addition, [signal on_state_changed] is emitted. [br][br]Does nothing if transitioning to the currently active state. Emits a warning and does nothing when transitioning to an unknown state.",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "new_state_name",
+            "type": "StringName",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "update_states",
+        "description": "Update the internal cache of known states [br][br]Automatically called on ready and when a child node is added or removed. Call manually to force an update.",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_notification",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "what",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_get_configuration_warnings",
+        "description": "",
+        "returnType": "Variant",
+        "params": []
+      },
+      {
+        "name": "_rollback_tick",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "delta",
+            "type": "float",
+            "index": 0
+          },
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 1
+          },
+          {
+            "name": "is_fresh",
+            "type": "bool",
+            "index": 2
+          }
+        ]
+      },
+      {
+        "name": "_after_tick_loop",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_set_state",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "new_state",
+            "type": "StringName",
+            "index": 0
+          }
+        ]
+      }
+    ],
+    "members": [
+      {
+        "name": "state",
+        "type": "StringName",
+        "setter": "@state_setter",
+        "getter": "@state_getter",
+        "default": "&\"\"",
+        "description": "Name of the current state.  Can be an empty string if no state is active. Only modify directly if you need to skip [method transition]'s callbacks."
+      },
+      {
+        "name": "_logger",
+        "type": "NetfoxLogger",
+        "setter": "",
+        "getter": "",
+        "default": "_for_extras(...)",
+        "description": ""
+      },
+      {
+        "name": "_state_object",
+        "type": "RewindableState",
+        "setter": "",
+        "getter": "",
+        "default": "null",
+        "description": ""
+      },
+      {
+        "name": "_previous_state_object",
+        "type": "RewindableState",
+        "setter": "",
+        "getter": "",
+        "default": "null",
+        "description": ""
+      },
+      {
+        "name": "_available_states",
+        "type": "Dictionary",
+        "setter": "",
+        "getter": "",
+        "default": "{}",
+        "description": ""
+      },
+      {
+        "name": "_prevent_transition",
+        "type": "bool",
+        "setter": "",
+        "getter": "",
+        "default": "false",
+        "description": ""
+      },
+      {
+        "name": "_prevent_callable",
+        "type": "Callable",
+        "setter": "",
+        "getter": "",
+        "default": "<unknown>",
+        "description": ""
+      }
+    ],
+    "constants": [],
+    "signals": [
+      {
+        "name": "on_state_changed",
+        "description": "Emitted during state transitions.  This signal can be used to run gameplay code on state changes. [br][br]This signal is emitted whenever a transition happens during rollback, which means it may be emitted multiple times for the same transition if it gets resimulated during rollback. [br][br][b]State changes are not necessarily emitted on all peers.[/b] See: [url=https://foxssake.github.io/netfox/netfox.extras/guides/rewindable-state-machine/#caveats]RewindableStateMachine caveats[/url]",
+        "params": [
+          {
+            "name": "old_state",
+            "type": "RewindableState",
+            "index": 0
+          },
+          {
+            "name": "new_state",
+            "type": "RewindableState",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "on_display_state_changed",
+        "description": "Emitted after the displayed state has changed.  This signal can be used to update visuals based on state changes. [br][br]This signal is emitted whenever the state after a tick loop has changed.",
+        "params": [
+          {
+            "name": "old_state",
+            "type": "RewindableState",
+            "index": 0
+          },
+          {
+            "name": "new_state",
+            "type": "RewindableState",
+            "index": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "TickInterpolator",
+    "inherits": "Node",
+    "xmlPath": "../../apidocs//TickInterpolator.xml",
+    "srcPath": "addons/netfox/tick-interpolator.gd",
+    "briefDescription": "Interpolates between network ticks for smooth motion. [br][br]",
+    "description": "",
+    "tutorials": [
+      {
+        "title": "TickInterpolator Guide",
+        "link": ""
+      }
+    ],
+    "methods": [
+      {
+        "name": "process_settings",
+        "description": "Process settings. [br][br]Call this after any change to configuration.",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "add_property",
+        "description": "Add a property to interpolate. [br][br]Settings will be automatically updated. The [param node] may be a string or [NodePath] pointing to a node, or an actual [Node] instance. If the given property is already interpolated, this method does nothing.",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "node",
+            "type": "Variant",
+            "index": 0
+          },
+          {
+            "name": "property",
+            "type": "String",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "can_interpolate",
+        "description": "Check if interpolation can be done. [br][br]Even if it's enabled, no interpolation will be done if there are no properties to interpolate.",
+        "returnType": "bool",
+        "params": []
+      },
+      {
+        "name": "push_state",
+        "description": "Record current state for interpolation. [br][br]Note that this will rotate the states, so the previous target becomes the new starting point for the interpolation. This is automatically called if [code]enable_recording[/code] is true.",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "teleport",
+        "description": "Record current state and transition without interpolation.",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_notification",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "what",
+            "type": "Variant",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_get_configuration_warnings",
+        "description": "",
+        "returnType": "PackedStringArray",
+        "params": []
+      },
+      {
+        "name": "_connect_signals",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_disconnect_signals",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_enter_tree",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_exit_tree",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_process",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "_delta",
+            "type": "float",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_reprocess_settings",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_before_tick_loop",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_after_tick_loop",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_interpolate",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "from",
+            "type": "_PropertySnapshot",
+            "index": 0
+          },
+          {
+            "name": "to",
+            "type": "_PropertySnapshot",
+            "index": 1
+          },
+          {
+            "name": "f",
+            "type": "float",
+            "index": 2
+          }
+        ]
+      }
+    ],
+    "members": [
+      {
+        "name": "root",
+        "type": "Node",
+        "setter": "",
+        "getter": "",
+        "description": "The root node for resolving node paths in properties."
+      },
+      {
+        "name": "enabled",
+        "type": "bool",
+        "setter": "",
+        "getter": "",
+        "default": "true",
+        "description": "Toggles interpolation."
+      },
+      {
+        "name": "properties",
+        "type": "String[]",
+        "setter": "",
+        "getter": "",
+        "description": "Properties to interpolate."
+      },
+      {
+        "name": "record_first_state",
+        "type": "bool",
+        "setter": "",
+        "getter": "",
+        "default": "true",
+        "description": "If enabled, takes a snapshot immediately upon instantiation, instead of waiting for the first network tick. Useful for objects that start moving instantly, like projectiles."
+      },
+      {
+        "name": "enable_recording",
+        "type": "bool",
+        "setter": "",
+        "getter": "",
+        "default": "true",
+        "description": "Toggle automatic state recording. When enabled, the node will take a new snapshot on every network tick. When disabled, call [member push_state] whenever properties are updated."
+      },
+      {
+        "name": "_state_from",
+        "type": "_PropertySnapshot",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "_state_to",
+        "type": "_PropertySnapshot",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "_property_entries",
+        "type": "PropertyEntry[]",
+        "setter": "",
+        "getter": "",
+        "default": "[]",
+        "description": ""
+      },
+      {
+        "name": "_properties_dirty",
+        "type": "bool",
+        "setter": "",
+        "getter": "",
+        "default": "false",
+        "description": ""
+      },
+      {
+        "name": "_interpolators",
+        "type": "Dictionary",
+        "setter": "",
+        "getter": "",
+        "default": "{}",
+        "description": ""
+      },
+      {
+        "name": "_is_teleporting",
+        "type": "bool",
+        "setter": "",
+        "getter": "",
+        "default": "false",
+        "description": ""
+      },
+      {
+        "name": "_property_cache",
+        "type": "PropertyCache",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      }
+    ],
+    "constants": [],
+    "signals": []
+  },
+  {
+    "name": "NetworkClockSample",
+    "inherits": "RefCounted",
+    "xmlPath": "../../apidocs//NetworkClockSample.xml",
+    "srcPath": "addons/netfox/time/network-clock-sample.gd",
+    "briefDescription": "",
+    "description": "",
+    "tutorials": [],
+    "methods": [
+      {
+        "name": "get_rtt",
+        "description": "",
+        "returnType": "float",
+        "params": []
+      },
+      {
+        "name": "get_offset",
+        "description": "",
+        "returnType": "float",
+        "params": []
+      },
+      {
+        "name": "_to_string",
+        "description": "",
+        "returnType": "String",
+        "params": []
+      }
+    ],
+    "members": [
+      {
+        "name": "ping_sent",
+        "type": "float",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "ping_received",
+        "type": "float",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "pong_sent",
+        "type": "float",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "pong_received",
+        "type": "float",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      }
+    ],
+    "constants": [],
+    "signals": []
+  },
+  {
+    "name": "NetworkRigidBody2D",
+    "inherits": "RigidBody2D",
+    "xmlPath": "../../apidocs//NetworkRigidBody2D.xml",
+    "srcPath": "addons/netfox.extras/physics/network-rigid-body-2d.gd",
+    "briefDescription": "A rollback / state synchronizer class for RigidBody2D. Set state property path to physics_state to synchronize the state of this body.",
+    "description": "",
+    "tutorials": [],
+    "methods": [
+      {
+        "name": "_notification",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "notification",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "get_state",
+        "description": "",
+        "returnType": "Array",
+        "params": []
+      },
+      {
+        "name": "set_state",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "remote_state",
+            "type": "Array",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_physics_rollback_tick",
+        "description": "Override and apply any logic, forces or impulses to the rigid body as you would in physics_process The physics engine will run its simulation during rollback_tick with other nodes",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "_delta",
+            "type": "Variant",
+            "index": 0
+          },
+          {
+            "name": "_tick",
+            "type": "Variant",
+            "index": 1
+          }
+        ]
+      }
+    ],
+    "members": [
+      {
+        "name": "direct_state",
+        "type": "Variant",
+        "setter": "",
+        "getter": "",
+        "default": "body_get_direct_state(...)",
+        "description": ""
+      },
+      {
+        "name": "physics_state",
+        "type": "Array",
+        "setter": "@physics_state_setter",
+        "getter": "@physics_state_getter",
+        "description": ""
+      }
+    ],
+    "constants": [
+      {
+        "name": "ORIGIN",
+        "value": "0",
+        "enum": "@unnamed_enums",
+        "description": ""
+      },
+      {
+        "name": "ROT",
+        "value": "1",
+        "enum": "@unnamed_enums",
+        "description": ""
+      },
+      {
+        "name": "LIN_VEL",
+        "value": "2",
+        "enum": "@unnamed_enums",
+        "description": ""
+      },
+      {
+        "name": "ANG_VEL",
+        "value": "3",
+        "enum": "@unnamed_enums",
+        "description": ""
+      },
+      {
+        "name": "SLEEPING",
+        "value": "4",
+        "enum": "@unnamed_enums",
+        "description": ""
+      }
+    ],
+    "signals": []
+  },
+  {
+    "name": "NetworkSchemas",
+    "inherits": "Object",
+    "xmlPath": "../../apidocs//NetworkSchemas.xml",
+    "srcPath": "addons/netfox/schemas/network-schemas.gd",
+    "briefDescription": "Provides various schema serializers",
+    "description": "While some method names are abbreviated, they use a few naming schemes. For example: [br][br][method uint16] - unsigned integer, 16 bits[br][method vec2t] - [Vector2], component of specified [i]type[/i][br][method vec3f32] - [Vector3], each component as a [method float32][br][br]To handle collections, see [method array_of] and [method dictionary].",
+    "tutorials": [
+      {
+        "title": "Network schemas",
+        "link": ""
+      }
+    ],
+    "methods": [
+      {
+        "name": "variant",
+        "qualifiers": "static",
+        "description": "Serialize any data type supported by [method @GlobalScope.var_to_bytes]. [br][br]Final size depends on the value.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "string",
+        "qualifiers": "static",
+        "description": "Serialize strings in UTF-8 encoding. [br][br]Final size depends on the string, the string itself is zero-terminated.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "bool8",
+        "qualifiers": "static",
+        "description": "Serialize booleans as 8 bits. [br][br]Final size is 1 byte.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "uint8",
+        "qualifiers": "static",
+        "description": "Serialize unsigned integers as 8 bits. [br][br]Final size is 1 byte.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "uint16",
+        "qualifiers": "static",
+        "description": "Serialize unsigned integers as 16 bits. [br][br]Final size is 2 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "uint32",
+        "qualifiers": "static",
+        "description": "Serialize unsigned integers as 32 bits. [br][br]Final size is 4 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "uint64",
+        "qualifiers": "static",
+        "description": "Serialize unsigned integers as 64 bits. [br][br]Final size is 8 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "varuint",
+        "qualifiers": "static",
+        "description": "Serialize an unsigned integer as a variable amount of bytes. [br][br]Each byte contains 7 bits of data. The 8th bit indicates whether there are more bytes left. Thus, small numbers fitting into 7 bits will be encoded as a single byte, while larger numbers take more space as they increase. [br][br]Final size is 1 byte for every 7 bits of numeric data.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "_varbits",
+        "qualifiers": "static",
+        "description": "",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "int8",
+        "qualifiers": "static",
+        "description": "Serialize signed integers as 8 bits. [br][br]Final size is 1 byte.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "int16",
+        "qualifiers": "static",
+        "description": "Serialize signed integers as 16 bits. [br][br]Final size is 2 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "int32",
+        "qualifiers": "static",
+        "description": "Serialize signed integers as 32 bits. [br][br]Final size is 4 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "int64",
+        "qualifiers": "static",
+        "description": "Serialize signed integers as 64 bits. [br][br]Final size is 8 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "float16",
+        "qualifiers": "static",
+        "description": "Serialize floats in half-precision, as 16 bits. [br][br]This is only supported in Godot 4.4 and up, earlier versions fall back to [method float32]. [br][br]Final size is 2 bytes, 4 if using fallback.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "float32",
+        "qualifiers": "static",
+        "description": "Serialize floats in single-precision, as 32 bits. [br][br]Final size is 4 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "float64",
+        "qualifiers": "static",
+        "description": "Serialize floats in double-precision, as 64 bits. [br][br]Final size is 8 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "sfrac8",
+        "qualifiers": "static",
+        "description": "Serialize signed fractions in the [code][-1.0, +1.0][/code] range as 8 bits. [br][br]Final size is 1 byte.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "sfrac16",
+        "qualifiers": "static",
+        "description": "Serialize signed fractions in the [code][-1.0, +1.0][/code] range as 16 bits. [br][br]Final size is 2 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "sfrac32",
+        "qualifiers": "static",
+        "description": "Serialize signed fractions in the [code][-1.0, +1.0][/code] range as 32 bits. [br][br]Final size is 4 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "ufrac8",
+        "qualifiers": "static",
+        "description": "Serialize signed fractions in the [code][0.0, 1.0][/code] range as 8 bits. [br][br]Final size is 1 byte.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "ufrac16",
+        "qualifiers": "static",
+        "description": "Serialize signed fractions in the [code][0.0, 1.0][/code] range as 16 bits. [br][br]Final size is 2 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "ufrac32",
+        "qualifiers": "static",
+        "description": "Serialize signed fractions in the [code][0.0, 1.0][/code] range as 32 bits. [br][br]Final size is 4 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "degrees8",
+        "qualifiers": "static",
+        "description": "Serialize degrees as 8 bits. The value will always decode to the [code][0.0, 360.0)[/code] range. [br][br]Final size is 1 byte.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "degrees16",
+        "qualifiers": "static",
+        "description": "Serialize degrees as 16 bits. The value will always decode to the [code][0.0, 360.0)[/code] range. [br][br]Final size is 2 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "degrees32",
+        "qualifiers": "static",
+        "description": "Serialize degrees as 32 bits. The value will always decode to the [code][0.0, 360.0)[/code] range. [br][br]Final size is 4 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "radians8",
+        "qualifiers": "static",
+        "description": "Serialize radians as 8 bits. The value will always decode to the [code][0.0, TAU)[/code] range. [br][br]Final size is 1 byte.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "radians16",
+        "qualifiers": "static",
+        "description": "Serialize radians as 16 bits. The value will always decode to the [code][0.0, TAU)[/code] range. [br][br]Final size is 2 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "radians32",
+        "qualifiers": "static",
+        "description": "Serialize radians as 32 bits. The value will always decode to the [code][0.0, TAU)[/code] range. [br][br]Final size is 4 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "vec2t",
+        "qualifiers": "static",
+        "description": "Serialize [Vector2] objects, using [param component_serializer] to serialize each component of the vector. [br][br]Serializes 2 components, size depends on the [param component_serializer].",
+        "returnType": "NetworkSchemaSerializer",
+        "params": [
+          {
+            "name": "component_serializer",
+            "type": "NetworkSchemaSerializer",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "vec2f16",
+        "qualifiers": "static",
+        "description": "Serialize [Vector2] objects, with each component being a half-precision float. [br][br]This is only supported in Godot 4.4 and up. Earlier versions fall back to [method vec2f32]. [br][br]Final size is 4 bytes, 8 if using fallback.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "vec2f32",
+        "qualifiers": "static",
+        "description": "Serialize [Vector2] objects, with each component being a single-precision float. [br][br]Final size is 8 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "vec2f64",
+        "qualifiers": "static",
+        "description": "Serialize [Vector2] objects, with each component being a double-precision float. [br][br]Final size is 16 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "vec3t",
+        "qualifiers": "static",
+        "description": "Serialize [Vector3] objects, using [param component_serializer] to serialize each component of the vector. [br][br]Serializes 3 components, size depends on the [param component_serializer].",
+        "returnType": "NetworkSchemaSerializer",
+        "params": [
+          {
+            "name": "component_serializer",
+            "type": "NetworkSchemaSerializer",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "vec3f16",
+        "qualifiers": "static",
+        "description": "Serialize [Vector3] objects, with each component being a half-precision float. [br][br]This is only supported in Godot 4.4 and up. Earlier versions fall back to [method vec3f32]. [br][br]Final size is 6 bytes, 12 if using fallback.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "vec3f32",
+        "qualifiers": "static",
+        "description": "Serialize [Vector3] objects, with each component being a double-precision float. [br][br]Final size is 12 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "vec3f64",
+        "qualifiers": "static",
+        "description": "Serialize [Vector3] objects, with each component being a double-precision float. [br][br]Final size is 24 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "vec4t",
+        "qualifiers": "static",
+        "description": "Serialize [Vector4] objects, using [param component_serializer] to serialize each component of the vector. [br][br]Serializes 4 components, size depends on the [param component_serializer].",
+        "returnType": "NetworkSchemaSerializer",
+        "params": [
+          {
+            "name": "component_serializer",
+            "type": "NetworkSchemaSerializer",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "vec4f16",
+        "qualifiers": "static",
+        "description": "Serialize [Vector4] objects, with each component being a half-precision float. [br][br]This is only supported in Godot 4.4 and up. Earlier versions fall back to [method vec4f32]. [br][br]Final size is 8 bytes, 16 if using fallback.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "vec4f32",
+        "qualifiers": "static",
+        "description": "Serialize [Vector4] objects, with each component being a double-precision float. [br][br]Final size is 16 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "vec4f64",
+        "qualifiers": "static",
+        "description": "Serialize [Vector4] objects, with each component being a double-precision float. [br][br]Final size is 32 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "normal2t",
+        "qualifiers": "static",
+        "description": "Serialize normalized [Vector2] objects, using [param component_serializer] to serialize each component of the vector. [br][br]Serializes 1 component, size depends on the [param component_serializer].",
+        "returnType": "NetworkSchemaSerializer",
+        "params": [
+          {
+            "name": "component_serializer",
+            "type": "NetworkSchemaSerializer",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "normal2f16",
+        "qualifiers": "static",
+        "description": "Serialize normalized [Vector2] objects, with each component being a half-precision float. [br][br]This is only supported in Godot 4.4 and up. Earlier versions fall back to [method normal2f32]. [br][br]Final size is 2 bytes, 4 if using fallback.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "normal2f32",
+        "qualifiers": "static",
+        "description": "Serialize normalized [Vector2] objects, with each component being a single-precision float. [br][br]Final size is 4 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "normal2f64",
+        "qualifiers": "static",
+        "description": "Serialize normalized [Vector2] objects, with each component being a double-precision float. [br][br]Final size is 8 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "normal3t",
+        "qualifiers": "static",
+        "description": "Serialize normalized [Vector3] objects, using [param component_serializer] to serialize each component of the vector. [br][br]Serializes 2 components, size depends on the [param component_serializer].",
+        "returnType": "NetworkSchemaSerializer",
+        "params": [
+          {
+            "name": "component_serializer",
+            "type": "NetworkSchemaSerializer",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "normal3f16",
+        "qualifiers": "static",
+        "description": "Serialize normalized [Vector3] objects, with each component being a half-precision float. [br][br]This is only supported in Godot 4.4 and up. Earlier versions fall back to [method normal3f32]. [br][br]Final size is 4 bytes, 8 if using fallback.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "normal3f32",
+        "qualifiers": "static",
+        "description": "Serialize normalized [Vector3] objects, with each component being a single-precision float. [br][br]Final size is 8 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "normal3f64",
+        "qualifiers": "static",
+        "description": "Serialize normalized [Vector3] objects, with each component being a double-precision float. [br][br]Final size is 16 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "quatt",
+        "qualifiers": "static",
+        "description": "Serialize [Quaternion] objects, using [param component_serializer] to serialize each component of the quaternion. [br][br]Serializes 4 components, size depends on the [param component_serializer].",
+        "returnType": "NetworkSchemaSerializer",
+        "params": [
+          {
+            "name": "component_serializer",
+            "type": "NetworkSchemaSerializer",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "quatf16",
+        "qualifiers": "static",
+        "description": "Serialize [Quaternion] objects, with each component being a half-precision float. [br][br]This is only supported in Godot 4.4 and up. Earlier versions fall back to [method quat32f]. [br][br]Final size is 8 bytes, 16 if using fallback.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "quatf32",
+        "qualifiers": "static",
+        "description": "Serialize [Quaternion] objects, with each component being a single-precision float. [br][br]Final size is 16 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "quatf64",
+        "qualifiers": "static",
+        "description": "Serialize [Quaternion] objects, with each component being a double-precision float. [br][br]Final size is 32 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "transform2t",
+        "qualifiers": "static",
+        "description": "Serialize [Transform2D] objects, using [param component_serializer] to serialize each component of the transform. [br][br]Serializes a 2x3 matrix in 6 components, final size depends on [param component_serializer].",
+        "returnType": "NetworkSchemaSerializer",
+        "params": [
+          {
+            "name": "component_serializer",
+            "type": "NetworkSchemaSerializer",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "transform2f16",
+        "qualifiers": "static",
+        "description": "Serialize [Transform2D] objects, with each component being a half-precision float. [br][br]This is only supported in Godot 4.4 and up. Earlier versions fall back to [method transform2f32]. [br][br]Final size is 12 bytes, 24 if using fallback.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "transform2f32",
+        "qualifiers": "static",
+        "description": "Serialize [Transform2D] objects, with each component being a single-precision float. [br][br]Final size is 24 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "transform2f64",
+        "qualifiers": "static",
+        "description": "Serialize [Transform2D] objects, with each component being a double-precision float. [br][br]Final size is 48 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "transform3t",
+        "qualifiers": "static",
+        "description": "Serialize [Transform3D] objects, using [param component_serializer] to serialize each component of the transform. [br][br]Serializes a 3x4 matrix in 12 components, final size depends on [param component_serializer].",
+        "returnType": "NetworkSchemaSerializer",
+        "params": [
+          {
+            "name": "component_serializer",
+            "type": "NetworkSchemaSerializer",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "transform3f16",
+        "qualifiers": "static",
+        "description": "Serialize [Transform3D] objects, with each component being a half-precision float. [br][br]This is only supported in Godot 4.4 and up. Earlier versions fall back to [method transform3f32]. [br][br]Final size is 24 bytes, 48 if using fallback.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "transform3f32",
+        "qualifiers": "static",
+        "description": "Serialize [Transform3D] objects, with each component being a single-precision float. [br][br]Final size is 48 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "transform3f64",
+        "qualifiers": "static",
+        "description": "Serialize [Transform2D] objects, with each component being a double-precision float. [br][br]Final size is 96 bytes.",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      },
+      {
+        "name": "array_of",
+        "qualifiers": "static",
+        "description": "Serialize homogenoeous arrays, using [param item_serializer] to serialize each item, and [param size_serializer] to serialize the array's size. [br][br]To serialize heterogenoeous arrays, use [method variant] as the item serializer. [br][br]Final size is [code]sizeof(size_serializer) + array.size() * sizeof(item_serializer)[/code]",
+        "returnType": "NetworkSchemaSerializer",
+        "params": [
+          {
+            "name": "item_serializer",
+            "type": "NetworkSchemaSerializer",
+            "index": 0
+          },
+          {
+            "name": "size_serializer",
+            "type": "NetworkSchemaSerializer",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "dictionary",
+        "qualifiers": "static",
+        "description": "Serialize homogenoeous dictionaries, using [param key_serialize] and [param value_serializer] to serialize key-value pairs, and [param size_serializer] to serialize the number of entries. [br][br]If either the keys or values are not homogenoeous, use [method variant]. [br][br]Final size is [code]sizeof(size_serializer) + dictionary.size() * (sizeof(key_serializer) + sizeof(value_serializer))[/code]",
+        "returnType": "NetworkSchemaSerializer",
+        "params": [
+          {
+            "name": "key_serializer",
+            "type": "NetworkSchemaSerializer",
+            "index": 0
+          },
+          {
+            "name": "value_serializer",
+            "type": "NetworkSchemaSerializer",
+            "index": 1
+          },
+          {
+            "name": "size_serializer",
+            "type": "NetworkSchemaSerializer",
+            "index": 2
+          }
+        ]
+      },
+      {
+        "name": "_netref",
+        "qualifiers": "static",
+        "description": "",
+        "returnType": "NetworkSchemaSerializer",
+        "params": []
+      }
+    ],
+    "members": [],
+    "constants": [],
+    "signals": []
+  },
+  {
+    "name": "_Bitset",
+    "inherits": "RefCounted",
+    "xmlPath": "../../apidocs//_Bitset.xml",
+    "srcPath": "addons/netfox.internals/bitset.gd",
+    "briefDescription": "",
+    "description": "",
+    "tutorials": [],
+    "methods": [
+      {
+        "name": "of_bools",
+        "qualifiers": "static",
+        "description": "",
+        "returnType": "_Bitset",
+        "params": [
+          {
+            "name": "values",
+            "type": "Array",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_init",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "bit_count",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "bit_count",
+        "description": "",
+        "returnType": "int",
+        "params": []
+      },
+      {
+        "name": "is_empty",
+        "description": "",
+        "returnType": "bool",
+        "params": []
+      },
+      {
+        "name": "is_not_empty",
+        "description": "",
+        "returnType": "bool",
+        "params": []
+      },
+      {
+        "name": "get_bit",
+        "description": "",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "idx",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "set_bit",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "idx",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "clear_bit",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "idx",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "toggle_bit",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "idx",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "get_set_indices",
+        "description": "",
+        "returnType": "int[]",
+        "params": []
+      },
+      {
+        "name": "equals",
+        "description": "",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "other",
+            "type": "Variant",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_to_string",
+        "description": "",
+        "returnType": "String",
+        "params": []
+      }
+    ],
+    "members": [
+      {
+        "name": "_data",
+        "type": "PackedByteArray",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "_bit_count",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      }
+    ],
+    "constants": [],
+    "signals": []
+  },
+  {
+    "name": "_DenseSnapshotSerializer",
+    "inherits": "_BaseSnapshotSerializer",
+    "xmlPath": "../../apidocs//_DenseSnapshotSerializer.xml",
+    "srcPath": "addons/netfox/serializers/dense-snapshot-serializer.gd",
+    "briefDescription": "",
+    "description": "",
+    "tutorials": [],
+    "methods": [
+      {
+        "name": "_static_init",
+        "qualifiers": "static",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "write_for",
+        "description": "",
+        "returnType": "PackedByteArray",
+        "params": [
+          {
+            "name": "peer",
+            "type": "int",
+            "index": 0
+          },
+          {
+            "name": "snapshot",
+            "type": "_Snapshot",
+            "index": 1
+          },
+          {
+            "name": "properties",
+            "type": "_PropertyPool",
+            "index": 2
+          },
+          {
+            "name": "filter",
+            "type": "Callable",
+            "index": 3
+          },
+          {
+            "name": "buffer",
+            "type": "StreamPeerBuffer",
+            "index": 4
+          }
+        ]
+      },
+      {
+        "name": "read_from",
+        "description": "",
+        "returnType": "_Snapshot",
+        "params": [
+          {
+            "name": "peer",
+            "type": "int",
+            "index": 0
+          },
+          {
+            "name": "properties",
+            "type": "_PropertyPool",
+            "index": 1
+          },
+          {
+            "name": "buffer",
+            "type": "StreamPeerBuffer",
+            "index": 2
+          },
+          {
+            "name": "is_auth",
+            "type": "bool",
+            "index": 3
+          }
+        ]
+      }
+    ],
+    "members": [],
+    "constants": [],
+    "signals": []
+  },
+  {
+    "name": "_Graph",
+    "inherits": "RefCounted",
+    "xmlPath": "../../apidocs//_Graph.xml",
+    "srcPath": "addons/netfox.internals/graph.gd",
+    "briefDescription": "",
+    "description": "",
+    "tutorials": [],
+    "methods": [
+      {
+        "name": "link",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "from",
+            "type": "Variant",
+            "index": 0
+          },
+          {
+            "name": "to",
+            "type": "Variant",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "unlink",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "from",
+            "type": "Variant",
+            "index": 0
+          },
+          {
+            "name": "to",
+            "type": "Variant",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "erase",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "node",
+            "type": "Variant",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "get_linked_from",
+        "description": "",
+        "returnType": "Array",
+        "params": [
+          {
+            "name": "from",
+            "type": "Variant",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "get_linked_to",
+        "description": "",
+        "returnType": "Array",
+        "params": [
+          {
+            "name": "to",
+            "type": "Variant",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "has_link",
+        "description": "",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "from",
+            "type": "Variant",
+            "index": 0
+          },
+          {
+            "name": "to",
+            "type": "Variant",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "_append",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "pool",
+            "type": "Dictionary",
+            "index": 0
+          },
+          {
+            "name": "key",
+            "type": "Variant",
+            "index": 1
+          },
+          {
+            "name": "value",
+            "type": "Variant",
+            "index": 2
+          }
+        ]
+      },
+      {
+        "name": "_erase",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "pool",
+            "type": "Dictionary",
+            "index": 0
+          },
+          {
+            "name": "key",
+            "type": "Variant",
+            "index": 1
+          },
+          {
+            "name": "value",
+            "type": "Variant",
+            "index": 2
+          }
+        ]
+      }
+    ],
+    "members": [
+      {
+        "name": "_links_from",
+        "type": "Dictionary",
+        "setter": "",
+        "getter": "",
+        "default": "{}",
+        "description": ""
+      },
+      {
+        "name": "_links_to",
+        "type": "Dictionary",
+        "setter": "",
+        "getter": "",
+        "default": "{}",
+        "description": ""
+      }
+    ],
+    "constants": [],
+    "signals": []
+  },
+  {
+    "name": "_IntervalScheduler",
+    "inherits": "RefCounted",
+    "xmlPath": "../../apidocs//_IntervalScheduler.xml",
+    "srcPath": "addons/netfox.internals/interval-scheduler.gd",
+    "briefDescription": "",
+    "description": "",
+    "tutorials": [],
+    "methods": [
+      {
+        "name": "_init",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "p_interval",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "is_now",
+        "description": "",
+        "returnType": "bool",
+        "params": []
+      }
+    ],
+    "members": [
+      {
+        "name": "interval",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "1",
+        "description": ""
+      },
+      {
+        "name": "_idx",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "0",
+        "description": ""
+      }
+    ],
+    "constants": [],
+    "signals": []
+  },
+  {
+    "name": "_NetworkHistoryServer",
+    "inherits": "Node",
+    "xmlPath": "../../apidocs//_NetworkHistoryServer.xml",
+    "srcPath": "addons/netfox/servers/network-history-server.gd",
+    "briefDescription": "Tracks the history of objects' properties",
+    "description": "Specifically, history is stored for rollback state properties, rollback input properties, and synchronized state properties. [br][br]Keeping history lets rollback restore earlier game states for resimulation, and enables [_NetworkSynchronizationServer] to send diff states by comparing against historical data.",
+    "tutorials": [],
+    "methods": [
+      {
+        "name": "register_rollback_state",
+        "description": "Register a rollback state property",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 0
+          },
+          {
+            "name": "property",
+            "type": "NodePath",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "deregister_rollback_state",
+        "description": "Deregister a rollback state property",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 0
+          },
+          {
+            "name": "property",
+            "type": "NodePath",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "register_rollback_input",
+        "description": "Register a rollback input property",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 0
+          },
+          {
+            "name": "property",
+            "type": "NodePath",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "deregister_rollback_input",
+        "description": "Deregister a rollback input property",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 0
+          },
+          {
+            "name": "property",
+            "type": "NodePath",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "register_sync_state",
+        "description": "Register a synchronized state property",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 0
+          },
+          {
+            "name": "property",
+            "type": "NodePath",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "deregister_sync_state",
+        "description": "Deregister a synchronized state property",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 0
+          },
+          {
+            "name": "property",
+            "type": "NodePath",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "deregister",
+        "description": "Deregister a node, no longer tracking any property it had registered using any of the [code]register_*()[/code] methods",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "node",
+            "type": "Node",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "get_latest_state_tick_for",
+        "description": "Return the latest tick where any of the [param]subjects[/param] had rollback state data available",
+        "returnType": "int",
+        "params": [
+          {
+            "name": "subjects",
+            "type": "Array",
+            "index": 0
+          },
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "get_state_age_for",
+        "description": "Return how old is the latest rollback state data for any of the [param] subjects[/param], in ticks",
+        "returnType": "int",
+        "params": [
+          {
+            "name": "subjects",
+            "type": "Array",
+            "index": 0
+          },
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "get_latest_input_for",
+        "description": "Return the latest tick where any of the [param]subjects[/param] had rollback input data available",
+        "returnType": "int",
+        "params": [
+          {
+            "name": "subjects",
+            "type": "Array",
+            "index": 0
+          },
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "get_input_age_for",
+        "description": "Return how old is the latest rollback input data for any of the [param] subjects[/param], in ticks",
+        "returnType": "int",
+        "params": [
+          {
+            "name": "subjects",
+            "type": "Array",
+            "index": 0
+          },
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "_record_rollback_input",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_record_rollback_state",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_record_sync_state",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_restore_rollback_input",
+        "description": "",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_restore_rollback_state",
+        "description": "",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_restore_synchronizer_state",
+        "description": "",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_get_rollback_input_snapshot",
+        "description": "",
+        "returnType": "_Snapshot",
+        "params": [
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_get_rollback_state_snapshot",
+        "description": "",
+        "returnType": "_Snapshot",
+        "params": [
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_get_synchronizer_state_snapshot",
+        "description": "",
+        "returnType": "_Snapshot",
+        "params": [
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_merge_rollback_input",
+        "description": "",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "snapshot",
+            "type": "_Snapshot",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_merge_rollback_state",
+        "description": "",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "snapshot",
+            "type": "_Snapshot",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_merge_synchronizer_state",
+        "description": "",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "snapshot",
+            "type": "_Snapshot",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_record",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 0
+          },
+          {
+            "name": "history",
+            "type": "_PerObjectHistory",
+            "index": 1
+          },
+          {
+            "name": "snapshots",
+            "type": "_HistoryBuffer",
+            "index": 2
+          },
+          {
+            "name": "property_pool",
+            "type": "_PropertyPool",
+            "index": 3
+          },
+          {
+            "name": "only_auth",
+            "type": "bool",
+            "index": 4
+          },
+          {
+            "name": "auth_filter",
+            "type": "Callable",
+            "index": 5
+          }
+        ]
+      },
+      {
+        "name": "_restore_latest",
+        "description": "",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 0
+          },
+          {
+            "name": "history",
+            "type": "_PerObjectHistory",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "_merge_snapshot",
+        "description": "",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "snapshot",
+            "type": "_Snapshot",
+            "index": 0
+          },
+          {
+            "name": "snapshots",
+            "type": "_HistoryBuffer",
+            "index": 1
+          },
+          {
+            "name": "reverse",
+            "type": "bool",
+            "index": 2
+          }
+        ]
+      },
+      {
+        "name": "_merge_history",
+        "description": "",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "snapshot",
+            "type": "_Snapshot",
+            "index": 0
+          },
+          {
+            "name": "history",
+            "type": "_PerObjectHistory",
+            "index": 1
+          },
+          {
+            "name": "reverse",
+            "type": "bool",
+            "index": 2
+          }
+        ]
+      },
+      {
+        "name": "_get_latest_for",
+        "description": "",
+        "returnType": "int",
+        "params": [
+          {
+            "name": "subjects",
+            "type": "Array",
+            "index": 0
+          },
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 1
+          },
+          {
+            "name": "history",
+            "type": "_PerObjectHistory",
+            "index": 2
+          }
+        ]
+      },
+      {
+        "name": "_get_earliest_for",
+        "description": "",
+        "returnType": "int",
+        "params": [
+          {
+            "name": "subjects",
+            "type": "Array",
+            "index": 0
+          },
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 1
+          },
+          {
+            "name": "history",
+            "type": "_PerObjectHistory",
+            "index": 2
+          }
+        ]
+      }
+    ],
+    "members": [
+      {
+        "name": "_rb_input_properties",
+        "type": "_PropertyPool",
+        "setter": "",
+        "getter": "",
+        "default": "new()",
+        "description": ""
+      },
+      {
+        "name": "_rb_state_properties",
+        "type": "_PropertyPool",
+        "setter": "",
+        "getter": "",
+        "default": "new()",
+        "description": ""
+      },
+      {
+        "name": "_sync_state_properties",
+        "type": "_PropertyPool",
+        "setter": "",
+        "getter": "",
+        "default": "new()",
+        "description": ""
+      },
+      {
+        "name": "_rb_history_size",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "<unknown>",
+        "description": ""
+      },
+      {
+        "name": "_sync_history_size",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "<unknown>",
+        "description": ""
+      },
+      {
+        "name": "_rb_input_history",
+        "type": "_PerObjectHistory",
+        "setter": "",
+        "getter": "",
+        "default": "new(...)",
+        "description": ""
+      },
+      {
+        "name": "_rb_state_history",
+        "type": "_PerObjectHistory",
+        "setter": "",
+        "getter": "",
+        "default": "new(...)",
+        "description": ""
+      },
+      {
+        "name": "_sync_history",
+        "type": "_PerObjectHistory",
+        "setter": "",
+        "getter": "",
+        "default": "new(...)",
+        "description": ""
+      },
+      {
+        "name": "_rb_input_snapshots",
+        "type": "_HistoryBuffer",
+        "setter": "",
+        "getter": "",
+        "default": "new(...)",
+        "description": ""
+      },
+      {
+        "name": "_rb_state_snapshots",
+        "type": "_HistoryBuffer",
+        "setter": "",
+        "getter": "",
+        "default": "new(...)",
+        "description": ""
+      },
+      {
+        "name": "_sync_state_snapshots",
+        "type": "_HistoryBuffer",
+        "setter": "",
+        "getter": "",
+        "default": "new(...)",
+        "description": ""
+      },
+      {
+        "name": "_logger",
+        "type": "NetfoxLogger",
+        "setter": "",
+        "getter": "",
+        "default": "_for_netfox(...)",
+        "description": ""
+      }
+    ],
+    "constants": [],
+    "signals": []
+  },
+  {
+    "name": "_NetworkIdentifier",
+    "inherits": "RefCounted",
+    "xmlPath": "../../apidocs//_NetworkIdentifier.xml",
+    "srcPath": "addons/netfox/servers/data/network-identifier.gd",
+    "briefDescription": "",
+    "description": "",
+    "tutorials": [],
+    "methods": [
+      {
+        "name": "_init",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "subject",
+            "type": "Object",
+            "index": 0
+          },
+          {
+            "name": "full_name",
+            "type": "String",
+            "index": 1
+          },
+          {
+            "name": "local_id",
+            "type": "int",
+            "index": 2
+          },
+          {
+            "name": "local_peer",
+            "type": "int",
+            "index": 3
+          }
+        ]
+      },
+      {
+        "name": "has_id_for",
+        "description": "",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "peer",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "get_id_for",
+        "description": "",
+        "returnType": "int",
+        "params": [
+          {
+            "name": "peer",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "set_id_for",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "peer",
+            "type": "int",
+            "index": 0
+          },
+          {
+            "name": "id",
+            "type": "int",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "get_local_id",
+        "description": "",
+        "returnType": "int",
+        "params": []
+      },
+      {
+        "name": "get_full_name",
+        "description": "",
+        "returnType": "String",
+        "params": []
+      },
+      {
+        "name": "get_subject",
+        "description": "",
+        "returnType": "Object",
+        "params": []
+      },
+      {
+        "name": "get_known_peers",
+        "description": "",
+        "returnType": "int[]",
+        "params": []
+      },
+      {
+        "name": "reference_for",
+        "description": "",
+        "returnType": "_NetworkIdentityReference",
+        "params": [
+          {
+            "name": "peer",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_to_string",
+        "description": "",
+        "returnType": "String",
+        "params": []
+      }
+    ],
+    "members": [
+      {
+        "name": "_subject",
+        "type": "Object",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "_full_name",
+        "type": "String",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "_ids",
+        "type": "Dictionary",
+        "setter": "",
+        "getter": "",
+        "default": "{}",
+        "description": ""
+      },
+      {
+        "name": "_local_id",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      }
+    ],
+    "constants": [],
+    "signals": [
+      {
+        "name": "on_id",
+        "description": "",
+        "params": [
+          {
+            "name": "peer",
+            "type": "int",
+            "index": 0
+          },
+          {
+            "name": "id",
+            "type": "int",
+            "index": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "NorayProtocolHandler",
+    "inherits": "RefCounted",
+    "xmlPath": "../../apidocs//NorayProtocolHandler.xml",
+    "srcPath": "addons/netfox.noray/protocol-handler.gd",
+    "briefDescription": "This class parses incoming data from noray's protocol.",
+    "description": "Unless you're writing your own noray integration, [Noray] should cover most use cases.",
+    "tutorials": [],
+    "methods": [
+      {
+        "name": "reset",
+        "description": "Resets the parser.",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "ingest",
+        "description": "Parse an incoming piece of data.",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "data",
+            "type": "String",
+            "index": 0
+          }
+        ]
+      }
+    ],
+    "members": [
+      {
+        "name": "_strbuf",
+        "type": "String",
+        "setter": "",
+        "getter": "",
+        "default": "\"\"",
+        "description": ""
+      }
+    ],
+    "constants": [],
+    "signals": [
+      {
+        "name": "on_command",
+        "description": "Emitted for every command parsed during a [method ingest] call.",
+        "params": [
+          {
+            "name": "command",
+            "type": "String",
+            "index": 0
+          },
+          {
+            "name": "data",
+            "type": "String",
+            "index": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "PhysicsDriver",
+    "inherits": "Node",
+    "xmlPath": "../../apidocs//PhysicsDriver.xml",
+    "srcPath": "addons/netfox.extras/physics/physics_driver.gd",
+    "briefDescription": "",
+    "description": "",
+    "tutorials": [],
+    "methods": [
+      {
+        "name": "_enter_tree",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_exit_tree",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_ready",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "before_tick",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "_delta",
+            "type": "float",
+            "index": 0
+          },
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "on_prepare_tick",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "on_process_tick",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "_tick",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "after_tick_loop",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "step_physics",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "_delta",
+            "type": "float",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_init_physics_space",
+        "description": "Override this method to initialize the physics space.",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_physics_step",
+        "description": "Override this method to take one step in the physics space. [br][br]It should also flush and update all Godot nodes",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "_delta",
+            "type": "Variant",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_snapshot_space",
+        "description": "Override this method to record the current state of the physics space.",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "_tick",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_rollback_space",
+        "description": "Override this method to restore the physics space to a previous state.",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "_tick",
+            "type": "Variant",
+            "index": 0
+          }
+        ]
+      }
+    ],
+    "members": [
+      {
+        "name": "physics_space",
+        "type": "RID",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "snapshots",
+        "type": "Dictionary",
+        "setter": "",
+        "getter": "",
+        "default": "{}",
+        "description": ""
+      },
+      {
+        "name": "physics_factor",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "2",
+        "description": ""
+      },
+      {
+        "name": "rollback_physics_space",
+        "type": "bool",
+        "setter": "",
+        "getter": "",
+        "default": "true",
+        "description": ""
+      }
+    ],
+    "constants": [],
+    "signals": []
+  },
+  {
+    "name": "PredictiveSynchronizer",
+    "inherits": "Node",
+    "xmlPath": "../../apidocs//PredictiveSynchronizer.xml",
+    "srcPath": "addons/netfox/rollback/predictive-synchronizer.gd",
+    "briefDescription": "Similar to [RollbackSynchronizer], this class manages local variables in a rollback context for predictive simulation without networking.",
+    "description": "This is a simplified version that focuses on local state management. [br][br]Like [RollbackSynchronizer], it automatically discovers nodes with a [code]_rollback_tick(delta: float, tick: int)[/code] method and calls them during the prediction phase.",
+    "tutorials": [],
+    "methods": [
+      {
+        "name": "process_settings",
+        "description": "Process settings. [br][br]Call this after any change to configuration.",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "spawn",
+        "description": "Mark the spawn tick for all nodes managed by this synchronizer. [br][br]When rewinding to a tick earlier than the spawn tick, every managed node will be deactivated.",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "p_tick",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "despawn",
+        "description": "Mark the despawn tick for all nodes managed by this synchronizer. [br][br]When rewinding to a tick later than the despawn tick, every managed node will be deactivated.",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "p_tick",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "is_alive",
+        "description": "Return true if nodes managed by this synchronizer are alive. [br][br]Note that this method assumes that all node liveness is managed by the synchronizer. If some node livenesses are handled separately, this method may return the wrong liveness. In that case, use [method _RollbackLivenessServer.is_alive] and check for individual nodes.",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "p_tick",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_ready",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_enter_tree",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_reprocess_settings",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "add_state",
+        "description": "Add a state property. [br][br]Settings will be automatically updated. The [param node] may be a string or [NodePath] pointing to a node, or an actual [Node] instance. If the given property is already tracked, this method does nothing.",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "node",
+            "type": "Variant",
+            "index": 0
+          },
+          {
+            "name": "property",
+            "type": "String",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "_notification",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "what",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_get_configuration_warnings",
+        "description": "",
+        "returnType": "PackedStringArray",
+        "params": []
+      }
+    ],
+    "members": [
+      {
+        "name": "root",
+        "type": "Node",
+        "setter": "",
+        "getter": "",
+        "default": "get_parent()",
+        "description": "The root node for resolving node paths in properties. Defaults to the parent node."
+      },
+      {
+        "name": "state_properties",
+        "type": "String[]",
+        "setter": "",
+        "getter": "",
+        "description": "Properties that define the game state. [br][br]State properties are recorded for each tick and restored during rollback. State is restored before every rollback tick, and recorded after simulating the tick."
+      },
+      {
+        "name": "_state_properties",
+        "type": "_PropertyPool",
+        "setter": "",
+        "getter": "",
+        "default": "new()",
+        "description": ""
+      },
+      {
+        "name": "_sim_nodes",
+        "type": "Node[]",
+        "setter": "",
+        "getter": "",
+        "default": "[]",
+        "description": ""
+      },
+      {
+        "name": "_liveness_nodes",
+        "type": "Node[]",
+        "setter": "",
+        "getter": "",
+        "default": "[]",
+        "description": ""
+      },
+      {
+        "name": "_properties_dirty",
+        "type": "bool",
+        "setter": "",
+        "getter": "",
+        "default": "false",
+        "description": ""
+      }
+    ],
+    "constants": [],
+    "signals": []
+  },
+  {
+    "name": "PropertyCache",
+    "inherits": "RefCounted",
+    "xmlPath": "../../apidocs//PropertyCache.xml",
+    "srcPath": "addons/netfox/properties/property-cache.gd",
+    "briefDescription": "",
+    "description": "",
+    "tutorials": [],
+    "methods": [
+      {
+        "name": "_init",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "p_root",
+            "type": "Node",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "get_entry",
+        "description": "",
+        "returnType": "PropertyEntry",
+        "params": [
+          {
+            "name": "path",
+            "type": "String",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "properties",
+        "description": "",
+        "returnType": "Array",
+        "params": []
+      },
+      {
+        "name": "clear",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      }
+    ],
+    "members": [
+      {
+        "name": "root",
+        "type": "Node",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "_cache",
+        "type": "Dictionary",
+        "setter": "",
+        "getter": "",
+        "default": "{}",
+        "description": ""
+      },
+      {
+        "name": "_logger",
+        "type": "NetfoxLogger",
+        "setter": "",
+        "getter": "",
+        "default": "_for_netfox(...)",
+        "description": ""
+      }
+    ],
+    "constants": [],
+    "signals": []
+  },
+  {
+    "name": "PropertyEntry",
+    "inherits": "RefCounted",
+    "xmlPath": "../../apidocs//PropertyEntry.xml",
+    "srcPath": "addons/netfox/properties/property-entry.gd",
+    "briefDescription": "",
+    "description": "",
+    "tutorials": [],
+    "methods": [
+      {
+        "name": "get_value",
+        "description": "",
+        "returnType": "Variant",
+        "params": []
+      },
+      {
+        "name": "set_value",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "value",
+            "type": "Variant",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "is_valid",
+        "description": "",
+        "returnType": "bool",
+        "params": []
+      },
+      {
+        "name": "_to_string",
+        "description": "",
+        "returnType": "String",
+        "params": []
+      },
+      {
+        "name": "parse",
+        "qualifiers": "static",
+        "description": "",
+        "returnType": "PropertyEntry",
+        "params": [
+          {
+            "name": "root",
+            "type": "Node",
+            "index": 0
+          },
+          {
+            "name": "path",
+            "type": "String",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "make_path",
+        "qualifiers": "static",
+        "description": "",
+        "returnType": "String",
+        "params": [
+          {
+            "name": "root",
+            "type": "Node",
+            "index": 0
+          },
+          {
+            "name": "node",
+            "type": "Variant",
+            "index": 1
+          },
+          {
+            "name": "property",
+            "type": "String",
+            "index": 2
+          }
+        ]
+      }
+    ],
+    "members": [
+      {
+        "name": "_path",
+        "type": "String",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "node",
+        "type": "Node",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "property",
+        "type": "String",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "_logger",
+        "type": "NetfoxLogger",
+        "setter": "",
+        "getter": "",
+        "default": "_for_netfox(...)",
+        "description": ""
+      }
+    ],
+    "constants": [],
+    "signals": []
+  },
+  {
+    "name": "RewindableAction",
+    "inherits": "Node",
+    "xmlPath": "../../apidocs//RewindableAction.xml",
+    "srcPath": "addons/netfox/rewindable-action.gd",
+    "briefDescription": "Represents actions that may or may not happen, in a way compatible with rollback.",
+    "description": "",
+    "tutorials": [
+      {
+        "title": "RewindableAction Guide",
+        "link": ""
+      }
+    ],
+    "methods": [
+      {
+        "name": "status_string",
+        "qualifiers": "static",
+        "description": "Returns the [param status] enum as string",
+        "returnType": "String",
+        "params": [
+          {
+            "name": "status",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "set_active",
+        "description": "Toggles the action for a given [param tick]",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "active",
+            "type": "bool",
+            "index": 0
+          },
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "is_active",
+        "description": "Check if the action is happening for the given [param tick]",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "get_status",
+        "description": "Check the action's status for the given [param tick] [br][br]Returns [constant ACTIVE] if the action is happening.[br]Returns [constant INACTIVE] if the action is not happening.[br]Returns [constant CONFIRMING] if the action was previously known as not happening, but now it is.[br]Returns [constant CANCELLING] if the action was previously known to be happening, but now it is not.[br][br]The [constant CONFIRMING] and [constant CANCELLING] statuses may occur if the action was just toggled, or data was received from the action's authority.",
+        "returnType": "int",
+        "params": [
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "has_confirmed",
+        "description": "Returns true if the action has been in [constant CONFIRMING] status during the last tick loop",
+        "returnType": "bool",
+        "params": []
+      },
+      {
+        "name": "has_cancelled",
+        "description": "Returns true if the action has been in [constant CANCELLING] status during the last tick loop",
+        "returnType": "bool",
+        "params": []
+      },
+      {
+        "name": "get_status_string",
+        "description": "Get the action's current status as a string [br][br]See also: [member get_status]",
+        "returnType": "String",
+        "params": [
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "has_context",
+        "description": "Returns true if the action has any stored context for the given [param tick]",
+        "returnType": "bool",
+        "params": [
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "get_context",
+        "description": "Get the context stored for the given [param tick], or null",
+        "returnType": "Variant",
+        "params": [
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "set_context",
+        "description": "Store [param value] as the context for the given [param tick]",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "value",
+            "type": "Variant",
+            "index": 0
+          },
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "erase_context",
+        "description": "Erase the context for the given [param tick]",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "tick",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "mutate",
+        "description": "Whenever the action happens, mutate the [param target] object [br][br]See also: [method _NetworkRollback.mutate]",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "target",
+            "type": "Object",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "dont_mutate",
+        "description": "Remove the [param target] object from the list of objects to [method mutate] [br][br]See also: [method _NetworkRollback.mutate]",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "target",
+            "type": "Object",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_connect_signals",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_disconnect_signals",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_enter_tree",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_exit_tree",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_notification",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "what",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "_before_rollback_loop",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_after_loop",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      },
+      {
+        "name": "_submit_state",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "bytes",
+            "type": "PackedByteArray",
+            "index": 0
+          }
+        ]
+      }
+    ],
+    "members": [
+      {
+        "name": "_active_ticks",
+        "type": "_Set",
+        "setter": "",
+        "getter": "",
+        "default": "new()",
+        "description": ""
+      },
+      {
+        "name": "_last_set_tick",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "-1",
+        "description": ""
+      },
+      {
+        "name": "_state_changes",
+        "type": "Dictionary",
+        "setter": "",
+        "getter": "",
+        "default": "{}",
+        "description": ""
+      },
+      {
+        "name": "_queued_changes",
+        "type": "Dictionary",
+        "setter": "",
+        "getter": "",
+        "default": "{}",
+        "description": ""
+      },
+      {
+        "name": "_has_confirmed",
+        "type": "bool",
+        "setter": "",
+        "getter": "",
+        "default": "false",
+        "description": ""
+      },
+      {
+        "name": "_has_cancelled",
+        "type": "bool",
+        "setter": "",
+        "getter": "",
+        "default": "false",
+        "description": ""
+      },
+      {
+        "name": "_context",
+        "type": "Dictionary",
+        "setter": "",
+        "getter": "",
+        "default": "{}",
+        "description": ""
+      },
+      {
+        "name": "_mutated_objects",
+        "type": "_Set",
+        "setter": "",
+        "getter": "",
+        "default": "new()",
+        "description": ""
+      },
+      {
+        "name": "_logger",
+        "type": "NetfoxLogger",
+        "setter": "",
+        "getter": "",
+        "default": "_for_netfox(...)",
+        "description": ""
+      }
+    ],
+    "constants": [
+      {
+        "name": "INACTIVE",
+        "value": "0",
+        "enum": "@unnamed_enums",
+        "description": ""
+      },
+      {
+        "name": "CONFIRMING",
+        "value": "1",
+        "enum": "@unnamed_enums",
+        "description": ""
+      },
+      {
+        "name": "ACTIVE",
+        "value": "2",
+        "enum": "@unnamed_enums",
+        "description": ""
+      },
+      {
+        "name": "CANCELLING",
+        "value": "3",
+        "enum": "@unnamed_enums",
+        "description": ""
+      }
+    ],
+    "signals": []
+  },
+  {
+    "name": "RewindableRandomNumberGenerator",
+    "inherits": "RefCounted",
+    "xmlPath": "../../apidocs//RewindableRandomNumberGenerator.xml",
+    "srcPath": "addons/netfox.extras/rewindable-random-number-generator.gd",
+    "briefDescription": "Provides methods for generating pseudo-random numbers in the rollback tick loop.",
+    "description": "Using a regular [RandomNumberGenerator] in [code]_rollback_tick()[/code] would generate different numbers on each peer. It also generates different numbers when resimulating the same tick. [br][br]This class solves all of the above, making it suitable for use during rollback. [br][br]The seed must be provided on instantiation, and must be the same on all peers for the random number generator to work properly.",
+    "tutorials": [
+      {
+        "title": "RewindableRandomNumberGenerator Guide",
+        "link": ""
+      }
+    ],
+    "methods": [
+      {
+        "name": "_init",
+        "description": "",
+        "returnType": "void",
+        "params": [
+          {
+            "name": "p_seed",
+            "type": "int",
+            "index": 0
+          }
+        ]
+      },
+      {
+        "name": "randf",
+        "description": "Returns a pseudo-random float between [code]0.0[/code] and [code]1.0[/code] (inclusive).",
+        "returnType": "float",
+        "params": []
+      },
+      {
+        "name": "randf_range",
+        "description": "Returns a pseudo-random float between [code]from[/code] and [code]to[/code] (inclusive).",
+        "returnType": "float",
+        "params": [
+          {
+            "name": "from",
+            "type": "float",
+            "index": 0
+          },
+          {
+            "name": "to",
+            "type": "float",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "randfn",
+        "description": "Returns a normally-distributed, pseudo-random floating-point number from the specified [code]mean[/code] and a standard [code]deviation[/code]. This is also known as a Gaussian distribution.",
+        "returnType": "float",
+        "params": [
+          {
+            "name": "mean",
+            "type": "float",
+            "index": 0
+          },
+          {
+            "name": "deviation",
+            "type": "float",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "randi",
+        "description": "Returns a pseudo-random 32-bit unsigned integer between [code]0[/code] and [code]4294967295[/code] (inclusive).",
+        "returnType": "int",
+        "params": []
+      },
+      {
+        "name": "randi_range",
+        "description": "Returns a pseudo-random 32-bit unsigned integer between [code]from[/code] and [code]to[/code] (inclusive).",
+        "returnType": "int",
+        "params": [
+          {
+            "name": "from",
+            "type": "int",
+            "index": 0
+          },
+          {
+            "name": "to",
+            "type": "int",
+            "index": 1
+          }
+        ]
+      },
+      {
+        "name": "_ensure_state",
+        "description": "",
+        "returnType": "void",
+        "params": []
+      }
+    ],
+    "members": [
+      {
+        "name": "_rng",
+        "type": "RandomNumberGenerator",
+        "setter": "",
+        "getter": "",
+        "description": ""
+      },
+      {
+        "name": "_last_reset_tick",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "-1",
+        "description": ""
+      },
+      {
+        "name": "_last_reset_rollback_tick",
+        "type": "int",
+        "setter": "",
+        "getter": "",
+        "default": "-1",
+        "description": ""
+      },
+      {
+        "name": "_logger",
+        "type": "NetfoxLogger",
+        "setter": "",
+        "getter": "",
+        "default": "_for_extras(...)",
+        "description": ""
+      }
+    ],
+    "constants": [],
+    "signals": []
+  }
+]
