@@ -1,5 +1,5 @@
 import type { ClassDB } from "./classdb";
-import type { Class } from "./class.types";
+import type { Class, Parameter } from "./class.types";
 import type { BBCode, BBCodeToken } from "./bb.parser";
 
 export interface Renderer {
@@ -46,12 +46,19 @@ export class MarkdownRenderer implements Renderer {
           `|--|--|--|\n`
         )
 
-        for (const member of classInfo.members)
-          if (!member.isPrivate || this.renderPrivateMembers)
-            if (member.default)
-              sink.write(`| ${member.type} | ${member.name} | \`${member.default}\` |\n`)
-            else
-              sink.write(`| ${member.type} | ${member.name} |  |\n`)
+        for (const member of classInfo.members) {
+          if (member.isPrivate && !this.renderPrivateMembers)
+            continue;
+
+          const typeLink = await this.getTypeLink(member.type)
+          const link = `#${this.slug(member.name)}`
+
+          const type = typeLink ? `[${member.type}](${typeLink})` : member.type
+          const name = member.name
+          const defaultValue = member.default ? `\`${member.default}\`` : ""
+
+          sink.write(`| ${type} | [${name}](${link}) | ${defaultValue} |\n`)
+        }
       }
 
       if (this.hasMethods(classInfo)) {
@@ -65,12 +72,15 @@ export class MarkdownRenderer implements Renderer {
           if (method.isPrivate && !this.renderPrivateMembers)
             continue
 
-          const type = method.returnType
+          const typeLink = await this.getTypeLink(method.returnType)
+          const link = `#${this.slug(method.name)}`
+
+          const type = typeLink ? `[${method.returnType}](${typeLink})` : method.returnType
           const name = method.name
-          const params = method.params.map(p => `${p.type} ${p.name}`).join(", ")
+          const params = await this.renderParams(method.params)
           const qualifiers = method.qualifiers ?? ""
 
-          sink.write(`| ${type} | ${name}(${params}) ${qualifiers} |\n`)
+          sink.write(`| ${type} | [${name}](${link})(${params}) ${qualifiers} |\n`)
         }
       }
 
@@ -79,7 +89,7 @@ export class MarkdownRenderer implements Renderer {
 
         for (const signal of classInfo.signals) {
           const name = signal.name
-          const params = signal.params.map(p => `${p.type} ${p.name}`).join(", ")
+          const params = await this.renderParams(signal.params)
 
           sink.write(
             `### ${name} ( ${params} )\n\n` +
@@ -104,27 +114,35 @@ export class MarkdownRenderer implements Renderer {
       if (this.hasMembers(classInfo)) {
         sink.write(`\n## Property Descriptions\n\n`)
 
-        for (const member of classInfo.members)
-          if (!member.isPrivate)
-            sink.write(
-              `### ${member.type} ${member.name}\n` + 
-              (member.default ? `= \`${member.default}\`\n` : "") +
-              `${await this.renderBBCode(member.description)}\n\n`
-            )
+        for (const member of classInfo.members) {
+          if (member.isPrivate && !this.renderPrivateMembers)
+            continue
+
+          const defaultSuffix = member.default ? `= \`${member.default}\`` : ""
+          const slug = this.slug(member.name)
+          sink.write(
+            `### <span id="${slug}">${member.type} ${member.name}</span> ${defaultSuffix}\n` + 
+            `${await this.renderBBCode(member.description)}\n\n`
+          )
+        }
       }
 
-      if (classInfo.methods.length) {
+      if (this.hasMethods(classInfo)) {
         sink.write(`\n## Method Descriptions\n\n`)
 
         for (const method of classInfo.methods) {
+          if (method.isPrivate && !this.renderPrivateMethods)
+            continue
+
           const type = method.returnType
           const name = method.name
-          const params = method.params.map(p => `${p.type} ${p.name}`).join(", ")
+          const params = await this.renderParams(method.params)
           const qualifiers = method.qualifiers ?? ""
           const description = method.description
+          const slug = this.slug(name)
 
           sink.write(
-            `### ${type} ${name} ( ${params} ) ${qualifiers}\n\n` + 
+            `### <span id="${slug}">${type} ${name} ( ${params} ) ${qualifiers}</span>\n\n` + 
             `${await this.renderBBCode(description)}\n\n`)
         }
       }
@@ -162,11 +180,11 @@ export class MarkdownRenderer implements Renderer {
       else if(token.type === "codeblock")
         result.push("\n\n```" + token.code + "```\n\n")
       else if(token.type === "method")
-        result.push(`[${token.class ? token.class + "." : ""}${token.name}()](#)`) // TODO: Link
+        result.push(`[${token.class ? token.class + "." : ""}${token.name}()](${this.getMethodLink(token.class, token.name) ?? "#"})`)
       else if (token.type === "param")
         result.push(`\`${token.name}\``)
       else if(token.type === "member")
-        result.push(`[${token.class ? token.class + "." : ""}${token.name}](#)`) // TODO: Link
+        result.push(`[${token.class ? token.class + "." : ""}${token.name}](${this.getMemberLink(token.class, token.name) ?? "#"})`) // TODO: Link
       else if(token.type === "constant")
         result.push(`[${token.class ? token.class + "." : ""}${token.name}](#)`) // TODO: Link
       else if(token.type === "signal")
@@ -198,6 +216,11 @@ export class MarkdownRenderer implements Renderer {
       JSON.stringify(token, undefined, 2) +
       "\n```\n\n"
     )
+    console.error("Encountered unknown token", token)
+  }
+
+  private slug(text: string): string {
+    return text.replace(/[^\d\w]/g, "-").toLowerCase()
   }
 
   private hasMembers(classInfo: Class): boolean {
@@ -212,5 +235,53 @@ export class MarkdownRenderer implements Renderer {
       return classInfo.methods.some(m => !m.isPrivate)
     else
       return classInfo.methods.length > 0
+  }
+
+  private getMethodLink(className: string | undefined, method: string): string | undefined {
+    if (className === undefined)
+      return `#${this.slug(method)}`
+    else if (this.classDB.findByName(className)) {
+      const classInfo = this.classDB.findByName(className)
+      return `${classInfo?.name}.md#${this.slug(method)}`
+    } else {
+      console.error("Couldn't link method:", { className, method })
+      return undefined
+    }
+  }
+
+  private getMemberLink(className: string | undefined, member: string): string | undefined {
+    if (className === undefined)
+      return `#${this.slug(member)}`
+    else if (this.classDB.findByName(className)) {
+      const classInfo = this.classDB.findByName(className)
+      return `${classInfo?.name}.md#${this.slug(member)}`
+    } else {
+      console.error("Couldn't link member:", { className, member })
+      return undefined
+    }
+  }
+
+  private async getTypeLink(type: string): Promise<string | undefined> {
+    if (type.endsWith("[]"))
+      return this.getTypeLink(type.slice(0, type.length - 2))
+
+    const localClass = this.classDB.findByName(type)
+    if (localClass)
+      return `./${localClass.name}.md`
+    else
+      return this.classDB.lookupExternal(type)
+  }
+
+  private async renderParams(params: Parameter[]): Promise<string> {
+    const result = []
+    for (const param of params) {
+      const typeLink = await this.getTypeLink(param.type)
+      const type = typeLink ? `[${param.type}](${typeLink})` : param.type
+      const name = param.name
+
+      result.push(`${type} ${name}`)
+    }
+
+    return result.join(', ')
   }
 }
