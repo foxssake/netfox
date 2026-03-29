@@ -189,16 +189,30 @@ func add_input(node: Variant, property: String) -> void:
 ## [/codeblock]
 func set_schema(schema: Dictionary) -> void:
 	# Remove previous schema
-	for node in _schema_nodes:
-		NetworkSynchronizationServer.deregister_schema_for(node)
-	_schema_nodes.clear()
+	clear_schema()
 
 	# Register new schema
+	merge_schema(schema)
+
+## Add serializers from [param schema].
+## [br][br]
+## See [method set_schema] for specifying [param schema]. As opposed to [method
+## set_schema], this method updates the schema, instead of overriding it. If
+## a property had a serializer specified previously, this will replace it.
+func merge_schema(schema: Dictionary) -> void:
 	for prop in schema:
 		var prop_entry := PropertyEntry.parse(root, prop)
 		var serializer := schema[prop] as NetworkSchemaSerializer
 		NetworkSynchronizationServer.register_schema(prop_entry.node, prop_entry.property, serializer)
 		_schema_nodes.add(prop_entry.node)
+
+## Clear any serializers specified earlier.
+## [br][br]
+## See [method set_schema].
+func clear_schema() -> void:
+	for node in _schema_nodes:
+		NetworkSynchronizationServer.deregister_schema_for(node)
+	_schema_nodes.clear()
 
 ## Check if input is available for the current tick.
 ## [br][br]
