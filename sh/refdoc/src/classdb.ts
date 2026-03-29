@@ -28,6 +28,7 @@ export class ClassDB {
 
   async ingestFile(path: string) {
     this.ingest(await Bun.file(path).text(), path)
+    console.log(`Ingested ${path}`)
   }
 
   async exploreLocations(root: string): Promise<void> {
@@ -47,6 +48,8 @@ export class ClassDB {
 
       if (classInfo)
         classInfo.srcPath = file
+
+      console.log(`Explored ${file}`)
     }
   }
 

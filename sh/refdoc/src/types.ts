@@ -15,6 +15,7 @@ export interface Class {
   members: Member[];
   constants: Constant[];
   signals: Signal[];
+  // TODO: Enumerations
 }
 
 export interface Tutorial {
@@ -28,6 +29,7 @@ export interface Method {
   returnType: string;
   description: string;
   params: Parameter[];
+  isPrivate: boolean;
 }
 
 export interface Parameter {
@@ -43,6 +45,7 @@ export interface Member {
   getter: string | undefined;
   default: string | undefined;
   description: string;
+  isPrivate: boolean;
 }
 
 export interface Constant {
@@ -50,10 +53,12 @@ export interface Constant {
   value: string;
   enum: string | undefined;
   description: string;
+  isPrivate: boolean;
 }
 
 export interface Signal {
   name: string;
   description: string;
   params: Parameter[];
+  isPrivate: boolean;
 }

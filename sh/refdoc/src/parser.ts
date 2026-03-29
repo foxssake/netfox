@@ -26,7 +26,8 @@ export function parseClass(classDocument: Document): Class {
     qualifiers: e.getAttribute("qualifiers") ?? undefined,
     description: e.querySelector("description")?.textContent?.trim()!!,
     returnType: e.querySelector("return")?.getAttribute("type")!!,
-    params: parseParams(e)
+    params: parseParams(e),
+    isPrivate: e.getAttribute("name")?.startsWith("_") !== true
   }));
 
   const members: Member[] = [...classDocument.querySelectorAll("members>member")].map(e => ({
@@ -35,20 +36,23 @@ export function parseClass(classDocument: Document): Class {
     setter: e.getAttribute("setter") ?? undefined,
     getter: e.getAttribute("getter") ?? undefined,
     default: e.getAttribute("default") ?? undefined,
-    description: e.textContent.trim()
+    description: e.textContent.trim(),
+    isPrivate: e.getAttribute("name")?.startsWith("_") === true
   }));
 
   const constants: Constant[] = [...classDocument.querySelectorAll("constants>constant")].map(e => ({
     name: e.getAttribute("name")!!,
     value: e.getAttribute("value")!!,
     enum: e.getAttribute("enum") ?? undefined,
-    description: e.textContent.trim()
+    description: e.textContent.trim(),
+    isPrivate: e.getAttribute("name")?.startsWith("_") === true
   }));
 
   const signals: Signal[] = [...classDocument.querySelectorAll("signals>signal")].map(e => ({
     name: e.getAttribute("name")!!,
     description: e.querySelector("description")?.textContent?.trim()!!,
-    params: parseParams(e)
+    params: parseParams(e),
+    isPrivate: e.getAttribute("name")?.startsWith("_") === true
   }));
 
   return {
