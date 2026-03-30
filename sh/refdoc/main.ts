@@ -7,8 +7,8 @@ async function main(args: string[]) {
   const out = args.at(2) ?? "out/"
 
   const classdb = (await ClassDB.fromDirectory(dir)).onlyNamedClasses();
-
   await classdb.exploreLocations(src);
+  classdb.classes = classdb.classes.filter(c => c.srcPath?.startsWith("addons/netfox") === true)
 
   await Bun.file("classdb.json").write(JSON.stringify(classdb.classes, undefined, 2))
 

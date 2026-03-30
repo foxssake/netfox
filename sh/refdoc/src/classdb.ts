@@ -37,7 +37,7 @@ export class ClassDB {
   async exploreLocations(root: string): Promise<void> {
     const files = await readdir(root, { recursive: true });
 
-    const pattern = /class_name\s+([^\s]+)/g;
+    const pattern = /class_name\s+([^\s]+)/;
     for (const file of files) {
       if (!file.endsWith(".gd")) continue;
 
@@ -52,7 +52,8 @@ export class ClassDB {
 
       if (classInfo)
         classInfo.srcPath = file
-
+    
+      console.log(`${file}: `, hit)
       console.log(`Explored ${file}`)
     }
   }
