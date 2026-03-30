@@ -1,6 +1,8 @@
 extends Node
 class_name _NetworkRollback
 
+# @public class
+
 ## Orchestrates the rollback loop.
 ##
 ## @tutorial(NetworkRollback Guide): https://foxssake.github.io/netfox/latest/netfox/guides/network-rollback/

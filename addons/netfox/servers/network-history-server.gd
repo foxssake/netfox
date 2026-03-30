@@ -1,6 +1,8 @@
 extends Node
 class_name _NetworkHistoryServer
 
+# @public class
+
 ## Tracks the history of objects' properties
 ##
 ## Specifically, history is stored for rollback state properties, rollback input

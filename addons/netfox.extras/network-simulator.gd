@@ -1,4 +1,7 @@
 extends Node
+class_name _NetworkSimulator
+
+# @public class
 
 ## Network Simulator
 ##

@@ -1,6 +1,8 @@
 extends Node
 class_name _NetworkTime
 
+# @public class
+
 ## This class handles timing.
 ##
 ## @tutorial(NetworkTime Guide): https://foxssake.github.io/netfox/latest/netfox/guides/network-time/

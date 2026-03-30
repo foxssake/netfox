@@ -1,4 +1,8 @@
 extends Node
+class_name _PacketHandshake
+
+# @public class
+
 ## This class implements a handshake protocol over UDP for multiple classes.
 
 class HandshakeStatus:

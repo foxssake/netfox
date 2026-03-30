@@ -2,7 +2,6 @@ import { JSDOM } from "jsdom";
 import type { Class } from "./class.types";
 import { isFileBasedName, parseClass } from "./class.parser";
 import { readdir } from "node:fs/promises";
-import { sleep } from "bun";
 
 export class ClassDB {
   classes: Class[] = [];
@@ -37,7 +36,10 @@ export class ClassDB {
   async exploreLocations(root: string): Promise<void> {
     const files = await readdir(root, { recursive: true });
 
-    const pattern = /class_name\s+([^\s]+)/;
+    const classNamePattern = /class_name\s+([^\s]+)/;
+    const privateClassPattern = /^\s*#\s*@private\s+class\s*$/m
+    const publicClassPattern = /^\s*#\s*@public\s+class\s*$/m
+
     for (const file of files) {
       if (!file.endsWith(".gd")) continue;
 
@@ -45,15 +47,20 @@ export class ClassDB {
       if ((await fileHandle.stat()).isDirectory()) continue
 
       const script = await Bun.file(root + "/" + file).text()
-      const hit = pattern.exec(script);
+      const hit = classNamePattern.exec(script);
       const classInfo = (hit !== null && hit.length >= 2)
         ? this.findByName(hit.at(1) ?? "")
         : undefined;
 
-      if (classInfo)
+      if (classInfo) {
         classInfo.srcPath = file
+
+        if (privateClassPattern.test(script))
+          classInfo.isPrivate = true
+        if (publicClassPattern.test(script))
+          classInfo.isPrivate = false
+      }
     
-      console.log(`${file}: `, hit)
       console.log(`Explored ${file}`)
     }
   }
@@ -80,7 +87,6 @@ export class ClassDB {
     console.log(`Checking ${name} at ${address}...`)
 
     const response = await fetch(address);
-    // await sleep(200)
 
     if (response.ok) {
       console.log(`Found ${name} as external!`)

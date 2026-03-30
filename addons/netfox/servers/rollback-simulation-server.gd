@@ -1,6 +1,8 @@
 extends Node
 class_name _RollbackSimulationServer
 
+# @public class
+
 ## Runs gameplay simulation during rollback
 ##
 ## Rollback involves restoring the game state to an earlier point in time and

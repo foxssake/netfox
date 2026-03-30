@@ -1,4 +1,8 @@
 extends Node
+class_name _NetworkEvents
+
+# @public class
+
 ## This class provides convenience signals for multiplayer games.
 ##
 ## While the client start/stop and peer join/leave events are trivial, the

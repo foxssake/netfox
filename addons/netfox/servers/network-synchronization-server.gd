@@ -1,6 +1,8 @@
 extends Node
 class_name _NetworkSynchronizationServer
 
+# @public class
+
 ## Synchronizes properties over the network
 ##
 ## Handles synchronization of rollback and state properties (

@@ -3,6 +3,7 @@ import type { BBCode } from "./bb.parser";
 export interface Class {
   name: string;
   inherits: string;
+  isPrivate: boolean;
 
   xmlPath: string | undefined;
   srcPath: string| undefined;

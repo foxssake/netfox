@@ -1,6 +1,8 @@
 extends Node
 class_name _NetworkCommandServer
 
+# @public class
+
 ## Transmits commands over the network
 ##
 ## Commands are a simpler, lightweight alternative to RPCs. Commands consist of

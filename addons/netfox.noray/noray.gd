@@ -1,4 +1,8 @@
 extends Node
+class_name _Noray
+
+# @public class
+
 ## A noray client for Godot.
 ##
 ## See: [url]https://github.com/foxssake/noray[/url]

@@ -60,6 +60,7 @@ export function parseClass(classDocument: Document): Class {
   return {
     name: className,
     inherits: classInherits,
+    isPrivate: isPrivateClass(className),
 
     xmlPath: undefined,
     srcPath: undefined,
@@ -78,4 +79,15 @@ export function parseClass(classDocument: Document): Class {
 
 export function isFileBasedName(className: string): boolean {
   return className.includes(".gd") || className.includes("/") || className.includes("\\");
+}
+
+function isPrivateClass(name: string): boolean {
+  if (isFileBasedName(name))
+    return true
+
+  if (name.includes("."))
+    // Inner class
+    return name.split(".").at(-1)?.startsWith("_") !== false
+
+  return name.startsWith("_")
 }
