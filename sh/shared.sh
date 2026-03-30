@@ -29,7 +29,7 @@ endgroup() {
   if [[ $IS_CI == "yes" ]]; then
     echo "::endgroup::"
   else
-    _PREFIX="${_PREFIX::-4}"
+    _PREFIX="${_PREFIX::${#_PREFIX}-4}"
   fi
 }
 

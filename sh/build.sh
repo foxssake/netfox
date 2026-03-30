@@ -22,8 +22,9 @@ declare -a OFF_FILES=(
 source sh/shared.sh
 
 # Grab commit history
-print $BOLD"Unshallowing commit history"$NC
+group "Unshallowing commit history"
 git fetch --unshallow --filter=tree:0
+endgroup
 
 print $BOLD"Building netfox v${version}" $NC
 
@@ -37,7 +38,7 @@ mkdir -p "$BUILD"
 rm -rf "$TMP"
 
 # Disable scripts
-print "::group::Disabling optional scripts"
+group "Disabling optional scripts"
 has_missing_offs="false"
 
 for file in "${OFF_FILES[@]}"; do
@@ -45,7 +46,7 @@ for file in "${OFF_FILES[@]}"; do
   has_off=$(test -f "$file.off" && echo "true" || echo "false")
 
   if [[ $has_source == "false" && $has_off == "false" ]]; then
-    print "::error::Registered optional script doesn't exist: $file"
+    error_in_file "$file" "Registered optional script doesn't exist: $file"
     has_missing_offs="true"
   fi
 
@@ -56,15 +57,15 @@ for file in "${OFF_FILES[@]}"; do
 done
 
 if [[ $has_missing_offs == "true" ]]; then
-  print "::error::Found missing optional scripts!"
-  print "::endgroup::"
+  error "Found missing optional scripts!"
+  endgroup
   exit 1;
 fi;
-print "::endgroup::"
+endgroup
 
 # Bundle addons
 for addon in ${addons[@]}; do
-    print "::group::Packing addon ${addon}"
+    group "Packing addon ${addon}"
 
     addon_tmp="$TMP/${addon}.v${version}/addons"
     addon_src="$ROOT/addons/${addon}"
@@ -90,7 +91,7 @@ for addon in ${addons[@]}; do
 
     cd "$ROOT"
     rm -rf "$TMP"
-    print "::endgroup::"
+    endgroup
 done
 
 # Build example game
@@ -98,21 +99,24 @@ print $BOLD"Building Forest Brawl" $NC
 mkdir -p build/linux
 mkdir -p build/win64
 
-print "Building with Linux/X11 preset"
+group "Building with Linux/X11 preset"
 godot --headless --export-release "Linux/X11" "build/linux/forest-brawl.x86_64"
 zip -j "build/forest-brawl.v${version}.linux.zip" build/linux/*
+endgroup
 
-print "Building with Windows preset"
+group "Building with Windows preset"
 godot --headless --export-release "Windows Desktop" "build/win64/forest-brawl.exe"
 zip -j "build/forest-brawl.v${version}.win64.zip" build/win64/*
+endgroup
 
 # Build docs
-print $BOLD"Building docs" $NC
+group "Building docs"
 mkdocs build --no-directory-urls
 cd site
 zip -r "../build/netfox.docs.v${version}.zip" ./*
 cd ..
 rm -rf site
+engroup
 
 # Cleanup
 print $BOLD"Cleaning up" $NC

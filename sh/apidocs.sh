@@ -18,5 +18,3 @@ endgroup
 group "Rendering reference pages"
 bun sh/refdoc/ apidocs/ ./ docs/class-reference/
 endgroup
-
-endgroup
