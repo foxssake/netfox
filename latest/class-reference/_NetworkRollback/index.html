@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://foxssake.github.io/netfox/latest/class-reference/_NetworkRollback/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>_NetworkRollback - netfox</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../css/version-selector.css" rel="stylesheet" />
+        <link href="../../css/twemoji.css" rel="stylesheet" />
+        <link href="../../assets/mkdocs_puml/puml.css" rel="stylesheet" />
+        <link href="../../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "_NetworkRollback";
+        var mkdocs_page_input_path = "class-reference/_NetworkRollback.md";
+        var mkdocs_page_url = "/netfox/latest/class-reference/_NetworkRollback/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script>
+  <script src="https://giscus.app/client.js"
+          data-repo="foxssake/netfox"
+          data-repo-id="R_kgDOKBON2A"
+          data-category="Docs"
+          data-category-id="DIC_kwDOKBON2M4Clib_"
+          data-mapping="title"
+          data-strict="0"
+          data-reactions-enabled="1"
+          data-emit-metadata="0"
+          data-input-position="top"
+          data-theme="light"
+          data-lang="en"
+          data-loading="lazy"
+          crossorigin="anonymous"
+          async>
+  </script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> netfox
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../upgrading/">Upgrading netfox</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../made-with-netfox/">Made with netfox</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../external-tutorials/">External tutorials</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../press-kit/">Press kit</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../contributors/">Contributors</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Tutorials</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/responsive-player-movement/">Responsive player movement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/input-gathering-tips-and-tricks/">Input gathering tips and tricks</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/predicting-input/">Predicting input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/using-rollbacksynchronizer-without-inputs/">Using RollbackSynchronizer without inputs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/spawning-and-despawning-in-rollback/">Spawning and despawning in rollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/modifying-objects-during-rollback/">Modifying objects during rollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/configuring-properties-from-code/">Configuring properties from code</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/rollback-caveats/">Rollback caveats</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/interpolation-caveats/">Interpolation caveats</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Concepts</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/concepts/servers-clients-ownership/">Servers, clients, and ownership</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/concepts/authoritative-servers/">Authoritative servers</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/logging/">Logging</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-time/">NetworkTime</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-time-synchronizer/">NetworkTimeSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-events/">NetworkEvents</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/interpolators/">Interpolators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/property-paths/">Property paths</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-rollback/">NetworkRollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-performance/">NetworkPerformance</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-command-server/">NetworkCommandServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-schemas/">Network Schemas</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/visibility-management/">Visibility Management</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/netfox-sharp/">Netfox Sharp</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Nodes</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/nodes/tick-interpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/nodes/rollback-synchronizer/">RollbackSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/nodes/predictive-synchronizer/">PredictiveSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/nodes/state-synchronizer/">StateSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/nodes/rewindable-action/">RewindableAction</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.noray</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.noray/guides/noray/">Noray</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.noray/guides/packet-handshake/">PacketHandshake</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.extras</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/physics/">Physics</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/network-simulator/">NetworkSimulator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/base-net-input/">BaseNetInput</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/network-weapon/">NetworkWeapon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/rewindable-state-machine/">RewindableStateMachine</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/rewindable-random-number-generator/">RewindableRandomNumberGenerator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/window-tiler/">WindowTiler</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Reference</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" >Classes</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../BaseNetInput/">BaseNetInput</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../Interpolators.Interpolator/">Interpolators.Interpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../Interpolators/">Interpolators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetfoxLogger/">NetfoxLogger</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkRigidBody2D/">NetworkRigidBody2D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkRigidBody3D/">NetworkRigidBody3D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkSchemas/">NetworkSchemas</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkTickrateHandshake/">NetworkTickrateHandshake</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkWeapon/">NetworkWeapon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkWeapon2D/">NetworkWeapon2D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkWeapon3D/">NetworkWeapon3D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkWeaponHitscan3D/">NetworkWeaponHitscan3D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../PeerVisibilityFilter/">PeerVisibilityFilter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../PhysicsDriver/">PhysicsDriver</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../PredictiveSynchronizer/">PredictiveSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RewindableAction/">RewindableAction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RewindableRandomNumberGenerator/">RewindableRandomNumberGenerator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RewindableState/">RewindableState</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RewindableStateMachine/">RewindableStateMachine</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RollbackSynchronizer/">RollbackSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../StateSynchronizer/">StateSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../TickInterpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkCommandServer.Command/">_NetworkCommandServer.Command</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkCommandServer/">_NetworkCommandServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkEvents/">_NetworkEvents</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkHistoryServer/">_NetworkHistoryServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkIdentityServer/">_NetworkIdentityServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkPerformance/">_NetworkPerformance</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">_NetworkRollback</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#tutorials">Tutorials</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#methods">Methods</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#signals">Signals</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#before_loop">before_loop ( )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#on_prepare_tick-int-tick">on_prepare_tick ( int tick )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#after_prepare_tick-int-tick">after_prepare_tick ( int tick )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#on_process_tick-int-tick">on_process_tick ( int tick )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#after_process_tick-int-tick">after_process_tick ( int tick )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#on_record_tick-int-tick">on_record_tick ( int tick )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#after_loop">after_loop ( )</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#property-descriptions">Property Descriptions</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#bool-enabled-get_setting">bool enabled = get_setting(...)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#bool-enable_diff_states-get_setting">bool enable_diff_states = get_setting(...)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#int-history_limit">int history_limit</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#int-history_start">int history_start</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#int-display_offset">int display_offset</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#int-display_tick">int display_tick</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#int-input_delay">int input_delay</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#int-input_redundancy">int input_redundancy</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#int-tick">int tick</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#method-descriptions">Method Descriptions</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#void-notify_resimulation_start-int-p_tick">void notify_resimulation_start ( int p_tick )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-notify_simulated-node-node">void notify_simulated ( Node node )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#bool-is_simulated-node-node">bool is_simulated ( Node node )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#bool-is_rollback">bool is_rollback ( )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#bool-is_rollback_aware-object-what">bool is_rollback_aware ( Object what )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#bool-is_rollback_liveness_aware-object-what">bool is_rollback_liveness_aware ( Object what )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#bool-is_rollback_spawn_aware-object-what">bool is_rollback_spawn_aware ( Object what )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#bool-is_rollback_despawn_aware-object-what">bool is_rollback_despawn_aware ( Object what )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#bool-is_rollback_destroy_aware-object-what">bool is_rollback_destroy_aware ( Object what )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-process_rollback-object-target-float-delta-int-p_tick-bool-is_fresh">void process_rollback ( Object target, float delta, int p_tick, bool is_fresh )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-mutate-object-target-int-p_tick">void mutate ( Object target, int p_tick )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#bool-is_mutated-object-target-int-p_tick">bool is_mutated ( Object target, int p_tick )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#bool-is_just_mutated-object-target-int-p_tick">bool is_just_mutated ( Object target, int p_tick )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-register_rollback_input_submission-node-_node-int-_tick">void register_rollback_input_submission ( Node _node, int _tick )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#int-get_latest_input_tick-node-node">int get_latest_input_tick ( Node node )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#bool-has_input_for_tick-node-node-int-tick">bool has_input_for_tick ( Node node, int tick )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-free_input_submission_data_for-node-_node">void free_input_submission_data_for ( Node _node )</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkSimulator/">_NetworkSimulator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkSynchronizationServer/">_NetworkSynchronizationServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkTime/">_NetworkTime</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkTimeSynchronizer/">_NetworkTimeSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_Noray/">_Noray</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_PacketHandshake/">_PacketHandshake</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_RollbackLivenessServer/">_RollbackLivenessServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_RollbackSimulationServer/">_RollbackSimulationServer</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">netfox</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Reference</li>
+          <li class="breadcrumb-item">Classes</li>
+      <li class="breadcrumb-item active">_NetworkRollback</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="_networkrollback">_NetworkRollback</h1>
+<p><strong>Inherits:</strong> <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a></p>
+<p>Orchestrates the rollback loop.</p>
+<h2 id="tutorials">Tutorials</h2>
+<ul>
+<li><a href="https://foxssake.github.io/netfox/latest/netfox/guides/network-rollback/
+        https://foxssake.github.io/netfox/latest/netfox/tutorials/modifying-objects-during-rollback/">NetworkRollback Guide</a></li>
+<li><a href="https://foxssake.github.io/netfox/latest/netfox/guides/network-rollback/
+        https://foxssake.github.io/netfox/latest/netfox/tutorials/modifying-objects-during-rollback/">Modifying objects during rollback</a></li>
+</ul>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Name</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a></td>
+<td><a href="#enabled">enabled</a></td>
+<td><code>get_setting(...)</code></td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a></td>
+<td><a href="#enable_diff_states">enable_diff_states</a></td>
+<td><code>get_setting(...)</code></td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a></td>
+<td><a href="#history_limit">history_limit</a></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a></td>
+<td><a href="#history_start">history_start</a></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a></td>
+<td><a href="#display_offset">display_offset</a></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a></td>
+<td><a href="#display_tick">display_tick</a></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a></td>
+<td><a href="#input_delay">input_delay</a></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a></td>
+<td><a href="#input_redundancy">input_redundancy</a></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a></td>
+<td><a href="#tick">tick</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="methods">Methods</h2>
+<table>
+<thead>
+<tr>
+<th>Return Type</th>
+<th>Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>void</td>
+<td><a href="#notify_resimulation_start">notify_resimulation_start</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> p_tick)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#notify_simulated">notify_simulated</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node)</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a></td>
+<td><a href="#is_simulated">is_simulated</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node)</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a></td>
+<td><a href="#is_rollback">is_rollback</a>()</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a></td>
+<td><a href="#is_rollback_aware">is_rollback_aware</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_object.html">Object</a> what)</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a></td>
+<td><a href="#is_rollback_liveness_aware">is_rollback_liveness_aware</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_object.html">Object</a> what)</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a></td>
+<td><a href="#is_rollback_spawn_aware">is_rollback_spawn_aware</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_object.html">Object</a> what)</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a></td>
+<td><a href="#is_rollback_despawn_aware">is_rollback_despawn_aware</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_object.html">Object</a> what)</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a></td>
+<td><a href="#is_rollback_destroy_aware">is_rollback_destroy_aware</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_object.html">Object</a> what)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#process_rollback">process_rollback</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_object.html">Object</a> target, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> delta, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> p_tick, <a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> is_fresh)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#mutate">mutate</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_object.html">Object</a> target, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> p_tick)</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a></td>
+<td><a href="#is_mutated">is_mutated</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_object.html">Object</a> target, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> p_tick)</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a></td>
+<td><a href="#is_just_mutated">is_just_mutated</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_object.html">Object</a> target, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> p_tick)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#register_rollback_input_submission">register_rollback_input_submission</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> _node, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> _tick)</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a></td>
+<td><a href="#get_latest_input_tick">get_latest_input_tick</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node)</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a></td>
+<td><a href="#has_input_for_tick">has_input_for_tick</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> tick)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#free_input_submission_data_for">free_input_submission_data_for</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> _node)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="signals">Signals</h2>
+<h4 id="before_loop"><span id="before_loop">before_loop (  )</span></h4>
+<p>Event emitted before running the network rollback loop.</p>
+<hr />
+<h4 id="on_prepare_tick-int-tick"><span id="on_prepare_tick">on_prepare_tick ( <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> tick )</span></h4>
+<p>Event emitted in preparation of each rollback tick.   </p>
+<p>Handlers should apply the state and input corresponding to the given tick.</p>
+<hr />
+<h4 id="after_prepare_tick-int-tick"><span id="after_prepare_tick">after_prepare_tick ( <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> tick )</span></h4>
+<p>Event emitted after preparing each rollback tick.   </p>
+<p>Handlers may process the prepared tick, e.g. modulating the input by its age to implement input prediction.</p>
+<hr />
+<h4 id="on_process_tick-int-tick"><span id="on_process_tick">on_process_tick ( <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> tick )</span></h4>
+<p>Event emitted to process the given rollback tick.   </p>
+<p>Handlers should check if they <em>need</em> to resimulate the given tick, and if so, generate the next state based on the current data ( applied in the prepare tick phase ).</p>
+<hr />
+<h4 id="after_process_tick-int-tick"><span id="after_process_tick">after_process_tick ( <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> tick )</span></h4>
+<p>Event emitted after the given rollback tick was processed.</p>
+<hr />
+<h4 id="on_record_tick-int-tick"><span id="on_record_tick">on_record_tick ( <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> tick )</span></h4>
+<p>Event emitted to record the given rollback tick.   </p>
+<p>By this time, the tick is advanced from the simulation, handlers should save their resulting states for the given tick.</p>
+<hr />
+<h4 id="after_loop"><span id="after_loop">after_loop (  )</span></h4>
+<p>Event emitted after running the network rollback loop.</p>
+<hr />
+<h2 id="property-descriptions">Property Descriptions</h2>
+<h4 id="bool-enabled-get_setting"><span id="enabled"><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> enabled</span> = <code>get_setting(...)</code></h4>
+<p>Whether rollback is enabled.</p>
+<hr />
+<h4 id="bool-enable_diff_states-get_setting"><span id="enable_diff_states"><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> enable_diff_states</span> = <code>get_setting(...)</code></h4>
+<p>Whether diff states are enabled.   </p>
+<p>Diff states send only the state properties that have changed.</p>
+<hr />
+<h4 id="int-history_limit"><span id="history_limit"><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> history_limit</span></h4>
+<p>How many ticks to store as history.   </p>
+<p>The larger the history limit, the further we can roll back into the past, thus the more latency we can manage. The drawback is, with higher history limit comes more history data stored, thus higher memory usage.   </p>
+<p>Rollback won't go further than this limit, regardless of inputs received.   </p>
+<p><em>read-only</em>, you can change this in the project settings</p>
+<hr />
+<h4 id="int-history_start"><span id="history_start"><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> history_start</span></h4>
+<p>The earliest tick that history is retained for.   </p>
+<p>Determined by <a href="#history_limit">history_limit</a>.   </p>
+<p><em>read-only</em></p>
+<hr />
+<h4 id="int-display_offset"><span id="display_offset"><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> display_offset</span></h4>
+<p>Offset into the past for display, in ticks.   </p>
+<p>After the rollback, we have the option to not display the absolute latest state of the game, but let's say the state two frames ago ( offset = 2 ). This can help with hiding latency, by giving more time for an up-to-date state to arrive before we try to display it.   </p>
+<p><em>read-only</em>, you can change this in the project settings</p>
+<hr />
+<h4 id="int-display_tick"><span id="display_tick"><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> display_tick</span></h4>
+<p>The currently displayed tick.   </p>
+<p>This is the current tick as returned by <a href="../_NetworkTime/#tick">_NetworkTime.tick</a>, minus the <a href="#display_offset">display_offset</a>. By configuring the <a href="#display_offset">display_offset</a>, a past tick may be displayed to the player, so that updates from the server have slightly more time to arrive, masking latency.   </p>
+<p><em>read-only</em></p>
+<hr />
+<h4 id="int-input_delay"><span id="input_delay"><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> input_delay</span></h4>
+<p>Offset into the future to submit inputs, in ticks.  By submitting inputs into the future, they don't happen instantly, but with some delay. This can help hiding latency - even if input takes some time to arrive, it will still be up to date, as it was timestamped into the future. This only works if the input delay is greater than the network latency.   </p>
+<p>In cases where the latency is greater than the input delay, this can still reduce the amount of resimulated frames, resulting in less compute.   </p>
+<p><strong>Note:</strong> the <code>is_fresh</code> parameter may not work as expected with input latency higher than network latency.   </p>
+<p><em>read-only</em>, you can change this in the project settings</p>
+<hr />
+<h4 id="int-input_redundancy"><span id="input_redundancy"><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> input_redundancy</span></h4>
+<p>How many previous input frames to send along with the current one.   </p>
+<p>As inputs are sent over an unreliable channel, packets may get lost or appear out of order. To mitigate packet loss, we send the current and previous n ticks of input data. This way, even if the input for a given tick gets lost in transmission, the next (n-1) packets will contain the data for it.   </p>
+<p><em>read-only</em>, you can change this in the project settings</p>
+<hr />
+<h4 id="int-tick"><span id="tick"><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> tick</span></h4>
+<p>The current <em>rollback</em> tick.   </p>
+<p>Note that this is different from <a href="../_NetworkTime/#tick">_NetworkTime.tick</a>, and only makes sense in the context of a rollback loop.</p>
+<hr />
+<h2 id="method-descriptions">Method Descriptions</h2>
+<h4 id="void-notify_resimulation_start-int-p_tick"><span id="notify_resimulation_start">void notify_resimulation_start ( <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> p_tick ) </span></h4>
+<p>Submit the resimulation start tick for the current loop.  This is used to determine the resimulation range during each loop.</p>
+<hr />
+<h4 id="void-notify_simulated-node-node"><span id="notify_simulated">void notify_simulated ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node ) </span></h4>
+<p>Submit node for simulation.  This is used mostly internally by <a href="../RollbackSynchronizer/">RollbackSynchronizer</a>. The idea is to submit each affected node while preparing the tick, and then run only the nodes that need to be resimulated.</p>
+<hr />
+<h4 id="bool-is_simulated-node-node"><span id="is_simulated"><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> is_simulated ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node ) </span></h4>
+<p>Check if node was submitted for simulation.  This is used mostly internally by <a href="../RollbackSynchronizer/">RollbackSynchronizer</a>. The idea is to submit each affected node while preparing the tick, and then use <a href="#is_simulated">is_simulated</a> to run only the nodes that need to be resimulated.</p>
+<hr />
+<h4 id="bool-is_rollback"><span id="is_rollback"><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> is_rollback (  ) </span></h4>
+<p>Return true if a network rollback is currently active.</p>
+<hr />
+<h4 id="bool-is_rollback_aware-object-what"><span id="is_rollback_aware"><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> is_rollback_aware ( <a href="https://docs.godotengine.org/en/4.1/classes/class_object.html">Object</a> what ) </span></h4>
+<p>Return true if a given object is rollback-aware, i.e. has the <code>_rollback_tick</code> method implemented.   </p>
+<p>Used by <a href="../RollbackSynchronizer/">RollbackSynchronizer</a> and <a href="../PredictiveSynchronizer/">PredictiveSynchronizer</a> to see if they should simulate the given object during rollback.</p>
+<hr />
+<h4 id="bool-is_rollback_liveness_aware-object-what"><span id="is_rollback_liveness_aware"><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> is_rollback_liveness_aware ( <a href="https://docs.godotengine.org/en/4.1/classes/class_object.html">Object</a> what ) </span></h4>
+<p>Return true if a given object is rollback liveness aware, i.e. has any of the liveness callbacks implemented.</p>
+<hr />
+<h4 id="bool-is_rollback_spawn_aware-object-what"><span id="is_rollback_spawn_aware"><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> is_rollback_spawn_aware ( <a href="https://docs.godotengine.org/en/4.1/classes/class_object.html">Object</a> what ) </span></h4>
+<p>Return true if <code>what</code> implements the <code>_rollback_spawn</code> callback.</p>
+<hr />
+<h4 id="bool-is_rollback_despawn_aware-object-what"><span id="is_rollback_despawn_aware"><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> is_rollback_despawn_aware ( <a href="https://docs.godotengine.org/en/4.1/classes/class_object.html">Object</a> what ) </span></h4>
+<p>Return true if <code>what</code> implements the <code>_rollback_despawn</code> callback.</p>
+<hr />
+<h4 id="bool-is_rollback_destroy_aware-object-what"><span id="is_rollback_destroy_aware"><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> is_rollback_destroy_aware ( <a href="https://docs.godotengine.org/en/4.1/classes/class_object.html">Object</a> what ) </span></h4>
+<p>Return true if <code>what</code> implements the <code>_rollback_destroy</code> callback.</p>
+<hr />
+<h4 id="void-process_rollback-object-target-float-delta-int-p_tick-bool-is_fresh"><span id="process_rollback">void process_rollback ( <a href="https://docs.godotengine.org/en/4.1/classes/class_object.html">Object</a> target, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> delta, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> p_tick, <a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> is_fresh ) </span></h4>
+<p>Calls the <code>_rollback_tick</code> method on the target, running its simulation for the given rollback tick.   </p>
+<p>This is used by <a href="../RollbackSynchronizer/">RollbackSynchronizer</a> to resimulate ticks during rollback. While the <code>_rollback_tick</code> method could be called directly as well, this method exists to future-proof the code a bit, so the method name is not repeated all over the place.   </p>
+<p><em>Note:</em> Make sure to check if the target is rollback-aware, because if it's not, this method will run into an error.</p>
+<hr />
+<h4 id="void-mutate-object-target-int-p_tick"><span id="mutate">void mutate ( <a href="https://docs.godotengine.org/en/4.1/classes/class_object.html">Object</a> target, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> p_tick ) </span></h4>
+<p>Marks the target object as mutated.   </p>
+<p>Mutated objects will be re-recorded for the specified tick, and resimulated from the given tick onwards.   </p>
+<p>For special cases, you can specify the tick when the mutation happened. Since it defaults to the current rollback <a href="#tick">tick</a>, this parameter rarely needs to be specified.   </p>
+<p>Note that registering a mutation into the past will yield a warning.   </p>
+<hr />
+<h4 id="bool-is_mutated-object-target-int-p_tick"><span id="is_mutated"><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> is_mutated ( <a href="https://docs.godotengine.org/en/4.1/classes/class_object.html">Object</a> target, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> p_tick ) </span></h4>
+<p>Check whether the target object was mutated in or after the given tick via <a href="#mutate">mutate()</a>.   </p>
+<hr />
+<h4 id="bool-is_just_mutated-object-target-int-p_tick"><span id="is_just_mutated"><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> is_just_mutated ( <a href="https://docs.godotengine.org/en/4.1/classes/class_object.html">Object</a> target, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> p_tick ) </span></h4>
+<p>Check whether the target object was mutated specifically in the given tick via <a href="#mutate">mutate()</a>.   </p>
+<hr />
+<h4 id="void-register_rollback_input_submission-node-_node-int-_tick"><span id="register_rollback_input_submission">void register_rollback_input_submission ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> _node, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> _tick ) </span></h4>
+<p>Register that a node has submitted its input for a specific tick</p>
+<hr />
+<h4 id="int-get_latest_input_tick-node-node"><span id="get_latest_input_tick"><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> get_latest_input_tick ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node ) </span></h4>
+<p>Get the latest input tick submitted for a specific node   </p>
+<p>Returns <code>-1</code> if no input was submitted for the node, ever.</p>
+<hr />
+<h4 id="bool-has_input_for_tick-node-node-int-tick"><span id="has_input_for_tick"><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> has_input_for_tick ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> tick ) </span></h4>
+<p>Check if a node has submitted input for a specific tick (or later)</p>
+<hr />
+<h4 id="void-free_input_submission_data_for-node-_node"><span id="free_input_submission_data_for">void free_input_submission_data_for ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> _node ) </span></h4>
+<p>Free all input submission data for a node   </p>
+<p>Use this once the node is freed.</p>
+<hr />
+              
+            </div>
+          </div>
+  <hr>
+  <h2>User discussion</h2>
+  <div class="giscus" ></div>
+  <hr>
+  <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../_NetworkPerformance/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../_NetworkSimulator/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+      <script src="../../assets/mkdocs_puml/puml.js"></script>
+      <script src="../../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

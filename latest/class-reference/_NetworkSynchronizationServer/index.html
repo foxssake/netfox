@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://foxssake.github.io/netfox/latest/class-reference/_NetworkSynchronizationServer/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>_NetworkSynchronizationServer - netfox</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../css/version-selector.css" rel="stylesheet" />
+        <link href="../../css/twemoji.css" rel="stylesheet" />
+        <link href="../../assets/mkdocs_puml/puml.css" rel="stylesheet" />
+        <link href="../../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "_NetworkSynchronizationServer";
+        var mkdocs_page_input_path = "class-reference/_NetworkSynchronizationServer.md";
+        var mkdocs_page_url = "/netfox/latest/class-reference/_NetworkSynchronizationServer/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script>
+  <script src="https://giscus.app/client.js"
+          data-repo="foxssake/netfox"
+          data-repo-id="R_kgDOKBON2A"
+          data-category="Docs"
+          data-category-id="DIC_kwDOKBON2M4Clib_"
+          data-mapping="title"
+          data-strict="0"
+          data-reactions-enabled="1"
+          data-emit-metadata="0"
+          data-input-position="top"
+          data-theme="light"
+          data-lang="en"
+          data-loading="lazy"
+          crossorigin="anonymous"
+          async>
+  </script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> netfox
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../upgrading/">Upgrading netfox</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../made-with-netfox/">Made with netfox</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../external-tutorials/">External tutorials</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../press-kit/">Press kit</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../contributors/">Contributors</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Tutorials</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/responsive-player-movement/">Responsive player movement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/input-gathering-tips-and-tricks/">Input gathering tips and tricks</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/predicting-input/">Predicting input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/using-rollbacksynchronizer-without-inputs/">Using RollbackSynchronizer without inputs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/spawning-and-despawning-in-rollback/">Spawning and despawning in rollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/modifying-objects-during-rollback/">Modifying objects during rollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/configuring-properties-from-code/">Configuring properties from code</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/rollback-caveats/">Rollback caveats</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/interpolation-caveats/">Interpolation caveats</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Concepts</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/concepts/servers-clients-ownership/">Servers, clients, and ownership</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/concepts/authoritative-servers/">Authoritative servers</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/logging/">Logging</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-time/">NetworkTime</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-time-synchronizer/">NetworkTimeSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-events/">NetworkEvents</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/interpolators/">Interpolators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/property-paths/">Property paths</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-rollback/">NetworkRollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-performance/">NetworkPerformance</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-command-server/">NetworkCommandServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-schemas/">Network Schemas</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/visibility-management/">Visibility Management</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/netfox-sharp/">Netfox Sharp</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Nodes</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/nodes/tick-interpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/nodes/rollback-synchronizer/">RollbackSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/nodes/predictive-synchronizer/">PredictiveSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/nodes/state-synchronizer/">StateSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/nodes/rewindable-action/">RewindableAction</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.noray</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.noray/guides/noray/">Noray</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.noray/guides/packet-handshake/">PacketHandshake</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.extras</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/physics/">Physics</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/network-simulator/">NetworkSimulator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/base-net-input/">BaseNetInput</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/network-weapon/">NetworkWeapon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/rewindable-state-machine/">RewindableStateMachine</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/rewindable-random-number-generator/">RewindableRandomNumberGenerator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/window-tiler/">WindowTiler</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Reference</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" >Classes</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../BaseNetInput/">BaseNetInput</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../Interpolators.Interpolator/">Interpolators.Interpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../Interpolators/">Interpolators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetfoxLogger/">NetfoxLogger</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkRigidBody2D/">NetworkRigidBody2D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkRigidBody3D/">NetworkRigidBody3D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkSchemas/">NetworkSchemas</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkTickrateHandshake/">NetworkTickrateHandshake</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkWeapon/">NetworkWeapon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkWeapon2D/">NetworkWeapon2D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkWeapon3D/">NetworkWeapon3D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkWeaponHitscan3D/">NetworkWeaponHitscan3D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../PeerVisibilityFilter/">PeerVisibilityFilter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../PhysicsDriver/">PhysicsDriver</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../PredictiveSynchronizer/">PredictiveSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RewindableAction/">RewindableAction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RewindableRandomNumberGenerator/">RewindableRandomNumberGenerator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RewindableState/">RewindableState</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RewindableStateMachine/">RewindableStateMachine</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RollbackSynchronizer/">RollbackSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../StateSynchronizer/">StateSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../TickInterpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkCommandServer.Command/">_NetworkCommandServer.Command</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkCommandServer/">_NetworkCommandServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkEvents/">_NetworkEvents</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkHistoryServer/">_NetworkHistoryServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkIdentityServer/">_NetworkIdentityServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkPerformance/">_NetworkPerformance</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkRollback/">_NetworkRollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkSimulator/">_NetworkSimulator</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">_NetworkSynchronizationServer</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#description">Description</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#methods">Methods</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#method-descriptions">Method Descriptions</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#void-register_rollback_state-node-node-nodepath-property">void register_rollback_state ( Node node, NodePath property )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-deregister_rollback_state-node-node-nodepath-property">void deregister_rollback_state ( Node node, NodePath property )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-register_rollback_input-node-node-nodepath-property">void register_rollback_input ( Node node, NodePath property )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-deregister_rollback_input-node-node-nodepath-property">void deregister_rollback_input ( Node node, NodePath property )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-register_sync_state-node-node-nodepath-property">void register_sync_state ( Node node, NodePath property )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-deregister_sync_state-node-node-nodepath-property">void deregister_sync_state ( Node node, NodePath property )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-register_schema-node-node-nodepath-property-networkschemaserializer-serializer">void register_schema ( Node node, NodePath property, NetworkSchemaSerializer serializer )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-deregister_schema-node-node-nodepath-property">void deregister_schema ( Node node, NodePath property )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-deregister_schema_for-node-node">void deregister_schema_for ( Node node )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-register_visibility_filter-node-node-peervisibilityfilter-filter">void register_visibility_filter ( Node node, PeerVisibilityFilter filter )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-deregister_visibility_filter-node-node">void deregister_visibility_filter ( Node node )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-deregister-node-node">void deregister ( Node node )</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkTime/">_NetworkTime</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkTimeSynchronizer/">_NetworkTimeSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_Noray/">_Noray</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_PacketHandshake/">_PacketHandshake</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_RollbackLivenessServer/">_RollbackLivenessServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_RollbackSimulationServer/">_RollbackSimulationServer</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">netfox</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Reference</li>
+          <li class="breadcrumb-item">Classes</li>
+      <li class="breadcrumb-item active">_NetworkSynchronizationServer</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="_networksynchronizationserver">_NetworkSynchronizationServer</h1>
+<p><strong>Inherits:</strong> <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a></p>
+<p>Synchronizes properties over the network</p>
+<h2 id="description">Description</h2>
+<p>Handles synchronization of rollback and state properties ( <a href="../RollbackSynchronizer/">RollbackSynchronizer</a> and <a href="../StateSynchronizer/">StateSynchronizer</a> ), while respecting visibility filters and schemas for serialization.   </p>
+<p>Packets are sent per tick, instead of per object. So for every simulated rollback tick, a packet is sent with states, and for every recorded input, a packet is sent with the inputs.   </p>
+<p>Optionally, diff states can be used, sending only the property values that have changed, saving on bandwidth.</p>
+<h2 id="methods">Methods</h2>
+<table>
+<thead>
+<tr>
+<th>Return Type</th>
+<th>Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>void</td>
+<td><a href="#register_rollback_state">register_rollback_state</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node, <a href="https://docs.godotengine.org/en/4.1/classes/class_nodepath.html">NodePath</a> property)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#deregister_rollback_state">deregister_rollback_state</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node, <a href="https://docs.godotengine.org/en/4.1/classes/class_nodepath.html">NodePath</a> property)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#register_rollback_input">register_rollback_input</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node, <a href="https://docs.godotengine.org/en/4.1/classes/class_nodepath.html">NodePath</a> property)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#deregister_rollback_input">deregister_rollback_input</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node, <a href="https://docs.godotengine.org/en/4.1/classes/class_nodepath.html">NodePath</a> property)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#register_sync_state">register_sync_state</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node, <a href="https://docs.godotengine.org/en/4.1/classes/class_nodepath.html">NodePath</a> property)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#deregister_sync_state">deregister_sync_state</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node, <a href="https://docs.godotengine.org/en/4.1/classes/class_nodepath.html">NodePath</a> property)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#register_schema">register_schema</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node, <a href="https://docs.godotengine.org/en/4.1/classes/class_nodepath.html">NodePath</a> property, <a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> serializer)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#deregister_schema">deregister_schema</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node, <a href="https://docs.godotengine.org/en/4.1/classes/class_nodepath.html">NodePath</a> property)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#deregister_schema_for">deregister_schema_for</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#register_visibility_filter">register_visibility_filter</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node, <a href="../PeerVisibilityFilter/">PeerVisibilityFilter</a> filter)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#deregister_visibility_filter">deregister_visibility_filter</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#deregister">deregister</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="method-descriptions">Method Descriptions</h2>
+<h4 id="void-register_rollback_state-node-node-nodepath-property"><span id="register_rollback_state">void register_rollback_state ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node, <a href="https://docs.godotengine.org/en/4.1/classes/class_nodepath.html">NodePath</a> property ) </span></h4>
+<p>Register a <code>property</code> of <code>node</code> to be synchronized as rollback state</p>
+<hr />
+<h4 id="void-deregister_rollback_state-node-node-nodepath-property"><span id="deregister_rollback_state">void deregister_rollback_state ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node, <a href="https://docs.godotengine.org/en/4.1/classes/class_nodepath.html">NodePath</a> property ) </span></h4>
+<p>Deregister a <code>property</code> of <code>node</code> from being synchronized as rollback state</p>
+<hr />
+<h4 id="void-register_rollback_input-node-node-nodepath-property"><span id="register_rollback_input">void register_rollback_input ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node, <a href="https://docs.godotengine.org/en/4.1/classes/class_nodepath.html">NodePath</a> property ) </span></h4>
+<p>Register a <code>property</code> of <code>node</code> to be synchronized as rollback input</p>
+<hr />
+<h4 id="void-deregister_rollback_input-node-node-nodepath-property"><span id="deregister_rollback_input">void deregister_rollback_input ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node, <a href="https://docs.godotengine.org/en/4.1/classes/class_nodepath.html">NodePath</a> property ) </span></h4>
+<p>Deregister a <code>property</code> of <code>node</code> from being synchronized as rollback input</p>
+<hr />
+<h4 id="void-register_sync_state-node-node-nodepath-property"><span id="register_sync_state">void register_sync_state ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node, <a href="https://docs.godotengine.org/en/4.1/classes/class_nodepath.html">NodePath</a> property ) </span></h4>
+<p>Register a <code>property</code> of <code>node</code> to be synchronized as synchronized state</p>
+<hr />
+<h4 id="void-deregister_sync_state-node-node-nodepath-property"><span id="deregister_sync_state">void deregister_sync_state ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node, <a href="https://docs.godotengine.org/en/4.1/classes/class_nodepath.html">NodePath</a> property ) </span></h4>
+<p>Deregister a <code>property</code> of <code>node</code> from being synchronized as synchronized state</p>
+<hr />
+<h4 id="void-register_schema-node-node-nodepath-property-networkschemaserializer-serializer"><span id="register_schema">void register_schema ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node, <a href="https://docs.godotengine.org/en/4.1/classes/class_nodepath.html">NodePath</a> property, <a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> serializer ) </span></h4>
+<p>Register a <code>serializer</code> to use when transmitting <code>property param</code> of <code>node</code> over the network</p>
+<hr />
+<h4 id="void-deregister_schema-node-node-nodepath-property"><span id="deregister_schema">void deregister_schema ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node, <a href="https://docs.godotengine.org/en/4.1/classes/class_nodepath.html">NodePath</a> property ) </span></h4>
+<p>Deregister any serializers used for <code>property</code> on <code>node</code> when transmitting over the network</p>
+<hr />
+<h4 id="void-deregister_schema_for-node-node"><span id="deregister_schema_for">void deregister_schema_for ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node ) </span></h4>
+<p>Deregister all serializers registered for any properties of <code>node</code></p>
+<hr />
+<h4 id="void-register_visibility_filter-node-node-peervisibilityfilter-filter"><span id="register_visibility_filter">void register_visibility_filter ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node, <a href="../PeerVisibilityFilter/">PeerVisibilityFilter</a> filter ) </span></h4>
+<p>Register a visibility <code>filter</code> for use with <code>node</code></p>
+<hr />
+<h4 id="void-deregister_visibility_filter-node-node"><span id="deregister_visibility_filter">void deregister_visibility_filter ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node ) </span></h4>
+<p>Deregister the visibility filter used for <code>node</code></p>
+<hr />
+<h4 id="void-deregister-node-node"><span id="deregister">void deregister ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node ) </span></h4>
+<p>Deregister any and all settings associated with <code>node</code></p>
+<hr />
+              
+            </div>
+          </div>
+  <hr>
+  <h2>User discussion</h2>
+  <div class="giscus" ></div>
+  <hr>
+  <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../_NetworkSimulator/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../_NetworkTime/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+      <script src="../../assets/mkdocs_puml/puml.js"></script>
+      <script src="../../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

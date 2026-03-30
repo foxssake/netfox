@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://foxssake.github.io/netfox/latest/class-reference/NetworkSchemas/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>NetworkSchemas - netfox</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../css/version-selector.css" rel="stylesheet" />
+        <link href="../../css/twemoji.css" rel="stylesheet" />
+        <link href="../../assets/mkdocs_puml/puml.css" rel="stylesheet" />
+        <link href="../../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "NetworkSchemas";
+        var mkdocs_page_input_path = "class-reference/NetworkSchemas.md";
+        var mkdocs_page_url = "/netfox/latest/class-reference/NetworkSchemas/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script>
+  <script src="https://giscus.app/client.js"
+          data-repo="foxssake/netfox"
+          data-repo-id="R_kgDOKBON2A"
+          data-category="Docs"
+          data-category-id="DIC_kwDOKBON2M4Clib_"
+          data-mapping="title"
+          data-strict="0"
+          data-reactions-enabled="1"
+          data-emit-metadata="0"
+          data-input-position="top"
+          data-theme="light"
+          data-lang="en"
+          data-loading="lazy"
+          crossorigin="anonymous"
+          async>
+  </script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> netfox
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../upgrading/">Upgrading netfox</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../made-with-netfox/">Made with netfox</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../external-tutorials/">External tutorials</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../press-kit/">Press kit</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../contributors/">Contributors</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Tutorials</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/responsive-player-movement/">Responsive player movement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/input-gathering-tips-and-tricks/">Input gathering tips and tricks</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/predicting-input/">Predicting input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/using-rollbacksynchronizer-without-inputs/">Using RollbackSynchronizer without inputs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/spawning-and-despawning-in-rollback/">Spawning and despawning in rollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/modifying-objects-during-rollback/">Modifying objects during rollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/configuring-properties-from-code/">Configuring properties from code</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/rollback-caveats/">Rollback caveats</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/interpolation-caveats/">Interpolation caveats</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Concepts</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/concepts/servers-clients-ownership/">Servers, clients, and ownership</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/concepts/authoritative-servers/">Authoritative servers</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/logging/">Logging</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-time/">NetworkTime</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-time-synchronizer/">NetworkTimeSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-events/">NetworkEvents</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/interpolators/">Interpolators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/property-paths/">Property paths</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-rollback/">NetworkRollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-performance/">NetworkPerformance</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-command-server/">NetworkCommandServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-schemas/">Network Schemas</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/visibility-management/">Visibility Management</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/netfox-sharp/">Netfox Sharp</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Nodes</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/nodes/tick-interpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/nodes/rollback-synchronizer/">RollbackSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/nodes/predictive-synchronizer/">PredictiveSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/nodes/state-synchronizer/">StateSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/nodes/rewindable-action/">RewindableAction</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.noray</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.noray/guides/noray/">Noray</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.noray/guides/packet-handshake/">PacketHandshake</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.extras</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/physics/">Physics</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/network-simulator/">NetworkSimulator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/base-net-input/">BaseNetInput</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/network-weapon/">NetworkWeapon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/rewindable-state-machine/">RewindableStateMachine</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/rewindable-random-number-generator/">RewindableRandomNumberGenerator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/window-tiler/">WindowTiler</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Reference</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" >Classes</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../BaseNetInput/">BaseNetInput</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../Interpolators.Interpolator/">Interpolators.Interpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../Interpolators/">Interpolators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetfoxLogger/">NetfoxLogger</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkRigidBody2D/">NetworkRigidBody2D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkRigidBody3D/">NetworkRigidBody3D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">NetworkSchemas</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#description">Description</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#tutorials">Tutorials</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#methods">Methods</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#method-descriptions">Method Descriptions</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-variant-static">NetworkSchemaSerializer variant ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-string-static">NetworkSchemaSerializer string ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-bool8-static">NetworkSchemaSerializer bool8 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-uint8-static">NetworkSchemaSerializer uint8 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-uint16-static">NetworkSchemaSerializer uint16 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-uint32-static">NetworkSchemaSerializer uint32 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-uint64-static">NetworkSchemaSerializer uint64 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-varuint-static">NetworkSchemaSerializer varuint ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-int8-static">NetworkSchemaSerializer int8 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-int16-static">NetworkSchemaSerializer int16 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-int32-static">NetworkSchemaSerializer int32 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-int64-static">NetworkSchemaSerializer int64 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-float16-static">NetworkSchemaSerializer float16 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-float32-static">NetworkSchemaSerializer float32 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-float64-static">NetworkSchemaSerializer float64 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-sfrac8-static">NetworkSchemaSerializer sfrac8 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-sfrac16-static">NetworkSchemaSerializer sfrac16 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-sfrac32-static">NetworkSchemaSerializer sfrac32 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-ufrac8-static">NetworkSchemaSerializer ufrac8 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-ufrac16-static">NetworkSchemaSerializer ufrac16 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-ufrac32-static">NetworkSchemaSerializer ufrac32 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-degrees8-static">NetworkSchemaSerializer degrees8 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-degrees16-static">NetworkSchemaSerializer degrees16 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-degrees32-static">NetworkSchemaSerializer degrees32 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-radians8-static">NetworkSchemaSerializer radians8 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-radians16-static">NetworkSchemaSerializer radians16 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-radians32-static">NetworkSchemaSerializer radians32 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-vec2t-networkschemaserializer-component_serializer-static">NetworkSchemaSerializer vec2t ( NetworkSchemaSerializer component_serializer ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-vec2f16-static">NetworkSchemaSerializer vec2f16 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-vec2f32-static">NetworkSchemaSerializer vec2f32 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-vec2f64-static">NetworkSchemaSerializer vec2f64 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-vec3t-networkschemaserializer-component_serializer-static">NetworkSchemaSerializer vec3t ( NetworkSchemaSerializer component_serializer ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-vec3f16-static">NetworkSchemaSerializer vec3f16 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-vec3f32-static">NetworkSchemaSerializer vec3f32 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-vec3f64-static">NetworkSchemaSerializer vec3f64 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-vec4t-networkschemaserializer-component_serializer-static">NetworkSchemaSerializer vec4t ( NetworkSchemaSerializer component_serializer ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-vec4f16-static">NetworkSchemaSerializer vec4f16 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-vec4f32-static">NetworkSchemaSerializer vec4f32 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-vec4f64-static">NetworkSchemaSerializer vec4f64 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-normal2t-networkschemaserializer-component_serializer-static">NetworkSchemaSerializer normal2t ( NetworkSchemaSerializer component_serializer ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-normal2f16-static">NetworkSchemaSerializer normal2f16 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-normal2f32-static">NetworkSchemaSerializer normal2f32 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-normal2f64-static">NetworkSchemaSerializer normal2f64 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-normal3t-networkschemaserializer-component_serializer-static">NetworkSchemaSerializer normal3t ( NetworkSchemaSerializer component_serializer ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-normal3f16-static">NetworkSchemaSerializer normal3f16 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-normal3f32-static">NetworkSchemaSerializer normal3f32 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-normal3f64-static">NetworkSchemaSerializer normal3f64 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-quatt-networkschemaserializer-component_serializer-static">NetworkSchemaSerializer quatt ( NetworkSchemaSerializer component_serializer ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-quatf16-static">NetworkSchemaSerializer quatf16 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-quatf32-static">NetworkSchemaSerializer quatf32 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-quatf64-static">NetworkSchemaSerializer quatf64 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-transform2t-networkschemaserializer-component_serializer-static">NetworkSchemaSerializer transform2t ( NetworkSchemaSerializer component_serializer ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-transform2f16-static">NetworkSchemaSerializer transform2f16 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-transform2f32-static">NetworkSchemaSerializer transform2f32 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-transform2f64-static">NetworkSchemaSerializer transform2f64 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-transform3t-networkschemaserializer-component_serializer-static">NetworkSchemaSerializer transform3t ( NetworkSchemaSerializer component_serializer ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-transform3f16-static">NetworkSchemaSerializer transform3f16 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-transform3f32-static">NetworkSchemaSerializer transform3f32 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-transform3f64-static">NetworkSchemaSerializer transform3f64 ( ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-array_of-networkschemaserializer-item_serializer-networkschemaserializer-size_serializer-static">NetworkSchemaSerializer array_of ( NetworkSchemaSerializer item_serializer, NetworkSchemaSerializer size_serializer ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-dictionary-networkschemaserializer-key_serializer-networkschemaserializer-value_serializer-networkschemaserializer-size_serializer-static">NetworkSchemaSerializer dictionary ( NetworkSchemaSerializer key_serializer, NetworkSchemaSerializer value_serializer, NetworkSchemaSerializer size_serializer ) static</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkTickrateHandshake/">NetworkTickrateHandshake</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkWeapon/">NetworkWeapon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkWeapon2D/">NetworkWeapon2D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkWeapon3D/">NetworkWeapon3D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkWeaponHitscan3D/">NetworkWeaponHitscan3D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../PeerVisibilityFilter/">PeerVisibilityFilter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../PhysicsDriver/">PhysicsDriver</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../PredictiveSynchronizer/">PredictiveSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RewindableAction/">RewindableAction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RewindableRandomNumberGenerator/">RewindableRandomNumberGenerator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RewindableState/">RewindableState</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RewindableStateMachine/">RewindableStateMachine</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RollbackSynchronizer/">RollbackSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../StateSynchronizer/">StateSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../TickInterpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkCommandServer.Command/">_NetworkCommandServer.Command</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkCommandServer/">_NetworkCommandServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkEvents/">_NetworkEvents</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkHistoryServer/">_NetworkHistoryServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkIdentityServer/">_NetworkIdentityServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkPerformance/">_NetworkPerformance</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkRollback/">_NetworkRollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkSimulator/">_NetworkSimulator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkSynchronizationServer/">_NetworkSynchronizationServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkTime/">_NetworkTime</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkTimeSynchronizer/">_NetworkTimeSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_Noray/">_Noray</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_PacketHandshake/">_PacketHandshake</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_RollbackLivenessServer/">_RollbackLivenessServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_RollbackSimulationServer/">_RollbackSimulationServer</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">netfox</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Reference</li>
+          <li class="breadcrumb-item">Classes</li>
+      <li class="breadcrumb-item active">NetworkSchemas</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="networkschemas">NetworkSchemas</h1>
+<p><strong>Inherits:</strong> <a href="https://docs.godotengine.org/en/4.1/classes/class_object.html">Object</a></p>
+<p>Provides various schema serializers</p>
+<h2 id="description">Description</h2>
+<p>While some method names are abbreviated, they use a few naming schemes. For example:   </p>
+<p><a href="#uint16">uint16()</a> - unsigned integer, 16 bits<br />
+<a href="#vec2t">vec2t()</a> - <a href="https://docs.godotengine.org/en/4.1/classes/class_vector2.html">Vector2</a>, component of specified <em>type</em><br />
+<a href="#vec3f32">vec3f32()</a> - <a href="https://docs.godotengine.org/en/4.1/classes/class_vector3.html">Vector3</a>, each component as a <a href="#float32">float32()</a>  </p>
+<p>To handle collections, see <a href="#array_of">array_of()</a> and <a href="#dictionary">dictionary()</a>.</p>
+<h2 id="tutorials">Tutorials</h2>
+<ul>
+<li><a href="https://foxssake.github.io/netfox/latest/netfox/guides/network-schemas/">Network schemas</a></li>
+</ul>
+<h2 id="methods">Methods</h2>
+<table>
+<thead>
+<tr>
+<th>Return Type</th>
+<th>Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#variant">variant</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#string">string</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#bool8">bool8</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#uint8">uint8</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#uint16">uint16</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#uint32">uint32</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#uint64">uint64</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#varuint">varuint</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#int8">int8</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#int16">int16</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#int32">int32</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#int64">int64</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#float16">float16</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#float32">float32</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#float64">float64</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#sfrac8">sfrac8</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#sfrac16">sfrac16</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#sfrac32">sfrac32</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#ufrac8">ufrac8</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#ufrac16">ufrac16</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#ufrac32">ufrac32</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#degrees8">degrees8</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#degrees16">degrees16</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#degrees32">degrees32</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#radians8">radians8</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#radians16">radians16</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#radians32">radians32</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#vec2t">vec2t</a>(<a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> component_serializer) static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#vec2f16">vec2f16</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#vec2f32">vec2f32</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#vec2f64">vec2f64</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#vec3t">vec3t</a>(<a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> component_serializer) static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#vec3f16">vec3f16</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#vec3f32">vec3f32</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#vec3f64">vec3f64</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#vec4t">vec4t</a>(<a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> component_serializer) static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#vec4f16">vec4f16</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#vec4f32">vec4f32</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#vec4f64">vec4f64</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#normal2t">normal2t</a>(<a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> component_serializer) static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#normal2f16">normal2f16</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#normal2f32">normal2f32</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#normal2f64">normal2f64</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#normal3t">normal3t</a>(<a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> component_serializer) static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#normal3f16">normal3f16</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#normal3f32">normal3f32</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#normal3f64">normal3f64</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#quatt">quatt</a>(<a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> component_serializer) static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#quatf16">quatf16</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#quatf32">quatf32</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#quatf64">quatf64</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#transform2t">transform2t</a>(<a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> component_serializer) static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#transform2f16">transform2f16</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#transform2f32">transform2f32</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#transform2f64">transform2f64</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#transform3t">transform3t</a>(<a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> component_serializer) static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#transform3f16">transform3f16</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#transform3f32">transform3f32</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#transform3f64">transform3f64</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#array_of">array_of</a>(<a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> item_serializer, <a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> size_serializer) static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#dictionary">dictionary</a>(<a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> key_serializer, <a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> value_serializer, <a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> size_serializer) static</td>
+</tr>
+</tbody>
+</table>
+<h2 id="method-descriptions">Method Descriptions</h2>
+<h4 id="networkschemaserializer-variant-static"><span id="variant"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> variant (  ) static</span></h4>
+<p>Serialize any data type supported by <a href="https://docs.godotengine.org/en/4.1/classes/class_@globalscope.html">@GlobalScope.var_to_bytes()</a>.   </p>
+<p>Final size depends on the value.</p>
+<hr />
+<h4 id="networkschemaserializer-string-static"><span id="string"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> string (  ) static</span></h4>
+<p>Serialize strings in UTF-8 encoding.   </p>
+<p>Final size depends on the string, the string itself is zero-terminated.</p>
+<hr />
+<h4 id="networkschemaserializer-bool8-static"><span id="bool8"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> bool8 (  ) static</span></h4>
+<p>Serialize booleans as 8 bits.   </p>
+<p>Final size is 1 byte.</p>
+<hr />
+<h4 id="networkschemaserializer-uint8-static"><span id="uint8"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> uint8 (  ) static</span></h4>
+<p>Serialize unsigned integers as 8 bits.   </p>
+<p>Final size is 1 byte.</p>
+<hr />
+<h4 id="networkschemaserializer-uint16-static"><span id="uint16"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> uint16 (  ) static</span></h4>
+<p>Serialize unsigned integers as 16 bits.   </p>
+<p>Final size is 2 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-uint32-static"><span id="uint32"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> uint32 (  ) static</span></h4>
+<p>Serialize unsigned integers as 32 bits.   </p>
+<p>Final size is 4 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-uint64-static"><span id="uint64"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> uint64 (  ) static</span></h4>
+<p>Serialize unsigned integers as 64 bits.   </p>
+<p>Final size is 8 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-varuint-static"><span id="varuint"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> varuint (  ) static</span></h4>
+<p>Serialize an unsigned integer as a variable amount of bytes.   </p>
+<p>Each byte contains 7 bits of data. The 8th bit indicates whether there are more bytes left. Thus, small numbers fitting into 7 bits will be encoded as a single byte, while larger numbers take more space as they increase.   </p>
+<p>Final size is 1 byte for every 7 bits of numeric data.</p>
+<hr />
+<h4 id="networkschemaserializer-int8-static"><span id="int8"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> int8 (  ) static</span></h4>
+<p>Serialize signed integers as 8 bits.   </p>
+<p>Final size is 1 byte.</p>
+<hr />
+<h4 id="networkschemaserializer-int16-static"><span id="int16"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> int16 (  ) static</span></h4>
+<p>Serialize signed integers as 16 bits.   </p>
+<p>Final size is 2 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-int32-static"><span id="int32"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> int32 (  ) static</span></h4>
+<p>Serialize signed integers as 32 bits.   </p>
+<p>Final size is 4 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-int64-static"><span id="int64"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> int64 (  ) static</span></h4>
+<p>Serialize signed integers as 64 bits.   </p>
+<p>Final size is 8 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-float16-static"><span id="float16"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> float16 (  ) static</span></h4>
+<p>Serialize floats in half-precision, as 16 bits.   </p>
+<p>This is only supported in Godot 4.4 and up, earlier versions fall back to <a href="#float32">float32()</a>.   </p>
+<p>Final size is 2 bytes, 4 if using fallback.</p>
+<hr />
+<h4 id="networkschemaserializer-float32-static"><span id="float32"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> float32 (  ) static</span></h4>
+<p>Serialize floats in single-precision, as 32 bits.   </p>
+<p>Final size is 4 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-float64-static"><span id="float64"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> float64 (  ) static</span></h4>
+<p>Serialize floats in double-precision, as 64 bits.   </p>
+<p>Final size is 8 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-sfrac8-static"><span id="sfrac8"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> sfrac8 (  ) static</span></h4>
+<p>Serialize signed fractions in the <code>[-1.0, +1.0]</code> range as 8 bits.   </p>
+<p>Final size is 1 byte.</p>
+<hr />
+<h4 id="networkschemaserializer-sfrac16-static"><span id="sfrac16"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> sfrac16 (  ) static</span></h4>
+<p>Serialize signed fractions in the <code>[-1.0, +1.0]</code> range as 16 bits.   </p>
+<p>Final size is 2 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-sfrac32-static"><span id="sfrac32"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> sfrac32 (  ) static</span></h4>
+<p>Serialize signed fractions in the <code>[-1.0, +1.0]</code> range as 32 bits.   </p>
+<p>Final size is 4 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-ufrac8-static"><span id="ufrac8"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> ufrac8 (  ) static</span></h4>
+<p>Serialize signed fractions in the <code>[0.0, 1.0]</code> range as 8 bits.   </p>
+<p>Final size is 1 byte.</p>
+<hr />
+<h4 id="networkschemaserializer-ufrac16-static"><span id="ufrac16"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> ufrac16 (  ) static</span></h4>
+<p>Serialize signed fractions in the <code>[0.0, 1.0]</code> range as 16 bits.   </p>
+<p>Final size is 2 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-ufrac32-static"><span id="ufrac32"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> ufrac32 (  ) static</span></h4>
+<p>Serialize signed fractions in the <code>[0.0, 1.0]</code> range as 32 bits.   </p>
+<p>Final size is 4 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-degrees8-static"><span id="degrees8"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> degrees8 (  ) static</span></h4>
+<p>Serialize degrees as 8 bits. The value will always decode to the <code>[0.0, 360.0)</code> range.   </p>
+<p>Final size is 1 byte.</p>
+<hr />
+<h4 id="networkschemaserializer-degrees16-static"><span id="degrees16"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> degrees16 (  ) static</span></h4>
+<p>Serialize degrees as 16 bits. The value will always decode to the <code>[0.0, 360.0)</code> range.   </p>
+<p>Final size is 2 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-degrees32-static"><span id="degrees32"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> degrees32 (  ) static</span></h4>
+<p>Serialize degrees as 32 bits. The value will always decode to the <code>[0.0, 360.0)</code> range.   </p>
+<p>Final size is 4 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-radians8-static"><span id="radians8"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> radians8 (  ) static</span></h4>
+<p>Serialize radians as 8 bits. The value will always decode to the <code>[0.0, TAU)</code> range.   </p>
+<p>Final size is 1 byte.</p>
+<hr />
+<h4 id="networkschemaserializer-radians16-static"><span id="radians16"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> radians16 (  ) static</span></h4>
+<p>Serialize radians as 16 bits. The value will always decode to the <code>[0.0, TAU)</code> range.   </p>
+<p>Final size is 2 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-radians32-static"><span id="radians32"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> radians32 (  ) static</span></h4>
+<p>Serialize radians as 32 bits. The value will always decode to the <code>[0.0, TAU)</code> range.   </p>
+<p>Final size is 4 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-vec2t-networkschemaserializer-component_serializer-static"><span id="vec2t"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> vec2t ( <a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> component_serializer ) static</span></h4>
+<p>Serialize <a href="https://docs.godotengine.org/en/4.1/classes/class_vector2.html">Vector2</a> objects, using <code>component_serializer</code> to serialize each component of the vector.   </p>
+<p>Serializes 2 components, size depends on the <code>component_serializer</code>.</p>
+<hr />
+<h4 id="networkschemaserializer-vec2f16-static"><span id="vec2f16"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> vec2f16 (  ) static</span></h4>
+<p>Serialize <a href="https://docs.godotengine.org/en/4.1/classes/class_vector2.html">Vector2</a> objects, with each component being a half-precision float.   </p>
+<p>This is only supported in Godot 4.4 and up. Earlier versions fall back to <a href="#vec2f32">vec2f32()</a>.   </p>
+<p>Final size is 4 bytes, 8 if using fallback.</p>
+<hr />
+<h4 id="networkschemaserializer-vec2f32-static"><span id="vec2f32"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> vec2f32 (  ) static</span></h4>
+<p>Serialize <a href="https://docs.godotengine.org/en/4.1/classes/class_vector2.html">Vector2</a> objects, with each component being a single-precision float.   </p>
+<p>Final size is 8 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-vec2f64-static"><span id="vec2f64"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> vec2f64 (  ) static</span></h4>
+<p>Serialize <a href="https://docs.godotengine.org/en/4.1/classes/class_vector2.html">Vector2</a> objects, with each component being a double-precision float.   </p>
+<p>Final size is 16 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-vec3t-networkschemaserializer-component_serializer-static"><span id="vec3t"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> vec3t ( <a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> component_serializer ) static</span></h4>
+<p>Serialize <a href="https://docs.godotengine.org/en/4.1/classes/class_vector3.html">Vector3</a> objects, using <code>component_serializer</code> to serialize each component of the vector.   </p>
+<p>Serializes 3 components, size depends on the <code>component_serializer</code>.</p>
+<hr />
+<h4 id="networkschemaserializer-vec3f16-static"><span id="vec3f16"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> vec3f16 (  ) static</span></h4>
+<p>Serialize <a href="https://docs.godotengine.org/en/4.1/classes/class_vector3.html">Vector3</a> objects, with each component being a half-precision float.   </p>
+<p>This is only supported in Godot 4.4 and up. Earlier versions fall back to <a href="#vec3f32">vec3f32()</a>.   </p>
+<p>Final size is 6 bytes, 12 if using fallback.</p>
+<hr />
+<h4 id="networkschemaserializer-vec3f32-static"><span id="vec3f32"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> vec3f32 (  ) static</span></h4>
+<p>Serialize <a href="https://docs.godotengine.org/en/4.1/classes/class_vector3.html">Vector3</a> objects, with each component being a double-precision float.   </p>
+<p>Final size is 12 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-vec3f64-static"><span id="vec3f64"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> vec3f64 (  ) static</span></h4>
+<p>Serialize <a href="https://docs.godotengine.org/en/4.1/classes/class_vector3.html">Vector3</a> objects, with each component being a double-precision float.   </p>
+<p>Final size is 24 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-vec4t-networkschemaserializer-component_serializer-static"><span id="vec4t"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> vec4t ( <a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> component_serializer ) static</span></h4>
+<p>Serialize <a href="https://docs.godotengine.org/en/4.1/classes/class_vector4.html">Vector4</a> objects, using <code>component_serializer</code> to serialize each component of the vector.   </p>
+<p>Serializes 4 components, size depends on the <code>component_serializer</code>.</p>
+<hr />
+<h4 id="networkschemaserializer-vec4f16-static"><span id="vec4f16"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> vec4f16 (  ) static</span></h4>
+<p>Serialize <a href="https://docs.godotengine.org/en/4.1/classes/class_vector4.html">Vector4</a> objects, with each component being a half-precision float.   </p>
+<p>This is only supported in Godot 4.4 and up. Earlier versions fall back to <a href="#vec4f32">vec4f32()</a>.   </p>
+<p>Final size is 8 bytes, 16 if using fallback.</p>
+<hr />
+<h4 id="networkschemaserializer-vec4f32-static"><span id="vec4f32"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> vec4f32 (  ) static</span></h4>
+<p>Serialize <a href="https://docs.godotengine.org/en/4.1/classes/class_vector4.html">Vector4</a> objects, with each component being a double-precision float.   </p>
+<p>Final size is 16 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-vec4f64-static"><span id="vec4f64"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> vec4f64 (  ) static</span></h4>
+<p>Serialize <a href="https://docs.godotengine.org/en/4.1/classes/class_vector4.html">Vector4</a> objects, with each component being a double-precision float.   </p>
+<p>Final size is 32 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-normal2t-networkschemaserializer-component_serializer-static"><span id="normal2t"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> normal2t ( <a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> component_serializer ) static</span></h4>
+<p>Serialize normalized <a href="https://docs.godotengine.org/en/4.1/classes/class_vector2.html">Vector2</a> objects, using <code>component_serializer</code> to serialize each component of the vector.   </p>
+<p>Serializes 1 component, size depends on the <code>component_serializer</code>.</p>
+<hr />
+<h4 id="networkschemaserializer-normal2f16-static"><span id="normal2f16"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> normal2f16 (  ) static</span></h4>
+<p>Serialize normalized <a href="https://docs.godotengine.org/en/4.1/classes/class_vector2.html">Vector2</a> objects, with each component being a half-precision float.   </p>
+<p>This is only supported in Godot 4.4 and up. Earlier versions fall back to <a href="#normal2f32">normal2f32()</a>.   </p>
+<p>Final size is 2 bytes, 4 if using fallback.</p>
+<hr />
+<h4 id="networkschemaserializer-normal2f32-static"><span id="normal2f32"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> normal2f32 (  ) static</span></h4>
+<p>Serialize normalized <a href="https://docs.godotengine.org/en/4.1/classes/class_vector2.html">Vector2</a> objects, with each component being a single-precision float.   </p>
+<p>Final size is 4 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-normal2f64-static"><span id="normal2f64"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> normal2f64 (  ) static</span></h4>
+<p>Serialize normalized <a href="https://docs.godotengine.org/en/4.1/classes/class_vector2.html">Vector2</a> objects, with each component being a double-precision float.   </p>
+<p>Final size is 8 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-normal3t-networkschemaserializer-component_serializer-static"><span id="normal3t"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> normal3t ( <a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> component_serializer ) static</span></h4>
+<p>Serialize normalized <a href="https://docs.godotengine.org/en/4.1/classes/class_vector3.html">Vector3</a> objects, using <code>component_serializer</code> to serialize each component of the vector.   </p>
+<p>Serializes 2 components, size depends on the <code>component_serializer</code>.</p>
+<hr />
+<h4 id="networkschemaserializer-normal3f16-static"><span id="normal3f16"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> normal3f16 (  ) static</span></h4>
+<p>Serialize normalized <a href="https://docs.godotengine.org/en/4.1/classes/class_vector3.html">Vector3</a> objects, with each component being a half-precision float.   </p>
+<p>This is only supported in Godot 4.4 and up. Earlier versions fall back to <a href="#normal3f32">normal3f32()</a>.   </p>
+<p>Final size is 4 bytes, 8 if using fallback.</p>
+<hr />
+<h4 id="networkschemaserializer-normal3f32-static"><span id="normal3f32"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> normal3f32 (  ) static</span></h4>
+<p>Serialize normalized <a href="https://docs.godotengine.org/en/4.1/classes/class_vector3.html">Vector3</a> objects, with each component being a single-precision float.   </p>
+<p>Final size is 8 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-normal3f64-static"><span id="normal3f64"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> normal3f64 (  ) static</span></h4>
+<p>Serialize normalized <a href="https://docs.godotengine.org/en/4.1/classes/class_vector3.html">Vector3</a> objects, with each component being a double-precision float.   </p>
+<p>Final size is 16 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-quatt-networkschemaserializer-component_serializer-static"><span id="quatt"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> quatt ( <a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> component_serializer ) static</span></h4>
+<p>Serialize <a href="https://docs.godotengine.org/en/4.1/classes/class_quaternion.html">Quaternion</a> objects, using <code>component_serializer</code> to serialize each component of the quaternion.   </p>
+<p>Serializes 4 components, size depends on the <code>component_serializer</code>.</p>
+<hr />
+<h4 id="networkschemaserializer-quatf16-static"><span id="quatf16"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> quatf16 (  ) static</span></h4>
+<p>Serialize <a href="https://docs.godotengine.org/en/4.1/classes/class_quaternion.html">Quaternion</a> objects, with each component being a half-precision float.   </p>
+<p>This is only supported in Godot 4.4 and up. Earlier versions fall back to <a href="#quat32f">quat32f()</a>.   </p>
+<p>Final size is 8 bytes, 16 if using fallback.</p>
+<hr />
+<h4 id="networkschemaserializer-quatf32-static"><span id="quatf32"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> quatf32 (  ) static</span></h4>
+<p>Serialize <a href="https://docs.godotengine.org/en/4.1/classes/class_quaternion.html">Quaternion</a> objects, with each component being a single-precision float.   </p>
+<p>Final size is 16 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-quatf64-static"><span id="quatf64"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> quatf64 (  ) static</span></h4>
+<p>Serialize <a href="https://docs.godotengine.org/en/4.1/classes/class_quaternion.html">Quaternion</a> objects, with each component being a double-precision float.   </p>
+<p>Final size is 32 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-transform2t-networkschemaserializer-component_serializer-static"><span id="transform2t"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> transform2t ( <a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> component_serializer ) static</span></h4>
+<p>Serialize <a href="https://docs.godotengine.org/en/4.1/classes/class_transform2d.html">Transform2D</a> objects, using <code>component_serializer</code> to serialize each component of the transform.   </p>
+<p>Serializes a 2x3 matrix in 6 components, final size depends on <code>component_serializer</code>.</p>
+<hr />
+<h4 id="networkschemaserializer-transform2f16-static"><span id="transform2f16"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> transform2f16 (  ) static</span></h4>
+<p>Serialize <a href="https://docs.godotengine.org/en/4.1/classes/class_transform2d.html">Transform2D</a> objects, with each component being a half-precision float.   </p>
+<p>This is only supported in Godot 4.4 and up. Earlier versions fall back to <a href="#transform2f32">transform2f32()</a>.   </p>
+<p>Final size is 12 bytes, 24 if using fallback.</p>
+<hr />
+<h4 id="networkschemaserializer-transform2f32-static"><span id="transform2f32"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> transform2f32 (  ) static</span></h4>
+<p>Serialize <a href="https://docs.godotengine.org/en/4.1/classes/class_transform2d.html">Transform2D</a> objects, with each component being a single-precision float.   </p>
+<p>Final size is 24 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-transform2f64-static"><span id="transform2f64"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> transform2f64 (  ) static</span></h4>
+<p>Serialize <a href="https://docs.godotengine.org/en/4.1/classes/class_transform2d.html">Transform2D</a> objects, with each component being a double-precision float.   </p>
+<p>Final size is 48 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-transform3t-networkschemaserializer-component_serializer-static"><span id="transform3t"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> transform3t ( <a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> component_serializer ) static</span></h4>
+<p>Serialize <a href="https://docs.godotengine.org/en/4.1/classes/class_transform3d.html">Transform3D</a> objects, using <code>component_serializer</code> to serialize each component of the transform.   </p>
+<p>Serializes a 3x4 matrix in 12 components, final size depends on <code>component_serializer</code>.</p>
+<hr />
+<h4 id="networkschemaserializer-transform3f16-static"><span id="transform3f16"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> transform3f16 (  ) static</span></h4>
+<p>Serialize <a href="https://docs.godotengine.org/en/4.1/classes/class_transform3d.html">Transform3D</a> objects, with each component being a half-precision float.   </p>
+<p>This is only supported in Godot 4.4 and up. Earlier versions fall back to <a href="#transform3f32">transform3f32()</a>.   </p>
+<p>Final size is 24 bytes, 48 if using fallback.</p>
+<hr />
+<h4 id="networkschemaserializer-transform3f32-static"><span id="transform3f32"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> transform3f32 (  ) static</span></h4>
+<p>Serialize <a href="https://docs.godotengine.org/en/4.1/classes/class_transform3d.html">Transform3D</a> objects, with each component being a single-precision float.   </p>
+<p>Final size is 48 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-transform3f64-static"><span id="transform3f64"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> transform3f64 (  ) static</span></h4>
+<p>Serialize <a href="https://docs.godotengine.org/en/4.1/classes/class_transform2d.html">Transform2D</a> objects, with each component being a double-precision float.   </p>
+<p>Final size is 96 bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-array_of-networkschemaserializer-item_serializer-networkschemaserializer-size_serializer-static"><span id="array_of"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> array_of ( <a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> item_serializer, <a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> size_serializer ) static</span></h4>
+<p>Serialize homogenoeous arrays, using <code>item_serializer</code> to serialize each item, and <code>size_serializer</code> to serialize the array's size.   </p>
+<p>To serialize heterogenoeous arrays, use <a href="#variant">variant()</a> as the item serializer.   </p>
+<p>Final size is <code>sizeof(size_serializer) + array.size() * sizeof(item_serializer)</code></p>
+<hr />
+<h4 id="networkschemaserializer-dictionary-networkschemaserializer-key_serializer-networkschemaserializer-value_serializer-networkschemaserializer-size_serializer-static"><span id="dictionary"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> dictionary ( <a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> key_serializer, <a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> value_serializer, <a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> size_serializer ) static</span></h4>
+<p>Serialize homogenoeous dictionaries, using <code>key_serialize</code> and <code>value_serializer</code> to serialize key-value pairs, and <code>size_serializer</code> to serialize the number of entries.   </p>
+<p>If either the keys or values are not homogenoeous, use <a href="#variant">variant()</a>.   </p>
+<p>Final size is <code>sizeof(size_serializer) + dictionary.size() * (sizeof(key_serializer) + sizeof(value_serializer))</code></p>
+<hr />
+              
+            </div>
+          </div>
+  <hr>
+  <h2>User discussion</h2>
+  <div class="giscus" ></div>
+  <hr>
+  <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../NetworkSchemaSerializer/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../NetworkTickrateHandshake/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+      <script src="../../assets/mkdocs_puml/puml.js"></script>
+      <script src="../../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

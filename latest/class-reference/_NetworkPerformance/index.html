@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://foxssake.github.io/netfox/latest/class-reference/_NetworkPerformance/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>_NetworkPerformance - netfox</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../css/version-selector.css" rel="stylesheet" />
+        <link href="../../css/twemoji.css" rel="stylesheet" />
+        <link href="../../assets/mkdocs_puml/puml.css" rel="stylesheet" />
+        <link href="../../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "_NetworkPerformance";
+        var mkdocs_page_input_path = "class-reference/_NetworkPerformance.md";
+        var mkdocs_page_url = "/netfox/latest/class-reference/_NetworkPerformance/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script>
+  <script src="https://giscus.app/client.js"
+          data-repo="foxssake/netfox"
+          data-repo-id="R_kgDOKBON2A"
+          data-category="Docs"
+          data-category-id="DIC_kwDOKBON2M4Clib_"
+          data-mapping="title"
+          data-strict="0"
+          data-reactions-enabled="1"
+          data-emit-metadata="0"
+          data-input-position="top"
+          data-theme="light"
+          data-lang="en"
+          data-loading="lazy"
+          crossorigin="anonymous"
+          async>
+  </script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> netfox
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../upgrading/">Upgrading netfox</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../made-with-netfox/">Made with netfox</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../external-tutorials/">External tutorials</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../press-kit/">Press kit</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../contributors/">Contributors</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Tutorials</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/responsive-player-movement/">Responsive player movement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/input-gathering-tips-and-tricks/">Input gathering tips and tricks</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/predicting-input/">Predicting input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/using-rollbacksynchronizer-without-inputs/">Using RollbackSynchronizer without inputs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/spawning-and-despawning-in-rollback/">Spawning and despawning in rollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/modifying-objects-during-rollback/">Modifying objects during rollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/configuring-properties-from-code/">Configuring properties from code</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/rollback-caveats/">Rollback caveats</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/tutorials/interpolation-caveats/">Interpolation caveats</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Concepts</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/concepts/servers-clients-ownership/">Servers, clients, and ownership</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/concepts/authoritative-servers/">Authoritative servers</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/logging/">Logging</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-time/">NetworkTime</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-time-synchronizer/">NetworkTimeSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-events/">NetworkEvents</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/interpolators/">Interpolators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/property-paths/">Property paths</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-rollback/">NetworkRollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-performance/">NetworkPerformance</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-command-server/">NetworkCommandServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/network-schemas/">Network Schemas</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/visibility-management/">Visibility Management</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/guides/netfox-sharp/">Netfox Sharp</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Nodes</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/nodes/tick-interpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/nodes/rollback-synchronizer/">RollbackSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/nodes/predictive-synchronizer/">PredictiveSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/nodes/state-synchronizer/">StateSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox/nodes/rewindable-action/">RewindableAction</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.noray</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.noray/guides/noray/">Noray</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.noray/guides/packet-handshake/">PacketHandshake</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.extras</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/physics/">Physics</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/network-simulator/">NetworkSimulator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/base-net-input/">BaseNetInput</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/network-weapon/">NetworkWeapon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/rewindable-state-machine/">RewindableStateMachine</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/rewindable-random-number-generator/">RewindableRandomNumberGenerator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../netfox.extras/guides/window-tiler/">WindowTiler</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Reference</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" >Classes</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../BaseNetInput/">BaseNetInput</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../Interpolators.Interpolator/">Interpolators.Interpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../Interpolators/">Interpolators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetfoxLogger/">NetfoxLogger</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkRigidBody2D/">NetworkRigidBody2D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkRigidBody3D/">NetworkRigidBody3D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkSchemas/">NetworkSchemas</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkTickrateHandshake/">NetworkTickrateHandshake</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkWeapon/">NetworkWeapon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkWeapon2D/">NetworkWeapon2D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkWeapon3D/">NetworkWeapon3D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NetworkWeaponHitscan3D/">NetworkWeaponHitscan3D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../PeerVisibilityFilter/">PeerVisibilityFilter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../PhysicsDriver/">PhysicsDriver</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../PredictiveSynchronizer/">PredictiveSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RewindableAction/">RewindableAction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RewindableRandomNumberGenerator/">RewindableRandomNumberGenerator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RewindableState/">RewindableState</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RewindableStateMachine/">RewindableStateMachine</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../RollbackSynchronizer/">RollbackSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../StateSynchronizer/">StateSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../TickInterpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkCommandServer.Command/">_NetworkCommandServer.Command</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkCommandServer/">_NetworkCommandServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkEvents/">_NetworkEvents</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkHistoryServer/">_NetworkHistoryServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkIdentityServer/">_NetworkIdentityServer</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">_NetworkPerformance</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#methods">Methods</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#constants">Constants</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#network_loop_duration_monitor-netfoxnetwork-loop-duration-ms">NETWORK_LOOP_DURATION_MONITOR = &amp;"netfox/Network loop duration (ms)"</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#rollback_loop_duration_monitor-netfoxrollback-loop-duration-ms">ROLLBACK_LOOP_DURATION_MONITOR = &amp;"netfox/Rollback loop duration (ms)"</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#network_ticks_monitor-netfoxnetwork-ticks-simulated">NETWORK_TICKS_MONITOR = &amp;"netfox/Network ticks simulated"</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#rollback_ticks_monitor-netfoxrollback-ticks-simulated">ROLLBACK_TICKS_MONITOR = &amp;"netfox/Rollback ticks simulated"</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#rollback_tick_duration_monitor-netfoxrollback-tick-duration-ms">ROLLBACK_TICK_DURATION_MONITOR = &amp;"netfox/Rollback tick duration (ms)"</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#rollback_nodes_simulated_monitor-netfoxrollback-nodes-simulated">ROLLBACK_NODES_SIMULATED_MONITOR = &amp;"netfox/Rollback nodes simulated"</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#rollback_nodes_simulated_per_tick_monitor-netfoxrollback-nodes-simulated-per-tick-avg">ROLLBACK_NODES_SIMULATED_PER_TICK_MONITOR = &amp;"netfox/Rollback nodes simulated per tick (avg)"</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#full_state_properties_count-netfoxfull-state-properties-count">FULL_STATE_PROPERTIES_COUNT = &amp;"netfox/Full state properties count"</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#sent_state_properties_count-netfoxsent-state-properties-count">SENT_STATE_PROPERTIES_COUNT = &amp;"netfox/Sent state properties count"</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#sent_state_properties_ratio-netfoxsent-state-properties-ratio">SENT_STATE_PROPERTIES_RATIO = &amp;"netfox/Sent state properties ratio"</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#method-descriptions">Method Descriptions</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#bool-is_enabled">bool is_enabled ( )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#float-get_network_loop_duration_ms">float get_network_loop_duration_ms ( )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#int-get_network_ticks">int get_network_ticks ( )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#float-get_rollback_loop_duration_ms">float get_rollback_loop_duration_ms ( )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#int-get_rollback_ticks">int get_rollback_ticks ( )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#float-get_rollback_tick_duration_ms">float get_rollback_tick_duration_ms ( )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#int-get_rollback_nodes_simulated">int get_rollback_nodes_simulated ( )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#float-get_rollback_nodes_simulated_per_tick">float get_rollback_nodes_simulated_per_tick ( )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-push_rollback_nodes_simulated-int-count">void push_rollback_nodes_simulated ( int count )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#int-get_full_state_props_count">int get_full_state_props_count ( )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#int-get_sent_state_props_count">int get_sent_state_props_count ( )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#float-get_sent_state_props_ratio">float get_sent_state_props_ratio ( )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-push_full_state-dictionary-state">void push_full_state ( Dictionary state )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-push_full_state_props-int-count">void push_full_state_props ( int count )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-push_full_state_broadcast-dictionary-state">void push_full_state_broadcast ( Dictionary state )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-push_sent_state-dictionary-state">void push_sent_state ( Dictionary state )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-push_sent_state_props-int-count">void push_sent_state_props ( int count )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-push_sent_state_broadcast-dictionary-state">void push_sent_state_broadcast ( Dictionary state )</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkRollback/">_NetworkRollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkSimulator/">_NetworkSimulator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkSynchronizationServer/">_NetworkSynchronizationServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkTime/">_NetworkTime</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_NetworkTimeSynchronizer/">_NetworkTimeSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_Noray/">_Noray</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_PacketHandshake/">_PacketHandshake</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_RollbackLivenessServer/">_RollbackLivenessServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_RollbackSimulationServer/">_RollbackSimulationServer</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">netfox</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Reference</li>
+          <li class="breadcrumb-item">Classes</li>
+      <li class="breadcrumb-item active">_NetworkPerformance</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="_networkperformance">_NetworkPerformance</h1>
+<p><strong>Inherits:</strong> <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a></p>
+<h2 id="methods">Methods</h2>
+<table>
+<thead>
+<tr>
+<th>Return Type</th>
+<th>Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a></td>
+<td><a href="#is_enabled">is_enabled</a>()</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a></td>
+<td><a href="#get_network_loop_duration_ms">get_network_loop_duration_ms</a>()</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a></td>
+<td><a href="#get_network_ticks">get_network_ticks</a>()</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a></td>
+<td><a href="#get_rollback_loop_duration_ms">get_rollback_loop_duration_ms</a>()</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a></td>
+<td><a href="#get_rollback_ticks">get_rollback_ticks</a>()</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a></td>
+<td><a href="#get_rollback_tick_duration_ms">get_rollback_tick_duration_ms</a>()</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a></td>
+<td><a href="#get_rollback_nodes_simulated">get_rollback_nodes_simulated</a>()</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a></td>
+<td><a href="#get_rollback_nodes_simulated_per_tick">get_rollback_nodes_simulated_per_tick</a>()</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#push_rollback_nodes_simulated">push_rollback_nodes_simulated</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> count)</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a></td>
+<td><a href="#get_full_state_props_count">get_full_state_props_count</a>()</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a></td>
+<td><a href="#get_sent_state_props_count">get_sent_state_props_count</a>()</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a></td>
+<td><a href="#get_sent_state_props_ratio">get_sent_state_props_ratio</a>()</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#push_full_state">push_full_state</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_dictionary.html">Dictionary</a> state)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#push_full_state_props">push_full_state_props</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> count)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#push_full_state_broadcast">push_full_state_broadcast</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_dictionary.html">Dictionary</a> state)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#push_sent_state">push_sent_state</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_dictionary.html">Dictionary</a> state)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#push_sent_state_props">push_sent_state_props</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> count)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#push_sent_state_broadcast">push_sent_state_broadcast</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_dictionary.html">Dictionary</a> state)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="constants">Constants</h2>
+<h4 id="network_loop_duration_monitor-netfoxnetwork-loop-duration-ms"><span id="network_loop_duration_monitor">NETWORK_LOOP_DURATION_MONITOR</span> = <code>&amp;"netfox/Network loop duration (ms)"</code></h4>
+<hr />
+<h4 id="rollback_loop_duration_monitor-netfoxrollback-loop-duration-ms"><span id="rollback_loop_duration_monitor">ROLLBACK_LOOP_DURATION_MONITOR</span> = <code>&amp;"netfox/Rollback loop duration (ms)"</code></h4>
+<hr />
+<h4 id="network_ticks_monitor-netfoxnetwork-ticks-simulated"><span id="network_ticks_monitor">NETWORK_TICKS_MONITOR</span> = <code>&amp;"netfox/Network ticks simulated"</code></h4>
+<hr />
+<h4 id="rollback_ticks_monitor-netfoxrollback-ticks-simulated"><span id="rollback_ticks_monitor">ROLLBACK_TICKS_MONITOR</span> = <code>&amp;"netfox/Rollback ticks simulated"</code></h4>
+<hr />
+<h4 id="rollback_tick_duration_monitor-netfoxrollback-tick-duration-ms"><span id="rollback_tick_duration_monitor">ROLLBACK_TICK_DURATION_MONITOR</span> = <code>&amp;"netfox/Rollback tick duration (ms)"</code></h4>
+<hr />
+<h4 id="rollback_nodes_simulated_monitor-netfoxrollback-nodes-simulated"><span id="rollback_nodes_simulated_monitor">ROLLBACK_NODES_SIMULATED_MONITOR</span> = <code>&amp;"netfox/Rollback nodes simulated"</code></h4>
+<hr />
+<h4 id="rollback_nodes_simulated_per_tick_monitor-netfoxrollback-nodes-simulated-per-tick-avg"><span id="rollback_nodes_simulated_per_tick_monitor">ROLLBACK_NODES_SIMULATED_PER_TICK_MONITOR</span> = <code>&amp;"netfox/Rollback nodes simulated per tick (avg)"</code></h4>
+<hr />
+<h4 id="full_state_properties_count-netfoxfull-state-properties-count"><span id="full_state_properties_count">FULL_STATE_PROPERTIES_COUNT</span> = <code>&amp;"netfox/Full state properties count"</code></h4>
+<hr />
+<h4 id="sent_state_properties_count-netfoxsent-state-properties-count"><span id="sent_state_properties_count">SENT_STATE_PROPERTIES_COUNT</span> = <code>&amp;"netfox/Sent state properties count"</code></h4>
+<hr />
+<h4 id="sent_state_properties_ratio-netfoxsent-state-properties-ratio"><span id="sent_state_properties_ratio">SENT_STATE_PROPERTIES_RATIO</span> = <code>&amp;"netfox/Sent state properties ratio"</code></h4>
+<hr />
+<h2 id="method-descriptions">Method Descriptions</h2>
+<h4 id="bool-is_enabled"><span id="is_enabled"><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> is_enabled (  ) </span></h4>
+<p>Check if performance monitoring is enabled.   </p>
+<p>By default, monitoring is only enabled in debug builds ( see <a href="https://docs.godotengine.org/en/4.1/classes/class_os.html">OS.is_debug_build()</a> ). <br />
+Can be forced on with the <code>netfox_perf</code> feature tag. <br />
+Can be forced off with the <code>netfox_noperf</code> feature tag.</p>
+<hr />
+<h4 id="float-get_network_loop_duration_ms"><span id="get_network_loop_duration_ms"><a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> get_network_loop_duration_ms (  ) </span></h4>
+<p>Get time spent in the last network tick loop, in millisec. <br />
+Note that this also includes time spent in the rollback tick loop.</p>
+<hr />
+<h4 id="int-get_network_ticks"><span id="get_network_ticks"><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> get_network_ticks (  ) </span></h4>
+<p>Get the number of ticks simulated in the last network tick loop.</p>
+<hr />
+<h4 id="float-get_rollback_loop_duration_ms"><span id="get_rollback_loop_duration_ms"><a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> get_rollback_loop_duration_ms (  ) </span></h4>
+<p>Get time spent in the last rollback tick loop, in millisec.</p>
+<hr />
+<h4 id="int-get_rollback_ticks"><span id="get_rollback_ticks"><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> get_rollback_ticks (  ) </span></h4>
+<p>Get the number of ticks resimulated in the last rollback tick loop.</p>
+<hr />
+<h4 id="float-get_rollback_tick_duration_ms"><span id="get_rollback_tick_duration_ms"><a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> get_rollback_tick_duration_ms (  ) </span></h4>
+<p>Get the average amount of time spent in a rollback tick during the last rollback loop, in millisec.</p>
+<hr />
+<h4 id="int-get_rollback_nodes_simulated"><span id="get_rollback_nodes_simulated"><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> get_rollback_nodes_simulated (  ) </span></h4>
+<p>Get the number of nodes simulated during the last rollback loop.</p>
+<hr />
+<h4 id="float-get_rollback_nodes_simulated_per_tick"><span id="get_rollback_nodes_simulated_per_tick"><a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> get_rollback_nodes_simulated_per_tick (  ) </span></h4>
+<p>Get the number of nodes simulated per tick on average during the last rollback loop.</p>
+<hr />
+<h4 id="void-push_rollback_nodes_simulated-int-count"><span id="push_rollback_nodes_simulated">void push_rollback_nodes_simulated ( <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> count ) </span></h4>
+<p>No description provided.</p>
+<hr />
+<h4 id="int-get_full_state_props_count"><span id="get_full_state_props_count"><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> get_full_state_props_count (  ) </span></h4>
+<p>Get the number of properties in the full state recorded during the last tick loop.</p>
+<hr />
+<h4 id="int-get_sent_state_props_count"><span id="get_sent_state_props_count"><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> get_sent_state_props_count (  ) </span></h4>
+<p>Get the number of properties actually sent during the last tick loop.</p>
+<hr />
+<h4 id="float-get_sent_state_props_ratio"><span id="get_sent_state_props_ratio"><a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> get_sent_state_props_ratio (  ) </span></h4>
+<p>Get the ratio of sent properties count to full state properties count.  See <a href="#get_full_state_props_count">get_full_state_props_count</a><br />
+See <a href="#get_sent_state_props_count">get_sent_state_props_count</a></p>
+<hr />
+<h4 id="void-push_full_state-dictionary-state"><span id="push_full_state">void push_full_state ( <a href="https://docs.godotengine.org/en/4.1/classes/class_dictionary.html">Dictionary</a> state ) </span></h4>
+<p>No description provided.</p>
+<hr />
+<h4 id="void-push_full_state_props-int-count"><span id="push_full_state_props">void push_full_state_props ( <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> count ) </span></h4>
+<p>No description provided.</p>
+<hr />
+<h4 id="void-push_full_state_broadcast-dictionary-state"><span id="push_full_state_broadcast">void push_full_state_broadcast ( <a href="https://docs.godotengine.org/en/4.1/classes/class_dictionary.html">Dictionary</a> state ) </span></h4>
+<p>No description provided.</p>
+<hr />
+<h4 id="void-push_sent_state-dictionary-state"><span id="push_sent_state">void push_sent_state ( <a href="https://docs.godotengine.org/en/4.1/classes/class_dictionary.html">Dictionary</a> state ) </span></h4>
+<p>No description provided.</p>
+<hr />
+<h4 id="void-push_sent_state_props-int-count"><span id="push_sent_state_props">void push_sent_state_props ( <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> count ) </span></h4>
+<p>No description provided.</p>
+<hr />
+<h4 id="void-push_sent_state_broadcast-dictionary-state"><span id="push_sent_state_broadcast">void push_sent_state_broadcast ( <a href="https://docs.godotengine.org/en/4.1/classes/class_dictionary.html">Dictionary</a> state ) </span></h4>
+<p>No description provided.</p>
+<hr />
+              
+            </div>
+          </div>
+  <hr>
+  <h2>User discussion</h2>
+  <div class="giscus" ></div>
+  <hr>
+  <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../_NetworkIdentityServer/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../_NetworkRollback/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+      <script src="../../assets/mkdocs_puml/puml.js"></script>
+      <script src="../../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
