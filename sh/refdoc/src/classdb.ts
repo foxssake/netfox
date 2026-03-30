@@ -2,6 +2,7 @@ import { JSDOM } from "jsdom";
 import type { Class } from "./class.types";
 import { isFileBasedName, parseClass } from "./class.parser";
 import { readdir } from "node:fs/promises";
+import { log } from './log'
 
 export class ClassDB {
   classes: Class[] = [];
@@ -9,13 +10,17 @@ export class ClassDB {
   private externalLookups: Map<string, string | undefined> = new Map();
 
   static async fromDirectory(path: string): Promise<ClassDB> {
+    log.group(`Loading docs from ${path}`)
     const db = new ClassDB();
 
     const files = await readdir(path, { recursive: true })
     for (const file of files) {
-      if (file.endsWith(".xml"))
+      if (file.endsWith(".xml")) {
         await db.ingestFile(path + "/" + file)
+        log.print(`Ingested ${file}`)
+      }
     }
+    log.endgroup();
 
     return db;
   }
@@ -30,10 +35,11 @@ export class ClassDB {
 
   async ingestFile(path: string) {
     this.ingest(await Bun.file(path).text(), path)
-    console.log(`Ingested ${path}`)
   }
 
   async exploreLocations(root: string): Promise<void> {
+    log.group("Exploring file data")
+
     const files = await readdir(root, { recursive: true });
 
     const classNamePattern = /class_name\s+([^\s]+)/;
@@ -61,8 +67,10 @@ export class ClassDB {
           classInfo.isPrivate = false
       }
     
-      console.log(`Explored ${file}`)
+      log.print(`Explored ${file}`)
     }
+
+    log.endgroup()
   }
 
   onlyNamedClasses(): ClassDB {
@@ -84,16 +92,16 @@ export class ClassDB {
       return this.externalLookups.get(name);
 
     const address = `https://docs.godotengine.org/en/4.1/classes/class_${name.toLowerCase()}.html`
-    console.log(`Checking ${name} at ${address}...`)
+    log.print(`Checking ${name} at ${address}...`)
 
     const response = await fetch(address);
 
     if (response.ok) {
-      console.log(`Found ${name} as external!`)
+      log.print(`\tFound ${name} as external!`)
       this.externalLookups.set(name, address)
       return address
     } else {
-      console.log(`Class ${name} is not known`)
+      log.print(`\tClass ${name} is not known`)
       this.externalLookups.set(name, undefined)
       return undefined
     }

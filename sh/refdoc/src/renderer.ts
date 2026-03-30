@@ -1,12 +1,31 @@
 import type { ClassDB } from "./classdb";
 import type { Class, Parameter } from "./class.types";
-import type { BBCode, BBCodeToken, ConstantToken, MemberToken, MethodToken, SignalToken } from "./bb.types";
+import type { BBCode, BBCodeToken, ConstantToken, MemberToken, MethodToken, SignalToken, UnknownToken } from "./bb.types";
+import { log } from "./log";
+
+export interface UnknownReferenceError {
+  type: "UnknownReference";
+  source: Class| undefined;
+  class: string | undefined;
+  member: string | undefined;
+}
+
+export interface UnknownTokenError {
+  type: "UnknownToken";
+  source: Class | undefined;
+  token: BBCodeToken;
+}
+
+export type RenderError = UnknownReferenceError | UnknownTokenError;
 
 export interface Renderer {
   render(targetDirectory: string): Promise<void>;
 }
 
 export class MarkdownRenderer implements Renderer {
+  readonly renderErrors: RenderError[] = []
+  private currentClass: Class | undefined;
+
   constructor(
     private classDB: ClassDB,
     private renderPrivateMembers: boolean = false,
@@ -15,13 +34,17 @@ export class MarkdownRenderer implements Renderer {
   ) {}
 
   async render(targetDirectory: string): Promise<void> {
+    this.renderErrors.length = 0;
+
+    log.group("Rendering files")
     for (const classInfo of this.classDB.classes) {
       if (!this.classFilter(classInfo)) {
-        console.log("Skipping class", classInfo.name, classInfo.srcPath)
+        log.print("Skipping class", classInfo.name, classInfo.srcPath)
         continue;
       }
 
       const file = Bun.file(targetDirectory + "/" + classInfo.name + ".md")
+      this.currentClass = classInfo
 
       // Clear file before writing
       if (await file.exists()) 
@@ -34,7 +57,7 @@ export class MarkdownRenderer implements Renderer {
         `**Inherits:** ${await this.renderType(classInfo.inherits)}\n\n` +
         `${await this.renderBBCode(classInfo.briefDescription)}\n\n` + 
         `## Description\n\n` +
-        `${await this.renderBBCode(classInfo.description) ?? "No description provided"}\n`)
+        `${await this.renderBBCode(classInfo.description) || "No description provided"}\n`)
 
       if (classInfo.tutorials.length) {
         sink.write("\n## Tutorials\n\n")
@@ -98,7 +121,7 @@ export class MarkdownRenderer implements Renderer {
 
           sink.write(
             `#### <span id="${slug}">${name} ( ${params} )</span>\n\n` +
-            `${await this.renderBBCode(signal.description) ?? "No description provided"}\n\n` + 
+            `${await this.renderBBCode(signal.description) || "No description provided"}\n\n` + 
             `---\n\n`
           )
         }
@@ -129,7 +152,7 @@ export class MarkdownRenderer implements Renderer {
           const name = member.name
           const type = await this.renderType(member.type)
           const defaultSuffix = member.default ? `= \`${member.default}\`` : ""
-          const description = await this.renderBBCode(member.description)
+          const description = await this.renderBBCode(member.description) || "No description provided."
           const slug = this.slug(member.name)
 
           sink.write(
@@ -156,14 +179,36 @@ export class MarkdownRenderer implements Renderer {
 
           sink.write(
             `#### <span id="${slug}">${type} ${name} ( ${params} ) ${qualifiers}</span>\n\n` + 
-            `${await this.renderBBCode(description)}\n\n` +
+            `${await this.renderBBCode(description) || "No description provided."}\n\n` +
             `---\n\n`
           )
         }
       }
 
       sink.end()
-      console.log(`Rendered ${file.name}`)
+
+      log.print(`Rendered ${file.name}`)
+    }
+
+    log.endgroup()
+
+    if (this.renderErrors.length > 0) {
+      log.group("Rendering errors")
+
+      // Print errors
+      for (const error of this.renderErrors) {
+        const file = error.source?.srcPath ?? error.source?.name ?? ""
+
+        if (error.type === "UnknownReference")
+          log.errorInFile(file, `Unknown reference to ${error.class ?? "local"}.${error.member}`)
+        if (error.type === "UnknownToken")
+          if (error.token.type === "?")
+            log.errorInFile(file, `Encountered unknown token ${error.token.tag.toString()}`)
+          else
+            log.errorInFile(file, `Encountered unknown token:\n${JSON.stringify(error.token)}`)
+      }
+
+      log.endgroup()
     }
   }
 
@@ -214,7 +259,6 @@ export class MarkdownRenderer implements Renderer {
         } else if (externalLink) {
           result.push(`[${className}](${externalLink})`)
         } else {
-          console.error("Failed to lookup class:", token.tag.tag)
           this.pushUnknown(token, result)
         }
       } else {
@@ -231,7 +275,8 @@ export class MarkdownRenderer implements Renderer {
       JSON.stringify(token, undefined, 2) +
       "\n```\n\n"
     )
-    console.error("Encountered unknown token", token)
+
+    this.pushError({ type: "UnknownToken", token, source: undefined })
   }
 
   private slug(text: string): string {
@@ -314,6 +359,12 @@ export class MarkdownRenderer implements Renderer {
       return `[${type}.${displayName}](${externalLink})`
     }
 
+    this.pushError({ type: "UnknownReference", source: undefined, class: type, member: name })
     return `*${type}.${displayName}*`
+  }
+
+  private pushError(error: RenderError) {
+    error.source = this.currentClass;
+    this.renderErrors.push(error)
   }
 }
