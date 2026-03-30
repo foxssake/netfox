@@ -10,11 +10,17 @@ export class MarkdownRenderer implements Renderer {
   constructor(
     private classDB: ClassDB,
     private renderPrivateMembers: boolean = false,
-    private renderPrivateMethods: boolean = false
+    private renderPrivateMethods: boolean = false,
+    private classFilter: (classInfo: Class) => boolean = () => true
   ) {}
 
   async render(targetDirectory: string): Promise<void> {
     for (const classInfo of this.classDB.classes) {
+      if (!this.classFilter(classInfo)) {
+        console.log("Skipping class", classInfo.name, classInfo.srcPath)
+        continue;
+      }
+
       const file = Bun.file(targetDirectory + "/" + classInfo.name + ".md")
 
       // Clear file before writing

@@ -43,6 +43,7 @@ export class ClassDB {
 
       const fileHandle = Bun.file(root + "/" + file);
       if ((await fileHandle.stat()).isDirectory()) continue
+
       const script = await Bun.file(root + "/" + file).text()
       const hit = pattern.exec(script);
       const classInfo = (hit !== null && hit.length >= 2)

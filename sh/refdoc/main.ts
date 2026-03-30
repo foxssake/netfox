@@ -8,11 +8,10 @@ async function main() {
   const classdb = (await ClassDB.fromDirectory(dir)).onlyNamedClasses();
 
   await classdb.exploreLocations(src);
-  // classdb.classes = classdb.classes.filter(c => c.srcPath?.startsWith("addons/netfox"))
 
   await Bun.file("classdb.json").write(JSON.stringify(classdb.classes, undefined, 2))
 
-  const renderer = new MarkdownRenderer(classdb);
+  const renderer = new MarkdownRenderer(classdb, false, false, c => c.srcPath?.startsWith("addons/netfox") === true);
   renderer.render("out/");
 }
 
