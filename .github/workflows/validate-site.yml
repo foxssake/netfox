@@ -33,6 +33,8 @@ jobs:
           include-templates: false
       - name: Setup mkdocs
         run: pip install mkdocs && pip install $(mkdocs get-deps) && pip install mkdocs-material
+      - name: Setup mike
+        run: pip install mike
       - name: Setup graphviz
         run: sudo apt install graphviz
       - name: Start PlantUML server

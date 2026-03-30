@@ -4,8 +4,9 @@
 source sh/shared.sh
 
 # Grab commit history
-print $BOLD"Unshallowing commit history"$NC
+group "Unshallowing commit history"
 git fetch --unshallow --filter=tree:0
+endgroup
 
 # Figure out version
 TAG="$(git tag --points-at HEAD)"

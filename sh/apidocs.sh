@@ -17,4 +17,7 @@ endgroup
 
 group "Rendering reference pages"
 bun sh/refdoc/ apidocs/ ./ docs/class-reference/
+RESULT="$?"
 endgroup
+
+exit $RESULT
