@@ -23,6 +23,7 @@ export interface RenderSettings {
   renderPrivateMethods: boolean;
   renderPrivateConstants: boolean;
   renderPrivateSignals: boolean;
+  renderPrivateClasses: boolean;
 
   classFilter: (classInfo: Class) => boolean;
 }
@@ -36,6 +37,7 @@ const defaultSettings: RenderSettings = {
   renderPrivateMembers: false,
   renderPrivateConstants: false,
   renderPrivateSignals: false,
+  renderPrivateClasses: false,
 
   classFilter: () => true
 }
@@ -61,6 +63,9 @@ export class MarkdownRenderer implements Renderer {
         log.print("Skipping class", classInfo.name, classInfo.srcPath)
         continue;
       }
+
+      if (classInfo.isPrivate && !this.settings.renderPrivateClasses)
+        continue;
 
       const file = Bun.file(targetDirectory + "/" + classInfo.name + ".md")
       this.currentClass = classInfo

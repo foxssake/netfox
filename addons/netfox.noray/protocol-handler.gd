@@ -1,6 +1,8 @@
 extends RefCounted
 class_name NorayProtocolHandler
 
+# @private class
+
 ## This class parses incoming data from noray's protocol.
 ##
 ## Unless you're writing your own noray integration, [_Noray] should cover most
