@@ -26,5 +26,8 @@ vest.log
 
 plantuml-*.jar
 
+# refdoc output
+classdb.json
+
 # Only for local use
 sh/ensure-uids.sh
