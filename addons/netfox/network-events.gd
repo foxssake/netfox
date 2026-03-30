@@ -14,7 +14,7 @@ class_name _NetworkEvents
 ## By providing these convenience events, you can forego all that and instead
 ## just listen to a single signal that should work no matter what.
 ##
-## [i]Note:[/i] This class also manages [NetworkTime] start/stop, so as long as
+## [i]Note:[/i] This class also manages [_NetworkTime] start/stop, so as long as
 ## network events are enabled, you don't need to manually call start/stop.
 
 ## Event emitted when the [MultiplayerAPI] is changed

@@ -3,7 +3,7 @@ class_name NorayProtocolHandler
 
 ## This class parses incoming data from noray's protocol.
 ##
-## Unless you're writing your own noray integration, [Noray] should cover most
+## Unless you're writing your own noray integration, [_Noray] should cover most
 ## use cases.
 
 ## Emitted for every command parsed during a [method ingest] call.
