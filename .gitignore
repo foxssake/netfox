@@ -29,6 +29,7 @@ plantuml-*.jar
 # API docs
 docs/class-reference/*
 !docs/class-reference/.gitkeep
+apidocs/
 classdb.json
 
 # Only for local use
