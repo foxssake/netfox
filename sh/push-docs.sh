@@ -20,6 +20,10 @@ elif [ "$TAG" != "" ]; then
 fi;
 
 # Push version
-print -e "Pushing version $BOLD$VERSION$NC"
-mike deploy --push "$VERSION"
+if [ -z "${NOPUSH+x}" ]; then
+  print -e "Pushing version $BOLD$VERSION$NC"
+  mike deploy --push "$VERSION"
+else
+  mike deploy "$VERSION"
+fi
 
