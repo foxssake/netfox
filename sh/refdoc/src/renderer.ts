@@ -18,27 +18,46 @@ export interface UnknownTokenError {
 
 export type RenderError = UnknownReferenceError | UnknownTokenError;
 
+export interface RenderSettings {
+  renderPrivateMembers: boolean;
+  renderPrivateMethods: boolean;
+  renderPrivateConstants: boolean;
+  renderPrivateSignals: boolean;
+
+  classFilter: (classInfo: Class) => boolean;
+}
+
 export interface Renderer {
   render(targetDirectory: string): Promise<void>;
 }
 
+const defaultSettings: RenderSettings = {
+  renderPrivateMethods: false,
+  renderPrivateMembers: false,
+  renderPrivateConstants: false,
+  renderPrivateSignals: false,
+
+  classFilter: () => true
+}
+
 export class MarkdownRenderer implements Renderer {
   readonly renderErrors: RenderError[] = []
+  private settings: RenderSettings
   private currentClass: Class | undefined;
 
   constructor(
     private classDB: ClassDB,
-    private renderPrivateMembers: boolean = false,
-    private renderPrivateMethods: boolean = false,
-    private classFilter: (classInfo: Class) => boolean = () => true
-  ) {}
+    settings: Partial<RenderSettings> = {}
+  ) {
+    this.settings = { ...defaultSettings, ...settings }
+  }
 
   async render(targetDirectory: string): Promise<void> {
     this.renderErrors.length = 0;
 
     log.group("Rendering files")
     for (const classInfo of this.classDB.classes) {
-      if (!this.classFilter(classInfo)) {
+      if (!this.settings.classFilter(classInfo)) {
         log.print("Skipping class", classInfo.name, classInfo.srcPath)
         continue;
       }
@@ -55,9 +74,15 @@ export class MarkdownRenderer implements Renderer {
       sink.write(
         `# ${classInfo.name}\n\n` +
         `**Inherits:** ${await this.renderType(classInfo.inherits)}\n\n` +
-        `${await this.renderBBCode(classInfo.briefDescription)}\n\n` + 
-        `## Description\n\n` +
-        `${await this.renderBBCode(classInfo.description) || "No description provided"}\n`)
+        `${await this.renderBBCode(classInfo.briefDescription)}\n\n`
+      )
+
+      const classDescription = await this.renderBBCode(classInfo.description)
+      if (classDescription)
+        sink.write(
+          `## Description\n\n` +
+          `${classDescription}\n`
+        )
 
       if (classInfo.tutorials.length) {
         sink.write("\n## Tutorials\n\n")
@@ -76,7 +101,7 @@ export class MarkdownRenderer implements Renderer {
         )
 
         for (const member of classInfo.members) {
-          if (member.isPrivate && !this.renderPrivateMembers)
+          if (member.isPrivate && !this.settings.renderPrivateMembers)
             continue;
 
           const link = `#${this.slug(member.name)}`
@@ -97,7 +122,7 @@ export class MarkdownRenderer implements Renderer {
         )
 
         for (const method of classInfo.methods) {
-          if (method.isPrivate && !this.renderPrivateMembers)
+          if (method.isPrivate && !this.settings.renderPrivateMembers)
             continue
 
           const link = `#${this.slug(method.name)}`
@@ -111,10 +136,13 @@ export class MarkdownRenderer implements Renderer {
         }
       }
 
-      if (classInfo.signals.length) {
+      if (this.hasSignals(classInfo)) {
         sink.write(`\n## Signals\n\n`)
 
         for (const signal of classInfo.signals) {
+          if (signal.isPrivate && !this.settings.renderPrivateSignals)
+            continue;
+
           const name = signal.name
           const params = await this.renderParams(signal.params)
           const slug = this.slug(name)
@@ -127,10 +155,13 @@ export class MarkdownRenderer implements Renderer {
         }
       }
 
-      if (classInfo.constants.length) {
+      if (this.hasConstants(classInfo)) {
         sink.write(`\n## Constants\n`)
 
         for (const constant of classInfo.constants) {
+          if (constant.isPrivate && !this.settings.renderPrivateConstants)
+            continue;
+
           const slug = this.slug(constant.name)
 
           sink.write(
@@ -146,7 +177,7 @@ export class MarkdownRenderer implements Renderer {
         sink.write(`\n## Property Descriptions\n\n`)
 
         for (const member of classInfo.members) {
-          if (member.isPrivate && !this.renderPrivateMembers)
+          if (member.isPrivate && !this.settings.renderPrivateMembers)
             continue
 
           const name = member.name
@@ -167,7 +198,7 @@ export class MarkdownRenderer implements Renderer {
         sink.write(`\n## Method Descriptions\n\n`)
 
         for (const method of classInfo.methods) {
-          if (method.isPrivate && !this.renderPrivateMethods)
+          if (method.isPrivate && !this.settings.renderPrivateMethods)
             continue
 
           const type = await this.renderType(method.returnType)
@@ -220,7 +251,7 @@ export class MarkdownRenderer implements Renderer {
       if (token.type === "string")
         result.push(token.text)
       else if(token.type === "br")
-        result.push("\n")
+        result.push("  \n")
       else if(token.type === "i")
         result.push(`_${await this.renderBBCode(token.content)}_`)
       else if(token.type === "b")
@@ -238,7 +269,7 @@ export class MarkdownRenderer implements Renderer {
       else if(token.type === "code")
         result.push(`\`${token.code}\``)
       else if(token.type === "codeblock")
-        result.push("\n\n```gd\n" + token.code + "```\n\n")
+        result.push("\n\n```gd\n" + token.code + "\n```\n\n")
       else if(token.type === "method")
         result.push(await this.renderMethodReference(token))
       else if (token.type === "param")
@@ -284,17 +315,27 @@ export class MarkdownRenderer implements Renderer {
   }
 
   private hasMembers(classInfo: Class): boolean {
-    if (!this.renderPrivateMembers)
-      return classInfo.members.some(m => !m.isPrivate)
-    else
-      return classInfo.members.length > 0
+    return this.settings.renderPrivateMembers
+      ? classInfo.members.length > 0
+      : classInfo.members.some(s => !s.isPrivate)
   }
 
   private hasMethods(classInfo: Class): boolean {
-    if (!this.renderPrivateMethods)
-      return classInfo.methods.some(m => !m.isPrivate)
-    else
-      return classInfo.methods.length > 0
+    return this.settings.renderPrivateMethods
+      ? classInfo.methods.length > 0
+      : classInfo.methods.some(s => !s.isPrivate)
+  }
+
+  private hasSignals(classInfo: Class): boolean {
+    return this.settings.renderPrivateSignals
+      ? classInfo.signals.length > 0
+      : classInfo.signals.some(s => !s.isPrivate)
+  }
+
+  private hasConstants(classInfo: Class): boolean {
+    return this.settings.renderPrivateConstants
+      ? classInfo.constants.length > 0
+      : classInfo.constants.some(c => !c.isPrivate)
   }
 
   private async getTypeLink(type: string): Promise<string | undefined> {
@@ -321,10 +362,18 @@ export class MarkdownRenderer implements Renderer {
   }
 
   private async renderType(type: string): Promise<string> {
+    // `void` has no docs, and that's fine
+    if (type == "void")
+      return type
+
     const typeLink = await this.getTypeLink(type)
-    return typeLink
-      ? `[${type}](${typeLink})`
-      : type
+
+    if (!typeLink) {
+      this.pushError({ type: "UnknownReference", source: undefined, class: type, member: undefined})
+      return type
+    }
+
+    return `[${type}](${typeLink})`
   }
 
   private async renderMethodReference(method: MethodToken): Promise<string> {

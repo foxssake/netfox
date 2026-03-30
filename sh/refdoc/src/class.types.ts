@@ -1,4 +1,4 @@
-import type { BBCode } from "./bb.parser";
+import type { BBCode } from "./bb.types";
 
 export interface Class {
   name: string;

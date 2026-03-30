@@ -44,10 +44,11 @@ function parseAst(ast: TagNode[]): BBCodeToken[] {
     else if (node.tag === "code") tokens.push({ type: "code", code: (node.content as TagNode[] ?? []).map(i => i + "").join("") })
     else if (node.tag === "codeblock") tokens.push({ type: "codeblock", code: (node.content as TagNode[] ?? []).map(i => i + "").join("") })
     else if (node.tag === "url") {
-      tokens.push({ type: "url", link: node.content?.toString() ?? "", content: undefined })
-    } else if (node.tag.startsWith("url=")) {
-      const link = node.tag.split("=").at(1)!!
-      tokens.push({ type: "url", link, content: parseAst(node.content as TagNode[])})
+      const attrs = Object.values(node.attrs) as string[]
+      if (attrs.length == 1)
+        tokens.push({ type: "url", link: attrs[0], content: parseAst(node.content as TagNode[])})
+      else
+        tokens.push({ type: "url", link: (node.content as TagNode[] ?? []).map(i => i + "").join(""), content: undefined })
     }
     else if (classMethodPattern.test(node.tag)) {
       const hit = classMethodPattern.exec(node.tag)!!

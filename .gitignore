@@ -26,7 +26,9 @@ vest.log
 
 plantuml-*.jar
 
-# refdoc output
+# API docs
+docs/class-reference/*
+!docs/class-reference/.gitkeep
 classdb.json
 
 # Only for local use

@@ -1,6 +1,8 @@
 extends RefCounted
 class_name PropertyCache
 
+# @private class
+
 var root: Node
 var _cache: Dictionary = {}
 
