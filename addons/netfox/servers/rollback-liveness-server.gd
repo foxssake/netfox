@@ -1,6 +1,8 @@
 extends Node
 class_name _RollbackLivenessServer
 
+# @public class
+
 ## Tracks subject livenesses
 ##
 ## The game state may be rolled back to ticks where certain subjects didn't

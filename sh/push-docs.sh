@@ -4,8 +4,9 @@
 source sh/shared.sh
 
 # Grab commit history
-print $BOLD"Unshallowing commit history"$NC
+group "Unshallowing commit history"
 git fetch --unshallow --filter=tree:0
+endgroup
 
 # Figure out version
 TAG="$(git tag --points-at HEAD)"
@@ -20,6 +21,10 @@ elif [ "$TAG" != "" ]; then
 fi;
 
 # Push version
-print -e "Pushing version $BOLD$VERSION$NC"
-mike deploy --push "$VERSION"
+if [ -z "${NOPUSH+x}" ]; then
+  print -e "Pushing version $BOLD$VERSION$NC"
+  mike deploy --push "$VERSION"
+else
+  mike deploy "$VERSION"
+fi
 

@@ -1,6 +1,8 @@
 extends Node
 class_name _NetworkIdentityServer
 
+# @public class
+
 ## Tracks identities for use over the network
 ##
 ## Internally, netfox sends packets that refer to specific nodes, e.g. to

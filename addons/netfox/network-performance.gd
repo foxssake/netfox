@@ -1,6 +1,8 @@
 extends Node
 class_name _NetworkPerformance
 
+# @public class
+
 const NETWORK_LOOP_DURATION_MONITOR: StringName = &"netfox/Network loop duration (ms)"
 const ROLLBACK_LOOP_DURATION_MONITOR: StringName = &"netfox/Rollback loop duration (ms)"
 const NETWORK_TICKS_MONITOR: StringName = &"netfox/Network ticks simulated"

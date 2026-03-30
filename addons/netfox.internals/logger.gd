@@ -51,8 +51,8 @@ static var log_level: int
 ## ( int, e.g. [constant LOG_DEBUG] ).
 static var module_log_level: Dictionary
 
-## Set to true to enable calling [@GlobalScope.push_warning] and
-## [@GlobalScope.push_error]
+## Set to true to enable calling [method @GlobalScope.push_warning] and
+## [method @GlobalScope.push_error]
 static var push_to_debugger := true
 
 static var _tags: Dictionary = {}

@@ -9,13 +9,14 @@ func _ready():
 			_gather()
 	)
 
+# @public method
 ## Method for gathering input.
-##
+## [br][br]
 ## This method is supposed to be overridden with your input logic. The input
 ## data itself may be gathered outside of this method ( e.g. gathering it over
 ## multiple _process calls ), but this is the point where the input variables
 ## must be set.
-##
+## [br][br]
 ## [i]Note:[/i] This is only called for the local player's input nodes.
 func _gather():
 	pass

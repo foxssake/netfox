@@ -10,13 +10,32 @@ RED="\033[31m";
 IS_CI="no"
 if [[ $GITHUB_ACTIONS != "" ]]; then IS_CI="yes"; fi
 
+_PREFIX=""
+
 print() {
-  echo -e $@
+  echo -e "$_PREFIX$@"
+}
+
+group() {
+  if [[ $IS_CI == "yes" ]]; then
+    echo "::group::$@"
+  else
+    print "› $@"
+    _PREFIX="$_PREFIX  "
+  fi
+}
+
+endgroup() {
+  if [[ $IS_CI == "yes" ]]; then
+    echo "::endgroup::"
+  else
+    _PREFIX="${_PREFIX::${#_PREFIX}-4}"
+  fi
 }
 
 error() {
   if [[ $IS_CI == "yes" ]]; then
-    echo "::error::$@"
+    print "::error::$@"
   else
     print "[${RED}error${NC}]: $@"
   fi
@@ -27,7 +46,7 @@ error_in_file() {
   shift
 
   if [[ $IS_CI == "yes" ]]; then
-    echo "::error file=$FILE::$@"
+    print "::error file=$FILE::$@"
   else
     print "[${RED}error${NC}]($FILE): $@"
   fi

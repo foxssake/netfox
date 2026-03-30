@@ -1,0 +1,46 @@
+name: Validate site
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v5
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.11
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - name: Setup Godot
+        uses: chickensoft-games/setup-godot@v1
+        with:
+          version: 4.4.0
+          use-dotnet: false
+          include-templates: false
+      - name: Setup mkdocs
+        run: pip install mkdocs && pip install $(mkdocs get-deps) && pip install mkdocs-material
+      - name: Setup mike
+        run: pip install mike
+      - name: Setup graphviz
+        run: sudo apt install graphviz
+      - name: Start PlantUML server
+        run: sh/setup-plantuml.sh
+      - name: Generate API docs
+        run: sh/apidocs.sh
+      - name: Build
+        run: PLANTUML_URL=http://localhost:8080/ NOPUSH=yes sh/push-docs.sh
+

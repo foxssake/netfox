@@ -10,6 +10,7 @@ RESULT="ok"
 if [[ $1 == "--fix" ]]; then
   for file in $FILES; do
     sed -i "s/[[:blank:]]\+$//g" $file
+    sed -i "s/\[param\]\(.*\)\[\/param\]/[param \\1]/g" $file
   done;
 fi;
 
@@ -18,6 +19,12 @@ for file in $FILES; do
   # Check for trailing spaces
   if grep "[[:blank:]]\+$" "$file" > /dev/null; then
     error_in_file "$file" "Found trailing spaces!"
+    RESULT="fail"
+  fi
+
+  # Check for invalid [param] docs
+  if grep ".*#.*\[param\]" "$file" > /dev/null; then
+    error_in_file "$file" "Found invalid param doctag!"
     RESULT="fail"
   fi
 done;

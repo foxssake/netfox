@@ -34,7 +34,7 @@ class_name RewindableStateMachine
 ## means it may be emitted multiple times for the same transition if it gets
 ## resimulated during rollback.
 ## [br][br]
-## [b]State changes are not necessarily emitted on all peers.[/b]
+## [b]State changes are not necessarily emitted on all peers.[/b][br]
 ## See: [url=https://foxssake.github.io/netfox/netfox.extras/guides/rewindable-state-machine/#caveats]RewindableStateMachine caveats[/url]
 signal on_state_changed(old_state: RewindableState, new_state: RewindableState)
 

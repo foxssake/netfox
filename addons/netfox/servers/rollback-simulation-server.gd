@@ -1,6 +1,8 @@
 extends Node
 class_name _RollbackSimulationServer
 
+# @public class
+
 ## Runs gameplay simulation during rollback
 ##
 ## Rollback involves restoring the game state to an earlier point in time and
@@ -32,7 +34,7 @@ var _group := StringName("__nf_rollback_sim" + str(get_instance_id()))
 
 static var _logger := NetfoxLogger._for_netfox("RollbackSimulationServer")
 
-## Register a [param]callback[/param] to run as part of the rollback loop
+## Register a [param callback] to run as part of the rollback loop
 func register(callback: Callable) -> void:
 	if not is_instance_valid(callback.get_object()):
 		_logger.error("Trying to register callback that belongs to an invalid object!")
@@ -42,7 +44,7 @@ func register(callback: Callable) -> void:
 
 	_callbacks[callback.get_object()] = callback
 
-## Deregister a [param]callback[/param] from the rollback loop
+## Deregister a [param callback] from the rollback loop
 func deregister(callback: Callable) -> void:
 	if not callback or not callback.is_valid(): return
 
@@ -55,17 +57,17 @@ func deregister(callback: Callable) -> void:
 	_input_graph.erase(object)
 	_simulated_ticks.erase(object)
 
-## Deregister a [param]node[/param] from the rollback loop
+## Deregister a [param node] from the rollback loop
 func deregister_node(node: Node) -> void:
 	if _callbacks.has(node):
 		deregister(_callbacks[node])
 	_input_graph.erase(node)
 
-## Register [param]input[/param] as providing input for [param]node[/param]
+## Register [param input] as providing input for [param node]
 func register_rollback_input_for(node: Node, input: Node) -> void:
 	_input_graph.link(input, node)
 
-## Deregister [param]input[/param] from providing input for [param]node[/param]
+## Deregister [param input] from providing input for [param node]
 func deregister_rollback_input(node: Node, input: Node) -> void:
 	_input_graph.unlink(input, node)
 

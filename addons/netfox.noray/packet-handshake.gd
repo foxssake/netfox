@@ -1,4 +1,8 @@
 extends Node
+class_name _PacketHandshake
+
+# @public class
+
 ## This class implements a handshake protocol over UDP for multiple classes.
 
 class HandshakeStatus:
@@ -60,11 +64,11 @@ func over_packet_peer(peer: PacketPeer, timeout: float = 8.0, frequency: float =
 	return result
 
 ## Conduct handshake over an [ENetConnection].
-##
+## [br][br]
 ## If the connection is closed during the handshake, errors will be printed
 ## until the end of the timeout. To avoid errors, use [method over_enet_peer]
 ## when possible.
-##
+## [br][br]
 ## [i]Note[/i] that this is not a full-fledged handshake, since we can't receive
 ## data over the connection. Instead, we just pretend that the handshake is
 ## successful on our end and blast that status for a given time.
@@ -87,11 +91,11 @@ func over_enet(connection: ENetConnection, address: String, port: int, timeout: 
 	return result
 
 ## Conduct handshake over an [ENetMultiplayerPeer].
-##
+## [br][br]
 ## Compared to [method over_enet], using an [ENetMultiplayerPeer] allows
 ## checking for closed connections. If the peer is closed during the handshake,
 ## this method will gracefully fail.
-##
+## [br][br]
 ## [i]Note[/i] that this is not a full-fledged handshake, since we can't receive
 ## data over the connection. Instead, we just pretend that the handshake is
 ## successful on our end and blast that status for a given time.

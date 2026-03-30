@@ -6,15 +6,15 @@ VEST_LOG="vest.log"
 # Run tests
 # NOTE: Must be ran with 4.2+, so the --import flag is available
 # Otherwise, Godot won't import scripts properly
-print "::group::Import project"
+group "Import project"
 godot --headless --import .
-print "::endgroup::"
+endgroup
 
-print "::group::Run vest"
+group "Run vest"
 godot --headless -s "addons/vest/cli/vest-cli.gd" \
       --vest-glob "res://test/*.test.gd" \
       --vest-report-format tap --vest-report-file "$VEST_LOG"
-print "::endgroup::"
+endgroup
 
 # Check results
 if [ ! -f "$VEST_LOG" ]; then
@@ -22,10 +22,10 @@ if [ ! -f "$VEST_LOG" ]; then
   exit 1
 fi
 
-echo "::group::Test report"
+group "Test report"
 cat "$VEST_LOG"
 echo ""
-echo "::endgroup::"
+endgroup
 
 if grep "not ok" "$VEST_LOG"; then
   error "There are failing test(s)!"

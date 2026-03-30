@@ -1,6 +1,8 @@
 extends Object
 class_name NetworkClocks
 
+# @private class
+
 class SystemClock:
 	var offset: float = 0.
 

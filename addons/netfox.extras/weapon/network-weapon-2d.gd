@@ -32,18 +32,22 @@ func _init():
 	_weapon.c_reconcile = _reconcile
 
 
+# @public method
 ## See [NetworkWeapon]
 func _can_fire() -> bool:
 	return false
 
+# @public method
 ## See [NetworkWeapon]
 func _can_peer_use(peer_id: int) -> bool:
 	return true
 
+# @public method
 ## See [NetworkWeapon]
 func _after_fire(projectile: Node2D):
 	pass
 
+# @public method
 ## See [NetworkWeapon]
 func _spawn() -> Node2D:
 	return null

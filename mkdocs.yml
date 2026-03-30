@@ -7,12 +7,14 @@ extra_css:
   - css/version-selector.css
   - css/twemoji.css
 plugins:
+  - search
   - plantuml:
       puml_url: !ENV [PLANTUML_URL, "http://www.plantuml.com/plantuml/"]
       theme:
         enabled: false
       interaction:
         enabled: false
+  - include_dir_to_nav
 markdown_extensions:
   - admonition
   - attr_list
@@ -78,4 +80,6 @@ nav:
       - 'netfox.extras/guides/rewindable-state-machine.md'
       - 'netfox.extras/guides/rewindable-random-number-generator.md'
       - 'netfox.extras/guides/window-tiler.md'
-
+  - Reference:
+    - Classes:
+      - 'class-reference/'

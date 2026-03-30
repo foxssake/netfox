@@ -1,6 +1,8 @@
 extends Node
 class_name _NetworkTimeSynchronizer
 
+# @public class
+
 ## Continuously synchronizes time to the host's remote clock.
 ##
 ## Make sure to read the [i]NetworkTimeSynchronizer Guide[/i] to understand the

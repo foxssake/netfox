@@ -1,0 +1,16 @@
+{
+  "name": "refdoc",
+  "module": "main.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/jsdom": "^28.0.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@bbob/parser": "^4.3.1",
+    "jsdom": "^29.0.1"
+  }
+}

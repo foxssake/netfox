@@ -44,6 +44,7 @@ func _can_peer_use(peer_id: int) -> bool:
 func _after_fire(projectile: Node3D):
 	pass
 
+# @public method
 ## See [NetworkWeapon]
 func _spawn() -> Node3D:
 	return null

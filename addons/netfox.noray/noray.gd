@@ -1,7 +1,11 @@
 extends Node
+class_name _Noray
+
+# @public class
+
 ## A noray client for Godot.
 ##
-## See: https://github.com/foxssake/noray
+## See: [url]https://github.com/foxssake/noray[/url]
 
 var _peer: StreamPeerTCP = StreamPeerTCP.new()
 var _protocol: NorayProtocolHandler = NorayProtocolHandler.new()
@@ -13,26 +17,26 @@ var _local_port: int = -1
 static var _logger: NetfoxLogger = NetfoxLogger._for_noray("Noray")
 
 ## Open ID.
-##
+## [br][br]
 ## [i]read-only[/i], this is set after registering as host.
 var oid: String:
 	get: return _oid
 	set(v): push_error("Trying to set read-only variable oid")
 
 ## Private ID.
-##
+## [br][br]
 ## [i]read-only[/i], this is set after registering as host.
 var pid: String:
 	get: return _pid
 	set(v): push_error("Trying to set read-only variable pid")
 
 ## Registered local port.
-##
+## [br][br]
 ## This is the port that servers should listen on and the port that clients
 ## should bind to ( i.e. use as local port ), since this port has been
 ## registered with noray as part of this machine's external address, and this
 ## is the port over which any handshake happens.
-##
+## [br][br]
 ## [i]read-only[/i], this is set after registering remote.
 var local_port: int:
 	get: return _local_port
@@ -99,7 +103,7 @@ func is_connected_to_host() -> bool:
 	return _peer.get_status() == _peer.STATUS_CONNECTED
 
 ## Disconnect from noray.
-##
+## [br][br]
 ## Does nothing if already disconnected.
 func disconnect_from_host():
 	if is_connected_to_host():
