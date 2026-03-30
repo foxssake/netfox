@@ -127,8 +127,8 @@ function parseAst(ast: TagNode[]): BBCodeToken[] {
     else if (node.tag === "b") tokens.push({ type: "b", content: parseAst(node.content as TagNode[]) })
     else if (node.tag === "u") tokens.push({ type: "u", content: parseAst(node.content as TagNode[]) })
     else if (node.tag === "s") tokens.push({ type: "s", content: parseAst(node.content as TagNode[]) })
-    else if (node.tag === "code") tokens.push({ type: "code", code: node.content?.toString() ?? "" })
-    else if (node.tag === "codeblock") tokens.push({ type: "codeblock", code: node.content?.toString() ?? "" })
+    else if (node.tag === "code") tokens.push({ type: "code", code: (node.content as TagNode[] ?? []).map(i => i + "").join("") })
+    else if (node.tag === "codeblock") tokens.push({ type: "codeblock", code: (node.content as TagNode[] ?? []).map(i => i + "").join("") })
     else if (node.tag === "url") {
       tokens.push({ type: "url", link: node.content?.toString() ?? "", content: undefined })
     } else if (node.tag.startsWith("url=")) {

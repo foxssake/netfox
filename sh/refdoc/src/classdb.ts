@@ -67,6 +67,10 @@ export class ClassDB {
     return this.classes.find(c => c.name === name);
   }
 
+  hasByName(name: string): boolean {
+    return this.findByName(name) !== undefined
+  }
+
   async lookupExternal(name: string): Promise<string | undefined> {
     if (this.externalLookups.has(name))
       return this.externalLookups.get(name);
@@ -75,7 +79,7 @@ export class ClassDB {
     console.log(`Checking ${name} at ${address}...`)
 
     const response = await fetch(address);
-    await sleep(200)
+    // await sleep(200)
 
     if (response.ok) {
       console.log(`Found ${name} as external!`)
