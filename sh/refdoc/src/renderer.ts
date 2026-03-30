@@ -1,6 +1,6 @@
 import type { ClassDB } from "./classdb";
-import type { Class, Method, Parameter } from "./class.types";
-import type { BBCode, BBCodeToken, ConstantToken, MemberToken, MethodToken, SignalToken } from "./bb.parser";
+import type { Class, Parameter } from "./class.types";
+import type { BBCode, BBCodeToken, ConstantToken, MemberToken, MethodToken, SignalToken } from "./bb.types";
 
 export interface Renderer {
   render(targetDirectory: string): Promise<void>;
@@ -250,30 +250,6 @@ export class MarkdownRenderer implements Renderer {
       return classInfo.methods.some(m => !m.isPrivate)
     else
       return classInfo.methods.length > 0
-  }
-
-  private getMethodLink(className: string | undefined, method: string): string | undefined {
-    if (className === undefined)
-      return `#${this.slug(method)}`
-    else if (this.classDB.findByName(className)) {
-      const classInfo = this.classDB.findByName(className)
-      return `${classInfo?.name}.md#${this.slug(method)}`
-    } else {
-      console.error("Couldn't link method:", { className, method })
-      return undefined
-    }
-  }
-
-  private getMemberLink(className: string | undefined, member: string): string | undefined {
-    if (className === undefined)
-      return `#${this.slug(member)}`
-    else if (this.classDB.findByName(className)) {
-      const classInfo = this.classDB.findByName(className)
-      return `${classInfo?.name}.md#${this.slug(member)}`
-    } else {
-      console.error("Couldn't link member:", { className, member })
-      return undefined
-    }
   }
 
   private async getTypeLink(type: string): Promise<string | undefined> {
