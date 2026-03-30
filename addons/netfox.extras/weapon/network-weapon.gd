@@ -70,6 +70,7 @@ func get_fired_tick() -> int:
 func _can_fire() -> bool:
 	return false
 
+# @public method
 ## Override this method to check if a given peer can use this weapon.
 ## [br][br]
 ## Usually this should check if the weapon's owner is trying to fire it, but
@@ -78,6 +79,7 @@ func _can_fire() -> bool:
 func _can_peer_use(peer_id: int) -> bool:
 	return true
 
+# @public method
 ## Override this method to run any logic needed after successfully firing the
 ## weapon.
 ## [br][br]
@@ -85,12 +87,14 @@ func _can_peer_use(peer_id: int) -> bool:
 func _after_fire(projectile: Node):
 	pass
 
+# @public method
 ## Override this method to spawn and initialize a projectile.
 ## [br][br]
 ## Make sure to return the projectile spawned!
 func _spawn() -> Node:
 	return null
 
+# @public method
 ## Override this method to extract projectile data that should be synchronized
 ## over the network.
 ## [br][br]
@@ -99,6 +103,7 @@ func _spawn() -> Node:
 func _get_data(projectile: Node) -> Dictionary:
 	return {}
 
+# @public method
 ## Override this method to apply projectile data that should be synchronized
 ## over the network.
 ## [br][br]
@@ -107,6 +112,7 @@ func _get_data(projectile: Node) -> Dictionary:
 func _apply_data(projectile: Node, data: Dictionary):
 	pass
 
+# @public method
 ## Override this method to check if two projectile states can be reconciled.
 ## [br][br]
 ## This can be used to prevent cheating, for example by not allowing the client
@@ -118,6 +124,7 @@ func _apply_data(projectile: Node, data: Dictionary):
 func _is_reconcilable(projectile: Node, request_data: Dictionary, local_data: Dictionary) -> bool:
 	return true
 
+# @public method
 ## Override this method to reconcile the initial local and remote projectile
 ## state.
 ## [br][br]

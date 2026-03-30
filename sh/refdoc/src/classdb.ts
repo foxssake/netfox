@@ -44,8 +44,12 @@ export class ClassDB {
 
     const classNamePattern = /class_name\s+([^\s]+)/;
     const nestedClassNamePattern = /\s*class\s+([^\s:]+)/g
+
     const privateClassPattern = /^\s*#\s*@private\s+class\s*$/m
     const publicClassPattern = /^\s*#\s*@public\s+class\s*$/m
+
+    const publicMethodPattern = /\s*#\s*@public\s+method\s*\n/g
+    const functionPattern = /func\s+([^\(\s]+)/
 
     for (const file of files) {
       if (!file.endsWith(".gd")) continue;
@@ -82,6 +86,17 @@ export class ClassDB {
           continue
 
         nestedClassInfo.srcPath = file
+      }
+
+      for (const match of script.matchAll(publicMethodPattern)) {
+        const decl = script.slice(match.index).match(functionPattern)
+        if (!decl) 
+          continue
+
+        const methodName = decl[1]
+        classInfo?.methods
+          ?.filter(method => method.name === methodName)
+          ?.forEach(method => { method.isPrivate = false })
       }
     
       log.print(`Explored ${file}`)
