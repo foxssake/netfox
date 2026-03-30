@@ -43,6 +43,7 @@ export class ClassDB {
     const files = await readdir(root, { recursive: true });
 
     const classNamePattern = /class_name\s+([^\s]+)/;
+    const nestedClassNamePattern = /\s*class\s+([^\s:]+)/g
     const privateClassPattern = /^\s*#\s*@private\s+class\s*$/m
     const publicClassPattern = /^\s*#\s*@public\s+class\s*$/m
 
@@ -53,10 +54,18 @@ export class ClassDB {
       if ((await fileHandle.stat()).isDirectory()) continue
 
       const script = await Bun.file(root + "/" + file).text()
+
+      // Figure out class name
       const hit = classNamePattern.exec(script);
-      const classInfo = (hit !== null && hit.length >= 2)
-        ? this.findByName(hit.at(1) ?? "")
+      const className = hit?.at(1)
+
+      const classInfo = className
+        ? this.findByName(className)
         : undefined;
+
+      const nestedClasses = script.matchAll(nestedClassNamePattern)
+        .map(m => m[1])
+        .toArray()
 
       if (classInfo) {
         classInfo.srcPath = file
@@ -65,6 +74,14 @@ export class ClassDB {
           classInfo.isPrivate = true
         if (publicClassPattern.test(script))
           classInfo.isPrivate = false
+      }
+
+      for (const nestedClass of nestedClasses) {
+        const nestedClassInfo = this.findByName(`${className}.${nestedClass}`)
+        if (!nestedClassInfo)
+          continue
+
+        nestedClassInfo.srcPath = file
       }
     
       log.print(`Explored ${file}`)
