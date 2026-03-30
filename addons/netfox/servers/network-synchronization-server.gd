@@ -60,69 +60,69 @@ static var _logger := NetfoxLogger._for_netfox("NetworkSynchronizationServer")
 signal _on_input(snapshot: _Snapshot)
 signal _on_state(snapshot: _Snapshot)
 
-## Register a [param]property[/param] of [param]node[/param] to be synchronized
+## Register a [param property] of [param node] to be synchronized
 ## as rollback state
 func register_rollback_state(node: Node, property: NodePath) -> void:
 	_rb_state_properties.add(node, property)
 	if node.is_multiplayer_authority():
 		_rb_owned_state_properties.add(node, property)
 
-## Deregister a [param]property[/param] of [param]node[/param] from being
+## Deregister a [param property] of [param node] from being
 ## synchronized as rollback state
 func deregister_rollback_state(node: Node, property: NodePath) -> void:
 	_rb_state_properties.erase(node, property)
 	_rb_owned_state_properties.erase(node, property)
 
-## Register a [param]property[/param] of [param]node[/param] to be synchronized
+## Register a [param property] of [param node] to be synchronized
 ## as rollback input
 func register_rollback_input(node: Node, property: NodePath) -> void:
 	_rb_input_properties.add(node, property)
 	if node.is_multiplayer_authority():
 		_rb_owned_input_properties.add(node, property)
 
-## Deregister a [param]property[/param] of [param]node[/param] from being
+## Deregister a [param property] of [param node] from being
 ## synchronized as rollback input
 func deregister_rollback_input(node: Node, property: NodePath) -> void:
 	_rb_input_properties.erase(node, property)
 	_rb_owned_input_properties.erase(node, property)
 
-## Register a [param]property[/param] of [param]node[/param] to be synchronized
+## Register a [param property] of [param node] to be synchronized
 ## as synchronized state
 func register_sync_state(node: Node, property: NodePath) -> void:
 	_sync_state_properties.add(node, property)
 	if node.is_multiplayer_authority():
 		_sync_owned_state_properties.add(node, property)
 
-## Deregister a [param]property[/param] of [param]node[/param] from being
+## Deregister a [param property] of [param node] from being
 ## synchronized as synchronized state
 func deregister_sync_state(node: Node, property: NodePath) -> void:
 	_sync_state_properties.erase(node, property)
 	_sync_owned_state_properties.erase(node, property)
 
-## Register a [param]serializer[/param] to use when transmitting
-## [param]property[/param] of [param]node[/param] over the network
+## Register a [param serializer] to use when transmitting
+## [param property param] of [param node] over the network
 func register_schema(node: Node, property: NodePath, serializer: NetworkSchemaSerializer) -> void:
 	_schemas.add(node, property, serializer)
 
-## Deregister any serializers used for [param]property[/param] on
-## [param]node[/param] when transmitting over the network
+## Deregister any serializers used for [param property] on
+## [param node] when transmitting over the network
 func deregister_schema(node: Node, property: NodePath) -> void:
 	_schemas.erase(node, property)
 
 ## Deregister all serializers registered for any properties of
-## [param]node[/param]
+## [param node]
 func deregister_schema_for(node: Node) -> void:
 	_schemas.erase_subject(node)
 
-## Register a visibility [param]filter[/param] for use with [param]node[/param]
+## Register a visibility [param filter] for use with [param node]
 func register_visibility_filter(node: Node, filter: PeerVisibilityFilter) -> void:
 	_visibility_filters[node] = filter
 
-## Deregister the visibility filter used for [param]node[/param]
+## Deregister the visibility filter used for [param node]
 func deregister_visibility_filter(node: Node) -> void:
 	_visibility_filters.erase(node)
 
-## Deregister any and all settings associated with [param]node[/param]
+## Deregister any and all settings associated with [param node]
 func deregister(node: Node) -> void:
 	_rb_state_properties.erase_subject(node)
 	_rb_input_properties.erase_subject(node)

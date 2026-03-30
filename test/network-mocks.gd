@@ -21,13 +21,13 @@ static func in_rollback(callback: Callable) -> void:
 	callback.call()
 	NetworkRollback._is_rollback = false
 
-## Runs [param]callback[/param] in the network tick loop
+## Runs [param callback] in the network tick loop
 static func in_network_tick_loop(callback: Callable) -> void:
 	NetworkTime.before_tick_loop.emit()
 	callback.call()
 	NetworkTime.after_tick_loop.emit()
 
-## Runs [param]callback[/param] as part of a network tick
+## Runs [param callback] as part of a network tick
 static func in_network_tick(callback: Callable) -> void:
 	NetworkTime.before_tick.emit(NetworkTime.ticktime, NetworkTime.tick)
 	NetworkTime.on_tick.emit(NetworkTime.ticktime, NetworkTime.tick)

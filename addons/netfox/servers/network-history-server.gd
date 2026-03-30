@@ -72,13 +72,13 @@ func deregister(node: Node) -> void:
 			var snapshot := value as _Snapshot
 			snapshot.erase_subject(node)
 
-## Return the latest tick where any of the [param]subjects[/param] had rollback
+## Return the latest tick where any of the [param subjects] had rollback
 ## state data available
 func get_latest_state_tick_for(subjects: Array, tick: int) -> int:
 	return _get_latest_for(subjects, tick, _rb_state_history)
 
-## Return how old is the latest rollback state data for any of the [param]
-## subjects[/param], in ticks
+## Return how old is the latest rollback state data for any of the
+## [param subjects], in ticks
 func get_state_age_for(subjects: Array, tick: int) -> int:
 	var latest_state := get_latest_state_tick_for(subjects, tick)
 	if latest_state < 0:
@@ -86,13 +86,13 @@ func get_state_age_for(subjects: Array, tick: int) -> int:
 	else:
 		return tick - latest_state
 
-## Return the latest tick where any of the [param]subjects[/param] had rollback
+## Return the latest tick where any of the [param subjects] had rollback
 ## input data available
 func get_latest_input_for(subjects: Array, tick: int) -> int:
 	return _get_latest_for(subjects, tick, _rb_input_history)
 
-## Return how old is the latest rollback input data for any of the [param]
-## subjects[/param], in ticks
+## Return how old is the latest rollback input data for any of the
+## [param subjects], in ticks
 func get_input_age_for(subjects: Array, tick: int) -> int:
 	var latest_input := get_latest_input_for(subjects, tick)
 	if latest_input < 0:

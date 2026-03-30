@@ -219,17 +219,17 @@ func is_rollback_liveness_aware(what: Object) -> bool:
 	return is_rollback_spawn_aware(what) or is_rollback_despawn_aware(what) \
 		or is_rollback_destroy_aware(what)
 
-## Return true if [param]what[/param] implements the
+## Return true if [param what] implements the
 ## [code]_rollback_spawn[/code] callback.
 func is_rollback_spawn_aware(what: Object) -> bool:
 	return what.has_method("_rollback_spawn")
 
-## Return true if [param]what[/param] implements the
+## Return true if [param what] implements the
 ## [code]_rollback_despawn[/code] callback.
 func is_rollback_despawn_aware(what: Object) -> bool:
 	return what.has_method("_rollback_despawn")
 
-## Return true if [param]what[/param] implements the
+## Return true if [param what] implements the
 ## [code]_rollback_destroy[/code] callback.
 func is_rollback_destroy_aware(what: Object) -> bool:
 	return what.has_method("_rollback_destroy")
