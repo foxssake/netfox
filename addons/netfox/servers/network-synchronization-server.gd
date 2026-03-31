@@ -131,6 +131,7 @@ func deregister(node: Node) -> void:
 	_rb_owned_state_properties.erase_subject(node)
 	_rb_owned_input_properties.erase_subject(node)
 	_sync_state_properties.erase_subject(node)
+	_sync_owned_state_properties.erase_subject(node)
 	_visibility_filters.erase(node)
 	_schemas.erase_subject(node)
 

@@ -134,7 +134,7 @@ func _notification(what) -> void:
 		for node in _properties.get_subjects():
 			NetworkSynchronizationServer.deregister(node)
 			NetworkHistoryServer.deregister(node)
-			NetworkIdentityServer.deregister(node)
+			NetworkIdentityServer.deregister_node(node)
 
 func _get_configuration_warnings() -> PackedStringArray:
 	if not root:
