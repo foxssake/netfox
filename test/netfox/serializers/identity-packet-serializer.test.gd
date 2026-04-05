@@ -11,9 +11,9 @@ func suite() -> void:
 			"Another Node": 2,
 			"Some Node/Input": 3
 		}
-		
+
 		var serialized := serializer.serialize(ids)
 		var deserialized := serializer.deserialize(serialized)
-		
+
 		expect_equal(deserialized, ids)
 	)
