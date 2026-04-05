@@ -21,7 +21,7 @@ func get_id_for(peer: int) -> int:
 	return _ids.get(peer, -1)
 
 func set_id_for(peer: int, id: int) -> void:
-	assert(not _ids.has(peer), "ID for peer #%d is already set!" % [peer])
+	assert(not _ids.has(peer) or _ids[peer] == id, "ID for peer #%d is already set!" % [peer])
 	_ids[peer] = id
 	on_id.emit(peer, id)
 

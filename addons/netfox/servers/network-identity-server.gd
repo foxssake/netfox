@@ -30,8 +30,13 @@ var _identifier_by_name := {} # full name to NetworkIdentifier
 var _identifier_by_id := {} # peer to (id to NetworkIdentifier)
 
 var _cmd_ids: _NetworkCommandServer.Command
+var _packet_serializer := _IdentityPacketSerializer.new()
+
+var _has_warned_queue_length := false
 
 static var _logger := NetfoxLogger._for_netfox("NetworkIdentityServer")
+
+const _WARN_QUEUE_SIZE := 128
 
 func _init(p_command_server: _NetworkCommandServer = null):
 	_command_server = p_command_server
@@ -84,7 +89,8 @@ func queue_identifier_for(node: Node, peer: int) -> bool:
 ## Flushed automatically by default
 func flush_queue() -> void:
 	for peer in _push_queue:
-		_cmd_ids.send(_serialize_ids(_push_queue[peer]), peer)
+		_logger.info("Sent IDs to #%d: %s", [peer, _push_queue[peer]])
+		_cmd_ids.send(_packet_serializer.serialize(_push_queue[peer]), peer)
 	_push_queue.clear()
 
 func _get_identifier_of(what: Object) -> _NetworkIdentifier:
@@ -92,7 +98,10 @@ func _get_identifier_of(what: Object) -> _NetworkIdentifier:
 
 func _resolve_reference(peer: int, identity_reference: _NetworkIdentityReference, allow_queue: bool = true) -> _NetworkIdentifier:
 	if identity_reference.has_id():
-		return _get_identifier_by_id(peer, identity_reference.get_id())
+		var result := _get_identifier_by_id(multiplayer.get_unique_id(), identity_reference.get_id())
+		if result == null:
+			pass
+		return result
 	else:
 		var identifier := _get_identifier_by_name(identity_reference.get_full_name())
 		if allow_queue and identifier:
@@ -101,9 +110,14 @@ func _resolve_reference(peer: int, identity_reference: _NetworkIdentityReference
 
 func _queue_for(identifier: _NetworkIdentifier, peer: int) -> void:
 	if not _push_queue.has(peer):
-		_push_queue[peer] = { identifier.get_full_name(): identifier.get_id_for(peer) }
+		_push_queue[peer] = { identifier.get_full_name(): identifier.get_local_id() }
 	else:
-		_push_queue[peer][identifier.get_full_name()] = identifier.get_id_for(peer)
+		_push_queue[peer][identifier.get_full_name()] = identifier.get_local_id()
+
+	var queue_size := _push_queue[peer].size() as int
+	if not _has_warned_queue_length and queue_size >= _WARN_QUEUE_SIZE:
+		_has_warned_queue_length = true
+		_logger.warning("Queue size for peer #%d exceeded %d - is the queue being flushed?", [peer, _push_queue[peer].size()])
 
 func _register(what: Object, path: String) -> void:
 	if _identifiers.has(what):
@@ -154,39 +168,14 @@ func _erase_from_id_cache(identifier: _NetworkIdentifier) -> void:
 			_identifier_by_id.erase(peer)
 
 func _handle_ids(sender: int, data: PackedByteArray) -> void:
-	var ids := _deserialize_ids(data)
+	var ids := _packet_serializer.deserialize(data)
 
 	for full_name in ids:
 		var id := ids[full_name] as int
+		_logger.info("Received ID #%d for %s from #%d", [id, full_name, sender])
 		var identifier := _get_identifier_by_name(full_name)
 		if not identifier:
 			# Deleted since then
 			_logger.debug("Received identifier for unknown object with full name %s, id #%d", [full_name, id])
 			continue
 		identifier.set_id_for(sender, id)
-
-func _serialize_ids(ids: Dictionary) -> PackedByteArray:
-	var buffer := StreamPeerBuffer.new()
-	var varuint := NetworkSchemas.varuint()
-
-	for full_name in ids.keys():
-		var id := ids[full_name] as int
-
-		buffer.put_utf8_string(full_name)
-		varuint.encode(ids[full_name], buffer)
-
-	return buffer.data_array
-
-func _deserialize_ids(data: PackedByteArray) -> Dictionary:
-	var ids := {}
-	var varuint := NetworkSchemas.varuint()
-	var buffer := StreamPeerBuffer.new()
-	buffer.data_array = data
-
-	while buffer.get_available_bytes() > 0:
-		var full_name := buffer.get_utf8_string()
-		var id := varuint.decode(buffer) as int
-
-		ids[full_name] = id
-
-	return ids
