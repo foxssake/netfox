@@ -580,6 +580,8 @@ func _loop() -> void:
 		after_tick_loop.emit()
 		NetworkHistoryServer._restore_synchronizer_state(tick)
 
+	NetworkIdentityServer.flush_queue()
+
 func _process(delta: float) -> void:
 	_process_delta = delta
 

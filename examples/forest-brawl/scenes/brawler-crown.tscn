@@ -8,6 +8,7 @@
 resource_name = "crown_rotate"
 length = 8.0
 loop_mode = 1
+step = 0.0416667
 tracks/0/type = "bezier"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -101,9 +102,10 @@ offset = Vector3(0, 1, 0)
 tween_time = 0.1
 
 [node name="brawler-crown" parent="." instance=ExtResource("1_pqi5f")]
-transform = Transform3D(-0.130488, 0.0350476, 0.349814, -0.000145384, 0.373127, -0.0374375, -0.351565, -0.0131627, -0.129822, 0, -0.170775, 0)
+transform = Transform3D(0.375, 0.000146114, 0, -0.000145384, 0.373127, -0.0374376, -1.45871e-05, 0.0374376, 0.373127, 0, 0, 0)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="brawler-crown"]
+autoplay = "crown_rotate"
 libraries = {
 "": SubResource("AnimationLibrary_p7bnw")
 }

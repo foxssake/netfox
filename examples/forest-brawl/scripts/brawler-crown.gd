@@ -11,9 +11,6 @@ func _ready():
 	scale = Vector3.ZERO
 	is_enabled = false
 
-	# Start animation
-	$"brawler-crown/AnimationPlayer".play("crown_rotate")
-
 	GameEvents.on_scores_updated.connect(_handle_scores)
 
 func _process(delta):
