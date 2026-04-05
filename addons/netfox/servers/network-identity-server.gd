@@ -89,7 +89,6 @@ func queue_identifier_for(node: Node, peer: int) -> bool:
 ## Flushed automatically by default
 func flush_queue() -> void:
 	for peer in _push_queue:
-		_logger.info("Sent IDs to #%d: %s", [peer, _push_queue[peer]])
 		_cmd_ids.send(_packet_serializer.serialize(_push_queue[peer]), peer)
 	_push_queue.clear()
 
@@ -98,10 +97,7 @@ func _get_identifier_of(what: Object) -> _NetworkIdentifier:
 
 func _resolve_reference(peer: int, identity_reference: _NetworkIdentityReference, allow_queue: bool = true) -> _NetworkIdentifier:
 	if identity_reference.has_id():
-		var result := _get_identifier_by_id(multiplayer.get_unique_id(), identity_reference.get_id())
-		if result == null:
-			pass
-		return result
+		return _get_identifier_by_id(multiplayer.get_unique_id(), identity_reference.get_id())
 	else:
 		var identifier := _get_identifier_by_name(identity_reference.get_full_name())
 		if allow_queue and identifier:
