@@ -39,15 +39,12 @@ func ensure_snapshot(tick: int, subject: Object, carry_forward: bool) -> _Object
 	var has_latest := history.has_latest_at(tick)
 
 	if not history.has_at(tick):
-		if not history.has_latest_at(tick):
-			history.set_at(tick, _ObjectSnapshot.new(subject))
-		elif carry_forward:
+		if carry_forward and history.has_latest_at(tick):
 			history.set_at(tick, history.get_latest_at(tick).duplicate())
 		else:
 			history.set_at(tick, _ObjectSnapshot.new(subject))
 
-	# NOTE: This can happen if tick too old
-	assert(history.get_at(tick) != null, "Failed to ensure snapshot!")
+	# NOTE: May return null if tick too old
 	return history.get_at(tick) as _ObjectSnapshot
 
 func get_latest_snapshot(tick: int, subject: Object) -> _ObjectSnapshot:

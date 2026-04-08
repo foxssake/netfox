@@ -169,6 +169,7 @@ func _record(tick: int, history: _PerObjectHistory, snapshots: _HistoryBuffer, p
 			continue
 
 		var subject_snapshot := history.ensure_snapshot(tick, subject, false) #!!
+		assert(subject_snapshot != null, "Failed to record snapshot")
 		assert(not property_pool.get_properties_of(subject).is_empty(), "Subject present in property pool without properties! Please report a bug!")
 		for property in property_pool.get_properties_of(subject):
 			subject_snapshot.record_property(property)
@@ -233,6 +234,9 @@ func _merge_history(snapshot: _Snapshot, history: _PerObjectHistory, reverse: bo
 
 	for subject in snapshot.get_subjects():
 		var object_snapshot := history.ensure_snapshot(tick, subject, not reverse)
+		if object_snapshot == null:
+			_logger.warning("Snapshot being merged is out of bounds! (@%d)", [tick])
+			continue
 
 		# Never overwrite auth data
 		if object_snapshot.is_auth() and not snapshot.is_auth(subject):
