@@ -33,10 +33,7 @@ func ensure_snapshot(tick: int, subject: Object, carry_forward: bool) -> _Object
 	var has_subject := _data.has(subject)
 	if not _data.has(subject):
 		_data[subject] = _HistoryBuffer.new(_history_size)
-
 	var history := _data[subject] as _HistoryBuffer
-	var has_tick := history.has_at(tick)
-	var has_latest := history.has_latest_at(tick)
 
 	if not history.has_at(tick):
 		if carry_forward and history.has_latest_at(tick):

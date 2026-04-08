@@ -40,7 +40,7 @@ func suite() -> void:
 		test("should not set behind limit", func():
 			var buffer := filled_buffer.duplicate()
 			buffer.set_at(-8, 4)
-			expect_not(buffer.has_at(-64))
+			expect_not(buffer.has_at(-8))
 		)
 
 		test("should update prev buffer if in bounds", func():
