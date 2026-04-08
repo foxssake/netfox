@@ -168,7 +168,15 @@ func _record(tick: int, history: _PerObjectHistory, snapshots: _HistoryBuffer, p
 		if not is_auth and history.is_auth(tick, subject):
 			continue
 
-		var subject_snapshot := history.ensure_snapshot(tick, subject, false) #!!
+		var subject_snapshot := history.ensure_snapshot(tick, subject, false)
+		if subject_snapshot == null:
+			# Usually this happens when the tick is close to NetworkRollback.history_start, and the
+			# time sync is off by just enough to push it over the edge
+			# e.g. tick arrives slightly in the future, resim goes from the start of history, ring
+			# buffer suddenly has no room because its head is in the future
+			_logger.warning("Dropping recorded tick @%d for subject %s as out-of-bounds", [tick, subject])
+			continue
+
 		assert(not property_pool.get_properties_of(subject).is_empty(), "Subject present in property pool without properties! Please report a bug!")
 		for property in property_pool.get_properties_of(subject):
 			subject_snapshot.record_property(property)
@@ -233,6 +241,9 @@ func _merge_history(snapshot: _Snapshot, history: _PerObjectHistory, reverse: bo
 
 	for subject in snapshot.get_subjects():
 		var object_snapshot := history.ensure_snapshot(tick, subject, not reverse)
+		if object_snapshot == null:
+			_logger.warning("Snapshot being merged is out of bounds! (@%d)", [tick])
+			continue
 
 		# Never overwrite auth data
 		if object_snapshot.is_auth() and not snapshot.is_auth(subject):
