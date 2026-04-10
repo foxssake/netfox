@@ -10,10 +10,10 @@ In-depth tutorials explaining networking from the basics. Excellent content
 both for newcomers and seasoned developers. Make sure to check the YouTube
 channel as well as these videos!
 
-- [Godot Multiplayer Lag Compensation with Netfox](https://youtu.be/GqHTNmRspjU?si=--fKtAOvJiYd5RTd)
-- [Start Your Multiplayer Game with this Template](https://youtu.be/AplKwFtBMjU?si=LBwW4X5D_A4gL33U)
-- [Complete Game Walkthrough](https://youtu.be/tWLZNCJISYU?si=1ewd1fgd5vx-3HI1)
-- [Run Your Own P2P Server with Noray!](https://youtu.be/9pEBq6hLCzQ?si=OlyK-NXyxsnJ2A8A)
+- [Godot Multiplayer Lag Compensation with Netfox](https://youtu.be/GqHTNmRspjU)
+- [Start Your Multiplayer Game with this Template](https://youtu.be/AplKwFtBMjU)
+- [Complete Game Walkthrough](https://youtu.be/tWLZNCJISYU)
+- [Run Your Own P2P Server with Noray!](https://youtu.be/9pEBq6hLCzQ)
 
 [:simple-youtube: YouTube](https://www.youtube.com/@BatteryAcidDev/) |
 [:simple-discord: Discord](https://discord.gg/psjbBDvNBK)
