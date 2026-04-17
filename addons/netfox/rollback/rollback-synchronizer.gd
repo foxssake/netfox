@@ -80,7 +80,7 @@ func process_settings() -> void:
 	process_authority()
 
 	# Register nodes for simulation and liveness
-	var managed_nodes : Array[Node] = [root] + _collect_managed_nodes(root)
+	var managed_nodes := [root] + _collect_managed_nodes(root)
 	for node in managed_nodes:
 		if NetworkRollback.is_rollback_aware(node):
 			RollbackSimulationServer.register(NetworkRollback._get_rollback_method(node))
@@ -372,11 +372,11 @@ func _reprocess_settings() -> void:
 	_properties_dirty = false
 	process_settings()
 
-# Find managed nodes recursively, branches thats managed under another RollbackSyncronizer
+# Find managed nodes recursively from given root, branches thats managed under another RollbackSyncronizer
 # will be ignored.
-func _collect_managed_nodes(node: Node) -> Array[Node]:
+func _collect_managed_nodes(root: Node) -> Array[Node]:
 	var result: Array[Node] = []
-	for child in node.get_children():
+	for child in root.get_children():
 		if _is_foreign_rollback_root(child):
 			continue
 		result.append(child)
