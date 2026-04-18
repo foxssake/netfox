@@ -24,7 +24,7 @@ conditions are satisfied, an editor warning will be displayed.
 ![RewindableStateMachine with
 RollbackSynchronizer](../assets/rewindable-state-machine-rollback.png)
 
-Notice the RollbackSynchronizer added on the same scene as
+Notice the RollbackSynchronizer added into the same scene as
 RewindableStateMachine, and having its `state` property configured.
 
 ## Implementing states
