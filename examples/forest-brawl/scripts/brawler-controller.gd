@@ -35,6 +35,8 @@ var gravity = ProjectSettings.get_setting(&"physics/3d/default_gravity")
 var respawn_tick: int = -1
 var respawn_count: int = 0
 
+@onready var _logger := NetfoxLogger.new("fb", "Brawler:%s" % [name])
+
 func register_hit(from: BrawlerController):
 	if from == self:
 		push_error("Player %s (#%s) trying to register hit on themselves!" % [player_name, player_id])
@@ -110,6 +112,7 @@ func _after_tick_loop():
 func _rollback_tick(delta, tick, is_fresh):
 	# Respawn
 	if tick == respawn_tick:
+		_logger.info("Brawler respawning")
 		_snap_to_spawn()
 		velocity = Vector3.ZERO
 		last_hit_tick = -1
@@ -173,6 +176,8 @@ func _rollback_tick(delta, tick, is_fresh):
 		fall_sound.play_random()
 
 		GameEvents.on_brawler_fall.emit(self)
+		
+		_logger.info("Brawler fell, respawn #%d at @%d", [respawn_count, respawn_tick])
 
 func _snap_to_spawn():
 	var spawns = get_tree().get_nodes_in_group("Spawn Points")

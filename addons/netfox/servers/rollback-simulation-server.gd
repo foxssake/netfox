@@ -146,24 +146,23 @@ func _get_nodes_to_simulate(input_snapshot: _Snapshot) -> Array[Node]:
 			# Node is not alive in this tick
 			continue
 
-		var inputs := [] as Array[Node]
-		inputs.assign(_input_graph.get_linked_to(node))
+		# No think, only simulate
+#		var inputs := [] as Array[Node]
+#		inputs.assign(_input_graph.get_linked_to(node))
+#
+#		if inputs.is_empty():
+#			# Node has no input, simulate it
+#			result.append(node)
+#			continue
+#
+#		if NetworkRollback.is_mutated(node, tick):
+#			# Node is mutated, must simulate
+#			result.append(node)
+#			continue
 
-		if inputs.is_empty():
-			# Node has no input, simulate it
-			result.append(node)
-			continue
-
-		if NetworkRollback.is_mutated(node, tick):
-			# Node is mutated, must simulate
-			result.append(node)
-			continue
-
-		if not input_snapshot.has_subjects(inputs, true) and \
-			not is_prediction_enabled_for(node):
-			# We don't have input for node, and input prediction is disabled
-			# Don't simulate
-			continue
+#		if not input_snapshot.has_subjects(inputs, true):
+#			# We don't have input for node, don't simulate
+#			continue
 
 		result.append(node)
 
