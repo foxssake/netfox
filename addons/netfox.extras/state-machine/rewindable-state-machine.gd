@@ -9,9 +9,8 @@ class_name RewindableStateMachine
 ## are only triggered by gameplay code, and not by rollback reverting to an
 ## earlier state.
 ## [br][br]
-## For this node to work correctly, a [RollbackSynchronizer] must be added as
-## a sibling, and it must have the [RewindableStateMachine]'s [member state]
-## property configured as a state property.
+## For this node to work correctly, a [RollbackSynchronizer] must have the 
+## [RewindableStateMachine]'s [member state] property configured as a state property.
 ## [br][br]
 ## To implement states, extend the [RewindableState] class and add it as a child
 ## node.
