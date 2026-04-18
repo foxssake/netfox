@@ -336,7 +336,7 @@
 <p>A state machine that can be used with rollback.</p>
 <h2 id="description">Description</h2>
 <p>It relies on <a href="../RollbackSynchronizer/">RollbackSynchronizer</a> to manage its state. State transitions are only triggered by gameplay code, and not by rollback reverting to an earlier state.   </p>
-<p>For this node to work correctly, a <a href="../RollbackSynchronizer/">RollbackSynchronizer</a> must be added as a sibling, and it must have the <a href="./">RewindableStateMachine</a>'s <a href="#state">state</a> property configured as a state property.   </p>
+<p>For this node to work correctly, a <a href="../RollbackSynchronizer/">RollbackSynchronizer</a> must have the <a href="./">RewindableStateMachine</a>'s <a href="#state">state</a> property configured as a state property.   </p>
 <p>To implement states, extend the <a href="../RewindableState/">RewindableState</a> class and add it as a child node.</p>
 <h2 id="tutorials">Tutorials</h2>
 <ul>
