@@ -10,6 +10,7 @@ var camera: Camera3D
 var movement: Vector3 = Vector3.ZERO
 var aim: Vector3 = Vector3.ZERO
 var is_firing: bool = false
+var is_alt_firing: bool = false
 
 var _last_mouse_input: float = 0.0
 var _aim_target: Vector3
@@ -64,6 +65,7 @@ func _gather():
 		)
 
 	is_firing = Input.is_action_pressed("weapon_fire")
+	is_alt_firing = Input.is_action_pressed("weapon_alt")
 
 func _physics_process(_delta):
 	if not camera:

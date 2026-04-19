@@ -153,7 +153,7 @@ root = NodePath("..")
 enable_prediction = true
 state_properties = Array[String]([":transform", ":velocity", ":speed", ":mass", "Weapon:_last_fired"])
 diff_ack_interval = 4
-input_properties = Array[String](["Input:movement", "Input:aim", "Input:is_firing"])
+input_properties = Array[String](["Input:movement", "Input:aim", "Input:is_firing", "Input:is_alt_firing"])
 enable_input_broadcast = false
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]

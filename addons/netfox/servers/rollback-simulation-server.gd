@@ -159,7 +159,7 @@ func _get_nodes_to_simulate(input_snapshot: _Snapshot) -> Array[Node]:
 #			# Node is mutated, must simulate
 #			result.append(node)
 #			continue
-
+#
 #		if not input_snapshot.has_subjects(inputs, true):
 #			# We don't have input for node, don't simulate
 #			continue

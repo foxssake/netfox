@@ -35,6 +35,8 @@ var gravity = ProjectSettings.get_setting(&"physics/3d/default_gravity")
 var respawn_tick: int = -1
 var respawn_count: int = 0
 
+static var _all: Array[BrawlerController] = []
+
 @onready var _logger := NetfoxLogger.new("fb", "Brawler:%s" % [name])
 
 func register_hit(from: BrawlerController):
@@ -48,8 +50,12 @@ func register_hit(from: BrawlerController):
 func shove(motion: Vector3):
 	move_and_collide(motion / mass)
 
+func _enter_tree():
+	_all.append(self)
+
 func _exit_tree():
 	GameEvents.on_brawler_despawn.emit(self)
+	_all.erase(self)
 
 func _ready():
 	if not input:
@@ -159,6 +165,20 @@ func _rollback_tick(delta, tick, is_fresh):
 	# Aim
 	if input.aim:
 		transform = transform.looking_at(position + Vector3(input.aim.x, 0, input.aim.z), Vector3.UP, true).scaled_local(scale)
+		
+	# Alt fire
+	# TODO: Remove before merge
+	if input.is_alt_firing:
+		scale = Vector3.ONE * 2
+		
+		for brawler in _all:
+			if brawler == self: continue
+			if brawler.global_position.distance_to(self.global_position) > 16.: continue
+			
+			brawler.shove((brawler.global_position - global_position).normalized() * 64. * delta)
+			_logger.info("Showing %s %.2v", [brawler, (brawler.global_position - global_position).normalized() * 64. * delta])
+	else:
+		scale = Vector3.ONE * 1
 
 	# Apply movement
 	velocity += platform_velocity
