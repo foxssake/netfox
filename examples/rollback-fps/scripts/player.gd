@@ -98,6 +98,7 @@ func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 		deaths += 1
 		global_position = get_parent().get_next_spawn_point(get_player_id(), deaths)
 		health = 100
+		_logger.info("Death #%d, respawning at %.2v", [deaths, global_position])
 
 func _force_update_is_on_floor():
 	var old_velocity = velocity
