@@ -393,13 +393,13 @@ func _collect_managed_nodes(root: Node) -> Array[Node]:
 
 # Returns true if the node is the root of a different RollbackSynchronizer
 func _is_foreign_rollback_root(node: Node) -> bool:
-	if not _managed_roots.has(node): 
+	if not _managed_roots.has(node):
 		# No RBS treats node as root
 		return false
 
-	if _managed_roots[node] == self: 
+	if _managed_roots[node] == self:
 		# Node is our own root
 		return false
-	
+
 	# Node is foreign root
 	return true
