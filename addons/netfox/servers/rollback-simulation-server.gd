@@ -41,6 +41,7 @@ func register(callback: Callable) -> void:
 		return
 
 	assert(callback.get_object() is Node, "Only nodes supported for now!")
+	assert(not _callbacks.has(callback.get_object()), "Double register() of node %s!" % [callback.get_object()])
 
 	_callbacks[callback.get_object()] = callback
 

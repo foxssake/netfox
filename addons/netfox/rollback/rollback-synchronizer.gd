@@ -65,7 +65,9 @@ var _schema_nodes := _Set.new()
 
 var _properties_dirty: bool = false
 
-static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("RollbackSynchronizer")
+static var _managed_roots := {} # root node to RollbackSynchronizer
+
+@onready var _logger: NetfoxLogger = NetfoxLogger._for_netfox("RollbackSynchronizer:" + root.name)
 
 ## Process settings.
 ## [br][br]
@@ -80,7 +82,8 @@ func process_settings() -> void:
 	process_authority()
 
 	# Register nodes for simulation and liveness
-	var managed_nodes := [root] + root.find_children("*")
+	var managed_nodes := [root] + _collect_managed_nodes(root)
+	_logger.debug("Filtering managed nodes: %s", [managed_nodes])
 	for node in managed_nodes:
 		if NetworkRollback.is_rollback_aware(node):
 			RollbackSimulationServer.register(NetworkRollback._get_rollback_method(node))
@@ -354,6 +357,8 @@ func _enter_tree() -> void:
 	if Engine.is_editor_hint():
 		return
 
+	_managed_roots[root] = self
+
 	if not visibility_filter:
 		visibility_filter = PeerVisibilityFilter.new()
 
@@ -365,9 +370,36 @@ func _enter_tree() -> void:
 		await NetworkTime.after_sync
 	process_settings.call_deferred()
 
+func _exit_tree() -> void:
+	_managed_roots.erase(root)
+
 func _reprocess_settings() -> void:
 	if not _properties_dirty or Engine.is_editor_hint():
 		return
 
 	_properties_dirty = false
 	process_settings()
+
+# Find managed nodes recursively from given root, ignoring branches managed by
+# a different RollbackSynchronizer
+func _collect_managed_nodes(root: Node) -> Array[Node]:
+	var result: Array[Node] = []
+	for child in root.get_children():
+		if _is_foreign_rollback_root(child):
+			continue
+		result.append(child)
+		result.append_array(_collect_managed_nodes(child))
+	return result
+
+# Returns true if the node is the root of a different RollbackSynchronizer
+func _is_foreign_rollback_root(node: Node) -> bool:
+	if not _managed_roots.has(node):
+		# No RBS treats node as root
+		return false
+
+	if _managed_roots[node] == self:
+		# Node is our own root
+		return false
+
+	# Node is foreign root
+	return true
