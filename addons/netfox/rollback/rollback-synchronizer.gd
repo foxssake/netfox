@@ -67,7 +67,7 @@ var _properties_dirty: bool = false
 
 static var _managed_roots := {} # root node to RollbackSynchronizer
 
-static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("RollbackSynchronizer")
+@onready var _logger: NetfoxLogger = NetfoxLogger._for_netfox("RollbackSynchronizer:" + root.name)
 
 ## Process settings.
 ## [br][br]
@@ -83,6 +83,7 @@ func process_settings() -> void:
 
 	# Register nodes for simulation and liveness
 	var managed_nodes := [root] + _collect_managed_nodes(root)
+	_logger.debug("Filtering managed nodes: %s", [managed_nodes])
 	for node in managed_nodes:
 		if NetworkRollback.is_rollback_aware(node):
 			RollbackSimulationServer.register(NetworkRollback._get_rollback_method(node))
