@@ -69,4 +69,4 @@ func _on_hit(result: Dictionary):
 
 	if result.collider.has_method("damage"):
 		result.collider.damage(damage, is_new_hit)
-		NetworkRollback.mutate(result.collider)
+#		NetworkRollback.mutate(result.collider)

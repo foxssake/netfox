@@ -62,6 +62,10 @@ func _rollback_tick(dt: float, _t: int, _if: bool) -> void:
 	if time_remaining < 0.:
 		synchronizer.despawn()
 		return
+		
+	for brawler in BrawlerController.all():
+		if is_overlapping(brawler):
+			apply_to(brawler)
 
 func _rollback_spawn() -> void:
 	show()

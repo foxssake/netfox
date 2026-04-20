@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://dw3xd5a7xnse7"]
+[gd_scene load_steps=16 format=3 uid="uid://dw3xd5a7xnse7"]
 
 [ext_resource type="Script" path="res://examples/rollback-fps/scripts/player.gd" id="1_bww6v"]
 [ext_resource type="Script" path="res://examples/rollback-fps/scripts/player-weapon.gd" id="2_qyetr"]
@@ -6,7 +6,6 @@
 [ext_resource type="Script" path="res://addons/netfox/rewindable-action.gd" id="6_pks3d"]
 [ext_resource type="Script" path="res://examples/rollback-fps/scripts/player-input.gd" id="7_2i3bi"]
 [ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="9_vik3r"]
-[ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="10_4mqhe"]
 [ext_resource type="AudioStream" uid="uid://q7ql86p7flj" path="res://examples/multiplayer-fps/sounds/hit.wav" id="15_1n4tg"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_6kydi"]
@@ -83,11 +82,6 @@ script = ExtResource("9_vik3r")
 root = NodePath("..")
 state_properties = Array[String]([":transform", ":velocity", ":health", ":deaths", "Head:transform", "Head/PlayerFPSWeapon:last_fire"])
 input_properties = Array[String](["Input:movement", "Input:jump", "Input:fire", "Input:look_angle"])
-
-[node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
-script = ExtResource("10_4mqhe")
-root = NodePath("..")
-properties = Array[String]([":transform", "Head:transform"])
 
 [node name="Input" type="Node" parent="."]
 script = ExtResource("7_2i3bi")

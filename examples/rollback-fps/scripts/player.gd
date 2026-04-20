@@ -5,7 +5,7 @@ extends CharacterBody3D
 
 @onready var display_name := $DisplayNameLabel3D as Label3D
 @onready var input := $Input as ExampleRollbackFPS.PlayerInput
-@onready var tick_interpolator := $TickInterpolator as TickInterpolator
+#@onready var tick_interpolator := $TickInterpolator as TickInterpolator
 @onready var head := $Head as Node3D
 @onready var camera := $Head/Camera3D as Camera3D
 @onready var hit_sfx := $"Hit SFX" as AudioStreamPlayer3D
@@ -44,7 +44,7 @@ func _before_tick_loop():
 
 func _after_tick_loop():
 	if _ackd_deaths != deaths:
-		tick_interpolator.teleport()
+#		tick_interpolator.teleport()
 		_ackd_deaths = deaths
 
 	if _was_hit:

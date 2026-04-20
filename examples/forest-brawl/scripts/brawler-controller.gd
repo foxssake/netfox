@@ -39,6 +39,9 @@ static var _all: Array[BrawlerController] = []
 
 @onready var _logger := NetfoxLogger.new("fb", "Brawler:%s" % [name])
 
+static func all() -> Array[BrawlerController]:
+	return _all
+
 func register_hit(from: BrawlerController):
 	if from == self:
 		push_error("Player %s (#%s) trying to register hit on themselves!" % [player_name, player_id])
@@ -127,8 +130,8 @@ func _rollback_tick(delta, tick, is_fresh):
 			GameEvents.on_brawler_respawn.emit(self)
 
 	# Apply displacement
-	for displacer in Displacer.overlapping(self):
-		displacer.apply_to(self)
+#	for displacer in Displacer.overlapping(self):
+#		displacer.apply_to(self)
 
 	# Skip predictions
 	if rollback_synchronizer.is_predicting():
