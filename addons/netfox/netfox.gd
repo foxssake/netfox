@@ -157,6 +157,17 @@ var SETTINGS: Array[Dictionary] = [
 		"name": "netfox/events/enabled",
 		"value": true,
 		"type": TYPE_BOOL
+	},
+	# Simulation
+	{
+		"name": "netfox/simulation/history_limit",
+		"value": 64,
+		"type" : TYPE_INT
+	},
+		{
+		"name": "netfox/simulation/input_redundancy",
+		"value": 3,
+		"type" : TYPE_INT
 	}
 ]
 
