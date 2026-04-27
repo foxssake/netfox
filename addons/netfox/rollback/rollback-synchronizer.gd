@@ -78,8 +78,8 @@ func process_settings() -> void:
 	for node in _sim_nodes + _state_properties.get_subjects() + _input_properties.get_subjects():
 		RollbackSimulationServer.deregister_node(node)
 	_sim_nodes.clear()
-
 	process_authority()
+
 
 	# Register nodes for simulation and liveness
 	var managed_nodes := [root] + _collect_managed_nodes(root)

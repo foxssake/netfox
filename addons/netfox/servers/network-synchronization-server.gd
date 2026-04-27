@@ -5,10 +5,10 @@ class_name _NetworkSynchronizationServer
 
 ## Synchronizes properties over the network
 ##
-## Handles synchronization of rollback and state properties (
-## [RollbackSynchronizer] and [StateSynchronizer] ), while respecting visibility
+## Handles synchronization of states and inputs while respecting visibility
 ## filters and schemas for serialization.
 ## [br][br]
+## [RollbackSynchronizer], [StateSynchronizer], [InputSender], [Simulator] uses this class internally.
 ## Packets are sent per tick, instead of per object. So for every simulated
 ## rollback tick, a packet is sent with states, and for every recorded input,
 ## a packet is sent with the inputs.
@@ -29,6 +29,8 @@ var _rb_owned_input_properties := _PropertyPool.new()
 var _rb_owned_state_properties := _PropertyPool.new()
 var _sync_state_properties := _PropertyPool.new()
 var _sync_owned_state_properties := _PropertyPool.new()
+var _sim_input_properties := _PropertyPool.new()
+var _sim_owned_input_properties := _PropertyPool.new()
 
 var _visibility_filters := {} # Node to PeerVisibilityFilter
 
@@ -37,7 +39,8 @@ var _rb_enable_diffs := NetworkRollback.enable_diff_states
 var _rb_full_interval := ProjectSettings.get_setting("netfox/rollback/full_state_interval", 24) as int
 var _rb_full_scheduler := _IntervalScheduler.new(_rb_full_interval)
 
-var _input_redundancy := NetworkRollback.input_redundancy
+var _rb_input_redundancy := NetworkRollback.input_redundancy
+var _sim_input_redundancy := ProjectSettings.get_setting("netfox/simulation/history_limit", 3) as int
 
 var _last_sync_state_sent := _Snapshot.new(0)
 var _sync_enable_diffs := ProjectSettings.get_setting("netfox/state_synchronizer/enable_diff_states", true) as bool
@@ -101,6 +104,19 @@ func deregister_sync_state(node: Node, property: NodePath) -> void:
 	_sync_state_properties.erase(node, property)
 	_sync_owned_state_properties.erase(node, property)
 
+## Register a [param property] of [param node] to be synchronized 
+## as simulated input
+func register_simulation_input(node: Node, property: NodePath) -> void:
+	_sim_input_properties.add(node, property)
+	if node.is_multiplayer_authority():
+		_sim_owned_input_properties.add(node, property)
+
+## Deregister a [param property] of [param node] from being synchronized
+## as simulated input
+func deregister_simulation_input(node: Node, property: NodePath) -> void:
+	_sim_input_properties.erase(node, property)
+	_sim_owned_input_properties.erase(node, property)
+
 ## Register a [param serializer] to use when transmitting
 ## [param property param] of [param node] over the network
 func register_schema(node: Node, property: NodePath, serializer: NetworkSchemaSerializer) -> void:
@@ -132,6 +148,8 @@ func deregister(node: Node) -> void:
 	_rb_owned_input_properties.erase_subject(node)
 	_sync_state_properties.erase_subject(node)
 	_sync_owned_state_properties.erase_subject(node)
+	_sim_input_properties.erase_subject(node)
+	_sim_owned_input_properties.erase_subject(node)
 	_visibility_filters.erase(node)
 	_schemas.erase_subject(node)
 
@@ -144,12 +162,15 @@ func _is_node_visible_to(peer: int, node: Node) -> bool:
 
 func _synchronize_input(tick: int) -> void:
 	# We don't own inputs, nothing to synchronize
-	if _rb_owned_input_properties.is_empty():
+	if _rb_owned_input_properties.is_empty() and _sim_owned_input_properties.is_empty():
 		return
 
-	var snapshots := [] as Array[_Snapshot]
+	var rb_snapshots := [] as Array[_Snapshot]
+	var sim_snapshots := [] as Array[_Snapshot]
 	var notified_peers := _Set.new()
-
+	
+	## TODO Handle notified peers for simulator changes?
+	
 	if not _rb_enable_input_broadcast:
 		# If input broadcast is off, find which peers need to know our inputs
 		# That is all peers who own state controlled by our input
@@ -171,18 +192,30 @@ func _synchronize_input(tick: int) -> void:
 	notified_peers.erase(multiplayer.get_unique_id())
 
 	# Prepare snapshot package
-	for offset in _input_redundancy:
-		# Grab snapshot from NetworkHistoryServer
-		var snapshot := NetworkHistoryServer._get_rollback_input_snapshot(tick - offset)
-		if not snapshot:
+	# First rollback inputs.
+	for offset in _rb_input_redundancy:
+		# Grab rollback snapshot from NetworkHistoryServer
+		var rollback_snapshot := NetworkHistoryServer._get_rollback_input_snapshot(tick - offset)
+		if not rollback_snapshot:
 			break
-
-		_logger.trace("Submitting input: %s", [snapshot])
-		snapshots.append(snapshot)
-
+		
+		_logger.trace("Submitting rollback input: %s", [rollback_snapshot])
+		rb_snapshots.append(rollback_snapshot)
+	
+	# Now prepare simulation inputs.
+	for offset in _sim_input_redundancy:
+		# Grab simulation snapshot from NetworkHistoryServer
+		var simulation_snapshot := NetworkHistoryServer._get_simulation_input_snapshot(tick - offset)
+		if not simulation_snapshot:
+			break
+		
+		_logger.trace("Submitting simulation input: %s", [simulation_snapshot])
+		sim_snapshots.append(simulation_snapshot)
+	
 	_logger.trace("Submitting input to peers: %s", [notified_peers])
 	for peer in notified_peers:
-		var data := _redundant_serializer.write_for(peer, snapshots, _rb_owned_input_properties)
+		var data := _redundant_serializer.write_for(peer, rb_snapshots, _rb_owned_input_properties)
+		data.append_array(_redundant_serializer.write_for(peer, sim_snapshots, _sim_owned_input_properties))
 		_cmd_input.send(data, peer)
 
 func _synchronize_state(tick: int) -> void:

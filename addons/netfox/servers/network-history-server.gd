@@ -5,8 +5,10 @@ class_name _NetworkHistoryServer
 
 ## Tracks the history of objects' properties
 ##
-## Specifically, history is stored for rollback state properties, rollback input
-## properties, and synchronized state properties.
+## History is stored for [br]
+## 1- rollback state and inputs,
+## 2- syncronized states,
+## 3- simulated inputs and states.
 ## [br][br]
 ## Keeping history lets rollback restore earlier game states for resimulation,
 ## and enables [_NetworkSynchronizationServer] to send diff states by comparing
@@ -15,19 +17,26 @@ class_name _NetworkHistoryServer
 var _rb_input_properties := _PropertyPool.new()
 var _rb_state_properties := _PropertyPool.new()
 var _sync_state_properties := _PropertyPool.new()
+var _sim_input_properties := _PropertyPool.new()
+var _sim_state_properties := _PropertyPool.new()
 
 var _rb_history_size := NetworkRollback.history_limit
 var _sync_history_size := ProjectSettings.get_setting("netfox/state_synchronizer/history_limit", 64) as int
+var _sim_history_size := ProjectSettings.get_setting("netfox/simulation/history_limit", 64) as int
 
 # Source of truth for history
 var _rb_input_history := _PerObjectHistory.new(_rb_history_size)
 var _rb_state_history := _PerObjectHistory.new(_rb_history_size)
 var _sync_history := _PerObjectHistory.new(_sync_history_size)
+var _sim_input_history := _PerObjectHistory.new(_sim_history_size)
+var _sim_state_history := _PerObjectHistory.new(_sim_history_size)
 
 # Cached snapshots for syncing
 var _rb_input_snapshots := _HistoryBuffer.new(_rb_history_size)
 var _rb_state_snapshots := _HistoryBuffer.new(_rb_history_size)
 var _sync_state_snapshots := _HistoryBuffer.new(_sync_history_size)
+var _sim_input_snapshots := _HistoryBuffer.new(_sim_history_size)
+var _sim_state_snapshots := _HistoryBuffer.new(_sim_history_size)
 
 static var _logger := NetfoxLogger._for_netfox("NetworkHistoryServer")
 
@@ -55,6 +64,14 @@ func register_sync_state(node: Node, property: NodePath) -> void:
 func deregister_sync_state(node: Node, property: NodePath) -> void:
 	_sync_state_properties.erase(node, property)
 
+## Register a simulated input property
+func register_simulated_input(node : Node, property : NodePath) -> void:
+	_sim_input_properties.add(node, property)
+
+## Register a simulated state property
+func register_simulated_state(node : Node, property : NodePath) -> void:
+	_sim_state_properties.add(node, property)
+
 ## Deregister a node, no longer tracking any property it had registered using
 ## any of the [code]register_*()[/code] methods
 func deregister(node: Node) -> void:
@@ -62,14 +79,18 @@ func deregister(node: Node) -> void:
 	_rb_state_properties.erase_subject(node)
 	_rb_input_properties.erase_subject(node)
 	_sync_state_properties.erase_subject(node)
+	_sim_state_properties.erase_subject(node)
 
 	# Erase from per-object history
 	_rb_state_history.erase_subject(node)
 	_rb_input_history.erase_subject(node)
 	_sync_history.erase_subject(node)
+	_sim_state_history.erase_subject(node)
+	_sim_input_history.erase_subject(node)
 
 	# Erase from per-tick history
-	for history in [_rb_state_snapshots, _rb_input_snapshots, _sync_state_snapshots]:
+	for history in [_rb_state_snapshots, _rb_input_snapshots, _sync_state_snapshots,\
+	_sim_state_snapshots, _sim_input_snapshots]:
 		for value in history.values():
 			var snapshot := value as _Snapshot
 			snapshot.erase_subject(node)
@@ -140,6 +161,12 @@ func _get_rollback_state_snapshot(tick: int) -> _Snapshot:
 
 func _get_synchronizer_state_snapshot(tick: int) -> _Snapshot:
 	return _sync_state_snapshots.get_at(tick)
+
+func _get_simulation_input_snapshot(tick : int) -> _Snapshot:
+	return _sim_input_snapshots.get_at(tick)
+
+func _get_simulation_state_snapshot(tick : int) -> _Snapshot:
+	return _sim_state_snapshots.get_at(tick)
 
 func _merge_rollback_input(snapshot: _Snapshot) -> bool:
 	_merge_snapshot(snapshot, _rb_input_snapshots, true)
