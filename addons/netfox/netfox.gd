@@ -158,17 +158,17 @@ var SETTINGS: Array[Dictionary] = [
 		"value": true,
 		"type": TYPE_BOOL
 	},
-	# Simulation
+	# Input Sender
 	{
-		"name": "netfox/simulation/history_limit",
+		"name": "netfox/input_sender/input_redundancy",
+		"value": 3,
+		"type" : TYPE_INT
+	},
+	{
+		"name": "netfox/input_sender/history_limit",
 		"value": 64,
 		"type" : TYPE_INT
 	},
-		{
-		"name": "netfox/simulation/input_redundancy",
-		"value": 3,
-		"type" : TYPE_INT
-	}
 ]
 
 const AUTOLOADS: Array[Dictionary] = [
@@ -248,6 +248,12 @@ const TYPES: Array[Dictionary] = [
 		"base": "Node",
 		"script": ROOT + "/rollback/predictive-synchronizer.gd",
 		"icon": ROOT + "/icons/predictive-synchronizer.svg"
+	},
+	{
+		"name": "InputSender",
+		"base": "Node",
+		"script": ROOT + "/simulation/input_sender.gd",
+		"icon": ROOT + "/icons/input-sender.svg"
 	},
 ]
 
