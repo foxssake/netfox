@@ -19,6 +19,8 @@ var _sync_state_properties := _PropertyPool.new()
 var _rb_history_size := NetworkRollback.history_limit
 var _sync_history_size := ProjectSettings.get_setting("netfox/state_synchronizer/history_limit", 64) as int
 
+var _ignored_subjects := _Set.new()
+
 # Source of truth for history
 var _rb_input_history := _PerObjectHistory.new(_rb_history_size)
 var _rb_state_history := _PerObjectHistory.new(_rb_history_size)
@@ -73,6 +75,12 @@ func deregister(node: Node) -> void:
 		for value in history.values():
 			var snapshot := value as _Snapshot
 			snapshot.erase_subject(node)
+
+func ignore(subject: Node) -> void:
+	_ignored_subjects.add(subject)
+
+func flush_ignores() -> void:
+	_ignored_subjects.clear()
 
 ## Return the latest tick where any of the [param subjects] had rollback
 ## state data available
@@ -160,6 +168,9 @@ func _record(tick: int, history: _PerObjectHistory, snapshots: _HistoryBuffer, p
 
 	for subject in property_pool.get_subjects():
 		assert(subject is Node, "Only nodes supported for now!")
+		
+		if _ignored_subjects.has(subject):
+			continue
 
 		var is_auth := auth_filter.call(subject)
 

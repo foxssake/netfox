@@ -15,7 +15,11 @@ class_name RollbackSynchronizer
 ## [br][br]
 ## Enabling this will run [code]_rollback_tick[/code] on nodes under
 ## [member root] even if there's no current input available for the tick.
-@export var enable_prediction: bool = false
+@export var enable_prediction: bool = false:
+	set(v):
+		if v != enable_prediction:
+			_set_prediction_enabled(v)
+			enable_prediction = v
 
 @export_group("State")
 ## Properties that define the game state.
@@ -87,6 +91,7 @@ func process_settings() -> void:
 	for node in managed_nodes:
 		if NetworkRollback.is_rollback_aware(node):
 			RollbackSimulationServer.register(NetworkRollback._get_rollback_method(node))
+			RollbackSimulationServer.set_prediction_enabled_for(node, enable_prediction)
 			_sim_nodes.append(node)
 
 		if NetworkRollback.is_rollback_liveness_aware(node) and not RollbackLivenessServer.is_registered(node):
@@ -255,7 +260,10 @@ func ignore_prediction(node: Node) -> void:
 	# predictions.
 	#
 	# This method may see some use again, otherwise it will be deprecated.
-	pass
+
+	# NOTE: Turns out this is useful - even if mispredictions are not recorded,
+	# we might not want to display them
+	NetworkHistoryServer.ignore(node)
 
 ## Get the tick of the last known input.
 ## [br][br]
@@ -379,6 +387,10 @@ func _reprocess_settings() -> void:
 
 	_properties_dirty = false
 	process_settings()
+
+func _set_prediction_enabled(enabled: bool) -> void:
+	for node in _sim_nodes:
+		RollbackSimulationServer.set_prediction_enabled_for(node, enabled)
 
 # Find managed nodes recursively from given root, ignoring branches managed by
 # a different RollbackSynchronizer

@@ -81,6 +81,7 @@ font_size = 16
 unique_name_in_owner = true
 script = ExtResource("9_vik3r")
 root = NodePath("..")
+enable_prediction = true
 state_properties = Array[String]([":transform", ":velocity", ":health", ":deaths", "Head:transform", "Head/PlayerFPSWeapon:last_fire"])
 input_properties = Array[String](["Input:movement", "Input:jump", "Input:fire", "Input:look_angle"])
 

@@ -22,6 +22,7 @@ var _liveness_server: _RollbackLivenessServer
 
 var _callbacks := {}		# node to callback
 var _simulated_ticks := {}	# node to array of ticks
+var _prediction_enabled_nodes := _Set.new()
 
 var _input_graph := _Graph.new() # Links inputs to objects controlled by them
 
@@ -63,6 +64,7 @@ func deregister_node(node: Node) -> void:
 	if _callbacks.has(node):
 		deregister(_callbacks[node])
 	_input_graph.erase(node)
+	_prediction_enabled_nodes.erase(node)
 
 ## Register [param input] as providing input for [param node]
 func register_rollback_input_for(node: Node, input: Node) -> void:
@@ -71,6 +73,15 @@ func register_rollback_input_for(node: Node, input: Node) -> void:
 ## Deregister [param input] from providing input for [param node]
 func deregister_rollback_input(node: Node, input: Node) -> void:
 	_input_graph.unlink(input, node)
+
+func set_prediction_enabled_for(node: Node, enabled: bool) -> void:
+	if enabled:
+		_prediction_enabled_nodes.add(node)
+	else:
+		_prediction_enabled_nodes.erase(node)
+
+func is_prediction_enabled_for(node: Node) -> bool:
+	return _prediction_enabled_nodes.has(node)
 
 ## Return true if the currently simulated node is being predicted
 func is_predicting_current() -> bool:
@@ -140,8 +151,10 @@ func _get_nodes_to_simulate(input_snapshot: _Snapshot) -> Array[Node]:
 			result.append(node)
 			continue
 
-		if not input_snapshot.has_subjects(inputs, true):
-			# We don't have input for node, don't simulate
+		if not input_snapshot.has_subjects(inputs, true) and \
+			not is_prediction_enabled_for(node):
+			# We don't have input for node, and input prediction is disabled
+			# Don't simulate
 			continue
 
 		result.append(node)

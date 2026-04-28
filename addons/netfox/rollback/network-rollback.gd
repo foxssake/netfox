@@ -432,6 +432,7 @@ func _rollback() -> void:
 		on_record_tick.emit(tick + 1)
 		NetworkHistoryServer._record_rollback_state(tick + 1)
 		NetworkSynchronizationServer._synchronize_state(tick + 1)
+		NetworkHistoryServer.flush_ignores()
 
 	# Restore display state
 	_rollback_stage = _STAGE_AFTER

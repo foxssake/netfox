@@ -9,6 +9,7 @@ extends CharacterBody3D
 @onready var head := $Head as Node3D
 @onready var camera := $Head/Camera3D as Camera3D
 @onready var hit_sfx := $"Hit SFX" as AudioStreamPlayer3D
+@onready var rollback_synchronizer := %RollbackSynchronizer as RollbackSynchronizer
 #+#
 static var _logger := NetfoxLogger.new("game", "Player")
 
@@ -52,6 +53,10 @@ func _after_tick_loop():
 		_was_hit = false
 
 func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
+	if rollback_synchronizer.is_predicting():
+		rollback_synchronizer.ignore_prediction(self)
+		return
+
 	# Handle respawn
 	if tick == death_tick:
 		global_position = respawn_position
