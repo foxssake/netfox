@@ -252,7 +252,7 @@ const TYPES: Array[Dictionary] = [
 	{
 		"name": "InputSender",
 		"base": "Node",
-		"script": ROOT + "/simulation/input_sender.gd",
+		"script": ROOT + "/input_sender.gd",
 		"icon": ROOT + "/icons/input-sender.svg"
 	},
 ]
