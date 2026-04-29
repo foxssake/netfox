@@ -1,7 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://f1annxuory74"]
+[gd_scene load_steps=9 format=3 uid="uid://f1annxuory74"]
 
 [ext_resource type="Script" path="res://addons/netfox/input_sender.gd" id="1_c04if"]
 [ext_resource type="Script" path="res://examples/server-side-vehicle/scripts/server_side_tank.gd" id="1_jtlcb"]
+[ext_resource type="Script" path="res://examples/server-side-vehicle/scripts/tank_input.gd" id="3_8ufv1"]
+[ext_resource type="Script" path="res://addons/netfox/state-synchronizer.gd" id="4_qj6bi"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_tqf64"]
 size = Vector3(2.9885, 1.6003, 4.71182)
@@ -23,12 +25,21 @@ mass = 750.0
 center_of_mass_mode = 1
 center_of_mass = Vector3(0, 1.2, 0)
 linear_damp = 0.13
-angular_damp = 0.5
+angular_damp = 0.1
 script = ExtResource("1_jtlcb")
 
 [node name="InputSender" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("1_c04if")
 root = NodePath("..")
+input_properties = Array[String](["TankInput:movement", "TankInput:brake"])
+
+[node name="TankInput" type="Node" parent="."]
+script = ExtResource("3_8ufv1")
+
+[node name="StateSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("4_qj6bi")
+root = NodePath("..")
+properties = Array[String]([":engine_force", ":brake", ":steering", ":global_transform"])
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(-0.999957, -0.0017973, 0.00912711, -1.68907e-08, 0.981158, 0.193207, -0.00930239, 0.193199, -0.981116, 0, 4.67115, -4.54559)
@@ -265,3 +276,6 @@ sides = 16
 transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
 radius = 0.2
 height = 0.8
+
+[connection signal="input_missing" from="InputSender" to="." method="_on_input_sender_input_missing"]
+[connection signal="new_input_received" from="InputSender" to="." method="_on_input_sender_new_input_received"]
