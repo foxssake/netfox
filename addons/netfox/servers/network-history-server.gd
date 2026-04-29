@@ -178,7 +178,7 @@ func _record(tick: int, history: _PerObjectHistory, snapshots: _HistoryBuffer, p
 
 	for subject in property_pool.get_subjects():
 		assert(subject is Node, "Only nodes supported for now!")
-		
+
 		if _ignored_subjects.has(subject):
 			continue
 
