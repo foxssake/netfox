@@ -74,12 +74,20 @@ func register_rollback_input_for(node: Node, input: Node) -> void:
 func deregister_rollback_input(node: Node, input: Node) -> void:
 	_input_graph.unlink(input, node)
 
+## Toggle the prediction enabled flag for [param node]
+## [br][br]
+## Prediction in this sense means that the node will be simulated even if there
+## is no up to date input available.
 func set_prediction_enabled_for(node: Node, enabled: bool) -> void:
 	if enabled:
 		_prediction_enabled_nodes.add(node)
 	else:
 		_prediction_enabled_nodes.erase(node)
 
+## Return true if prediction is enabled for [param node]
+## [br][br]
+## Prediction in this sense means that the node will be simulated even if there
+## is no up to date input available.
 func is_prediction_enabled_for(node: Node) -> bool:
 	return _prediction_enabled_nodes.has(node)
 

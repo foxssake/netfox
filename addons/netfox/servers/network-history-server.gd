@@ -76,9 +76,19 @@ func deregister(node: Node) -> void:
 			var snapshot := value as _Snapshot
 			snapshot.erase_subject(node)
 
+## Do not record [param subject]
+## [br][br]
+## Can be used in [code]_rollback_tick()[/code] in case node prediction is
+## enabled, but state can't be reasonably predicted.
+## [br][br]
+## Subjects stay ignored until [method flush_ignores] is called. This is done
+## by default after every rollback tick.
 func ignore(subject: Node) -> void:
 	_ignored_subjects.add(subject)
 
+## Clear the list of ignored subjects
+## [br][br]
+## Calling this method undoes all previous [method ignore] calls.
 func flush_ignores() -> void:
 	_ignored_subjects.clear()
 
