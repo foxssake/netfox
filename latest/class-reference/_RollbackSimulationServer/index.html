@@ -287,6 +287,10 @@
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#void-deregister_rollback_input-node-node-node-input">void deregister_rollback_input ( Node node, Node input )</a>
     </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-set_prediction_enabled_for-node-node-bool-enabled">void set_prediction_enabled_for ( Node node, bool enabled )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#bool-is_prediction_enabled_for-node-node">bool is_prediction_enabled_for ( Node node )</a>
+    </li>
     <li class="toctree-l4"><a class="reference internal" href="#bool-is_predicting_current">bool is_predicting_current ( )</a>
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#object-get_simulated_object">Object get_simulated_object ( )</a>
@@ -362,6 +366,14 @@
 <td><a href="#deregister_rollback_input">deregister_rollback_input</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node, <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> input)</td>
 </tr>
 <tr>
+<td>void</td>
+<td><a href="#set_prediction_enabled_for">set_prediction_enabled_for</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node, <a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> enabled)</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a></td>
+<td><a href="#is_prediction_enabled_for">is_prediction_enabled_for</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node)</td>
+</tr>
+<tr>
 <td><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a></td>
 <td><a href="#is_predicting_current">is_predicting_current</a>()</td>
 </tr>
@@ -390,6 +402,14 @@
 <hr />
 <h4 id="void-deregister_rollback_input-node-node-node-input"><span id="deregister_rollback_input">void deregister_rollback_input ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node, <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> input ) </span></h4>
 <p>Deregister <code>input</code> from providing input for <code>node</code></p>
+<hr />
+<h4 id="void-set_prediction_enabled_for-node-node-bool-enabled"><span id="set_prediction_enabled_for">void set_prediction_enabled_for ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node, <a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> enabled ) </span></h4>
+<p>Toggle the prediction enabled flag for <code>node</code>   </p>
+<p>Prediction in this sense means that the node will be simulated even if there is no up to date input available.</p>
+<hr />
+<h4 id="bool-is_prediction_enabled_for-node-node"><span id="is_prediction_enabled_for"><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> is_prediction_enabled_for ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node ) </span></h4>
+<p>Return true if prediction is enabled for <code>node</code>   </p>
+<p>Prediction in this sense means that the node will be simulated even if there is no up to date input available.</p>
 <hr />
 <h4 id="bool-is_predicting_current"><span id="is_predicting_current"><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> is_predicting_current (  ) </span></h4>
 <p>Return true if the currently simulated node is being predicted</p>

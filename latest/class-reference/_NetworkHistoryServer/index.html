@@ -269,6 +269,10 @@
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#void-deregister-node-node">void deregister ( Node node )</a>
     </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-ignore-node-subject">void ignore ( Node subject )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-flush_ignores">void flush_ignores ( )</a>
+    </li>
     <li class="toctree-l4"><a class="reference internal" href="#int-get_latest_state_tick_for-array-subjects-int-tick">int get_latest_state_tick_for ( Array subjects, int tick )</a>
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#int-get_state_age_for-array-subjects-int-tick">int get_state_age_for ( Array subjects, int tick )</a>
@@ -375,6 +379,14 @@
 <td><a href="#deregister">deregister</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node)</td>
 </tr>
 <tr>
+<td>void</td>
+<td><a href="#ignore">ignore</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#flush_ignores">flush_ignores</a>()</td>
+</tr>
+<tr>
 <td><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a></td>
 <td><a href="#get_latest_state_tick_for">get_latest_state_tick_for</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_array.html">Array</a> subjects, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> tick)</td>
 </tr>
@@ -413,6 +425,15 @@
 <hr />
 <h4 id="void-deregister-node-node"><span id="deregister">void deregister ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node ) </span></h4>
 <p>Deregister a node, no longer tracking any property it had registered using any of the <code>register_*()</code> methods</p>
+<hr />
+<h4 id="void-ignore-node-subject"><span id="ignore">void ignore ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject ) </span></h4>
+<p>Do not record <code>subject</code>   </p>
+<p>Can be used in <code>_rollback_tick()</code> in case node prediction is enabled, but state can't be reasonably predicted.   </p>
+<p>Subjects stay ignored until <a href="#flush_ignores">flush_ignores()</a> is called. This is done by default after every rollback tick.</p>
+<hr />
+<h4 id="void-flush_ignores"><span id="flush_ignores">void flush_ignores (  ) </span></h4>
+<p>Clear the list of ignored subjects   </p>
+<p>Calling this method undoes all previous <a href="#ignore">ignore()</a> calls.</p>
 <hr />
 <h4 id="int-get_latest_state_tick_for-array-subjects-int-tick"><span id="get_latest_state_tick_for"><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> get_latest_state_tick_for ( <a href="https://docs.godotengine.org/en/4.1/classes/class_array.html">Array</a> subjects, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> tick ) </span></h4>
 <p>Return the latest tick where any of the <code>subjects</code> had rollback state data available</p>
