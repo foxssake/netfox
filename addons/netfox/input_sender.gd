@@ -6,6 +6,16 @@ class_name InputSender
 ## [br][br]
 ## [InputSender] can be used alone or with [Simulator].
 
+## Emitted when [InputSender] receives input from client on [signal NetworkTime.on_tick]
+## [InputSender] handles applying received input internally before emitting this signal.
+## Emitted only on hosts.
+signal new_input_received(tick : int)
+
+## Emitted when [InputSender] doesnt receive anything from client on [signal NetworkTime.on_tick]
+## [InputSender] handles applying latest known input internally before emitting this signal.
+## Emitted only on hosts.
+signal input_missing(current_tick : int, latest_known_input_tick : int)
+
 ## The root node for resolving node paths in inputs. Defaults to the parent node.
 @export var root: Node = get_parent()
 
@@ -24,6 +34,10 @@ var visibility_filter := PeerVisibilityFilter.new()
 
 var _input_properties := _PropertyPool.new()
 var _properties_dirty: bool = false
+var _last_emitted_tick: int = -1
+
+# Flag to connect signals only once.
+var _signals_connected : bool = false 
 
 func _ready() -> void:
 	if Engine.is_editor_hint():
@@ -62,6 +76,10 @@ func process_settings() -> void:
 	# Register visibility filter
 	for node in _input_properties.get_subjects():
 		NetworkSynchronizationServer.register_visibility_filter(node, visibility_filter)
+	
+	if not _signals_connected:
+		_connect_signals()
+		_signals_connected = true
 
 ## Process settings based on authority.
 ## [br][br]
@@ -70,7 +88,8 @@ func process_settings() -> void:
 func process_authority():
 	for node in _input_properties.get_subjects():
 		for property in _input_properties.get_properties_of(node):
-			NetworkHistoryServer.deregister_input_sender_input(node, property)
+			NetworkHistoryServer.deregister_input_sender(node, property)
+			NetworkSynchronizationServer.deregister_input_sender(node, property)
 	
 	# Process authority
 	_input_properties.set_from_paths(root, input_properties)
@@ -78,7 +97,8 @@ func process_authority():
 	# Register new recorded inputs
 	for node in _input_properties.get_subjects():
 		for property in _input_properties.get_properties_of(node):
-			NetworkHistoryServer.register_input_sender_input(node, property)
+			NetworkHistoryServer.register_input_sender(node, property)
+			NetworkSynchronizationServer.register_input_sender(node, property)
 
 ## Add an input property.
 ## [br][br]
@@ -129,3 +149,70 @@ func _reprocess_settings() -> void:
 
 	_properties_dirty = false
 	process_settings()
+
+func _connect_signals() -> void:
+	# Connect before_tick signal to static function.
+	# This is done to avoid having another singleton just to manage this tiny code.
+	if not NetworkTime.before_tick.is_connected(_on_before_tick):
+		NetworkTime.before_tick.connect(_on_before_tick)
+	
+#	if not NetworkTime.after_tick_loop.is_connected(_on_after_tick_loop):
+#		NetworkTime.after_tick_loop.connect(_on_after_tick_loop)
+	
+	NetworkTime.on_tick.connect(_on_tick)
+
+# Static function to connect to NetworkTime signals once.
+# Before every tick, record owned inputs and send them to host.
+static func _on_before_tick(_delta: float, tick: int) -> void:
+	NetworkHistoryServer._record_input_sender(tick)
+	NetworkSynchronizationServer._synchronize_input_sender(tick)
+
+# Check if [InputSender] received new input from client.
+# Emit new_input_received with new snapshot applied if received input.
+# Emit input_missing with latest snapshot if did not.
+# This function only runs if 
+func _on_tick(delta: float, tick: int) -> void:
+	if not multiplayer.is_server():
+		return
+	
+	# Find all ticks we haven't emitted yet up to current tick
+	var any_new := false
+	for t in range(_last_emitted_tick + 1, tick + 1):
+		var snapshot := NetworkHistoryServer._get_input_sender_snapshot(t)
+		if snapshot:
+			_apply_snapshot_for_self(snapshot)
+			new_input_received.emit(t)
+			_last_emitted_tick = t
+			any_new = true
+	
+	if not any_new:
+		# No new ticks at all — apply latest known and emit missing
+		var subjects := _input_properties.get_subjects()
+		var latest_tick := NetworkHistoryServer.get_latest_input_sender_tick_for(subjects, tick)
+		
+		if latest_tick >= 0:
+			var latest_snapshot := NetworkHistoryServer._get_input_sender_snapshot(latest_tick)
+			if latest_snapshot:
+				_apply_snapshot_for_self(latest_snapshot)
+		
+		input_missing.emit(tick, latest_tick)
+
+# Helper function to apply given snapshot for only this node.
+# TODO Applying whole snapshot and iterating over ticks would be nicer
+# if we decide to have singleton for this
+func _apply_snapshot_for_self(snapshot : _Snapshot) -> void:
+	for node in _input_properties.get_subjects():
+		for property in _input_properties.get_properties_of(node):
+			if snapshot.has_property(node, property):
+				var value := snapshot.get_property(node, property)
+				# TODO is this should be node.set_indexed ??
+				set_indexed(property, value)
+
+
+## Static function to connect to NetworkTime signals once.
+## After every tick loop restore latest saved history.
+## On hosts this will be latest received input.
+## On clients this will be latest recorded input.
+#static func _on_after_tick_loop() -> void:
+#	return # TODO delete this ?
+#	NetworkHistoryServer._restore_input_sender(NetworkTime.tick)

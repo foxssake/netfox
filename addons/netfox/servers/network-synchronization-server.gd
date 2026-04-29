@@ -29,8 +29,8 @@ var _rb_owned_input_properties := _PropertyPool.new()
 var _rb_owned_state_properties := _PropertyPool.new()
 var _sync_state_properties := _PropertyPool.new()
 var _sync_owned_state_properties := _PropertyPool.new()
-var _input_sender_input_properties := _PropertyPool.new()
-var _input_sender_owned_input_properties := _PropertyPool.new()
+var _input_sender_properties := _PropertyPool.new()
+var _input_sender_owned_properties := _PropertyPool.new()
 
 var _visibility_filters := {} # Node to PeerVisibilityFilter
 
@@ -38,9 +38,11 @@ var _rb_enable_input_broadcast := ProjectSettings.get_setting("netfox/rollback/e
 var _rb_enable_diffs := NetworkRollback.enable_diff_states
 var _rb_full_interval := ProjectSettings.get_setting("netfox/rollback/full_state_interval", 24) as int
 var _rb_full_scheduler := _IntervalScheduler.new(_rb_full_interval)
+var _input_sender_enable_broadcast := ProjectSettings.get_setting("netfox/input_sender/enable_input_broadcast", false) as bool
+
 
 var _rb_input_redundancy := NetworkRollback.input_redundancy
-var _input_sender_input_redundancy := ProjectSettings.get_setting("netfox/input_sender/input_redundancy", 3) as int
+var _input_sender_redundancy := ProjectSettings.get_setting("netfox/input_sender/input_redundancy", 3) as int
 
 var _last_sync_state_sent := _Snapshot.new(0)
 var _sync_enable_diffs := ProjectSettings.get_setting("netfox/state_synchronizer/enable_diff_states", true) as bool
@@ -56,7 +58,7 @@ var _redundant_serializer: _RedundantSnapshotSerializer
 var _cmd_full_state: NetworkCommandServer.Command
 var _cmd_diff_state: NetworkCommandServer.Command
 var _cmd_input: NetworkCommandServer.Command
-var _cmd_input_sender_input : NetworkCommandServer.Command
+var _cmd_input_sender : NetworkCommandServer.Command
 
 var _cmd_full_sync: NetworkCommandServer.Command
 var _cmd_diff_sync: NetworkCommandServer.Command
@@ -64,7 +66,7 @@ var _cmd_diff_sync: NetworkCommandServer.Command
 static var _logger := NetfoxLogger._for_netfox("NetworkSynchronizationServer")
 
 signal _on_input(snapshot: _Snapshot)
-signal _on_input_sender_input(snapshot : _Snapshot)
+signal _on_input_sender(snapshot : _Snapshot)
 signal _on_state(snapshot: _Snapshot)
 
 ## Register a [param property] of [param node] to be synchronized
@@ -108,16 +110,16 @@ func deregister_sync_state(node: Node, property: NodePath) -> void:
 
 ## Register a [param property] of [param node] to be synchronized 
 ## as input_sender input
-func register_input_sender_input(node: Node, property: NodePath) -> void:
-	_input_sender_input_properties.add(node, property)
+func register_input_sender(node: Node, property: NodePath) -> void:
+	_input_sender_properties.add(node, property)
 	if node.is_multiplayer_authority():
-		_input_sender_owned_input_properties.add(node, property)
+		_input_sender_owned_properties.add(node, property)
 
 ## Deregister a [param property] of [param node] from being synchronized
 ## as input_sender input
-func deregister_input_sender_input(node: Node, property: NodePath) -> void:
-	_input_sender_input_properties.erase(node, property)
-	_input_sender_owned_input_properties.erase(node, property)
+func deregister_input_sender(node: Node, property: NodePath) -> void:
+	_input_sender_properties.erase(node, property)
+	_input_sender_owned_properties.erase(node, property)
 
 ## Register a [param serializer] to use when transmitting
 ## [param property param] of [param node] over the network
@@ -150,8 +152,8 @@ func deregister(node: Node) -> void:
 	_rb_owned_input_properties.erase_subject(node)
 	_sync_state_properties.erase_subject(node)
 	_sync_owned_state_properties.erase_subject(node)
-	_input_sender_input_properties.erase_subject(node)
-	_input_sender_owned_input_properties.erase_subject(node)
+	_input_sender_properties.erase_subject(node)
+	_input_sender_owned_properties.erase_subject(node)
 	_visibility_filters.erase(node)
 	_schemas.erase_subject(node)
 
@@ -314,7 +316,47 @@ func _synchronize_sync_state(tick: int) -> void:
 	# NOTE: This is a shared instance, theoretically shouldn't screw things up
 	_last_sync_state_sent = snapshot
 
-## TODO Add syncronize input_sender input here.
+func _synchronize_input_sender(tick: int) -> void:
+	# We don't own inputs, nothing to synchronize
+	if _input_sender_owned_properties.is_empty():
+		return
+	
+	var snapshots := [] as Array[_Snapshot]
+	var notified_peers := _Set.new()
+	
+	# By default input sender only sends input to server, check if its enabled
+	## TODO double check notified peers.
+	if not _input_sender_enable_broadcast:
+		# Input broadcast is off, only send inputs to host.
+			for node in _input_sender_owned_properties.get_subjects():
+				notified_peers.add(1)
+				## TODO check if this is solid or should be code below.
+#				notified_peers.add(node.get_multiplayer_authority())
+	else:
+		# If input broadcast is on, send inputs to everyone
+		for peer in multiplayer.get_peers():
+			notified_peers.add(peer)
+	
+	# Make sure to not send input to ourselves
+	# Maybe: Only erase ourselves if this is not host, because listen servers could benefit
+	# TODO does above comment this make sense?
+	notified_peers.erase(multiplayer.get_unique_id())
+	
+	# Prepare snapshot package
+	for offset in _input_sender_redundancy:
+		# Grab snapshot from NetworkHistoryServer
+		var snapshot := NetworkHistoryServer._get_input_sender_snapshot(tick - offset)
+		if not snapshot:
+			break
+		
+		_logger.trace("Submitting input_sender inputs: %s", [snapshot])
+		snapshots.append(snapshot)
+	
+	_logger.trace("Submitting input_sender inputs to peers: %s", [notified_peers])
+	for peer in notified_peers:
+		var data := _redundant_serializer.write_for(peer, snapshots, _input_sender_owned_properties)
+		_cmd_input_sender.send(data, peer)
+
 
 func _init(
 		p_command_server: _NetworkCommandServer = null,
@@ -343,24 +385,24 @@ func _ready():
 	_cmd_full_state = _command_server.register_command(_handle_full_state, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
 	_cmd_diff_state = _command_server.register_command(_handle_diff_state, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
 	_cmd_input = _command_server.register_command(_handle_input, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
-	_cmd_input_sender_input = _command_server.register_command(_handle_input_sender_input, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
+	_cmd_input_sender = _command_server.register_command(_handle_input_sender, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
 
 	_cmd_full_sync = _command_server.register_command(_handle_full_sync, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
 	_cmd_diff_sync = _command_server.register_command(_handle_diff_sync, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
 
-func _handle_input_sender_input(sender : int, data : PackedByteArray) -> void:
+func _handle_input_sender(sender : int, data : PackedByteArray) -> void:
 	var buffer := StreamPeerBuffer.new()
 	buffer.data_array = data
 	
-	var snapshots := _redundant_serializer.read_from(sender, _input_sender_input_properties, buffer, true)
+	var snapshots := _redundant_serializer.read_from(sender, _input_sender_properties, buffer, true)
 	
 	for snapshot in snapshots:
 		snapshot.sanitize(sender)
 		
 		_logger.trace("Ingesting input_sender inputs: %s", [snapshot])
 		# TODO Handle Network History Server to merge input_sender inputs.
-		if NetworkHistoryServer._merge_input_sender_input(snapshot):
-			_on_input_sender_input.emit(snapshot)
+		if NetworkHistoryServer._merge_input_sender(snapshot):
+			_on_input_sender.emit(snapshot)
 
 func _handle_input(sender: int, data: PackedByteArray):
 	var buffer := StreamPeerBuffer.new()

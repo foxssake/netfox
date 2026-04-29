@@ -62,11 +62,11 @@ func deregister_sync_state(node: Node, property: NodePath) -> void:
 	_sync_state_properties.erase(node, property)
 
 ## Register a input_sender input property
-func register_input_sender_input(node : Node, property : NodePath) -> void:
+func register_input_sender(node : Node, property : NodePath) -> void:
 	_input_sender_properties.add(node, property)
 
 ## Deregister a input_sender input propert
-func deregister_input_sender_input(node : Node, property : NodePath) -> void:
+func deregister_input_sender(node : Node, property : NodePath) -> void:
 	_input_sender_properties.erase(node, property)
 
 ## Deregister a node, no longer tracking any property it had registered using
@@ -111,6 +111,11 @@ func get_state_age_for(subjects: Array, tick: int) -> int:
 func get_latest_input_for(subjects: Array, tick: int) -> int:
 	return _get_latest_for(subjects, tick, _rb_input_history)
 
+## Get the latest tick where any of the [param subjects] had input_sender data
+## available
+func get_latest_input_sender_tick_for(subjects: Array, tick: int) -> int:
+	return _get_latest_for(subjects, tick, _input_sender_history)
+
 ## Return how old is the latest rollback input data for any of the
 ## [param subjects], in ticks
 func get_input_age_for(subjects: Array, tick: int) -> int:
@@ -141,7 +146,7 @@ func _record_sync_state(tick: int) -> void:
 		return subject.is_multiplayer_authority()
 	)
 
-func _record_input_sender_input(tick: int) -> void:
+func _record_input_sender(tick: int) -> void:
 	_record(tick, _input_sender_history, _input_sender_snapshots, _input_sender_properties,\
 	true, func(subject: Node):
 		return subject.is_multiplayer_authority()
@@ -156,7 +161,7 @@ func _restore_rollback_state(tick: int) -> bool:
 func _restore_synchronizer_state(tick: int) -> bool:
 	return _restore_latest(tick, _sync_history)
 
-func _restore_input_sender_inputs(tick : int) -> bool:
+func _restore_input_sender(tick : int) -> bool:
 	return _restore_latest(tick, _input_sender_history)
 
 func _get_rollback_input_snapshot(tick: int) -> _Snapshot:
@@ -168,7 +173,7 @@ func _get_rollback_state_snapshot(tick: int) -> _Snapshot:
 func _get_synchronizer_state_snapshot(tick: int) -> _Snapshot:
 	return _sync_state_snapshots.get_at(tick)
 
-func _get_input_sender_input_snapshot(tick : int) -> _Snapshot:
+func _get_input_sender_snapshot(tick : int) -> _Snapshot:
 	return _input_sender_snapshots.get_at(tick)
 
 func _merge_rollback_input(snapshot: _Snapshot) -> bool:
@@ -183,9 +188,9 @@ func _merge_synchronizer_state(snapshot: _Snapshot) -> bool:
 	_merge_snapshot(snapshot, _sync_state_snapshots, true)
 	return _merge_history(snapshot, _sync_history)
 
-func _merge_input_sender_input(snapshot: _Snapshot) -> bool:
+func _merge_input_sender(snapshot: _Snapshot) -> bool:
 	_merge_snapshot(snapshot, _input_sender_snapshots, true)
-	return _merge_history(snapshot, _input_sender_history)
+	return _merge_history(snapshot, _input_sender_history, true)
 
 func _record(tick: int, history: _PerObjectHistory, snapshots: _HistoryBuffer, property_pool: _PropertyPool, only_auth: bool, auth_filter: Callable) -> void:
 	var snapshot := snapshots.get_at(tick, _Snapshot.new(tick)) as _Snapshot

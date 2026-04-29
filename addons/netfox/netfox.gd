@@ -169,6 +169,11 @@ var SETTINGS: Array[Dictionary] = [
 		"value": 64,
 		"type" : TYPE_INT
 	},
+	{
+		"name": "netfox/input_sender/enable_input_broadcast",
+		"value": false,
+		"type" : TYPE_BOOL
+	},
 ]
 
 const AUTOLOADS: Array[Dictionary] = [
