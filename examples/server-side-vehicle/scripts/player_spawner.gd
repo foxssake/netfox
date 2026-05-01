@@ -54,7 +54,7 @@ func _spawn(id: int):
 	print("Spawned avatar %s at %s" % [avatar.name, multiplayer.get_unique_id()])
 
 	# Avatar's input object is owned by player
-	var input = avatar.find_child("InputSender")
+	var input = avatar.find_child("TankInput")
 	if input != null:
 		input.set_multiplayer_authority(id)
 		print("Set input(%s) ownership to %s" % [input.name, id])
