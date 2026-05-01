@@ -20,18 +20,20 @@ metallic = 0.79
 albedo_color = Color(0.466667, 0.466667, 0.466667, 1)
 metallic = 0.45
 
-[node name="ServerSideTank" type="VehicleBody3D"]
+[node name="ServerSideTank" type="VehicleBody3D" node_paths=PackedStringArray("turret", "camera_3d")]
 mass = 750.0
 center_of_mass_mode = 1
 center_of_mass = Vector3(0, 1.2, 0)
 linear_damp = 0.13
 angular_damp = 0.1
 script = ExtResource("1_jtlcb")
+turret = NodePath("Turret")
+camera_3d = NodePath("Turret/Camera3D")
 
 [node name="InputSender" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("1_c04if")
 root = NodePath("..")
-input_properties = Array[String](["TankInput:movement", "TankInput:brake"])
+input_properties = Array[String](["TankInput:movement", "TankInput:brake", "TankInput:mouse_movement"])
 
 [node name="TankInput" type="Node" parent="."]
 script = ExtResource("3_8ufv1")
@@ -39,10 +41,7 @@ script = ExtResource("3_8ufv1")
 [node name="StateSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("4_qj6bi")
 root = NodePath("..")
-properties = Array[String]([":engine_force", ":brake", ":steering", ":global_transform"])
-
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(-0.999957, -0.0017973, 0.00912711, -1.68907e-08, 0.981158, 0.193207, -0.00930239, 0.193199, -0.981116, 0, 4.67115, -4.54559)
+properties = Array[String]([":engine_force", ":brake", ":steering", ":global_transform", "Turret:transform"])
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.29733, 0.0841393)
@@ -79,6 +78,10 @@ transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 
 radius = 0.15
 height = 4.0
 sides = 16
+
+[node name="Camera3D" type="Camera3D" parent="Turret"]
+transform = Transform3D(-0.86338, -0.150946, 0.481446, 0.00103192, 0.953671, 0.300851, -0.504553, 0.260246, -0.823224, 3.8109, 2.51503, -0.623832)
+fov = 90.0
 
 [node name="VehicleWheel3D" type="VehicleWheel3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6, 0.6, 2.14)
