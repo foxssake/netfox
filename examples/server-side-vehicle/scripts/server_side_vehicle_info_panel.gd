@@ -23,4 +23,4 @@ func _process(_delta):
 	else:
 		reload_label.text = "Loading"
 	
-	score_label.text = str(tank.score)
+	score_label.text = "Score: " + str(tank.score)
