@@ -30,11 +30,10 @@ signal input_missing(current_tick : int, latest_known_input_tick : int)
 ## Decides which peers will receive updates
 var visibility_filter := PeerVisibilityFilter.new()
 
-@onready var _logger: NetfoxLogger = NetfoxLogger._for_netfox("InputSender:" + root.name)
-
 var _input_properties := _PropertyPool.new()
 var _properties_dirty: bool = false
 var _last_emitted_tick: int = -1
+var _logger := NetfoxLogger._for_netfox("InputSender")
 
 # Flag to connect signals only once.
 var _signals_connected : bool = false 
@@ -151,21 +150,7 @@ func _reprocess_settings() -> void:
 	process_settings()
 
 func _connect_signals() -> void:
-	# Connect before_tick signal to static function.
-	# This is done to avoid having another singleton just to manage this tiny code.
-	if not NetworkTime.before_tick.is_connected(_on_before_tick):
-		NetworkTime.before_tick.connect(_on_before_tick)
-	
-#	if not NetworkTime.after_tick_loop.is_connected(_on_after_tick_loop):
-#		NetworkTime.after_tick_loop.connect(_on_after_tick_loop)
-	
 	NetworkTime.on_tick.connect(_on_tick)
-
-# Static function to connect to NetworkTime signals once.
-# Before every tick, record owned inputs and send them to host.
-static func _on_before_tick(_delta: float, tick: int) -> void:
-	NetworkHistoryServer._record_input_sender(tick)
-	NetworkSynchronizationServer._synchronize_input_sender(tick)
 
 # Check if [InputSender] received new input from client.
 # Emit new_input_received with new snapshot applied if received input.
@@ -201,18 +186,11 @@ func _on_tick(delta: float, tick: int) -> void:
 # TODO Applying whole snapshot and iterating over ticks would be nicer
 # if we decide to have singleton for this
 func _apply_snapshot_for_self(snapshot : _Snapshot) -> void:
-	for node in _input_properties.get_subjects():
-		for property in _input_properties.get_properties_of(node):
-			if snapshot.has_property(node, property):
-				var value := snapshot.get_property(node, property)
+	_logger.trace("Applying snapshot :%s", [snapshot])
+	for subject in _input_properties.get_subjects():
+		for property in _input_properties.get_properties_of(subject):
+			
+			if snapshot.has_property(subject, property):
+				var value := snapshot.get_property(subject, property)
 				# TODO is this should be node.set_indexed ??
-				set_indexed(property, value)
-
-
-## Static function to connect to NetworkTime signals once.
-## After every tick loop restore latest saved history.
-## On hosts this will be latest received input.
-## On clients this will be latest recorded input.
-#static func _on_after_tick_loop() -> void:
-#	return # TODO delete this ?
-#	NetworkHistoryServer._restore_input_sender(NetworkTime.tick)
+				subject.set_indexed(property, value)

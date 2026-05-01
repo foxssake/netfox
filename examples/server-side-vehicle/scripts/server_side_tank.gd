@@ -12,6 +12,8 @@ extends VehicleBody3D
 @export var max_steering_angle := 45.0
 @export var steering_lerp_factor := 0.02
 
+var logger := NetfoxLogger._for_netfox("ServerTank")
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	# Await so that player spawner sets our input authority.
@@ -19,7 +21,7 @@ func _ready():
 	
 	input_sender.process_authority()
 	
-	if input_sender.get_multiplayer_authority() == multiplayer.get_unique_id():
+	if tank_input.get_multiplayer_authority() == multiplayer.get_unique_id():
 		camera_3d.current = true
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -28,9 +30,7 @@ func _process(_delta):
 
 
 func _on_input_sender_new_input_received(_tick : int):
-	print("Server received new input!")
-	print("movement:%s" %tank_input.movement)
-	print("brake:%s" %tank_input.brake)
+	logger.trace("On received input movement:%s, brake:%s", [tank_input.movement, tank_input.brake])
 	if tank_input.movement.y != 0.0:
 		if tank_input.movement.y < 0:
 			engine_force = engine_power
