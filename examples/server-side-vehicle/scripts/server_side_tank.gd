@@ -14,6 +14,8 @@ extends VehicleBody3D
 
 var logger := NetfoxLogger._for_netfox("ServerTank")
 
+var _total_mouse_input := Vector2.ZERO
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	# Await so that player spawner sets our input authority.
@@ -53,3 +55,16 @@ func _on_input_sender_new_input_received(_tick : int):
 
 func _on_input_sender_input_missing(_current_tick : int, _latest_known_input_tick : int):
 	print("Input is missing")
+
+func _input(event : InputEvent):
+	if event is InputEventMouseMotion:
+		_move_local_camera(event.relative)
+
+# Moves local camera around
+# Camera movement is not networked and works entirely local.
+func _move_local_camera(mouse_input : Vector2) -> void:
+	_total_mouse_input += mouse_input
+	
+	camera_3d.basis = Basis.IDENTITY
+	
+	

@@ -105,6 +105,7 @@ sides = 16
 transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
 radius = 0.2
 height = 0.8
+sides = 3
 
 [node name="VehicleWheel3D2" type="VehicleWheel3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6, 0.6, 0.766)
@@ -130,6 +131,7 @@ sides = 16
 transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
 radius = 0.2
 height = 0.8
+sides = 3
 
 [node name="VehicleWheel3D3" type="VehicleWheel3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6, 0.6, -0.618)
@@ -155,6 +157,7 @@ sides = 16
 transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
 radius = 0.2
 height = 0.8
+sides = 3
 
 [node name="VehicleWheel3D4" type="VehicleWheel3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6, 0.6, -1.9835)
@@ -179,6 +182,7 @@ sides = 16
 transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
 radius = 0.2
 height = 0.8
+sides = 3
 
 [node name="VehicleWheel3D5" type="VehicleWheel3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6, 0.6, 2.13987)
@@ -204,6 +208,7 @@ sides = 16
 transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
 radius = 0.2
 height = 0.8
+sides = 3
 
 [node name="VehicleWheel3D6" type="VehicleWheel3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6, 0.6, 0.76647)
@@ -228,6 +233,7 @@ sides = 16
 transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
 radius = 0.2
 height = 0.8
+sides = 3
 
 [node name="VehicleWheel3D7" type="VehicleWheel3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6, 0.6, -0.618003)
@@ -252,6 +258,7 @@ sides = 16
 transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
 radius = 0.2
 height = 0.8
+sides = 3
 
 [node name="VehicleWheel3D8" type="VehicleWheel3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6, 0.6, -1.9835)
@@ -276,6 +283,7 @@ sides = 16
 transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
 radius = 0.2
 height = 0.8
+sides = 3
 
 [connection signal="input_missing" from="InputSender" to="." method="_on_input_sender_input_missing"]
 [connection signal="new_input_received" from="InputSender" to="." method="_on_input_sender_new_input_received"]

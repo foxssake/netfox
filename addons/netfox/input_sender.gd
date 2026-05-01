@@ -155,38 +155,41 @@ func _connect_signals() -> void:
 # Check if [InputSender] received new input from client.
 # Emit new_input_received with new snapshot applied if received input.
 # Emit input_missing with latest snapshot if did not.
-# This function only runs if 
+# This function only runs only on authority. 
 func _on_tick(delta: float, tick: int) -> void:
-	if not multiplayer.is_server():
+	if not is_multiplayer_authority():
 		return
 	
-	# Find all ticks we haven't emitted yet up to current tick
-	var any_new := false
-	for t in range(_last_emitted_tick + 1, tick + 1):
-		var snapshot := NetworkHistoryServer._get_input_sender_snapshot(t)
-		if snapshot:
-			_apply_snapshot_for_self(snapshot)
-			new_input_received.emit(t)
-			_last_emitted_tick = t
-			any_new = true
+	# Get the latest input data available
+	# Known issue: If input sender is configured with multiple input nodes,
+	# Any fresh input from one node will trigger re-emitting of other node's inputs?
+	# TODO: look at above issue.
+	var latest_input_tick := NetworkHistoryServer.get_latest_input_sender_for(
+		_input_properties.get_subjects(), tick)
 	
-	if not any_new:
-		# No new ticks at all — apply latest known and emit missing
-		var subjects := _input_properties.get_subjects()
-		var latest_tick := NetworkHistoryServer.get_latest_input_sender_tick_for(subjects, tick)
-		
-		if latest_tick >= 0:
-			var latest_snapshot := NetworkHistoryServer._get_input_sender_snapshot(latest_tick)
-			if latest_snapshot:
-				_apply_snapshot_for_self(latest_snapshot)
-		
-		input_missing.emit(tick, latest_tick)
+	if latest_input_tick == _last_emitted_tick:
+		# There is no new input data available
+		var latest_snapshot := NetworkHistoryServer._get_input_sender_snapshot(latest_input_tick)
+		if latest_snapshot:
+			_logger.trace("No new input is received, will emit input_missing after applying \
+				snapshot: %s", [latest_snapshot])
+			
+			_apply_snapshot_for_self(latest_snapshot)
+			input_missing.emit(tick, latest_input_tick)
+	else:
+		# Iterate over fresh inputs and emit a signal with fresh inputs applied.
+		for i in range(_last_emitted_tick + 1, latest_input_tick + 1):
+			var snapshot := NetworkHistoryServer._get_input_sender_snapshot(i)
+			if snapshot:
+				_apply_snapshot_for_self(snapshot)
+				new_input_received.emit(i)
+				_last_emitted_tick = i
 
 # Helper function to apply given snapshot for only this node.
 # TODO Applying whole snapshot and iterating over ticks would be nicer
 # if we decide to have singleton for this
 func _apply_snapshot_for_self(snapshot : _Snapshot) -> void:
-	_logger.trace("Applying snapshot :%s", [snapshot])
+	_logger.trace("Applying snapshot for self :%s", [snapshot])
 	for subject in _input_properties.get_subjects():
 		for property in _input_properties.get_properties_of(subject):
 			
