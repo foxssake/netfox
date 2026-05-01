@@ -400,7 +400,6 @@ func _handle_input_sender(sender : int, data : PackedByteArray) -> void:
 		snapshot.sanitize(sender)
 		
 		_logger.trace("Ingesting input_sender inputs: %s", [snapshot])
-		# TODO Handle Network History Server to merge input_sender inputs.
 		if NetworkHistoryServer._merge_input_sender(snapshot):
 			_on_input_sender.emit(snapshot)
 
