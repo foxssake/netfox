@@ -1,12 +1,17 @@
-[gd_scene load_steps=9 format=3 uid="uid://f1annxuory74"]
+[gd_scene load_steps=12 format=3 uid="uid://f1annxuory74"]
 
 [ext_resource type="Script" path="res://addons/netfox/input_sender.gd" id="1_c04if"]
 [ext_resource type="Script" path="res://examples/server-side-vehicle/scripts/server_side_tank.gd" id="1_jtlcb"]
+[ext_resource type="PackedScene" uid="uid://uqytq0drkxtf" path="res://examples/server-side-vehicle/scenes/tank_shell.tscn" id="2_ea71k"]
+[ext_resource type="PackedScene" uid="uid://bsavthtpx4joi" path="res://examples/server-side-vehicle/scenes/server_side_vehicle_info_panel.tscn" id="2_o1mnl"]
 [ext_resource type="Script" path="res://examples/server-side-vehicle/scripts/tank_input.gd" id="3_8ufv1"]
 [ext_resource type="Script" path="res://addons/netfox/state-synchronizer.gd" id="4_qj6bi"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_tqf64"]
 size = Vector3(2.9885, 1.6003, 4.71182)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qe0pd"]
+size = Vector3(2.01, 0.775, 2)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sclqb"]
 albedo_color = Color(0.188235, 0.188235, 0.188235, 1)
@@ -20,7 +25,7 @@ metallic = 0.79
 albedo_color = Color(0.466667, 0.466667, 0.466667, 1)
 metallic = 0.45
 
-[node name="ServerSideTank" type="VehicleBody3D" node_paths=PackedStringArray("turret", "camera_3d")]
+[node name="ServerSideTank" type="VehicleBody3D" node_paths=PackedStringArray("turret", "shell_spawn_point", "regular_camera", "focus_camera")]
 mass = 750.0
 center_of_mass_mode = 1
 center_of_mass = Vector3(0, 1.2, 0)
@@ -28,12 +33,16 @@ linear_damp = 0.13
 angular_damp = 0.1
 script = ExtResource("1_jtlcb")
 turret = NodePath("Turret")
-camera_3d = NodePath("Turret/Camera3D")
+shell_spawn_point = NodePath("Turret/Marker3D")
+shell_scene = ExtResource("2_ea71k")
+regular_camera = NodePath("Turret/RegularCamera3D")
+focus_camera = NodePath("Turret/FocusCamera3D")
+info_panel_scene = ExtResource("2_o1mnl")
 
 [node name="InputSender" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("1_c04if")
 root = NodePath("..")
-input_properties = Array[String](["TankInput:movement", "TankInput:brake", "TankInput:mouse_movement"])
+input_properties = Array[String](["TankInput:movement", "TankInput:brake", "TankInput:mouse_movement", "TankInput:fire"])
 
 [node name="TankInput" type="Node" parent="."]
 script = ExtResource("3_8ufv1")
@@ -41,11 +50,15 @@ script = ExtResource("3_8ufv1")
 [node name="StateSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("4_qj6bi")
 root = NodePath("..")
-properties = Array[String]([":engine_force", ":brake", ":steering", ":global_transform", "Turret:transform"])
+properties = Array[String]([":engine_force", ":brake", ":steering", ":global_transform", "Turret:transform", ":_last_fire_tick", ":score"])
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.29733, 0.0841393)
 shape = SubResource("BoxShape3D_tqf64")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.44697, -0.240236)
+shape = SubResource("BoxShape3D_qe0pd")
 
 [node name="Body" type="CSGMesh3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.0007, 0.0944731)
@@ -79,9 +92,16 @@ radius = 0.15
 height = 4.0
 sides = 16
 
-[node name="Camera3D" type="Camera3D" parent="Turret"]
-transform = Transform3D(-0.86338, -0.150946, 0.481446, 0.00103192, 0.953671, 0.300851, -0.504553, 0.260246, -0.823224, 3.8109, 2.51503, -0.623832)
+[node name="FocusCamera3D" type="Camera3D" parent="Turret"]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0.209147, 4.3057)
+fov = 45.0
+
+[node name="RegularCamera3D" type="Camera3D" parent="Turret"]
+transform = Transform3D(-1, -2.26267e-08, 8.44439e-08, 0, 0.965926, 0.258819, -8.74228e-08, 0.258819, -0.965926, 0, 2.3423, -2.76887)
 fov = 90.0
+
+[node name="Marker3D" type="Marker3D" parent="Turret"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4.83633)
 
 [node name="VehicleWheel3D" type="VehicleWheel3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6, 0.6, 2.14)

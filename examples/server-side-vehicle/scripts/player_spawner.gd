@@ -45,8 +45,7 @@ func _spawn(id: int):
 	var avatar = player_scene.instantiate() as Node
 	avatars[id] = avatar
 	avatar.name += " #%d" % id
-	add_child(avatar)
-	avatar.global_position = get_next_spawn_point(id)
+	avatar.position = get_next_spawn_point(id)
 
 	# Avatar is always owned by server
 	avatar.set_multiplayer_authority(1)
@@ -58,6 +57,8 @@ func _spawn(id: int):
 	if input != null:
 		input.set_multiplayer_authority(id)
 		print("Set input(%s) ownership to %s" % [input.name, id])
+	
+	add_child(avatar)
 
 func get_next_spawn_point(peer_id: int, spawn_idx: int = 0) -> Vector3:
 	# The same data is used to calculate the index on all peers
@@ -67,3 +68,7 @@ func get_next_spawn_point(peer_id: int, spawn_idx: int = 0) -> Vector3:
 	idx = idx % spawn_points.size()
 
 	return spawn_points[idx].global_position
+
+# Used when tanks die and we need to reposition them.
+func get_random_spawn_point() -> Vector3:
+	return spawn_points.pick_random().global_position
