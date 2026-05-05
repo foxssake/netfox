@@ -17,14 +17,16 @@ class_name RewindableRandomNumberGenerator
 ## @tutorial(RewindableRandomNumberGenerator Guide): https://foxssake.github.io/netfox/latest/netfox.extras/guides/rewindable-random-number-generator/
 
 var _rng: RandomNumberGenerator
+var _seed := 0
 var _last_reset_tick := -1
 var _last_reset_rollback_tick := -1
 
 static var _logger := NetfoxLogger._for_extras("RewindableRandomNumberGenerator")
 
 func _init(p_seed: int):
+	_seed = p_seed
 	_rng = RandomNumberGenerator.new()
-	_rng.set_seed(p_seed)
+	_rng.set_seed(_seed)
 
 ## Returns a pseudo-random float between [code]0.0[/code] and [code]1.0[/code]
 ## (inclusive).
@@ -63,9 +65,9 @@ func _ensure_state() -> void:
 		return
 
 	if NetworkRollback.is_rollback():
-		_rng.state = hash([_rng.seed, NetworkRollback.tick])
+		_rng.seed = hash([_seed, NetworkRollback.tick])
 	else:
-		_rng.state = hash([_rng.seed, NetworkTime.tick])
+		_rng.seed = hash([_seed, NetworkTime.tick])
 
 	_last_reset_rollback_tick = NetworkRollback.tick
 	_last_reset_tick = NetworkTime.tick
