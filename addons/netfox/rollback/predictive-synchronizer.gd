@@ -64,10 +64,6 @@ func process_settings() -> void:
 		for property in _state_properties.get_properties_of(subject):
 			NetworkHistoryServer.register_rollback_state(subject, property)
 
-	# Simulated notes to participate in rollback
-	for node in _sim_nodes:
-		RollbackSimulationServer.register(NetworkRollback._get_rollback_method(node))
-
 ## Mark the spawn tick for all nodes managed by this synchronizer.
 ## [br][br]
 ## When rewinding to a tick earlier than the spawn tick, every managed node will
