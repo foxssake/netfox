@@ -61,13 +61,6 @@ func _unhandled_input(event):
 			regular_camera.current = false
 			focus_camera.current = true
 
-func _on_input_sender_new_input_received(tick : int):
-	_handle_movement(tank_input.movement)
-	_move_turret(tank_input.mouse_movement)
-	
-	if tank_input.fire:
-		_fire(tick)
-
 # Moves vehicle on hosts.
 func _handle_movement(movement : Vector2) -> void:
 	if not is_multiplayer_authority():
@@ -91,9 +84,6 @@ func _handle_movement(movement : Vector2) -> void:
 	
 	# Steering
 	steering = lerp(steering, deg_to_rad(max_steering_angle) * -movement.x, steering_lerp_factor)
-
-func _on_input_sender_input_missing(_current_tick : int, _latest_known_input_tick : int):
-	print("Input is missing")
 
 # Moves the turret on the host.
 func _move_turret(mouse_input : Vector2) -> void:
@@ -130,3 +120,18 @@ func die() -> void:
 	global_position = player_spawner.get_random_spawn_point()
 	_turret_tilt = 0
 	_turret_traverse = 0
+
+func _on_input_sender_local_input(_tick):
+	print("Input sender local input is emitted on peer:%s" %multiplayer.get_unique_id())
+
+
+func _on_input_sender_missing_input(current_tick, latest_known_input_tick):
+	print("Input is missing on :%s" %name)
+
+
+func _on_input_sender_network_input(tick):
+	_handle_movement(tank_input.movement)
+	_move_turret(tank_input.mouse_movement)
+	
+	if tank_input.fire:
+		_fire(tick)

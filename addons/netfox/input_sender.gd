@@ -2,19 +2,39 @@
 extends Node
 class_name InputSender
 
-## Stores inputs and sends them to server.
+## Stores inputs and sends them to host.
 ## [br][br]
-## [InputSender] can be used alone or with [Simulator].
+##
+## [InputSender] is a multi purpose node to use on networked games,
+## It provides signals to code host and client side logic.
+## [InputSender] signals are tied and emitted on [signal NetworkTime.on_tick].
+## 
+## @experimental:
+## [InputSender] assumes input snapshots arrive as whole. (atomic), if snapshot
+## arrives with multiple parts, [InputSender] signals wont be reliable to 
+## code game logic.
 
-## Emitted when [InputSender] receives input from client on [signal NetworkTime.on_tick]
+## Emitted when [InputSender] receives input from remote owner of input_properties.
 ## [InputSender] handles applying received input internally before emitting this signal.
-## Emitted only on hosts.
-signal new_input_received(tick : int)
+## Emitted only if [InputSender] has authority.
+## Use this signal to code host side logic.
+signal network_input(tick : int)
+
+## Emitted for every tick if local peer has authority over input_property nodes.
+## [InputSender] will apply latest local inputs for this tick internally before 
+## emitting this signal.
+## Use this signal to code client side logic which doesnt interfere with actual game state.
+## Examples: Playing a sound, showing a visual effect.
+## Dont use this signal to code same game logic on client side as it will not likely
+## be same with remote host machine, it will cause syncing issues if you are already
+## using some other method to syncronize game state (Syncronizers).
+signal local_input(tick : int)
 
 ## Emitted when [InputSender] doesnt receive anything from client on [signal NetworkTime.on_tick]
-## [InputSender] handles applying latest known input internally before emitting this signal.
-## Emitted only on hosts.
-signal input_missing(current_tick : int, latest_known_input_tick : int)
+## [InputSender] will apply latest known input internally before emitting this signal.
+## Emitted only if [InputSender] is authority.
+## Use this signal to code host side prediction logic.
+signal missing_input(current_tick : int, latest_known_input_tick : int)
 
 ## The root node for resolving node paths in inputs. Defaults to the parent node.
 @export var root: Node = get_parent()
@@ -152,11 +172,17 @@ func _reprocess_settings() -> void:
 func _connect_signals() -> void:
 	NetworkTime.on_tick.connect(_on_tick)
 
-# Check if [InputSender] received new input from client.
-# Emit new_input_received with new snapshot applied if received input.
-# Emit input_missing with latest snapshot if did not.
-# This function only runs only on authority. 
+# Applies local snapshot and emits local_input if has authority over input nodes.
+# Then
+# applies new received network snapshots and emits network_input snapshots if
+# [InputSender] is authority,
+# If did not receive new network snapshots, applies latest and emits input_missing
+# with latest snapshot.
 func _on_tick(delta: float, tick: int) -> void:
+	# First handle local_input signalling.
+	_apply_and_emit_local_inputs(tick)
+	
+	# Move on to the network_input and input_missing signalling.
 	if not is_multiplayer_authority():
 		return
 	
@@ -175,14 +201,14 @@ func _on_tick(delta: float, tick: int) -> void:
 				snapshot: %s", [latest_snapshot])
 			
 			_apply_snapshot_for_self(latest_snapshot)
-			input_missing.emit(tick, latest_input_tick)
+			missing_input.emit(tick, latest_input_tick)
 	else:
 		# Iterate over fresh inputs and emit a signal with fresh inputs applied.
 		for i in range(_last_emitted_tick + 1, latest_input_tick + 1):
 			var snapshot := NetworkHistoryServer._get_input_sender_snapshot(i)
 			if snapshot:
 				_apply_snapshot_for_self(snapshot)
-				new_input_received.emit(i)
+				network_input.emit(i)
 				_last_emitted_tick = i
 
 # Helper function to apply given snapshot for only this node.
@@ -197,3 +223,36 @@ func _apply_snapshot_for_self(snapshot : _Snapshot) -> void:
 				var value := snapshot.get_property(subject, property)
 				# TODO is this should be node.set_indexed ??
 				subject.set_indexed(property, value)
+
+# If the local peer has authority over input_property node, apply latest inputs
+# and emit signal local_input.
+func _apply_and_emit_local_inputs(for_tick : int) -> void:
+	if not _has_authority_over_input_nodes():
+		return
+	
+	var latest_local_snapshot := NetworkHistoryServer._get_input_sender_snapshot(for_tick)
+	
+	if latest_local_snapshot:
+		_logger.trace("Applying local snapshot and emitting local_inputs: %s", [latest_local_snapshot])
+		_apply_snapshot_for_self(latest_local_snapshot)
+		local_input.emit(for_tick)
+
+# Helper function to determine if InputSender has authority over its input_properties
+# This function iterates over input_properties subjects and checks if they have authority.
+# If none of them has authority or no input_node is configured this will return false,
+# If any of them has authority this will return true instantly.
+# Its developers responsibility to always make sure input_nodes have same configuration.
+# TODO make sure to document this responsibility to developer.
+func _has_authority_over_input_nodes() -> bool:
+	for subject in _input_properties.get_subjects():
+		
+		# ObjectPool does not guarentee every subject is node.
+		if not subject is Node:
+			continue
+		
+		# Found input node, check if it has authority
+		if subject.is_multiplayer_authority():
+			return true
+	
+	# Did not find any node, or none of them has authority.
+	return false
