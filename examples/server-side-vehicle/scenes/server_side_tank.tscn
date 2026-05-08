@@ -308,5 +308,6 @@ radius = 0.2
 height = 0.8
 sides = 3
 
-[connection signal="input_missing" from="InputSender" to="." method="_on_input_sender_input_missing"]
-[connection signal="new_input_received" from="InputSender" to="." method="_on_input_sender_new_input_received"]
+[connection signal="local_input" from="InputSender" to="." method="_on_input_sender_local_input"]
+[connection signal="missing_input" from="InputSender" to="." method="_on_input_sender_missing_input"]
+[connection signal="network_input" from="InputSender" to="." method="_on_input_sender_network_input"]
