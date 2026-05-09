@@ -579,7 +579,7 @@ class _VariableBitsetSerializer extends NetworkSchemaSerializer:
 			if bitset.bit_count() > i + 6 and bitset.get_bit(i + 6): byte |= 0x40
 
 			# Set highest bit if there's more bytes to read
-			if bitset.bit_count() > i + 7: byte |= 80
+			if bitset.bit_count() > i + 7: byte |= 0x80
 
 			b.put_u8(byte)
 
