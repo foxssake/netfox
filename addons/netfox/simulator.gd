@@ -79,10 +79,21 @@ class_name Simulator
 ## as true state and apply it.[Simulator] will call _simulated_tick for the t.
 @export var state_properties: Array[String]
 
+# Simulated nodes.
+var _sim_nodes := [] as Array[Node]
+
+## Decides which peers will receive updates
+var visibility_filter := PeerVisibilityFilter.new()
+
 @onready var _logger: NetfoxLogger = NetfoxLogger._for_netfox("Simulator:" + root.name)
 
+var _state_properties := _PropertyPool.new()
 
-var _input_properties := _PropertyPool.new()
+var _properties_dirty: bool = false
+
+# Dictionary (root node) -> (managing simulator)
+# Used to check for foreign roots when gathering simulated nodes.
+static var _managed_roots := {}
 
 func _ready() -> void:
 	if Engine.is_editor_hint():
@@ -91,3 +102,142 @@ func _ready() -> void:
 	if not NetworkTime.is_initial_sync_done():
 		# Wait for time sync to complete
 		await NetworkTime.after_sync
+
+func _enter_tree() -> void:
+	if Engine.is_editor_hint():
+		return
+	
+	_managed_roots[root] = self
+	
+	if not visibility_filter:
+		visibility_filter = PeerVisibilityFilter.new()
+	
+	if not visibility_filter.get_parent():
+		add_child(visibility_filter)
+	
+	if not NetworkTime.is_initial_sync_done():
+		# Wait for time sync to complete
+		await NetworkTime.after_sync
+	
+	process_settings.call_deferred()
+
+func _exit_tree() -> void:
+	_managed_roots.erase(root)
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_EDITOR_PRE_SAVE:
+		update_configuration_warnings()
+	elif what == NOTIFICATION_PREDELETE:
+		for node in _sim_nodes + _state_properties.get_subjects():
+			## TODO Add deregister methods to below servers for simulator.
+			NetworkSynchronizationServer.deregister(node)
+			NetworkIdentityServer.deregister_node(node)
+			NetworkHistoryServer.deregister(node)
+
+func _get_configuration_warnings() -> PackedStringArray:
+	if not root:
+		root = get_parent()
+	
+	# Explore state and input properties
+	if not root:
+		return ["No valid root node found!"]
+	
+	var result := PackedStringArray()
+	result.append_array(_NetfoxEditorUtils.gather_properties(root, "_get_simulator_state_properties",
+		func(node, prop):
+			add_state(node, prop)
+	))
+	
+	return result
+
+## Process settings.
+## [br][br]
+## Call this after any change to configuration. Updates based on authority too
+## ( calls process_authority ).
+func process_settings() -> void:
+	_sim_nodes.clear()
+	
+	process_authority()
+	
+	# Gather simulated nodes.
+	var managed_nodes := [root] + _collect_managed_nodes(root)
+	_logger.debug("Filtering managed nodes: %s", [managed_nodes])
+	for node in managed_nodes:
+		if node.has_method("_simulated_tick"):
+			_sim_nodes.push_back(node)
+	
+	# Register identifiers
+	for node in _state_properties.get_subjects():
+		NetworkIdentityServer.register_node(node)
+	
+	# Register visibility filter
+	for node in _state_properties.get_subjects():
+		NetworkSynchronizationServer.register_visibility_filter(node, visibility_filter)
+
+## Process settings based on authority.
+## [br][br]
+## Call this whenever the authority of input node changes.
+## Make sure to do this at the same time on all peers.
+func process_authority():
+	# First de-register.
+	for node in _state_properties.get_subjects():
+		for property in _state_properties.get_properties_of(node):
+			# TODO add deregister_simulator to NetworkHistoryServer.
+			# TODO add deregister_simulator to NetworkSyncronizationServer.
+			pass
+	
+	# Process authority
+	_state_properties.set_from_paths(root, state_properties)
+	
+	# Register state properties.
+	for node in _state_properties.get_subjects():
+		for property in _state_properties.get_properties_of(node):
+			## TODO add register_simulator to NetworkHistoryServer.
+			## TODO add register_simulator to NetworkSynchronizationServer.
+			pass
+
+## Add a state property.
+## [br][br]
+## Settings will be automatically updated. The [param node] may be a string or
+## [NodePath] pointing to a node, or an actual [Node] instance. If the given
+## property is already tracked, this method does nothing.
+func add_state(node: Variant, property: String):
+	var property_path := PropertyEntry.make_path(root, node, property)
+	if not property_path or state_properties.has(property_path):
+		return
+	
+	state_properties.push_back(property_path)
+	_properties_dirty = true
+	_reprocess_settings.call_deferred()
+
+func _reprocess_settings() -> void:
+	if not _properties_dirty or Engine.is_editor_hint():
+		return
+	
+	_properties_dirty = false
+	
+	process_settings()
+
+# Find managed nodes recursively from 	given root, ignoring branches managed by
+# a different [Simulator].
+func _collect_managed_nodes(root: Node) -> Array[Node]:
+	var result: Array[Node] = []
+	for child in root.get_children():
+		if _is_foreign_simulator_root(child):
+			continue
+		result.append(child)
+		result.append_array(_collect_managed_nodes(child))
+	return result
+
+# Returns true if the node is the root of a different [Simulator].
+func _is_foreign_simulator_root(node: Node) -> bool:
+	if not _managed_roots.has(node):
+		# No simulator, treat node as root
+		return false
+	
+	if _managed_roots[node] == self:
+		# Node is our own root
+		return false
+	
+	# Node is foreign root
+	return true
