@@ -260,6 +260,12 @@ const TYPES: Array[Dictionary] = [
 		"script": ROOT + "/input_sender.gd",
 		"icon": ROOT + "/icons/input-sender.svg"
 	},
+	{
+		"name": "Simulator",
+		"base": "Node",
+		"script": ROOT + "/simulator.gd",
+		"icon": ROOT + "/icons/simulator.svg"
+	},
 ]
 
 func _enter_tree():
