@@ -174,6 +174,19 @@ var SETTINGS: Array[Dictionary] = [
 		"value": false,
 		"type" : TYPE_BOOL
 	},
+	# Simulator
+	{
+		"name": "netfox/simulator/full_state_interval",
+		"value": 24,
+		"type": TYPE_INT,
+		"hint": PROPERTY_HINT_RANGE,
+		"hint_string": "0,60,or_greater"
+	},
+	{
+		"name": "netfox/simulator/enable_diff_states",
+		"value": true,
+		"type": TYPE_BOOL
+	},
 ]
 
 const AUTOLOADS: Array[Dictionary] = [

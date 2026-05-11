@@ -31,6 +31,8 @@ var _sync_state_properties := _PropertyPool.new()
 var _sync_owned_state_properties := _PropertyPool.new()
 var _input_sender_properties := _PropertyPool.new()
 var _input_sender_owned_properties := _PropertyPool.new()
+var _simulator_properties := _PropertyPool.new()
+var _simulator_owned_properties := _PropertyPool.new()
 
 var _visibility_filters := {} # Node to PeerVisibilityFilter
 
@@ -38,16 +40,20 @@ var _rb_enable_input_broadcast := ProjectSettings.get_setting("netfox/rollback/e
 var _rb_enable_diffs := NetworkRollback.enable_diff_states
 var _rb_full_interval := ProjectSettings.get_setting("netfox/rollback/full_state_interval", 24) as int
 var _rb_full_scheduler := _IntervalScheduler.new(_rb_full_interval)
-var _input_sender_enable_broadcast := ProjectSettings.get_setting("netfox/input_sender/enable_input_broadcast", false) as bool
-
-
 var _rb_input_redundancy := NetworkRollback.input_redundancy
-var _input_sender_redundancy := ProjectSettings.get_setting("netfox/input_sender/input_redundancy", 3) as int
 
 var _last_sync_state_sent := _Snapshot.new(0)
 var _sync_enable_diffs := ProjectSettings.get_setting("netfox/state_synchronizer/enable_diff_states", true) as bool
 var _sync_full_interval := ProjectSettings.get_setting("netfox/state_synchronizer/full_state_interval", 24) as int
 var _sync_full_scheduler := _IntervalScheduler.new(_sync_full_interval)
+
+var _input_sender_enable_broadcast := ProjectSettings.get_setting("netfox/input_sender/enable_input_broadcast", false) as bool
+var _input_sender_redundancy := ProjectSettings.get_setting("netfox/input_sender/input_redundancy", 3) as int
+
+var _last_simulator_state_sent := _Snapshot.new(0)
+var _simulator_enable_diffs := ProjectSettings.get_setting("netfox/simulator/enable_diff_states", true) as bool
+var _simulator_full_interval := ProjectSettings.get_setting("netfox/simulator/full_state_interval", 24) as int
+var _simulator_full_scheduler := _IntervalScheduler.new(_simulator_full_interval)
 
 var _schemas := _NetworkSchema.new()
 
@@ -58,7 +64,11 @@ var _redundant_serializer: _RedundantSnapshotSerializer
 var _cmd_full_state: NetworkCommandServer.Command
 var _cmd_diff_state: NetworkCommandServer.Command
 var _cmd_input: NetworkCommandServer.Command
-var _cmd_input_sender : NetworkCommandServer.Command
+
+var _cmd_input_sender: NetworkCommandServer.Command
+
+var _cmd_full_simulator: NetworkCommandServer.Command
+var _cmd_diff_simulator: NetworkCommandServer.Command
 
 var _cmd_full_sync: NetworkCommandServer.Command
 var _cmd_diff_sync: NetworkCommandServer.Command
@@ -66,8 +76,9 @@ var _cmd_diff_sync: NetworkCommandServer.Command
 static var _logger := NetfoxLogger._for_netfox("NetworkSynchronizationServer")
 
 signal _on_input(snapshot: _Snapshot)
-signal _on_input_sender(snapshot : _Snapshot)
 signal _on_state(snapshot: _Snapshot)
+signal _on_input_sender(snapshot : _Snapshot)
+signal _on_simulator(snapshot: _Snapshot)
 
 ## Register a [param property] of [param node] to be synchronized
 ## as rollback state
@@ -121,6 +132,19 @@ func deregister_input_sender(node: Node, property: NodePath) -> void:
 	_input_sender_properties.erase(node, property)
 	_input_sender_owned_properties.erase(node, property)
 
+## Register a [param property] of [param node] to be syncronized
+## as simulator state.
+func register_simulator(node: Node, property: NodePath) -> void:
+	_simulator_properties.add(node, property)
+	if node.is_multiplayer_authority():
+		_simulator_owned_properties.add(node, property)
+
+## Deregister a [param property] of [param node] from being syncronized
+## as simulator state.
+func deregister_simulator(node: Node, property: NodePath) -> void:
+	_simulator_properties.erase(node, property)
+	_simulator_owned_properties.erase(node, property)
+
 ## Register a [param serializer] to use when transmitting
 ## [param property param] of [param node] over the network
 func register_schema(node: Node, property: NodePath, serializer: NetworkSchemaSerializer) -> void:
@@ -154,6 +178,8 @@ func deregister(node: Node) -> void:
 	_sync_owned_state_properties.erase_subject(node)
 	_input_sender_properties.erase_subject(node)
 	_input_sender_owned_properties.erase_subject(node)
+	_simulator_properties.erase_subject(node)
+	_simulator_owned_properties.erase_subject(node)
 	_visibility_filters.erase(node)
 	_schemas.erase_subject(node)
 
@@ -357,6 +383,56 @@ func _synchronize_input_sender(tick: int) -> void:
 		var data := _redundant_serializer.write_for(peer, snapshots, _input_sender_owned_properties)
 		_cmd_input_sender.send(data, peer)
 
+func _synchronize_simulator(tick: int) -> void:
+	# We don't own state, nothing to synchronize
+	if _simulator_owned_properties.is_empty():
+		return
+	
+	# TODO fill historyserver functions here.
+	# Grab snapshot from NetworkHistoryServer
+	var snapshot := NetworkHistoryServer._get_synchronizer_state_snapshot(tick)
+	if not snapshot:
+		return
+	
+	# Figure out whether to send full- or diff state
+	var is_full := _simulator_full_scheduler.is_now()
+	if not _simulator_enable_diffs:
+		is_full = true
+	
+	if is_full:
+		# Send full states
+		for peer in multiplayer.get_peers():
+			var filter := func(subject): return _is_node_visible_to(peer, subject)
+			
+			var data := _dense_serializer.write_for(peer, snapshot, _sync_owned_state_properties, filter)
+			if data.is_empty():
+				# Peer can't see anything, send nothing
+				continue
+			
+			_cmd_full_simulator.send(data, peer)
+			
+			NetworkPerformance.push_full_state_props(snapshot.size())
+			NetworkPerformance.push_sent_state_props(snapshot.size())
+	else:
+		var diff := _Snapshot.make_patch(_last_simulator_state_sent, snapshot)
+		
+		# Send diffs
+		for peer in multiplayer.get_peers():
+			var filter := func(subject): return _is_node_visible_to(peer, subject)
+			
+			var data := _sparse_serializer.write_for(peer, diff, _simulator_owned_properties, filter)
+			if data.is_empty():
+				# Peer can't see anything, send nothing
+				continue
+			
+			_cmd_diff_simulator.send(data, peer)
+			
+			NetworkPerformance.push_full_state_props(snapshot.size())
+			NetworkPerformance.push_sent_state_props(diff.size())
+	
+	# Remember last sent state for diffing
+	# NOTE: This is a shared instance, theoretically shouldn't screw things up
+	_last_simulator_state_sent = snapshot
 
 func _init(
 		p_command_server: _NetworkCommandServer = null,
@@ -385,23 +461,14 @@ func _ready():
 	_cmd_full_state = _command_server.register_command(_handle_full_state, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
 	_cmd_diff_state = _command_server.register_command(_handle_diff_state, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
 	_cmd_input = _command_server.register_command(_handle_input, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
+	
 	_cmd_input_sender = _command_server.register_command(_handle_input_sender, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
-
+	
+	_cmd_full_simulator = _command_server.register_command(_handle_full_simulator, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
+	_cmd_diff_simulator = _command_server.register_command(_handle_diff_simulator, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
+	
 	_cmd_full_sync = _command_server.register_command(_handle_full_sync, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
 	_cmd_diff_sync = _command_server.register_command(_handle_diff_sync, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
-
-func _handle_input_sender(sender : int, data : PackedByteArray) -> void:
-	var buffer := StreamPeerBuffer.new()
-	buffer.data_array = data
-	
-	var snapshots := _redundant_serializer.read_from(sender, _input_sender_properties, buffer, true)
-	
-	for snapshot in snapshots:
-		snapshot.sanitize(sender)
-		
-		_logger.trace("Ingesting input_sender inputs: %s", [snapshot])
-		if NetworkHistoryServer._merge_input_sender(snapshot):
-			_on_input_sender.emit(snapshot)
 
 func _handle_input(sender: int, data: PackedByteArray):
 	var buffer := StreamPeerBuffer.new()
@@ -452,6 +519,42 @@ func _handle_diff_sync(sender: int, data: PackedByteArray):
 
 	NetworkHistoryServer._merge_synchronizer_state(snapshot)
 	_logger.trace("Ingested sync diff: %s", [snapshot])
+
+func _handle_input_sender(sender : int, data : PackedByteArray) -> void:
+	var buffer := StreamPeerBuffer.new()
+	buffer.data_array = data
+	
+	var snapshots := _redundant_serializer.read_from(sender, _input_sender_properties, buffer, true)
+	
+	for snapshot in snapshots:
+		snapshot.sanitize(sender)
+		
+		_logger.trace("Ingesting input_sender inputs: %s", [snapshot])
+		if NetworkHistoryServer._merge_input_sender(snapshot):
+			_on_input_sender.emit(snapshot)
+
+func _handle_full_simulator(sender : int, data : PackedByteArray) -> void:
+	var buffer := StreamPeerBuffer.new()
+	buffer.data_array = data
+	
+	var snapshot := _dense_serializer.read_from(sender, _simulator_properties, buffer, true)
+	snapshot.sanitize(sender)
+	
+	# TODO fill networkhistoryserver function here.
+#	NetworkHistoryServer._merge_simulator_state(snapshot)
+	# if merged emit _on_simulator
+	_logger.trace("Ingested simulator full state: %s", [snapshot])
+
+func _handle_diff_simulator(sender : int, data : PackedByteArray) -> void:
+	var buffer := StreamPeerBuffer.new()
+	buffer.data_array = data
+	
+	var snapshot := _sparse_serializer.read_from(sender, _simulator_properties, buffer)
+	snapshot.sanitize(sender)
+	
+	# TODO fill networkhistoryServer functions
+	#NetworkHistoryServer._merge_simulator_state(snapshot)
+	_logger.trace("Ingested simulator diff state: %s", [snapshot])
 
 func _ingest_state(sender: int, snapshot: _Snapshot) -> void:
 	snapshot.sanitize(sender)
