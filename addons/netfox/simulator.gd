@@ -129,7 +129,6 @@ func _notification(what: int) -> void:
 		update_configuration_warnings()
 	elif what == NOTIFICATION_PREDELETE:
 		for node in _sim_nodes + _state_properties.get_subjects():
-			## TODO Add deregister methods to below servers for simulator.
 			NetworkSynchronizationServer.deregister(node)
 			NetworkIdentityServer.deregister_node(node)
 			NetworkHistoryServer.deregister(node)
@@ -182,8 +181,8 @@ func process_authority():
 	# First de-register.
 	for node in _state_properties.get_subjects():
 		for property in _state_properties.get_properties_of(node):
-			# TODO add deregister_simulator to NetworkHistoryServer.
-			# TODO add deregister_simulator to NetworkSyncronizationServer.
+			NetworkHistoryServer.deregister_simulator(node, property)
+			NetworkSynchronizationServer.deregister_simulator(node, property)
 			pass
 	
 	# Process authority
@@ -192,8 +191,8 @@ func process_authority():
 	# Register state properties.
 	for node in _state_properties.get_subjects():
 		for property in _state_properties.get_properties_of(node):
-			## TODO add register_simulator to NetworkHistoryServer.
-			## TODO add register_simulator to NetworkSynchronizationServer.
+			NetworkHistoryServer.register_simulator(node, property)
+			NetworkSynchronizationServer.register_simulator(node, property)
 			pass
 
 ## Add a state property.
