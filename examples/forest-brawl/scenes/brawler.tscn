@@ -99,6 +99,9 @@ platform_on_leave = 2
 platform_floor_layers = 0
 script = ExtResource("1_np8na")
 speed = 4.0
+jump_velocity = null
+mass = null
+spawn_point = null
 death_depth = 16.0
 respawn_time = 8.0
 

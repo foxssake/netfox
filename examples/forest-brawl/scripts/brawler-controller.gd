@@ -178,8 +178,9 @@ func _rollback_tick(delta, tick, is_fresh):
 			if brawler == self: continue
 			if brawler.global_position.distance_to(self.global_position) > 16.: continue
 			
-			brawler.shove((brawler.global_position - global_position).normalized() * 64. * delta)
-			_logger.info("Showing %s %.2v", [brawler, (brawler.global_position - global_position).normalized() * 64. * delta])
+			brawler.position += (brawler.global_position - global_position).normalized() * 8. * delta
+			NetworkRollback.mutate(brawler)
+			_logger.info("Shoving %s %.2v", [brawler.name, (brawler.global_position - global_position).normalized() * 64. * delta])
 	else:
 		scale = Vector3.ONE * 1
 
