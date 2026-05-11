@@ -187,6 +187,11 @@ var SETTINGS: Array[Dictionary] = [
 		"value": true,
 		"type": TYPE_BOOL
 	},
+	{
+		"name": "netfox/simulator/history_limit",
+		"value": 64,
+		"type" : TYPE_INT
+	},
 ]
 
 const AUTOLOADS: Array[Dictionary] = [

@@ -388,9 +388,7 @@ func _synchronize_simulator(tick: int) -> void:
 	if _simulator_owned_properties.is_empty():
 		return
 	
-	# TODO fill historyserver functions here.
-	# Grab snapshot from NetworkHistoryServer
-	var snapshot := NetworkHistoryServer._get_synchronizer_state_snapshot(tick)
+	var snapshot := NetworkHistoryServer._get_simulator_snapshot(tick)
 	if not snapshot:
 		return
 	
@@ -540,10 +538,9 @@ func _handle_full_simulator(sender : int, data : PackedByteArray) -> void:
 	var snapshot := _dense_serializer.read_from(sender, _simulator_properties, buffer, true)
 	snapshot.sanitize(sender)
 	
-	# TODO fill networkhistoryserver function here.
-#	NetworkHistoryServer._merge_simulator_state(snapshot)
-	# if merged emit _on_simulator
 	_logger.trace("Ingested simulator full state: %s", [snapshot])
+	if NetworkHistoryServer._merge_simulator(snapshot):
+		_on_simulator.emit(snapshot)
 
 func _handle_diff_simulator(sender : int, data : PackedByteArray) -> void:
 	var buffer := StreamPeerBuffer.new()
@@ -552,9 +549,9 @@ func _handle_diff_simulator(sender : int, data : PackedByteArray) -> void:
 	var snapshot := _sparse_serializer.read_from(sender, _simulator_properties, buffer)
 	snapshot.sanitize(sender)
 	
-	# TODO fill networkhistoryServer functions
-	#NetworkHistoryServer._merge_simulator_state(snapshot)
 	_logger.trace("Ingested simulator diff state: %s", [snapshot])
+	if NetworkHistoryServer._merge_simulator(snapshot):
+		_on_simulator.emit(snapshot)
 
 func _ingest_state(sender: int, snapshot: _Snapshot) -> void:
 	snapshot.sanitize(sender)
