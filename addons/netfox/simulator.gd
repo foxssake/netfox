@@ -49,6 +49,13 @@ class_name Simulator
 ## It can be coded with _simulated_ticks if you involve some local properties to script
 ## that has role in godots _physics_process. If we can avoid coding physic stepping we should.
 
+# TODO explore and test order below.
+# order insight:
+# on before tick, input-sender records and syncronizes inputs
+# on tick, input-sender runs its logic and emits its signals but its not realted with simulator.
+# on-after-tick simulator will run its own logic depending on work mode explained above as 1-2-3.
+# after running its logic, simulator will record and syncronize state depending on mode.
+
 ## The root node for resolving node paths in properties. Defaults to the parent node.
 @export var root: Node = get_parent()
 
@@ -90,6 +97,9 @@ var visibility_filter := PeerVisibilityFilter.new()
 var _state_properties := _PropertyPool.new()
 
 var _properties_dirty: bool = false
+
+# Flag to connect signals only once.
+var _signals_connected : bool = false 
 
 # Dictionary (root node) -> (managing simulator)
 # Used to check for foreign roots when gathering simulated nodes.
@@ -172,6 +182,10 @@ func process_settings() -> void:
 	# Register visibility filter
 	for node in _state_properties.get_subjects():
 		NetworkSynchronizationServer.register_visibility_filter(node, visibility_filter)
+	
+	if not _signals_connected:
+		_connect_signals()
+		_signals_connected = true
 
 ## Process settings based on authority.
 ## [br][br]
@@ -217,7 +231,65 @@ func _reprocess_settings() -> void:
 	
 	process_settings()
 
-# Find managed nodes recursively from 	given root, ignoring branches managed by
+func _connect_signals() -> void:
+	NetworkTime.after_tick.connect(_on_after_tick)
+
+# Do logic depending on mode explained in class description.
+func _on_after_tick(delta: float, tick: int) -> void:
+	
+	# Return if there is no listened input sender assigned.
+	if not listened_input_sender:
+		_logger.warning("%s listened_input_sender is needed for simulator to operate",
+		[name])
+		return
+	
+	# Figure out which mode we are operating on.
+	var has_input_authority := listened_input_sender.has_authority_over_input_nodes()
+	var has_simulator_authority := is_multiplayer_authority()
+	
+	if has_input_authority:
+		# This is authoritative player
+		_handle_authoritative_peer(delta, tick)
+		return
+	
+	if has_simulator_authority:
+		# This is host
+		_handle_host(delta, tick)
+		return
+	
+	# this is puppet peer.
+	_handle_puppet_peer(delta, tick)
+
+# Check if there is a new snapshot from host
+# if there is a new snapshot, apply and simulate onwards with buffered inputs. 
+func _handle_authoritative_peer(_delta: float, tick: int) -> void:
+	
+	var latest_input_tick := NetworkHistoryServer.get_latest_simulator_for(
+		_state_properties.get_subjects(), tick)
+	
+	var latest_received_snapshot := NetworkHistoryServer._get_simulator_snapshot(latest_input_tick)
+
+func _handle_host(_delta: float, _tick: int) -> void:
+	pass
+
+func _handle_puppet_peer(_delta: float, _tick: int) -> void:
+	pass
+
+# Helper function to apply given snapshot for only this node.
+# TODO (same todo with input_sender)?
+# Applying whole snapshot and iterating over ticks would be nicer
+# if we decide to have singleton for this
+func _apply_snapshot_for_self(snapshot : _Snapshot) -> void:
+	_logger.trace("Applying snapshot for self :%s", [snapshot])
+	for subject in _state_properties.get_subjects():
+		for property in _state_properties.get_properties_of(subject):
+			
+			if snapshot.has_property(subject, property):
+				var value := snapshot.get_property(subject, property)
+				# TODO is this should be node.set_indexed ??
+				subject.set_indexed(property, value)
+
+# Find managed nodes recursively from given root, ignoring branches managed by
 # a different [Simulator].
 func _collect_managed_nodes(root: Node) -> Array[Node]:
 	var result: Array[Node] = []
