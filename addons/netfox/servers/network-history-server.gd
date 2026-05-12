@@ -130,6 +130,11 @@ func get_latest_input_for(subjects: Array, tick: int) -> int:
 func get_latest_input_sender_for(subjects: Array, tick: int) -> int:
 	return _get_latest_for(subjects, tick, _input_sender_history)
 
+## Get the latest tick where any of the [param subjects] had simulator data
+## available
+func get_latest_simulator_for(subjects: Array, tick: int) -> int:
+	return _get_latest_for(subjects, tick, _input_sender_history)
+
 ## Return how old is the latest rollback input data for any of the
 ## [param subjects], in ticks
 func get_input_age_for(subjects: Array, tick: int) -> int:

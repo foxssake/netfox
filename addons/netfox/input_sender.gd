@@ -128,10 +128,30 @@ func add_input(node: Variant, property: String) -> void:
 	var property_path := PropertyEntry.make_path(root, node, property)
 	if not property_path or input_properties.has(property_path):
 		return
-
+	
 	input_properties.push_back(property_path)
 	_properties_dirty = true
 	_reprocess_settings.call_deferred()
+
+## Helper function to determine if [InputSender] has authority over its input_properties
+## This function iterates over input_properties subjects and checks if they have authority.
+## If none of them has authority or no input_node is configured this will return false,
+## If any of them has authority this will return true instantly.
+## Its developers responsibility to always make sure input_nodes have same configuration.
+## TODO make sure to document this responsibility to developer.
+func has_authority_over_input_nodes() -> bool:
+	for subject in _input_properties.get_subjects():
+		
+		# ObjectPool does not guarentee every subject is node.
+		if not subject is Node:
+			continue
+		
+		# Found input node, check if it has authority
+		if subject.is_multiplayer_authority():
+			return true
+	
+	# Did not find any node, or none of them has authority.
+	return false
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_EDITOR_PRE_SAVE:
@@ -165,7 +185,7 @@ func _get_configuration_warnings() -> PackedStringArray:
 func _reprocess_settings() -> void:
 	if not _properties_dirty or Engine.is_editor_hint():
 		return
-
+	
 	_properties_dirty = false
 	process_settings()
 
@@ -227,7 +247,7 @@ func _apply_snapshot_for_self(snapshot : _Snapshot) -> void:
 # If the local peer has authority over input_property node, apply latest inputs
 # and emit signal local_input.
 func _apply_and_emit_local_inputs(for_tick : int) -> void:
-	if not _has_authority_over_input_nodes():
+	if not has_authority_over_input_nodes():
 		return
 	
 	var latest_local_snapshot := NetworkHistoryServer._get_input_sender_snapshot(for_tick)
@@ -236,23 +256,3 @@ func _apply_and_emit_local_inputs(for_tick : int) -> void:
 		_logger.trace("Applying local snapshot and emitting local_inputs: %s", [latest_local_snapshot])
 		_apply_snapshot_for_self(latest_local_snapshot)
 		local_input.emit(for_tick)
-
-# Helper function to determine if InputSender has authority over its input_properties
-# This function iterates over input_properties subjects and checks if they have authority.
-# If none of them has authority or no input_node is configured this will return false,
-# If any of them has authority this will return true instantly.
-# Its developers responsibility to always make sure input_nodes have same configuration.
-# TODO make sure to document this responsibility to developer.
-func _has_authority_over_input_nodes() -> bool:
-	for subject in _input_properties.get_subjects():
-		
-		# ObjectPool does not guarentee every subject is node.
-		if not subject is Node:
-			continue
-		
-		# Found input node, check if it has authority
-		if subject.is_multiplayer_authority():
-			return true
-	
-	# Did not find any node, or none of them has authority.
-	return false
