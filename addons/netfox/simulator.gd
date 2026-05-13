@@ -52,9 +52,10 @@ class_name Simulator
 # TODO explore and test order below.
 # order insight:
 # on before tick, input-sender records and syncronizes inputs
-# on tick, input-sender runs its logic and emits its signals but its not realted with simulator.
+# on tick, input-sender runs its logic and emits its signals but its not related with simulator.
 # on-after-tick simulator will run its own logic depending on work mode explained above as 1-2-3.
-# after running its logic, simulator will record and syncronize state depending on mode.
+# after running its logic, simulator will record and syncronize state.
+# Saving and syncronizing is done via NetworkTime right after emitting after_tick signal.
 
 ## The root node for resolving node paths in properties. Defaults to the parent node.
 @export var root: Node = get_parent()
@@ -70,13 +71,8 @@ class_name Simulator
 ## Set this to true, if you want to code host side logic with client inputs.
 ## For example: moving a vehicle on server with client inputs.
 ## NOTE: Dont get confused, if host is also player and owner of [InputSender]
-## [Simulator] will run _simulated_tick even though this set to false (default).
-@export var simulate_on_host := false
-
-## If enabled, takes a snapshot immediately upon instantiation, instead of
-## waiting for the first network tick. Useful for objects that start moving
-## instantly, like projectiles.
-@export var record_first_state: bool = true
+## [Simulator] will run _simulated_tick even though this set to false.
+@export var simulate_on_host := true
 
 @export_group("State")
 ## Properties that define the game state.
@@ -100,6 +96,13 @@ var _properties_dirty: bool = false
 
 # Flag to connect signals only once.
 var _signals_connected : bool = false 
+
+# Latest input tick we did operation. This is saved to remember.
+# TODO should we set this to -1 on process_settings?
+var _latest_input_tick : int = -1
+
+# Latest snapshot applied from host (source of truth)
+var _latest_applied_snapshot : int = -1
 
 # Dictionary (root node) -> (managing simulator)
 # Used to check for foreign roots when gathering simulated nodes.
@@ -249,6 +252,9 @@ func _on_after_tick(delta: float, tick: int) -> void:
 	
 	if has_input_authority:
 		# This is authoritative player
+		# Even if this is host application, treat this as authoritative_peer since it has
+		# input authority.
+		# TODO make sure this is not causing sync or authoritative history loss issues.
 		_handle_authoritative_peer(delta, tick)
 		return
 	
@@ -268,11 +274,41 @@ func _handle_authoritative_peer(_delta: float, tick: int) -> void:
 		_state_properties.get_subjects(), tick)
 	
 	var latest_received_snapshot := NetworkHistoryServer._get_simulator_snapshot(latest_input_tick)
+	
 
-func _handle_host(_delta: float, _tick: int) -> void:
+# Host needs to run _simulated_tick with new received inputs.
+func _handle_host(delta: float, tick: int) -> void:
+	if not simulate_on_host:
+		return
+	
+	# Check if we need inputs to catch up.
+	
+	if _latest_input_tick == -1:
+		# This is the first tick host runs.
+		# Even though we could itarete over saved-inputs, for now we wont.
+		# Start from latest received input
+		# TODO Would be better if we did run from last authority_change?
+		
+		# -1 so we run this tick.
+		_latest_input_tick = tick - 1
+	
+	
+	_logger.trace("host is looping to run simulated ticks, ticks to run: %s", [tick - _latest_input_tick])
+	for i in range(_latest_input_tick + 1, tick + 1):
+		_apply_and_run_simulated_tick(delta, i)
+	
+	_latest_input_tick = tick
+
+# For pupper peer we only need to interpolate latest state to new one.
+# TODO Do we need to code interpolation? try it first
+# TODO add prediction? i dont think its needed
+func _handle_puppet_peer(_delta: float, _tick: int) -> void:
 	pass
 
-func _handle_puppet_peer(_delta: float, _tick: int) -> void:
+# Helper function that applies inputs and runs simulated_tick on managed nodes.
+func _apply_and_run_simulated_tick(_delta : float, tick : int) -> void:
+	_logger.trace("applying and running simulated tick #%s", [tick])
+	# TODO fill
 	pass
 
 # Helper function to apply given snapshot for only this node.
