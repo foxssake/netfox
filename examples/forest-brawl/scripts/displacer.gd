@@ -9,6 +9,7 @@ var time_remaining := duration
 var fired_by: Node
 
 @onready var synchronizer := $PredictiveSynchronizer as PredictiveSynchronizer
+@onready var _logger := NetfoxLogger.new("fb", "Displacer")
 
 static var _displacers := _Set.new()
 
@@ -47,6 +48,8 @@ func apply_to(target: BrawlerController) -> void:
 	offset *= strength_factor * strength * f * NetworkTime.ticktime
 
 	target.shove(offset)
+	NetworkRollback.mutate(target)
+	_logger.debug("Shoved %s with offset %.2v to %.2v", [target.name, offset, target.position])
 
 	if target != fired_by:
 		target.register_hit(fired_by)

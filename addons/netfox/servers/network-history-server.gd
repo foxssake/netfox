@@ -131,6 +131,8 @@ func _record_rollback_state(tick: int) -> void:
 	_record(tick, _rb_state_history, _rb_state_snapshots, _rb_state_properties, false, func(subject: Node):
 		if not subject.is_multiplayer_authority():
 			return false
+		if NetworkRollback.is_mutated(subject):
+			return true
 		if RollbackSimulationServer._is_predicting(input_snapshot, subject):
 			return false
 		return true

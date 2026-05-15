@@ -114,7 +114,7 @@ func simulate(delta: float, tick: int) -> void:
 	for node in nodes:
 		node.add_to_group(_group)
 	nodes = get_tree().get_nodes_in_group(_group)
-#	_logger.info("Simulating nodes: %s", [nodes])
+	_logger.info("Simulating nodes: %s", [nodes])
 
 	# Determine predicted nodes
 	for node in _callbacks.keys():
