@@ -68,21 +68,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 3, 10)
 [node name="Spawn" type="Node3D" parent="Spawn Points" groups=["Spawn Points"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 4, -2)
 
-[node name="Spawn2" type="Node3D" parent="Spawn Points" groups=["Spawn Points"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 4, 0)
-
-[node name="Spawn3" type="Node3D" parent="Spawn Points" groups=["Spawn Points"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 4, 5)
-
-[node name="Spawn4" type="Node3D" parent="Spawn Points" groups=["Spawn Points"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 4, 9)
-
-[node name="Spawn6" type="Node3D" parent="Spawn Points" groups=["Spawn Points"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 4, -14)
-
-[node name="Spawn5" type="Node3D" parent="Spawn Points" groups=["Spawn Points"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 8, 12)
-
 [node name="Environment" type="Node" parent="."]
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]

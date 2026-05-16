@@ -32,6 +32,7 @@ var _rb_state_snapshots := _HistoryBuffer.new(_rb_history_size)
 var _sync_state_snapshots := _HistoryBuffer.new(_sync_history_size)
 
 static var _logger := NetfoxLogger._for_netfox("NetworkHistoryServer")
+var _tracer := NetfoxTraces.tracer("NetworkHistoryServer")
 
 ## Register a rollback state property
 func register_rollback_state(node: Node, property: NodePath) -> void:
@@ -128,6 +129,7 @@ func _record_rollback_input(tick: int) -> void:
 func _record_rollback_state(tick: int) -> void:
 	var input_snapshot := _get_rollback_input_snapshot(tick - 1)
 
+	_tracer.enter("record_rollback_state")
 	_record(tick, _rb_state_history, _rb_state_snapshots, _rb_state_properties, false, func(subject: Node):
 		if not subject.is_multiplayer_authority():
 			return false
@@ -137,6 +139,7 @@ func _record_rollback_state(tick: int) -> void:
 			return false
 		return true
 	)
+	_tracer.exit()
 
 func _record_sync_state(tick: int) -> void:
 	_record(tick, _sync_history, _sync_state_snapshots, _sync_state_properties, true, func(subject: Node):
@@ -207,11 +210,13 @@ func _record(tick: int, history: _PerObjectHistory, snapshots: _HistoryBuffer, p
 		snapshot.set_auth(subject, is_auth)
 		subject_snapshot.set_auth(is_auth)
 
-		match history:
-			_rb_input_history:
-				_logger.trace("Recorded input @%d: %s", [tick, snapshot])
-			_rb_state_history:
-				_logger.trace("Recorded state @%d: %s", [tick, snapshot])
+	match history:
+		_rb_input_history:
+			_logger.trace("Recorded input @%d: %s", [tick, snapshot])
+		_rb_state_history:
+			_logger.trace("Recorded state @%d: %s", [tick, snapshot])
+		
+	_tracer.emit("snapshot", snapshot)
 
 func _restore_latest(tick: int, history: _PerObjectHistory) -> bool:
 	var any_applied := false

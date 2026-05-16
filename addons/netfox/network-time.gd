@@ -394,6 +394,7 @@ var _tickrate_handshake: NetworkTickrateHandshake
 var _synced_peers: Dictionary = {}
 
 static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("NetworkTime")
+var _tracer := NetfoxTraces.Tracer.new("NetworkTime")
 
 ## Start NetworkTime.
 ## [br][br]
@@ -424,6 +425,8 @@ func start() -> int:
 		_logger.warning("Starting time loop with an offline peer! " +
 			"If this is intended, suppress this warning in the project settings, " +
 			"under netfox/Time/Suppress Offline Peer Warning.")
+
+	_tracer.emit("start", { "peer": multiplayer.get_unique_id() })
 
 	# Reset state
 	_tick = 0
@@ -511,6 +514,9 @@ func ticks_between(seconds_from: float, seconds_to: float) -> int:
 
 func _ready() -> void:
 	NetfoxLogger.register_tag(_get_tick_tag, -100)
+	
+	# Init traces here because what the heck
+	NetfoxTraces.open()
 
 	_tickrate_handshake = NetworkTickrateHandshake.new()
 	add_child(_tickrate_handshake)
@@ -522,6 +528,7 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	NetfoxLogger.free_tag(_get_tick_tag)
+	NetfoxTraces.close()
 
 func _get_tick_tag() -> String:
 	return "@%d" % tick
@@ -562,6 +569,7 @@ func _loop() -> void:
 	_last_process_time = _clock.get_time()
 	while _next_tick_time < _last_process_time and ticks_in_loop < max_ticks_per_frame:
 		if ticks_in_loop == 0:
+			_tracer.enter("Running tick loop")
 			before_tick_loop.emit()
 
 		before_tick.emit(ticktime, tick)
@@ -579,6 +587,7 @@ func _loop() -> void:
 	if ticks_in_loop > 0:
 		after_tick_loop.emit()
 		NetworkHistoryServer._restore_synchronizer_state(tick)
+		_tracer.exit()
 
 	NetworkIdentityServer.flush_queue()
 

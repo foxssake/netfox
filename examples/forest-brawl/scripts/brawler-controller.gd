@@ -135,7 +135,7 @@ func _rollback_tick(delta, tick, is_fresh):
 
 	# Skip predictions
 	if rollback_synchronizer.is_predicting():
-		rollback_synchronizer.ignore_prediction(self)
+#		rollback_synchronizer.ignore_prediction(self)
 		return
 
 	# Apply gravity

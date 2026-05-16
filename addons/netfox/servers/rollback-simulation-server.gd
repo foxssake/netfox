@@ -34,6 +34,7 @@ var _predicted_nodes := _Set.new()
 var _group := StringName("__nf_rollback_sim" + str(get_instance_id()))
 
 static var _logger := NetfoxLogger._for_netfox("RollbackSimulationServer")
+var _tracer := NetfoxTraces.Tracer.new("RollbackSimulationServer")
 
 ## Register a [param callback] to run as part of the rollback loop
 func register(callback: Callable) -> void:
@@ -103,6 +104,7 @@ func get_simulated_object() -> Object:
 
 ## Simulate a tick
 func simulate(delta: float, tick: int) -> void:
+	_tracer.enter("Simulate")
 	_current_object = null
 
 	var input_snapshot := NetworkHistoryServer._get_rollback_input_snapshot(tick)
@@ -114,7 +116,7 @@ func simulate(delta: float, tick: int) -> void:
 	for node in nodes:
 		node.add_to_group(_group)
 	nodes = get_tree().get_nodes_in_group(_group)
-	_logger.info("Simulating nodes: %s", [nodes])
+	_tracer.set_data("nodes", nodes)
 
 	# Determine predicted nodes
 	for node in _callbacks.keys():
@@ -133,6 +135,7 @@ func simulate(delta: float, tick: int) -> void:
 		_current_object = null
 		_set_tick_simulated_for(node, tick)
 
+	_tracer.exit()
 	# Metrics
 	NetworkPerformance.push_rollback_nodes_simulated(nodes.size())
 

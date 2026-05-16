@@ -179,6 +179,7 @@ const _STAGE_RECORD := "R"
 const _STAGE_AFTER := "A"
 
 static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("NetworkRollback")
+var _tracer := NetfoxTraces.Tracer.new("NetworkRollback")
 
 ## Submit the resimulation start tick for the current loop.
 ##
@@ -365,6 +366,7 @@ func _rollback() -> void:
 
 	# Ask all rewindables to submit their earliest inputs
 	_resim_from = NetworkTime.tick
+	_tracer.enter("Running rollback loop", {})
 	before_loop.emit()
 
 	# Figure out where to start rollback from
@@ -402,7 +404,12 @@ func _rollback() -> void:
 	# for tick in from .. to:
 	_rollback_from = from
 	_rollback_to = to
+	
+	_tracer.set_data("from", from)
+	_tracer.set_data("to", to)
+	
 	for tick in range(from, to):
+		_tracer.enter("Tick", { "tick": tick })
 		_tick = tick
 		_simulated_nodes.clear()
 
@@ -433,6 +440,8 @@ func _rollback() -> void:
 		NetworkHistoryServer._record_rollback_state(tick + 1)
 		NetworkSynchronizationServer._synchronize_state(tick + 1)
 		NetworkHistoryServer.flush_ignores()
+		
+		_tracer.exit()
 
 	# Restore display state
 	_rollback_stage = _STAGE_AFTER
@@ -441,6 +450,8 @@ func _rollback() -> void:
 	RollbackLivenessServer.restore_liveness(display_tick)
 	RollbackSimulationServer._trim_ticks_simulated(history_start)
 	RollbackLivenessServer.destroy_old_subjects(history_start)
+	
+	_tracer.exit()
 
 	# Cleanup
 	_mutated_nodes.clear()

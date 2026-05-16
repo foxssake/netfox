@@ -10,6 +10,9 @@ var fired_by: Node
 
 @onready var synchronizer := $PredictiveSynchronizer as PredictiveSynchronizer
 @onready var _logger := NetfoxLogger.new("fb", "Displacer")
+@onready var _tracer := NetfoxTraces.tracer("Displacer:" + name)
+
+@onready var _fired := NetworkRollback.tick
 
 static var _displacers := _Set.new()
 
@@ -49,7 +52,8 @@ func apply_to(target: BrawlerController) -> void:
 
 	target.shove(offset)
 	NetworkRollback.mutate(target)
-	_logger.debug("Shoved %s with offset %.2v to %.2v", [target.name, offset, target.position])
+#	_logger.debug("Shoved %s with offset %.2v to %.2v", [target.name, offset, target.position])
+	_tracer.emit("shove", { "target": target, "offset": offset, "result": target.position, "fired": _fired })
 
 	if target != fired_by:
 		target.register_hit(fired_by)
