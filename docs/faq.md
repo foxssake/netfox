@@ -22,6 +22,33 @@ This is intentional, to make it easier to find answers to your specific issue.
     produces the same state, both as ground truth on the server, and as predicted
     by the clients.
 
+!!!question "I've read about a feature in the docs, but it's not there in the addon!"
+    Compare the docs version with the addon's version.
+
+    You can select which version to read about in the docs, on the top left
+    corner of the page. Using *"latest"* means you're reading about the latest
+    features present in the repository. Some of these features may not yet be
+    released.
+
+!!!question "Help, something is not working!"
+    Check if the issue is still present in the latest release, or in the latest
+    main. If so, please let us know!
+
+    The *latest release* refers to the version available on the [asset
+    library], and in the [releases]. The *latest main* refers to the latest version
+    available in the [repository]. The *latest release* is stable, but may contain
+    some bugs that are already fixed on *latest main*. The *latest main* is the
+    bleeding edge, meaning that it can be unstable.
+
+    If the issue is still present, please let us know on [Discord], or by
+    filing an [issue]!
+
+[asset library]: https://godotengine.org/asset-library/asset?filter=netfox&category=&godot_version=&cost=&sort=updated
+[releases]: https://github.com/foxssake/netfox/releases
+[repository]: https://github.com/foxssake/netfox
+[Discord]: https://discord.gg/xWGh4GskG5
+[issue]: https://github.com/foxssake/netfox/issues
+
 !!!question "What properties should I synchronize with RollbackSynchronizer?"
     Synchronize every property representing player input as Input properties.
 
