@@ -64,6 +64,18 @@ seaweed\*.
 
 [:simple-steam: Steam](https://store.steampowered.com/app/3952070/Nitro_Turtles/)
 
+## Kick and Hide
+
+<a href="https://store.steampowered.com/app/3698510/Kick_and_Hide/" markdown>
+![Kick and Hide](./assets/showcase/kick-and-hide.jpg)
+</a>
+
+One player is a hunter robot that captures rogue robots, while the others try
+to evade capture in this fast-paced multiplayer game for 4-6 people!
+
+[:simple-steam: Steam](https://store.steampowered.com/app/3698510/Kick_and_Hide/) |
+[:simple-youtube: YouTube](https://www.youtube.com/@stolenheater)
+
 ## Your game here!
 
 Building something cool with *netfox*? Whether it's a game, an app, tool, or
