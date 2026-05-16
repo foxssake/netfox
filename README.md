@@ -178,6 +178,12 @@ page!
 
 </a>
 
+<a href="https://store.steampowered.com/app/3698510/Kick_and_Hide/">
+
+![Kick and Hide](docs/assets/showcase/kick-and-hide.jpg)
+
+</a>
+
 Building something cool with netfox? Whether it's released or in progress, feel
 free to open a PR, adding your game to the list!
 
