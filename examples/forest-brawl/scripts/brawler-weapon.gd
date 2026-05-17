@@ -47,4 +47,7 @@ func _spawn() -> Node3D:
 	bomb_projectile.global_transform = global_transform
 	bomb_projectile.fired_by = get_parent()
 
+	# Override spawn tick for projectile
+	RollbackLivenessServer.spawn.call_deferred(bomb_projectile, NetworkRollback)
+
 	return bomb_projectile

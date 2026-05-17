@@ -11,6 +11,7 @@ var fired_by: Node
 @onready var synchronizer := $PredictiveSynchronizer as PredictiveSynchronizer
 @onready var _logger := NetfoxLogger.new("fb", "Displacer")
 @onready var _tracer := NetfoxTraces.tracer("Displacer:" + name)
+var _first_tick := true
 
 @onready var _fired := NetworkRollback.tick
 
@@ -65,6 +66,11 @@ func _exit_tree():
 	_displacers.erase(self)
 
 func _rollback_tick(dt: float, _t: int, _if: bool) -> void:
+	if _first_tick:
+		_tracer.emit("create", { "tick": NetworkRollback.tick })
+		_logger.debug("Displace created, spawn tick: %d", [RollbackLivenessServer._spawn_tick[self]])
+		_first_tick = false
+
 	time_remaining -= dt
 	if time_remaining < 0.:
 		synchronizer.despawn()

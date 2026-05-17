@@ -86,6 +86,8 @@ func _is_ghost() -> bool:
 	return ghost_cooldown > 0
 
 func _explode(tick: int = NetworkRollback.tick):
+	_logger.debug("Exploded")
+
 	synchronizer.despawn()
 
 	if _exploded_tick == tick and is_instance_valid(_explosion):
@@ -93,6 +95,7 @@ func _explode(tick: int = NetworkRollback.tick):
 		return
 
 	if _explosion:
+		_logger.debug("Freeing earlier explosion")
 		_explosion.queue_free()
 
 	if effect:
@@ -103,5 +106,7 @@ func _explode(tick: int = NetworkRollback.tick):
 		spawn.set_multiplayer_authority(get_multiplayer_authority())
 
 		_explosion = spawn
+		RollbackLivenessServer.spawn(spawn, NetworkRollback.tick)
+		_logger.debug("Created displacer with spawn tick @%d", [NetworkRollback.tick])
 
 	_exploded_tick = tick

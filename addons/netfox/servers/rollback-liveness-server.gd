@@ -43,7 +43,11 @@ func register(subject: Node, respawn_callback: Callable, despawn_callback: Calla
 	_destroy_callback[subject] = destroy_callback
 
 	_applied_liveness[subject] = true
-	spawn(subject, spawn_tick)
+	
+	if not _spawn_tick.has(subject):
+		spawn(subject, spawn_tick)
+	else:
+		_logger.debug("Subject %s had preset spawn tick at @%d", [subject, _spawn_tick[subject]])
 
 ## Return true if [param subject] is registered for liveness tracking.
 func is_registered(subject: Node) -> bool:
