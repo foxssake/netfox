@@ -565,12 +565,16 @@ func _loop() -> void:
 			before_tick_loop.emit()
 
 		before_tick.emit(ticktime, tick)
+		NetworkHistoryServer._record_input_sender(tick)
+		NetworkSynchronizationServer._synchronize_input_sender(tick)
 
 		on_tick.emit(ticktime, tick)
 
 		after_tick.emit(ticktime, tick)
 		NetworkHistoryServer._record_sync_state(tick + 1)
 		NetworkSynchronizationServer._synchronize_sync_state(tick + 1)
+		NetworkHistoryServer._record_simulator(tick + 1)
+		NetworkSynchronizationServer._synchronize_simulator(tick + 1)
 
 		_tick += 1
 		ticks_in_loop += 1
