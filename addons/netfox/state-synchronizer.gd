@@ -130,11 +130,6 @@ func clear_schema() -> void:
 func _notification(what) -> void:
 	if what == NOTIFICATION_EDITOR_PRE_SAVE:
 		update_configuration_warnings()
-	elif what == NOTIFICATION_PREDELETE:
-		for node in _properties.get_subjects():
-			NetworkSynchronizationServer.deregister(node)
-			NetworkHistoryServer.deregister(node)
-			NetworkIdentityServer.deregister_node(node)
 
 func _get_configuration_warnings() -> PackedStringArray:
 	if not root:
@@ -159,6 +154,13 @@ func _enter_tree() -> void:
 		add_child(visibility_filter)
 
 	process_settings.call_deferred()
+
+func _exit_tree() -> void:
+	if root.is_queued_for_deletion():
+		for node in _properties.get_subjects():
+			NetworkSynchronizationServer.deregister(node)
+			NetworkHistoryServer.deregister(node)
+			NetworkIdentityServer.deregister_node(node)
 
 func _ready():
 	# Reprocess authority

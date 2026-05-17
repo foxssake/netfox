@@ -142,6 +142,7 @@ func _get_nodes_to_simulate(input_snapshot: _Snapshot) -> Array[Node]:
 
 	var tick := input_snapshot.tick
 	for node in _callbacks.keys():
+		# TODO: Fix
 		if not _liveness_server.is_alive(node, tick):
 			# Node is not alive in this tick
 			continue

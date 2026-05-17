@@ -116,6 +116,14 @@ func _enter_tree() -> void:
 func _exit_tree() -> void:
 	_managed_roots.erase(root)
 
+	if root.is_queued_for_deletion():
+		for node in _sim_nodes:
+			RollbackSimulationServer.deregister_node(node)
+		for node in _liveness_nodes:
+			RollbackLivenessServer.deregister(node)
+		for subject in _state_properties.get_subjects():
+			NetworkHistoryServer.deregister(subject)
+
 func _reprocess_settings() -> void:
 	if not _properties_dirty or Engine.is_editor_hint():
 		return
@@ -140,13 +148,6 @@ func add_state(node: Variant, property: String):
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_EDITOR_PRE_SAVE:
 		update_configuration_warnings()
-	if what == NOTIFICATION_PREDELETE:
-		for node in _sim_nodes:
-			RollbackSimulationServer.deregister_node(node)
-		for node in _liveness_nodes:
-			RollbackLivenessServer.deregister(node)
-		for subject in _state_properties.get_subjects():
-			NetworkHistoryServer.deregister(subject)
 
 func _get_configuration_warnings() -> PackedStringArray:
 	if not root:
