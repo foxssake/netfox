@@ -102,6 +102,15 @@ speed = 4.0
 death_depth = 16.0
 respawn_time = 8.0
 
+[node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("7_cmfmx")
+root = NodePath("..")
+enable_prediction = true
+state_properties = Array[String]([":position", ":rotation", ":velocity", ":speed", ":mass", "Weapon:_last_fired"])
+diff_ack_interval = 4
+input_properties = Array[String](["Input:movement", "Input:aim", "Input:is_firing", "Input:is_alt_firing"])
+enable_input_broadcast = false
+
 [node name="bomber-guy" parent="." instance=ExtResource("7_ij3cr")]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, -0.5, 0)
 
@@ -146,15 +155,6 @@ stream = ExtResource("6_gh8ps")
 
 [node name="Fire Action" type="Node" parent="Weapon"]
 script = ExtResource("11_cac4q")
-
-[node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
-script = ExtResource("7_cmfmx")
-root = NodePath("..")
-enable_prediction = true
-state_properties = Array[String]([":transform", ":velocity", ":speed", ":mass", "Weapon:_last_fired"])
-diff_ack_interval = 4
-input_properties = Array[String](["Input:movement", "Input:aim", "Input:is_firing"])
-enable_input_broadcast = false
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_4cjl8")
