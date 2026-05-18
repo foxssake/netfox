@@ -1,13 +1,33 @@
-[gd_scene load_steps=3 format=3 uid="uid://mqhtitmehmwq"]
+[gd_scene load_steps=7 format=3 uid="uid://mqhtitmehmwq"]
+
+[ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="1_c73f2"]
+[ext_resource type="Script" path="res://examples/rollback-takeover/scripts/player.gd" id="1_neiu6"]
+[ext_resource type="Script" path="res://examples/rollback-takeover/scripts/player-input.gd" id="2_ufcjn"]
+[ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="4_kbl83"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_qk67v"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_uyx0m"]
 
 [node name="Player" type="CharacterBody3D"]
+script = ExtResource("1_neiu6")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("CapsuleShape3D_qk67v")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("CapsuleMesh_uyx0m")
+
+[node name="Input" type="Node" parent="." groups=["Input"]]
+script = ExtResource("2_ufcjn")
+
+[node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("1_c73f2")
+root = NodePath("..")
+state_properties = Array[String]([":position", ":velocity"])
+input_properties = Array[String](["Input:movement", "Input:is_interacting"])
+
+[node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("4_kbl83")
+root = NodePath("..")
+properties = Array[String]([":transform"])

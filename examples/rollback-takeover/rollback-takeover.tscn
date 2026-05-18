@@ -1,3 +1,120 @@
-[gd_scene format=3 uid="uid://johlssoxxyrt"]
+[gd_scene load_steps=8 format=3 uid="uid://johlssoxxyrt"]
+
+[ext_resource type="PackedScene" uid="uid://2ta18mgm3wov" path="res://examples/rollback-takeover/mech.tscn" id="1_a5p81"]
+[ext_resource type="Script" path="res://examples/rollback-takeover/scripts/player-spawner.gd" id="1_t8sh7"]
+[ext_resource type="PackedScene" uid="uid://badtpsxn5lago" path="res://examples/shared/ui/network-popup.tscn" id="3_7hjmn"]
+[ext_resource type="PackedScene" uid="uid://bpf1jdr255nr0" path="res://examples/shared/ui/time-display.tscn" id="4_316dx"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ppi1x"]
+
+[sub_resource type="Sky" id="Sky_hpfhu"]
+sky_material = SubResource("ProceduralSkyMaterial_ppi1x")
+
+[sub_resource type="Environment" id="Environment_ayjxi"]
+background_mode = 2
+sky = SubResource("Sky_hpfhu")
 
 [node name="Rollback Takeover" type="Node3D"]
+
+[node name="Map" type="Node3D" parent="."]
+
+[node name="CSGCombiner3D" type="CSGCombiner3D" parent="Map"]
+use_collision = true
+
+[node name="Floor" type="CSGBox3D" parent="Map/CSGCombiner3D"]
+size = Vector3(32, 0.5, 32)
+
+[node name="Wall" type="CSGBox3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -16)
+size = Vector3(32, 2, 1)
+
+[node name="Wall2" type="CSGBox3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 16)
+size = Vector3(32, 2, 1)
+
+[node name="Wall3" type="CSGBox3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 16, 1, 6.99382e-07)
+size = Vector3(32, 2, 1)
+
+[node name="Wall4" type="CSGBox3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -16, 1, -6.99382e-07)
+size = Vector3(32, 2, 1)
+
+[node name="Corner" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 1, -16)
+
+[node name="Corner2" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 1, -16)
+
+[node name="Corner3" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 1, 16)
+
+[node name="Corner4" type="CSGCylinder3D" parent="Map/CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 1, 16)
+
+[node name="SpawnPoint" type="Marker3D" parent="Map"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13, 4, 13)
+
+[node name="SpawnPoint2" type="Marker3D" parent="Map"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 4, -13)
+
+[node name="Mech" parent="Map" instance=ExtResource("1_a5p81")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 1, -14)
+
+[node name="Mech2" parent="Map" instance=ExtResource("1_a5p81")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 1, 14)
+
+[node name="Environment" type="Node" parent="."]
+
+[node name="Camera3D" type="Camera3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 30.6985, 33.9411)
+fov = 35.0
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
+transform = Transform3D(0.707107, 0.5, -0.5, 0, 0.707107, 0.707107, 0.707107, -0.5, 0.5, -8.5, 12.0208, 8.5)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
+environment = SubResource("Environment_ayjxi")
+
+[node name="Network" type="Node" parent="."]
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Network" node_paths=PackedStringArray("spawn_points")]
+_spawnable_scenes = PackedStringArray("res://examples/rollback-takeover/player.tscn")
+spawn_path = NodePath("../Players")
+script = ExtResource("1_t8sh7")
+spawn_points = [NodePath("../../Map/SpawnPoint"), NodePath("../../Map/SpawnPoint2")]
+
+[node name="Players" type="Node" parent="Network"]
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Network Popup" parent="UI" instance=ExtResource("3_7hjmn")]
+layout_mode = 0
+anchors_preset = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 360.0
+offset_bottom = 240.0
+grow_horizontal = 1
+grow_vertical = 1
+
+[node name="Time Display" parent="UI" instance=ExtResource("4_316dx")]
+layout_mode = 0
+anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_right = 1.0
+offset_bottom = 22.3333
+grow_horizontal = 1
+grow_vertical = 1
