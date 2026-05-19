@@ -37,6 +37,8 @@ func _rollback_tick(dt: float, _t: int, _if: bool) -> void:
 	if not is_on_floor():
 		velocity.y -= gravity * dt
 
+	var log_movement := false
+	var log_dir := Vector3.ZERO
 	var driver_player: TakeoverPlayer = null
 	if not driver.is_empty():
 		driver_player = get_node(driver)
@@ -48,14 +50,23 @@ func _rollback_tick(dt: float, _t: int, _if: bool) -> void:
 		velocity.z = direction.z * move_speed
 		
 		if not direction.is_zero_approx():
-			_logger.debug("Driver movement: %.2v", [direction])
+			log_movement = true
+			log_dir = direction
+			_logger.debug("Driver move: input %.2v => transformed %.2v => applied %.2v", [driver_movement, direction, velocity])
 		
 		driver_player.global_position = mount.global_position
 		NetworkRollback.mutate(driver_player)
+#		NetworkRollback.mutate(self)
 
+	var old_pos := position
+	
 	velocity *= NetworkTime.physics_factor
 	move_and_slide()
 	velocity /= NetworkTime.physics_factor
+	
+	var new_pos := position
+	if log_movement:
+		_logger.debug("Driver movement: %.2v; %.2v => %.2v", [log_dir, old_pos, new_pos])
 	
 func _force_update_is_on_floor() -> void:
 	var old_velocity = velocity

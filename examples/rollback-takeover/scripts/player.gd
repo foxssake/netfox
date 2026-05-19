@@ -6,8 +6,14 @@ class_name TakeoverPlayer
 @onready var _logger := NetfoxLogger.new("to", "Player:" + name)
 
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
+var _is_driving := false
 
 func _rollback_tick(dt: float, _t: int, _if: bool) -> void:
+	if _is_driving:
+		collision_layer = 0
+	else:
+		collision_layer = 1
+	
 	_force_update_is_on_floor()
 	if not is_on_floor():
 		velocity.y -= gravity * dt
@@ -24,7 +30,7 @@ func _rollback_tick(dt: float, _t: int, _if: bool) -> void:
 		var mech := TakeoverMech.find_in_range(self)
 		_logger.info("Taking over mech: %s", [mech])
 		if mech != null:
-			mech.take_over(self)
+			_is_driving = mech.take_over(self)
 
 func _force_update_is_on_floor() -> void:
 	var old_velocity = velocity

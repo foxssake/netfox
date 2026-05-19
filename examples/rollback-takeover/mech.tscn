@@ -1,9 +1,14 @@
-[gd_scene load_steps=4 format=3 uid="uid://2ta18mgm3wov"]
+[gd_scene load_steps=6 format=3 uid="uid://2ta18mgm3wov"]
 
 [ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="1_h6vdw"]
 [ext_resource type="Script" path="res://examples/rollback-takeover/scripts/mech.gd" id="1_o4y75"]
+[ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="3_tiedq"]
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_cghpt"]
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_b1ksa"]
+radial_segments = 23
+rings = 4
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1aeqj"]
 
 [node name="Mech" type="CharacterBody3D"]
 script = ExtResource("1_o4y75")
@@ -23,11 +28,11 @@ radius = 0.75
 radial_segments = 32
 rings = 16
 
-[node name="CSGCylinder3D" type="CSGCylinder3D" parent="CSGCombiner3D"]
-sides = 32
+[node name="CSGMesh3D" type="CSGMesh3D" parent="CSGCombiner3D"]
+mesh = SubResource("CapsuleMesh_b1ksa")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-shape = SubResource("CylinderShape3D_cghpt")
+shape = SubResource("CapsuleShape3D_1aeqj")
 
 [node name="Mount" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
@@ -37,3 +42,8 @@ script = ExtResource("1_h6vdw")
 root = NodePath("..")
 enable_prediction = true
 state_properties = Array[String]([":position", ":velocity", ":driver"])
+
+[node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("3_tiedq")
+root = NodePath("..")
+properties = Array[String]([":transform"])

@@ -59,10 +59,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13, 4, 13)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 4, -13)
 
 [node name="Mech" parent="Map" instance=ExtResource("1_a5p81")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 1, -14)
-
-[node name="Mech2" parent="Map" instance=ExtResource("1_a5p81")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 1, 14)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0)
 
 [node name="Environment" type="Node" parent="."]
 

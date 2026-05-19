@@ -132,11 +132,20 @@ func _record_rollback_state(tick: int) -> void:
 	_tracer.enter("record_rollback_state")
 	_record(tick, _rb_state_history, _rb_state_snapshots, _rb_state_properties, false, func(subject: Node):
 		if not subject.is_multiplayer_authority():
+			if subject.name.contains("Mech") and multiplayer.get_unique_id() == 1:
+				_logger.debug("Not recording subject %s: not owned", [subject])
 			return false
 		if NetworkRollback.is_mutated(subject):
+			if subject.name.contains("Mech") and multiplayer.get_unique_id() == 1:
+				_logger.debug("Recording subject %s: mutated", [subject])
 			return true
 		if RollbackSimulationServer._is_predicting(input_snapshot, subject):
+			if subject.name.contains("Mech") and multiplayer.get_unique_id() == 1:
+				_logger.debug("Not recording subject %s: predicted", [subject])
 			return false
+			
+		if subject.name.contains("Mech") and multiplayer.get_unique_id() == 1:
+			_logger.debug("Recording subject %s", [subject])
 		return true
 	)
 	_tracer.exit()
