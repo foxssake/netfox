@@ -275,6 +275,9 @@ func mutate(target: Object, p_tick: int = tick) -> void:
 ## [br][br]
 ## @experimental: The Mutations API is experimental!
 func is_mutated(target: Object, p_tick: int = tick) -> bool:
+	# Hack to make local prediction work on state.
+	return true
+	
 	if _mutated_nodes.has(target):
 		return p_tick >= _mutated_nodes.get(target)
 	else:

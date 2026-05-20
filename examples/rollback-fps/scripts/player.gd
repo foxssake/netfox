@@ -27,6 +27,7 @@ var _ackd_deaths := 0
 
 var _was_hit := false
 
+
 func _ready():
 	display_name.text = name
 
@@ -39,8 +40,10 @@ func _ready():
 		camera.current = true
 		ExampleRollbackFPS.HUD.set_player(self)
 
+
 func _before_tick_loop():
 	_ackd_deaths = deaths
+
 
 func _after_tick_loop():
 	if _ackd_deaths != deaths:
@@ -50,6 +53,7 @@ func _after_tick_loop():
 	if _was_hit:
 		hit_sfx.play()
 		_was_hit = false
+
 
 func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 	# Handle respawn
@@ -99,19 +103,22 @@ func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 		global_position = get_parent().get_next_spawn_point(get_player_id(), deaths)
 		health = 100
 
+
 func _force_update_is_on_floor():
 	var old_velocity = velocity
 	velocity = Vector3.ZERO
 	move_and_slide()
 	velocity = old_velocity
 
-func damage(amount: int, is_new_hit: bool = false):
-	# Queue hit sound
-	if is_new_hit:
-		_was_hit = true
 
+func damage(amount: int):
 	health -= amount
 	_logger.info("%s HP now at %s", [name, health])
+
+
+func damage_effect():
+	_was_hit = true
+
 
 func get_player_id() -> int:
 	return input.get_multiplayer_authority()
