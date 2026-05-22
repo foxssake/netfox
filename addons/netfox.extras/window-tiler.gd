@@ -28,8 +28,8 @@ func _ready() -> void:
 			_logger.debug("Environment variable %s set, disabling", [env_var])
 			return
 
-	# Cleanup in case some files were left
-	_cleanup()
+	if not _has_recent_locks(3):
+		_cleanup()
 
 	# Running embedded in editor
 	if _is_embedded():
@@ -48,15 +48,20 @@ func _ready() -> void:
 
 	# Search for locks, stop once no new locks are found
 	var locks = []
+	var stable_polls := 0
 	await get_tree().create_timer(0.25).timeout
-	for i in range(20):
+	for _ in range(20):
 		await get_tree().create_timer(0.1).timeout
 		var new_locks = _list_lock_ids()
 
 		if locks == new_locks:
-			break
+			stable_polls += 1
+		else:
+			locks = new_locks
+			stable_polls = 0
 
-		locks = new_locks
+		if stable_polls >= 2:
+			break
 
 	var tile_count = locks.size()
 	var idx = locks.find(_uid)
@@ -91,18 +96,33 @@ func _list_lock_ids() -> Array[String]:
 	return result
 
 func _cleanup():
-	var result: Array[String] = []
 	var dir := DirAccess.open(OS.get_cache_dir())
 
 	if dir:
 		for f in dir.get_files():
-			if f.begins_with(_prefix) and _get_sid(f) != _sid:
-					_logger.trace("Cleaned up lock: %s", [f])
-					dir.remove(OS.get_cache_dir() + "/" + f)
+			if not f.begins_with(_prefix):
+				continue
 
-func _get_sid(filename: String) -> String:
-	return filename.substr(_prefix.length() + 1).get_slice("-", 0)
+			var lock_path = OS.get_cache_dir() + "/" + f
+			_logger.trace("Cleaned lock: %s", [f])
+			dir.remove(lock_path)
 
+func _has_recent_locks(seconds: int) -> bool:
+	var dir := DirAccess.open(OS.get_cache_dir())
+	var now := int(Time.get_unix_time_from_system())
+
+	if not dir:
+		return false
+
+	for f in dir.get_files():
+		if not f.begins_with(_prefix):
+			continue
+
+		var modified := int(FileAccess.get_modified_time(OS.get_cache_dir() + "/" + f))
+		if modified > 0 and now - modified <= seconds:
+			return true
+
+	return false
 func _get_uid(filename: String) -> String:
 	return filename.substr(_prefix.length() + 1).get_slice("-", 1)
 
