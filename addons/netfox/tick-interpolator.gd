@@ -25,30 +25,17 @@ class_name TickInterpolator
 ## whenever properties are updated.
 @export var enable_recording: bool = true
 
-var _state_from: _PropertySnapshot
-var _state_to: _PropertySnapshot
-var _property_entries: Array[PropertyEntry] = []
+var _group_id: int
 var _properties_dirty: bool = false
-var _interpolators: Dictionary = {}
-var _is_teleporting: bool = false
-
-var _property_cache: PropertyCache
 
 ## Process settings.
 ## [br][br]
 ## Call this after any change to configuration.
 func process_settings():
-	_property_cache = PropertyCache.new(root)
-	_property_entries.clear()
-	_interpolators.clear()
+	if not root:
+		root = get_parent()
 
-	_state_from = _PropertySnapshot.new()
-	_state_to = _PropertySnapshot.new()
-
-	for property in properties:
-		var property_entry = _property_cache.get_entry(property)
-		_property_entries.push_back(property_entry)
-		_interpolators[property] = Interpolators.find_for(property_entry.get_value())
+	InterpolationServer.register_interpolation_group(_group_id, root, properties, enabled, enable_recording)
 
 ## Add a property to interpolate.
 ## [br][br]
@@ -69,7 +56,7 @@ func add_property(node: Variant, property: String):
 ## Even if it's enabled, no interpolation will be done if there are no
 ## properties to interpolate.
 func can_interpolate() -> bool:
-	return enabled and not properties.is_empty() and not _is_teleporting
+	return InterpolationServer.can_interpolate(_group_id)
 
 ## Record current state for interpolation.
 ## [br][br]
@@ -77,17 +64,11 @@ func can_interpolate() -> bool:
 ## starting point for the interpolation. This is automatically called if
 ## [code]enable_recording[/code] is true.
 func push_state() -> void:
-	_state_from = _state_to
-	_state_to = _PropertySnapshot.extract(_property_entries)
+	InterpolationServer.push_state(_group_id)
 
 ## Record current state and transition without interpolation.
 func teleport() -> void:
-	if _is_teleporting:
-		return
-
-	_state_from = _PropertySnapshot.extract(_property_entries)
-	_state_to = _state_from
-	_is_teleporting = true
+	InterpolationServer.teleport(_group_id)
 
 func _notification(what) -> void:
 	if what == NOTIFICATION_EDITOR_PRE_SAVE:
@@ -106,20 +87,13 @@ func _get_configuration_warnings() -> PackedStringArray:
 			add_property(node, prop)
 	)
 
-func _connect_signals() -> void:
-	NetworkTime.before_tick_loop.connect(_before_tick_loop)
-	NetworkTime.after_tick_loop.connect(_after_tick_loop)
-
-func _disconnect_signals() -> void:
-	NetworkTime.before_tick_loop.disconnect(_before_tick_loop)
-	NetworkTime.after_tick_loop.disconnect(_after_tick_loop)
-
 func _enter_tree() -> void:
+	_group_id = get_instance_id()
+
 	if Engine.is_editor_hint():
 		return
 
 	process_settings.call_deferred()
-	_connect_signals.call_deferred()
 
 	# Wait a frame for any initial setup before recording first state
 	if record_first_state:
@@ -130,13 +104,13 @@ func _exit_tree() -> void:
 	if Engine.is_editor_hint():
 		return
 
-	_disconnect_signals()
+	InterpolationServer.deregister_interpolation_group(_group_id)
 
 func _process(_delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
 
-	_interpolate(_state_from, _state_to, NetworkTime.tick_factor)
+	InterpolationServer.interpolate(_group_id, NetworkTime.tick_factor)
 
 func _reprocess_settings() -> void:
 	if not _properties_dirty or Engine.is_editor_hint():
@@ -144,26 +118,3 @@ func _reprocess_settings() -> void:
 
 	_properties_dirty = false
 	process_settings()
-
-func _before_tick_loop() -> void:
-	_is_teleporting = false
-	_state_to.apply(_property_cache)
-
-func _after_tick_loop() -> void:
-	if enable_recording and not _is_teleporting:
-		push_state()
-		_state_from.apply(_property_cache)
-
-func _interpolate(from: _PropertySnapshot, to: _PropertySnapshot, f: float) -> void:
-	if not can_interpolate():
-		return
-
-	for property in from.properties():
-		if not to.has(property): continue
-
-		var property_entry := _property_cache.get_entry(property)
-		var a := from.get_value(property)
-		var b := to.get_value(property)
-		var interpolate = _interpolators[property] as Callable
-
-		property_entry.set_value(interpolate.call(a, b, f))
