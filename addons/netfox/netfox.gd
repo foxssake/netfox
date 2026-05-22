@@ -204,6 +204,10 @@ const AUTOLOADS: Array[Dictionary] = [
 	{
 		"name": "RollbackLivenessServer",
 		"path": ROOT + "/servers/rollback-liveness-server.gd"
+	},
+	{
+		"name": "InterpolationServer",
+		"path": ROOT + "/servers/interpolation-server.gd"
 	}
 ]
 
