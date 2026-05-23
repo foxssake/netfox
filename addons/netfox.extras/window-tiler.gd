@@ -50,7 +50,7 @@ func _ready() -> void:
 	var locks = []
 	var stable_polls := 0
 	await get_tree().create_timer(0.25).timeout
-	for _ in range(20):
+	for i in range(20):
 		await get_tree().create_timer(0.1).timeout
 		var new_locks = _list_lock_ids()
 
