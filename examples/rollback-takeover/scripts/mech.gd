@@ -4,6 +4,7 @@ class_name TakeoverMech
 @export var move_speed := 4.
 
 @onready var mount = $Mount as Node3D
+@onready var _rbs := $RollbackSynchronizer as RollbackSynchronizer
 @onready var _logger := NetfoxLogger.new("to", "Mech:" + name)
 
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
@@ -44,6 +45,9 @@ func _rollback_tick(dt: float, _t: int, _if: bool) -> void:
 		driver_player = get_node(driver)
 	
 	if is_instance_valid(driver_player):
+		if RollbackSimulationServer.is_predicting_subject(driver_player):
+			_rbs.ignore_prediction(self)
+		
 		var driver_movement := Vector3(driver_player.input.movement.x, 0., driver_player.input.movement.y)
 		var direction = (transform.basis * driver_movement).normalized()
 		velocity.x = direction.x * move_speed
@@ -53,16 +57,17 @@ func _rollback_tick(dt: float, _t: int, _if: bool) -> void:
 			log_movement = true
 			log_dir = direction
 			_logger.debug("Driver move: input %.2v => transformed %.2v => applied %.2v", [driver_movement, direction, velocity])
-		
-		driver_player.global_position = mount.global_position
-		NetworkRollback.mutate(driver_player)
-#		NetworkRollback.mutate(self)
 
 	var old_pos := position
 	
 	velocity *= NetworkTime.physics_factor
 	move_and_slide()
 	velocity /= NetworkTime.physics_factor
+	
+	if is_instance_valid(driver_player):
+		driver_player.global_position = mount.global_position
+		NetworkRollback.mutate(driver_player)
+#		NetworkRollback.mutate(self)
 	
 	var new_pos := position
 	if log_movement:

@@ -98,6 +98,11 @@ func is_predicting_current() -> bool:
 		return false
 	return _predicted_nodes.has(_current_object)
 
+func is_predicting_subject(subject: Object) -> bool:
+	if not subject or not is_instance_valid(subject):
+		return false
+	return _predicted_nodes.has(subject)
+
 ## Get the currently simulated object
 func get_simulated_object() -> Object:
 	return _current_object

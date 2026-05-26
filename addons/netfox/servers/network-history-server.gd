@@ -144,8 +144,6 @@ func _record_rollback_state(tick: int) -> void:
 				_logger.debug("Not recording subject %s: predicted", [subject])
 			return false
 			
-		if subject.name.contains("Mech") and multiplayer.get_unique_id() == 1:
-			_logger.debug("Recording subject %s", [subject])
 		return true
 	)
 	_tracer.exit()

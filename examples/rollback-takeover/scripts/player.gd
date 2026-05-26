@@ -11,6 +11,7 @@ var _is_driving := false
 func _rollback_tick(dt: float, _t: int, _if: bool) -> void:
 	if _is_driving:
 		collision_layer = 0
+#		return
 	else:
 		collision_layer = 1
 	
