@@ -11,7 +11,6 @@ var _is_driving := false
 func _rollback_tick(dt: float, _t: int, _if: bool) -> void:
 	if _is_driving:
 		collision_layer = 0
-#		return
 	else:
 		collision_layer = 1
 	
@@ -23,9 +22,13 @@ func _rollback_tick(dt: float, _t: int, _if: bool) -> void:
 	velocity.x = direction.x * move_speed
 	velocity.z = direction.z * move_speed
 
-	velocity *= NetworkTime.physics_factor
-	move_and_slide()
-	velocity /= NetworkTime.physics_factor
+	if not _is_driving:
+		velocity *= NetworkTime.physics_factor
+		move_and_slide()
+		velocity /= NetworkTime.physics_factor
+	
+	if _is_driving and not input.movement.is_zero_approx():
+		_logger.debug("End of tick position: %.2v", [global_position])
 	
 	if input.is_interacting:
 		var mech := TakeoverMech.find_in_range(self)

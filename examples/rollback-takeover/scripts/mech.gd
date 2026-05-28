@@ -34,6 +34,7 @@ func _exit_tree():
 	_all.erase(self)
 
 func _rollback_tick(dt: float, _t: int, _if: bool) -> void:
+#	_force_update_physics_transform()
 	_force_update_is_on_floor()
 	if not is_on_floor():
 		velocity.y -= gravity * dt
@@ -47,6 +48,7 @@ func _rollback_tick(dt: float, _t: int, _if: bool) -> void:
 	if is_instance_valid(driver_player):
 		if RollbackSimulationServer.is_predicting_subject(driver_player):
 			_rbs.ignore_prediction(self)
+#			return
 		
 		var driver_movement := Vector3(driver_player.input.movement.x, 0., driver_player.input.movement.y)
 		var direction = (transform.basis * driver_movement).normalized()
@@ -56,13 +58,14 @@ func _rollback_tick(dt: float, _t: int, _if: bool) -> void:
 		if not direction.is_zero_approx():
 			log_movement = true
 			log_dir = direction
-			_logger.debug("Driver move: input %.2v => transformed %.2v => applied %.2v", [driver_movement, direction, velocity])
+#			_logger.debug("Driver move: input %.2v => transformed %.2v => applied %.2v", [driver_movement, direction, velocity])
 
 	var old_pos := position
 	
-	velocity *= NetworkTime.physics_factor
-	move_and_slide()
-	velocity /= NetworkTime.physics_factor
+#	velocity *= NetworkTime.physics_factor
+#	move_and_slide()
+#	velocity /= NetworkTime.physics_factor
+	position += velocity * Vector3(1., 0., 1.) * dt
 	
 	if is_instance_valid(driver_player):
 		driver_player.global_position = mount.global_position
@@ -72,9 +75,15 @@ func _rollback_tick(dt: float, _t: int, _if: bool) -> void:
 	var new_pos := position
 	if log_movement:
 		_logger.debug("Driver movement: %.2v; %.2v => %.2v", [log_dir, old_pos, new_pos])
+		_logger.debug("Snapped %s to %.2v", [driver_player.name, driver_player.global_position])
 	
 func _force_update_is_on_floor() -> void:
 	var old_velocity = velocity
 	velocity *= 0
 	move_and_slide()
 	velocity = old_velocity
+
+func _force_update_physics_transform():
+	PhysicsServer3D.body_set_mode(get_rid(), PhysicsServer3D.BODY_MODE_STATIC)
+	PhysicsServer3D.body_set_state(get_rid(), PhysicsServer3D.BODY_STATE_TRANSFORM, global_transform)
+	PhysicsServer3D.body_set_mode(get_rid(), PhysicsServer3D.BODY_MODE_KINEMATIC)

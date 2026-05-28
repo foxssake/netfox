@@ -22,6 +22,7 @@ func _spawn(peer: int) -> Node3D:
 	
 	var avatar := avatar_scene.instantiate() as Node3D
 	avatar.position = spawn_points.pick_random().global_position
+	avatar.name += " #%d" % [peer]
 	avatar.set_multiplayer_authority(1)
 	
 	for child in avatar.find_children("*"):
