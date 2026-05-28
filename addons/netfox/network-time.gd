@@ -573,8 +573,14 @@ func _loop() -> void:
 		after_tick.emit(ticktime, tick)
 		NetworkHistoryServer._record_sync_state(tick + 1)
 		NetworkSynchronizationServer._synchronize_sync_state(tick + 1)
-		NetworkHistoryServer._record_simulator(tick + 1)
-		NetworkSynchronizationServer._synchronize_simulator(tick + 1)
+		# TODO
+		# We make tick + 1 -1 = tick here.
+		# This is intentional to make sure physic realted objects are recorded
+		# 1 tick delayed so we can process them.
+		# Very similiar to 1 input delay but built in ?
+		NetworkHistoryServer._record_simulator(tick)
+		NetworkSynchronizationServer._synchronize_simulator(tick)
+		
 
 		_tick += 1
 		ticks_in_loop += 1

@@ -200,7 +200,6 @@ func process_authority():
 		for property in _state_properties.get_properties_of(node):
 			NetworkHistoryServer.deregister_simulator(node, property)
 			NetworkSynchronizationServer.deregister_simulator(node, property)
-			pass
 	
 	# Process authority
 	_state_properties.set_from_paths(root, state_properties)
@@ -210,7 +209,6 @@ func process_authority():
 		for property in _state_properties.get_properties_of(node):
 			NetworkHistoryServer.register_simulator(node, property)
 			NetworkSynchronizationServer.register_simulator(node, property)
-			pass
 
 ## Add a state property.
 ## [br][br]
@@ -270,10 +268,40 @@ func _on_after_tick(delta: float, tick: int) -> void:
 # if there is a new snapshot, apply and simulate onwards with buffered inputs. 
 func _handle_authoritative_peer(_delta: float, tick: int) -> void:
 	
-	var latest_input_tick := NetworkHistoryServer.get_latest_simulator_for(
+	# Get latest tick where we had sync data available for this simulator.
+	var latest_simulator_tick := NetworkHistoryServer.get_latest_simulator_for(
 		_state_properties.get_subjects(), tick)
 	
-	var latest_received_snapshot := NetworkHistoryServer._get_simulator_snapshot(latest_input_tick)
+	# Apply latest_snapshot.
+	var latest_received_snapshot := NetworkHistoryServer._get_simulator_snapshot(latest_simulator_tick)
+	if latest_received_snapshot:
+		_apply_snapshot_for_self(latest_received_snapshot)
+	else:
+		_logger.trace("Apply snapshot called but snapshot is invalid, assuming its first frame\
+		and snapshot is not received yet.")
+	
+	# Now that we accepted truth from host, we can run simulated_ticks
+	# with our stored inputs.
+	# For now ignore the race between this function and saving inputs on 
+	# input_sender's input node.
+	
+	_logger.trace("Authoritative peer is looping to run simulated ticks, \
+	from inclusive tick %s to exclusive tick %s", [latest_simulator_tick, tick])
+	
+	# TODO double check this range pls.
+	for i in range(latest_simulator_tick, tick):
+		_logger.trace("Running simulator tick #%s", [i])
+		var local_input_snapshot := NetworkHistoryServer._get_input_sender_snapshot(i)
+		
+		# TODO sometimes local_input_snapshot is null, figure out why!
+		if not local_input_snapshot:
+			_logger.trace("Authoritative peer is running simulated ticks, \
+			local input snapshot is null at tick %s" %i)
+			continue
+		
+		listened_input_sender._apply_snapshot_for_self(local_input_snapshot)
+		for node in _sim_nodes:
+			node.call("_simulated_tick", NetworkTime.seconds_between(i, i + 1), i)
 	
 
 # Host needs to run _simulated_tick with new received inputs.
@@ -283,6 +311,7 @@ func _handle_host(delta: float, tick: int) -> void:
 	
 	# Check if we need inputs to catch up.
 	
+	# Guard to set _latest_input_tick to current -1 if this is the first time this runs.
 	if _latest_input_tick == -1:
 		# This is the first tick host runs.
 		# Even though we could itarete over saved-inputs, for now we wont.
@@ -292,24 +321,42 @@ func _handle_host(delta: float, tick: int) -> void:
 		# -1 so we run this tick.
 		_latest_input_tick = tick - 1
 	
+	# Compare input ticks.
+	var latest_input_tick := listened_input_sender.get_latest_received_information_tick(tick)
+	if latest_input_tick == _latest_input_tick:
+		_logger.trace("Host is skipping simulation this tick because there is no new input")
+		return
 	
-	_logger.trace("host is looping to run simulated ticks, ticks to run: %s", [tick - _latest_input_tick])
-	for i in range(_latest_input_tick + 1, tick + 1):
-		_apply_and_run_simulated_tick(delta, i)
+	var ticks_to_run := latest_input_tick - _latest_input_tick
+	
+	_logger.trace("Host is looping to run simulated ticks, ticks to run: %s", [ticks_to_run])
+	for i in range(_latest_input_tick + 1, latest_input_tick + 1):
+		
+		# get and apply input_sender_snapshot
+		# TODO read below.
+		# DONT GET CONFUSED! Code below actually overrides properties of input_sender's
+		# input node. However its not improtant and will not override local inputs
+		# because THIS IS HOST! Not authoritative peer.
+		# This is a problem for authority changes and can be fixed easly later.
+		var snapshot := NetworkHistoryServer._get_input_sender_snapshot(i)
+		listened_input_sender._apply_snapshot_for_self(snapshot)
+		for node in _sim_nodes:
+			node.call("_simulated_tick", NetworkTime.seconds_between(i, i + 1), i)
 	
 	_latest_input_tick = tick
 
 # For pupper peer we only need to interpolate latest state to new one.
 # TODO Do we need to code interpolation? try it first
 # TODO add prediction? i dont think its needed
-func _handle_puppet_peer(_delta: float, _tick: int) -> void:
-	pass
-
-# Helper function that applies inputs and runs simulated_tick on managed nodes.
-func _apply_and_run_simulated_tick(_delta : float, tick : int) -> void:
-	_logger.trace("applying and running simulated tick #%s", [tick])
-	# TODO fill
-	pass
+func _handle_puppet_peer(_delta: float, tick: int) -> void:
+	var latest_simulator_tick := NetworkHistoryServer.get_latest_simulator_for(
+		_state_properties.get_subjects(), tick)
+	
+	var latest_received_snapshot := NetworkHistoryServer._get_simulator_snapshot(latest_simulator_tick)
+	if latest_received_snapshot:
+		_apply_snapshot_for_self(latest_received_snapshot)
+	
+	# TODO interpolation? try with interpolator first.
 
 # Helper function to apply given snapshot for only this node.
 # TODO (same todo with input_sender)?

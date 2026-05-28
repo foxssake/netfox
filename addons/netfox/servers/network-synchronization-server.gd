@@ -402,7 +402,7 @@ func _synchronize_simulator(tick: int) -> void:
 		for peer in multiplayer.get_peers():
 			var filter := func(subject): return _is_node_visible_to(peer, subject)
 			
-			var data := _dense_serializer.write_for(peer, snapshot, _sync_owned_state_properties, filter)
+			var data := _dense_serializer.write_for(peer, snapshot, _simulator_owned_properties, filter)
 			if data.is_empty():
 				# Peer can't see anything, send nothing
 				continue
@@ -462,8 +462,9 @@ func _ready():
 	
 	_cmd_input_sender = _command_server.register_command(_handle_input_sender, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
 	
-	_cmd_full_simulator = _command_server.register_command(_handle_full_simulator, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
-	_cmd_diff_simulator = _command_server.register_command(_handle_diff_simulator, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
+	# TODO which one makes sense ordered or not ?
+	_cmd_full_simulator = _command_server.register_command(_handle_full_simulator, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
+	_cmd_diff_simulator = _command_server.register_command(_handle_diff_simulator, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
 	
 	_cmd_full_sync = _command_server.register_command(_handle_full_sync, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
 	_cmd_diff_sync = _command_server.register_command(_handle_diff_sync, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
