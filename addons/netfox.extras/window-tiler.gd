@@ -50,6 +50,8 @@ func _ready() -> void:
 	var locks = []
 	var stable_polls := 0
 	await get_tree().create_timer(0.25).timeout
+
+	# Limit to 20 attempts
 	for i in range(20):
 		await get_tree().create_timer(0.1).timeout
 		var new_locks = _list_lock_ids()
@@ -123,6 +125,7 @@ func _has_recent_locks(seconds: int) -> bool:
 			return true
 
 	return false
+
 func _get_uid(filename: String) -> String:
 	return filename.substr(_prefix.length() + 1).get_slice("-", 1)
 
