@@ -153,6 +153,13 @@ func has_authority_over_input_nodes() -> bool:
 	# Did not find any node, or none of them has authority.
 	return false
 
+## Get latest input data available for this [InputSender].
+## Used by [Simulator] node internally.
+func get_latest_received_information_tick(current_tick : int) -> int:
+	return NetworkHistoryServer.get_latest_input_sender_for(
+		_input_properties.get_subjects(),
+		current_tick)
+
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_EDITOR_PRE_SAVE:
 		update_configuration_warnings()
