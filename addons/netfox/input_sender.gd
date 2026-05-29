@@ -8,19 +8,21 @@ class_name InputSender
 ## [InputSender] is a multi purpose node to use on networked games,
 ## It provides signals to code host and client side logic.
 ## [InputSender] signals are tied and emitted on [signal NetworkTime.on_tick].
+## [InputSender] will still emit signals with tick paremeters which belongs to
+## their recorded ticks.
 ## 
 ## @experimental:
 ## [InputSender] assumes input snapshots arrive as whole. (atomic), if snapshot
 ## arrives with multiple parts, [InputSender] signals wont be reliable to 
 ## code game logic.
 
-## Emitted when [InputSender] receives input from remote owner of input_properties.
+## Emitted if [InputSender] received input from remote owner of input_properties.
 ## [InputSender] handles applying received input internally before emitting this signal.
 ## Emitted only if [InputSender] has authority.
 ## Use this signal to code host side logic.
 signal network_input(tick : int)
 
-## Emitted for every tick if local peer has authority over input_property nodes.
+## Emitted if local peer has authority over input_property nodes.
 ## [InputSender] will apply latest local inputs for this tick internally before 
 ## emitting this signal.
 ## Use this signal to code client side logic which doesnt interfere with actual game state.
@@ -30,9 +32,13 @@ signal network_input(tick : int)
 ## using some other method to syncronize game state (Syncronizers).
 signal local_input(tick : int)
 
-## Emitted when [InputSender] doesnt receive anything from client on [signal NetworkTime.on_tick]
-## [InputSender] will apply latest known input internally before emitting this signal.
+## Emitted if [InputSender] didnt receive anything from client for a tick on
+# [signal NetworkTime.on_tick].
+## [InputSender] will apply latest known input that comes before missing tick
+## internally before emitting this signal.
 ## Emitted only if [InputSender] is authority.
+## If host couldnt find known previous input, latest_known_input_tick will be -1.
+## In that scenario, [InputSender] will not be able to have correct inputs applied.
 ## Use this signal to code host side prediction logic.
 signal missing_input(current_tick : int, latest_known_input_tick : int)
 
@@ -52,8 +58,22 @@ var visibility_filter := PeerVisibilityFilter.new()
 
 var _input_properties := _PropertyPool.new()
 var _properties_dirty: bool = false
-var _last_emitted_tick: int = -1
+
+# Stored latest ticks
+var _last_network_tick : int = -1
+var _last_local_tick : int = -1
+var _last_missing_tick : int = -1
+var _last_emitted_tick : int = -1
+
 var _logger := NetfoxLogger._for_netfox("InputSender")
+
+# We need these to de-couple input-senders working logic from recording.
+# InputSender applies state and emits signals, but this can change saved and synced
+# input properties, to prevent that, input-sender will save its pre-logic-inputs
+# and apply them whenever logic ends.
+var _saved_inputs_snapshot : _PropertySnapshot 
+var _property_cache: PropertyCache
+var _property_entries: Array[PropertyEntry] = []
 
 # Flag to connect signals only once.
 var _signals_connected : bool = false 
@@ -88,6 +108,15 @@ func _enter_tree() -> void:
 func process_settings() -> void:
 	process_authority()
 	
+	_property_cache = PropertyCache.new(root)
+	_property_entries.clear()
+	
+	_saved_inputs_snapshot = _PropertySnapshot.new()
+	
+	for property in input_properties:
+		var property_entry = _property_cache.get_entry(property)
+		_property_entries.push_back(property_entry)
+	
 	# Register identifiers
 	for node in _input_properties.get_subjects():
 		NetworkIdentityServer.register_node(node)
@@ -105,6 +134,11 @@ func process_settings() -> void:
 ## Call this whenever the authority of input node changes.
 ## Make sure to do this at the same time on all peers.
 func process_authority():
+	
+	_last_local_tick = -1
+	_last_missing_tick = -1
+	_last_network_tick = -1
+	
 	for node in _input_properties.get_subjects():
 		for property in _input_properties.get_properties_of(node):
 			NetworkHistoryServer.deregister_input_sender(node, property)
@@ -205,38 +239,26 @@ func _connect_signals() -> void:
 # [InputSender] is authority,
 # If did not receive new network snapshots, applies latest and emits input_missing
 # with latest snapshot.
-func _on_tick(delta: float, tick: int) -> void:
-	# First handle local_input signalling.
-	_apply_and_emit_local_inputs(tick)
+func _on_tick(_delta: float, _tick: int) -> void:
+	# Save input states to remember, this is done to avoid changing saved inputs here.
+	_saved_inputs_snapshot = _PropertySnapshot.extract(_property_entries)
+	
+	# Handle authoritative peer first.
+	if has_authority_over_input_nodes():
+		_handle_authoritative_peer()
+		# Apply saved inputs before returning, this prevents improper input save.
+		_saved_inputs_snapshot.apply(_property_cache)
+		return
 	
 	# Move on to the network_input and input_missing signalling.
+	# input_missing and network_input signals are only emitted on host.
 	if not is_multiplayer_authority():
 		return
 	
-	# Get the latest input data available
-	# Known issue: If input sender is configured with multiple input nodes,
-	# Any fresh input from one node will trigger re-emitting of other node's inputs?
-	# TODO: look at above issue.
-	var latest_input_tick := NetworkHistoryServer.get_latest_input_sender_for(
-		_input_properties.get_subjects(), tick)
-	
-	if latest_input_tick == _last_emitted_tick:
-		# There is no new input data available
-		var latest_snapshot := NetworkHistoryServer._get_input_sender_snapshot(latest_input_tick)
-		if latest_snapshot:
-			_logger.trace("No new input is received, will emit input_missing after applying \
-				snapshot: %s", [latest_snapshot])
-			
-			_apply_snapshot_for_self(latest_snapshot)
-			missing_input.emit(tick, latest_input_tick)
-	else:
-		# Iterate over fresh inputs and emit a signal with fresh inputs applied.
-		for i in range(_last_emitted_tick + 1, latest_input_tick + 1):
-			var snapshot := NetworkHistoryServer._get_input_sender_snapshot(i)
-			if snapshot:
-				_apply_snapshot_for_self(snapshot)
-				network_input.emit(i)
-				_last_emitted_tick = i
+	_handle_host()
+	# Apply saved inputs before returning, this prevents improper save.
+	_saved_inputs_snapshot.apply(_property_cache)
+
 
 # Helper function to apply given snapshot for only this node.
 # TODO Applying whole snapshot and iterating over ticks would be nicer
@@ -251,15 +273,76 @@ func _apply_snapshot_for_self(snapshot : _Snapshot) -> void:
 				# TODO is this should be node.set_indexed ??
 				subject.set_indexed(property, value)
 
-# If the local peer has authority over input_property node, apply latest inputs
+# If [InputSender] has multiplayer_authority, check for new or missing inputs from
+# latest emitted tick and emit signals.
+# This function shouldnt run if host also owns the input node.
+# In that case, _handle_authoritative_peer function should run.
+func _handle_host() -> void:
+	# Get the latest input data available
+	# Known issue: If input sender is configured with multiple input nodes,
+	# Any fresh input from one node will trigger re-emitting of other node's inputs?
+	# TODO: look at above issue.
+	var latest_input_tick := NetworkHistoryServer.get_latest_input_sender_for(
+		_input_properties.get_subjects(), NetworkTime.tick)
+	
+	# If this is first iteration, start from current tick -1, so we run at least 1 input.
+	if _last_emitted_tick == -1:
+		_last_emitted_tick = NetworkTime.tick - 1
+	
+	var start_tick := _last_emitted_tick + 1
+	
+	for i in range(start_tick, NetworkTime.tick + 1):
+		var snapshot := NetworkHistoryServer._get_input_sender_snapshot(i)
+		
+		if snapshot:
+			_logger.trace("Applying networked snapshot and emitting network_input with inputs %s", [snapshot])
+			_apply_snapshot_for_self(snapshot)
+			network_input.emit(i)
+			_last_emitted_tick = i
+		else:
+			# We dont have snapshot available for that tick.
+			# Find latest known input and emit input_missing
+			var latest_known_tick := NetworkHistoryServer.get_latest_input_sender_for(
+				_input_properties.get_subjects(), i)
+			
+			if latest_known_tick >= 0:
+				var latest_snapshot := NetworkHistoryServer._get_input_sender_snapshot(latest_known_tick)
+				if latest_snapshot:
+					_apply_snapshot_for_self(latest_snapshot)
+			
+			_logger.trace("Emitting missing input")
+			missing_input.emit(i, latest_known_tick)
+			_last_emitted_tick = i
+
+# If the local peer has authority over input node, apply latest inputs
 # and emit signal local_input.
-func _apply_and_emit_local_inputs(for_tick : int) -> void:
-	if not has_authority_over_input_nodes():
+func _handle_authoritative_peer() -> void:
+	var latest_tick := NetworkHistoryServer.get_latest_input_sender_for(_input_properties.get_subjects(),\
+		NetworkTime.tick)
+	
+	# Latest tick shouldnt be -1 here anyway since we have information available as local player
+	# But leave this here until we have more stable structure.
+	if latest_tick == -1:
+		_logger.error("Authoritative peer doesnt have any local input snapshot! This shouldnt happen.")
 		return
 	
-	var latest_local_snapshot := NetworkHistoryServer._get_input_sender_snapshot(for_tick)
+	var tick_start_inclusive : int = -1
+	var tick_end_inclusive : int = NetworkTime.tick
 	
-	if latest_local_snapshot:
-		_logger.trace("Applying local snapshot and emitting local_inputs: %s", [latest_local_snapshot])
-		_apply_snapshot_for_self(latest_local_snapshot)
-		local_input.emit(for_tick)
+	# If this is first iteration, start from current tick, else +1
+	if _last_emitted_tick == -1:
+		tick_start_inclusive = NetworkTime.tick - 1
+	else:
+		tick_start_inclusive = _last_emitted_tick + 1
+	
+	_logger.trace("On authoritative peer, iterating over new inputs and emitting local_input, \
+	ticks to handle %s", [tick_end_inclusive - tick_start_inclusive])
+	
+	for i in range(tick_start_inclusive, tick_end_inclusive + 1, 1):
+		var local_snapshot := NetworkHistoryServer._get_input_sender_snapshot(i)
+		
+		if local_snapshot:
+			_logger.trace("Applying local snapshot and emitting local_inputs: %s", [local_snapshot])
+			_apply_snapshot_for_self(local_snapshot)
+			local_input.emit(i)
+			_last_emitted_tick = i

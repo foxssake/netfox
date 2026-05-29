@@ -121,8 +121,13 @@ func die() -> void:
 	_turret_tilt = 0
 	_turret_traverse = 0
 
-func _on_input_sender_local_input(_tick):
+func _on_input_sender_local_input(tick):
 	print("Input sender local input is emitted on peer:%s" %multiplayer.get_unique_id())
+	_handle_movement(tank_input.movement)
+	_move_turret(tank_input.mouse_movement)
+	
+	if tank_input.fire:
+		_fire(tick)
 
 
 func _on_input_sender_missing_input(current_tick, latest_known_input_tick):
