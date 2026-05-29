@@ -272,13 +272,15 @@ func _handle_authoritative_peer(_delta: float, tick: int) -> void:
 	var latest_simulator_tick := NetworkHistoryServer.get_latest_simulator_for(
 		_state_properties.get_subjects(), tick)
 	
+	# If its -1 we never received snapshot, thus no need to apply it.
+	if latest_simulator_tick != -1:
 	# Apply latest_snapshot.
-	var latest_received_snapshot := NetworkHistoryServer._get_simulator_snapshot(latest_simulator_tick)
-	if latest_received_snapshot:
-		_apply_snapshot_for_self(latest_received_snapshot)
-	else:
-		_logger.trace("Apply snapshot called but snapshot is invalid, assuming its first frame\
-		and snapshot is not received yet.")
+		var latest_received_snapshot := NetworkHistoryServer._get_simulator_snapshot(latest_simulator_tick)
+		if latest_received_snapshot:
+			_apply_snapshot_for_self(latest_received_snapshot)
+		else:
+			_logger.trace("Apply snapshot called but snapshot is invalid, assuming its first frame"+\
+			" and snapshot is not received yet.")
 	
 	# Now that we accepted truth from host, we can run simulated_ticks
 	# with our stored inputs.
@@ -309,22 +311,19 @@ func _handle_host(delta: float, tick: int) -> void:
 	if not simulate_on_host:
 		return
 	
-	# Check if we need inputs to catch up.
-	
-	# Guard to set _latest_input_tick to current -1 if this is the first time this runs.
-	if _latest_input_tick == -1:
-		# This is the first tick host runs.
-		# Even though we could itarete over saved-inputs, for now we wont.
-		# Start from latest received input
-		# TODO Would be better if we did run from last authority_change?
-		
-		# -1 so we run this tick.
-		_latest_input_tick = tick - 1
-	
-	# Compare input ticks.
+	# Get latest received input tick.
 	var latest_input_tick := listened_input_sender.get_latest_received_information_tick(tick)
+	
+	if latest_input_tick == -1:
+		# Never received input.
+		# Cant run simulation without inputs.
+		_logger.trace("Host is skipping simulation on #%s because host never received input", [tick])
+		return
+	
+	# If latest equals our stored latest_tick, this means we already run this simulation.
+	# Cant run if inputs are not new, return.
 	if latest_input_tick == _latest_input_tick:
-		_logger.trace("Host is skipping simulation this tick because there is no new input")
+		_logger.trace("Host is skipping simulation on #%s because there is no new input", [tick])
 		return
 	
 	var ticks_to_run := latest_input_tick - _latest_input_tick
@@ -332,12 +331,6 @@ func _handle_host(delta: float, tick: int) -> void:
 	_logger.trace("Host is looping to run simulated ticks, ticks to run: %s", [ticks_to_run])
 	for i in range(_latest_input_tick + 1, latest_input_tick + 1):
 		
-		# get and apply input_sender_snapshot
-		# TODO read below.
-		# DONT GET CONFUSED! Code below actually overrides properties of input_sender's
-		# input node. However its not improtant and will not override local inputs
-		# because THIS IS HOST! Not authoritative peer.
-		# This is a problem for authority changes and can be fixed easly later.
 		var snapshot := NetworkHistoryServer._get_input_sender_snapshot(i)
 		listened_input_sender._apply_snapshot_for_self(snapshot)
 		for node in _sim_nodes:
