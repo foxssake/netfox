@@ -172,13 +172,7 @@ func _record_input_sender(tick: int) -> void:
 	)
 
 func _record_simulator(tick: int) -> void:
-	# TODO figure out how to handle recording simulator
-	# Basicly we only need to record for local authoritative player.
-	# For now record every simulator since its input authority is a far reference.
-	# To detect that we need to reach simulator.input_sender.
-	# By far reference i mean simulator.input_sender.input_property.is_multiplayer_authority ?????
-	# Better aproach would be to code a flag like is_authoritative_player in simulator
-	_record(tick, _simulator_history, _simulator_snapshots, _simulator_properties, false, func(subject: Node):
+	_record(tick, _simulator_history, _simulator_snapshots, _simulator_properties, true, func(subject: Node):
 		return subject.is_multiplayer_authority()
 	)
 

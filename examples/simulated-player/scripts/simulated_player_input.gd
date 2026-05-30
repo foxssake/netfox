@@ -19,3 +19,4 @@ func _gather():
 	movement = Vector3(mx, 0, mz)
 
 	jump = Input.is_action_pressed("move_jump")
+	print("inputs: movement %s, jump %s" %[movement, jump])
