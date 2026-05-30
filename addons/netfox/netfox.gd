@@ -259,7 +259,11 @@ const AUTOLOADS: Array[Dictionary] = [
 	{
 		"name": "InterpolationServer",
 		"path": ROOT + "/servers/interpolation-server.gd"
-	}
+	},
+	{
+		"name": "InputSenderServer",
+		"path": ROOT + "/servers/input-sender-server.gd"
+	},
 ]
 
 const TYPES: Array[Dictionary] = [
