@@ -10,6 +10,7 @@
 [node name="SimulatedPlayerExample" type="Node3D"]
 
 [node name="Square Map" parent="." instance=ExtResource("1_t21fn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.65592, 0)
 
 [node name="Environment" parent="." instance=ExtResource("2_epr86")]
 

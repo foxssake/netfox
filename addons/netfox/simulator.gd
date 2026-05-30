@@ -186,9 +186,7 @@ func process_settings() -> void:
 	for node in _state_properties.get_subjects():
 		NetworkSynchronizationServer.register_visibility_filter(node, visibility_filter)
 	
-	if not _signals_connected:
-		_connect_signals()
-		_signals_connected = true
+	_connect_signals()
 
 ## Process settings based on authority.
 ## [br][br]
@@ -233,7 +231,41 @@ func _reprocess_settings() -> void:
 	process_settings()
 
 func _connect_signals() -> void:
-	NetworkTime.after_tick.connect(_on_after_tick)
+	if not NetworkTime.after_tick.is_connected(_on_after_tick):
+		NetworkTime.after_tick.connect(_on_after_tick)
+	
+	if listened_input_sender and not listened_input_sender.network_input.is_connected(_on_network_input):
+		listened_input_sender.network_input.connect(_on_network_input)
+	
+	if listened_input_sender and not listened_input_sender.local_input.is_connected(_on_local_input):
+		listened_input_sender.local_input.connect(_on_local_input)
+
+func _on_network_input(tick : int) -> void:
+	# Run this function on host only
+	if not is_multiplayer_authority():
+		return
+	
+	# Dont run this function if this is local HOST player.
+	# Because local host player is handled with on_local_input.
+	if listened_input_sender.has_authority_over_input_nodes():
+		return
+	
+	_logger.trace("Simulating tick remote player on host.")
+	for node in _sim_nodes:
+		node.call("_simulated_tick", NetworkTime.seconds_between(tick, tick + 1), tick)
+
+func _on_local_input(tick : int) -> void:
+	# Run this function on host only.
+	if not is_multiplayer_authority():
+		return
+	
+	# Run this function if this is local HOST player.
+	if not listened_input_sender.has_authority_over_input_nodes():
+		return
+	
+	_logger.trace("Simulating tick on host player")
+	for node in _sim_nodes:
+		node.call("_simulated_tick", NetworkTime.seconds_between(tick, tick + 1), tick)
 
 # Do logic depending on mode explained in class description.
 func _on_after_tick(delta: float, tick: int) -> void:
@@ -246,22 +278,15 @@ func _on_after_tick(delta: float, tick: int) -> void:
 	
 	# Figure out which mode we are operating on.
 	var has_input_authority := listened_input_sender.has_authority_over_input_nodes()
-	var has_simulator_authority := is_multiplayer_authority()
+	var is_host := is_multiplayer_authority()
 	
-	if has_input_authority:
-		# This is authoritative player
-		# Even if this is host application, treat this as authoritative_peer since it has
-		# input authority.
+	if has_input_authority and not is_host:
+		# This is authoritative player but not host - local non host player.
 		_handle_authoritative_peer(delta, tick)
 		return
 	
-	if has_simulator_authority:
-		# This is host
-		_handle_host(delta, tick)
-		return
-	
-	# this is puppet peer.
-	_handle_puppet_peer(delta, tick)
+	if not has_input_authority and not is_host:
+		_handle_puppet_peer(delta, tick)
 
 # Check if there is a new snapshot from host
 # if there is a new snapshot, apply and simulate onwards with buffered inputs. 
@@ -305,39 +330,39 @@ func _handle_authoritative_peer(_delta: float, tick: int) -> void:
 		listened_input_sender._apply_snapshot_for_self(local_input_snapshot)
 		for node in _sim_nodes:
 			node.call("_simulated_tick", NetworkTime.seconds_between(i, i + 1), i)
-	
 
-# Host needs to run _simulated_tick with new received inputs.
-func _handle_host(delta: float, tick: int) -> void:
-	if not simulate_on_host:
-		return
-	
-	# Get latest received input tick.
-	var latest_input_tick := listened_input_sender.get_latest_received_information_tick(tick)
-	
-	if latest_input_tick == -1:
-		# Never received input.
-		# Cant run simulation without inputs.
-		_logger.trace("Host is skipping simulation on #%s because host never received input", [tick])
-		return
-	
-	# If latest equals our stored latest_tick, this means we already run this simulation.
-	# Cant run if inputs are not new, return.
-	if latest_input_tick == _latest_input_tick:
-		_logger.trace("Host is skipping simulation on #%s because there is no new input", [tick])
-		return
-	
-	var ticks_to_run := latest_input_tick - _latest_input_tick
-	
-	_logger.trace("Host is looping to run simulated ticks, ticks to run: %s", [ticks_to_run])
-	for i in range(_latest_input_tick + 1, latest_input_tick + 1):
-		
-		var snapshot := NetworkHistoryServer._get_input_sender_snapshot(i)
-		listened_input_sender._apply_snapshot_for_self(snapshot)
-		for node in _sim_nodes:
-			node.call("_simulated_tick", NetworkTime.seconds_between(i, i + 1), i)
-	
-	_latest_input_tick = tick
+## Host needs to run _simulated_tick with new received inputs.
+#func _handle_host(delta: float, tick: int) -> void:
+#	if not simulate_on_host:
+#		return
+#
+#	# Get latest received input tick.
+#	var latest_input_tick := listened_input_sender.get_latest_received_information_tick(tick)
+#
+#	if latest_input_tick == -1:
+#		# Never received input.
+#		# Cant run simulation without inputs.
+#		_logger.trace("Host is skipping simulation on #%s because host never received input", [tick])
+#		return
+#
+#	# If latest equals our stored latest_tick, this means we already run this simulation.
+#	# Cant run if inputs are not new, return.
+#	if latest_input_tick == _latest_input_tick:
+#		_logger.trace("Host is skipping simulation on #%s because there is no new input", [tick])
+#		return
+#
+#	var ticks_to_run := latest_input_tick - _latest_input_tick
+#
+#	_logger.trace("Host is looping to run simulated ticks, ticks to run: %s", [ticks_to_run])
+#	for i in range(_latest_input_tick + 1, latest_input_tick + 1):
+#
+#		var snapshot := NetworkHistoryServer._get_input_sender_snapshot(i)
+#		if snapshot:
+#			listened_input_sender._apply_snapshot_for_self(snapshot)
+#			for node in _sim_nodes:
+#				node.call("_simulated_tick", NetworkTime.seconds_between(i, i + 1), i)
+#
+#	_latest_input_tick = tick
 
 # For pupper peer we only need to interpolate latest state to new one.
 # TODO Do we need to code interpolation? try it first

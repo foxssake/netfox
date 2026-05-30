@@ -350,22 +350,19 @@ func _synchronize_input_sender(tick: int) -> void:
 	var snapshots := [] as Array[_Snapshot]
 	var notified_peers := _Set.new()
 	
-	# By default input sender only sends input to server, check if its enabled
-	## TODO double check notified peers.
+	# By default input sender only sends input to host, check if its enabled.
 	if not _input_sender_enable_broadcast:
 		# Input broadcast is off, only send inputs to host.
 			for node in _input_sender_owned_properties.get_subjects():
 				notified_peers.add(1)
-				## TODO check if this is solid or should be code below.
-#				notified_peers.add(node.get_multiplayer_authority())
 	else:
 		# If input broadcast is on, send inputs to everyone
 		for peer in multiplayer.get_peers():
 			notified_peers.add(peer)
 	
 	# Make sure to not send input to ourselves
-	# Maybe: Only erase ourselves if this is not host, because listen servers could benefit
-	# TODO does above comment this make sense?
+	# Even if host is also a player, host should be able to reach stored inputs via
+	# recorded snapshots.
 	notified_peers.erase(multiplayer.get_unique_id())
 	
 	# Prepare snapshot package

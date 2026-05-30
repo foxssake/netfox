@@ -243,7 +243,11 @@ const AUTOLOADS: Array[Dictionary] = [
 	{
 		"name": "RollbackLivenessServer",
 		"path": ROOT + "/servers/rollback-liveness-server.gd"
-	}
+	},
+	{
+		"name": "InputSenderServer",
+		"path": ROOT + "/servers/input-sender-server.gd"
+	},
 ]
 
 const TYPES: Array[Dictionary] = [
