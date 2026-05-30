@@ -170,6 +170,11 @@ var SETTINGS: Array[Dictionary] = [
 		"type" : TYPE_INT
 	},
 	{
+		"name": "netfox/input_sender/missing_input_history",
+		"value": 16,
+		"type" : TYPE_INT
+	},
+	{
 		"name": "netfox/input_sender/enable_input_broadcast",
 		"value": false,
 		"type" : TYPE_BOOL
