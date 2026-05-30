@@ -59,11 +59,11 @@ var visibility_filter := PeerVisibilityFilter.new()
 var _input_properties := _PropertyPool.new()
 var _properties_dirty: bool = false
 
-# Stored latest ticks
+# Stored latest ticks for signals.
 var _last_network_tick : int = -1
 var _last_local_tick : int = -1
-var _last_missing_tick : int = -1
-var _last_emitted_tick : int = -1
+var _missing_ticks : Array[int] = []
+var _missing_inputs_history_size : int = 16 
 
 var _logger := NetfoxLogger._for_netfox("InputSender")
 
@@ -136,8 +136,9 @@ func process_settings() -> void:
 func process_authority():
 	
 	_last_local_tick = -1
-	_last_missing_tick = -1
 	_last_network_tick = -1
+	_missing_inputs_history_size = ProjectSettings.get_setting("netfox/input_sender/missing_input_history", 16)
+	_missing_ticks = []
 	
 	for node in _input_properties.get_subjects():
 		for property in _input_properties.get_properties_of(node):
@@ -285,34 +286,53 @@ func _handle_host() -> void:
 	var latest_input_tick := NetworkHistoryServer.get_latest_input_sender_for(
 		_input_properties.get_subjects(), NetworkTime.tick)
 	
-	# If this is first iteration, start from current tick -1, so we run at least 1 input.
-	if _last_emitted_tick == -1:
-		_last_emitted_tick = NetworkTime.tick - 1
 	
-	var start_tick := _last_emitted_tick + 1
+	# First handle network_inputs.
+	if _last_network_tick == -1:
+		_last_network_tick = NetworkTime.tick - 1
 	
-	for i in range(start_tick, NetworkTime.tick + 1):
+	var start_tick := _last_network_tick
+	
+	for i in range(start_tick, NetworkTime.tick):
 		var snapshot := NetworkHistoryServer._get_input_sender_snapshot(i)
 		
 		if snapshot:
 			_logger.trace("Applying networked snapshot and emitting network_input with inputs %s", [snapshot])
 			_apply_snapshot_for_self(snapshot)
 			network_input.emit(i)
-			_last_emitted_tick = i
+			_last_network_tick = i
 		else:
-			# We dont have snapshot available for that tick.
-			# Find latest known input and emit input_missing
+			# Consider input is missing
+			_missing_ticks.push_back(i)
+	
+	# Now handle missing_inputs
+	
+	var to_erase : Array[int] = []
+	
+	for i in _missing_ticks:
+		if NetworkTime.tick - i > _missing_inputs_history_size:
 			var latest_known_tick := NetworkHistoryServer.get_latest_input_sender_for(
 				_input_properties.get_subjects(), i)
 			
 			if latest_known_tick >= 0:
-				var latest_snapshot := NetworkHistoryServer._get_input_sender_snapshot(latest_known_tick)
-				if latest_snapshot:
-					_apply_snapshot_for_self(latest_snapshot)
+				var snapshot := NetworkHistoryServer._get_input_sender_snapshot(latest_known_tick)
+				_apply_snapshot_for_self(snapshot)
 			
-			_logger.trace("Emitting missing input")
-			missing_input.emit(i, latest_known_tick)
-			_last_emitted_tick = i
+			_logger.trace("Input is missing for more than history size. Considering lost.")
+			missing_input.emit(NetworkTime.tick, latest_known_tick)
+			
+			to_erase.push_back(i)
+			continue
+		
+		var snapshot := NetworkHistoryServer._get_input_sender_snapshot(i)
+		
+		if snapshot:
+			# We found previously missing input.
+			_logger.trace("Previously missing input snapshot now valid, emitting network_input with\
+			inputs %s", [snapshot])
+			_apply_snapshot_for_self(snapshot)
+			network_input.emit(i)
+			to_erase.push_back(i)
 
 # If the local peer has authority over input node, apply latest inputs
 # and emit signal local_input.
@@ -330,10 +350,10 @@ func _handle_authoritative_peer() -> void:
 	var tick_end_inclusive : int = NetworkTime.tick
 	
 	# If this is first iteration, start from current tick, else +1
-	if _last_emitted_tick == -1:
+	if _last_local_tick == -1:
 		tick_start_inclusive = NetworkTime.tick - 1
 	else:
-		tick_start_inclusive = _last_emitted_tick + 1
+		tick_start_inclusive = _last_local_tick + 1
 	
 	_logger.trace("On authoritative peer, iterating over new inputs and emitting local_input, \
 	ticks to handle %s", [tick_end_inclusive - tick_start_inclusive])
@@ -345,4 +365,4 @@ func _handle_authoritative_peer() -> void:
 			_logger.trace("Applying local snapshot and emitting local_inputs: %s", [local_snapshot])
 			_apply_snapshot_for_self(local_snapshot)
 			local_input.emit(i)
-			_last_emitted_tick = i
+			_last_local_tick = i
