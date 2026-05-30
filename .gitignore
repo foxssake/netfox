@@ -36,4 +36,4 @@ classdb.json
 sh/ensure-uids.sh
 
 # netfox traces
-traces.*
+traces.*.xml
