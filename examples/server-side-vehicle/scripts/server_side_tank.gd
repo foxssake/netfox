@@ -48,11 +48,6 @@ func _unhandled_input(event):
 	if not tank_input.is_multiplayer_authority():
 		return
 	
-	if Input.is_action_just_pressed("weapon_fire"):
-		# Dont fire on host machine as it will fire already on _on_input_sender_new_input_received
-		if not multiplayer.is_server():
-			_fire(NetworkTime.tick)
-	
 	if event.is_action_pressed("focus"):
 		if focus_camera.current:
 			focus_camera.current = false
@@ -100,6 +95,7 @@ func _move_turret(mouse_input : Vector2) -> void:
 	_turret_tilt = clamp(_turret_tilt, deg_to_rad(tilt_lower_limit), deg_to_rad(tilt_upper_limit))
 	turret.basis = turret.basis.rotated(turret.basis.x, _turret_tilt)
 
+# Fires only on the host..
 func _fire(tick : int) -> void:
 	if tick - _last_fire_tick < fire_cooldown_tick:
 		return

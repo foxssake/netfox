@@ -60,7 +60,6 @@ var _input_properties := _PropertyPool.new()
 var _properties_dirty: bool = false
 
 # Stored latest ticks for signals.
-var _last_network_tick : int = -1
 var _last_local_tick : int = -1
 var _missing_ticks : Array[int] = []
 var _missing_inputs_history_size : int = 16 
@@ -136,7 +135,6 @@ func process_settings() -> void:
 func process_authority():
 	
 	_last_local_tick = -1
-	_last_network_tick = -1
 	_missing_inputs_history_size = ProjectSettings.get_setting("netfox/input_sender/missing_input_history", 16)
 	_missing_ticks = []
 	
@@ -279,7 +277,6 @@ func _apply_snapshot_for_self(snapshot : _Snapshot) -> void:
 # This function shouldnt run if host also owns the input node.
 # In that case, _handle_authoritative_peer function should run.
 func _handle_host() -> void:
-	# Get the latest input data available
 	# Known issue: If input sender is configured with multiple input nodes,
 	# Any fresh input from one node will trigger re-emitting of other node's inputs?
 	# TODO: look at above issue.
@@ -287,32 +284,35 @@ func _handle_host() -> void:
 		_input_properties.get_subjects(), NetworkTime.tick)
 	
 	
-	# First handle network_inputs.
-	if _last_network_tick == -1:
-		_last_network_tick = NetworkTime.tick - 1
-	
-	var start_tick := _last_network_tick
-	
-	for i in range(start_tick, NetworkTime.tick):
-		var snapshot := NetworkHistoryServer._get_input_sender_snapshot(i)
-		
+	# TODO below.
+	# This check right here actually doesnt make sense since inputs are always arrived
+	# with latency in real life.
+	# but this way or another we still need to check them in a way and loop them over
+	# for missing inputs anyway so its not really that bad.
+	if latest_input_tick == NetworkTime.tick:
+		# We should have a snapshot
+		var snapshot := NetworkHistoryServer._get_input_sender_snapshot(NetworkTime.tick)
 		if snapshot:
-			_logger.trace("Applying networked snapshot and emitting network_input with inputs %s", [snapshot])
+			_logger.trace("On host applying networked snapshot and emitting network_input with\
+			inputs %s", [snapshot])
 			_apply_snapshot_for_self(snapshot)
-			network_input.emit(i)
-			_last_network_tick = i
+			network_input.emit(NetworkTime.tick)
 		else:
 			# Consider input is missing
-			_missing_ticks.push_back(i)
+			_missing_ticks.push_back(NetworkTime.tick)
+	else:
+		# Consider input is missing
+		_missing_ticks.push_back(NetworkTime.tick)
 	
-	# Now handle missing_inputs
-	
+	# Now handle previously missing_inputs
 	var to_erase : Array[int] = []
 	
 	for i in _missing_ticks:
 		if NetworkTime.tick - i > _missing_inputs_history_size:
 			var latest_known_tick := NetworkHistoryServer.get_latest_input_sender_for(
 				_input_properties.get_subjects(), i)
+			
+			_logger.trace("for tick %s, latest_known_tick is %s", [i, latest_known_tick])
 			
 			if latest_known_tick >= 0:
 				var snapshot := NetworkHistoryServer._get_input_sender_snapshot(latest_known_tick)
@@ -324,15 +324,24 @@ func _handle_host() -> void:
 			to_erase.push_back(i)
 			continue
 		
-		var snapshot := NetworkHistoryServer._get_input_sender_snapshot(i)
+		var latest_known_tick := NetworkHistoryServer.get_latest_input_sender_for(
+			_input_properties.get_subjects(), i)
 		
-		if snapshot:
-			# We found previously missing input.
-			_logger.trace("Previously missing input snapshot now valid, emitting network_input with\
-			inputs %s", [snapshot])
-			_apply_snapshot_for_self(snapshot)
-			network_input.emit(i)
-			to_erase.push_back(i)
+		if latest_known_tick == i:
+			# We now have information available for previously missing input.
+			var snapshot := NetworkHistoryServer._get_input_sender_snapshot(latest_known_tick)
+			
+			if snapshot:
+				# We found previously missing input.
+				_logger.trace("Previously missing input snapshot now valid, emitting network_input with\
+				inputs %s", [snapshot])
+				_apply_snapshot_for_self(snapshot)
+				network_input.emit(i)
+				to_erase.push_back(i)
+	
+	# Clean up
+	for i in to_erase:
+		_missing_ticks.erase(i)
 
 # If the local peer has authority over input node, apply latest inputs
 # and emit signal local_input.
