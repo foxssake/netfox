@@ -252,7 +252,6 @@ func _on_after_tick(delta: float, tick: int) -> void:
 		# This is authoritative player
 		# Even if this is host application, treat this as authoritative_peer since it has
 		# input authority.
-		# TODO make sure this is not causing sync or authoritative history loss issues.
 		_handle_authoritative_peer(delta, tick)
 		return
 	
@@ -273,10 +272,11 @@ func _handle_authoritative_peer(_delta: float, tick: int) -> void:
 		_state_properties.get_subjects(), tick)
 	
 	# If its -1 we never received snapshot, thus no need to apply it.
-	if latest_simulator_tick != -1:
+	if latest_simulator_tick >= 0:
 	# Apply latest_snapshot.
 		var latest_received_snapshot := NetworkHistoryServer._get_simulator_snapshot(latest_simulator_tick)
 		if latest_received_snapshot:
+			_logger.trace("Authoritative peer applying latest received snapshot as truth: %s", [latest_received_snapshot])
 			_apply_snapshot_for_self(latest_received_snapshot)
 		else:
 			_logger.trace("Apply snapshot called but snapshot is invalid, assuming its first frame"+\
@@ -284,8 +284,6 @@ func _handle_authoritative_peer(_delta: float, tick: int) -> void:
 	
 	# Now that we accepted truth from host, we can run simulated_ticks
 	# with our stored inputs.
-	# For now ignore the race between this function and saving inputs on 
-	# input_sender's input node.
 	
 	_logger.trace("Authoritative peer is looping to run simulated ticks, \
 	from inclusive tick %s to exclusive tick %s", [latest_simulator_tick, tick])
@@ -300,6 +298,9 @@ func _handle_authoritative_peer(_delta: float, tick: int) -> void:
 			_logger.trace("Authoritative peer is running simulated ticks, \
 			local input snapshot is null at tick %s" %i)
 			continue
+		
+		_logger.trace("Authoritative peer is applying input snapshot %s and running tick",
+		[local_input_snapshot])
 		
 		listened_input_sender._apply_snapshot_for_self(local_input_snapshot)
 		for node in _sim_nodes:
