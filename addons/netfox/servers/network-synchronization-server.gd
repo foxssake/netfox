@@ -215,12 +215,9 @@ func _synchronize_state(tick: int) -> void:
 		for peer in multiplayer.get_peers():
 			var filter := func(subject): return _is_node_visible_to(peer, subject)
 
-			var data := _dense_serializer.write_for(peer, snapshot, _rb_owned_state_properties, filter)
-			if data.is_empty():
-				# Peer can't see anything, send nothing
-				continue
-
-			_cmd_full_state.send(data, peer)
+			var packets := _dense_serializer.write_for(peer, snapshot, _rb_owned_state_properties, filter)
+			for packet in packets:
+				_cmd_full_state.send(packet, peer)
 
 			NetworkPerformance.push_full_state_props(snapshot.size())
 			NetworkPerformance.push_sent_state_props(snapshot.size())
@@ -234,12 +231,9 @@ func _synchronize_state(tick: int) -> void:
 		for peer in multiplayer.get_peers():
 			var filter := func(subject): return _is_node_visible_to(peer, subject)
 
-			var data := _sparse_serializer.write_for(peer, diff, _rb_owned_state_properties, filter)
-			if data.is_empty():
-				# Peer can't see any changes, send nothing
-				continue
-
-			_cmd_diff_state.send(data, peer)
+			var packets := _sparse_serializer.write_for(peer, diff, _rb_owned_state_properties, filter)
+			for packet in packets:
+				_cmd_diff_state.send(packet, peer)
 
 			NetworkPerformance.push_full_state_props(snapshot.size())
 			NetworkPerformance.push_sent_state_props(diff.size())

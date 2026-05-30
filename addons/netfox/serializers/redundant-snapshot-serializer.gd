@@ -10,19 +10,26 @@ func _init(p_schemas: _NetworkSchema, p_identity_server: _NetworkIdentityServer 
 	super(p_schemas)
 	_dense_serializer = _DenseSnapshotSerializer.new(_schemas, p_identity_server)
 
-func write_for(peer: int, snapshots: Array[_Snapshot], properties: _PropertyPool, buffer: StreamPeerBuffer = null) -> PackedByteArray:
+func write_for(peer: int, snapshots: Array[_Snapshot], properties: _PropertyPool) -> PackedByteArray:
 	var varuint := NetworkSchemas.varuint()
-
-	if buffer == null:
-		buffer = StreamPeerBuffer.new()
+	var buffer := StreamPeerBuffer.new()
 
 	# TODO(#560): How about encoding the first snapshot as-is, and then the rest as diffs
 	for snapshot in snapshots:
-		var serialized := _dense_serializer.write_for(peer, snapshot, properties)
+		var dense_packets := _dense_serializer.write_for(peer, snapshot, properties)
+		
+		if dense_packets.size() == 0: continue
+		if dense_packets.size() > 1:
+			_logger.warning("Redundant snapshot does not fit into a single packet! Max packet size: %d bytes", [max_packet_size])
+			
+		var dense_packet := dense_packets[0]
 
 		# Write size and snapshot
-		varuint.encode(serialized.size(), buffer)
-		buffer.put_data(serialized)
+		varuint.encode(dense_packet.size(), buffer)
+		buffer.put_data(dense_packet)
+
+	if buffer.get_size() > max_packet_size:
+		_logger.warning("Redundant data does not fit into a single packet! Max packet size: %d bytes", [max_packet_size])
 
 	return buffer.data_array
 

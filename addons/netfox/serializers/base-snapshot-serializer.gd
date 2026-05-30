@@ -1,6 +1,8 @@
 extends RefCounted
 class_name _BaseSnapshotSerializer
 
+var max_packet_size := 1440
+
 var _identity_server: _NetworkIdentityServer
 var _schemas: _NetworkSchema
 
