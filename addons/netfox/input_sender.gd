@@ -7,14 +7,16 @@ class_name InputSender
 ##
 ## [InputSender] is a multi purpose node to use on networked games,
 ## It provides signals to code host and client side logic.
-## [InputSender] signals are tied and emitted on [signal NetworkTime.after_tick_loop].
+## [InputSender] signals are tied and emitted on [signal NetworkTime.on_tick].
 ## 
 ## @experimental:
-## [InputSender] assumes input snapshots arrive as whole. (atomic), if snapshot
+## InputSenderServer assumes input snapshots arrive as whole. (atomic), if snapshot
 ## arrives with multiple parts, [InputSender] signals wont be reliable to 
 ## code game logic.
 
 ## Emitted if host received input from remote owner of input_properties.
+## Emitted for inputs that arrive within missing-input-history range.
+## (see project settings netfox/input-sender/missing-input-history)
 ## InputSenderServer handles applying received input internally before emitting this signal.
 ## Use this signal to code host side logic.
 signal network_input(tick : int)
@@ -30,18 +32,21 @@ signal network_input(tick : int)
 ## using some other method to syncronize game state (Syncronizers/Simulators).
 signal local_input(tick : int)
 
-## TODO check this documentation.
-## Emitted if input is lost.
-## Input is considered lost if its received older than missing-input-history or
-## never received, under project settings netfox/input-sender.
-# [signal NetworkTime.after_tick_loop].
-## InputSenderServer will try to apply latest known input that comes before missing tick
-## internally before emitting this signal.
-## Emitted only if [InputSender] is authority.
-## If host couldnt find known previous input, latest_known_input_tick will be -1.
-## In that scenario, [InputSender] will not be able to have correct inputs applied.
+## Emitted if input is missing.
+## Input is considered missing if host did not receive input for a tick more than
+## missing-input-history. (See project settings netfox/input-sender).
+## Host will try to find and apply previous known inputs before emitting this signal.
+## If host cant find any previous known input, latest_known_input_tick will be -1.
+## Also see late_input signal. An input will be considered missing at first,
+## but later it might arrive late. In that sceneario late_input signal will be emitted too.
 ## Use this signal to code host side prediction logic.
 signal missing_input(for_tick : int, latest_known_input_tick : int)
+
+## Emitted when input arrived so late that it past the missing history size.
+## (see project settings netfox/input-sender/missing-input-history)
+## InputSenderServer will apply received input state internally before emitting this signal.
+## If a late input also past the history limit of input-sender, it will be dropped. 
+signal late_input(for_tick : int)
 
 ## The root node for resolving node paths in inputs. Defaults to the parent node.
 @export var root: Node = get_parent()
@@ -89,6 +94,9 @@ func _enter_tree() -> void:
 	process_settings.call_deferred()
 
 func _exit_tree():
+	if Engine.is_editor_hint():
+		return
+	
 	InputSenderServer._deregister_input_sender(self)
 
 ## Process settings.
@@ -225,3 +233,14 @@ func _apply_snapshot_for_self(snapshot : _Snapshot) -> void:
 				var value := snapshot.get_property(subject, property)
 				# TODO is this should be node.set_indexed ??
 				subject.set_indexed(property, value)
+
+# Helper function to save current input_properties.
+# Used internally by InputSenderServer to record state before overwriting properties
+# and emitting signals.
+func _save_properties() -> void:
+	_saved_inputs_snapshot = _PropertySnapshot.extract(_property_entries)
+
+# Helper function to restore input_properties.
+# Used internally by InputSenderServer to restore state after overwriting properties. 
+func _restore_properties() -> void:
+	_saved_inputs_snapshot.apply(_property_cache)
