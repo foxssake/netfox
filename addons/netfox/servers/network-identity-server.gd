@@ -28,6 +28,7 @@ var _push_queue := {} # peer to (full name to id)
 
 var _identifier_by_name := {} # full name to NetworkIdentifier
 var _identifier_by_id := {} # peer to (id to NetworkIdentifier)
+var _identifier_by_local_id := {} # local id to NetworkIdentifier
 
 var _cmd_ids: _NetworkCommandServer.Command
 var _packet_serializer := _IdentityPacketSerializer.new()
@@ -68,6 +69,7 @@ func clear() -> void:
 	_identifiers.clear()
 	_identifier_by_name.clear()
 	_identifier_by_id.clear()
+	_identifier_by_local_id.clear()
 	_next_id = 0
 
 ## Queue sending the numeric ID of [param node] to [param peer]
@@ -97,7 +99,7 @@ func _get_identifier_of(what: Object) -> _NetworkIdentifier:
 
 func _resolve_reference(peer: int, identity_reference: _NetworkIdentityReference, allow_queue: bool = true) -> _NetworkIdentifier:
 	if identity_reference.has_id():
-		return _get_identifier_by_id(multiplayer.get_unique_id(), identity_reference.get_id())
+		return _get_identifier_by_local_id(identity_reference.get_id())
 	else:
 		var identifier := _get_identifier_by_name(identity_reference.get_full_name())
 		if allow_queue and identifier:
@@ -119,12 +121,12 @@ func _register(what: Object, path: String) -> void:
 	if _identifiers.has(what):
 		return
 
-	var identifier := _NetworkIdentifier.new(what, path, _make_id(), multiplayer.get_unique_id())
+	var identifier := _NetworkIdentifier.new(what, path, _make_id())
 	_identifiers[what] = identifier
 	_identifier_by_name[identifier.get_full_name()] = identifier
+	_identifier_by_local_id[identifier.get_local_id()] = identifier
 
 	identifier.on_id.connect(func(peer: int, id: int): _update_id_cache(identifier, peer, id))
-	_update_id_cache(identifier, multiplayer.get_unique_id(), identifier.get_local_id())
 
 func _deregister(what: Object) -> void:
 	if not _identifiers.has(what):
@@ -133,14 +135,14 @@ func _deregister(what: Object) -> void:
 	var identifier := _identifiers[what] as _NetworkIdentifier
 	_identifiers.erase(what)
 	_identifier_by_name.erase(identifier.get_full_name())
+	_identifier_by_local_id.erase(identifier.get_local_id())
 	_erase_from_id_cache(identifier)
-
 
 func _get_identifier_by_name(full_name: String) -> _NetworkIdentifier:
 	return _identifier_by_name.get(full_name)
 
-func _get_identifier_by_id(peer: int, id: int) -> _NetworkIdentifier:
-	return _identifier_by_id.get(peer, {}).get(id, null)
+func _get_identifier_by_local_id(local_id: int) -> _NetworkIdentifier:
+	return _identifier_by_local_id.get(local_id, null)
 
 func _make_id() -> int:
 	_next_id += 1
