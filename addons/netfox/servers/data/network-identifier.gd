@@ -3,16 +3,15 @@ extends RefCounted
 
 var _subject: Object
 var _full_name: String
-var _ids: Dictionary = {} # peer to id
+var _ids: Dictionary = {} # peer to id - local ID intentionally not stored here
 var _local_id: int
 
 signal on_id(peer: int, id: int)
 
-func _init(subject: Object, full_name: String, local_id: int, local_peer: int):
+func _init(subject: Object, full_name: String, local_id: int):
 	_subject = subject
 	_full_name = full_name
 	_local_id = local_id
-	_ids[local_peer] = local_id
 
 func has_id_for(peer: int) -> bool:
 	return _ids.has(peer)
