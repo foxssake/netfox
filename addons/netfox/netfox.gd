@@ -157,7 +157,46 @@ var SETTINGS: Array[Dictionary] = [
 		"name": "netfox/events/enabled",
 		"value": true,
 		"type": TYPE_BOOL
-	}
+	},
+	# Input Sender
+	{
+		"name": "netfox/input_sender/input_redundancy",
+		"value": 3,
+		"type" : TYPE_INT
+	},
+	{
+		"name": "netfox/input_sender/history_limit",
+		"value": 64,
+		"type" : TYPE_INT
+	},
+	{
+		"name": "netfox/input_sender/missing_input_history",
+		"value": 16,
+		"type" : TYPE_INT
+	},
+	{
+		"name": "netfox/input_sender/enable_input_broadcast",
+		"value": false,
+		"type" : TYPE_BOOL
+	},
+	# Simulator
+	{
+		"name": "netfox/simulator/full_state_interval",
+		"value": 24,
+		"type": TYPE_INT,
+		"hint": PROPERTY_HINT_RANGE,
+		"hint_string": "0,60,or_greater"
+	},
+	{
+		"name": "netfox/simulator/enable_diff_states",
+		"value": true,
+		"type": TYPE_BOOL
+	},
+	{
+		"name": "netfox/simulator/history_limit",
+		"value": 64,
+		"type" : TYPE_INT
+	},
 ]
 
 const AUTOLOADS: Array[Dictionary] = [
@@ -204,7 +243,15 @@ const AUTOLOADS: Array[Dictionary] = [
 	{
 		"name": "RollbackLivenessServer",
 		"path": ROOT + "/servers/rollback-liveness-server.gd"
-	}
+	},
+	{
+		"name": "InputSenderServer",
+		"path": ROOT + "/servers/input-sender-server.gd"
+	},
+	{
+		"name": "SimulatorServer",
+		"path": ROOT + "/servers/simulator-server.gd"
+	},
 ]
 
 const TYPES: Array[Dictionary] = [
@@ -237,6 +284,18 @@ const TYPES: Array[Dictionary] = [
 		"base": "Node",
 		"script": ROOT + "/rollback/predictive-synchronizer.gd",
 		"icon": ROOT + "/icons/predictive-synchronizer.svg"
+	},
+	{
+		"name": "InputSender",
+		"base": "Node",
+		"script": ROOT + "/input-sender.gd",
+		"icon": ROOT + "/icons/input-sender.svg"
+	},
+	{
+		"name": "Simulator",
+		"base": "Node",
+		"script": ROOT + "/simulator.gd",
+		"icon": ROOT + "/icons/simulator.svg"
 	},
 ]
 

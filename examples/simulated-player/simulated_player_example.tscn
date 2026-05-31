@@ -1,0 +1,24 @@
+[gd_scene load_steps=7 format=3 uid="uid://1m61lxyrckhr"]
+
+[ext_resource type="PackedScene" uid="uid://cngy6hs8ohodj" path="res://examples/shared/scenes/map-square.tscn" id="1_t21fn"]
+[ext_resource type="PackedScene" uid="uid://cncdbq72u50j3" path="res://examples/shared/scenes/environment.tscn" id="2_epr86"]
+[ext_resource type="PackedScene" uid="uid://badtpsxn5lago" path="res://examples/shared/ui/network-popup.tscn" id="3_q107i"]
+[ext_resource type="PackedScene" uid="uid://bpf1jdr255nr0" path="res://examples/shared/ui/time-display.tscn" id="4_qcrnb"]
+[ext_resource type="Script" path="res://examples/shared/scripts/player-spawner.gd" id="5_3uvn6"]
+[ext_resource type="PackedScene" uid="uid://co2srxfbf8dac" path="res://examples/simulated-player/scenes/simulated_player.tscn" id="6_15sfs"]
+
+[node name="SimulatedPlayerExample" type="Node3D"]
+
+[node name="Square Map" parent="." instance=ExtResource("1_t21fn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.65592, 0)
+
+[node name="Environment" parent="." instance=ExtResource("2_epr86")]
+
+[node name="Network Popup" parent="." instance=ExtResource("3_q107i")]
+
+[node name="Time Display" parent="." instance=ExtResource("4_qcrnb")]
+
+[node name="Players" type="Node" parent="." node_paths=PackedStringArray("spawn_root")]
+script = ExtResource("5_3uvn6")
+player_scene = ExtResource("6_15sfs")
+spawn_root = NodePath(".")
