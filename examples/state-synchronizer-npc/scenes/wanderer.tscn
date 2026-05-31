@@ -1,8 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://ru7kvgw7wjew"]
+[gd_scene load_steps=6 format=3 uid="uid://ru7kvgw7wjew"]
 
 [ext_resource type="Script" path="res://addons/netfox/state-synchronizer.gd" id="1_dmbj5"]
 [ext_resource type="Script" path="res://examples/state-synchronizer-npc/scripts/wanderer.gd" id="1_pvikn"]
-[ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="3_nyirf"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_0ixcg"]
 
@@ -13,6 +12,7 @@ radius = 0.25
 height = 0.5
 
 [node name="Wanderer" type="CharacterBody3D"]
+collision_layer = 0
 script = ExtResource("1_pvikn")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
@@ -29,8 +29,3 @@ mesh = SubResource("SphereMesh_lew78")
 script = ExtResource("1_dmbj5")
 root = NodePath("..")
 properties = Array[String]([":position", ":quaternion"])
-
-[node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
-script = ExtResource("3_nyirf")
-root = NodePath("..")
-properties = Array[String]([":transform"])

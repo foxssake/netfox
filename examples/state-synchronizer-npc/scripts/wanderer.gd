@@ -18,6 +18,12 @@ var _wander_timer: float
 func _ready():
 	NetworkTime.on_tick.connect(_tick)
 	_reset_wander()
+	
+	($StateSynchronizer as StateSynchronizer).set_schema({
+		":position": NetworkSchemas.vec3f32(),
+		":quaternion": NetworkSchemas.quatf32()
+	})
+
 
 func _tick(dt: float, _t) -> void:
 	if not is_multiplayer_authority():

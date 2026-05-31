@@ -53,30 +53,257 @@ script = SubResource("GDScript_hpcpy")
 [node name="NPCs" type="Node" parent="."]
 
 [node name="Wanderer" parent="NPCs" instance=ExtResource("4_47wiq")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.57406, 0.999999, -6.52385)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 1, -7)
 wander_bounds = Rect2(-7.5, -7.5, 15, 15)
 
 [node name="Wanderer2" parent="NPCs" instance=ExtResource("4_47wiq")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.42594, 0.999999, -6.52385)
-acceleration_time = 0.35
-rest_time_min = 2.0
-rest_time_max = 4.0
-wander_dst_min = 4.0
-wander_dst_max = 8.0
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1, -7)
 wander_bounds = Rect2(-7.5, -7.5, 15, 15)
 
 [node name="Wanderer3" parent="NPCs" instance=ExtResource("4_47wiq")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.57406, 0.999999, 6.47615)
-move_speed = 4.5
-acceleration_time = 0.05
-rest_time_max = 1.0
-wander_dst_min = 3.0
-wander_dst_max = 6.0
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 1, -7)
 wander_bounds = Rect2(-7.5, -7.5, 15, 15)
 
 [node name="Wanderer4" parent="NPCs" instance=ExtResource("4_47wiq")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.42594, 0.999999, 6.47615)
-acceleration_time = 0.2
-rest_time_min = 2.0
-rest_time_max = 3.0
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1, -7)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer5" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, -7)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer6" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 1, -7)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer7" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1, -7)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer8" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 1, -7)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer9" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 1, -5)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer10" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1, -5)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer11" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 1, -5)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer12" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1, -5)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer13" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, -5)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer14" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 1, -5)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer15" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1, -5)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer16" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 1, -5)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer17" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 1, -3)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer18" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1, -3)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer19" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 1, -3)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer20" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1, -3)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer21" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, -3)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer22" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 1, -3)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer23" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1, -3)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer24" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 1, -3)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer25" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 1, -1)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer26" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1, -1)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer27" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 1, -1)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer28" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1, -1)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer29" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, -1)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer30" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 1, -1)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer31" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1, -1)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer32" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 1, -1)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer33" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 1, 1)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer34" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1, 1)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer35" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 1, 1)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer36" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1, 1)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer37" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer38" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 1, 1)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer39" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1, 1)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer40" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 1, 1)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer41" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 1, 3)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer42" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1, 3)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer43" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 1, 3)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer44" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1, 3)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer45" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 3)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer46" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 1, 3)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer47" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1, 3)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer48" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 1, 3)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer49" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 1, 5)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer50" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1, 5)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer51" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 1, 5)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer52" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1, 5)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer53" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 5)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer54" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 1, 5)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer55" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1, 5)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer56" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 1, 5)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer57" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 1, 7)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer58" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1, 7)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer59" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 1, 7)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer60" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1, 7)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer61" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 7)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer62" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 1, 7)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer63" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1, 7)
+wander_bounds = Rect2(-7.5, -7.5, 15, 15)
+
+[node name="Wanderer64" parent="NPCs" instance=ExtResource("4_47wiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 1, 7)
 wander_bounds = Rect2(-7.5, -7.5, 15, 15)
