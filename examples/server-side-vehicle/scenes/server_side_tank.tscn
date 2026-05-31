@@ -1,6 +1,6 @@
 [gd_scene load_steps=12 format=3 uid="uid://f1annxuory74"]
 
-[ext_resource type="Script" path="res://addons/netfox/input_sender.gd" id="1_c04if"]
+[ext_resource type="Script" path="res://addons/netfox/input-sender.gd" id="1_c04if"]
 [ext_resource type="Script" path="res://examples/server-side-vehicle/scripts/server_side_tank.gd" id="1_jtlcb"]
 [ext_resource type="PackedScene" uid="uid://uqytq0drkxtf" path="res://examples/server-side-vehicle/scenes/tank_shell.tscn" id="2_ea71k"]
 [ext_resource type="PackedScene" uid="uid://bsavthtpx4joi" path="res://examples/server-side-vehicle/scenes/server_side_vehicle_info_panel.tscn" id="2_o1mnl"]

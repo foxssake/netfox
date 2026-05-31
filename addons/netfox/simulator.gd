@@ -16,9 +16,6 @@ class_name Simulator
 ## On host [Simulator] runs _simulated_tick functions with new inputs which
 ## is received by [InputSender]. After running _simulated_tick with new received
 ## inputs, [Simulator] broadcasts ground truth (state properties) to peers.
-## Use this to code game logic that must run on host. If you would like to code
-## additional host side logic (example: changing team only on host) you can check
-## if its host or not in _simulated_tick. [br][br]
 ##
 ## 2- Authoritative peer - this [Simulator] doesnt have network authority, but
 ## [InputSender]s input_node (your custom player_input.gdscript code) belongs to
@@ -26,8 +23,6 @@ class_name Simulator
 ##
 ## On authoritative peer, [Simulator] runs _simulated_tick with [InputSender]'s
 ## fresh local inputs (inputs that may or may not have been sent to server at this point).
-## Upon receiving ground truth from host, [Simulator] compares difference in state
-## and decide whether to use snapping or interpolating depending on threshold.
 ## After applying true state, [Simulator] re-runs _simulated_tick to reach current
 ## game state. [br][br]
 ##
@@ -36,26 +31,13 @@ class_name Simulator
 ## players when you are playing the game. For example your friend is a puppet player
 ## in your game. [br]
 ##
-## On puppet peers, [Simulator] only applies truth received from host and interpolate
-## it. For most games this will be enough. Even with [InputSender] broadcast toggled on from
+## On puppet peers, [Simulator] only applies truth received from host
+## For most games this will be enough. Even with [InputSender] broadcast toggled on from
 ## project settings, there is no point in re-running _simulated_ticks because server
 ## sends states with inputs at the same time. For puppet peers we simply dont know 
 ## their future inputs. [br][br]
 ##
-##
 ## TODO: Simulator can have option to predict if input_broadcast is on for inputsender. [br]
-##
-## TODO: what about physics and physic stepping? [br]
-## It can be coded with _simulated_ticks if you involve some local properties to script
-## that has role in godots _physics_process. If we can avoid coding physic stepping we should.
-
-# TODO explore and test order below.
-# order insight:
-# on before tick, input-sender records and syncronizes inputs
-# on tick, input-sender runs its logic and emits its signals but its not related with simulator.
-# on-after-tick simulator will run its own logic depending on work mode explained above as 1-2-3.
-# after running its logic, simulator will record and syncronize state.
-# Saving and syncronizing is done via NetworkTime right after emitting after_tick signal.
 
 ## The root node for resolving node paths in properties. Defaults to the parent node.
 @export var root: Node = get_parent()
@@ -66,13 +48,6 @@ class_name Simulator
 ## Changing or assigning [InputSender] during runtime is not recommended by design, but also
 ## requires call to [method Simulator.process_settings].
 @export var listened_input_sender : InputSender = null
-
-## If true, [Simulator] will run _simulated_tick functions with fresh received inputs.
-## Set this to true, if you want to code host side logic with client inputs.
-## For example: moving a vehicle on server with client inputs.
-## NOTE: Dont get confused, if host is also player and owner of [InputSender]
-## [Simulator] will run _simulated_tick even though this set to false.
-@export var simulate_on_host := true
 
 @export_group("State")
 ## Properties that define the game state.
@@ -93,16 +68,6 @@ var visibility_filter := PeerVisibilityFilter.new()
 var _state_properties := _PropertyPool.new()
 
 var _properties_dirty: bool = false
-
-# Flag to connect signals only once.
-var _signals_connected : bool = false 
-
-# Latest input tick we did operation. This is saved to remember.
-# TODO should we set this to -1 on process_settings?
-var _latest_input_tick : int = -1
-
-# Latest snapshot applied from host (source of truth)
-var _latest_applied_snapshot : int = -1
 
 # Dictionary (root node) -> (managing simulator)
 # Used to check for foreign roots when gathering simulated nodes.
@@ -185,8 +150,6 @@ func process_settings() -> void:
 	# Register visibility filter
 	for node in _state_properties.get_subjects():
 		NetworkSynchronizationServer.register_visibility_filter(node, visibility_filter)
-	
-	_connect_signals()
 
 ## Process settings based on authority.
 ## [br][br]
@@ -194,6 +157,8 @@ func process_settings() -> void:
 ## Make sure to do this at the same time on all peers.
 func process_authority():
 	# First de-register.
+	SimulatorServer._deregister_simulator(self)
+	
 	for node in _state_properties.get_subjects():
 		for property in _state_properties.get_properties_of(node):
 			NetworkHistoryServer.deregister_simulator(node, property)
@@ -202,11 +167,17 @@ func process_authority():
 	# Process authority
 	_state_properties.set_from_paths(root, state_properties)
 	
+	if not listened_input_sender:
+		_logger.error("Simulator needs listened_input_sender configured and valid.")
+		return
+	
 	# Register state properties.
 	for node in _state_properties.get_subjects():
 		for property in _state_properties.get_properties_of(node):
 			NetworkHistoryServer.register_simulator(node, property)
 			NetworkSynchronizationServer.register_simulator(node, property)
+	
+	SimulatorServer._register_simulator(self)
 
 ## Add a state property.
 ## [br][br]
@@ -222,6 +193,14 @@ func add_state(node: Variant, property: String):
 	_properties_dirty = true
 	_reprocess_settings.call_deferred()
 
+## Check if this [Simulator] has authority over its inputs via listened_input_sender
+## This helper is used by SimulatorServer internally.
+func has_authority_over_inputs() -> bool:
+	if not listened_input_sender:
+		return false
+	
+	return listened_input_sender.has_authority_over_input_nodes()
+
 func _reprocess_settings() -> void:
 	if not _properties_dirty or Engine.is_editor_hint():
 		return
@@ -229,153 +208,6 @@ func _reprocess_settings() -> void:
 	_properties_dirty = false
 	
 	process_settings()
-
-func _connect_signals() -> void:
-	if not NetworkTime.after_tick.is_connected(_on_after_tick):
-		NetworkTime.after_tick.connect(_on_after_tick)
-	
-	if listened_input_sender and not listened_input_sender.network_input.is_connected(_on_network_input):
-		listened_input_sender.network_input.connect(_on_network_input)
-	
-	if listened_input_sender and not listened_input_sender.local_input.is_connected(_on_local_input):
-		listened_input_sender.local_input.connect(_on_local_input)
-
-func _on_network_input(tick : int) -> void:
-	# Run this function on host only
-	if not is_multiplayer_authority():
-		return
-	
-	# Dont run this function if this is local HOST player.
-	# Because local host player is handled with on_local_input.
-	if listened_input_sender.has_authority_over_input_nodes():
-		return
-	
-	_logger.trace("Simulating tick remote player on host.")
-	for node in _sim_nodes:
-		node.call("_simulated_tick", NetworkTime.seconds_between(tick, tick + 1), tick)
-
-func _on_local_input(tick : int) -> void:
-	# Run this function on host only.
-	if not is_multiplayer_authority():
-		return
-	
-	# Run this function if this is local HOST player.
-	if not listened_input_sender.has_authority_over_input_nodes():
-		return
-	
-	_logger.trace("Simulating tick on host player")
-	for node in _sim_nodes:
-		node.call("_simulated_tick", NetworkTime.seconds_between(tick, tick + 1), tick)
-
-# Do logic depending on mode explained in class description.
-func _on_after_tick(delta: float, tick: int) -> void:
-	
-	# Return if there is no listened input sender assigned.
-	if not listened_input_sender:
-		_logger.warning("%s listened_input_sender is needed for simulator to operate",
-		[name])
-		return
-	
-	# Figure out which mode we are operating on.
-	var has_input_authority := listened_input_sender.has_authority_over_input_nodes()
-	var is_host := is_multiplayer_authority()
-	
-	if has_input_authority and not is_host:
-		# This is authoritative player but not host - local non host player.
-		_handle_authoritative_peer(delta, tick)
-		return
-	
-	if not has_input_authority and not is_host:
-		_handle_puppet_peer(delta, tick)
-
-# Check if there is a new snapshot from host
-# if there is a new snapshot, apply and simulate onwards with buffered inputs. 
-func _handle_authoritative_peer(_delta: float, tick: int) -> void:
-	
-	# Get latest tick where we had sync data available for this simulator.
-	var latest_simulator_tick := NetworkHistoryServer.get_latest_simulator_for(
-		_state_properties.get_subjects(), tick)
-	
-	# If its -1 we never received snapshot, thus no need to apply it.
-	if latest_simulator_tick >= 0:
-	# Apply latest_snapshot.
-		var latest_received_snapshot := NetworkHistoryServer._get_simulator_snapshot(latest_simulator_tick)
-		if latest_received_snapshot:
-			_logger.trace("Authoritative peer applying latest received snapshot as truth: %s", [latest_received_snapshot])
-			_apply_snapshot_for_self(latest_received_snapshot)
-		else:
-			_logger.trace("Apply snapshot called but snapshot is invalid, assuming its first frame"+\
-			" and snapshot is not received yet.")
-	
-	# Now that we accepted truth from host, we can run simulated_ticks
-	# with our stored inputs.
-	
-	_logger.trace("Authoritative peer is looping to run simulated ticks, \
-	from inclusive tick %s to exclusive tick %s", [latest_simulator_tick, tick])
-	
-	# TODO double check this range pls.
-	for i in range(latest_simulator_tick, tick):
-		_logger.trace("Running simulator tick #%s", [i])
-		var local_input_snapshot := NetworkHistoryServer._get_input_sender_snapshot(i)
-		
-		# TODO sometimes local_input_snapshot is null, figure out why!
-		if not local_input_snapshot:
-			_logger.trace("Authoritative peer is running simulated ticks, \
-			local input snapshot is null at tick %s" %i)
-			continue
-		
-		_logger.trace("Authoritative peer is applying input snapshot %s and running tick",
-		[local_input_snapshot])
-		
-		listened_input_sender._apply_snapshot_for_self(local_input_snapshot)
-		for node in _sim_nodes:
-			node.call("_simulated_tick", NetworkTime.seconds_between(i, i + 1), i)
-
-## Host needs to run _simulated_tick with new received inputs.
-#func _handle_host(delta: float, tick: int) -> void:
-#	if not simulate_on_host:
-#		return
-#
-#	# Get latest received input tick.
-#	var latest_input_tick := listened_input_sender.get_latest_received_information_tick(tick)
-#
-#	if latest_input_tick == -1:
-#		# Never received input.
-#		# Cant run simulation without inputs.
-#		_logger.trace("Host is skipping simulation on #%s because host never received input", [tick])
-#		return
-#
-#	# If latest equals our stored latest_tick, this means we already run this simulation.
-#	# Cant run if inputs are not new, return.
-#	if latest_input_tick == _latest_input_tick:
-#		_logger.trace("Host is skipping simulation on #%s because there is no new input", [tick])
-#		return
-#
-#	var ticks_to_run := latest_input_tick - _latest_input_tick
-#
-#	_logger.trace("Host is looping to run simulated ticks, ticks to run: %s", [ticks_to_run])
-#	for i in range(_latest_input_tick + 1, latest_input_tick + 1):
-#
-#		var snapshot := NetworkHistoryServer._get_input_sender_snapshot(i)
-#		if snapshot:
-#			listened_input_sender._apply_snapshot_for_self(snapshot)
-#			for node in _sim_nodes:
-#				node.call("_simulated_tick", NetworkTime.seconds_between(i, i + 1), i)
-#
-#	_latest_input_tick = tick
-
-# For pupper peer we only need to interpolate latest state to new one.
-# TODO Do we need to code interpolation? try it first
-# TODO add prediction? i dont think its needed
-func _handle_puppet_peer(_delta: float, tick: int) -> void:
-	var latest_simulator_tick := NetworkHistoryServer.get_latest_simulator_for(
-		_state_properties.get_subjects(), tick)
-	
-	var latest_received_snapshot := NetworkHistoryServer._get_simulator_snapshot(latest_simulator_tick)
-	if latest_received_snapshot:
-		_apply_snapshot_for_self(latest_received_snapshot)
-	
-	# TODO interpolation? try with interpolator first.
 
 # Helper function to apply given snapshot for only this node.
 # TODO (same todo with input_sender)?
@@ -390,6 +222,13 @@ func _apply_snapshot_for_self(snapshot : _Snapshot) -> void:
 				var value := snapshot.get_property(subject, property)
 				# TODO is this should be node.set_indexed ??
 				subject.set_indexed(property, value)
+
+# Helper function to run simulation with given parameters.
+# This function is used by SimulatorServer internally. 
+func _run_simulation(delta : float, tick : int) -> void:
+	for node in _sim_nodes:
+		if node:
+			node.call("_simulated_tick", delta, tick)
 
 # Find managed nodes recursively from given root, ignoring branches managed by
 # a different [Simulator].

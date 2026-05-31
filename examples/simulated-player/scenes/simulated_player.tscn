@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://examples/simulated-player/scripts/simulated_player.gd" id="1_4n6wb"]
 [ext_resource type="Script" path="res://examples/simulated-player/scripts/simulated_player_input.gd" id="2_8xdxw"]
-[ext_resource type="Script" path="res://addons/netfox/input_sender.gd" id="3_po4f2"]
+[ext_resource type="Script" path="res://addons/netfox/input-sender.gd" id="3_1fmuj"]
 [ext_resource type="Script" path="res://addons/netfox/simulator.gd" id="4_mmxoi"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_icq3d"]
@@ -24,7 +24,7 @@ shape = SubResource("CapsuleShape3D_05200")
 script = ExtResource("2_8xdxw")
 
 [node name="InputSender" type="Node" parent="." node_paths=PackedStringArray("root")]
-script = ExtResource("3_po4f2")
+script = ExtResource("3_1fmuj")
 root = NodePath("..")
 input_properties = Array[String](["Input:movement", "Input:jump"])
 

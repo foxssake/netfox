@@ -128,6 +128,8 @@ func process_settings() -> void:
 ## Call this whenever the authority of input node changes.
 ## Make sure to do this at the same time on all peers.
 func process_authority():
+	InputSenderServer._deregister_input_sender(self)
+	
 	for node in _input_properties.get_subjects():
 		for property in _input_properties.get_properties_of(node):
 			NetworkHistoryServer.deregister_input_sender(node, property)
@@ -235,12 +237,13 @@ func _apply_snapshot_for_self(snapshot : _Snapshot) -> void:
 				subject.set_indexed(property, value)
 
 # Helper function to save current input_properties.
-# Used internally by InputSenderServer to record state before overwriting properties
-# and emitting signals.
+# Used internally by InputSenderServer/SimulatorServer to record state before
+# overwriting properties and emitting signals.
 func _save_properties() -> void:
 	_saved_inputs_snapshot = _PropertySnapshot.extract(_property_entries)
 
 # Helper function to restore input_properties.
-# Used internally by InputSenderServer to restore state after overwriting properties. 
+# Used internally by InputSenderServer/SimulatorServer to restore state after
+# overwriting properties. 
 func _restore_properties() -> void:
 	_saved_inputs_snapshot.apply(_property_cache)

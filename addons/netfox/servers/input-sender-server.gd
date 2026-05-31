@@ -13,6 +13,7 @@ static var _logger := NetfoxLogger._for_netfox("InputSenderServer")
 
 var _history_server : NetworkHistoryServer = null
 var _synchronization_server : NetworkSynchronizationServer = null
+var _simulator_server : SimulatorServer = null
 
 var _missing_inputs_history_size : int = ProjectSettings.get_setting("netfox/input_sender/missing_input_history", 16)
 var _input_sender_history_size : int = ProjectSettings.get_setting("netfox/input_sender/history_limit", 64)
@@ -27,6 +28,7 @@ func _ready():
 	# Ensure dependencies
 	if not _history_server: _history_server = NetworkHistoryServer
 	if not _synchronization_server: _synchronization_server = NetworkSynchronizationServer
+	if not _simulator_server: _simulator_server = SimulatorServer
 	
 	# Record inputs similiar to rollback so that users can use same methods
 	# on their input scripts.
@@ -135,6 +137,10 @@ func _handle_new_snapshots(current_tick : int) -> void:
 			else:
 				# Its within range, consider it as network input.
 				input_sender.network_input.emit(i)
+				
+				# Notify SimulatorServer about this network_input.
+				# Why? Read Simulators and SimulatorServer to learn.
+				_simulator_server._notify_input_sender_received_network_input(input_sender, i)
 			
 			# Set as handled anyway for both situation.
 			_set_input_received_for_input_sender(input_sender, i)

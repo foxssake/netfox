@@ -264,6 +264,10 @@ const AUTOLOADS: Array[Dictionary] = [
 		"name": "InputSenderServer",
 		"path": ROOT + "/servers/input-sender-server.gd"
 	},
+	{
+		"name": "SimulatorServer",
+		"path": ROOT + "/servers/simulator-server.gd"
+	},
 ]
 
 const TYPES: Array[Dictionary] = [
@@ -300,7 +304,7 @@ const TYPES: Array[Dictionary] = [
 	{
 		"name": "InputSender",
 		"base": "Node",
-		"script": ROOT + "/input_sender.gd",
+		"script": ROOT + "/input-sender.gd",
 		"icon": ROOT + "/icons/input-sender.svg"
 	},
 	{
