@@ -126,7 +126,7 @@ func _on_input_sender_local_input(tick):
 		_fire(tick)
 
 
-func _on_input_sender_missing_input(current_tick, latest_known_input_tick):
+func _on_input_sender_missing_input(_current_tick, _latest_known_input_tick):
 	print("Input is missing on :%s" %name)
 
 
