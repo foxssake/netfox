@@ -44,6 +44,10 @@ var _sync_enable_diffs := ProjectSettings.get_setting("netfox/state_synchronizer
 var _sync_full_interval := ProjectSettings.get_setting("netfox/state_synchronizer/full_state_interval", 24) as int
 var _sync_full_scheduler := _IntervalScheduler.new(_sync_full_interval)
 
+# Very conservative packet size limit, source:
+# https://stackoverflow.com/a/35697810
+var _max_packet_size := ProjectSettings.get_setting("netfox/general/max_sync_packet_size", 508) as int
+
 var _schemas := _NetworkSchema.new()
 
 var _dense_serializer: _DenseSnapshotSerializer
@@ -304,6 +308,10 @@ func _ready():
 	_dense_serializer = _DenseSnapshotSerializer.new(_schemas, _identity_server)
 	_sparse_serializer = _SparseSnapshotSerializer.new(_schemas, _identity_server)
 	_redundant_serializer = _RedundantSnapshotSerializer.new(_schemas, _identity_server)
+	
+	_dense_serializer.max_packet_size = _max_packet_size
+	_sparse_serializer.max_packet_size = _max_packet_size
+	_redundant_serializer.max_packet_size = _max_packet_size
 
 	# Setup commands
 	_cmd_full_state = _command_server.register_command(_handle_full_state, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
