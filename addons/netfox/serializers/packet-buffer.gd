@@ -39,6 +39,8 @@ func _noop_packet_setup(packet: StreamPeerBuffer) -> void:
 func _needs_new_packet(incoming: PackedByteArray) -> bool:
 	if _buffer == null:
 		return true
+	if max_packet_size <= 0:
+		return false
 	if incoming.size() > max_packet_size:
 		_logger.warning("Buffer of %d bytes exceeds packet limit of %d; packet may be dropped", [incoming.size(), max_packet_size])
 		return true
