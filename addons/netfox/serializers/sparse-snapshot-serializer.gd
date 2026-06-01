@@ -12,7 +12,7 @@ func write_for(peer: int, snapshot: _Snapshot, properties: _PropertyPool, filter
 	var netref := NetworkSchemas._netref()
 	var varuint := NetworkSchemas.varuint()
 	var varbits := NetworkSchemas._varbits()
-	
+
 	# Add a timestamp to every packet
 	packet_buffer.packet_setup = func(packet: StreamPeerBuffer):
 		packet.put_u32(snapshot.tick)
@@ -25,7 +25,7 @@ func write_for(peer: int, snapshot: _Snapshot, properties: _PropertyPool, filter
 		var node := subject as Node
 		assert(node.is_multiplayer_authority(), "Trying to serialize state for non-owned node!")
 		assert(snapshot.is_auth(node), "Trying to serialize non-auth state node!")
-		
+
 		# Prepare buffers
 		frame_buffer.clear()
 		node_buffer.clear()
@@ -36,7 +36,7 @@ func write_for(peer: int, snapshot: _Snapshot, properties: _PropertyPool, filter
 
 		var node_props := properties.get_properties_of(node)
 		var changed_bits := _Bitset.new(node_props.size())
-		
+
 		for i in node_props.size():
 			var property := node_props[i]
 			if not snapshot.has_property(node, property):

@@ -24,7 +24,7 @@ func write_for(peer: int, snapshot: _Snapshot, properties: _PropertyPool, filter
 		var node := subject as Node
 		assert(node.is_multiplayer_authority(), "Trying to serialize state for non-owned node!")
 		assert(snapshot.is_auth(node), "Trying to serialize non-auth state node!")
-		
+
 		# Prepare buffers
 		frame_buffer.clear()
 		node_buffer.clear()
@@ -46,7 +46,7 @@ func write_for(peer: int, snapshot: _Snapshot, properties: _PropertyPool, filter
 
 		# Write node state
 		frame_buffer.put_data(node_buffer.data_array)
-		
+
 		# Write frame into output buffer
 		packet_buffer.push(frame_buffer.data_array)
 

@@ -17,11 +17,11 @@ func write_for(peer: int, snapshots: Array[_Snapshot], properties: _PropertyPool
 	# TODO(#560): How about encoding the first snapshot as-is, and then the rest as diffs
 	for snapshot in snapshots:
 		var dense_packets := _dense_serializer.write_for(peer, snapshot, properties)
-		
+
 		if dense_packets.size() == 0: continue
 		if dense_packets.size() > 1:
 			_logger.warning("Redundant snapshot does not fit into a single packet! Max packet size: %d bytes", [max_packet_size])
-			
+
 		var dense_packet := dense_packets[0]
 
 		# Write size and snapshot

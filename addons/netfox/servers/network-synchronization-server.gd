@@ -308,7 +308,7 @@ func _ready():
 	_dense_serializer = _DenseSnapshotSerializer.new(_schemas, _identity_server)
 	_sparse_serializer = _SparseSnapshotSerializer.new(_schemas, _identity_server)
 	_redundant_serializer = _RedundantSnapshotSerializer.new(_schemas, _identity_server)
-	
+
 	_dense_serializer.max_packet_size = _max_packet_size
 	_sparse_serializer.max_packet_size = _max_packet_size
 	_redundant_serializer.max_packet_size = _max_packet_size

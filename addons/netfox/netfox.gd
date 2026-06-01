@@ -20,9 +20,7 @@ var SETTINGS: Array[Dictionary] = [
 		# https://stackoverflow.com/a/35697810
 		"name": "netfox/general/max_sync_packet_size",
 		"value": 508,
-		"type": TYPE_INT,
-		"hint": PROPERTY_HINT_RANGE,
-		"hint_string": "0,or_greater"
+		"type": TYPE_INT
 	},
 	# Logging
 	NetfoxLogger._make_setting("netfox/logging/netfox_log_level"),

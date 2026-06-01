@@ -6,11 +6,11 @@ func get_suite_name():
 func test_should_return_single():
 	var packet_buffer := _PacketBuffer.new()
 	packet_buffer.max_packet_size = 16
-	
+
 	packet_buffer.push(chunk_of_size(15))
-	
+
 	var packets := packet_buffer.finish()
-	
+
 	expect_equal(packets.size(), 1)
 
 func test_should_return_none():
@@ -20,23 +20,23 @@ func test_should_return_none():
 func test_should_return_multiple():
 	var packet_buffer := _PacketBuffer.new()
 	packet_buffer.max_packet_size = 16
-	
+
 	packet_buffer.push(chunk_of_size(15))
 	packet_buffer.push(chunk_of_size(6))
-	
+
 	var packets := packet_buffer.finish()
-	
+
 	expect_equal(packets.size(), 2)
 
 func test_should_keep_oversized_chunk():
 	var packet_buffer := _PacketBuffer.new()
 	packet_buffer.max_packet_size = 16
-	
+
 	packet_buffer.push(chunk_of_size(24))
 	packet_buffer.push(chunk_of_size(6))
-	
+
 	var packets := packet_buffer.finish()
-	
+
 	expect_equal(packets.size(), 2)
 
 func chunk_of_size(size: int) -> PackedByteArray:
