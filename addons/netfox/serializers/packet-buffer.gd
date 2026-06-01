@@ -1,6 +1,9 @@
 extends RefCounted
 class_name _PacketBuffer
 
+# Packs data chunks into packets of a specified size. Multiple chunks may go
+# into a single packet, as long as they fit `max_packet_size`.
+
 var max_packet_size := 1440
 var packets := [] as Array[PackedByteArray]
 var packet_setup: Callable = _noop_packet_setup
