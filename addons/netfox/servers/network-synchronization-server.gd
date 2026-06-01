@@ -257,7 +257,7 @@ func _synchronize_sync_state(tick: int) -> void:
 	if not _sync_enable_diffs:
 		is_full = true
 
-	if is_full or true:
+	if is_full:
 		# Send full states
 		for peer in multiplayer.get_peers():
 			var filter := func(subject): return _is_node_visible_to(peer, subject)
