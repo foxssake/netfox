@@ -68,8 +68,8 @@ func suite() -> void:
 
 	define("get_nodes_to_simulate()", func():
 		test("should not simulate without input", func():
-			var node := RewindableNode.new()
-			var input_node := Node.new()
+			var node := await get_rewindable_node()
+			var input_node := await get_node()
 
 			simulation_server.register(node._rollback_tick)
 			simulation_server.register_rollback_input_for(node, input_node)
@@ -80,8 +80,8 @@ func suite() -> void:
 		)
 
 		test("should simulate with input", func():
-			var node := RewindableNode.new()
-			var input_node := Node.new()
+			var node := await get_rewindable_node()
+			var input_node := await get_node()
 
 			simulation_server.register(node._rollback_tick)
 			simulation_server.register_rollback_input_for(node, input_node)
@@ -94,8 +94,8 @@ func suite() -> void:
 		)
 
 		test("should simulate mutated", func():
-			var node := RewindableNode.new()
-			var input_node := Node.new()
+			var node := await get_rewindable_node()
+			var input_node := await get_node()
 
 			simulation_server.register(node._rollback_tick)
 			simulation_server.register_rollback_input_for(node, input_node)
@@ -116,6 +116,14 @@ class RewindableNode extends Node:
 
 func get_node() -> Node:
 	var node := Node.new()
+
+	Vest.get_tree().root.add_child.call_deferred(node)
+	await node.ready
+
+	return node
+
+func get_rewindable_node() -> RewindableNode:
+	var node := RewindableNode.new()
 
 	Vest.get_tree().root.add_child.call_deferred(node)
 	await node.ready

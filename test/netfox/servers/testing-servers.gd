@@ -8,11 +8,13 @@ var _liveness_server: _RollbackLivenessServer
 var _synchronization_server: _NetworkSynchronizationServer
 var _simulation_server: _RollbackSimulationServer
 
+signal servers_ready
+
 static func create() -> TestingServers:
 	var servers := TestingServers.new()
 
 	Vest.get_tree().root.add_child.call_deferred(servers)
-	await servers.ready
+	await servers.servers_ready
 
 	return servers
 
@@ -30,6 +32,7 @@ func _ready():
 
 	for server in servers:
 		await server.ready
+	servers_ready.emit()
 
 func command_server() -> CommandServer:
 	return _command_server
