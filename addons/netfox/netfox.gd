@@ -22,6 +22,11 @@ var SETTINGS: Array[Dictionary] = [
 		"value": 508,
 		"type": TYPE_INT
 	},
+	{
+		"name": "netfox/general/supress_identity_peer_disconnected_warning",
+		"value": false,
+		"type": TYPE_BOOL
+	},
 	# Logging
 	NetfoxLogger._make_setting("netfox/logging/netfox_log_level"),
 	# Time settings

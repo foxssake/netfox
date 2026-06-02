@@ -24,6 +24,9 @@ func set_id_for(peer: int, id: int) -> void:
 	_ids[peer] = id
 	on_id.emit(peer, id)
 
+func erase_id_for(peer: int) -> void:
+	_ids.erase(peer)
+
 func get_local_id() -> int:
 	return _local_id
 
