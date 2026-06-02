@@ -48,6 +48,19 @@ func _ready():
 
 	_cmd_ids = _command_server.register_command(_handle_ids, MultiplayerPeer.TRANSFER_MODE_RELIABLE)
 
+	if NetworkEvents.enabled:
+		NetworkEvents.on_peer_leave.connect(erase_peer)
+	else:
+		multiplayer.peer_disconnected.connect(erase_peer)
+		if not ProjectSettings.get_setting("netfox/general/supress_identity_peer_disconnected_warning", false):
+			_logger.warning(
+				"Using `multiplayer.peer_disconnected` to detect leaving peers. " +
+				"If the `multiplayer` instance changes, this will no longer work. " +
+				"Enable NetworkEvents, or call `NetworkIdentityServer.erase_peer()` " +
+				"manually and disable this warning in the Project Settings. " +
+				"( Netfox > General > Supress Identity Peer Disconnected Warning)"
+			)
+
 # TODO(#561): Handle peer disconnect by clearing up data
 
 ## Register a node
@@ -63,6 +76,17 @@ func register_node(node: Node) -> void:
 ## Deregister a node, freeing all identity data associated with it
 func deregister_node(node: Node) -> void:
 	_deregister(node)
+
+## Free all identity data associated with [param peer]
+## [br][br]
+## Does nothing if [param peer] is unknown, or the local peer.
+func erase_peer(peer: int) -> void:
+	_logger.debug("Erasing data for peer #%d", [peer])
+
+	_push_queue.erase(peer)
+	_identifier_by_id.erase(peer)
+	for identifier in _identifiers.values():
+		(identifier as _NetworkIdentifier).erase_id_for(peer)
 
 ## Clear all identities
 func clear() -> void:
