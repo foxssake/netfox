@@ -265,6 +265,8 @@
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#void-deregister_node-node-node">void deregister_node ( Node node )</a>
     </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-erase_peer-int-peer">void erase_peer ( int peer )</a>
+    </li>
     <li class="toctree-l4"><a class="reference internal" href="#void-clear">void clear ( )</a>
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#bool-queue_identifier_for-node-node-int-peer">bool queue_identifier_for ( Node node, int peer )</a>
@@ -350,6 +352,10 @@
 </tr>
 <tr>
 <td>void</td>
+<td><a href="#erase_peer">erase_peer</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> peer)</td>
+</tr>
+<tr>
+<td>void</td>
 <td><a href="#clear">clear</a>()</td>
 </tr>
 <tr>
@@ -369,6 +375,10 @@
 <hr />
 <h4 id="void-deregister_node-node-node"><span id="deregister_node">void deregister_node ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node ) </span></h4>
 <p>Deregister a node, freeing all identity data associated with it</p>
+<hr />
+<h4 id="void-erase_peer-int-peer"><span id="erase_peer">void erase_peer ( <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> peer ) </span></h4>
+<p>Free all identity data associated with <code>peer</code>   </p>
+<p>Does nothing if <code>peer</code> is unknown, or the local peer.</p>
 <hr />
 <h4 id="void-clear"><span id="clear">void clear (  ) </span></h4>
 <p>Clear all identities</p>
