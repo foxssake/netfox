@@ -23,7 +23,8 @@ func suite() -> void:
 			[subject, "scale"]
 		])
 
-		var serialized := serializer.write_for(1, snapshot, props)
+		var serialized_packets := serializer.write_for(1, snapshot, props)
+		var serialized := serialized_packets[0]
 		var deserialized := serializer.read_from(1, props, to_buffer(serialized))
 
 		expect_equal(deserialized, snapshot)
@@ -63,7 +64,8 @@ func suite() -> void:
 			[known_subject, "position", Vector3.ZERO]
 		], [known_subject])
 
-		var serialized := writer_serializer.write_for(1, snapshot, writer_props)
+		var serialized_packets := writer_serializer.write_for(1, snapshot, writer_props)
+		var serialized := serialized_packets[0]
 		var deserialized := reader_serializer.read_from(1, reader_props, to_buffer(serialized))
 
 		expect_equal(deserialized, expected)
@@ -94,8 +96,8 @@ func suite() -> void:
 			[subject, "scale", null]
 		], [subject])
 
-		var serialized := serializer.write_for(1, snapshot, props)
-		serialized = serialized.slice(0, serialized.size() - 4)
+		var serialized_packets := serializer.write_for(1, snapshot, props)
+		var serialized := serialized_packets[0].slice(0, serialized_packets[0].size() - 4)
 		var deserialized := serializer.read_from(1, props, to_buffer(serialized))
 
 		expect_equal(deserialized, expected)

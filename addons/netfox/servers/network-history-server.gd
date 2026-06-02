@@ -257,7 +257,11 @@ func _merge_history(snapshot: _Snapshot, history: _PerObjectHistory, reverse: bo
 	var has_updated := false
 
 	if tick < NetworkRollback.history_start:
-		_logger.warning("Snapshot being merged is too old! (@%d)", [tick])
+		match history:
+			_rb_input_history: _logger.warning("Input being merged is too old! (@%d)", [tick])
+			_rb_state_history: _logger.warning("State being merged is too old! (@%d)", [tick])
+			_sync_history: _logger.warning("Sync state being merged is too old! (@%d)", [tick])
+			_: _logger.warning("Snapshot being merged is too old! (@%d)", [tick])
 		return false
 
 	for subject in snapshot.get_subjects():

@@ -4,20 +4,18 @@ class_name _SparseSnapshotSerializer
 static func _static_init():
 	_logger = NetfoxLogger._for_netfox("SparseSnapshotSerializer")
 
-func write_for(peer: int, snapshot: _Snapshot, properties: _PropertyPool, filter: Callable = _default_filter, buffer: StreamPeerBuffer = null) -> PackedByteArray:
-	if buffer == null:
-		buffer = StreamPeerBuffer.new()
+func write_for(peer: int, snapshot: _Snapshot, properties: _PropertyPool, filter: Callable = _default_filter) -> Array[PackedByteArray]:
+	var packet_buffer := _PacketBuffer.new(max_packet_size)
+	var frame_buffer := StreamPeerBuffer.new()
+	var node_buffer := StreamPeerBuffer.new()
 
 	var netref := NetworkSchemas._netref()
 	var varuint := NetworkSchemas.varuint()
 	var varbits := NetworkSchemas._varbits()
 
-	var node_buffer := StreamPeerBuffer.new()
-
-	var has_data := false
-
-	# Write ticks
-	buffer.put_u32(snapshot.tick)
+	# Add a timestamp to every packet
+	packet_buffer.packet_setup = func(packet: StreamPeerBuffer):
+		packet.put_u32(snapshot.tick)
 
 	# For each node
 	for subject in properties.get_subjects():
@@ -28,11 +26,13 @@ func write_for(peer: int, snapshot: _Snapshot, properties: _PropertyPool, filter
 		assert(node.is_multiplayer_authority(), "Trying to serialize state for non-owned node!")
 		assert(snapshot.is_auth(node), "Trying to serialize non-auth state node!")
 
-		# Write identifier
-		if _write_identifier(node, peer, buffer) != OK:
-			continue
-
+		# Prepare buffers
+		frame_buffer.clear()
 		node_buffer.clear()
+
+		# Write frame, starting with identifier
+		if _write_identifier(node, peer, frame_buffer) != OK:
+			continue
 
 		var node_props := properties.get_properties_of(node)
 		var changed_bits := _Bitset.new(node_props.size())
@@ -46,16 +46,14 @@ func write_for(peer: int, snapshot: _Snapshot, properties: _PropertyPool, filter
 			var value := snapshot.get_property(node, property)
 			_write_property(node, property, value, node_buffer)
 
-		varuint.encode(node_buffer.data_array.size(), buffer)	# Node props len
-		varbits.encode(changed_bits, buffer)					# Changed prop bits
-		buffer.put_data(node_buffer.data_array)					# Changed props
-		has_data = true
+		varuint.encode(node_buffer.data_array.size(), frame_buffer)		# Node props len
+		varbits.encode(changed_bits, frame_buffer)						# Changed prop bits
+		frame_buffer.put_data(node_buffer.data_array)					# Changed props
 
-	if has_data:
-		return buffer.data_array
-	else:
-		# Return an empty buffer if we ended up not serializing anything
-		return PackedByteArray()
+		# Write frame into output buffer
+		packet_buffer.push(frame_buffer.data_array)
+
+	return packet_buffer.finish()
 
 func read_from(peer: int, properties: _PropertyPool, buffer: StreamPeerBuffer, is_auth: bool = true) -> _Snapshot:
 	var netref := NetworkSchemas._netref()

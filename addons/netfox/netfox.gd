@@ -15,6 +15,13 @@ var SETTINGS: Array[Dictionary] = [
 		"value": false,
 		"type": TYPE_BOOL
 	},
+	{
+		# Very conservative packet size limit, source:
+		# https://stackoverflow.com/a/35697810
+		"name": "netfox/general/max_sync_packet_size",
+		"value": 508,
+		"type": TYPE_INT
+	},
 	# Logging
 	NetfoxLogger._make_setting("netfox/logging/netfox_log_level"),
 	# Time settings
