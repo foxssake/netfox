@@ -41,23 +41,27 @@ func register(callback: Callable) -> void:
 		_logger.error("Trying to register callback that belongs to an invalid object!")
 		return
 
-	assert(callback.get_object() is Node, "Only nodes supported for now!")
-	assert(not _callbacks.has(callback.get_object()), "Double register() of node %s!" % [callback.get_object()])
+	var subject := callback.get_object()
+	assert(subject, "Only nodes supported for now!")
+	assert(not _callbacks.has(subject), "Double register() of node %s!" % [subject])
+	assert((subject as Node).is_inside_tree(), "Node %s is not inside the tree!" % [subject])
 
-	_callbacks[callback.get_object()] = callback
+	_callbacks[subject] = callback
+	(subject as Node).add_to_group(_group)
 
 ## Deregister a [param callback] from the rollback loop
 func deregister(callback: Callable) -> void:
 	if not callback or not callback.is_valid(): return
 
-	var object := callback.get_object()
+	var subject := callback.get_object()
 
-	if not is_instance_valid(object): return
-	if _callbacks[object] != callback: return
+	if not is_instance_valid(subject): return
+	if _callbacks[subject] != callback: return
 
-	_callbacks.erase(object)
-	_input_graph.erase(object)
-	_simulated_ticks.erase(object)
+	_callbacks.erase(subject)
+	_input_graph.erase(subject)
+	_simulated_ticks.erase(subject)
+	(subject as Node).remove_from_group(_group)
 
 ## Deregister a [param node] from the rollback loop
 func deregister_node(node: Node) -> void:
@@ -107,13 +111,8 @@ func simulate(delta: float, tick: int) -> void:
 
 	var input_snapshot := NetworkHistoryServer._get_rollback_input_snapshot(tick)
 	var state_snapshot := NetworkHistoryServer._get_rollback_state_snapshot(tick)
-	var nodes := _get_nodes_to_simulate(input_snapshot)
+	var nodes := _get_nodes_to_simulate(input_snapshot) # Result is sorted by tree order
 	_predicted_nodes.clear()
-
-	# Sort based on SceneTree order
-	for node in nodes:
-		node.add_to_group(_group)
-	nodes = get_tree().get_nodes_in_group(_group)
 
 	# Determine predicted nodes
 	for node in _callbacks.keys():
@@ -127,7 +126,6 @@ func simulate(delta: float, tick: int) -> void:
 		var callback := _callbacks[node] as Callable
 		var is_fresh := _is_tick_fresh_for(node, tick)
 		callback.call(delta, tick, is_fresh)
-		node.remove_from_group(_group)
 
 		_current_object = null
 		_set_tick_simulated_for(node, tick)
@@ -135,13 +133,14 @@ func simulate(delta: float, tick: int) -> void:
 	# Metrics
 	NetworkPerformance.push_rollback_nodes_simulated(nodes.size())
 
+# Returns nodes in scene tree order
 func _get_nodes_to_simulate(input_snapshot: _Snapshot) -> Array[Node]:
 	var result: Array[Node] = []
 	if not input_snapshot:
 		return []
 
 	var tick := input_snapshot.tick
-	for node in _callbacks.keys():
+	for node in get_tree().get_nodes_in_group(_group):
 		if not _liveness_server.is_alive(node, tick):
 			# Node is not alive in this tick
 			continue
