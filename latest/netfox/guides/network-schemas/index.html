@@ -582,7 +582,12 @@ single-precision floats.</p>
 <tr>
 <td>Strings</td>
 <td><code>string()</code></td>
-<td>Size in UTF-8 + null-terminator at the end</td>
+<td>Size in UTF-8 + null-terminator + length in 4 bytes</td>
+</tr>
+<tr>
+<td>Strings</td>
+<td><code>c_string()</code></td>
+<td>Size in UTF-8 + null-terminator</td>
 </tr>
 <tr>
 <td>Variant</td>

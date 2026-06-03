@@ -227,6 +227,8 @@
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-string-static">NetworkSchemaSerializer string ( ) static</a>
     </li>
+    <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-c_string-static">NetworkSchemaSerializer c_string ( ) static</a>
+    </li>
     <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-bool8-static">NetworkSchemaSerializer bool8 ( ) static</a>
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#networkschemaserializer-uint8-static">NetworkSchemaSerializer uint8 ( ) static</a>
@@ -466,6 +468,10 @@
 <tr>
 <td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
 <td><a href="#string">string</a>() static</td>
+</tr>
+<tr>
+<td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
+<td><a href="#c_string">c_string</a>() static</td>
 </tr>
 <tr>
 <td><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a></td>
@@ -712,7 +718,11 @@
 <hr />
 <h4 id="networkschemaserializer-string-static"><span id="string"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> string (  ) static</span></h4>
 <p>Serialize strings in UTF-8 encoding.   </p>
-<p>Final size depends on the string, the string itself is zero-terminated.</p>
+<p>Final size depends on the string, the string itself is zero-terminated. Data is prepended by a 32-bit integer representing the string's size. Faster than <a href="#c_string">c_string()</a>, at the cost of using 4 more bytes.</p>
+<hr />
+<h4 id="networkschemaserializer-c_string-static"><span id="c_string"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> c_string (  ) static</span></h4>
+<p>Serialize strings in UTF-8 encoding, terminated with a null byte.   </p>
+<p>Final size depends on the string, the string itself is zero-terminated. Contrary to <a href="#string">string()</a>, the length of the string is not included. Slightly slower than <a href="#string">string()</a>, but uses less data.</p>
 <hr />
 <h4 id="networkschemaserializer-bool8-static"><span id="bool8"><a href="../NetworkSchemaSerializer/">NetworkSchemaSerializer</a> bool8 (  ) static</span></h4>
 <p>Serialize booleans as 8 bits.   </p>
