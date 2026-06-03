@@ -138,17 +138,3 @@ func suite() -> void:
 		expect(abs(decoded - expected_value) < threshold, "Decoded %s while expected %s!" % [decoded, expected_value])
 		Vest.message("Difference: %s" % [abs(decoded - expected_value)])
 	)
-
-	test("string encoding and decoding", func():
-		var short_string := "netfox"
-		var medium_string := "netfox. netfox? netfox! netfox? netfox. netfox! netfox? netfox. "
-		var long_string := medium_string.repeat(16)
-
-		var string_serializer := NetworkSchemas.string()
-		var cstring_serializer := NetworkSchemas.c_string()
-
-		benchmark("string() encode short", func(__):
-			var buffer := StreamPeerBuffer.new()
-			string_serializer.encode(short_string, buffer)
-		).with_duration(5.).run()
-	)
