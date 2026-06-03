@@ -21,9 +21,19 @@ static func variant() -> NetworkSchemaSerializer:
 
 ## Serialize strings in UTF-8 encoding.
 ## [br][br]
-## Final size depends on the string, the string itself is zero-terminated.
+## Final size depends on the string, the string itself is zero-terminated. Data
+## is prepended by a 32-bit integer representing the string's size. Faster than
+## [method c_string], at the cost of using 4 more bytes.
 static func string() -> NetworkSchemaSerializer:
 	return _StringSerializer.new()
+
+## Serialize strings in UTF-8 encoding, terminated with a null byte.
+## [br][br]
+## Final size depends on the string, the string itself is zero-terminated.
+## Contrary to [method string], the length of the string is not included.
+## Slightly slower than [method string], but uses less data.
+static func c_string() -> NetworkSchemaSerializer:
+	return _CStringSerializer.instance
 
 ## Serialize booleans as 8 bits.
 ## [br][br]
@@ -489,6 +499,22 @@ class _StringSerializer extends NetworkSchemaSerializer:
 	func decode(b: StreamPeerBuffer) -> Variant:
 		return b.get_utf8_string()
 
+class _CStringSerializer extends NetworkSchemaSerializer:
+	static var instance := _CStringSerializer.new()
+
+	func encode(v: Variant, b: StreamPeerBuffer) -> void:
+		b.put_data(str(v).to_utf8_buffer())
+		b.put_u8(0)
+
+	func decode(b: StreamPeerBuffer) -> Variant:
+		var data := PackedByteArray()
+		while b.get_available_bytes() > 0:
+			var c := b.get_u8()
+			if c == 0: break
+			data.append(c)
+
+		return data.get_string_from_utf8()
+
 class _BoolSerializer extends NetworkSchemaSerializer:
 	func encode(v: Variant, b: StreamPeerBuffer) -> void:
 		b.put_u8(1 if v else 0)
@@ -869,14 +895,12 @@ class _NetworkIdentityReferenceSerializer extends NetworkSchemaSerializer:
 			varuint.encode(ref.get_id(), b)
 		else:
 			b.put_u8(0)
-			# TODO(#562): Get rid of Godot's prepended 32 bits of string length
-			# TODO(#562): Write is easy, prefer not manually iterating till \0 on read
-			b.put_utf8_string(ref.get_full_name())
+			NetworkSchemas.c_string().encode(ref.get_full_name(), b)
 
 	func decode(b: StreamPeerBuffer) -> Variant:
 		var id := varuint.decode(b) as int
 		if id == 0:
-			var full_name := b.get_utf8_string()
+			var full_name := NetworkSchemas.c_string().decode(b)
 			return _NetworkIdentityReference.of_full_name(full_name)
 		else:
 			return _NetworkIdentityReference.of_id(id)

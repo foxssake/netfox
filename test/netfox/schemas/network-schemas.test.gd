@@ -9,6 +9,7 @@ func suite() -> void:
 	var cases := [
 		["variant", NetworkSchemas.variant(), 32, 12],
 		["string", NetworkSchemas.string(), "hi!!", 8],
+		["c_string", NetworkSchemas.c_string(), "hi!!", 5],
 
 		["bool8", NetworkSchemas.bool8(), true, 1],
 
@@ -83,7 +84,7 @@ func suite() -> void:
 
 		["netref id8", NetworkSchemas._netref(), _NetworkIdentityReference.of_id(12), 1],
 		["netref id16", NetworkSchemas._netref(), _NetworkIdentityReference.of_id(138), 2],
-		["netref name", NetworkSchemas._netref(), _NetworkIdentityReference.of_full_name("path"), 9],
+		["netref name", NetworkSchemas._netref(), _NetworkIdentityReference.of_full_name("path"), 6],
 
 		# Private
 		["varbits", NetworkSchemas._varbits(), _Bitset.of_bools([0, 1, 0, 1, 1, 0, 1]), 1],

@@ -139,7 +139,8 @@ ending up with 12 bytes.
 |-----------------------|---------------------------------------------------------|--------------------------------------------------------------------|
 | Arrays                | `array_of()`                                            | `sizeof(size) + array.size() * sizeof(item)`                       |
 | Dictionaries          | `dictionary()`                                          | `sizeof(size) + dictionary.size() * (sizeof(key) + sizeof(value))` |
-| Strings               | `string()`                                              | Size in UTF-8 + null-terminator at the end                         |
+| Strings               | `string()`                                              | Size in UTF-8 + null-terminator + length in 4 bytes                |
+| Strings               | `c_string()`                                            | Size in UTF-8 + null-terminator                                    |
 | Variant               | `variant()`                                             | Same as [var_to_bytes()]                                           |
 
 ## Implementing a custom serializer
