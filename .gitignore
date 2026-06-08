@@ -34,3 +34,7 @@ classdb.json
 
 # Only for local use
 sh/ensure-uids.sh
+
+# IDE specifics
+.vs/
+.vscode/
