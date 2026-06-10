@@ -15,8 +15,9 @@ jobs:
       - name: Checkout 
         uses: actions/checkout@v6
         with:
-          fetch-tags: true
           fetch-depth: 0
+      - name: Validate checkout
+        run: git branch && git tag && git log --format=oneline
       - name: Setup Python
         uses: actions/setup-python@v5
       - name: Setup Bun

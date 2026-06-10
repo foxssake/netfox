@@ -20,7 +20,6 @@ jobs:
       - name: Checkout 
         uses: actions/checkout@v6
         with:
-          fetch-tags: true
           fetch-depth: 0
       - name: Setup Pages
         uses: actions/configure-pages@v3
