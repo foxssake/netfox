@@ -16,8 +16,10 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+      - name: Unshallow git history (wtf)
+        run: git fetch --unshallow --filter=tree:0
       - name: Validate checkout
-        run: git branch && git tag && git log --format=oneline
+        run: git branch -a && git tag && git log --format=oneline
       - name: Setup Python
         uses: actions/setup-python@v5
       - name: Setup Bun
