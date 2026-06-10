@@ -13,7 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Validate checkout
+        run: git branch -a && git tag && git log --format=oneline
       - name: Setup Python
         uses: actions/setup-python@v5
       - name: Setup Bun
@@ -41,6 +45,8 @@ jobs:
         run: sh/setup-plantuml.sh
       - name: Generate API docs
         run: sh/apidocs.sh
+      - name: Generate changelog
+        run: sh/changelog.ts > docs/changelog.md
       - name: Build
         run: PLANTUML_URL=http://localhost:8080/ NOPUSH=yes sh/push-docs.sh
 

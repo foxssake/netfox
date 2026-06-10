@@ -18,7 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Setup Python
@@ -47,5 +49,7 @@ jobs:
         run: sh/setup-plantuml.sh
       - name: Generate API docs
         run: sh/apidocs.sh
+      - name: Generate changelog
+        run: sh/changelog.ts > docs/changelog.md
       - name: Build
         run: PLANTUML_URL=http://localhost:8080/ sh/push-docs.sh
