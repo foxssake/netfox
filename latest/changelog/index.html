@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://foxssake.github.io/netfox/latest/changelog/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Changelog - netfox</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/version-selector.css" rel="stylesheet" />
+        <link href="../css/twemoji.css" rel="stylesheet" />
+        <link href="../assets/mkdocs_puml/puml.css" rel="stylesheet" />
+        <link href="../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Changelog";
+        var mkdocs_page_input_path = "changelog.md";
+        var mkdocs_page_url = "/netfox/latest/changelog/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script>
+  <script src="https://giscus.app/client.js"
+          data-repo="foxssake/netfox"
+          data-repo-id="R_kgDOKBON2A"
+          data-category="Docs"
+          data-category-id="DIC_kwDOKBON2M4Clib_"
+          data-mapping="title"
+          data-strict="0"
+          data-reactions-enabled="1"
+          data-emit-metadata="0"
+          data-input-position="top"
+          data-theme="light"
+          data-lang="en"
+          data-loading="lazy"
+          crossorigin="anonymous"
+          async>
+  </script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> netfox
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../upgrading/">Upgrading netfox</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Changelog</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#latest">Latest</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#v1353">v1.35.3</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#v1253">v1.25.3</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#v1191">v1.19.1</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#v1141">v1.14.1</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#v180">v1.8.0</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#v170">v1.7.0</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#v140">v1.4.0</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#v111">v1.1.1</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#v101">v1.0.1</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#v100">v1.0.0</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#v01514">v0.15.14</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#v0159">v0.15.9</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../made-with-netfox/">Made with netfox</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../faq/">Frequently Asked Questions</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../external-tutorials/">External tutorials</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../press-kit/">Press kit</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../contributors/">Contributors</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Tutorials</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/tutorials/responsive-player-movement/">Responsive player movement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/tutorials/input-gathering-tips-and-tricks/">Input gathering tips and tricks</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/tutorials/predicting-input/">Predicting input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/tutorials/using-rollbacksynchronizer-without-inputs/">Using RollbackSynchronizer without inputs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/tutorials/spawning-and-despawning-in-rollback/">Spawning and despawning in rollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/tutorials/modifying-objects-during-rollback/">Modifying objects during rollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/tutorials/configuring-properties-from-code/">Configuring properties from code</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/tutorials/rollback-caveats/">Rollback caveats</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/tutorials/interpolation-caveats/">Interpolation caveats</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Concepts</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/concepts/servers-clients-ownership/">Servers, clients, and ownership</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/concepts/authoritative-servers/">Authoritative servers</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/guides/logging/">Logging</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/guides/network-time/">NetworkTime</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/guides/network-time-synchronizer/">NetworkTimeSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/guides/network-events/">NetworkEvents</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/guides/interpolators/">Interpolators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/guides/property-paths/">Property paths</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/guides/network-rollback/">NetworkRollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/guides/network-performance/">NetworkPerformance</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/guides/network-command-server/">NetworkCommandServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/guides/network-schemas/">Network Schemas</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/guides/visibility-management/">Visibility Management</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/guides/netfox-sharp/">Netfox Sharp</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Nodes</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/nodes/tick-interpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/nodes/rollback-synchronizer/">RollbackSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/nodes/predictive-synchronizer/">PredictiveSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/nodes/state-synchronizer/">StateSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/nodes/rewindable-action/">RewindableAction</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.noray</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox.noray/guides/noray/">Noray</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox.noray/guides/packet-handshake/">PacketHandshake</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.extras</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox.extras/guides/physics/">Physics</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox.extras/guides/network-simulator/">NetworkSimulator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox.extras/guides/base-net-input/">BaseNetInput</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox.extras/guides/network-weapon/">NetworkWeapon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox.extras/guides/rewindable-state-machine/">RewindableStateMachine</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox.extras/guides/rewindable-random-number-generator/">RewindableRandomNumberGenerator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox.extras/guides/window-tiler/">WindowTiler</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Reference</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Classes</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/BaseNetInput/">BaseNetInput</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/Interpolators.Interpolator/">Interpolators.Interpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/Interpolators/">Interpolators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/NetfoxLogger/">NetfoxLogger</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/NetworkRigidBody2D/">NetworkRigidBody2D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/NetworkRigidBody3D/">NetworkRigidBody3D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/NetworkSchemaSerializer/">NetworkSchemaSerializer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/NetworkSchemas/">NetworkSchemas</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/NetworkTickrateHandshake/">NetworkTickrateHandshake</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/NetworkWeapon/">NetworkWeapon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/NetworkWeapon2D/">NetworkWeapon2D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/NetworkWeapon3D/">NetworkWeapon3D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/NetworkWeaponHitscan3D/">NetworkWeaponHitscan3D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/PeerVisibilityFilter/">PeerVisibilityFilter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/PhysicsDriver/">PhysicsDriver</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/PredictiveSynchronizer/">PredictiveSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/RewindableAction/">RewindableAction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/RewindableRandomNumberGenerator/">RewindableRandomNumberGenerator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/RewindableState/">RewindableState</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/RewindableStateMachine/">RewindableStateMachine</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/RollbackSynchronizer/">RollbackSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/StateSynchronizer/">StateSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/TickInterpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_NetworkCommandServer.Command/">_NetworkCommandServer.Command</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_NetworkCommandServer/">_NetworkCommandServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_NetworkEvents/">_NetworkEvents</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_NetworkHistoryServer/">_NetworkHistoryServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_NetworkIdentityServer/">_NetworkIdentityServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_NetworkPerformance/">_NetworkPerformance</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_NetworkRollback/">_NetworkRollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_NetworkSimulator/">_NetworkSimulator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_NetworkSynchronizationServer/">_NetworkSynchronizationServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_NetworkTime/">_NetworkTime</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_NetworkTimeSynchronizer/">_NetworkTimeSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_Noray/">_Noray</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_PacketHandshake/">_PacketHandshake</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_RollbackLivenessServer/">_RollbackLivenessServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_RollbackSimulationServer/">_RollbackSimulationServer</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">netfox</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Changelog</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="changelog">Changelog</h1>
+<h2 id="latest">Latest</h2>
+<ul>
+<li>doc: Changelogs (<a href="https://github.com/foxssake/netfox/pull/611">#611</a>) <a href="https://github.com/foxssake/netfox/commit/eb7e23a9647a6d9f94069021f0f2d36be80d0207">🔗</a></li>
+<li>chore: Add VS and VSCode to directories to .gitignore (<a href="https://github.com/foxssake/netfox/pull/609">#609</a>) <a href="https://github.com/foxssake/netfox/commit/b1d8756391c765e5762b0d1515bf0b9e3dd58b82">🔗</a></li>
+<li>feat: Null-terminated string serializer (<a href="https://github.com/foxssake/netfox/pull/608">#608</a>) <a href="https://github.com/foxssake/netfox/commit/9c21672697d30a47c509cca44de9fa23d2019f44">🔗</a></li>
+<li>perf: Don't re-sort simulated nodes on every loop (<a href="https://github.com/foxssake/netfox/pull/607">#607</a>) <a href="https://github.com/foxssake/netfox/commit/fe592f06a3ea56b006b2ada62c3fd992bb8f2dd1">🔗</a></li>
+<li>chore: Cleanup peer identity data on disconnect (<a href="https://github.com/foxssake/netfox/pull/606">#606</a>) <a href="https://github.com/foxssake/netfox/commit/6a22e1db40d84f5dcf25a27cfa42dee3e06d2b22">🔗</a></li>
+<li>feat: Packet size limit (<a href="https://github.com/foxssake/netfox/pull/605">#605</a>) <a href="https://github.com/foxssake/netfox/commit/5cb8944c7efd67264303c7b0bc29f801e6bc4472">🔗</a></li>
+<li>fix: Keep local Network Identities on connect (<a href="https://github.com/foxssake/netfox/pull/604">#604</a>) <a href="https://github.com/foxssake/netfox/commit/86ab7a96cee5ab3bc8b19a2212f18b47db658ee3">🔗</a></li>
+<li>fix: Window tiling edge cases (<a href="https://github.com/foxssake/netfox/pull/603">#603</a>) <a href="https://github.com/foxssake/netfox/commit/f0d7171239194f4cd24dff7559a31bb1cf49ce58">🔗</a></li>
+<li>fix: Prevent crash on free when RBS is not last node (<a href="https://github.com/foxssake/netfox/pull/600">#600</a>) <a href="https://github.com/foxssake/netfox/commit/cac71a5d3953b32d9aa2f1f984caa9fb8bc87265">🔗</a></li>
+<li>doc: FAQ (<a href="https://github.com/foxssake/netfox/pull/599">#599</a>) <a href="https://github.com/foxssake/netfox/commit/4047501fed8a99008ea3976333818a9462a4edce">🔗</a></li>
+<li>doc: Kick and Hide (<a href="https://github.com/foxssake/netfox/pull/598">#598</a>) <a href="https://github.com/foxssake/netfox/commit/07cb374ea880634b3a7e433b7005fd4398f41f79">🔗</a></li>
+<li>fix: Use correct hex constant for flag bit in VariableBitsetSerializer (<a href="https://github.com/foxssake/netfox/pull/596">#596</a>) <a href="https://github.com/foxssake/netfox/commit/f75a4230bdd329a61f49cc9dac248a03ca8b21cb">🔗</a></li>
+<li>fix: Use correct RRNG state (<a href="https://github.com/foxssake/netfox/pull/593">#593</a>) <a href="https://github.com/foxssake/netfox/commit/91da635c0fcb3f9cc04dd707b9b97664872b181a">🔗</a></li>
+<li>fix: Remove redundant register from PredictiveSynchronizer (<a href="https://github.com/foxssake/netfox/pull/592">#592</a>) <a href="https://github.com/foxssake/netfox/commit/5bda852f479bf3dd451d4b8c60347644170e6866">🔗</a></li>
+<li>fix: Restore prediction flag (<a href="https://github.com/foxssake/netfox/pull/590">#590</a>) <a href="https://github.com/foxssake/netfox/commit/99a27a103f8b8da834c17cfb1a785cf89de71867">🔗</a></li>
+<li>feat: Support nested RollbackSynchronizers (<a href="https://github.com/foxssake/netfox/pull/586">#586</a>) <a href="https://github.com/foxssake/netfox/commit/8c5641c3b46ec52cf8525d5763fd18d31f653066">🔗</a></li>
+<li>doc: Clarify RewindableStateMachine sibling status (<a href="https://github.com/foxssake/netfox/pull/587">#587</a>) <a href="https://github.com/foxssake/netfox/commit/86a829064ab590104f6f227fca084566e074d4c1">🔗</a></li>
+<li>doc: Remove ?si suffix from external tutorial links (<a href="https://github.com/foxssake/netfox/pull/585">#585</a>) <a href="https://github.com/foxssake/netfox/commit/d3eb0d3cc7b8c7a5615bc0e835baca98f53d9c21">🔗</a></li>
+<li>fix: Avoid failed to ensure snapshot errors (<a href="https://github.com/foxssake/netfox/pull/584">#584</a>) <a href="https://github.com/foxssake/netfox/commit/d3ad5692af46b934307b3b1251519daf314ccc3d">🔗</a></li>
+<li>fix: Flush network IDs (<a href="https://github.com/foxssake/netfox/pull/583">#583</a>) <a href="https://github.com/foxssake/netfox/commit/f3a724719afb4fd9a045a3def92326b2eae650ed">🔗</a></li>
+<li>fix: Handle StateSynchronizer freeing (<a href="https://github.com/foxssake/netfox/pull/581">#581</a>) <a href="https://github.com/foxssake/netfox/commit/6e83482968d40ca15ba8a3d81cd1a32c7f5332c2">🔗</a></li>
+<li>doc: Generated class reference (<a href="https://github.com/foxssake/netfox/pull/580">#580</a>) <a href="https://github.com/foxssake/netfox/commit/c49e4c0a4e296e7d622e3eb70f5c78c6764b06ac">🔗</a></li>
+<li>feat: Merge schema (<a href="https://github.com/foxssake/netfox/pull/579">#579</a>) <a href="https://github.com/foxssake/netfox/commit/497a48b3c6eead9b098d067fe36ef82989bfde45">🔗</a></li>
+<li>feat: Rollback liveness (<a href="https://github.com/foxssake/netfox/pull/574">#574</a>) <a href="https://github.com/foxssake/netfox/commit/8d842de0ed07e6df458efddf4e37a07c4a666cb6">🔗</a></li>
+<li>chore: Remove the Rollback Debugger example (<a href="https://github.com/foxssake/netfox/pull/577">#577</a>) <a href="https://github.com/foxssake/netfox/commit/38f0b5579f91e9e6d81037426a559e513779a7f9">🔗</a></li>
+<li>chore: Linting (<a href="https://github.com/foxssake/netfox/pull/575">#575</a>) <a href="https://github.com/foxssake/netfox/commit/f279781691942bcf7fed92946d1bbc61e6587584">🔗</a></li>
+<li>feat(game): Integrate nohub (<a href="https://github.com/foxssake/netfox/pull/520">#520</a>) <a href="https://github.com/foxssake/netfox/commit/eec638198291516a589310f8a790c309199bf4b2">🔗</a></li>
+<li>chore: Update Rapier physics drivers for v0.8.26 (<a href="https://github.com/foxssake/netfox/pull/552">#552</a>) <a href="https://github.com/foxssake/netfox/commit/5018bd8e96cc3e31b0fb06ce6f3174b33e8eb7f2">🔗</a></li>
+<li>fix: Prevent dirty read on NetworkTime restart (<a href="https://github.com/foxssake/netfox/pull/572">#572</a>) <a href="https://github.com/foxssake/netfox/commit/7e7c0d6c9d87c5bbcb3e0aa61abf04107c6df5c1">🔗</a></li>
+<li>feat: Implement synchronizer logic as servers (<a href="https://github.com/foxssake/netfox/pull/549">#549</a>) <a href="https://github.com/foxssake/netfox/commit/d6ddde4c57574c51d101d18f109d7426743b6be3">🔗</a></li>
+<li>doc: Nitro Turtles (<a href="https://github.com/foxssake/netfox/pull/568">#568</a>) <a href="https://github.com/foxssake/netfox/commit/5ed6a1c25e164a3520de9e6d4bad3110346fec81">🔗</a></li>
+<li>doc: Fix docs link in netfox.noray README (<a href="https://github.com/foxssake/netfox/pull/569">#569</a>) <a href="https://github.com/foxssake/netfox/commit/1367b59a6bb6df33f9978efb15a5278e5085de3a">🔗</a></li>
+<li>feat: NetworkIdentifiers (<a href="https://github.com/foxssake/netfox/pull/566">#566</a>) <a href="https://github.com/foxssake/netfox/commit/5062d8c636b65d4742c7ddd29d9a4c24e6418b05">🔗</a></li>
+<li>feat: Network Commands (<a href="https://github.com/foxssake/netfox/pull/565">#565</a>) <a href="https://github.com/foxssake/netfox/commit/28a69910748f6d2393b8ceaeccf4d257f3a7ecca">🔗</a></li>
+<li>feat: PredictiveSynchronizer (<a href="https://github.com/foxssake/netfox/pull/533">#533</a>) <a href="https://github.com/foxssake/netfox/commit/d0998691bd321cafc24730947d35b67a98d23bca">🔗</a></li>
+<li>fix: Prevent crash on exit in _RollbackHistoryTransmitter (<a href="https://github.com/foxssake/netfox/pull/551">#551</a>) <a href="https://github.com/foxssake/netfox/commit/67d2eb286fc9e730681a17524ea6cf6b7da63cee">🔗</a></li>
+<li>fix: Prevent autoload order changing on project startup (<a href="https://github.com/foxssake/netfox/pull/550">#550</a>) <a href="https://github.com/foxssake/netfox/commit/5be732abfa99ffb16d74c6156f06bee3a19be19e">🔗</a></li>
+<li>doc: Add physics query workaround (<a href="https://github.com/foxssake/netfox/pull/546">#546</a>) <a href="https://github.com/foxssake/netfox/commit/771a4978d7eb888bd3d1c60690c95d4db8e8d72b">🔗</a></li>
+<li>deps: Upgrade vest to 1.10.4 (<a href="https://github.com/foxssake/netfox/pull/548">#548</a>) <a href="https://github.com/foxssake/netfox/commit/88721cac3a60ca600ed666b734ff6c0dad000dc7">🔗</a></li>
+<li>fix: Adjust internal tickrate on mismatch instead of project setting (<a href="https://github.com/foxssake/netfox/pull/547">#547</a>) <a href="https://github.com/foxssake/netfox/commit/95dca855bed4f6f4c1811754e751fc7005ff311f">🔗</a></li>
+<li>feat: Schemas (<a href="https://github.com/foxssake/netfox/pull/535">#535</a>) <a href="https://github.com/foxssake/netfox/commit/eeb4961c90d202713a3e1895b37b88c109c92857">🔗</a></li>
+</ul>
+<h2 id="v1353">v1.35.3</h2>
+<ul>
+<li>fix: RewindableAction to handle later ticks (<a href="https://github.com/foxssake/netfox/pull/534">#534</a>) <a href="https://github.com/foxssake/netfox/commit/c7fc6ea52b4e9087c980d9ca1f8c3826e3a6caa4">🔗</a></li>
+<li>fix: Queue RewindableAction mutations ahead of rollback loop (<a href="https://github.com/foxssake/netfox/pull/531">#531</a>) <a href="https://github.com/foxssake/netfox/commit/da82e7a78525e4e9b6c4f6768462b9afef7cf59f">🔗</a></li>
+<li>fix: Stop signals and loops on disconnect (<a href="https://github.com/foxssake/netfox/pull/530">#530</a>) <a href="https://github.com/foxssake/netfox/commit/59d6e1440ad526b0fb2f138706d58f6afdded90b">🔗</a></li>
+<li>feat: Track and expose latest confirmed tick (<a href="https://github.com/foxssake/netfox/pull/518">#518</a>) <a href="https://github.com/foxssake/netfox/commit/2fb8c7617b052b07c54bce2515a2193ed5faa388">🔗</a></li>
+<li>fix: Always clear RewindableAction queue after loop (<a href="https://github.com/foxssake/netfox/pull/527">#527</a>) <a href="https://github.com/foxssake/netfox/commit/7be2a3c13d1e73fa2304bdb2945a4430810b4c88">🔗</a></li>
+<li>docs: External resources (<a href="https://github.com/foxssake/netfox/pull/529">#529</a>) <a href="https://github.com/foxssake/netfox/commit/ab6089b8ab287a765842c773ec1c9675367a90c1">🔗</a></li>
+<li>docs: Inputless RollbackSynchronizers (<a href="https://github.com/foxssake/netfox/pull/528">#528</a>) <a href="https://github.com/foxssake/netfox/commit/19f8cac4b1ea9d546573e34450248b1166ad91f0">🔗</a></li>
+<li>feat: Expose logger API (<a href="https://github.com/foxssake/netfox/pull/526">#526</a>) <a href="https://github.com/foxssake/netfox/commit/5fbb927200ae34bd2cca1447c4a4a3c7dd681ff5">🔗</a></li>
+<li>fix: Eliminate partial sync on non-rollback-aware nodes (<a href="https://github.com/foxssake/netfox/pull/524">#524</a>) <a href="https://github.com/foxssake/netfox/commit/9a8f04f133c282322c3889fdbba8f9fcdc0bbc3f">🔗</a></li>
+<li>chore: Align icons to editor scale and theme (<a href="https://github.com/foxssake/netfox/pull/525">#525</a>) <a href="https://github.com/foxssake/netfox/commit/c1a1855209c4d4f08d9e455fd86f9d7c1b40d174">🔗</a></li>
+<li>fix: Stop autoconnect thread on quit (<a href="https://github.com/foxssake/netfox/pull/522">#522</a>) <a href="https://github.com/foxssake/netfox/commit/6761547939158ea68fb1ca647254fedc83b76f85">🔗</a></li>
+<li>fix: RewindableAction to include ticks at the end of the tickset (<a href="https://github.com/foxssake/netfox/pull/513">#513</a>) <a href="https://github.com/foxssake/netfox/commit/7c1e9eff915bc46cef5b433398c9801367446071">🔗</a></li>
+<li>fix(doc): Ensure graphviz is installed (<a href="https://github.com/foxssake/netfox/pull/510">#510</a>) <a href="https://github.com/foxssake/netfox/commit/25002be7e1c0f654e06d800526fe3185697f89ff">🔗</a></li>
+<li>feat: RewindableState signals (<a href="https://github.com/foxssake/netfox/pull/494">#494</a>) <a href="https://github.com/foxssake/netfox/commit/9883f3f6dfcffa61415e3b06ad5eebd1547b87ae">🔗</a></li>
+<li>fix(example): Smooth aiming input on FPS examples (<a href="https://github.com/foxssake/netfox/pull/509">#509</a>) <a href="https://github.com/foxssake/netfox/commit/62184da85e702e874587d312d47c36ec6fa123b9">🔗</a></li>
+<li>fix: Clear property config on process_authority() (<a href="https://github.com/foxssake/netfox/pull/507">#507</a>) <a href="https://github.com/foxssake/netfox/commit/81c1c30bf6feababf126a9c4ff5c37f4c2ae62e5">🔗</a></li>
+<li>fix: Rapier physics toggle recognizes correct addon (<a href="https://github.com/foxssake/netfox/pull/506">#506</a>) <a href="https://github.com/foxssake/netfox/commit/27b46ee9f12469425328b9190e663f1b02095305">🔗</a></li>
+<li>fix: Transmit state for inputless RollbackSynchronizers (<a href="https://github.com/foxssake/netfox/pull/504">#504</a>) <a href="https://github.com/foxssake/netfox/commit/412e4678c64acaec01d0d0f69dc38bb86f15ac50">🔗</a></li>
+<li>feat: Autoconnect with network conditions simulation (<a href="https://github.com/foxssake/netfox/pull/481">#481</a>) <a href="https://github.com/foxssake/netfox/commit/d2a44263de885b55f471d5ffaa208601d6986673">🔗</a></li>
+<li>fix: Update peer visibility on entering tree (<a href="https://github.com/foxssake/netfox/pull/499">#499</a>) <a href="https://github.com/foxssake/netfox/commit/f60fc9573890d5406fc76dba49dc56f9745cb41e">🔗</a></li>
+<li>fix(example): Add missing is editor check <a href="https://github.com/foxssake/netfox/commit/13b9e6d25d8796c1441a0340b65502bca8a53fce">🔗</a></li>
+<li>feat: Visibility filtering (<a href="https://github.com/foxssake/netfox/pull/492">#492</a>) <a href="https://github.com/foxssake/netfox/commit/213bb480e2df5c19000fb06a127b8d31e4507b37">🔗</a></li>
+<li>fix: One-Off Inputs tutorial duplicates one-off input during lag (<a href="https://github.com/foxssake/netfox/pull/490">#490</a>) <a href="https://github.com/foxssake/netfox/commit/105aa259af076e0433496da52471254413e5a1c9">🔗</a></li>
+<li>fix: SnapshotHistoryEncoder size mismatch (<a href="https://github.com/foxssake/netfox/pull/491">#491</a>) <a href="https://github.com/foxssake/netfox/commit/ccad7635d493c2a98cb667b04252f672da67841b">🔗</a></li>
+<li>feat: Rollback RNG (<a href="https://github.com/foxssake/netfox/pull/488">#488</a>) <a href="https://github.com/foxssake/netfox/commit/d354ddf63ed49fded93bf44229f125ed6c03d4f8">🔗</a></li>
+<li>fix: Attach version to property indexes (<a href="https://github.com/foxssake/netfox/pull/486">#486</a>) <a href="https://github.com/foxssake/netfox/commit/222ea5c1e84a746f1be391b94f5320710a23551f">🔗</a></li>
+<li>fix: Properly detect whether full or diff state is smaller (<a href="https://github.com/foxssake/netfox/pull/477">#477</a>) <a href="https://github.com/foxssake/netfox/commit/63c7d9b6d89446529fecb44ba0ea1bcbdeb59fa0">🔗</a></li>
+<li>feat: Diff states in StateSynchronizer (<a href="https://github.com/foxssake/netfox/pull/476">#476</a>) <a href="https://github.com/foxssake/netfox/commit/962eb875176c852bd2dc3ee50eb0320a88ca17b0">🔗</a></li>
+<li>refactor: Separate RollbackSynchronizer into components (<a href="https://github.com/foxssake/netfox/pull/458">#458</a>) <a href="https://github.com/foxssake/netfox/commit/4917acf1ed22f84c8d24db1ca6876df2de3401fa">🔗</a></li>
+<li>refactor: Consolidate tick broadcast logic (<a href="https://github.com/foxssake/netfox/pull/449">#449</a>) <a href="https://github.com/foxssake/netfox/commit/e22885f5219e99455bf59cd0f9490071c4ffafe8">🔗</a></li>
+<li>perf: Reduce encoder bandwidth (<a href="https://github.com/foxssake/netfox/pull/430">#430</a>) <a href="https://github.com/foxssake/netfox/commit/1cefa98b51a2d75548c98073d73299f9a08a2900">🔗</a></li>
+<li>refactor: Reintroduce history encoder <a href="https://github.com/foxssake/netfox/commit/c9fc003f7d96a6c6e2032dcb8d68f94e7581f4a6">🔗</a></li>
+<li>deps: Upgrade vest to 1.3.3 (<a href="https://github.com/foxssake/netfox/pull/484">#484</a>) <a href="https://github.com/foxssake/netfox/commit/2092b739f0e38972ca45f294ff12db5a96d2a666">🔗</a></li>
+<li>feat: Implement handshake over ENetMultiplayerPeer to detect closed connections (<a href="https://github.com/foxssake/netfox/pull/479">#479</a>) <a href="https://github.com/foxssake/netfox/commit/50db161722e5b035b6b107a9a91551bff24a6bde">🔗</a></li>
+<li>doc: Fix plantuml diagram rendering (<a href="https://github.com/foxssake/netfox/pull/483">#483</a>) <a href="https://github.com/foxssake/netfox/commit/4b82cf13350dbbaade92749fe0b1efe457adb8d6">🔗</a></li>
+<li>doc: Add Chrome Carnage to games list (<a href="https://github.com/foxssake/netfox/pull/480">#480</a>) <a href="https://github.com/foxssake/netfox/commit/f1c1d5d2677b4a3bc93c7dae354b36b5dcb7da45">🔗</a></li>
+<li>Stepping Physics with Rollback  (<a href="https://github.com/foxssake/netfox/pull/437">#437</a>) <a href="https://github.com/foxssake/netfox/commit/2743c6ae9ae26d1966fe96bafb1042cba6d87294">🔗</a></li>
+<li>doc: Interpolators provided as static class (<a href="https://github.com/foxssake/netfox/pull/472">#472</a>) <a href="https://github.com/foxssake/netfox/commit/de6e61ef066b01f3e7dc69889b04084328d93501">🔗</a></li>
+<li>fix: Avoid NaNs at very low latencies (<a href="https://github.com/foxssake/netfox/pull/469">#469</a>) <a href="https://github.com/foxssake/netfox/commit/26f548ad4f7f706e57336a05a126e32fcdc7c48b">🔗</a></li>
+<li>doc: Use physics_factor in all example snippets (<a href="https://github.com/foxssake/netfox/pull/461">#461</a>) <a href="https://github.com/foxssake/netfox/commit/52f03dc29bb45fd3e79a50328c88de91edb362f1">🔗</a></li>
+<li>feat: Add input gathering example project (<a href="https://github.com/foxssake/netfox/pull/459">#459</a>) <a href="https://github.com/foxssake/netfox/commit/65d11e4a62ebc1c8d09e8cdfe4efb4195e1a66e4">🔗</a></li>
+<li>fix: Set is_predicted tick outside of node sim (<a href="https://github.com/foxssake/netfox/pull/455">#455</a>) <a href="https://github.com/foxssake/netfox/commit/779eded25598b099d2614d32da733dbecd01fdab">🔗</a></li>
+<li>doc: Input gathering tips and tricks (<a href="https://github.com/foxssake/netfox/pull/452">#452</a>) <a href="https://github.com/foxssake/netfox/commit/e6e9c7db32e818c6d9e1c31077a6f6d79fb9d11c">🔗</a></li>
+<li>doc: Update rollback tick loop (<a href="https://github.com/foxssake/netfox/pull/453">#453</a>) <a href="https://github.com/foxssake/netfox/commit/54846916e858c30bc90a82dff3806d22bdbf77d2">🔗</a></li>
+<li>feat: Inputless RollbackSynchronizer (<a href="https://github.com/foxssake/netfox/pull/448">#448</a>) <a href="https://github.com/foxssake/netfox/commit/4ed381046153b3fd79678cf3ccbaa2db6bf79e32">🔗</a></li>
+<li>doc: Update Made with netfox page (<a href="https://github.com/foxssake/netfox/pull/447">#447</a>) <a href="https://github.com/foxssake/netfox/commit/c6647157bb08f97d1f4b2c7dcf79215c1b1f40ec">🔗</a></li>
+<li>fix: Don't run callbacks in editor for RewindableStateMachine (<a href="https://github.com/foxssake/netfox/pull/445">#445</a>) <a href="https://github.com/foxssake/netfox/commit/5b928c91184ee356fc039b677275d43a35d389df">🔗</a></li>
+<li>chore: Cache project settings (<a href="https://github.com/foxssake/netfox/pull/442">#442</a>) <a href="https://github.com/foxssake/netfox/commit/d0e26381de38db6e96ac274d14b114f369a5d79a">🔗</a></li>
+<li>fix: TickInterpolator error when above interpolated property in scene tree (<a href="https://github.com/foxssake/netfox/pull/438">#438</a>) <a href="https://github.com/foxssake/netfox/commit/4c170a8e86cec465c514ea8fd9cbbf51bee169b7">🔗</a></li>
+</ul>
+<h2 id="v1253">v1.25.3</h2>
+<ul>
+<li>chore: Report missing UIDs (<a href="https://github.com/foxssake/netfox/pull/439">#439</a>) <a href="https://github.com/foxssake/netfox/commit/657dbe5aefc596b065a4307a53347f1c8865df6e">🔗</a></li>
+<li>chore: Add UIDs (<a href="https://github.com/foxssake/netfox/pull/436">#436</a>) <a href="https://github.com/foxssake/netfox/commit/3c1d7b4fe5da42ee4caccc4959848d8583bd0772">🔗</a></li>
+<li>docs: Mark Mutations experimental (<a href="https://github.com/foxssake/netfox/pull/435">#435</a>) <a href="https://github.com/foxssake/netfox/commit/4e48244550a1c33052666942e8be21eeb339cd62">🔗</a></li>
+<li>fix: Unregister log tags on game exit (<a href="https://github.com/foxssake/netfox/pull/434">#434</a>) <a href="https://github.com/foxssake/netfox/commit/3538b82da74b11514cf5be450ad40934843bc304">🔗</a></li>
+<li>feat: Rewindable Actions (<a href="https://github.com/foxssake/netfox/pull/394">#394</a>) <a href="https://github.com/foxssake/netfox/commit/0eae2574bbeb8c89227096a1cf1682ddca3984ce">🔗</a></li>
+<li>refactor: More static types (<a href="https://github.com/foxssake/netfox/pull/420">#420</a>) <a href="https://github.com/foxssake/netfox/commit/7e7f87ad73f71a52fa3cf3c55c11959b97e2e463">🔗</a></li>
+<li>revert: History encoder (#425) (<a href="https://github.com/foxssake/netfox/pull/429">#429</a>) <a href="https://github.com/foxssake/netfox/commit/c0f987de28c1090a974634703f499beb45463bdd">🔗</a></li>
+<li>refactor: History encoder (<a href="https://github.com/foxssake/netfox/pull/425">#425</a>) <a href="https://github.com/foxssake/netfox/commit/ee2a985c6b76b446ed5ea0743754b1f4b77da151">🔗</a></li>
+<li>chore: Upgrade to vest v0.22.15 (<a href="https://github.com/foxssake/netfox/pull/426">#426</a>) <a href="https://github.com/foxssake/netfox/commit/ff130ed0c3ad7e8deaa19f05a3a659d56c39cdfe">🔗</a></li>
+<li>fix: Don't tile if embedded in editor (<a href="https://github.com/foxssake/netfox/pull/419">#419</a>) <a href="https://github.com/foxssake/netfox/commit/0c3b27983956bf6fd1b0be11a93487c4c091f53f">🔗</a></li>
+<li>fix: _HistoryBuffer snapshot return null on unknown tick (<a href="https://github.com/foxssake/netfox/pull/418">#418</a>) <a href="https://github.com/foxssake/netfox/commit/ddb528da4f73939cf998038a6d7893a2d0bc55eb">🔗</a></li>
+<li>chore: PropertyEntry tests (<a href="https://github.com/foxssake/netfox/pull/416">#416</a>) <a href="https://github.com/foxssake/netfox/commit/3dc7a210519d58e60fccd6e3f99dc387165ce150">🔗</a></li>
+<li>refactor: Use get_property_list() to check property presence (<a href="https://github.com/foxssake/netfox/pull/415">#415</a>) <a href="https://github.com/foxssake/netfox/commit/0dc64f1a74c1dac633784c3e3b4535c7103cd1f0">🔗</a></li>
+<li>chore: Fix banner in README on dark mode (<a href="https://github.com/foxssake/netfox/pull/413">#413</a>) <a href="https://github.com/foxssake/netfox/commit/3892591c73322d7bac756ce1372ff3b387ea5f6a">🔗</a></li>
+<li>doc: Contributors page (<a href="https://github.com/foxssake/netfox/pull/412">#412</a>) <a href="https://github.com/foxssake/netfox/commit/8c88901eacd49cf79864464d0677ba6ca45eb17c">🔗</a></li>
+<li>chore: Add missing dependency for site build (<a href="https://github.com/foxssake/netfox/pull/411">#411</a>) <a href="https://github.com/foxssake/netfox/commit/d6f55fb9fbea11de32c3ae475a148a3de16b1132">🔗</a></li>
+<li>doc: Made with netfox page (<a href="https://github.com/foxssake/netfox/pull/410">#410</a>) <a href="https://github.com/foxssake/netfox/commit/ae9b57d9e8c1eea5a8777c7e7494303c50b028a8">🔗</a></li>
+<li>fix: Failing PropertySnapshot tests (<a href="https://github.com/foxssake/netfox/pull/409">#409</a>) <a href="https://github.com/foxssake/netfox/commit/2d9c8b0648d048c35fd0eb72b99c7b2993c6f7c1">🔗</a></li>
+<li>doc: Press kit (<a href="https://github.com/foxssake/netfox/pull/408">#408</a>) <a href="https://github.com/foxssake/netfox/commit/4371eace359304c3cd0546e5289ad7c5f917a94a">🔗</a></li>
+<li>refactor: Store state and inputs in HistoryBuffers as PropertySnapshots (<a href="https://github.com/foxssake/netfox/pull/399">#399</a>) <a href="https://github.com/foxssake/netfox/commit/d13829f108ebb67546e155da68426a16e025d665">🔗</a></li>
+<li>refactor: Submit input as tick-snapshot pairs (<a href="https://github.com/foxssake/netfox/pull/307">#307</a>) <a href="https://github.com/foxssake/netfox/commit/926250a989fff56925f7381bafa7831e5ef3c0c2">🔗</a></li>
+<li>feat: Input delay (<a href="https://github.com/foxssake/netfox/pull/276">#276</a>) <a href="https://github.com/foxssake/netfox/commit/1223bd96871085b5cf3b57ce8e98f7ca216a489e">🔗</a></li>
+<li>fix: Add logger tags in _ready (<a href="https://github.com/foxssake/netfox/pull/395">#395</a>) <a href="https://github.com/foxssake/netfox/commit/dff13b989a8b20b35cb378029bbf55111bc22959">🔗</a></li>
+<li>chore: Iterable sets (<a href="https://github.com/foxssake/netfox/pull/392">#392</a>) <a href="https://github.com/foxssake/netfox/commit/768b198c087a4f41faae66989866f10f3b6c63c0">🔗</a></li>
+<li>fix: Add missing editor check in RollbackSynchronizer._ready (<a href="https://github.com/foxssake/netfox/pull/391">#391</a>) <a href="https://github.com/foxssake/netfox/commit/cf8f41d9124d84568eec61678a0f424cc199c345">🔗</a></li>
+<li>feat: Expose last known input and state ticks (<a href="https://github.com/foxssake/netfox/pull/390">#390</a>) <a href="https://github.com/foxssake/netfox/commit/a260d5e1cedfc68cba57505ecb2b3e2279b970ce">🔗</a></li>
+<li>fix: Record state if mutated (<a href="https://github.com/foxssake/netfox/pull/389">#389</a>) <a href="https://github.com/foxssake/netfox/commit/3db6a250e744c9944cacbe13f06482003ae0728d">🔗</a></li>
+<li>feat: Add display_tick and history_start getters (<a href="https://github.com/foxssake/netfox/pull/388">#388</a>) <a href="https://github.com/foxssake/netfox/commit/f897522ae5803cb1664f9aa5a6b36d2ba5d654d0">🔗</a></li>
+<li>doc: Netfox Sharp (<a href="https://github.com/foxssake/netfox/pull/384">#384</a>) <a href="https://github.com/foxssake/netfox/commit/4607293689c245ab8c478e0235476e97ac1f259a">🔗</a></li>
+<li>fix: Recover clock from pauses and stalls (<a href="https://github.com/foxssake/netfox/pull/381">#381</a>) <a href="https://github.com/foxssake/netfox/commit/1c18a159302cbd8c82c9734c63e644672f8c3356">🔗</a></li>
+<li>chore: Implement tickrate handshake (<a href="https://github.com/foxssake/netfox/pull/380">#380</a>) <a href="https://github.com/foxssake/netfox/commit/f36cb96def9137a546c4d47bcc6a046847e60a20">🔗</a></li>
+<li>fix(ci): Fix contributor list formatting (<a href="https://github.com/foxssake/netfox/pull/379">#379</a>) <a href="https://github.com/foxssake/netfox/commit/4d0c52e4b5a458d246be3cb66c4f1b9c58327c01">🔗</a></li>
+<li>fix: Send state ack's to sender instead of authority (<a href="https://github.com/foxssake/netfox/pull/378">#378</a>) <a href="https://github.com/foxssake/netfox/commit/8ec405fedeb3c0f8f6277bb5feaa60dde87fe879">🔗</a></li>
+<li>chore: Log rollback stage and range (<a href="https://github.com/foxssake/netfox/pull/377">#377</a>) <a href="https://github.com/foxssake/netfox/commit/8977d0b1c67816ca6252cc21efbd024455e36d3f">🔗</a></li>
+<li>feat: Mutations (<a href="https://github.com/foxssake/netfox/pull/369">#369</a>) <a href="https://github.com/foxssake/netfox/commit/8b6f993541c1abe5c02c202c1f78a136a6758af4">🔗</a></li>
+<li>feat: Track fired tick for NetworkWeapon (<a href="https://github.com/foxssake/netfox/pull/376">#376</a>) <a href="https://github.com/foxssake/netfox/commit/5c325867463fe6618d8f8d72b6ecdb7a18dd6912">🔗</a></li>
+<li>chore: Setup tests with vest (<a href="https://github.com/foxssake/netfox/pull/371">#371</a>) <a href="https://github.com/foxssake/netfox/commit/f986009b250f009dc4ab63b558f82d20ce0f7481">🔗</a></li>
+<li>fix(example): More responsive firing (<a href="https://github.com/foxssake/netfox/pull/366">#366</a>) <a href="https://github.com/foxssake/netfox/commit/961a21d4ff7e3fafe9b4065a9d405ba12cfe4e69">🔗</a></li>
+<li>chore: Remove MultiplayerSpawner from examples (<a href="https://github.com/foxssake/netfox/pull/370">#370</a>) <a href="https://github.com/foxssake/netfox/commit/90d9098aa09022272cfbe94bd421161f02e5c78a">🔗</a></li>
+<li>chore: Warn on invalid NetworkTime.start() calls (<a href="https://github.com/foxssake/netfox/pull/367">#367</a>) <a href="https://github.com/foxssake/netfox/commit/7f3a6e4e032347a154b0958f8d2b791ef8b43888">🔗</a></li>
+</ul>
+<h2 id="v1191">v1.19.1</h2>
+<ul>
+<li>doc: Input prediction tutorial (<a href="https://github.com/foxssake/netfox/pull/365">#365</a>) <a href="https://github.com/foxssake/netfox/commit/c67dd5c6713deca68cadbfb95b001e177d0b505b">🔗</a></li>
+<li>doc: Configure giscus origins <a href="https://github.com/foxssake/netfox/commit/fc98c418f44fe3b85e677781ac310eb916b02a6a">🔗</a></li>
+<li>doc: Update version selector style (<a href="https://github.com/foxssake/netfox/pull/363">#363</a>) <a href="https://github.com/foxssake/netfox/commit/cf19adda5fdcd219c3e3057c0919ded03b289f4e">🔗</a></li>
+<li>doc: Add giscus (<a href="https://github.com/foxssake/netfox/pull/361">#361</a>) <a href="https://github.com/foxssake/netfox/commit/a1c7b113dde18897fb1c3d9ea8027b8b68ce7904">🔗</a></li>
+<li>chore: Improve scripts (<a href="https://github.com/foxssake/netfox/pull/360">#360</a>) <a href="https://github.com/foxssake/netfox/commit/66fd39ad29974836bf3cd00f7c031505a1d36ff7">🔗</a></li>
+<li>fix: Recognize main branch on doc gen <a href="https://github.com/foxssake/netfox/commit/80792e6eb591d626b100f926344c23441842cdb4">🔗</a></li>
+<li>doc: Version selector (<a href="https://github.com/foxssake/netfox/pull/359">#359</a>) <a href="https://github.com/foxssake/netfox/commit/96df94dfc94c31ff88a3684784fe04efc44a6cb5">🔗</a></li>
+<li>doc: Admonitions (<a href="https://github.com/foxssake/netfox/pull/357">#357</a>) <a href="https://github.com/foxssake/netfox/commit/c75b0f18e1ef0dbe0160c1986e916cee1e632e9e">🔗</a></li>
+<li>feat: Procedural node configuration (<a href="https://github.com/foxssake/netfox/pull/354">#354</a>) <a href="https://github.com/foxssake/netfox/commit/06629491cd7cdc8e8c6c250befb5eddaf7e623b6">🔗</a></li>
+<li>fix: Record nodes without _rollback_tick callback (<a href="https://github.com/foxssake/netfox/pull/356">#356</a>) <a href="https://github.com/foxssake/netfox/commit/56357733e5955265e915b4aa0a123635210d2a9d">🔗</a></li>
+<li>fix: Add missing interpolators (<a href="https://github.com/foxssake/netfox/pull/355">#355</a>) <a href="https://github.com/foxssake/netfox/commit/d1ed662e9dbd351a9223d449d6c3dcde6d444b87">🔗</a></li>
+<li>feat: Rollback debugger (<a href="https://github.com/foxssake/netfox/pull/345">#345</a>) <a href="https://github.com/foxssake/netfox/commit/2603848fc6afd8a7f43ebee98d0e62d3aea50dad">🔗</a></li>
+<li>feat: Input prediction (<a href="https://github.com/foxssake/netfox/pull/344">#344</a>) <a href="https://github.com/foxssake/netfox/commit/0e52329bcd0fde719045bfdaa2b74a1fc5abb4f3">🔗</a></li>
+<li>chore: Include contributors (<a href="https://github.com/foxssake/netfox/pull/352">#352</a>) <a href="https://github.com/foxssake/netfox/commit/ddf5799c917108bb5d317fe13c19f90f36473688">🔗</a></li>
+<li>feat: Hitscan weapons (<a href="https://github.com/foxssake/netfox/pull/340">#340</a>) <a href="https://github.com/foxssake/netfox/commit/5f50cacf021465297db47eb402ef92b300032465">🔗</a></li>
+<li>fix: Setup mkdocs to build docs (<a href="https://github.com/foxssake/netfox/pull/351">#351</a>) <a href="https://github.com/foxssake/netfox/commit/f68e846f3d8e9ca6deb38ccaec0fbfc2df7f8c71">🔗</a></li>
+<li>chore: Include docs in releases (<a href="https://github.com/foxssake/netfox/pull/350">#350</a>) <a href="https://github.com/foxssake/netfox/commit/7d3098eddf3e6c60ff8f20ba6fef398d442de44a">🔗</a></li>
+<li>feat: RewindableStateMachine display callbacks (<a href="https://github.com/foxssake/netfox/pull/343">#343</a>) <a href="https://github.com/foxssake/netfox/commit/c80f52797ed2c7b72adf11227f458a8ddc3797cc">🔗</a></li>
+<li>fix: Disconnect signals on exiting tree (<a href="https://github.com/foxssake/netfox/pull/341">#341</a>) <a href="https://github.com/foxssake/netfox/commit/3dc4e5cc730c8d5ed0622ff7e2b264ca3f223cff">🔗</a></li>
+<li>doc: Use embedded UML (<a href="https://github.com/foxssake/netfox/pull/342">#342</a>) <a href="https://github.com/foxssake/netfox/commit/2167981d323e4d096a81d2b88a84f2cc8cc586e5">🔗</a></li>
+<li>chore: Add anniversary assets <a href="https://github.com/foxssake/netfox/commit/c615491e3714f4293dfe763ff281b5f9577d20cc">🔗</a></li>
+</ul>
+<h2 id="v1141">v1.14.1</h2>
+<ul>
+<li>chore: Add diff state ack defaults (<a href="https://github.com/foxssake/netfox/pull/339">#339</a>) <a href="https://github.com/foxssake/netfox/commit/7cb5bcf7ee06b2f2a61180d13c43c9619ab6e4a0">🔗</a></li>
+<li>feat: Add display state change signal to RewindableStateMachine (<a href="https://github.com/foxssake/netfox/pull/331">#331</a>) <a href="https://github.com/foxssake/netfox/commit/dc570698546add2fa2a74766117226adc03d47e2">🔗</a></li>
+<li>feat(game): Aura decals (<a href="https://github.com/foxssake/netfox/pull/338">#338</a>) <a href="https://github.com/foxssake/netfox/commit/a2efce4c3bc1af9bf9fc4221726e5afc0005c58d">🔗</a></li>
+<li>doc: Improve index pages with shields (<a href="https://github.com/foxssake/netfox/pull/337">#337</a>) <a href="https://github.com/foxssake/netfox/commit/c78673dade3ce072d903f5ee11086ac029cbf98e">🔗</a></li>
+<li>refactor: NetfoxLogger no longer depends on netfox (<a href="https://github.com/foxssake/netfox/pull/336">#336</a>) <a href="https://github.com/foxssake/netfox/commit/a53da402f1c6d29c3200431f23c7ac588a36658b">🔗</a></li>
+<li>fix: Log call typo <a href="https://github.com/foxssake/netfox/commit/5fd19db712ee6b3ad9c7f0127ac9fc4b589c2853">🔗</a></li>
+<li>refactor: Conditional log message evaluation (<a href="https://github.com/foxssake/netfox/pull/335">#335</a>) <a href="https://github.com/foxssake/netfox/commit/533c664e1e76a05a8376ecfb7b54363451e6b6ae">🔗</a></li>
+<li>feat: Diff states (<a href="https://github.com/foxssake/netfox/pull/278">#278</a>) <a href="https://github.com/foxssake/netfox/commit/ba34da47ab6a5ac0fdf72afe9b6fba3e7d779277">🔗</a></li>
+<li>fix: Avoid excessive rollback ticks on spawn (<a href="https://github.com/foxssake/netfox/pull/284">#284</a>) <a href="https://github.com/foxssake/netfox/commit/04e8a7c42f2a44e133ebc5a0f590045714a8135e">🔗</a></li>
+<li>fix: Log levels (<a href="https://github.com/foxssake/netfox/pull/333">#333</a>) <a href="https://github.com/foxssake/netfox/commit/d37b47dfd9fedf4a0a182f47972ccf4faaae5b3d">🔗</a></li>
+<li>fix: Connect network-popup signals (<a href="https://github.com/foxssake/netfox/pull/329">#329</a>) <a href="https://github.com/foxssake/netfox/commit/7b16bbf2b4518ae1383e661b8e7449f702066fe9">🔗</a></li>
+<li>fix: Prevent multiple NetworkTime.start() runs (<a href="https://github.com/foxssake/netfox/pull/326">#326</a>) <a href="https://github.com/foxssake/netfox/commit/2a232526d459aec9cf60ff7927888162c72cf606">🔗</a></li>
+<li>feat: Broadcast time sync success (<a href="https://github.com/foxssake/netfox/pull/325">#325</a>) <a href="https://github.com/foxssake/netfox/commit/6fc206eada6065958bcf72bae71ea779fb4801b0">🔗</a></li>
+<li>fix: Limit rollback ticks (<a href="https://github.com/foxssake/netfox/pull/324">#324</a>) <a href="https://github.com/foxssake/netfox/commit/fe011dd94fafa5ced4bc475ffd6ab3cec3863b03">🔗</a></li>
+<li>feat: Window tiling (<a href="https://github.com/foxssake/netfox/pull/322">#322</a>) <a href="https://github.com/foxssake/netfox/commit/42536a7a76f34695d7f81c88cd73daaf03a25386">🔗</a></li>
+<li>feat: Nudge Time Process (<a href="https://github.com/foxssake/netfox/pull/314">#314</a>) <a href="https://github.com/foxssake/netfox/commit/95d729869e32a226b2e56f046ff2bbffde082af6">🔗</a></li>
+<li>fix: Use record input props instead of auth (<a href="https://github.com/foxssake/netfox/pull/320">#320</a>) <a href="https://github.com/foxssake/netfox/commit/c2358926f0292d70fc4cb5b0b4892cb2a54d3c0f">🔗</a></li>
+<li>refactor: Expand variable names (<a href="https://github.com/foxssake/netfox/pull/319">#319</a>) <a href="https://github.com/foxssake/netfox/commit/26f4e084a52c9cd935eaa2df7cb1d3dee8318139">🔗</a></li>
+<li>doc: Add Interpolation caveats (<a href="https://github.com/foxssake/netfox/pull/318">#318</a>) <a href="https://github.com/foxssake/netfox/commit/0fd750b9e43d1e0736ed775063fe3c491111ed93">🔗</a></li>
+<li>chore(example): Improved network popup layout (<a href="https://github.com/foxssake/netfox/pull/285">#285</a>) <a href="https://github.com/foxssake/netfox/commit/91000a7458053908a94aabae77a4bc5cde438421">🔗</a></li>
+<li>feat(game): Host-only mode (<a href="https://github.com/foxssake/netfox/pull/283">#283</a>) <a href="https://github.com/foxssake/netfox/commit/f610db4c52486a632c66ae6655da3f88ef8f883c">🔗</a></li>
+<li>fix(ci): Missing export template in build (<a href="https://github.com/foxssake/netfox/pull/317">#317</a>) <a href="https://github.com/foxssake/netfox/commit/9e61aedc847509591bc6a2473633ae3e5a7ea288">🔗</a></li>
+<li>feat: Rollback-aware state machine (<a href="https://github.com/foxssake/netfox/pull/315">#315</a>) <a href="https://github.com/foxssake/netfox/commit/9c95109b1f988285f978fffce9ad5927abb3c1c1">🔗</a></li>
+<li>feat(game): Moving platforms (<a href="https://github.com/foxssake/netfox/pull/313">#313</a>) <a href="https://github.com/foxssake/netfox/commit/a557f98aa8ed49825fe55668a210b51b81ad7e01">🔗</a></li>
+<li>fix: TickInterpolator glitch on state switch (<a href="https://github.com/foxssake/netfox/pull/301">#301</a>) <a href="https://github.com/foxssake/netfox/commit/99f6e92d35d29db3d7757abc1d35c8234ca2c588">🔗</a></li>
+<li>chore(github): Issue templates (<a href="https://github.com/foxssake/netfox/pull/295">#295</a>) <a href="https://github.com/foxssake/netfox/commit/97c56d6a98a526db22ce96521ca2b2f66835429d">🔗</a></li>
+<li>doc: Add physics and state machine notes to rollback caveats (<a href="https://github.com/foxssake/netfox/pull/296">#296</a>) <a href="https://github.com/foxssake/netfox/commit/64f2f3f415c1315146a730c3fab33bd192591d2c">🔗</a></li>
+<li>chore(github): Add funding link (<a href="https://github.com/foxssake/netfox/pull/294">#294</a>) <a href="https://github.com/foxssake/netfox/commit/3951058465518ec62a643ebe2086f66ba7b361fd">🔗</a></li>
+<li>chore: Add tick and peer id to logging (<a href="https://github.com/foxssake/netfox/pull/293">#293</a>) <a href="https://github.com/foxssake/netfox/commit/38cc04fd5f1a98cd450036dd6ebeff8a8373bfed">🔗</a></li>
+<li>doc: Add supported versions (<a href="https://github.com/foxssake/netfox/pull/292">#292</a>) <a href="https://github.com/foxssake/netfox/commit/9a7c59e5b4a7bb4c7009a9517acb72c99a8f3963">🔗</a></li>
+<li>Added docs for is_fresh and updated screenshot (<a href="https://github.com/foxssake/netfox/pull/263">#263</a>) <a href="https://github.com/foxssake/netfox/commit/44749f02d374c5ab187e50fdee002eb87e9950d2">🔗</a></li>
+<li>fix: Disable invalid input redundancy values <a href="https://github.com/foxssake/netfox/commit/54c9c38c8a9bacbbb098e32f9c624424c091fde7">🔗</a></li>
+<li>fix: Ensure projectiles can't be spawned without ID (<a href="https://github.com/foxssake/netfox/pull/237">#237</a>) <a href="https://github.com/foxssake/netfox/commit/2c70ff18d3f8c7bd5ef99f09d01d3d18d9fcbda4">🔗</a></li>
+<li>fix: Make sure generated projectile ID's are unique (<a href="https://github.com/foxssake/netfox/pull/270">#270</a>) <a href="https://github.com/foxssake/netfox/commit/250a836029cf4a85c48877fa4ddabc12d7518ed0">🔗</a></li>
+<li>refactor: Use static RPC calls instead of strings <a href="https://github.com/foxssake/netfox/commit/d3c70d317534b11f17c7b8f3507532d848200c64">🔗</a></li>
+</ul>
+<h2 id="v180">v1.8.0</h2>
+<ul>
+<li>feat: Add option to avoid broadcasting inputs (<a href="https://github.com/foxssake/netfox/pull/230">#230</a>) <a href="https://github.com/foxssake/netfox/commit/5bf94d91a62c4a5b96131452450089bf7dde7947">🔗</a></li>
+</ul>
+<h2 id="v170">v1.7.0</h2>
+<ul>
+<li>feat: Use OS time for tick loop (<a href="https://github.com/foxssake/netfox/pull/225">#225</a>) <a href="https://github.com/foxssake/netfox/commit/c97141761bc307c5387599c0232e313903acd243">🔗</a></li>
+<li>fix: Nested properties not being applied (<a href="https://github.com/foxssake/netfox/pull/224">#224</a>) <a href="https://github.com/foxssake/netfox/commit/72dfc24442aa6cc2fae8876961bd37142649d882">🔗</a></li>
+<li>feat: Unreliable inputs with redundancy (<a href="https://github.com/foxssake/netfox/pull/221">#221</a>) <a href="https://github.com/foxssake/netfox/commit/5b65dc81122e6ee42ae8d32754b68b41b636cda1">🔗</a></li>
+<li>feat: Support nested properties (<a href="https://github.com/foxssake/netfox/pull/217">#217</a>) <a href="https://github.com/foxssake/netfox/commit/01347a3c197daa3867850b9c0515b727d67c3c95">🔗</a></li>
+<li>fix: hdpi svg icons (<a href="https://github.com/foxssake/netfox/pull/213">#213</a>) <a href="https://github.com/foxssake/netfox/commit/296bd3d5441ea71a5e39a9f43628411f2b3e7f30">🔗</a></li>
+</ul>
+<h2 id="v140">v1.4.0</h2>
+<ul>
+<li>feat: Enable updating authority on RollbackSynchronizer (<a href="https://github.com/foxssake/netfox/pull/208">#208</a>) <a href="https://github.com/foxssake/netfox/commit/3b703cefdf18f57ae4af4d91156a9ec4fb28bc32">🔗</a></li>
+<li>fix: Spawning RollbackSynchronizer resims from -1 (<a href="https://github.com/foxssake/netfox/pull/204">#204</a>) <a href="https://github.com/foxssake/netfox/commit/6ce0bbb3f214f7632a555b4346e3e6db6b4079fa">🔗</a></li>
+<li>doc: Add showcase section to README (<a href="https://github.com/foxssake/netfox/pull/206">#206</a>) <a href="https://github.com/foxssake/netfox/commit/902fea10cbdf839034c6d96e6b84084ced3c9048">🔗</a></li>
+<li>doc: Upgrading (<a href="https://github.com/foxssake/netfox/pull/203">#203</a>) <a href="https://github.com/foxssake/netfox/commit/8e47f5cacfcd4b5239fbc7c1913ebfada24c0b4c">🔗</a></li>
+<li>feat: StateSynchronizer (<a href="https://github.com/foxssake/netfox/pull/202">#202</a>) <a href="https://github.com/foxssake/netfox/commit/d13827a13cc9fb995a748a456206aa9c8fba4353">🔗</a></li>
+<li>fix(game): Excessive rollback when an Effect is active (<a href="https://github.com/foxssake/netfox/pull/198">#198</a>) <a href="https://github.com/foxssake/netfox/commit/39f2e5533bec6119a8a17c740a0079e7b40d16ff">🔗</a></li>
+<li>feat: Performance monitors (<a href="https://github.com/foxssake/netfox/pull/195">#195</a>) <a href="https://github.com/foxssake/netfox/commit/a1253dc0a2fa56df836c853896ddfb3adeaac8be">🔗</a></li>
+<li>doc: Add process_settings note to ownership in rollback tutorial (<a href="https://github.com/foxssake/netfox/pull/192">#192</a>) <a href="https://github.com/foxssake/netfox/commit/1526d26f4b8e4e0d08b1f91f8cf7a89d9a53fa86">🔗</a></li>
+<li>chore: Flat billboard clouds (<a href="https://github.com/foxssake/netfox/pull/191">#191</a>) <a href="https://github.com/foxssake/netfox/commit/2afddc60785a810dbc767be4e9d1eafb190c2e47">🔗</a></li>
+<li>chore: Add type annotations where sensible (<a href="https://github.com/foxssake/netfox/pull/190">#190</a>) <a href="https://github.com/foxssake/netfox/commit/d24a57f3fa8204f6ddbbde90cddb83a3637ea828">🔗</a></li>
+<li>doc: Fix typo in NetworkWeapon guide <a href="https://github.com/foxssake/netfox/commit/cc57a777d873e2c0be02b748abaddeedc75133a7">🔗</a></li>
+<li>doc: Delete outdated tutorial link in comment (<a href="https://github.com/foxssake/netfox/pull/187">#187</a>) <a href="https://github.com/foxssake/netfox/commit/8ad71aaff2f288c064502338a539317783884a14">🔗</a></li>
+<li>doc: Redirect dead link (error 404) to proper documentation link (<a href="https://github.com/foxssake/netfox/pull/183">#183</a>) <a href="https://github.com/foxssake/netfox/commit/0461310c93d6ec601e7b6485079b3bb2e213ae4c">🔗</a></li>
+<li>doc: Reference manual physics step issue in rollback (<a href="https://github.com/foxssake/netfox/pull/178">#178</a>) <a href="https://github.com/foxssake/netfox/commit/c18271ecc9bf1dc5a52ef2f6b9b3f64e2e2f4ad4">🔗</a></li>
+<li>doc: Update releases section with new zip layout (<a href="https://github.com/foxssake/netfox/pull/172">#172</a>) <a href="https://github.com/foxssake/netfox/commit/b29aa851c7cc2c2acc131a17c2540c7b9e93869a">🔗</a></li>
+<li>chore: Add banner <a href="https://github.com/foxssake/netfox/commit/30d79086bdaa0c0e96736eb4b975490c11566929">🔗</a></li>
+</ul>
+<h2 id="v111">v1.1.1</h2>
+<ul>
+<li>chore: Always bundle dependencies (<a href="https://github.com/foxssake/netfox/pull/171">#171</a>) <a href="https://github.com/foxssake/netfox/commit/3080e21bbebedbb9391159e3572542521fb78cca">🔗</a></li>
+<li>chore: Fix warnings (<a href="https://github.com/foxssake/netfox/pull/170">#170</a>) <a href="https://github.com/foxssake/netfox/commit/c06a6de635bbd4393c04d933850c852494374c1b">🔗</a></li>
+<li>feat: Configurable logging (<a href="https://github.com/foxssake/netfox/pull/162">#162</a>) <a href="https://github.com/foxssake/netfox/commit/83f9d76698afb829aade47a409b3d984d63646b8">🔗</a></li>
+<li>chore: Add RollbackSynchronizer class name (<a href="https://github.com/foxssake/netfox/pull/165">#165</a>) <a href="https://github.com/foxssake/netfox/commit/1877bbf75fb7b0ae351428980af0451952ecf415">🔗</a></li>
+<li>refactor: Make Interpolators a static class (<a href="https://github.com/foxssake/netfox/pull/163">#163</a>) <a href="https://github.com/foxssake/netfox/commit/8ce76dca33138de9bea336895e935e62b48d8287">🔗</a></li>
+<li>fix(examples): Noray bootstrapper refuse connection on empty role (<a href="https://github.com/foxssake/netfox/pull/161">#161</a>) <a href="https://github.com/foxssake/netfox/commit/62cbf9363136894b9632f4a68f1e99f99396ed5a">🔗</a></li>
+<li>doc: Enable addons section (<a href="https://github.com/foxssake/netfox/pull/156">#156</a>) <a href="https://github.com/foxssake/netfox/commit/0cc6c8c977703719eb087b17b1a6e533807e763d">🔗</a></li>
+<li>doc: Add noray instance (<a href="https://github.com/foxssake/netfox/pull/155">#155</a>) <a href="https://github.com/foxssake/netfox/commit/3d2b64e230cc0f10a5ba9f4bafa8a15073243950">🔗</a></li>
+<li>fix: Remove netfox.noray dependency on netfox (<a href="https://github.com/foxssake/netfox/pull/154">#154</a>) <a href="https://github.com/foxssake/netfox/commit/6e122bc96bab64a72e5173d2396b1ee9edba6dc9">🔗</a></li>
+</ul>
+<h2 id="v101">v1.0.1</h2>
+<ul>
+<li>fix: Addon installed to project root (<a href="https://github.com/foxssake/netfox/pull/143">#143</a>) <a href="https://github.com/foxssake/netfox/commit/4d68e413f9eb0b2eb5c09d0ab445ed7277c64da0">🔗</a></li>
+<li>doc: Add contribution notes (<a href="https://github.com/foxssake/netfox/pull/139">#139</a>) <a href="https://github.com/foxssake/netfox/commit/d5c1a5cce87182b209883406d3d3dcdc4c2f3125">🔗</a></li>
+<li>fix: Problems with multiplayer-netfox example (<a href="https://github.com/foxssake/netfox/pull/135">#135</a>) <a href="https://github.com/foxssake/netfox/commit/ca9b4c4da4cd93aacc151e911706464d3bf1a45e">🔗</a></li>
+<li>fix: Problems with multiplayer-simple example (<a href="https://github.com/foxssake/netfox/pull/134">#134</a>) <a href="https://github.com/foxssake/netfox/commit/a09e86f49b0c3b19b33d7b433a54d6df752d5b50">🔗</a></li>
+<li>doc: Fix asset links (<a href="https://github.com/foxssake/netfox/pull/133">#133</a>) <a href="https://github.com/foxssake/netfox/commit/948eab2a0de8e98cd1cba5eeb3bc5dee5e26a6ea">🔗</a></li>
+</ul>
+<h2 id="v100">v1.0.0</h2>
+<ul>
+<li>chore: Bump to v1 🎉 (<a href="https://github.com/foxssake/netfox/pull/132">#132</a>) <a href="https://github.com/foxssake/netfox/commit/cdd9d56a41e7521cbe5ed1383308d32fdb56165f">🔗</a></li>
+<li>doc: Update links (<a href="https://github.com/foxssake/netfox/pull/131">#131</a>) <a href="https://github.com/foxssake/netfox/commit/547cbe3b34cb78dfc044052dc100ce64e2cd8fdd">🔗</a></li>
+<li>chore: Reduce print output (<a href="https://github.com/foxssake/netfox/pull/130">#130</a>) <a href="https://github.com/foxssake/netfox/commit/761d3d194faa31c46aa2475924d233c001580c3f">🔗</a></li>
+<li>chore: Export icon as png <a href="https://github.com/foxssake/netfox/commit/fa7586a3a3c3d10c368c34bc2dde85eaf44fbe74">🔗</a></li>
+</ul>
+<h2 id="v01514">v0.15.14</h2>
+<ul>
+<li>doc: Update tutorials (<a href="https://github.com/foxssake/netfox/pull/128">#128</a>) <a href="https://github.com/foxssake/netfox/commit/9bc690cb46cb70d494b98078ad2a4d5c180b85f9">🔗</a></li>
+<li>fix: Projectile reconciliation threshold (<a href="https://github.com/foxssake/netfox/pull/127">#127</a>) <a href="https://github.com/foxssake/netfox/commit/1e4883a45f8d45ecd9185c1bfee6bd5efc1696f7">🔗</a></li>
+<li>doc: Ownership (<a href="https://github.com/foxssake/netfox/pull/126">#126</a>) <a href="https://github.com/foxssake/netfox/commit/b0ca6dd5369d317ab16e896c4d8b40573fe81a01">🔗</a></li>
+<li>doc: Authoritative servers (<a href="https://github.com/foxssake/netfox/pull/125">#125</a>) <a href="https://github.com/foxssake/netfox/commit/24412c023a92d7ffb066597abf37cd9fdeda77de">🔗</a></li>
+<li>doc: Improve PacketHandshake explanation (<a href="https://github.com/foxssake/netfox/pull/124">#124</a>) <a href="https://github.com/foxssake/netfox/commit/3295c4dd7c145575b2a5af3e2a2fb24ab905f16c">🔗</a></li>
+<li>doc: Add NetworkWeapon guide (<a href="https://github.com/foxssake/netfox/pull/118">#118</a>) <a href="https://github.com/foxssake/netfox/commit/7d812ac450e45944d671b7cd1ac11552f0e74285">🔗</a></li>
+<li>doc: Add BaseNetInput guide (<a href="https://github.com/foxssake/netfox/pull/117">#117</a>) <a href="https://github.com/foxssake/netfox/commit/46dec24b9d0fb5f5036a672ec61a372e911d7bb5">🔗</a></li>
+<li>doc: Add netfox.noray docs (<a href="https://github.com/foxssake/netfox/pull/116">#116</a>) <a href="https://github.com/foxssake/netfox/commit/1b5205d813d643e63a679fcc5a99707e2041c055">🔗</a></li>
+<li>fix: Add missing RollbackSynchronizer link to docs <a href="https://github.com/foxssake/netfox/commit/3d5981e63ec380b3572c43e638cc92068ef584d2">🔗</a></li>
+<li>doc: Add RollbackSynchronizer node (<a href="https://github.com/foxssake/netfox/pull/115">#115</a>) <a href="https://github.com/foxssake/netfox/commit/3dae306271a2e3ccebd424501e6844d22af1a222">🔗</a></li>
+</ul>
+<h2 id="v0159">v0.15.9</h2>
+<ul>
+<li>chore: Add version to draft release (<a href="https://github.com/foxssake/netfox/pull/114">#114</a>) <a href="https://github.com/foxssake/netfox/commit/5f26b7f666ad98627c01f361f26d3e765b02b9b8">🔗</a></li>
+<li>fix: No tick_factor with sync_to_physics (<a href="https://github.com/foxssake/netfox/pull/112">#112</a>) <a href="https://github.com/foxssake/netfox/commit/8c1cb3f952321e9a54f42883291a68ae8a39780a">🔗</a></li>
+<li>fix(game): Index out of bounds on bomb projectile <a href="https://github.com/foxssake/netfox/commit/48021ba503e63bcfbb4db344a80e4a71475710f5">🔗</a></li>
+<li>feat(game): Improved aiming (<a href="https://github.com/foxssake/netfox/pull/111">#111</a>) <a href="https://github.com/foxssake/netfox/commit/1435108521d0259a7e46bb75fb81e759ede3c28e">🔗</a></li>
+<li>chore(game): Adjust shadows and sky <a href="https://github.com/foxssake/netfox/commit/cc88f4158e1fb79bfcfd48215f780f478ad23c22">🔗</a></li>
+<li>feat(game): Scrolling clouds in the background (<a href="https://github.com/foxssake/netfox/pull/110">#110</a>) <a href="https://github.com/foxssake/netfox/commit/35300c957e1092429f41c9a43f95983f96f80fe9">🔗</a></li>
+<li>doc: Add NetworkRollback guide (<a href="https://github.com/foxssake/netfox/pull/109">#109</a>) <a href="https://github.com/foxssake/netfox/commit/4614d214ecb5f285e4a03244d8ee51919c9395c7">🔗</a></li>
+<li>doc: Add TickInterpolator (<a href="https://github.com/foxssake/netfox/pull/106">#106</a>) <a href="https://github.com/foxssake/netfox/commit/c5d54d567993b64e7443c13e402b5ca180ce8a2e">🔗</a></li>
+<li>doc: Add Interpolators guide (<a href="https://github.com/foxssake/netfox/pull/105">#105</a>) <a href="https://github.com/foxssake/netfox/commit/6eeddd0f01343cc7a62a4f337570135ff0996529">🔗</a></li>
+<li>doc: Add NetworkEvents guide (<a href="https://github.com/foxssake/netfox/pull/104">#104</a>) <a href="https://github.com/foxssake/netfox/commit/fec73bea53c94fa683949bbcb420192d52b90334">🔗</a></li>
+<li>doc: Add NetworkTimeSynchronizer guide (<a href="https://github.com/foxssake/netfox/pull/103">#103</a>) <a href="https://github.com/foxssake/netfox/commit/1b0fbd3504c27f6c2a5d082281aaf328c3fad187">🔗</a></li>
+<li>doc: Add NetworkTime guide (<a href="https://github.com/foxssake/netfox/pull/102">#102</a>) <a href="https://github.com/foxssake/netfox/commit/a58279558de408fda57cb08514fe6ecf92273d4d">🔗</a></li>
+<li>fix: NetworkWeapon not calling after fire hook (<a href="https://github.com/foxssake/netfox/pull/90">#90</a>) <a href="https://github.com/foxssake/netfox/commit/7de4b551c6bf3331ec92e41c01fe8a0a76062964">🔗</a></li>
+<li>chore(game): V-Sync toggle (<a href="https://github.com/foxssake/netfox/pull/88">#88</a>) <a href="https://github.com/foxssake/netfox/commit/8a52ad5fb0b64c6aac010b83c37e60381c196074">🔗</a></li>
+<li>feat(game): Add Three Peaks map (<a href="https://github.com/foxssake/netfox/pull/87">#87</a>) <a href="https://github.com/foxssake/netfox/commit/9b52bc42fdcfb07e6e1aacc44882280934eb593a">🔗</a></li>
+<li>fix(game): Weird bomb collisions (<a href="https://github.com/foxssake/netfox/pull/86">#86</a>) <a href="https://github.com/foxssake/netfox/commit/7e1dafa91962ae290f235daf3f7c507f721281f4">🔗</a></li>
+<li>feat(game): Random spawn points (<a href="https://github.com/foxssake/netfox/pull/82">#82</a>) <a href="https://github.com/foxssake/netfox/commit/6cff4a08184ef7f6f08503c402583faf196e028a">🔗</a></li>
+<li>doc: Rollback tutorial (<a href="https://github.com/foxssake/netfox/pull/81">#81</a>) <a href="https://github.com/foxssake/netfox/commit/48ef2d246c1d6fa9462334f82d9d6403faed8d53">🔗</a></li>
+<li>chore: Automate release (<a href="https://github.com/foxssake/netfox/pull/80">#80</a>) <a href="https://github.com/foxssake/netfox/commit/e179fd0ecfa0bd094f71a32808b15729e4ee32e5">🔗</a></li>
+<li>doc: NetworkTime tutorial (<a href="https://github.com/foxssake/netfox/pull/77">#77</a>) <a href="https://github.com/foxssake/netfox/commit/b5ccce740254dd05c4f9bf482241c7581b6c37b7">🔗</a></li>
+<li>fix: Deploy site (<a href="https://github.com/foxssake/netfox/pull/76">#76</a>) <a href="https://github.com/foxssake/netfox/commit/4af8488ccfecff392e045b06704260de5413c07b">🔗</a></li>
+<li>chore: Publish docs from CI (<a href="https://github.com/foxssake/netfox/pull/75">#75</a>) <a href="https://github.com/foxssake/netfox/commit/22d0ca8fdd6b0a5d07ac4b824e870015cff8dce6">🔗</a></li>
+<li>doc: Add READMEs (<a href="https://github.com/foxssake/netfox/pull/74">#74</a>) <a href="https://github.com/foxssake/netfox/commit/bc715bdb58201e0d58e7616d09879109e429971c">🔗</a></li>
+<li>doc: Setup site with mkdocs (<a href="https://github.com/foxssake/netfox/pull/73">#73</a>) <a href="https://github.com/foxssake/netfox/commit/f9aaa051bbec6433b9af00c31e719ed53de3d39c">🔗</a></li>
+<li>feat(game): Add sounds (<a href="https://github.com/foxssake/netfox/pull/64">#64</a>) <a href="https://github.com/foxssake/netfox/commit/ef1f26e8ba1be67b89e4b46b809a10e802268e6c">🔗</a></li>
+<li>feat: Add Weapons to extras addon (<a href="https://github.com/foxssake/netfox/pull/62">#62</a>) <a href="https://github.com/foxssake/netfox/commit/c44a5c9cc8518a93af999dfc7c77a2a4094aaeb8">🔗</a></li>
+<li>chore: Add script for version bumps <a href="https://github.com/foxssake/netfox/commit/5f49ea3736324cb58c9f8e9dcafa3ebb60f5e314">🔗</a></li>
+<li>refactor: Rename notify_earliest_input to notify_resimulation_start (<a href="https://github.com/foxssake/netfox/pull/61">#61</a>) <a href="https://github.com/foxssake/netfox/commit/25fd1f74670ead7f699809894569ae3c12876e86">🔗</a></li>
+<li>feat: BaseNetInput (<a href="https://github.com/foxssake/netfox/pull/60">#60</a>) <a href="https://github.com/foxssake/netfox/commit/3935d976e88779c450d3ec0d0922d520b01a1283">🔗</a></li>
+<li>chore: Add executable postfixes on build <a href="https://github.com/foxssake/netfox/commit/b7f8c3efd35e38552e0c1ce9c46df4f9dbca041e">🔗</a></li>
+<li>feat: NetworkTime utils (<a href="https://github.com/foxssake/netfox/pull/59">#59</a>) <a href="https://github.com/foxssake/netfox/commit/09ff3e41ad124db5b4755276eed4066223cc283f">🔗</a></li>
+<li>chore: Add build script <a href="https://github.com/foxssake/netfox/commit/24c266b317f854131be4c1a6e31f14716905f5bb">🔗</a></li>
+<li>chore(game): Tweak explosion strength <a href="https://github.com/foxssake/netfox/commit/d4f6d2717f12be75059a62a577bc830fd82ebf8c">🔗</a></li>
+<li>feat(game): Add Brawler Crown <a href="https://github.com/foxssake/netfox/commit/939c1fbb91cca2b7e6abf851630407b872e0e7aa">🔗</a></li>
+<li>feat(game): Add settings (<a href="https://github.com/foxssake/netfox/pull/58">#58</a>) <a href="https://github.com/foxssake/netfox/commit/66af0a62c0c0402e4b68555b463181357b9fe9f9">🔗</a></li>
+<li>fix(game): Players getting points for hitting themselves (<a href="https://github.com/foxssake/netfox/pull/56">#56</a>) <a href="https://github.com/foxssake/netfox/commit/1bdf7a973435df41ddccad6a54b2dc9e56db45b2">🔗</a></li>
+<li>fix(game): Player visibility <a href="https://github.com/foxssake/netfox/commit/2132215a27c76c0be90149b50d9df4ace70723fb">🔗</a></li>
+<li>feat: Notify host on time sync (<a href="https://github.com/foxssake/netfox/pull/55">#55</a>) <a href="https://github.com/foxssake/netfox/commit/a051c7c2c2d7babebac2a78ddd0023a62d9929b9">🔗</a></li>
+<li>feat: Rollback all aware nodes (<a href="https://github.com/foxssake/netfox/pull/46">#46</a>) <a href="https://github.com/foxssake/netfox/commit/6a80d9a462f7de648f3beae4d24275675fd243d2">🔗</a></li>
+<li>fix: Powerup effects stay even after effect ends (<a href="https://github.com/foxssake/netfox/pull/44">#44</a>) <a href="https://github.com/foxssake/netfox/commit/cdb42bcf64f11e58e4ad06a173199d9681d1008c">🔗</a></li>
+<li>chore: Disable state from the future log messages <a href="https://github.com/foxssake/netfox/commit/2250c2ca15d73cdd6b9693b82da63646f1310b65">🔗</a></li>
+<li>chore: Limit framerate to 2400 <a href="https://github.com/foxssake/netfox/commit/999921f315ec1b7afcb30a98dfa0600d960448ae">🔗</a></li>
+<li>feat(game): Gamepad support (<a href="https://github.com/foxssake/netfox/pull/41">#41</a>) <a href="https://github.com/foxssake/netfox/commit/0a966c32e48686422cc235935227205b309b221c">🔗</a></li>
+<li>chore(game): Improved aura meshes (<a href="https://github.com/foxssake/netfox/pull/39">#39</a>) <a href="https://github.com/foxssake/netfox/commit/9b69a2eae75c598ce5158378b8eb3fc67529d1ed">🔗</a></li>
+<li>fix(game): Displacement on explosion and repulse (<a href="https://github.com/foxssake/netfox/pull/38">#38</a>) <a href="https://github.com/foxssake/netfox/commit/59e0d949d68750e38457b89d1ee3742e53ed1d9d">🔗</a></li>
+<li>fix: Apply state before tick on RollbackSynchronizer <a href="https://github.com/foxssake/netfox/commit/eb8d1a059a6fe5d716bc0f704e9403759bcf4898">🔗</a></li>
+<li>fix: Script paths at plugin load <a href="https://github.com/foxssake/netfox/commit/9be77aa0fd238eff16d109061682d623c14f6adb">🔗</a></li>
+<li>feat: Rework rollback (<a href="https://github.com/foxssake/netfox/pull/36">#36</a>) <a href="https://github.com/foxssake/netfox/commit/d0483907ccb34fedcc890a0955cabdd31afea5f0">🔗</a></li>
+<li>fix: Player name out of bounds (<a href="https://github.com/foxssake/netfox/pull/34">#34</a>) <a href="https://github.com/foxssake/netfox/commit/3c9e5c50162e68d8131d188244dd038ee2556d17">🔗</a></li>
+<li>fix(game): Glithcy jumps (<a href="https://github.com/foxssake/netfox/pull/31">#31</a>) <a href="https://github.com/foxssake/netfox/commit/d662aa6084e030de25b2529710708a351b6c8ab1">🔗</a></li>
+<li>chore: Update RollbackSynchronizer icon <a href="https://github.com/foxssake/netfox/commit/05cf69a57465b797805c8dad5a5ac58a01ed1fd6">🔗</a></li>
+<li>feat: Tick Interpolator (<a href="https://github.com/foxssake/netfox/pull/30">#30</a>) <a href="https://github.com/foxssake/netfox/commit/f935f6aaf72174cd974ba9db4aaaf5219724d56d">🔗</a></li>
+<li>refactor: Extract property logic (<a href="https://github.com/foxssake/netfox/pull/28">#28</a>) <a href="https://github.com/foxssake/netfox/commit/689114e7185ba75ffa9491067b04e74e947d1a65">🔗</a></li>
+<li>feat: Introduce remote and local ticks (<a href="https://github.com/foxssake/netfox/pull/26">#26</a>) <a href="https://github.com/foxssake/netfox/commit/f4dd8108c12735b8ace64e3351e3ab0814f877bf">🔗</a></li>
+<li>fix: Jerky interpolation <a href="https://github.com/foxssake/netfox/commit/25b508503dc2a5bccdc4421a12c7b3d4168de89f">🔗</a></li>
+<li>chore: Add latency script <a href="https://github.com/foxssake/netfox/commit/bf748b1120a52cedf7bf2ec29b739880a0eb50c2">🔗</a></li>
+<li>feat: Custom property interpolators (<a href="https://github.com/foxssake/netfox/pull/23">#23</a>) <a href="https://github.com/foxssake/netfox/commit/9d8d580512e08db9d54b5f52ebcd129ecb560f87">🔗</a></li>
+<li>fix: Interpolation factor (<a href="https://github.com/foxssake/netfox/pull/20">#20</a>) <a href="https://github.com/foxssake/netfox/commit/7b23eba7ed59daedcfe37fa25723a678f305988b">🔗</a></li>
+<li>fix: Reduce camera stutter (<a href="https://github.com/foxssake/netfox/pull/19">#19</a>) <a href="https://github.com/foxssake/netfox/commit/f098c852eb767b9d208b55c896d43562ef66da5b">🔗</a></li>
+<li>fix: NetworkTime.physics_factor returns correct value (<a href="https://github.com/foxssake/netfox/pull/17">#17</a>) <a href="https://github.com/foxssake/netfox/commit/5ae6e7d4519b7a4dfa540d7ac41cb3cb04dd8624">🔗</a></li>
+<li>doc: Add LICENSE <a href="https://github.com/foxssake/netfox/commit/21c3294744c57d1e7c29aaf214c4ea9cca824299">🔗</a></li>
+<li>fix(game): Explosion visuals <a href="https://github.com/foxssake/netfox/commit/c5fbe371e066d7f9ce2d92d0eeab892b84db9b9a">🔗</a></li>
+<li>feat(game): Player nametags <a href="https://github.com/foxssake/netfox/commit/8a1eb31a75a2081ef8d3ba42921b5ccb233bb933">🔗</a></li>
+<li>feat(game): Unique player colors <a href="https://github.com/foxssake/netfox/commit/7e8fa2654958324038b3ff66122e8d9a658f860b">🔗</a></li>
+<li>feat(game): Player animations <a href="https://github.com/foxssake/netfox/commit/99dee08d261d7fb1b8b072201c357b9cc1e153ec">🔗</a></li>
+<li>fix(game): Powerup state desync <a href="https://github.com/foxssake/netfox/commit/7b39defc627f87c7ef19e508e3c5bc9e2c3ce4c8">🔗</a></li>
+<li>chore(game): Sort high scores <a href="https://github.com/foxssake/netfox/commit/18da09a179caa5791936005d2b7687b9a47d6f59">🔗</a></li>
+<li>feat(game): Player names <a href="https://github.com/foxssake/netfox/commit/a45bcc4158a27963e070a00f9c705564c80b9e88">🔗</a></li>
+<li>chore(game): Tweak powerups <a href="https://github.com/foxssake/netfox/commit/8a03bd9c11653ac4de0a6c17de243eb878c7a1a4">🔗</a></li>
+<li>feat(game): Track scores with UI <a href="https://github.com/foxssake/netfox/commit/f9f61941caf1bc0ddb2e112b972c8b60654c5489">🔗</a></li>
+<li>fix(game): Multiple active powerups <a href="https://github.com/foxssake/netfox/commit/15128b07e501c102aa45c808c60fb3d57f4055ad">🔗</a></li>
+<li>fix(game): Respawn not happening <a href="https://github.com/foxssake/netfox/commit/6a8ca3124a6b9599bffe779a99c9a27a53b9e43f">🔗</a></li>
+<li>feat(game): Powerups <a href="https://github.com/foxssake/netfox/commit/5f38843cbe625a6c83a2c6ee0cf61726d38f117c">🔗</a></li>
+<li>chore(game): Tweak explosion <a href="https://github.com/foxssake/netfox/commit/9827058b8a4e992bf80646efb1cddeec118d6e69">🔗</a></li>
+<li>feat(game): Respawn on fall <a href="https://github.com/foxssake/netfox/commit/f1cfea641f05e51095e0d97bf680a38c195e00cb">🔗</a></li>
+<li>feat(game): Displacement <a href="https://github.com/foxssake/netfox/commit/9e3aef08c450d53526634bd7b44b378b31b66351">🔗</a></li>
+<li>feat: Always-simulated nodes for rollback <a href="https://github.com/foxssake/netfox/commit/10b7c7e0125a5b08e2fcf53c4e18affd696bff66">🔗</a></li>
+<li>refactor: Rollback synchronizer <a href="https://github.com/foxssake/netfox/commit/0ff35d20ac66c1d3ed7a49562917bc90ae7593ff">🔗</a></li>
+<li>feat(game): Projectiles <a href="https://github.com/foxssake/netfox/commit/a29ae9da4832206fee26c5e3406ebe84fd4b6ac7">🔗</a></li>
+<li>feat(game): Setup with movement <a href="https://github.com/foxssake/netfox/commit/12e541fd071a440284aa0336f132cb0436310e90">🔗</a></li>
+<li>doc: Add documentation comments (<a href="https://github.com/foxssake/netfox/pull/14">#14</a>) <a href="https://github.com/foxssake/netfox/commit/8c242d45c3acfbd5f8bc017f607a2d81b8c7c63a">🔗</a></li>
+<li>chore: Rename files (<a href="https://github.com/foxssake/netfox/pull/12">#12</a>) <a href="https://github.com/foxssake/netfox/commit/fc9b97f77354be87d1ec82240e8dfbd915616661">🔗</a></li>
+<li>feat: NetworkEvents (<a href="https://github.com/foxssake/netfox/pull/11">#11</a>) <a href="https://github.com/foxssake/netfox/commit/dff1712aefd5b7b4e1092cfb46e1c29f255fe6b4">🔗</a></li>
+<li>feat: noray integration (<a href="https://github.com/foxssake/netfox/pull/9">#9</a>) <a href="https://github.com/foxssake/netfox/commit/cb9ac6e5f06fae86e53518c2076b29910c5cac0f">🔗</a></li>
+<li>feat: Rollback support (<a href="https://github.com/foxssake/netfox/pull/8">#8</a>) <a href="https://github.com/foxssake/netfox/commit/0aca7e220e3212d9193d96b144130ad9afc1279b">🔗</a></li>
+<li>feat: Networked time <a href="https://github.com/foxssake/netfox/commit/28128583ba1260f9d989f4a577b3f702067a81b6">🔗</a></li>
+<li>chore: Setup netfox example <a href="https://github.com/foxssake/netfox/commit/66e44bf7b48877b19243bb08f422da297fd0e0da">🔗</a></li>
+<li>feat: Add simple multiplayer example <a href="https://github.com/foxssake/netfox/commit/9fd6b988ec9ccc90ccf0ef4946782a9acff88cbf">🔗</a></li>
+<li>feat: Add single-player example <a href="https://github.com/foxssake/netfox/commit/b8c4a6582761c24822cd472cd1580ccdb211e133">🔗</a></li>
+<li>feat: Addon setup <a href="https://github.com/foxssake/netfox/commit/fefeafabfcff8b9fd42738748a7f984df4e9b330">🔗</a></li>
+<li>Initial commit <a href="https://github.com/foxssake/netfox/commit/3aa55a4d526867e00aa8547a7bc9141fc731844f">🔗</a></li>
+</ul>
+              
+            </div>
+          </div>
+  <hr>
+  <h2>User discussion</h2>
+  <div class="giscus" ></div>
+  <hr>
+  <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../upgrading/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../made-with-netfox/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+      <script src="../assets/mkdocs_puml/puml.js"></script>
+      <script src="../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
