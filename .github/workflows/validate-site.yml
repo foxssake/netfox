@@ -42,7 +42,7 @@ jobs:
       - name: Generate API docs
         run: sh/apidocs.sh
       - name: Generate changelog
-        run: sh/changelog.md > docs/changelog.md
+        run: sh/changelog.ts > docs/changelog.md
       - name: Build
         run: PLANTUML_URL=http://localhost:8080/ NOPUSH=yes sh/push-docs.sh
 
