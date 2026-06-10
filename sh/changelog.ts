@@ -5,6 +5,7 @@ import { $ } from "bun";
 const ERR_NO_TAGS = 1;
 
 const REPO_LINK = "https://github.com/foxssake/netfox";
+const LATEST_REF = "HEAD";
 
 interface Semver {
   prefix: string | undefined;
@@ -83,7 +84,7 @@ function renderCommit(commit: Commit): string {
 }
 
 function renderRelease(tag: string, commits: Commit[]): string {
-  const title = tag === "main" ? "Latest" : tag;
+  const title = tag === LATEST_REF ? "Latest" : tag;
   const body = commits.map((it) => "* " + renderCommit(it)).join("\n");
   return `## ${title}\n${body}`;
 }
@@ -102,7 +103,7 @@ async function main(): Promise<number> {
     return ERR_NO_TAGS;
   }
 
-  versions.unshift("main");
+  versions.unshift(LATEST_REF);
 
   const logIntervals = versions.map((it, idx) => [
     it,
