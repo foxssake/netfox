@@ -158,6 +158,8 @@ gathered - this way, the input will be true for *at most* a single tick:
 ```gdscript
 --8<-- "examples/snippets/input-gathering-tutorial/one-off-input.gd"
 ```
+!!!note
+    NetworkRollback's gather_one_off_inputs signal is tied to NetworkTime.after_tick internally.
 
 !!!tip
     The same principle of using buffer variables and accumulating input samples
