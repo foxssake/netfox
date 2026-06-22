@@ -32,6 +32,7 @@ func suite() -> void:
 		["varuint 48", NetworkSchemas.varuint(),	4398046511103, 6],
 		["varuint 56", NetworkSchemas.varuint(),	562949953421311, 7],
 		["varuint 64", NetworkSchemas.varuint(),	72057594037927935, 8],
+		["varuint 72", NetworkSchemas.varuint(),    72057594037927936, 9],
 
 		["sfrac8", NetworkSchemas.sfrac8(), -63. / 255., 1],
 		["sfrac16", NetworkSchemas.sfrac16(), -63. / 255., 2],
