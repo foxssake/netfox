@@ -140,6 +140,11 @@ var SETTINGS: Array[Dictionary] = [
 		"type": TYPE_BOOL
 	},
 	{
+		"name": "netfox/rollback/conditional_simulation",
+		"value": true,
+		"type": TYPE_BOOL
+	},
+	{
 		"name": "netfox/rollback/full_state_interval",
 		"value": 24,
 		"type": TYPE_INT,

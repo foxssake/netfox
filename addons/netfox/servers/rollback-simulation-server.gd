@@ -153,7 +153,7 @@ func _get_nodes_to_simulate(input_snapshot: _Snapshot) -> Array[Node]:
 			result.append(node)
 			continue
 
-		if NetworkRollback.is_mutated(node, tick):
+		if not NetworkRollback.conditional_simulation or NetworkRollback.is_mutated(node, tick):
 			# Node is mutated, must simulate
 			result.append(node)
 			continue
