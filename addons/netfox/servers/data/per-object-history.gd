@@ -96,3 +96,20 @@ func get_property(tick: int, subject: Object, property: NodePath, default: Varia
 
 	var snapshot := history.get_at(tick) as _ObjectSnapshot
 	return snapshot.get_value(property, default)
+
+func truncate_after(tick: int, subject: Object) -> void:
+	if not _data.has(subject):
+		return
+
+	var history: _HistoryBuffer = _data[subject]
+	if history.is_empty():
+		return
+
+	var truncated_history := _HistoryBuffer.new(_history_size)
+	var latest_tick: int = mini(tick, history.get_latest_index())
+	for kept_tick in range(history.get_earliest_index(), latest_tick + 1):
+		if not history.has_at(kept_tick):
+			continue
+		truncated_history.set_at(kept_tick, history.get_at(kept_tick))
+
+	_data[subject] = truncated_history
