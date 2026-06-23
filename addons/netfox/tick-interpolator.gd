@@ -25,7 +25,6 @@ class_name TickInterpolator
 ## whenever properties are updated.
 @export var enable_recording: bool = true
 
-var _group_id: int
 var _properties_dirty: bool = false
 
 ## Process settings.
@@ -35,7 +34,11 @@ func process_settings():
 	if not root:
 		root = get_parent()
 
-	InterpolationServer.register_interpolation_group(_group_id, root, properties, enabled, enable_recording)
+	InterpolationServer.deregister(root)
+	for property in properties:
+		InterpolationServer.register(root, property)
+	InterpolationServer.set_enabled(root, enabled)
+	InterpolationServer.set_recording(root, enable_recording)
 
 ## Add a property to interpolate.
 ## [br][br]
@@ -56,7 +59,7 @@ func add_property(node: Variant, property: String):
 ## Even if it's enabled, no interpolation will be done if there are no
 ## properties to interpolate.
 func can_interpolate() -> bool:
-	return InterpolationServer.can_interpolate(_group_id)
+	return InterpolationServer.can_interpolate(root)
 
 ## Record current state for interpolation.
 ## [br][br]
@@ -64,11 +67,11 @@ func can_interpolate() -> bool:
 ## starting point for the interpolation. This is automatically called if
 ## [code]enable_recording[/code] is true.
 func push_state() -> void:
-	InterpolationServer.push_state(_group_id)
+	InterpolationServer.push_state(root)
 
 ## Record current state and transition without interpolation.
 func teleport() -> void:
-	InterpolationServer.teleport(_group_id)
+	InterpolationServer.teleport(root)
 
 func _notification(what) -> void:
 	if what == NOTIFICATION_EDITOR_PRE_SAVE:
@@ -88,8 +91,6 @@ func _get_configuration_warnings() -> PackedStringArray:
 	)
 
 func _enter_tree() -> void:
-	_group_id = get_instance_id()
-
 	if Engine.is_editor_hint():
 		return
 
@@ -104,13 +105,13 @@ func _exit_tree() -> void:
 	if Engine.is_editor_hint():
 		return
 
-	InterpolationServer.deregister_interpolation_group(_group_id)
+	InterpolationServer.deregister(root)
 
 func _process(_delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
 
-	InterpolationServer.interpolate(_group_id, NetworkTime.tick_factor)
+	InterpolationServer._interpolate_subject(root, NetworkTime.tick_factor)
 
 func _reprocess_settings() -> void:
 	if not _properties_dirty or Engine.is_editor_hint():
