@@ -120,6 +120,26 @@ func get_input_age_for(subjects: Array, tick: int) -> int:
 	else:
 		return tick - latest_input
 
+## Record currently registered rollback state properties for [param subject] at
+## [param tick].
+func seed_rollback_state(subject: Node, tick: int) -> void:
+	var subject_snapshot := _rb_state_history.ensure_snapshot(tick, subject, false)
+	if subject_snapshot == null:
+		_logger.warning("Dropping seeded state @%d for subject %s as out-of-bounds", [tick, subject])
+		return
+
+	var snapshot := _rb_state_snapshots.get_at(tick, _Snapshot.new(tick)) as _Snapshot
+	if not _rb_state_snapshots.has_at(tick):
+		_rb_state_snapshots.set_at(tick, snapshot)
+
+	var is_auth := subject.is_multiplayer_authority()
+	for property in _rb_state_properties.get_properties_of(subject):
+		subject_snapshot.record_property(property)
+		snapshot.record_property(subject, property)
+
+	snapshot.set_auth(subject, is_auth)
+	subject_snapshot.set_auth(is_auth)
+
 func _record_rollback_input(tick: int) -> void:
 	_record(tick, _rb_input_history, _rb_input_snapshots, _rb_input_properties, true, func(subject: Node):
 		return subject.is_multiplayer_authority()
@@ -178,6 +198,10 @@ func _record(tick: int, history: _PerObjectHistory, snapshots: _HistoryBuffer, p
 
 	for subject in property_pool.get_subjects():
 		assert(subject is Node, "Only nodes supported for now!")
+
+		# Don't record history when subject is not alive to prevent state corruption.
+		if history == _rb_state_history and not RollbackLivenessServer.is_alive(subject, tick - 1):
+			continue
 
 		if _ignored_subjects.has(subject):
 			continue
