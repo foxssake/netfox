@@ -49,6 +49,9 @@ func get_properties_of(subject: Object) -> Array[NodePath]:
 	return properties
 
 func get_subjects() -> Array[Object]:
+	for key in _properties_by_subject.keys():
+		if not is_instance_valid(key):
+			_properties_by_subject.erase(key)
 	var subjects := [] as Array[Object]
 	subjects.assign(_properties_by_subject.keys())
 	return subjects

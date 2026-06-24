@@ -11,6 +11,9 @@ func _init(p_history_size: int):
 	_history_size = p_history_size
 
 func subjects() -> Array[Object]:
+	for key in _data.keys():
+		if not is_instance_valid(key):
+			_data.erase(key)
 	var result := [] as Array[Object]
 	result.assign(_data.keys())
 	return result
