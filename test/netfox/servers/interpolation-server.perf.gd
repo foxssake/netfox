@@ -43,15 +43,15 @@ func suite():
 			).with_duration(1.0).with_batch_size(256).run()
 
 			idx = 0
-			benchmark("_interpolate_subject()", func(__):
+			benchmark("interpolate_subject()", func(__):
 				var node = nodes[idx % count]
-				interpolation_server._interpolate_subject(node, 0.5)
+				interpolation_server.interpolate_subject(node, 0.5)
 				idx += 1
 			).with_duration(1.0).with_batch_size(256).run()
 			
 			benchmark("interpolate %d subjects" % count, func(__):
 				for node in nodes:
-					interpolation_server._interpolate_subject(node, 0.5)
+					interpolation_server.interpolate_subject(node, 0.5)
 			).with_duration(1.0).with_batch_size(256).run()
 
 			idx = 0
@@ -100,15 +100,15 @@ func suite():
 			).with_duration(1.0).with_batch_size(256).run()
 
 			idx = 0
-			benchmark("_interpolate_subject() multi-prop", func(__):
+			benchmark("interpolate_subject() multi-prop", func(__):
 				var node = nodes[idx % count]
-				interpolation_server._interpolate_subject(node, 0.5)
+				interpolation_server.interpolate_subject(node, 0.5)
 				idx += 1
 			).with_duration(1.0).with_batch_size(256).run()
 			
 			benchmark("interpolate %d subjects" % count, func(__):
 				for node in nodes:
-					interpolation_server._interpolate_subject(node, 0.5)
+					interpolation_server.interpolate_subject(node, 0.5)
 			).with_duration(1.0).with_batch_size(256).run()
 
 			idx = 0

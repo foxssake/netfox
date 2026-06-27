@@ -125,7 +125,7 @@ func is_teleporting(subject: Node) -> bool:
 	return _teleported.has(subject)
 
 ## Interpolate properties for a [param subject].
-func _interpolate_subject(subject: Node, factor: float) -> void:
+func interpolate_subject(subject: Node, factor: float) -> void:
 	if not can_interpolate(subject):
 		return
 
@@ -144,9 +144,9 @@ func _interpolate_subject(subject: Node, factor: float) -> void:
 		var value := interpolator.apply.call(a, b, factor)
 		subject.set_indexed(property, value)
 
-func _interpolate(factor: float) -> void:
+func interpolate(factor: float) -> void:
 	for subject in _properties.get_subjects():
-		_interpolate_subject(subject, factor)
+		interpolate_subject(subject, factor)
 
 func _clear_teleports() -> void:
 	_teleported.clear()

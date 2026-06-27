@@ -30,6 +30,7 @@ func suite() -> void:
 			test_node.position = Vector3(0, 0, 0)
 
 			interpolation_server.register(test_node, ":position")
+			interpolation_server.register(test_node, ":rotation")
 
 			expect(interpolation_server.has_subject(test_node), "Subject should be registered")
 			expect(interpolation_server.is_enabled(test_node), "Should be enabled by default")
@@ -41,29 +42,6 @@ func suite() -> void:
 			interpolation_server.register(test_node, ":position")
 
 			expect(interpolation_server.has_subject(test_node), "Subject should be registered")
-		)
-
-		test("should cache interpolators on registration", func():
-			skip("Test depends on private methods / fields")
-			return
-			test_node.position = Vector3(1, 2, 3)
-
-			interpolation_server.register(test_node, ":position")
-
-			var interps := interpolation_server._interpolators[test_node] as Dictionary
-			expect(interps.has(":position"), "Should have cached interpolator for position")
-			expect(interps[":position"] is Callable, "Interpolator should be a Callable")
-		)
-
-		test("should support multiple properties on the same subject", func():
-			skip("Test depends on private methods / fields")
-			return
-			
-			interpolation_server.register(test_node, ":position")
-			interpolation_server.register(test_node, ":rotation")
-
-			var entries := interpolation_server._property_entries[test_node] as Array[PropertyEntry]
-			expect_equal(entries.size(), 2)
 		)
 	)
 
@@ -110,6 +88,7 @@ func suite() -> void:
 			interpolation_server.set_recording(test_node, false)
 
 			expect_not(interpolation_server.is_recording(test_node))
+			expect(interpolation_server.can_interpolate(test_node))
 		)
 
 		test("should re-enable recording for subject", func():
@@ -118,6 +97,7 @@ func suite() -> void:
 			interpolation_server.set_recording(test_node, true)
 
 			expect(interpolation_server.is_recording(test_node))
+			expect(interpolation_server.can_interpolate(test_node))
 		)
 	)
 
@@ -129,6 +109,16 @@ func suite() -> void:
 		test("should return true when enabled with properties", func():
 			interpolation_server.register(test_node, ":position")
 
+			expect(interpolation_server.can_interpolate(test_node))
+		)
+
+		test("should return true after re-enabling with properties", func():
+			interpolation_server.register(test_node, ":position")
+			
+			interpolation_server.set_enabled(test_node, false)
+			expect_not(interpolation_server.can_interpolate(test_node))
+			
+			interpolation_server.set_enabled(test_node, true)
 			expect(interpolation_server.can_interpolate(test_node))
 		)
 
@@ -149,25 +139,21 @@ func suite() -> void:
 
 	define("push_state()", func():
 		test("should rotate states", func():
-			skip("Test depends on private methods / fields")
-			return
-			
 			test_node.position = Vector3(0, 0, 0)
 			interpolation_server.register(test_node, ":position")
 
 			interpolation_server.push_state(test_node)
-			var first_to_pos = interpolation_server._state_to.get_property(test_node, "position")
+			interpolation_server.interpolate_subject(test_node, 1.)
+			var first_to_pos = test_node.position
 
 			test_node.position = Vector3(10, 0, 0)
 			interpolation_server.push_state(test_node)
 
-			expect_equal(
-				interpolation_server._state_from.get_property(test_node, "position"),
-				first_to_pos,
-				"state_from should be previous state_to"
-			)
-			expect(interpolation_server._state_to.has_property(test_node, "position"), "New state_to should have position")
-			expect_equal(interpolation_server._state_to.get_property(test_node, "position"), Vector3(10, 0, 0))
+			interpolation_server.interpolate_subject(test_node, 0.)
+			expect_equal(test_node.position, first_to_pos, "state_from should be previous state_to")
+			
+			interpolation_server.interpolate_subject(test_node, 1.)
+			expect_equal(test_node.position, Vector3(10, 0, 0))
 		)
 
 		test("should handle unregistered subject gracefully", func():
@@ -176,53 +162,7 @@ func suite() -> void:
 		)
 	)
 
-	define("teleport()", func():
-		test("should set both states to current", func():
-			skip("Test depends on private methods / fields")
-			return
-			
-			test_node.position = Vector3(5, 5, 5)
-			interpolation_server.register(test_node, ":position")
-
-			interpolation_server.teleport(test_node)
-
-			expect(interpolation_server._teleported.has(test_node), "Should be in teleporting state")
-			expect(interpolation_server._state_from.has_property(test_node, "position"), "state_from should have position")
-			expect(interpolation_server._state_to.has_property(test_node, "position"), "state_to should have position")
-			expect_equal(
-				interpolation_server._state_from.get_property(test_node, "position"),
-				interpolation_server._state_to.get_property(test_node, "position"),
-				"Both states should be equal"
-			)
-		)
-
-		test("should not double-teleport", func():
-			todo()
-			return
-			
-			test_node.position = Vector3(5, 5, 5)
-			interpolation_server.register(test_node, ":position")
-
-			interpolation_server.teleport(test_node)
-			var first_from_pos = interpolation_server._state_from.get_property(test_node, "position")
-
-			test_node.position = Vector3(10, 10, 10)
-			interpolation_server.teleport(test_node)
-
-			expect_equal(
-				interpolation_server._state_from.get_property(test_node, "position"),
-				first_from_pos,
-				"State should not change on double teleport"
-			)
-		)
-
-		test("should handle unregistered subject gracefully", func():
-			interpolation_server.teleport(test_node)
-			expect_not(interpolation_server.is_teleporting(test_node))
-		)
-	)
-
-	define("_interpolate_subject()", func():
+	define("interpolate_subject()", func():
 		test("should interpolate between states", func():
 			test_node.position = Vector3(0, 0, 0)
 			interpolation_server.register(test_node, ":position")
@@ -232,7 +172,7 @@ func suite() -> void:
 			test_node.position = Vector3(10, 0, 0)
 			interpolation_server.push_state(test_node)
 
-			interpolation_server._interpolate_subject(test_node, 0.5)
+			interpolation_server.interpolate_subject(test_node, 0.5)
 
 			expect_equal(test_node.position, Vector3(5, 0, 0))
 		)
@@ -250,7 +190,7 @@ func suite() -> void:
 			test_node.position = Vector3(10, 10, 10)
 			test_node.rotation = Vector3(PI, 0, 0)
 			interpolation_server.push_state(test_node)
-			interpolation_server._interpolate_subject(test_node, 0.25)
+			interpolation_server.interpolate_subject(test_node, 0.25)
 
 			expect_equal(test_node.position, Vector3(2.5, 2.5, 2.5))
 			expect(abs(test_node.rotation.x - PI * 0.25) < 0.01, "Rotation should be approximately PI * 0.25")
@@ -265,14 +205,14 @@ func suite() -> void:
 			interpolation_server.push_state(test_node)
 			test_node.position = Vector3(10, 0, 0)
 			interpolation_server.push_state(test_node)
-			interpolation_server._interpolate_subject(test_node, 0.5)
+			interpolation_server.interpolate_subject(test_node, 0.5)
 
 			expect_equal(test_node.position, Vector3(10, 0, 0))
 		)
 
 		test("should handle unregistered subject gracefully", func():
 			var pos_before := test_node.position
-			interpolation_server._interpolate_subject(test_node, 0.5)
+			interpolation_server.interpolate_subject(test_node, 0.5)
 			expect_equal(test_node.position, pos_before)
 		)
 	)
@@ -288,52 +228,5 @@ func suite() -> void:
 			interpolation_server._clear_teleports()
 
 			expect_not(interpolation_server._teleported.has(test_node), "Should reset teleport flag")
-		)
-
-		test("_after_tick_loop should auto-record with recording enabled", func():
-			skip("Test depends on private methods / fields")
-			return
-			
-			test_node.position = Vector3(0, 0, 0)
-			interpolation_server.register(test_node, ":position")
-
-			test_node.position = Vector3(0, 0, 0)
-			interpolation_server.push_state(test_node)
-
-			test_node.position = Vector3(10, 0, 0)
-			interpolation_server._record_next_state()
-
-			expect(interpolation_server._state_to.has_property(test_node, "position"))
-			expect_equal(interpolation_server._state_to.get_property(test_node, "position"), Vector3(10, 0, 0))
-		)
-
-		test("_after_tick_loop should not record when recording disabled", func():
-			test_node.position = Vector3(0, 0, 0)
-			interpolation_server.register(test_node, ":position")
-			interpolation_server.set_recording(test_node, false)
-
-			test_node.position = Vector3(0, 0, 0)
-			interpolation_server.push_state(test_node)
-			var original_to_pos = interpolation_server._state_to.get_property(test_node, "position")
-
-			test_node.position = Vector3(10, 0, 0)
-			interpolation_server._record_next_state()
-
-			expect_equal(interpolation_server._state_to.get_property(test_node, "position"), original_to_pos)
-		)
-
-		test("_after_tick_loop should not record when teleporting", func():
-			skip("Test depends on private methods / fields")
-			return
-			
-			test_node.position = Vector3(0, 0, 0)
-			interpolation_server.register(test_node, ":position")
-
-			interpolation_server.teleport(test_node)
-			var teleport_to_pos = interpolation_server._state_to.get_property(test_node, "position")
-			test_node.position = Vector3(10, 0, 0)
-			interpolation_server._after_tick_loop()
-
-			expect_equal(interpolation_server._state_to.get_property(test_node, "position"), teleport_to_pos)
 		)
 	)

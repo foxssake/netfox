@@ -592,7 +592,7 @@ func _process(delta: float) -> void:
 		if not sync_to_physics:
 			_loop()
 		
-		InterpolationServer._interpolate(tick_factor)
+		InterpolationServer.interpolate(tick_factor)
 
 func _physics_process(delta: float) -> void:
 	if _is_active() and sync_to_physics:
