@@ -28,8 +28,6 @@ class_name TickInterpolator
 var _properties_dirty: bool = false
 var _properties := _PropertyPool.new()
 
-@onready var _logger := NetfoxLogger._for_netfox("TickInterpolator:%s" % [root.name])
-
 ## Process settings.
 ## [br][br]
 ## Call this after any change to configuration.
@@ -45,7 +43,6 @@ func process_settings():
 	_properties.set_from_paths(root, properties)
 	for subject in _properties.get_subjects():
 		for property in _properties.get_properties_of(subject):
-			_logger.debug("Registered property: %s:%s", [subject, property])
 			InterpolationServer.register(subject, property)
 
 		InterpolationServer.set_enabled(subject, enabled)
@@ -84,7 +81,7 @@ func push_state() -> void:
 	for subject in _properties.get_subjects():
 		InterpolationServer.push_state(subject)
 
-## Record current state and transition without interpolation.
+## Skip interpolation for this tick.
 func teleport() -> void:
 	for subject in _properties.get_subjects():
 		InterpolationServer.teleport(subject)

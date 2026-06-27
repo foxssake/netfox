@@ -10,6 +10,8 @@ class_name _InterpolationServer
 ## [br][br]
 ## This server can interpolate properties of any arbitrary type.
 ## See [Interpolators] for specifics on how interpolation is implemented.
+## [br][br]
+##
 
 var _properties := _PropertyPool.new()
 var _interpolators: Dictionary = {}    # {subject Node: {property_path String: Interpolator}}
@@ -19,7 +21,7 @@ var _state_to := _Snapshot.new(0)
 
 var _enabled := _Set.new()
 var _recording_enabled := _Set.new()
-var _teleported := _Set.new()
+var _teleporting := _Set.new()
 
 static var _logger := NetfoxLogger._for_netfox("InterpolationServer")
 
@@ -57,7 +59,7 @@ func deregister(subject: Node) -> void:
 
 	_enabled.erase(subject)
 	_recording_enabled.erase(subject)
-	_teleported.erase(subject)
+	_teleporting.erase(subject)
 
 ## Return true if the [param subject] is registered.
 func has_subject(subject: Node) -> bool:
@@ -136,7 +138,7 @@ func push_state(subject: Node) -> void:
 		else:
 			_state_to.set_property(subject, property, value)
 
-## Record current state and skip interpolation for this tick.
+## Skip interpolation for this tick.
 func teleport(subject: Node) -> void:
 	if is_teleporting(subject):
 		return
@@ -144,13 +146,13 @@ func teleport(subject: Node) -> void:
 		_logger.warning("Trying to teleport unregistered subject %s", [subject])
 		return
 
-	_teleported.add(subject)
+	_teleporting.add(subject)
 
 ## Return true if the [param subject] is currently teleporting.
 ## [br][br]
 ## See [method teleport].
 func is_teleporting(subject: Node) -> bool:
-	return _teleported.has(subject)
+	return _teleporting.has(subject)
 
 ## Interpolate properties for a [param subject].
 ## [br][br]
@@ -182,7 +184,7 @@ func interpolate(factor: float) -> void:
 		interpolate_subject(subject, factor)
 
 func _clear_teleports() -> void:
-	_teleported.clear()
+	_teleporting.clear()
 
 func _apply_target_state() -> void:
 	_state_to.apply()
