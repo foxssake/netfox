@@ -7,6 +7,9 @@ class_name _InterpolationServer
 ##
 ## Handles interpolation for multiple TickInterpolator nodes, storing snapshots
 ## and applying interpolation based on the network tick factor.
+## [br][br]
+## This server can interpolate properties of any arbitrary type.
+## See [Interpolators] for specifics on how interpolation is implemented.
 
 var _properties := _PropertyPool.new()
 var _interpolators: Dictionary = {}    # {subject Node: {property_path String: Interpolator}}
@@ -22,9 +25,10 @@ static var _logger := NetfoxLogger._for_netfox("InterpolationServer")
 
 ## Register a [param property] for interpolation on a [param subject] node.
 ## [br][br]
-## Call [method set_enabled] and [method set_recording] to configure the subject
-## after registration. Subjects are enabled and recording by default.
-## If the property is already registered for this subject, this is a no-op.
+## If the subject didn't have any properties configured yet, it will be enabled
+## for interpolation and recording. Call [method set_enabled] and 
+## [method set_recording] to configure the subject after registration. If the 
+## property is already registered for this subject, nothing happens.
 func register(subject: Node, property: NodePath, interpolator: Interpolators.Interpolator = null) -> void:
 	if not _properties.has_subject(subject):
 		# Subject wasn't registered before, setup defaults
@@ -55,30 +59,49 @@ func deregister(subject: Node) -> void:
 	_recording_enabled.erase(subject)
 	_teleported.erase(subject)
 
+## Return true if the [param subject] is registered.
 func has_subject(subject: Node) -> bool:
 	return _properties.has_subject(subject)
 
 ## Enable or disable interpolation for a [param subject].
+## [br][br]
+## See [method is_enabled].
 func set_enabled(subject: Node, enabled: bool) -> void:
 	if enabled:
 		_enabled.add(subject)
 	else:
 		_enabled.erase(subject)
 
+## Return true if the [param subject] is enabled for interpolation.
+## [br][br]
+## If the subject is enabled, it will be interpolated between ticks.
+## [br][br]
+## See [method set_enabled].
 func is_enabled(subject: Node) -> bool:
 	return _enabled.has(subject)
 
 ## Enable or disable automatic state recording for a [param subject].
+## [br][br]
+## See [method is_recording].
 func set_recording(subject: Node, enabled: bool) -> void:
 	if enabled:
 		_recording_enabled.add(subject)
 	else:
 		_recording_enabled.erase(subject)
 
+## Return true if the [param subject] is enabled for recording.
+## [br][br]
+## This means that the subject's interpolation states will be updated 
+## automatically. Use [method push_state] to update manually.
+## [br][br]
+## See [method set_recording].
 func is_recording(subject: Node) -> bool:
 	return _recording_enabled.has(subject)
 
-## Check if interpolation can be done for a [param subject].
+## Return true if interpolation can be done for a [param subject].
+## [br][br]
+## May return false for multiple reasons - subject is unknown, not enabled for
+## interpolation, or is currently teleporting.
 func can_interpolate(subject: Node) -> bool:
 	if not has_subject(subject):
 		# Unknown subject, can't interpolate
@@ -93,6 +116,8 @@ func can_interpolate(subject: Node) -> bool:
 	return true
 
 ## Record current state for interpolation.
+## [br][br]
+## Called automatically, unless disabled with [method set_recording].
 func push_state(subject: Node) -> void:
 	if not has_subject(subject):
 		_logger.warning("Trying to push state for unregistered subject %s", [subject])
@@ -121,10 +146,15 @@ func teleport(subject: Node) -> void:
 
 	_teleported.add(subject)
 
+## Return true if the [param subject] is currently teleporting.
+## [br][br]
+## See [method teleport].
 func is_teleporting(subject: Node) -> bool:
 	return _teleported.has(subject)
 
 ## Interpolate properties for a [param subject].
+## [br][br]
+## Called automatically by default.
 func interpolate_subject(subject: Node, factor: float) -> void:
 	if not can_interpolate(subject):
 		return
@@ -144,6 +174,9 @@ func interpolate_subject(subject: Node, factor: float) -> void:
 		var value := interpolator.apply.call(a, b, factor)
 		subject.set_indexed(property, value)
 
+## Interpolate all registered subjects.
+## [br][br]
+## Called automatically by default.
 func interpolate(factor: float) -> void:
 	for subject in _properties.get_subjects():
 		interpolate_subject(subject, factor)
