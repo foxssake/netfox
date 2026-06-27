@@ -24,14 +24,15 @@ func suite() -> void:
 		["uint64", NetworkSchemas.uint64(), 107, 8],
 
 		# Test values are max representable values in `n` bytes
-		["varuint 8", NetworkSchemas.varuint(),		127, 1],
-		["varuint 16", NetworkSchemas.varuint(),	16383, 2],
-		["varuint 24", NetworkSchemas.varuint(),	2097151, 3],
-		["varuint 32", NetworkSchemas.varuint(),	268435455, 4],
-		["varuint 40", NetworkSchemas.varuint(),	34359738367, 5],
-		["varuint 48", NetworkSchemas.varuint(),	4398046511103, 6],
-		["varuint 56", NetworkSchemas.varuint(),	562949953421311, 7],
-		["varuint 64", NetworkSchemas.varuint(),	72057594037927935, 8],
+		["varuint 8", NetworkSchemas.varuint(),	 (1 <<  7) - 1, 1],
+		["varuint 16", NetworkSchemas.varuint(), (1 << 14) - 1, 2],
+		["varuint 24", NetworkSchemas.varuint(), (1 << 21) - 1, 3],
+		["varuint 32", NetworkSchemas.varuint(), (1 << 28) - 1, 4],
+		["varuint 40", NetworkSchemas.varuint(), (1 << 35) - 1, 5],
+		["varuint 48", NetworkSchemas.varuint(), (1 << 42) - 1, 6],
+		["varuint 56", NetworkSchemas.varuint(), (1 << 49) - 1, 7],
+		["varuint 64", NetworkSchemas.varuint(), (1 << 56) - 1, 8],
+		["varuint 72", NetworkSchemas.varuint(), (1 << 63) - 1, 9],
 
 		["sfrac8", NetworkSchemas.sfrac8(), -63. / 255., 1],
 		["sfrac16", NetworkSchemas.sfrac16(), -63. / 255., 2],

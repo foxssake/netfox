@@ -559,7 +559,7 @@ class _VaruintSerializer extends NetworkSchemaSerializer:
 
 	func encode(v: Variant, b: StreamPeerBuffer) -> void:
 		var value := v as int
-		for __ in 8:									# Bounded while loop
+		for __ in 10:									# Bounded while loop
 			var nominator := value & 0b0111_1111		# Grab the lowest 7 bits
 			var continuator := value > 0b0111_1111		# Continue if more bits
 			var cont_bit := 0b1000_0000 if continuator else 0
@@ -573,7 +573,7 @@ class _VaruintSerializer extends NetworkSchemaSerializer:
 
 	func decode(b: StreamPeerBuffer) -> Variant:
 		var value := 0
-		for i in 8:
+		for i in 10:
 			var byte := b.get_u8()
 			var nominator := byte & 0b0111_1111
 			var continuator := (byte & 0b1000_0000) != 0
