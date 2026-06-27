@@ -124,13 +124,6 @@ func _exit_tree() -> void:
 	for subject in _properties.get_subjects():
 		InterpolationServer.deregister(subject)
 
-func _process(_delta: float) -> void:
-	if Engine.is_editor_hint():
-		return
-
-	for subject in _properties.get_subjects():
-		InterpolationServer._interpolate_subject(subject, NetworkTime.tick_factor)
-
 func _reprocess_settings() -> void:
 	if not _properties_dirty or Engine.is_editor_hint():
 		return
