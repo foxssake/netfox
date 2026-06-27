@@ -580,8 +580,8 @@ func _loop() -> void:
 
 	if ticks_in_loop > 0:
 		after_tick_loop.emit()
-		InterpolationServer._record_next_state()
 		NetworkHistoryServer._restore_synchronizer_state(tick)
+		InterpolationServer._record_next_state()
 
 	NetworkIdentityServer.flush_queue()
 
