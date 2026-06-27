@@ -36,7 +36,7 @@ func suite() -> void:
 			expect(interpolation_server.is_enabled(test_node), "Should be enabled by default")
 			expect(interpolation_server.is_recording(test_node), "Should have recording enabled by default")
 		)
-		
+
 		test("should do nothing on re-registering property", func():
 			interpolation_server.register(test_node, ":position")
 			interpolation_server.register(test_node, ":position")
@@ -114,10 +114,10 @@ func suite() -> void:
 
 		test("should return true after re-enabling with properties", func():
 			interpolation_server.register(test_node, ":position")
-			
+
 			interpolation_server.set_enabled(test_node, false)
 			expect_not(interpolation_server.can_interpolate(test_node))
-			
+
 			interpolation_server.set_enabled(test_node, true)
 			expect(interpolation_server.can_interpolate(test_node))
 		)
@@ -151,7 +151,7 @@ func suite() -> void:
 
 			interpolation_server.interpolate_subject(test_node, 0.)
 			expect_equal(test_node.position, first_to_pos, "state_from should be previous state_to")
-			
+
 			interpolation_server.interpolate_subject(test_node, 1.)
 			expect_equal(test_node.position, Vector3(10, 0, 0))
 		)

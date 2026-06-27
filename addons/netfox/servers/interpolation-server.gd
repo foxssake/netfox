@@ -26,8 +26,8 @@ static var _logger := NetfoxLogger._for_netfox("InterpolationServer")
 ## Register a [param property] for interpolation on a [param subject] node.
 ## [br][br]
 ## If the subject didn't have any properties configured yet, it will be enabled
-## for interpolation and recording. Call [method set_enabled] and 
-## [method set_recording] to configure the subject after registration. If the 
+## for interpolation and recording. Call [method set_enabled] and
+## [method set_recording] to configure the subject after registration. If the
 ## property is already registered for this subject, nothing happens.
 func register(subject: Node, property: NodePath, interpolator: Interpolators.Interpolator = null) -> void:
 	if not _properties.has_subject(subject):
@@ -51,10 +51,10 @@ func register(subject: Node, property: NodePath, interpolator: Interpolators.Int
 func deregister(subject: Node) -> void:
 	_state_from.erase_subject(subject)
 	_state_to.erase_subject(subject)
-	
+
 	_properties.erase_subject(subject)
 	_interpolators.erase(subject)
-	
+
 	_enabled.erase(subject)
 	_recording_enabled.erase(subject)
 	_teleported.erase(subject)
@@ -91,7 +91,7 @@ func set_recording(subject: Node, enabled: bool) -> void:
 
 ## Return true if the [param subject] is enabled for recording.
 ## [br][br]
-## This means that the subject's interpolation states will be updated 
+## This means that the subject's interpolation states will be updated
 ## automatically. Use [method push_state] to update manually.
 ## [br][br]
 ## See [method set_recording].
@@ -122,7 +122,7 @@ func push_state(subject: Node) -> void:
 	if not has_subject(subject):
 		_logger.warning("Trying to push state for unregistered subject %s", [subject])
 		return
-		
+
 	# Copy to[subject] => from[subject]
 	_state_to.copy_subject_to(subject, _state_from)
 
@@ -170,7 +170,7 @@ func interpolate_subject(subject: Node, factor: float) -> void:
 		var a = _state_from.get_property(subject, property)
 		var b = _state_to.get_property(subject, property)
 		var interpolator := interps.get(property, Interpolators.DEFAULT_INTERPOLATOR) as Interpolators.Interpolator
-		
+
 		var value := interpolator.apply.call(a, b, factor)
 		subject.set_indexed(property, value)
 
