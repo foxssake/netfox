@@ -8,9 +8,8 @@ class_name _InterpolationServer
 ## Handles interpolation for multiple TickInterpolator nodes, storing snapshots
 ## and applying interpolation based on the network tick factor.
 
-var _property_caches: Dictionary = {}  # {subject Node: PropertyCache}
-var _property_entries: Dictionary = {} # {subject Node: Array[PropertyEntry]}
-var _interpolators: Dictionary = {}    # {subject Node: {property_path String: Callable}}
+var _properties := _PropertyPool.new()
+var _interpolators: Dictionary = {}    # {subject Node: {property_path String: Interpolator}}
 
 var _state_from := _Snapshot.new(0)
 var _state_to := _Snapshot.new(0)
@@ -26,36 +25,38 @@ static var _logger := NetfoxLogger._for_netfox("InterpolationServer")
 ## Call [method set_enabled] and [method set_recording] to configure the subject
 ## after registration. Subjects are enabled and recording by default.
 ## If the property is already registered for this subject, this is a no-op.
-func register(subject: Node, property: String) -> void:
-	if not _property_caches.has(subject):
-		_property_caches[subject] = PropertyCache.new(subject)
-		_property_entries[subject] = [] as Array[PropertyEntry]
+func register(subject: Node, property: NodePath, interpolator: Interpolators.Interpolator = null) -> void:
+	if not _properties.has_subject(subject):
+		# Subject wasn't registered before, setup defaults
 		_interpolators[subject] = {}
 		_enabled.add(subject)
 		_recording_enabled.add(subject)
 
-	var entries := _property_entries[subject] as Array[PropertyEntry]
-	for entry in entries:
-		if entry.to_string() == property:
-			return
+	if _properties.has(subject, property):
+		# Property already registered, do nothing
+		return
 
-	var cache := _property_caches[subject] as PropertyCache
-	var entry := cache.get_entry(property)
-	entries.push_back(entry)
-	_interpolators[subject][property] = Interpolators.find_for(entry.get_value())
+	_properties.add(subject, property)
+	if interpolator == null:
+		var value := subject.get_indexed(property)
+		_interpolators[subject][property] = Interpolators.find_interpolator_for(value)
+	else:
+		_interpolators[subject][property] = interpolator
 
 ## Deregister all properties for a [param subject].
 func deregister(subject: Node) -> void:
-	var entries := _property_entries.get(subject, [])
-	for entry in entries:
-		_state_from.erase_subject(entry.node)
-		_state_to.erase_subject(entry.node)
-	_property_entries.erase(subject)
-	_property_caches.erase(subject)
+	_state_from.erase_subject(subject)
+	_state_to.erase_subject(subject)
+	
+	_properties.erase_subject(subject)
 	_interpolators.erase(subject)
+	
 	_enabled.erase(subject)
 	_recording_enabled.erase(subject)
 	_teleported.erase(subject)
+
+func has_subject(subject: Node) -> bool:
+	return _properties.has_subject(subject)
 
 ## Enable or disable interpolation for a [param subject].
 func set_enabled(subject: Node, enabled: bool) -> void:
@@ -64,6 +65,9 @@ func set_enabled(subject: Node, enabled: bool) -> void:
 	else:
 		_enabled.erase(subject)
 
+func is_enabled(subject: Node) -> bool:
+	return _enabled.has(subject)
+
 ## Enable or disable automatic state recording for a [param subject].
 func set_recording(subject: Node, enabled: bool) -> void:
 	if enabled:
@@ -71,70 +75,85 @@ func set_recording(subject: Node, enabled: bool) -> void:
 	else:
 		_recording_enabled.erase(subject)
 
+func is_recording(subject: Node) -> bool:
+	return _recording_enabled.has(subject)
+
 ## Check if interpolation can be done for a [param subject].
 func can_interpolate(subject: Node) -> bool:
-	if not _enabled.has(subject):
+	if not has_subject(subject):
+		# Unknown subject, can't interpolate
 		return false
-	if _teleported.has(subject):
+	if not is_enabled(subject):
+		# Interpolation is disabled for subject
 		return false
-	var entries := _property_entries.get(subject, []) as Array[PropertyEntry]
-	return not entries.is_empty()
+	if is_teleporting(subject):
+		# Subject is teleporting, just snap to target state
+		return false
+
+	return true
 
 ## Record current state for interpolation.
 func push_state(subject: Node) -> void:
-	if not _property_entries.has(subject):
+	if not has_subject(subject):
 		_logger.warning("Trying to push state for unregistered subject %s", [subject])
 		return
-	var entries := _property_entries[subject] as Array[PropertyEntry]
+		
+	# Copy to[subject] => from[subject]
+	_state_to.copy_subject_to(subject, _state_from)
 
-	for entry in entries:
-		var node := entry.node
-		var prop := entry.property
-		var to_val = _state_to.get_property(node, prop)
-		if to_val != null:
-			_state_from.set_property(node, prop, to_val)
-		_state_to.record_property(node, prop)
+	# Capture current as to[subject]
+	_state_to.erase_subject(subject)
+	for property in _properties.get_properties_of(subject):
+		var value := subject.get_indexed(property)
+		if value == null:
+			# NOTE: This shouldn't happen?
+			_logger.warning("Captured null value for interpolation on %s:%s; either a bug or wrong usage", [subject, property])
+		else:
+			_state_to.set_property(subject, property, value)
 
 ## Record current state and skip interpolation for this tick.
 func teleport(subject: Node) -> void:
-	if _teleported.has(subject):
+	if is_teleporting(subject):
 		return
-	if not _property_entries.has(subject):
+	if not has_subject(subject):
 		_logger.warning("Trying to teleport unregistered subject %s", [subject])
 		return
-	var entries := _property_entries[subject] as Array[PropertyEntry]
 
-	for entry in entries:
-		var value = entry.get_value()
-		_state_from.set_property(entry.node, entry.property, value)
-		_state_to.set_property(entry.node, entry.property, value)
+	# TODO: Is this needed?
+	for property in _properties.get_properties_of(subject):
+		_state_from.record_property(subject, property)
+		_state_to.record_property(subject, property)
+
 	_teleported.add(subject)
+
+func is_teleporting(subject: Node) -> bool:
+	return _teleported.has(subject)
 
 ## Interpolate properties for a [param subject].
 func _interpolate_subject(subject: Node, factor: float) -> void:
-	if not _enabled.has(subject) or _teleported.has(subject):
+	if not can_interpolate(subject):
 		return
 
-	var entries := _property_entries.get(subject, []) as Array[PropertyEntry]
 	var interps := _interpolators.get(subject, {}) as Dictionary
+	if interps.is_empty():
+		_logger.debug("No interpolators found for %s", [subject])
 
-	for entry in entries:
-		var node := entry.node
-		var prop := entry.property
-
-		if not _state_from.has_property(node, prop) or not _state_to.has_property(node, prop):
+	for property in _properties.get_properties_of(subject):
+		if not _state_from.has_property(subject, property) or not _state_to.has_property(subject, property):
 			continue
 
-		var a = _state_from.get_property(node, prop)
-		var b = _state_to.get_property(node, prop)
-		var fn: Callable = interps.get(entry.to_string())
-		if fn.is_valid():
-			entry.set_value(fn.call(a, b, factor))
+		var a = _state_from.get_property(subject, property)
+		var b = _state_to.get_property(subject, property)
+		var interpolator := interps.get(property, Interpolators.DEFAULT_INTERPOLATOR) as Interpolators.Interpolator
+		
+		var value := interpolator.apply.call(a, b, factor)
+		subject.set_indexed(property, value)
 
 func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
 
+	# TODO: Call directly from network time for fixed ordering
 	NetworkTime.before_tick_loop.connect(_before_tick_loop)
 	NetworkTime.after_tick_loop.connect(_after_tick_loop)
 
@@ -153,15 +172,7 @@ func _apply_target_state() -> void:
 
 func _record_next_state() -> void:
 	for subject in _recording_enabled.values():
-		if _teleported.has(subject):
+		if is_teleporting(subject):
 			continue
-		var entries := _property_entries.get(subject, []) as Array[PropertyEntry]
-		for entry in entries:
-			var node := entry.node
-			var prop := entry.property
-			var old_to = _state_to.get_property(node, prop)
-			var current = node.get_indexed(prop)
-			_state_to.set_property(node, prop, current)
-			if old_to != null:
-				_state_from.set_property(node, prop, old_to)
-				node.set_indexed(prop, old_to)
+
+		push_state(subject)

@@ -26,6 +26,9 @@ class_name TickInterpolator
 @export var enable_recording: bool = true
 
 var _properties_dirty: bool = false
+var _properties := _PropertyPool.new()
+
+@onready var _logger := NetfoxLogger._for_netfox("TickInterpolator:%s" % [root.name])
 
 ## Process settings.
 ## [br][br]
@@ -34,11 +37,19 @@ func process_settings():
 	if not root:
 		root = get_parent()
 
-	InterpolationServer.deregister(root)
-	for property in properties:
-		InterpolationServer.register(root, property)
-	InterpolationServer.set_enabled(root, enabled)
-	InterpolationServer.set_recording(root, enable_recording)
+	# Deregister old settings
+	for subject in _properties.get_subjects():
+		InterpolationServer.deregister(subject)
+
+	# Register new settings
+	_properties.set_from_paths(root, properties)
+	for subject in _properties.get_subjects():
+		for property in _properties.get_properties_of(subject):
+			_logger.debug("Registered property: %s:%s", [subject, property])
+			InterpolationServer.register(subject, property)
+
+		InterpolationServer.set_enabled(subject, enabled)
+		InterpolationServer.set_recording(subject, enable_recording)
 
 ## Add a property to interpolate.
 ## [br][br]
@@ -59,7 +70,10 @@ func add_property(node: Variant, property: String):
 ## Even if it's enabled, no interpolation will be done if there are no
 ## properties to interpolate.
 func can_interpolate() -> bool:
-	return InterpolationServer.can_interpolate(root)
+	for subject in _properties.get_subjects():
+		if not InterpolationServer.can_interpolate(subject):
+			return false
+	return true
 
 ## Record current state for interpolation.
 ## [br][br]
@@ -67,11 +81,13 @@ func can_interpolate() -> bool:
 ## starting point for the interpolation. This is automatically called if
 ## [code]enable_recording[/code] is true.
 func push_state() -> void:
-	InterpolationServer.push_state(root)
+	for subject in _properties.get_subjects():
+		InterpolationServer.push_state(subject)
 
 ## Record current state and transition without interpolation.
 func teleport() -> void:
-	InterpolationServer.teleport(root)
+	for subject in _properties.get_subjects():
+		InterpolationServer.teleport(subject)
 
 func _notification(what) -> void:
 	if what == NOTIFICATION_EDITOR_PRE_SAVE:
@@ -105,13 +121,15 @@ func _exit_tree() -> void:
 	if Engine.is_editor_hint():
 		return
 
-	InterpolationServer.deregister(root)
+	for subject in _properties.get_subjects():
+		InterpolationServer.deregister(subject)
 
 func _process(_delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
 
-	InterpolationServer._interpolate_subject(root, NetworkTime.tick_factor)
+	for subject in _properties.get_subjects():
+		InterpolationServer._interpolate_subject(subject, NetworkTime.tick_factor)
 
 func _reprocess_settings() -> void:
 	if not _properties_dirty or Engine.is_editor_hint():

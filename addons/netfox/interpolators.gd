@@ -30,12 +30,15 @@ static func register(is_applicable: Callable, apply: Callable) -> void:
 ## Find the appropriate interpolator for the given value.
 ##
 ## If none was found, the default interpolator is returned.
-static func find_for(value) -> Callable:
+static func find_for(value: Variant) -> Callable:
+	return find_interpolator_for(value).apply
+
+static func find_interpolator_for(value: Variant) -> Interpolator:
 	for interpolator in interpolators:
 		if interpolator.is_applicable.call(value):
-			return interpolator.apply
+			return interpolator
 
-	return DEFAULT_INTERPOLATOR.apply
+	return DEFAULT_INTERPOLATOR
 
 ## Interpolate between two values.
 ##
