@@ -27,7 +27,7 @@ func suite():
 				node.position = Vector3(0, 0, 0)
 				interpolation_server.register(node, ":position")
 				idx += 1
-			).with_iterations(count).with_batch_size(count).run()
+			).with_duration(1.).with_batch_size(256).run()
 
 			for i in count:
 				nodes[i].position = Vector3(0, 0, 0)
@@ -40,21 +40,26 @@ func suite():
 				var node = nodes[idx % count]
 				interpolation_server.push_state(node)
 				idx += 1
-			).with_duration(1.0).with_batch_size(64).run()
+			).with_duration(1.0).with_batch_size(256).run()
 
 			idx = 0
 			benchmark("_interpolate_subject()", func(__):
 				var node = nodes[idx % count]
 				interpolation_server._interpolate_subject(node, 0.5)
 				idx += 1
-			).with_duration(1.0).with_batch_size(64).run()
+			).with_duration(1.0).with_batch_size(256).run()
+			
+			benchmark("interpolate %d subjects" % count, func(__):
+				for node in nodes:
+					interpolation_server._interpolate_subject(node, 0.5)
+			).with_duration(1.0).with_batch_size(256).run()
 
 			idx = 0
 			benchmark("deregister()", func(__):
 				var node = nodes[idx]
 				interpolation_server.deregister(node)
 				idx += 1
-			).with_iterations(count).with_batch_size(count).run()
+			).with_duration(1.).with_batch_size(256).run()
 
 			# Free nodes
 			free_nodes(nodes)
@@ -74,7 +79,7 @@ func suite():
 				interpolation_server.register(node, ":rotation")
 				interpolation_server.register(node, ":scale")
 				idx += 1
-			).with_iterations(count).with_batch_size(count).run()
+			).with_duration(1.).with_batch_size(256).run()
 
 			# Setup initial states
 			for i in count:
@@ -92,21 +97,26 @@ func suite():
 				var node = nodes[idx % count]
 				interpolation_server.push_state(node)
 				idx += 1
-			).with_duration(1.0).with_batch_size(64).run()
+			).with_duration(1.0).with_batch_size(256).run()
 
 			idx = 0
 			benchmark("_interpolate_subject() multi-prop", func(__):
 				var node = nodes[idx % count]
 				interpolation_server._interpolate_subject(node, 0.5)
 				idx += 1
-			).with_duration(1.0).with_batch_size(64).run()
+			).with_duration(1.0).with_batch_size(256).run()
+			
+			benchmark("interpolate %d subjects" % count, func(__):
+				for node in nodes:
+					interpolation_server._interpolate_subject(node, 0.5)
+			).with_duration(1.0).with_batch_size(256).run()
 
 			idx = 0
 			benchmark("deregister() multi-prop", func(__):
 				var node = nodes[idx]
 				interpolation_server.deregister(node)
 				idx += 1
-			).with_iterations(count).with_batch_size(count).run()
+			).with_duration(1.).with_batch_size(256).run()
 
 			# Free nodes
 			free_nodes(nodes)
