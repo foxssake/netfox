@@ -119,11 +119,6 @@ func teleport(subject: Node) -> void:
 		_logger.warning("Trying to teleport unregistered subject %s", [subject])
 		return
 
-	# TODO: Is this needed?
-	for property in _properties.get_properties_of(subject):
-		_state_from.record_property(subject, property)
-		_state_to.record_property(subject, property)
-
 	_teleported.add(subject)
 
 func is_teleporting(subject: Node) -> bool:
@@ -149,21 +144,6 @@ func _interpolate_subject(subject: Node, factor: float) -> void:
 		var value := interpolator.apply.call(a, b, factor)
 		subject.set_indexed(property, value)
 
-func _ready() -> void:
-	if Engine.is_editor_hint():
-		return
-
-	# TODO: Call directly from network time for fixed ordering
-	NetworkTime.before_tick_loop.connect(_before_tick_loop)
-	NetworkTime.after_tick_loop.connect(_after_tick_loop)
-
-func _before_tick_loop() -> void:
-	_clear_teleports()
-	_apply_target_state()
-
-func _after_tick_loop() -> void:
-	_record_next_state()
-
 func _clear_teleports() -> void:
 	_teleported.clear()
 
@@ -172,7 +152,4 @@ func _apply_target_state() -> void:
 
 func _record_next_state() -> void:
 	for subject in _recording_enabled.values():
-		if is_teleporting(subject):
-			continue
-
 		push_state(subject)

@@ -562,6 +562,8 @@ func _loop() -> void:
 	_last_process_time = _clock.get_time()
 	while _next_tick_time < _last_process_time and ticks_in_loop < max_ticks_per_frame:
 		if ticks_in_loop == 0:
+			InterpolationServer._clear_teleports()
+			InterpolationServer._apply_target_state()
 			before_tick_loop.emit()
 
 		before_tick.emit(ticktime, tick)
@@ -578,6 +580,7 @@ func _loop() -> void:
 
 	if ticks_in_loop > 0:
 		after_tick_loop.emit()
+		InterpolationServer._record_next_state()
 		NetworkHistoryServer._restore_synchronizer_state(tick)
 
 	NetworkIdentityServer.flush_queue()
