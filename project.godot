@@ -36,6 +36,7 @@ NetworkSynchronizationServer="*res://addons/netfox/servers/network-synchronizati
 NetworkIdentityServer="*res://addons/netfox/servers/network-identity-server.gd"
 NetworkCommandServer="*res://addons/netfox/servers/network-command-server.gd"
 RollbackLivenessServer="*res://addons/netfox/servers/rollback-liveness-server.gd"
+InterpolationServer="*res://addons/netfox/servers/interpolation-server.gd"
 
 [display]
 

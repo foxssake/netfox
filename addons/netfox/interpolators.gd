@@ -1,6 +1,22 @@
 extends Object
 class_name Interpolators
 
+## Tracks interpolation functions for various data types
+##
+## The interpolation system can be used to interpolate arbitrary values,
+## regardless of their types. This is done by keeping a list of interpolators,
+## with each handling a specific data type. These can be registered using
+## [method register].
+## [br][br]
+## Later on, these values can either be interpolated using [method interpolate],
+## or getting the interpolation function using [method find_for] and calling it.
+## [br][br]
+## By default, this class supports most built-in data types, aside from objects,
+## arrays, and dictionaries. Custom interpolators can be registered, and will
+## take precedence over built-in ones.
+##
+## @tutorial(Interpolators): https://foxssake.github.io/netfox/latest/netfox/guides/interpolators/
+
 class Interpolator:
 	var is_applicable: Callable
 	var apply: Callable
@@ -11,16 +27,29 @@ class Interpolator:
 		result.apply = apply
 		return result
 
+## Fallback interpolator.
+## [br][br]
+## Returns the starting value in the first half of the tick, and the target
+## value in the other half.
 static var DEFAULT_INTERPOLATOR := Interpolator.make(
 	func (v): return true,
-	func (a, b, f): return a if f < 0.5 else b
+	default_apply
 )
 
+## List of known interpolators.
+## [br][br]
+## This list is used to look up interpolators in [method find_for] and [method
+## find_interpolator_for]. The list is ordered - the earlier an interpolator
+## is in the list, the higher its precedence.
+## [br][br]
+## Do not modify - use [method register] instead.
 static var interpolators: Array[Interpolator]
+
+## Default interpolation function
 static var default_apply: Callable = func(a, b, f): a if f < 0.5 else b
 
 ## Register an interpolator.
-##
+## [br][br]
 ## New interpolators are pushed to the front of the list, making them have
 ## precedence over existing ones. This can be useful in case you want to override
 ## the built-in interpolators.
@@ -28,20 +57,26 @@ static func register(is_applicable: Callable, apply: Callable) -> void:
 	interpolators.push_front(Interpolator.make(is_applicable, apply))
 
 ## Find the appropriate interpolator for the given value.
-##
-## If none was found, the default interpolator is returned.
-static func find_for(value) -> Callable:
+## [br][br]
+## If none was found, returns the default interpolator.
+static func find_for(value: Variant) -> Callable:
+	return find_interpolator_for(value).apply
+
+## Find the appropriate interpolator instance for the given value.
+## [br][br]
+## If none was found, returns the default interpolator.
+static func find_interpolator_for(value: Variant) -> Interpolator:
 	for interpolator in interpolators:
 		if interpolator.is_applicable.call(value):
-			return interpolator.apply
+			return interpolator
 
-	return DEFAULT_INTERPOLATOR.apply
+	return DEFAULT_INTERPOLATOR
 
 ## Interpolate between two values.
-##
-## Note, that it is usually faster to just cache the Callable returned by find_for
-## and call that, instead of calling interpolate repeatedly. The latter will have
-## to lookup the appropriate interpolator on every call.
+## [br][br]
+## Note that this method looks up the appropriate interpolator using [method
+## find_for] on every call. It is faster to call [method find_for] once, and
+## call the resulting [Callable] repeatedly.
 static func interpolate(a, b, f: float):
 	return find_for(a).call(a, b, f)
 

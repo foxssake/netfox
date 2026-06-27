@@ -27,6 +27,9 @@ func add(subject: Object, property: NodePath) -> void:
 func has(subject: Object, property: NodePath) -> bool:
 	return (_properties_by_subject.get(subject, []) as Array).has(property)
 
+func has_subject(subject: Object) -> bool:
+	return _properties_by_subject.has(subject)
+
 func erase(subject: Object, property: NodePath) -> void:
 	if not _properties_by_subject.has(subject):
 		return

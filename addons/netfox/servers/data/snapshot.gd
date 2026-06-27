@@ -135,6 +135,13 @@ func erase_subject(subject: Object) -> void:
 	_data.erase(subject)
 	_auth_subjects.erase(subject)
 
+# TODO: Wth, document this class
+# NOTE: If there's no data for the subject, it will erase it from target too
+func copy_subject_to(subject: Object, target: _Snapshot) -> void:
+	target.erase_subject(subject)
+	if has_subject(subject):
+		target._data[subject] = (_data[subject] as Dictionary).duplicate()
+
 func get_subjects() -> Array:
 	return _data.keys()
 
