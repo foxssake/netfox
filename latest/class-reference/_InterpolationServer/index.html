@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://foxssake.github.io/netfox/latest/class-reference/_PacketHandshake/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://foxssake.github.io/netfox/latest/class-reference/_InterpolationServer/" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>_PacketHandshake - netfox</title>
+    <title>_InterpolationServer - netfox</title>
     <link rel="stylesheet" href="../../css/theme.css" />
     <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
@@ -16,9 +16,9 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "_PacketHandshake";
-        var mkdocs_page_input_path = "class-reference/_PacketHandshake.md";
-        var mkdocs_page_url = "/netfox/latest/class-reference/_PacketHandshake/";
+        var mkdocs_page_name = "_InterpolationServer";
+        var mkdocs_page_input_path = "class-reference/_InterpolationServer.md";
+        var mkdocs_page_url = "/netfox/latest/class-reference/_InterpolationServer/";
       </script>
     
     <!--[if lt IE 9]>
@@ -249,7 +249,43 @@
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../TickInterpolator/">TickInterpolator</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../_InterpolationServer/">_InterpolationServer</a>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">_InterpolationServer</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#description">Description</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#methods">Methods</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#method-descriptions">Method Descriptions</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#void-register-node-subject-nodepath-property-interpolatorsinterpolator-interpolator">void register ( Node subject, NodePath property, Interpolators.Interpolator interpolator )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-deregister-node-subject">void deregister ( Node subject )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#bool-has_subject-node-subject">bool has_subject ( Node subject )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-set_enabled-node-subject-bool-enabled">void set_enabled ( Node subject, bool enabled )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#bool-is_enabled-node-subject">bool is_enabled ( Node subject )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-set_recording-node-subject-bool-enabled">void set_recording ( Node subject, bool enabled )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#bool-is_recording-node-subject">bool is_recording ( Node subject )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#bool-can_interpolate-node-subject">bool can_interpolate ( Node subject )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-push_state-node-subject">void push_state ( Node subject )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-teleport-node-subject">void teleport ( Node subject )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#bool-is_teleporting-node-subject">bool is_teleporting ( Node subject )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-interpolate_subject-node-subject-float-factor">void interpolate_subject ( Node subject, float factor )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-interpolate-float-factor">void interpolate ( float factor )</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../_NetworkCommandServer.Command/">_NetworkCommandServer.Command</a>
                 </li>
@@ -275,21 +311,7 @@
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../_Noray/">_Noray</a>
                 </li>
-                <li class="toctree-l2 current"><a class="reference internal current" href="#">_PacketHandshake</a>
-    <ul class="current">
-    <li class="toctree-l3"><a class="reference internal" href="#methods">Methods</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#method-descriptions">Method Descriptions</a>
-        <ul>
-    <li class="toctree-l4"><a class="reference internal" href="#int-over_packet_peer-packetpeer-peer-float-timeout-float-frequency">int over_packet_peer ( PacketPeer peer, float timeout, float frequency )</a>
-    </li>
-    <li class="toctree-l4"><a class="reference internal" href="#int-over_enet-enetconnection-connection-string-address-int-port-float-timeout-float-frequency">int over_enet ( ENetConnection connection, String address, int port, float timeout, float frequency )</a>
-    </li>
-    <li class="toctree-l4"><a class="reference internal" href="#int-over_enet_peer-enetmultiplayerpeer-peer-string-address-int-port-float-timeout-float-frequency">int over_enet_peer ( ENetMultiplayerPeer peer, String address, int port, float timeout, float frequency )</a>
-    </li>
-        </ul>
-    </li>
-    </ul>
+                <li class="toctree-l2"><a class="reference internal" href="../_PacketHandshake/">_PacketHandshake</a>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../_RollbackLivenessServer/">_RollbackLivenessServer</a>
                 </li>
@@ -314,7 +336,7 @@
     <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
           <li class="breadcrumb-item">Reference</li>
           <li class="breadcrumb-item">Classes</li>
-      <li class="breadcrumb-item active">_PacketHandshake</li>
+      <li class="breadcrumb-item active">_InterpolationServer</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -323,9 +345,12 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="_packethandshake">_PacketHandshake</h1>
+                <h1 id="_interpolationserver">_InterpolationServer</h1>
 <p><strong>Inherits:</strong> <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a></p>
-<p>This class implements a handshake protocol over UDP for multiple classes.</p>
+<p>Manages interpolation between network ticks</p>
+<h2 id="description">Description</h2>
+<p>Handles interpolation for multiple TickInterpolator nodes, storing snapshots and applying interpolation based on the network tick factor.   </p>
+<p>This server can interpolate properties of any arbitrary type. See <a href="../Interpolators/">Interpolators</a> for specifics on how interpolation is implemented.   </p>
 <h2 id="methods">Methods</h2>
 <table>
 <thead>
@@ -336,32 +361,110 @@
 </thead>
 <tbody>
 <tr>
-<td><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a></td>
-<td><a href="#over_packet_peer">over_packet_peer</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_packetpeer.html">PacketPeer</a> peer, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> timeout, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> frequency)</td>
+<td>void</td>
+<td><a href="#register">register</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject, <a href="https://docs.godotengine.org/en/4.1/classes/class_nodepath.html">NodePath</a> property, <a href="../Interpolators.Interpolator/">Interpolators.Interpolator</a> interpolator)</td>
 </tr>
 <tr>
-<td><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a></td>
-<td><a href="#over_enet">over_enet</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_enetconnection.html">ENetConnection</a> connection, <a href="https://docs.godotengine.org/en/4.1/classes/class_string.html">String</a> address, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> port, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> timeout, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> frequency)</td>
+<td>void</td>
+<td><a href="#deregister">deregister</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject)</td>
 </tr>
 <tr>
-<td><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a></td>
-<td><a href="#over_enet_peer">over_enet_peer</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_enetmultiplayerpeer.html">ENetMultiplayerPeer</a> peer, <a href="https://docs.godotengine.org/en/4.1/classes/class_string.html">String</a> address, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> port, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> timeout, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> frequency)</td>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a></td>
+<td><a href="#has_subject">has_subject</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#set_enabled">set_enabled</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject, <a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> enabled)</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a></td>
+<td><a href="#is_enabled">is_enabled</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#set_recording">set_recording</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject, <a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> enabled)</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a></td>
+<td><a href="#is_recording">is_recording</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject)</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a></td>
+<td><a href="#can_interpolate">can_interpolate</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#push_state">push_state</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#teleport">teleport</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject)</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a></td>
+<td><a href="#is_teleporting">is_teleporting</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#interpolate_subject">interpolate_subject</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> factor)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#interpolate">interpolate</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> factor)</td>
 </tr>
 </tbody>
 </table>
 <h2 id="method-descriptions">Method Descriptions</h2>
-<h4 id="int-over_packet_peer-packetpeer-peer-float-timeout-float-frequency"><span id="over_packet_peer"><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> over_packet_peer ( <a href="https://docs.godotengine.org/en/4.1/classes/class_packetpeer.html">PacketPeer</a> peer, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> timeout, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> frequency ) </span></h4>
-<p>Conduct handshake over a <a href="https://docs.godotengine.org/en/4.1/classes/class_packetpeer.html">PacketPeer</a> instance.</p>
+<h4 id="void-register-node-subject-nodepath-property-interpolatorsinterpolator-interpolator"><span id="register">void register ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject, <a href="https://docs.godotengine.org/en/4.1/classes/class_nodepath.html">NodePath</a> property, <a href="../Interpolators.Interpolator/">Interpolators.Interpolator</a> interpolator ) </span></h4>
+<p>Register a <code>property</code> for interpolation on a <code>subject</code> node.   </p>
+<p>If the subject didn't have any properties configured yet, it will be enabled for interpolation and recording. Call <a href="#set_enabled">set_enabled()</a> and <a href="#set_recording">set_recording()</a> to configure the subject after registration. If the property is already registered for this subject, nothing happens.</p>
 <hr />
-<h4 id="int-over_enet-enetconnection-connection-string-address-int-port-float-timeout-float-frequency"><span id="over_enet"><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> over_enet ( <a href="https://docs.godotengine.org/en/4.1/classes/class_enetconnection.html">ENetConnection</a> connection, <a href="https://docs.godotengine.org/en/4.1/classes/class_string.html">String</a> address, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> port, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> timeout, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> frequency ) </span></h4>
-<p>Conduct handshake over an <a href="https://docs.godotengine.org/en/4.1/classes/class_enetconnection.html">ENetConnection</a>.   </p>
-<p>If the connection is closed during the handshake, errors will be printed until the end of the timeout. To avoid errors, use <a href="#over_enet_peer">over_enet_peer()</a> when possible.   </p>
-<p><em>Note</em> that this is not a full-fledged handshake, since we can't receive data over the connection. Instead, we just pretend that the handshake is successful on our end and blast that status for a given time.</p>
+<h4 id="void-deregister-node-subject"><span id="deregister">void deregister ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject ) </span></h4>
+<p>Deregister all properties for a <code>subject</code>.</p>
 <hr />
-<h4 id="int-over_enet_peer-enetmultiplayerpeer-peer-string-address-int-port-float-timeout-float-frequency"><span id="over_enet_peer"><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> over_enet_peer ( <a href="https://docs.godotengine.org/en/4.1/classes/class_enetmultiplayerpeer.html">ENetMultiplayerPeer</a> peer, <a href="https://docs.godotengine.org/en/4.1/classes/class_string.html">String</a> address, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> port, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> timeout, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> frequency ) </span></h4>
-<p>Conduct handshake over an <a href="https://docs.godotengine.org/en/4.1/classes/class_enetmultiplayerpeer.html">ENetMultiplayerPeer</a>.   </p>
-<p>Compared to <a href="#over_enet">over_enet()</a>, using an <a href="https://docs.godotengine.org/en/4.1/classes/class_enetmultiplayerpeer.html">ENetMultiplayerPeer</a> allows checking for closed connections. If the peer is closed during the handshake, this method will gracefully fail.   </p>
-<p><em>Note</em> that this is not a full-fledged handshake, since we can't receive data over the connection. Instead, we just pretend that the handshake is successful on our end and blast that status for a given time.</p>
+<h4 id="bool-has_subject-node-subject"><span id="has_subject"><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> has_subject ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject ) </span></h4>
+<p>Return true if the <code>subject</code> is registered.</p>
+<hr />
+<h4 id="void-set_enabled-node-subject-bool-enabled"><span id="set_enabled">void set_enabled ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject, <a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> enabled ) </span></h4>
+<p>Enable or disable interpolation for a <code>subject</code>.   </p>
+<p>See <a href="#is_enabled">is_enabled()</a>.</p>
+<hr />
+<h4 id="bool-is_enabled-node-subject"><span id="is_enabled"><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> is_enabled ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject ) </span></h4>
+<p>Return true if the <code>subject</code> is enabled for interpolation.   </p>
+<p>If the subject is enabled, it will be interpolated between ticks.   </p>
+<p>See <a href="#set_enabled">set_enabled()</a>.</p>
+<hr />
+<h4 id="void-set_recording-node-subject-bool-enabled"><span id="set_recording">void set_recording ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject, <a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> enabled ) </span></h4>
+<p>Enable or disable automatic state recording for a <code>subject</code>.   </p>
+<p>See <a href="#is_recording">is_recording()</a>.</p>
+<hr />
+<h4 id="bool-is_recording-node-subject"><span id="is_recording"><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> is_recording ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject ) </span></h4>
+<p>Return true if the <code>subject</code> is enabled for recording.   </p>
+<p>This means that the subject's interpolation states will be updated automatically. Use <a href="#push_state">push_state()</a> to update manually.   </p>
+<p>See <a href="#set_recording">set_recording()</a>.</p>
+<hr />
+<h4 id="bool-can_interpolate-node-subject"><span id="can_interpolate"><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> can_interpolate ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject ) </span></h4>
+<p>Return true if interpolation can be done for a <code>subject</code>.   </p>
+<p>May return false for multiple reasons - subject is unknown, not enabled for interpolation, or is currently teleporting.</p>
+<hr />
+<h4 id="void-push_state-node-subject"><span id="push_state">void push_state ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject ) </span></h4>
+<p>Record current state for interpolation.   </p>
+<p>Called automatically, unless disabled with <a href="#set_recording">set_recording()</a>.</p>
+<hr />
+<h4 id="void-teleport-node-subject"><span id="teleport">void teleport ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject ) </span></h4>
+<p>Skip interpolation for this tick.</p>
+<hr />
+<h4 id="bool-is_teleporting-node-subject"><span id="is_teleporting"><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> is_teleporting ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject ) </span></h4>
+<p>Return true if the <code>subject</code> is currently teleporting.   </p>
+<p>See <a href="#teleport">teleport()</a>.</p>
+<hr />
+<h4 id="void-interpolate_subject-node-subject-float-factor"><span id="interpolate_subject">void interpolate_subject ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> factor ) </span></h4>
+<p>Interpolate properties for a <code>subject</code>.   </p>
+<p>Called automatically by default.</p>
+<hr />
+<h4 id="void-interpolate-float-factor"><span id="interpolate">void interpolate ( <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> factor ) </span></h4>
+<p>Interpolate all registered subjects.   </p>
+<p>Called automatically by default.</p>
 <hr />
               
             </div>
@@ -382,10 +485,10 @@
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../_Noray/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../TickInterpolator/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../_RollbackLivenessServer/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../_NetworkCommandServer.Command/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

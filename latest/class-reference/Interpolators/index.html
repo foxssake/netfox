@@ -209,6 +209,10 @@
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="#">Interpolators</a>
     <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#description">Description</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#tutorials">Tutorials</a>
+    </li>
     <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#methods">Methods</a>
@@ -228,6 +232,8 @@
     <li class="toctree-l4"><a class="reference internal" href="#void-register-callable-is_applicable-callable-apply-static">void register ( Callable is_applicable, Callable apply ) static</a>
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#callable-find_for-variant-value-static">Callable find_for ( Variant value ) static</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#interpolatorsinterpolator-find_interpolator_for-variant-value-static">Interpolators.Interpolator find_interpolator_for ( Variant value ) static</a>
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#variant-interpolate-variant-a-variant-b-float-f-static">Variant interpolate ( Variant a, Variant b, float f ) static</a>
     </li>
@@ -274,6 +280,8 @@
                 <li class="toctree-l2"><a class="reference internal" href="../StateSynchronizer/">StateSynchronizer</a>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../TickInterpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../_InterpolationServer/">_InterpolationServer</a>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../_NetworkCommandServer.Command/">_NetworkCommandServer.Command</a>
                 </li>
@@ -335,6 +343,15 @@
               
                 <h1 id="interpolators">Interpolators</h1>
 <p><strong>Inherits:</strong> <a href="https://docs.godotengine.org/en/4.1/classes/class_object.html">Object</a></p>
+<p>Tracks interpolation functions for various data types</p>
+<h2 id="description">Description</h2>
+<p>The interpolation system can be used to interpolate arbitrary values, regardless of their types. This is done by keeping a list of interpolators, with each handling a specific data type. These can be registered using <a href="#register">register()</a>.   </p>
+<p>Later on, these values can either be interpolated using <a href="#interpolate">interpolate()</a>, or getting the interpolation function using <a href="#find_for">find_for()</a> and calling it.   </p>
+<p>By default, this class supports most built-in data types, aside from objects, arrays, and dictionaries. Custom interpolators can be registered, and will take precedence over built-in ones.</p>
+<h2 id="tutorials">Tutorials</h2>
+<ul>
+<li><a href="https://foxssake.github.io/netfox/latest/netfox/guides/interpolators/">Interpolators</a></li>
+</ul>
 <h2 id="properties">Properties</h2>
 <table>
 <thead>
@@ -380,6 +397,10 @@
 <td><a href="#find_for">find_for</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_variant.html">Variant</a> value) static</td>
 </tr>
 <tr>
+<td><a href="../Interpolators.Interpolator/">Interpolators.Interpolator</a></td>
+<td><a href="#find_interpolator_for">find_interpolator_for</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_variant.html">Variant</a> value) static</td>
+</tr>
+<tr>
 <td><a href="https://docs.godotengine.org/en/4.1/classes/class_variant.html">Variant</a></td>
 <td><a href="#interpolate">interpolate</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_variant.html">Variant</a> a, <a href="https://docs.godotengine.org/en/4.1/classes/class_variant.html">Variant</a> b, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> f) static</td>
 </tr>
@@ -387,23 +408,33 @@
 </table>
 <h2 id="property-descriptions">Property Descriptions</h2>
 <h4 id="interpolatorsinterpolator-default_interpolator-make"><span id="default_interpolator"><a href="../Interpolators.Interpolator/">Interpolators.Interpolator</a> DEFAULT_INTERPOLATOR</span> = <code>make(...)</code></h4>
-<p>No description provided.</p>
+<p>Fallback interpolator.   </p>
+<p>Returns the starting value in the first half of the tick, and the target value in the other half.</p>
 <hr />
 <h4 id="interpolatorsinterpolator-interpolators"><span id="interpolators"><a href="../Interpolators.Interpolator/">Interpolators.Interpolator[]</a> interpolators</span></h4>
-<p>No description provided.</p>
+<p>List of known interpolators.   </p>
+<p>This list is used to look up interpolators in <a href="#find_for">find_for()</a> and <a href="#find_interpolator_for">find_interpolator_for()</a>. The list is ordered - the earlier an interpolator is in the list, the higher its precedence.   </p>
+<p>Do not modify - use <a href="#register">register()</a> instead.</p>
 <hr />
 <h4 id="callable-default_apply-unknown"><span id="default_apply"><a href="https://docs.godotengine.org/en/4.1/classes/class_callable.html">Callable</a> default_apply</span> = <code>&lt;unknown&gt;</code></h4>
-<p>No description provided.</p>
+<p>Default interpolation function</p>
 <hr />
 <h2 id="method-descriptions">Method Descriptions</h2>
 <h4 id="void-register-callable-is_applicable-callable-apply-static"><span id="register">void register ( <a href="https://docs.godotengine.org/en/4.1/classes/class_callable.html">Callable</a> is_applicable, <a href="https://docs.godotengine.org/en/4.1/classes/class_callable.html">Callable</a> apply ) static</span></h4>
-<p>Register an interpolator.  New interpolators are pushed to the front of the list, making them have precedence over existing ones. This can be useful in case you want to override the built-in interpolators.</p>
+<p>Register an interpolator.   </p>
+<p>New interpolators are pushed to the front of the list, making them have precedence over existing ones. This can be useful in case you want to override the built-in interpolators.</p>
 <hr />
 <h4 id="callable-find_for-variant-value-static"><span id="find_for"><a href="https://docs.godotengine.org/en/4.1/classes/class_callable.html">Callable</a> find_for ( <a href="https://docs.godotengine.org/en/4.1/classes/class_variant.html">Variant</a> value ) static</span></h4>
-<p>Find the appropriate interpolator for the given value.  If none was found, the default interpolator is returned.</p>
+<p>Find the appropriate interpolator for the given value.   </p>
+<p>If none was found, returns the default interpolator.</p>
+<hr />
+<h4 id="interpolatorsinterpolator-find_interpolator_for-variant-value-static"><span id="find_interpolator_for"><a href="../Interpolators.Interpolator/">Interpolators.Interpolator</a> find_interpolator_for ( <a href="https://docs.godotengine.org/en/4.1/classes/class_variant.html">Variant</a> value ) static</span></h4>
+<p>Find the appropriate interpolator instance for the given value.   </p>
+<p>If none was found, returns the default interpolator.</p>
 <hr />
 <h4 id="variant-interpolate-variant-a-variant-b-float-f-static"><span id="interpolate"><a href="https://docs.godotengine.org/en/4.1/classes/class_variant.html">Variant</a> interpolate ( <a href="https://docs.godotengine.org/en/4.1/classes/class_variant.html">Variant</a> a, <a href="https://docs.godotengine.org/en/4.1/classes/class_variant.html">Variant</a> b, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> f ) static</span></h4>
-<p>Interpolate between two values.  Note, that it is usually faster to just cache the Callable returned by find_for and call that, instead of calling interpolate repeatedly. The latter will have to lookup the appropriate interpolator on every call.</p>
+<p>Interpolate between two values.   </p>
+<p>Note that this method looks up the appropriate interpolator using <a href="#find_for">find_for()</a> on every call. It is faster to call <a href="#find_for">find_for()</a> once, and call the resulting <a href="https://docs.godotengine.org/en/4.1/classes/class_callable.html">Callable</a> repeatedly.</p>
 <hr />
               
             </div>
