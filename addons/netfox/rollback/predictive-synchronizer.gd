@@ -92,6 +92,8 @@ func is_alive(p_tick: int = NetworkRollback.tick) -> bool:
 		return true
 	return RollbackLivenessServer.is_alive(_liveness_nodes.front(), p_tick)
 
+# Process settings so that this predictive-synchronizer is registered.
+# Also see _enter_tree.
 func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
@@ -102,16 +104,12 @@ func _ready() -> void:
 
 	process_settings.call_deferred()
 
+# Used for things that must be initialized before _ready
 func _enter_tree() -> void:
 	if Engine.is_editor_hint():
 		return
 
 	_managed_roots[root] = self
-
-	if not NetworkTime.is_initial_sync_done():
-		# Wait for time sync to complete
-		await NetworkTime.after_sync
-	process_settings.call_deferred()
 
 func _exit_tree() -> void:
 	_managed_roots.erase(root)
