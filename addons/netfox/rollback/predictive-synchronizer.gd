@@ -113,7 +113,7 @@ func _enter_tree() -> void:
 		await NetworkTime.after_sync
 	process_settings.call_deferred()
 
-func _exit_tree():
+func _exit_tree() -> void:
 	_managed_roots.erase(root)
 
 	# Consider PredS and its nodes are being freed, time to deregister everything.
