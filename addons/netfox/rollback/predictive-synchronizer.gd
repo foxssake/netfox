@@ -113,6 +113,17 @@ func _enter_tree() -> void:
 		await NetworkTime.after_sync
 	process_settings.call_deferred()
 
+func _exit_tree():
+	_managed_roots.erase(root)
+
+	# Consider PredS and its nodes are being freed, time to deregister everything.
+	for node in _sim_nodes:
+		RollbackSimulationServer.deregister_node(node)
+	for node in _liveness_nodes:
+		RollbackLivenessServer.deregister(node)
+	for subject in _state_properties.get_subjects():
+		NetworkHistoryServer.deregister(subject)
+
 func _reprocess_settings() -> void:
 	if not _properties_dirty or Engine.is_editor_hint():
 		return
@@ -135,21 +146,9 @@ func add_state(node: Variant, property: String):
 	_reprocess_settings.call_deferred()
 
 func _notification(what: int) -> void:
-	match what:
-		NOTIFICATION_EDITOR_PRE_SAVE:
-			update_configuration_warnings()
+	if what == NOTIFICATION_EDITOR_PRE_SAVE:
+		update_configuration_warnings()
 
-		NOTIFICATION_EXIT_TREE:
-			_managed_roots.erase(root)
-
-		NOTIFICATION_PREDELETE:
-			# Consider PredS and its nodes are being freed, time to deregister everything.
-			for node in _sim_nodes:
-				RollbackSimulationServer.deregister_node(node)
-			for node in _liveness_nodes:
-				RollbackLivenessServer.deregister(node)
-			for subject in _state_properties.get_subjects():
-				NetworkHistoryServer.deregister(subject)
 
 func _get_configuration_warnings() -> PackedStringArray:
 	if not root:
