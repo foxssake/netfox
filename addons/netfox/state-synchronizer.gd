@@ -156,11 +156,11 @@ func _enter_tree() -> void:
 	process_settings.call_deferred()
 
 func _exit_tree() -> void:
-	if root.is_queued_for_deletion():
-		for node in _properties.get_subjects():
-			NetworkSynchronizationServer.deregister(node)
-			NetworkHistoryServer.deregister(node)
-			NetworkIdentityServer.deregister_node(node)
+	# Consider exit tree as being freed, deregister everything
+	for node in _properties.get_subjects():
+		NetworkSynchronizationServer.deregister(node)
+		NetworkHistoryServer.deregister(node)
+		NetworkIdentityServer.deregister_node(node)
 
 func _ready():
 	# Reprocess authority
