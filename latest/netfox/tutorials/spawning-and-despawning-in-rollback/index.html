@@ -363,6 +363,12 @@ it should be seen by the player, in <code>_rollback_spawn()</code>.</p>
 </code></pre></div>
 <p>The above is called when the node has been inactive so long that it can be
 safely freed. If it is not implemented, <code>queue_free()</code> is used as fallback.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>It is not recommended to remove nodes from the scene tree during a despawn,
+and then re-add them during respawn. If <em>RollbackSynchronizer</em> exits the scene
+tree, it assumes it's being destroyed.</p>
+</div>
 <h2 id="requesting-a-despawn">Requesting a despawn</h2>
 <p>To despawn a node, find the <a href="../../nodes/rollback-synchronizer/">RollbackSynchronizer</a> or <a href="../../nodes/predictive-synchronizer/">PredictiveSynchronizer</a>
 node that manages it, and call <code>despawn()</code>:</p>
