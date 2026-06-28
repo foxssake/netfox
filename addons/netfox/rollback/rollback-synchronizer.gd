@@ -372,7 +372,7 @@ func _enter_tree() -> void:
 func _exit_tree() -> void:
 	_managed_roots.erase(root)
 
-	# Consider RBS and its nodes are being freed, time to deregister everything.
+	# Consider RollbackSynchronizer and its nodes as freed, time to deregister everything
 	for node in _sim_nodes + _state_properties.get_subjects() + _input_properties.get_subjects():
 		RollbackSimulationServer.deregister_node(node)
 		NetworkSynchronizationServer.deregister(node)

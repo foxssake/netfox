@@ -116,7 +116,7 @@ func _enter_tree() -> void:
 func _exit_tree() -> void:
 	_managed_roots.erase(root)
 
-	# Consider PredS and its nodes are being freed, time to deregister everything.
+	# Consider PredictiveSynchronizer and its nodes as freed, time to deregister everything
 	for node in _sim_nodes:
 		RollbackSimulationServer.deregister_node(node)
 	for node in _liveness_nodes:
