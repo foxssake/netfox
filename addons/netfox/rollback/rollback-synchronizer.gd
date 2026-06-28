@@ -357,12 +357,12 @@ func _get_configuration_warnings() -> PackedStringArray:
 func _enter_tree() -> void:
 	if Engine.is_editor_hint():
 		return
-	
+
 	_managed_roots[root] = self
-	
+
 	if not visibility_filter:
 		visibility_filter = PeerVisibilityFilter.new()
-	
+
 	if not visibility_filter.get_parent():
 		add_child(visibility_filter)
 
