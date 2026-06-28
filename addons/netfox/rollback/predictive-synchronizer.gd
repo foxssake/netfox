@@ -23,6 +23,10 @@ class_name PredictiveSynchronizer
 ## the tick.
 @export var state_properties: Array[String]
 
+## The rollback tick when this synchronizer's managed nodes became alive.
+## Used to seed initial state history, register liveness, and request resim.
+var spawn_tick = -1
+
 var _state_properties := _PropertyPool.new()
 var _sim_nodes: Array[Node] = []
 var _liveness_nodes: Array[Node] = []
@@ -55,7 +59,7 @@ func process_settings() -> void:
 			var despawn_callback := NetworkRollback._get_rollback_despawn_method(node)
 			var free_callback := NetworkRollback._get_rollback_destroy_method(node)
 
-			RollbackLivenessServer.register(node, spawn_callback, despawn_callback, free_callback)
+			RollbackLivenessServer.register(node, spawn_callback, despawn_callback, free_callback, spawn_tick)
 			_liveness_nodes.append(node)
 
 	# Keep history of state properties
@@ -63,6 +67,7 @@ func process_settings() -> void:
 	for subject in _state_properties.get_subjects():
 		for property in _state_properties.get_properties_of(subject):
 			NetworkHistoryServer.register_rollback_state(subject, property)
+		NetworkHistoryServer.seed_rollback_state(subject, spawn_tick)
 
 ## Mark the spawn tick for all nodes managed by this synchronizer.
 ## [br][br]
@@ -100,7 +105,8 @@ func _ready() -> void:
 		# Wait for time sync to complete
 		await NetworkTime.after_sync
 
-	process_settings.call_deferred()
+	spawn_tick = NetworkRollback.tick
+	NetworkRollback.before_loop.connect(_on_before_loop, CONNECT_ONE_SHOT)
 
 func _enter_tree() -> void:
 	if Engine.is_editor_hint():
@@ -112,6 +118,9 @@ func _enter_tree() -> void:
 		# Wait for time sync to complete
 		await NetworkTime.after_sync
 	process_settings.call_deferred()
+
+func _on_before_loop() -> void:
+	NetworkRollback.notify_resimulation_start(spawn_tick)
 
 func _exit_tree() -> void:
 	_managed_roots.erase(root)

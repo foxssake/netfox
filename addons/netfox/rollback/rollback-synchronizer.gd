@@ -61,6 +61,10 @@ var diff_ack_interval: int = 0
 ## Decides which peers will receive updates
 var visibility_filter := PeerVisibilityFilter.new()
 
+## The rollback tick when this synchronizer's managed nodes became alive.
+## Used to seed initial state history, register liveness, and request resim.
+var spawn_tick = -1
+
 var _state_properties := _PropertyPool.new()
 var _input_properties := _PropertyPool.new()
 var _sim_nodes := [] as Array[Node]
@@ -99,7 +103,7 @@ func process_settings() -> void:
 			var despawn_callback := NetworkRollback._get_rollback_despawn_method(node)
 			var free_callback := NetworkRollback._get_rollback_destroy_method(node)
 
-			RollbackLivenessServer.register(node, spawn_callback, despawn_callback, free_callback)
+			RollbackLivenessServer.register(node, spawn_callback, despawn_callback, free_callback, spawn_tick)
 			_liveness_nodes.append(node)
 
 	# Both simulated and state nodes depend on all inputs
@@ -142,6 +146,7 @@ func process_authority():
 		for property in _state_properties.get_properties_of(node):
 			NetworkHistoryServer.register_rollback_state(node, property)
 			NetworkSynchronizationServer.register_rollback_state(node, property)
+		NetworkHistoryServer.seed_rollback_state(node, spawn_tick)
 
 	for node in _input_properties.get_subjects():
 		for property in _input_properties.get_properties_of(node):
@@ -324,6 +329,7 @@ func _ready() -> void:
 		# Wait for time sync to complete
 		await NetworkTime.after_sync
 
+	spawn_tick = NetworkRollback.tick
 	process_settings.call_deferred()
 	multiplayer.connected_to_server.connect(process_settings)
 
@@ -357,6 +363,7 @@ func _enter_tree() -> void:
 		return
 
 	_managed_roots[root] = self
+	NetworkRollback.before_loop.connect(_on_before_loop, CONNECT_ONE_SHOT)
 
 	if not visibility_filter:
 		visibility_filter = PeerVisibilityFilter.new()
@@ -368,6 +375,9 @@ func _enter_tree() -> void:
 		# Wait for time sync to complete
 		await NetworkTime.after_sync
 	process_settings.call_deferred()
+
+func _on_before_loop() -> void:
+	NetworkRollback.notify_resimulation_start(spawn_tick)
 
 func _exit_tree() -> void:
 	_managed_roots.erase(root)
