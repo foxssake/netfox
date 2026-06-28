@@ -164,7 +164,7 @@ func _merge_rollback_input(snapshot: _Snapshot) -> bool:
 	return _merge_history(snapshot, _rb_input_history, true)
 
 func _merge_rollback_state(snapshot: _Snapshot) -> bool:
-	_merge_snapshot(snapshot, _rb_state_snapshots, true)
+	_merge_snapshot(snapshot, _rb_state_snapshots)
 	return _merge_history(snapshot, _rb_state_history)
 
 func _merge_synchronizer_state(snapshot: _Snapshot) -> bool:

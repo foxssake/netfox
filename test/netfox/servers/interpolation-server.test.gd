@@ -223,10 +223,10 @@ func suite() -> void:
 			interpolation_server.register(test_node, ":position")
 
 			interpolation_server.teleport(test_node)
-			expect(interpolation_server._teleported.has(test_node), "Should be teleporting")
+			expect(interpolation_server.is_teleporting(test_node), "Should be teleporting")
 
 			interpolation_server._clear_teleports()
 
-			expect_not(interpolation_server._teleported.has(test_node), "Should reset teleport flag")
+			expect_not(interpolation_server.is_teleporting(test_node), "Should reset teleport flag")
 		)
 	)
