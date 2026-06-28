@@ -59,6 +59,11 @@ func _rollback_destroy() -> void:
 The above is called when the node has been inactive so long that it can be
 safely freed. If it is not implemented, `queue_free()` is used as fallback.
 
+!!!warning
+    It is not recommended to remove nodes from the scene tree during a despawn,
+    and then re-add them during respawn. If *RollbackSynchronizer* exits the scene
+    tree, it assumes it's being destroyed.
+
 ## Requesting a despawn
 
 To despawn a node, find the [RollbackSynchronizer] or [PredictiveSynchronizer]

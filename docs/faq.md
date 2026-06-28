@@ -65,6 +65,25 @@ This is intentional, to make it easier to find answers to your specific issue.
     ultimately result in glitches. The most surefire way is to synchronize each
     piece of data used by the simulation.
 
+!!!question "Can I remove and then re-add nodes to the scene tree?"
+    When possible, avoid doing so.
+    
+    At the time of writing, it is not possible to reliably detect an other node
+    being freed. This would be necessary for *RollbackSynchronizer*,
+    *PredictiveSynchronizer* and *StateSynchronizer* to deregister nodes they
+    manage.
+    
+    To this end, these nodes assumes that when they leave the scene tree, it is
+    because they're being freed. So, when *RollbackSynchronizer* or any of the
+    other *netfox* nodes exit the scene tree, they will deregister the nodes they
+    manage.
+    
+    When these nodes re-enter the scene tree, *netfox* will consider them as a
+    brand new node, not an already known node being reactivated.
+    
+    Note that this does not affect most use cases - just spawning a node, and
+    then optionally freeing it sometime later is completely fine.
+
 !!!question "What kind of data can netfox synchronize?"
     Data that is safe to use as RPC parameters is also safe with netfox. Other
     data types may work with [custom schemas]. Values passed by reference are best
