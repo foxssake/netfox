@@ -105,6 +105,21 @@ func suite() -> void:
 
 			expect_equal(simulation_server._get_nodes_to_simulate(snapshot), [node])
 		)
+
+		test("should simulate without mutation check when conditional simulation is disabled", func():
+			var node := await get_rewindable_node()
+			var input_node := await get_node()
+			var previous_conditional_simulation := NetworkRollback.conditional_simulation
+
+			simulation_server.register(node._rollback_tick)
+			simulation_server.register_rollback_input_for(node, input_node)
+			NetworkRollback.conditional_simulation = false
+
+			var snapshot := _Snapshot.new(1)
+
+			expect_equal(simulation_server._get_nodes_to_simulate(snapshot), [node])
+			NetworkRollback.conditional_simulation = previous_conditional_simulation
+		)
 	)
 
 class RewindableNode extends Node:

@@ -16,6 +16,13 @@ var enabled: bool = ProjectSettings.get_setting(&"netfox/rollback/enabled", true
 ## Diff states send only the state properties that have changed.
 var enable_diff_states: bool = ProjectSettings.get_setting(&"netfox/rollback/enable_diff_states", true)
 
+## Whether rollback simulation should conditionally skip nodes unless they are
+## mutated or have current input available.
+## [br][br]
+## Disabling this allows not using mutations but has a significant CPU cost 
+## because all nodes will be resimulated unconditionally.
+var conditional_simulation: bool = ProjectSettings.get_setting(&"netfox/rollback/conditional_simulation", true)
+
 ## How many ticks to store as history.
 ## [br][br]
 ## The larger the history limit, the further we can roll back into the past,
