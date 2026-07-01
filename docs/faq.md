@@ -200,9 +200,13 @@ This is intentional, to make it easier to find answers to your specific issue.
 
     This setup works as long as there's no mismatch or disagreement - e.g. the
     player already removed their key, but the door decides it needs a passcode
-    instead. Now the player is missing a key, and the door is still closed. In a
-    server-authoritative setup, the whole flow is handled by the server, making
-    such disagreements impossible by design.
+    instead. Now the player is missing a key, and the door is still closed.
+
+    While this can be worked around in a client-authoritative setup, it would
+    take extra code and complexity to covera all cases. In contrast, with a
+    server-authoritative setup, the whole flow is handled by the server. This
+    eliminates all the request-accept-deny messages needed, simplifying the flow.
+    It also makes such disagreements impossible by design.
 
     Regardless of your approach ( server-authoritative or not ), *netfox*
     offers features that can be useful for most projects, for example:
