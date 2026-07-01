@@ -66,8 +66,10 @@ var _latest_input_tick_by_peer := {}
 var _expected_input_start_tick_by_peer := {}
 var _remote_input_peers := {} as Dictionary
 var _remote_input_peers_dirty: bool = true
+var _local_latest_inputs_complete_tick := -1
 var _latest_inputs_complete_tick := -1
 var _last_sent_inputs_complete_tick := -1
+var _latest_inputs_complete_tick_by_peer := {}
 
 static var _logger := NetfoxLogger._for_netfox("NetworkSynchronizationServer")
 
@@ -81,11 +83,19 @@ func register_rollback_state(node: Node, property: NodePath) -> void:
 	if node.is_multiplayer_authority():
 		_rb_owned_state_properties.add(node, property)
 
+	_remote_input_peers_dirty = true
+	_last_sent_inputs_complete_tick = -1
+	_compute_local_latest_inputs_complete_tick()
+
 ## Deregister a [param property] of [param node] from being
 ## synchronized as rollback state
 func deregister_rollback_state(node: Node, property: NodePath) -> void:
 	_rb_state_properties.erase(node, property)
 	_rb_owned_state_properties.erase(node, property)
+
+	_remote_input_peers_dirty = true
+	_last_sent_inputs_complete_tick = -1
+	_compute_local_latest_inputs_complete_tick()
 
 ## Register a [param property] of [param node] to be synchronized
 ## as rollback input
@@ -95,7 +105,7 @@ func register_rollback_input(node: Node, property: NodePath) -> void:
 		_rb_owned_input_properties.add(node, property)
 
 	_remote_input_peers_dirty = true
-	_compute_latest_inputs_complete_tick()
+	_compute_local_latest_inputs_complete_tick()
 
 ## Deregister a [param property] of [param node] from being
 ## synchronized as rollback input
@@ -104,7 +114,7 @@ func deregister_rollback_input(node: Node, property: NodePath) -> void:
 	_rb_owned_input_properties.erase(node, property)
 
 	_remote_input_peers_dirty = true
-	_compute_latest_inputs_complete_tick()
+	_compute_local_latest_inputs_complete_tick()
 
 ## Register a [param property] of [param node] to be synchronized
 ## as synchronized state
@@ -159,7 +169,8 @@ func deregister(node: Node) -> void:
 	_schemas.erase_subject(node)
 
 	_remote_input_peers_dirty = true
-	_compute_latest_inputs_complete_tick()
+	_last_sent_inputs_complete_tick = -1
+	_compute_local_latest_inputs_complete_tick()
 
 func _is_node_visible_to(peer: int, node: Node) -> bool:
 	var filter := _visibility_filters.get(node) as PeerVisibilityFilter
@@ -216,8 +227,7 @@ func _synchronize_state(tick: int) -> void:
 	if _rb_owned_state_properties.is_empty():
 		return
 
-	if multiplayer.is_server():
-		_compute_latest_inputs_complete_tick()
+	_compute_local_latest_inputs_complete_tick()
 
 	# Grab snapshot from NetworkHistoryServer
 	var snapshot := NetworkHistoryServer._get_rollback_state_snapshot(tick)
@@ -398,10 +408,11 @@ func _handle_diff_sync(sender: int, data: PackedByteArray):
 	NetworkHistoryServer._merge_synchronizer_state(snapshot)
 	_logger.trace("Ingested sync diff: %s", [snapshot])
 
-func _handle_inputs_complete(_sender: int, data: PackedByteArray) -> void:
+func _handle_inputs_complete(sender: int, data: PackedByteArray) -> void:
 	var buffer := StreamPeerBuffer.new()
 	buffer.data_array = data
-	_latest_inputs_complete_tick = buffer.get_u32()
+	_latest_inputs_complete_tick_by_peer[sender] = buffer.get_u32()
+	_compute_latest_inputs_complete_tick()
 
 func _ingest_state(sender: int, snapshot: _Snapshot) -> void:
 	snapshot.sanitize(sender)
@@ -420,23 +431,20 @@ func _track_remote_input(sender: int, snapshot: _Snapshot) -> void:
 		return
 
 	_latest_input_tick_by_peer[sender] = snapshot.tick
-	_compute_latest_inputs_complete_tick()
+	_compute_local_latest_inputs_complete_tick()
 
 
-func _compute_latest_inputs_complete_tick() -> void:
-	if not multiplayer.is_server():
+func _compute_local_latest_inputs_complete_tick() -> void:
+	if _rb_owned_state_properties.is_empty():
+		_set_local_latest_inputs_complete_tick(-1)
 		return
 
 	_compute_remote_input_peers_cache_if_needed()
 
-	var connected_peers := multiplayer.get_peers()
 	var inputs_complete: int = NetworkTime.tick
 	var has_expected_peers := false
 
 	for peer in _remote_input_peers.keys():
-		if not connected_peers.has(peer):
-			continue
-
 		has_expected_peers = true
 		if not _latest_input_tick_by_peer.has(peer):
 			var expected_since_tick: int = _expected_input_start_tick_by_peer.get(peer, NetworkTime.tick)
@@ -445,15 +453,17 @@ func _compute_latest_inputs_complete_tick() -> void:
 		inputs_complete = mini(inputs_complete, _latest_input_tick_by_peer[peer])
 
 	if not has_expected_peers:
-		_set_latest_inputs_complete_tick(NetworkTime.tick)
+		_set_local_latest_inputs_complete_tick(NetworkTime.tick)
 		return
 
-	_set_latest_inputs_complete_tick(inputs_complete)
+	_set_local_latest_inputs_complete_tick(inputs_complete)
 
 
-func _set_latest_inputs_complete_tick(tick: int) -> void:
-	_latest_inputs_complete_tick = tick
-	if not multiplayer.is_server():
+func _set_local_latest_inputs_complete_tick(tick: int) -> void:
+	_local_latest_inputs_complete_tick = tick
+	_compute_latest_inputs_complete_tick()
+
+	if _rb_owned_state_properties.is_empty():
 		return
 	if _last_sent_inputs_complete_tick == tick:
 		return
@@ -463,6 +473,50 @@ func _set_latest_inputs_complete_tick(tick: int) -> void:
 	for peer in multiplayer.get_peers():
 		_cmd_inputs_complete.send(buffer.data_array, peer)
 	_last_sent_inputs_complete_tick = tick
+
+
+func _set_latest_inputs_complete_tick(tick: int) -> void:
+	_local_latest_inputs_complete_tick = tick
+	_latest_inputs_complete_tick = tick
+
+
+func _compute_latest_inputs_complete_tick() -> void:
+	var authority_peers := _get_state_authority_peers()
+	if authority_peers.is_empty():
+		_latest_inputs_complete_tick = -1
+		return
+
+	var inputs_complete: int = NetworkTime.tick
+	for peer in authority_peers:
+		if peer == multiplayer.get_unique_id():
+			if _local_latest_inputs_complete_tick < 0:
+				_latest_inputs_complete_tick = -1
+				return
+			inputs_complete = mini(inputs_complete, _local_latest_inputs_complete_tick)
+			continue
+
+		if not _latest_inputs_complete_tick_by_peer.has(peer):
+			_latest_inputs_complete_tick = -1
+			return
+
+		inputs_complete = mini(inputs_complete, _latest_inputs_complete_tick_by_peer[peer])
+
+	_latest_inputs_complete_tick = inputs_complete
+
+
+func _get_state_authority_peers() -> Array[int]:
+	var peers := [] as Array[int]
+	for subject in _rb_state_properties.get_subjects():
+		if not is_instance_valid(subject):
+			continue
+
+		var peer: int = subject.get_multiplayer_authority()
+		if peers.has(peer):
+			continue
+
+		peers.append(peer)
+
+	return peers
 
 
 func _compute_remote_input_peers_cache_if_needed() -> void:
@@ -495,5 +549,5 @@ func _compute_remote_input_peers_cache_if_needed() -> void:
 
 	_remote_input_peers_dirty = false
 
-	if multiplayer.is_server() and peers_changed:
+	if peers_changed:
 		_last_sent_inputs_complete_tick = -1
