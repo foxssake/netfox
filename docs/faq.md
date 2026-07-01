@@ -151,6 +151,34 @@ This is intentional, to make it easier to find answers to your specific issue.
 
     In addition, support for other approaches are also planned for *netfox*.
 
+!!!question "I need deterministic physics for rollback / netfox to work, right?"
+    No, this is a common misconception.
+
+    Determinism in this context means that your physics simulation produces the
+    exact same output for the exact same input. This means the outcome is the same,
+    regardless of the game's version, the engine's version, the user's OS, the
+    CPU's endianness, hardware, etc. And the results must match down to the
+    individual bits.
+
+    This is difficult to achieve, as the requirement is strict, and there's
+    many small things that can break determinism.
+
+    However, **rollback doesn't need deterministic physics**. The reason is
+    that even if the client's simulation arrives at a different outcome, the server
+    can always correct it by sending the actual results. When this happens, the
+    client adjusts its own simulation, and continues.
+
+    This means that the requirement for rollback is for the physics engine to
+    be **reasonably consistent** - as long the differences are not too large, the
+    client correcting its simulation also won't be noticeable.
+
+    It is rare to find a physics engine that is not consistent enough for
+    rollback to work.
+
+    One case where determinism *is* needed is lockstep - in that case, only
+    inputs are synchronized, state is not. So it's up to the game / physics
+    simulation to produce the exact same output on all the participating devices.
+
 !!!question "What kind of games can I build with netfox?"
     In general, most games can be expressed with rollback netcode, with a few
     notable exceptions. Rollback is also [not the only approach
@@ -172,6 +200,41 @@ This is intentional, to make it easier to find answers to your specific issue.
     bandwidth capacity. This makes rollback not a good fit for RTS games.
 
 [physics support]: ./netfox.extras/guides/physics.md
+
+!!!question "I don't care about cheating, is netfox useful to me?"
+    Yes, *netfox* has features that can be useful for most multiplayer game
+    projects.
+
+    The main feature of *netfox* is that it implements rollback, and part of
+    that is *the server being the source of truth*. This eliminates a whole class
+    of cheats, because malicious clients can't directly affect the game state.
+    For example, a client can't simply send packets saying their HP is always full
+    and they have infinite ammo - that's the server's job to determine.
+
+    However, that's not the only benefit of the server being the authority -
+    interactions are also simpler to reason about. Consider a door that requires a
+    player to have a key. In a client-authoritative setup, the player would check
+    if they have a key. If they do, they remove the key, and ask the door to
+    open. The request is necessary, since the door is not owned by the player. 
+
+    This setup works as long as there's no mismatch or disagreement - e.g. the
+    player already removed their key, but the door decides it needs a passcode
+    instead. Now the player is missing a key, and the door is still closed.
+
+    While this can be worked around in a client-authoritative setup, it would
+    take extra code and complexity to covera all cases. In contrast, with a
+    server-authoritative setup, the whole flow is handled by the server. This
+    eliminates all the request-accept-deny messages needed, simplifying the flow.
+    It also makes such disagreements impossible by design.
+
+    Regardless of your approach ( server-authoritative or not ), *netfox*
+    offers features that can be useful for most projects, for example:
+
+    - [Synchronized time](./netfox/guides/network-time.md)
+    - [Window tiling](./netfox.extras/guides/window-tiler.md)
+    - [Autoconnect and simulated latency](./netfox.extras/guides/network-simulator.md)
+    - [Schemas for bandwidth](./netfox/guides/network-schemas.md)
+    - [Diff states](./netfox/nodes/rollback-synchronizer.md#diff-states)
 
 !!!question "Can I use netfox with C#?"
     Yes, with [NetfoxSharp].
@@ -201,4 +264,3 @@ This is intentional, to make it easier to find answers to your specific issue.
     For example, when implementing a crouching logic that modifies the player's
     `CollisionShape`, make sure that the `CollisionShape` **is not shared**,
     otherwise one player crouching will make every player crouch.
-
