@@ -265,6 +265,14 @@ func _merge_history(snapshot: _Snapshot, history: _PerObjectHistory, reverse: bo
 		return false
 
 	for subject in snapshot.get_subjects():
+		# When receiving auth snapshots from the past, clear all newer history.
+		# This prevents old (potentially incorrect) auth states from poisoning hisotory
+		# and preventing local resimulation from recording new correct states.
+		if not reverse and history == _rb_state_history and snapshot.is_auth(subject):
+			var latest_tick: int = history.get_latest_tick(NetworkTime.tick, subject)
+			if latest_tick > tick:
+				history.truncate_after(tick, subject)
+
 		var object_snapshot := history.ensure_snapshot(tick, subject, not reverse)
 		if object_snapshot == null:
 			_logger.warning("Snapshot being merged is out of bounds! (@%d)", [tick])
