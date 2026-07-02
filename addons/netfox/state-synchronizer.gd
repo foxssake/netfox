@@ -153,8 +153,6 @@ func _enter_tree() -> void:
 	if not visibility_filter.get_parent():
 		add_child(visibility_filter)
 
-	process_settings.call_deferred()
-
 func _exit_tree() -> void:
 	# Consider exit tree as being freed, deregister everything
 	for node in _properties.get_subjects():
@@ -163,10 +161,16 @@ func _exit_tree() -> void:
 		NetworkIdentityServer.deregister_node(node)
 
 func _ready():
-	# Reprocess authority
+	process_settings.call_deferred()
+
+	# Reprocess authority on connect
 	# Important if nodes are pre-placed in the scene - node starts as owned by
 	# us ( offline peer is 1 ), but once we connect, we no longer own the node
-	multiplayer.connected_to_server.connect(process_settings)
+	if NetworkEvents.enabled:
+		# User might change `multiplayer` - `NetworkEvents` handles that
+		NetworkEvents.on_client_start.connect(process_settings)
+	else:
+		multiplayer.connected_to_server.connect(process_settings)
 
 func _reprocess_settings() -> void:
 	if not _properties_dirty:
