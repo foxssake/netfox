@@ -346,17 +346,17 @@ func _get_rollback_destroy_method(object: Object) -> Callable:
 
 func _ready():
 	NetfoxLogger.register_tag(_get_rollback_tag)
-	NetworkTime.after_tick_loop.connect(_rollback)
-	NetworkTime.after_tick.connect(func(_dt, tick):
-		
-		# Emit signal to give input nodes chance to submit their input
-		# Before this addition one off inputs were recorded on NetworkTime.after_tick
-		# But race condition erases input nodes submission. Therefore we are
-		# giving input nodes some space to do their job.
-		NetworkRollback.gather_one_off_inputs.emit()
-		NetworkHistoryServer._record_rollback_input(tick + input_delay)
-		NetworkSynchronizationServer._synchronize_input(tick + input_delay)
-	)
+	# NetworkTime.after_tick_loop.connect(_rollback)
+	# NetworkTime.after_tick.connect(func(_dt, tick):
+	#
+	# 	# Emit signal to give input nodes chance to submit their input
+	# 	# Before this addition one off inputs were recorded on NetworkTime.after_tick
+	# 	# But race condition erases input nodes submission. Therefore we are
+	# 	# giving input nodes some space to do their job.
+	# 	NetworkRollback.gather_one_off_inputs.emit()
+	# 	NetworkHistoryServer._record_rollback_input(tick + input_delay)
+	# 	NetworkSynchronizationServer._synchronize_input(tick + input_delay)
+	# )
 
 	NetworkSynchronizationServer._on_input.connect(_handle_input)
 	NetworkSynchronizationServer._on_state.connect(_handle_state)
