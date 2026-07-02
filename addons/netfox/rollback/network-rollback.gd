@@ -341,11 +341,6 @@ func _get_rollback_destroy_method(object: Object) -> Callable:
 
 func _ready():
 	NetfoxLogger.register_tag(_get_rollback_tag)
-	NetworkTime.after_tick_loop.connect(_rollback)
-	NetworkTime.after_tick.connect(func(_dt, tick):
-		NetworkHistoryServer._record_rollback_input(tick + input_delay)
-		NetworkSynchronizationServer._synchronize_input(tick + input_delay)
-	)
 
 	NetworkSynchronizationServer._on_input.connect(_handle_input)
 	NetworkSynchronizationServer._on_state.connect(_handle_state)
@@ -445,6 +440,10 @@ func _rollback() -> void:
 	# Cleanup
 	_mutated_nodes.clear()
 	_is_rollback = false
+
+func _after_tick(tick: int) -> void:
+	NetworkHistoryServer._record_rollback_input(tick + input_delay)
+	NetworkSynchronizationServer._synchronize_input(tick + input_delay)
 
 func _handle_input(snapshot: _Snapshot):
 	if snapshot.is_empty():

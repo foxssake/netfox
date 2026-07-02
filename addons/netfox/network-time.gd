@@ -567,10 +567,13 @@ func _loop() -> void:
 			before_tick_loop.emit()
 
 		before_tick.emit(ticktime, tick)
-
 		on_tick.emit(ticktime, tick)
-
 		after_tick.emit(ticktime, tick)
+
+		# Record data for rollback
+		NetworkRollback._after_tick(tick)
+
+		# Record data for StateSynchronizer
 		NetworkHistoryServer._record_sync_state(tick + 1)
 		NetworkSynchronizationServer._synchronize_sync_state(tick + 1)
 
@@ -579,10 +582,17 @@ func _loop() -> void:
 		_next_tick_time += ticktime
 
 	if ticks_in_loop > 0:
+		# Run rollback loop
+		NetworkRollback._rollback()
+
+		# Emit signal
 		after_tick_loop.emit()
+
+		# Restore state for StateSynchronizer
 		NetworkHistoryServer._restore_synchronizer_state(tick)
 		InterpolationServer._record_next_state()
 
+	# Send queued network identities
 	NetworkIdentityServer.flush_queue()
 
 func _process(delta: float) -> void:
