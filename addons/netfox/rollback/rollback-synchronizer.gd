@@ -325,6 +325,17 @@ func _ready() -> void:
 		await NetworkTime.after_sync
 
 	process_settings.call_deferred()
+	
+	# Reprocess authority on connect
+	if NetworkEvents.enabled:
+		# User might change `multiplayer` - `NetworkEvents` handles that
+		NetworkEvents.on_client_start.connect(process_settings)
+	else:
+		multiplayer.connected_to_server.connect(process_settings)
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_EDITOR_PRE_SAVE:
+		update_configuration_warnings()
 
 func _enter_tree() -> void:
 	if Engine.is_editor_hint():
@@ -338,9 +349,18 @@ func _enter_tree() -> void:
 	if not visibility_filter.get_parent():
 		add_child(visibility_filter)
 
-func _notification(what: int) -> void:
-	if what == NOTIFICATION_EDITOR_PRE_SAVE:
-		update_configuration_warnings()
+func _exit_tree() -> void:
+	_managed_roots.erase(root)
+
+	# Consider RollbackSynchronizer and its nodes as freed, time to deregister everything
+	for node in _sim_nodes + _state_properties.get_subjects() + _input_properties.get_subjects():
+		RollbackSimulationServer.deregister_node(node)
+		NetworkSynchronizationServer.deregister(node)
+		NetworkIdentityServer.deregister_node(node)
+		NetworkHistoryServer.deregister(node)
+
+	for node in _liveness_nodes:
+		RollbackLivenessServer.deregister(node)
 
 func _get_configuration_warnings() -> PackedStringArray:
 	if not root:
@@ -362,19 +382,6 @@ func _get_configuration_warnings() -> PackedStringArray:
 	))
 
 	return result
-
-func _exit_tree() -> void:
-	_managed_roots.erase(root)
-
-	# Consider RollbackSynchronizer and its nodes as freed, time to deregister everything
-	for node in _sim_nodes + _state_properties.get_subjects() + _input_properties.get_subjects():
-		RollbackSimulationServer.deregister_node(node)
-		NetworkSynchronizationServer.deregister(node)
-		NetworkIdentityServer.deregister_node(node)
-		NetworkHistoryServer.deregister(node)
-
-	for node in _liveness_nodes:
-		RollbackLivenessServer.deregister(node)
 
 func _reprocess_settings() -> void:
 	if not _properties_dirty or Engine.is_editor_hint():

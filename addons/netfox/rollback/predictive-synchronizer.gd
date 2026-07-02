@@ -101,6 +101,15 @@ func _ready() -> void:
 		await NetworkTime.after_sync
 
 	process_settings.call_deferred()
+	
+	# Reprocess authority on connect
+	# Important if nodes are pre-placed in the scene - node starts as owned by
+	# us ( offline peer is 1 ), but once we connect, we no longer own the node
+	if NetworkEvents.enabled:
+		# User might change `multiplayer` - `NetworkEvents` handles that
+		NetworkEvents.on_client_start.connect(process_settings)
+	else:
+		multiplayer.connected_to_server.connect(process_settings)
 
 func _enter_tree() -> void:
 	if Engine.is_editor_hint():
