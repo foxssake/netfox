@@ -325,7 +325,7 @@ func _ready() -> void:
 		await NetworkTime.after_sync
 
 	process_settings.call_deferred()
-	
+
 	# Reprocess authority on connect
 	if NetworkEvents.enabled:
 		# User might change `multiplayer` - `NetworkEvents` handles that
