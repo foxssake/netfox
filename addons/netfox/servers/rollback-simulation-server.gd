@@ -116,6 +116,9 @@ func simulate(delta: float, tick: int) -> void:
 
 	# Determine predicted nodes
 	for node in _callbacks.keys():
+		if not is_instance_valid(node):
+			_callbacks.erase(node)
+			continue
 		if _is_predicting(input_snapshot, node):
 			_predicted_nodes.add(node)
 
