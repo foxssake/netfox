@@ -325,10 +325,6 @@ func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
 
-	if not NetworkTime.is_initial_sync_done():
-		# Wait for time sync to complete
-		await NetworkTime.after_sync
-
 	spawn_tick = NetworkRollback.tick
 	process_settings.call_deferred()
 
