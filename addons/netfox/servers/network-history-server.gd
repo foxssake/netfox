@@ -122,7 +122,7 @@ func get_input_age_for(subjects: Array, tick: int) -> int:
 
 ## Record currently registered rollback state properties for [param subject] at
 ## [param tick].
-func seed_rollback_state(subject: Node, tick: int) -> void:
+func push_rollback_state(subject: Node, tick: int) -> void:
 	var subject_snapshot := _rb_state_history.ensure_snapshot(tick, subject, false)
 	if subject_snapshot == null:
 		_logger.warning("Dropping seeded state @%d for subject %s as out-of-bounds", [tick, subject])

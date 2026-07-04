@@ -67,7 +67,7 @@ func process_settings() -> void:
 	for subject in _state_properties.get_subjects():
 		for property in _state_properties.get_properties_of(subject):
 			NetworkHistoryServer.register_rollback_state(subject, property)
-		NetworkHistoryServer.seed_rollback_state(subject, spawn_tick)
+		NetworkHistoryServer.push_rollback_state(subject, spawn_tick)
 
 ## Mark the spawn tick for all nodes managed by this synchronizer.
 ## [br][br]
@@ -101,13 +101,6 @@ func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
 
-	if not NetworkTime.is_initial_sync_done():
-		# Wait for time sync to complete
-		await NetworkTime.after_sync
-
-	spawn_tick = NetworkRollback.tick
-	NetworkRollback.before_loop.connect(_on_before_loop, CONNECT_ONE_SHOT)
-
 	# Reprocess authority on connect
 	# Important if nodes are pre-placed in the scene - node starts as owned by
 	# us ( offline peer is 1 ), but once we connect, we no longer own the node
@@ -122,9 +115,12 @@ func _enter_tree() -> void:
 		return
 
 	_managed_roots[root] = self
-
-func _on_before_loop() -> void:
-	NetworkRollback.notify_resimulation_start(spawn_tick)
+	
+	spawn_tick = NetworkRollback.tick
+	
+	# Resimulate from spawn tick *only on the next loop*
+	NetworkRollback.before_loop.connect(func(): 
+		NetworkRollback.notify_resimulation_start(spawn_tick), CONNECT_ONE_SHOT)
 
 func _exit_tree() -> void:
 	_managed_roots.erase(root)

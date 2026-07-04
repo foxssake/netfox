@@ -48,12 +48,12 @@ func suite() -> void:
 			], [node]))
 		)
 	)
-	define("seed_rollback_state()", func():
+	define("push_rollback_state()", func():
 		test("should create a snapshot at spawn tick", func():
 			subject.tracked_value = 42
 			NetworkHistoryServer.register_rollback_state(subject, ^"tracked_value")
 
-			NetworkHistoryServer.seed_rollback_state(subject, 5)
+			NetworkHistoryServer.push_rollback_state(subject, 5)
 
 			var snapshot := NetworkHistoryServer._get_rollback_state_snapshot(5)
 			expect_not_null(snapshot)
@@ -65,7 +65,7 @@ func suite() -> void:
 		test("should mark local authority as auth", func():
 			NetworkHistoryServer.register_rollback_state(subject, ^"tracked_value")
 
-			NetworkHistoryServer.seed_rollback_state(subject, 7)
+			NetworkHistoryServer.push_rollback_state(subject, 7)
 
 			var snapshot := NetworkHistoryServer._get_rollback_state_snapshot(7)
 			expect_not_null(snapshot)
@@ -76,7 +76,7 @@ func suite() -> void:
 			subject.set_multiplayer_authority(2)
 			NetworkHistoryServer.register_rollback_state(subject, ^"tracked_value")
 
-			NetworkHistoryServer.seed_rollback_state(subject, 7)
+			NetworkHistoryServer.push_rollback_state(subject, 7)
 
 			var snapshot := NetworkHistoryServer._get_rollback_state_snapshot(7)
 			expect_not_null(snapshot)
@@ -86,7 +86,7 @@ func suite() -> void:
 		test("should not create history before spawn tick", func():
 			NetworkHistoryServer.register_rollback_state(subject, ^"tracked_value")
 
-			NetworkHistoryServer.seed_rollback_state(subject, 6)
+			NetworkHistoryServer.push_rollback_state(subject, 6)
 
 			expect_equal(NetworkHistoryServer.get_latest_state_tick_for([subject], 5), -1)
 		)
@@ -103,7 +103,7 @@ func suite() -> void:
 				subject._rollback_destroy,
 				5
 			)
-			NetworkHistoryServer.seed_rollback_state(subject, 5)
+			NetworkHistoryServer.push_rollback_state(subject, 5)
 			subject.tracked_value = 99
 
 			NetworkHistoryServer._record_rollback_state(5)

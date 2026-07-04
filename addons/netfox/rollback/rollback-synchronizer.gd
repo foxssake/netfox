@@ -146,7 +146,7 @@ func process_authority():
 		for property in _state_properties.get_properties_of(node):
 			NetworkHistoryServer.register_rollback_state(node, property)
 			NetworkSynchronizationServer.register_rollback_state(node, property)
-		NetworkHistoryServer.seed_rollback_state(node, spawn_tick)
+		NetworkHistoryServer.push_rollback_state(node, spawn_tick)
 
 	for node in _input_properties.get_subjects():
 		for property in _input_properties.get_properties_of(node):
@@ -349,7 +349,9 @@ func _enter_tree() -> void:
 
 	_managed_roots[root] = self
 
-	NetworkRollback.before_loop.connect(_on_before_loop, CONNECT_ONE_SHOT)
+	# Resimulate from spawn tick *only on the next loop*
+	NetworkRollback.before_loop.connect(func(): 
+		NetworkRollback.notify_resimulation_start(spawn_tick), CONNECT_ONE_SHOT)
 
 	if not visibility_filter:
 		visibility_filter = PeerVisibilityFilter.new()
@@ -390,9 +392,6 @@ func _get_configuration_warnings() -> PackedStringArray:
 	))
 
 	return result
-
-func _on_before_loop() -> void:
-	NetworkRollback.notify_resimulation_start(spawn_tick)
 
 func _reprocess_settings() -> void:
 	if not _properties_dirty or Engine.is_editor_hint():
