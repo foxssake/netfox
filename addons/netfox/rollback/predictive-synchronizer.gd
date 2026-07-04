@@ -125,6 +125,9 @@ func _enter_tree() -> void:
 		NetworkRollback.notify_resimulation_start(spawn_tick), CONNECT_ONE_SHOT)
 
 func _exit_tree() -> void:
+	if Engine.is_editor_hint():
+		return
+
 	_managed_roots.erase(root)
 
 	# Consider PredictiveSynchronizer and its nodes as freed, time to deregister everything

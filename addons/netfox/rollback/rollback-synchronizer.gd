@@ -356,6 +356,9 @@ func _enter_tree() -> void:
 		add_child(visibility_filter)
 
 func _exit_tree() -> void:
+	if Engine.is_editor_hint():
+		return
+
 	_managed_roots.erase(root)
 
 	# Consider RollbackSynchronizer and its nodes as freed, time to deregister everything

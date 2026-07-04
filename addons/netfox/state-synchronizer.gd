@@ -154,6 +154,9 @@ func _enter_tree() -> void:
 		add_child(visibility_filter)
 
 func _exit_tree() -> void:
+	if Engine.is_editor_hint():
+		return
+
 	# Consider exit tree as being freed, deregister everything
 	for node in _properties.get_subjects():
 		NetworkSynchronizationServer.deregister(node)
@@ -161,6 +164,9 @@ func _exit_tree() -> void:
 		NetworkIdentityServer.deregister_node(node)
 
 func _ready():
+	if Engine.is_editor_hint():
+		return
+
 	process_settings.call_deferred()
 
 	# Reprocess authority on connect
