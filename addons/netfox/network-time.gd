@@ -562,9 +562,7 @@ func _loop() -> void:
 	_last_process_time = _clock.get_time()
 	while _next_tick_time < _last_process_time and ticks_in_loop < max_ticks_per_frame:
 		if ticks_in_loop == 0:
-			InterpolationServer._clear_teleports()
-			InterpolationServer._apply_target_state()
-			before_tick_loop.emit()
+			_before_tick_loop()
 
 		before_tick.emit(ticktime, tick)
 		on_tick.emit(ticktime, tick)
@@ -582,18 +580,26 @@ func _loop() -> void:
 		_next_tick_time += ticktime
 
 	if ticks_in_loop > 0:
-		# Run rollback loop
-		NetworkRollback._rollback()
-
-		# Emit signal
-		after_tick_loop.emit()
-
-		# Restore state for StateSynchronizer
-		NetworkHistoryServer._restore_synchronizer_state(tick)
-		InterpolationServer._record_next_state()
+		_after_tick_loop()
 
 	# Send queued network identities
 	NetworkIdentityServer.flush_queue()
+
+func _before_tick_loop() -> void:
+	InterpolationServer._clear_teleports()
+	InterpolationServer._apply_target_state()
+	before_tick_loop.emit()
+
+func _after_tick_loop() -> void:
+	# Run rollback loop
+	NetworkRollback._rollback()
+
+	# Emit signal
+	after_tick_loop.emit()
+
+	# Restore state for StateSynchronizer
+	NetworkHistoryServer._restore_synchronizer_state(tick)
+	InterpolationServer._record_next_state()
 
 func _process(delta: float) -> void:
 	_process_delta = delta
