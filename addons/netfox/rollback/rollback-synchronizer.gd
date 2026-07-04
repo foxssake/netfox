@@ -346,7 +346,7 @@ func _enter_tree() -> void:
 	_managed_roots[root] = self
 
 	# Resimulate from spawn tick *only on the next loop*
-	NetworkRollback.before_loop.connect(func(): 
+	NetworkRollback.before_loop.connect(func():
 		NetworkRollback.notify_resimulation_start(spawn_tick), CONNECT_ONE_SHOT)
 
 	if not visibility_filter:
