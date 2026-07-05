@@ -560,7 +560,9 @@ func _loop() -> void:
 	# Run tick loop if needed
 	var ticks_in_loop := 0
 	_last_process_time = _clock.get_time()
-	while _next_tick_time < _last_process_time and ticks_in_loop < max_ticks_per_frame:
+
+	var ticks_due := _get_ticks_due()
+	while ticks_in_loop < ticks_due:
 		if ticks_in_loop == 0:
 			_before_tick_loop()
 
@@ -584,6 +586,22 @@ func _loop() -> void:
 
 	# Send queued network identities
 	NetworkIdentityServer.flush_queue()
+
+func _get_ticks_due() -> int:
+	if sync_to_physics:
+		var debt := _last_process_time - _next_tick_time
+		if debt > ticktime:
+			return mini(1 + int(debt / ticktime), max_ticks_per_frame)
+		elif debt < -ticktime:
+			return 0
+		else:
+			return 1
+
+	# Stock behavior: run as many ticks as the wall clock has fallen behind.
+	var ticks_due := 0
+	while _next_tick_time + ticks_due * ticktime < _last_process_time and ticks_due < max_ticks_per_frame:
+		ticks_due += 1
+	return ticks_due
 
 func _before_tick_loop() -> void:
 	InterpolationServer._clear_teleports()
