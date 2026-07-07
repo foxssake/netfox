@@ -291,6 +291,8 @@
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#int-get_input_age_for-array-subjects-int-tick">int get_input_age_for ( Array subjects, int tick )</a>
     </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-push_rollback_state-node-subject-int-tick">void push_rollback_state ( Node subject, int tick )</a>
+    </li>
         </ul>
     </li>
     </ul>
@@ -412,6 +414,10 @@
 <td><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a></td>
 <td><a href="#get_input_age_for">get_input_age_for</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_array.html">Array</a> subjects, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> tick)</td>
 </tr>
+<tr>
+<td>void</td>
+<td><a href="#push_rollback_state">push_rollback_state</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> tick)</td>
+</tr>
 </tbody>
 </table>
 <h2 id="method-descriptions">Method Descriptions</h2>
@@ -456,6 +462,9 @@
 <hr />
 <h4 id="int-get_input_age_for-array-subjects-int-tick"><span id="get_input_age_for"><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> get_input_age_for ( <a href="https://docs.godotengine.org/en/4.1/classes/class_array.html">Array</a> subjects, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> tick ) </span></h4>
 <p>Return how old is the latest rollback input data for any of the <code>subjects</code>, in ticks</p>
+<hr />
+<h4 id="void-push_rollback_state-node-subject-int-tick"><span id="push_rollback_state">void push_rollback_state ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> tick ) </span></h4>
+<p>Record currently registered rollback state properties for <code>subject</code> at <code>tick</code>.</p>
 <hr />
               
             </div>

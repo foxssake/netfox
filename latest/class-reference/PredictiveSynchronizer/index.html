@@ -247,6 +247,8 @@
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#string-state_properties">String[] state_properties</a>
     </li>
+    <li class="toctree-l4"><a class="reference internal" href="#variant-spawn_tick-1">Variant spawn_tick = -1</a>
+    </li>
         </ul>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#method-descriptions">Method Descriptions</a>
@@ -365,6 +367,11 @@
 <td><a href="#state_properties">state_properties</a></td>
 <td></td>
 </tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_variant.html">Variant</a></td>
+<td><a href="#spawn_tick">spawn_tick</a></td>
+<td><code>-1</code></td>
+</tr>
 </tbody>
 </table>
 <h2 id="methods">Methods</h2>
@@ -405,6 +412,9 @@
 <h4 id="string-state_properties"><span id="state_properties"><a href="https://docs.godotengine.org/en/4.1/classes/class_string.html">String[]</a> state_properties</span></h4>
 <p>Properties that define the game state.   </p>
 <p>State properties are recorded for each tick and restored during rollback. State is restored before every rollback tick, and recorded after simulating the tick.</p>
+<hr />
+<h4 id="variant-spawn_tick-1"><span id="spawn_tick"><a href="https://docs.godotengine.org/en/4.1/classes/class_variant.html">Variant</a> spawn_tick</span> = <code>-1</code></h4>
+<p>The rollback tick when this synchronizer's managed nodes became alive. Used to seed initial state history, register liveness, and request resim.</p>
 <hr />
 <h2 id="method-descriptions">Method Descriptions</h2>
 <h4 id="void-process_settings"><span id="process_settings">void process_settings (  ) </span></h4>
