@@ -23,6 +23,10 @@ class_name PredictiveSynchronizer
 ## the tick.
 @export var state_properties: Array[String]
 
+## The rollback tick when this synchronizer's managed nodes became alive.
+## Used to seed initial state history, register liveness, and request resim.
+var spawn_tick = -1
+
 var _state_properties := _PropertyPool.new()
 var _sim_nodes: Array[Node] = []
 var _liveness_nodes: Array[Node] = []
@@ -55,7 +59,7 @@ func process_settings() -> void:
 			var despawn_callback := NetworkRollback._get_rollback_despawn_method(node)
 			var free_callback := NetworkRollback._get_rollback_destroy_method(node)
 
-			RollbackLivenessServer.register(node, spawn_callback, despawn_callback, free_callback)
+			RollbackLivenessServer.register(node, spawn_callback, despawn_callback, free_callback, spawn_tick)
 			_liveness_nodes.append(node)
 
 	# Keep history of state properties
@@ -63,6 +67,7 @@ func process_settings() -> void:
 	for subject in _state_properties.get_subjects():
 		for property in _state_properties.get_properties_of(subject):
 			NetworkHistoryServer.register_rollback_state(subject, property)
+		NetworkHistoryServer.push_rollback_state(subject, spawn_tick)
 
 ## Mark the spawn tick for all nodes managed by this synchronizer.
 ## [br][br]
@@ -96,10 +101,6 @@ func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
 
-	if not NetworkTime.is_initial_sync_done():
-		# Wait for time sync to complete
-		await NetworkTime.after_sync
-
 	process_settings.call_deferred()
 
 	# Reprocess authority on connect
@@ -117,7 +118,17 @@ func _enter_tree() -> void:
 
 	_managed_roots[root] = self
 
+	if spawn_tick < 0:
+		spawn_tick = NetworkRollback.tick
+
+	# Resimulate from spawn tick *only on the next loop*
+	NetworkRollback.before_loop.connect(func():
+		NetworkRollback.notify_resimulation_start(spawn_tick), CONNECT_ONE_SHOT)
+
 func _exit_tree() -> void:
+	if Engine.is_editor_hint():
+		return
+
 	_managed_roots.erase(root)
 
 	# Consider PredictiveSynchronizer and its nodes as freed, time to deregister everything
