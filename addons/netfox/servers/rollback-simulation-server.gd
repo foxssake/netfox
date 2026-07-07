@@ -119,6 +119,10 @@ func simulate(delta: float, tick: int) -> void:
 		if not is_instance_valid(node):
 			_callbacks.erase(node)
 			continue
+		
+		if not node.is_inside_tree():
+			continue
+		
 		if _is_predicting(input_snapshot, node):
 			_predicted_nodes.add(node)
 

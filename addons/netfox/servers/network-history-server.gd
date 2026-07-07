@@ -181,6 +181,9 @@ func _record(tick: int, history: _PerObjectHistory, snapshots: _HistoryBuffer, p
 
 		if _ignored_subjects.has(subject):
 			continue
+		
+		if not subject.is_inside_tree():
+			continue
 
 		var is_auth := auth_filter.call(subject)
 

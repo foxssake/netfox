@@ -328,7 +328,9 @@ func _ready() -> void:
 	multiplayer.connected_to_server.connect(process_settings)
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_EDITOR_PRE_SAVE:
+	if what == NOTIFICATION_PREDELETE:
+		_cleanup()
+	elif what == NOTIFICATION_EDITOR_PRE_SAVE:
 		update_configuration_warnings()
 
 func _get_configuration_warnings() -> PackedStringArray:
@@ -373,15 +375,23 @@ func _exit_tree() -> void:
 	_managed_roots.erase(root)
 
 	if root.is_queued_for_deletion():
-		# RBS and its nodes are being freed, time to deregister everything
-		for node in _sim_nodes + _state_properties.get_subjects() + _input_properties.get_subjects():
-			RollbackSimulationServer.deregister_node(node)
-			NetworkSynchronizationServer.deregister(node)
-			NetworkIdentityServer.deregister_node(node)
-			NetworkHistoryServer.deregister(node)
+		_cleanup()
 
-		for node in _liveness_nodes:
-			RollbackLivenessServer.deregister(node)
+func _cleanup() -> void:
+	if _sim_nodes.is_empty():
+		return
+
+	for node in _sim_nodes + _state_properties.get_subjects() + _input_properties.get_subjects():
+		RollbackSimulationServer.deregister_node(node)
+		NetworkSynchronizationServer.deregister(node)
+		NetworkIdentityServer.deregister_node(node)
+		NetworkHistoryServer.deregister(node)
+
+	for node in _liveness_nodes:
+		RollbackLivenessServer.deregister(node)
+
+	_sim_nodes.clear()
+	_liveness_nodes.clear()
 
 func _reprocess_settings() -> void:
 	if not _properties_dirty or Engine.is_editor_hint():
