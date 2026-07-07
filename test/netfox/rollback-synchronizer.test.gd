@@ -82,10 +82,9 @@ func suite():
 
 		test("should request resimulation from spawn tick", func():
 			var setup := await create_spawn_synchronizer(3, 0)
-			var rbs := setup[1] as RollbackSynchronizer
 			NetworkRollback._resim_from = 12
 
-			rbs._on_before_loop()
+			NetworkRollback.before_loop.emit()
 
 			expect_equal(NetworkRollback._resim_from, 3)
 		)

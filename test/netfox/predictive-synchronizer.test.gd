@@ -55,7 +55,7 @@ func suite() -> void:
 			synchronizer.spawn_tick = 3
 			NetworkRollback._resim_from = 12
 
-			synchronizer._on_before_loop()
+			NetworkRollback.before_loop.emit()
 
 			expect_equal(NetworkRollback._resim_from, 3)
 		)

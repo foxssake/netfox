@@ -325,7 +325,8 @@ func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
 
-	spawn_tick = NetworkRollback.tick
+	if spawn_tick < 0:
+		spawn_tick = NetworkRollback.tick
 	process_settings.call_deferred()
 
 	# Reprocess authority on connect

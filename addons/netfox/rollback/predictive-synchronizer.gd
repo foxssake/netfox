@@ -118,7 +118,8 @@ func _enter_tree() -> void:
 
 	_managed_roots[root] = self
 
-	spawn_tick = NetworkRollback.tick
+	if spawn_tick < 0:
+		spawn_tick = NetworkRollback.tick
 
 	# Resimulate from spawn tick *only on the next loop*
 	NetworkRollback.before_loop.connect(func():
