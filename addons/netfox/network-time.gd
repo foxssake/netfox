@@ -558,14 +558,13 @@ func _loop() -> void:
 		_tick = seconds_to_ticks(NetworkTimeSynchronizer.get_time())
 
 	# Run tick loop if needed
-	var ticks_in_loop := 0
 	_last_process_time = _clock.get_time()
 
-	var ticks_due := _get_ticks_due()
-	while ticks_in_loop < ticks_due:
-		if ticks_in_loop == 0:
-			_before_tick_loop()
+	var ticks_in_loop := _get_ticks_in_loop()
+	if ticks_in_loop > 0:
+		_before_tick_loop()
 
+	for i in ticks_in_loop:
 		before_tick.emit(ticktime, tick)
 		on_tick.emit(ticktime, tick)
 		after_tick.emit(ticktime, tick)
@@ -578,18 +577,19 @@ func _loop() -> void:
 		NetworkSynchronizationServer._synchronize_sync_state(tick + 1)
 
 		_tick += 1
-		ticks_in_loop += 1
 		_next_tick_time += ticktime
-
+	
 	if ticks_in_loop > 0:
 		_after_tick_loop()
 
 	# Send queued network identities
 	NetworkIdentityServer.flush_queue()
 
-func _get_ticks_due() -> int:
+func _get_ticks_in_loop() -> int:
+	var debt := _last_process_time - _next_tick_time
+
+	# One tick per physics frame
 	if sync_to_physics:
-		var debt := _last_process_time - _next_tick_time
 		if debt > ticktime:
 			return mini(1 + int(debt / ticktime), max_ticks_per_frame)
 		elif debt < -ticktime:
@@ -597,11 +597,8 @@ func _get_ticks_due() -> int:
 		else:
 			return 1
 
-	# Stock behavior: run as many ticks as the wall clock has fallen behind.
-	var ticks_due := 0
-	while _next_tick_time + ticks_due * ticktime < _last_process_time and ticks_due < max_ticks_per_frame:
-		ticks_due += 1
-	return ticks_due
+	# As many ticks as the wall clock has fallen behind
+	return mini(int(ceil(debt / ticktime)), max_ticks_per_frame)
 
 func _before_tick_loop() -> void:
 	InterpolationServer._clear_teleports()
