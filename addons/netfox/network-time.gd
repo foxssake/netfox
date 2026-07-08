@@ -561,25 +561,25 @@ func _loop() -> void:
 	_last_process_time = _clock.get_time()
 
 	var ticks_in_loop := _get_ticks_in_loop()
+
 	if ticks_in_loop > 0:
 		_before_tick_loop()
 
-	for i in ticks_in_loop:
-		before_tick.emit(ticktime, tick)
-		on_tick.emit(ticktime, tick)
-		after_tick.emit(ticktime, tick)
+		for i in ticks_in_loop:
+			before_tick.emit(ticktime, tick)
+			on_tick.emit(ticktime, tick)
+			after_tick.emit(ticktime, tick)
 
-		# Record data for rollback
-		NetworkRollback._after_tick(tick)
+			# Record data for rollback
+			NetworkRollback._after_tick(tick)
 
-		# Record data for StateSynchronizer
-		NetworkHistoryServer._record_sync_state(tick + 1)
-		NetworkSynchronizationServer._synchronize_sync_state(tick + 1)
+			# Record data for StateSynchronizer
+			NetworkHistoryServer._record_sync_state(tick + 1)
+			NetworkSynchronizationServer._synchronize_sync_state(tick + 1)
 
-		_tick += 1
-		_next_tick_time += ticktime
-	
-	if ticks_in_loop > 0:
+			_tick += 1
+			_next_tick_time += ticktime
+		
 		_after_tick_loop()
 
 	# Send queued network identities
