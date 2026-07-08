@@ -558,32 +558,47 @@ func _loop() -> void:
 		_tick = seconds_to_ticks(NetworkTimeSynchronizer.get_time())
 
 	# Run tick loop if needed
-	var ticks_in_loop := 0
 	_last_process_time = _clock.get_time()
-	while _next_tick_time < _last_process_time and ticks_in_loop < max_ticks_per_frame:
-		if ticks_in_loop == 0:
-			_before_tick_loop()
 
-		before_tick.emit(ticktime, tick)
-		on_tick.emit(ticktime, tick)
-		after_tick.emit(ticktime, tick)
-
-		# Record data for rollback
-		NetworkRollback._after_tick(tick)
-
-		# Record data for StateSynchronizer
-		NetworkHistoryServer._record_sync_state(tick + 1)
-		NetworkSynchronizationServer._synchronize_sync_state(tick + 1)
-
-		_tick += 1
-		ticks_in_loop += 1
-		_next_tick_time += ticktime
+	var ticks_in_loop := _get_ticks_in_loop()
 
 	if ticks_in_loop > 0:
+		_before_tick_loop()
+
+		for i in ticks_in_loop:
+			before_tick.emit(ticktime, tick)
+			on_tick.emit(ticktime, tick)
+			after_tick.emit(ticktime, tick)
+
+			# Record data for rollback
+			NetworkRollback._after_tick(tick)
+
+			# Record data for StateSynchronizer
+			NetworkHistoryServer._record_sync_state(tick + 1)
+			NetworkSynchronizationServer._synchronize_sync_state(tick + 1)
+
+			_tick += 1
+			_next_tick_time += ticktime
+
 		_after_tick_loop()
 
 	# Send queued network identities
 	NetworkIdentityServer.flush_queue()
+
+func _get_ticks_in_loop() -> int:
+	var debt := _last_process_time - _next_tick_time
+
+	# One tick per physics frame
+	if sync_to_physics:
+		if debt > ticktime:
+			return mini(1 + int(debt / ticktime), max_ticks_per_frame)
+		elif debt < -ticktime:
+			return 0
+		else:
+			return 1
+
+	# As many ticks as the wall clock has fallen behind
+	return mini(int(ceil(debt / ticktime)), max_ticks_per_frame)
 
 func _before_tick_loop() -> void:
 	InterpolationServer._clear_teleports()
