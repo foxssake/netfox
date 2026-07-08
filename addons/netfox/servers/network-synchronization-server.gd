@@ -39,6 +39,8 @@ var _rb_full_scheduler := _IntervalScheduler.new(_rb_full_interval)
 
 var _input_redundancy := NetworkRollback.input_redundancy
 
+var _rb_sent_state_history := {} # peer to _HistoryBuffer of _Snapshot
+
 var _last_sync_state_sent := _Snapshot.new(0)
 var _sync_enable_diffs := ProjectSettings.get_setting("netfox/state_synchronizer/enable_diff_states", true) as bool
 var _sync_full_interval := ProjectSettings.get_setting("netfox/state_synchronizer/full_state_interval", 24) as int
@@ -65,6 +67,46 @@ static var _logger := NetfoxLogger._for_netfox("NetworkSynchronizationServer")
 
 signal _on_input(snapshot: _Snapshot)
 signal _on_state(snapshot: _Snapshot)
+
+func _get_peer_rb_sent_history(peer: int) -> _HistoryBuffer:
+	if not _rb_sent_state_history.has(peer):
+		_rb_sent_state_history[peer] = _HistoryBuffer.new(NetworkRollback.history_limit)
+	return _rb_sent_state_history[peer]
+
+func _get_last_sent_rollback_state(peer: int, tick: int) -> _Snapshot:
+	var history: _HistoryBuffer = _rb_sent_state_history.get(peer, null)
+	if history == null or not history.has_latest_at(tick):
+		return null
+	return history.get_latest_at(tick)
+
+func _remember_sent_rollback_state(peer: int, snapshot: _Snapshot) -> void:
+	var reference := _get_last_sent_rollback_state(peer, snapshot.tick)
+	var remembered := reference.duplicate() if reference else _Snapshot.new(snapshot.tick)
+	for subject in snapshot.get_subjects():
+		for property in snapshot.get_subject_properties(subject):
+			remembered.set_property(subject, property, snapshot.get_property(subject, property))
+		remembered.set_auth(subject, snapshot.is_auth(subject))
+	remembered.tick = snapshot.tick
+	_get_peer_rb_sent_history(peer).set_at(snapshot.tick, remembered)
+
+func _make_peer_snapshot(snapshot: _Snapshot, peer: int, properties: _PropertyPool) -> _Snapshot:
+	var result := _Snapshot.new(snapshot.tick)
+	for subject in properties.get_subjects():
+		if not _is_node_visible_to(peer, subject):
+			continue
+		if not snapshot.is_auth(subject):
+			continue
+
+		var has_property := false
+		for property in properties.get_properties_of(subject):
+			if not snapshot.has_property(subject, property):
+				continue
+			result.set_property(subject, property, snapshot.get_property(subject, property))
+			has_property = true
+
+		if has_property:
+			result.set_auth(subject, true)
+	return result
 
 ## Register a [param property] of [param node] to be synchronized
 ## as rollback state
@@ -209,37 +251,33 @@ func _synchronize_state(tick: int) -> void:
 	if not _rb_enable_diffs:
 		is_full = true
 
-	# Check if we have history to diff to
-	var reference_snapshot := NetworkHistoryServer._get_rollback_state_snapshot(tick - 1)
-	if not reference_snapshot:
-		is_full = true
+	for peer in multiplayer.get_peers():
+		var peer_snapshot := _make_peer_snapshot(snapshot, peer, _rb_owned_state_properties)
+		if peer_snapshot.is_empty():
+			continue
 
-	if is_full:
-		# Send full states
-		for peer in multiplayer.get_peers():
-			var filter := func(subject): return _is_node_visible_to(peer, subject)
+		var peer_is_full := is_full
+		var reference_snapshot := _get_last_sent_rollback_state(peer, tick)
+		if reference_snapshot == null:
+			peer_is_full = true
 
-			var packets := _dense_serializer.write_for(peer, snapshot, _rb_owned_state_properties, filter)
+		if peer_is_full:
+			var packets := _dense_serializer.write_for(peer, peer_snapshot, _rb_owned_state_properties)
 			for packet in packets:
 				_cmd_full_state.send(packet, peer)
+			_remember_sent_rollback_state(peer, peer_snapshot)
+			NetworkPerformance.push_full_state_props(peer_snapshot.size())
+			NetworkPerformance.push_sent_state_props(peer_snapshot.size())
+		else:
+			var diff := _Snapshot.make_patch(reference_snapshot, peer_snapshot)
+			if diff.is_empty():
+				continue
 
-			NetworkPerformance.push_full_state_props(snapshot.size())
-			NetworkPerformance.push_sent_state_props(snapshot.size())
-	else:
-		var diff := _Snapshot.make_patch(reference_snapshot, snapshot)
-		if diff.is_empty():
-			# Nothing changed, don't send anything
-			return
-
-		# Send diff states
-		for peer in multiplayer.get_peers():
-			var filter := func(subject): return _is_node_visible_to(peer, subject)
-
-			var packets := _sparse_serializer.write_for(peer, diff, _rb_owned_state_properties, filter)
+			var packets := _sparse_serializer.write_for(peer, diff, _rb_owned_state_properties)
 			for packet in packets:
 				_cmd_diff_state.send(packet, peer)
-
-			NetworkPerformance.push_full_state_props(snapshot.size())
+			_remember_sent_rollback_state(peer, diff)
+			NetworkPerformance.push_full_state_props(peer_snapshot.size())
 			NetworkPerformance.push_sent_state_props(diff.size())
 
 func _synchronize_sync_state(tick: int) -> void:

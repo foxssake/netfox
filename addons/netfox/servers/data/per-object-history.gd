@@ -96,10 +96,3 @@ func get_property(tick: int, subject: Object, property: NodePath, default: Varia
 
 	var snapshot := history.get_at(tick) as _ObjectSnapshot
 	return snapshot.get_value(property, default)
-
-func truncate_after(tick: int, subject: Object) -> void:
-	var history: _HistoryBuffer = _data.get(subject, null)
-	if history == null or history.is_empty():
-		return
-
-	history.truncate_after(tick)
