@@ -579,7 +579,7 @@ func _loop() -> void:
 
 			_tick += 1
 			_next_tick_time += ticktime
-		
+
 		_after_tick_loop()
 
 	# Send queued network identities
