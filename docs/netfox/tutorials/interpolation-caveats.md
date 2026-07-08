@@ -16,6 +16,10 @@ though it's important for simulating their behavior.
 Since interpolation matters only for the game's visuals, it's enough to
 interpolate only the properties that affect the game's visuals.
 
+!!! note
+    If Godot is running in headless mode, interpolation is disabled by default,
+    since no rendering is taking place.
+
 ### Rotation vs. Quaternion vs. Transform
 
 Interpolating `rotation` may lead to glitchy results when an object makes a

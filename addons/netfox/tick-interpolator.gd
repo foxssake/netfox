@@ -32,6 +32,11 @@ var _properties := _PropertyPool.new()
 ## [br][br]
 ## Call this after any change to configuration.
 func process_settings():
+	# Dont process if godot is running in headless mode.
+	# We dont have anything to display.
+	if DisplayServer.get_name() == "headless":
+		return
+
 	if not root:
 		root = get_parent()
 
