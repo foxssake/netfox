@@ -32,6 +32,9 @@ static var _logger := NetfoxLogger._for_netfox("InterpolationServer")
 ## [method set_recording] to configure the subject after registration. If the
 ## property is already registered for this subject, nothing happens.
 func register(subject: Node, property: NodePath, interpolator: Interpolators.Interpolator = null) -> void:
+	if _is_headless():
+		return
+
 	if not _properties.has_subject(subject):
 		# Subject wasn't registered before, setup defaults
 		_interpolators[subject] = {}
@@ -51,6 +54,9 @@ func register(subject: Node, property: NodePath, interpolator: Interpolators.Int
 
 ## Deregister all properties for a [param subject].
 func deregister(subject: Node) -> void:
+	if _is_headless():
+		return
+
 	_state_from.erase_subject(subject)
 	_state_to.erase_subject(subject)
 
@@ -69,6 +75,9 @@ func has_subject(subject: Node) -> bool:
 ## [br][br]
 ## See [method is_enabled].
 func set_enabled(subject: Node, enabled: bool) -> void:
+	if _is_headless():
+		return
+
 	if enabled:
 		_enabled.add(subject)
 	else:
@@ -86,6 +95,9 @@ func is_enabled(subject: Node) -> bool:
 ## [br][br]
 ## See [method is_recording].
 func set_recording(subject: Node, enabled: bool) -> void:
+	if _is_headless():
+		return
+
 	if enabled:
 		_recording_enabled.add(subject)
 	else:
@@ -121,6 +133,9 @@ func can_interpolate(subject: Node) -> bool:
 ## [br][br]
 ## Called automatically, unless disabled with [method set_recording].
 func push_state(subject: Node) -> void:
+	if _is_headless():
+		return
+
 	if not has_subject(subject):
 		_logger.warning("Trying to push state for unregistered subject %s", [subject])
 		return
@@ -140,6 +155,9 @@ func push_state(subject: Node) -> void:
 
 ## Skip interpolation for this tick.
 func teleport(subject: Node) -> void:
+	if _is_headless():
+		return
+
 	if is_teleporting(subject):
 		return
 	if not has_subject(subject):
@@ -158,6 +176,9 @@ func is_teleporting(subject: Node) -> bool:
 ## [br][br]
 ## Called automatically by default.
 func interpolate_subject(subject: Node, factor: float) -> void:
+	if _is_headless():
+		return
+
 	if not can_interpolate(subject):
 		return
 
@@ -192,3 +213,6 @@ func _apply_target_state() -> void:
 func _record_next_state() -> void:
 	for subject in _recording_enabled.values():
 		push_state(subject)
+
+func _is_headless() -> bool:
+	return DisplayServer.get_name() == "headless"
