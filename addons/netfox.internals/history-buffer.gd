@@ -133,6 +133,20 @@ func get_latest_at(at: int) -> Variant:
 
 func clear():
 	_tail = _head
+	_previous.fill(_head)
+
+# TODO: Test
+func truncate_after(at: int) -> void:
+	if _head <= at:
+		# Nothing to do
+		return
+
+	if at < _tail:
+		# `at` is earlier than tail, need to get rid of all data
+		clear()
+		return
+
+	_head = at + 1
 
 func is_empty() -> bool:
 	return size() == 0
