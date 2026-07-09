@@ -41,7 +41,7 @@ func _ready():
 func register_command(handler: Callable, mode: MultiplayerPeer.TransferMode = MultiplayerPeer.TRANSFER_MODE_RELIABLE, channel: int = 0) -> Command:
 	var idx := _next_idx
 	_next_idx += 1
-	return register_command_at(idx, handler)
+	return register_command_at(idx, handler, mode, channel)
 
 ## Register a command at a specific index
 ## [br][br]
