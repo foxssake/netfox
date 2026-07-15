@@ -37,6 +37,7 @@ var _rb_enable_diffs := NetworkRollback.enable_diff_states
 var _rb_full_interval := ProjectSettings.get_setting("netfox/rollback/full_state_interval", 24) as int
 var _rb_full_scheduler := _IntervalScheduler.new(_rb_full_interval)
 var _rb_last_synced_tick := -1
+var _rb_last_synced_snapshot: _Snapshot = null
 
 var _input_redundancy := NetworkRollback.input_redundancy
 
@@ -139,6 +140,9 @@ func deregister(node: Node) -> void:
 	_sync_owned_state_properties.erase_subject(node)
 	_visibility_filters.erase(node)
 	_schemas.erase_subject(node)
+	
+	if _rb_last_synced_snapshot:
+		_rb_last_synced_snapshot.erase_subject(node)
 
 func _is_node_visible_to(peer: int, node: Node) -> bool:
 	var filter := _visibility_filters.get(node) as PeerVisibilityFilter
@@ -216,8 +220,10 @@ func _synchronize_state(tick: int) -> void:
 	if not _rb_enable_diffs:
 		is_full = true
 
-	# Check if we have history to diff to
-	var reference_snapshot := NetworkHistoryServer._get_rollback_state_snapshot(tick - 1)
+	# Diff against the state as it was last sent (last authoritative state)
+	# Mirrors _last_sync_state_sent in _synchronize_sync_state()
+	# Duplicated because rollback history snapshots are mutated during resim
+	var reference_snapshot := _rb_last_synced_snapshot
 	if not reference_snapshot:
 		is_full = true
 
@@ -235,7 +241,7 @@ func _synchronize_state(tick: int) -> void:
 	else:
 		var diff := _Snapshot.make_patch(reference_snapshot, snapshot)
 		if diff.is_empty():
-			# Nothing changed, don't send anything
+			# Nothing changed, don't send anything, and don't update _rb_last_synced_snapshot
 			return
 
 		# Send diff states
@@ -248,6 +254,9 @@ func _synchronize_state(tick: int) -> void:
 
 			NetworkPerformance.push_full_state_props(snapshot.size())
 			NetworkPerformance.push_sent_state_props(diff.size())
+	
+	# Update the cached snapshot for future rollbacks
+	_rb_last_synced_snapshot = snapshot.duplicate()
 
 func _synchronize_sync_state(tick: int) -> void:
 	# We don't own sync state, nothing to synchronize
@@ -305,8 +314,12 @@ func _init(
 	_simulation_server = p_simulation_server
 
 func _ready():
-	# NetworkTime.tick restarts every session, so reset the sent marker
-	NetworkTime.after_sync.connect(func(): _rb_last_synced_tick = NetworkTime.tick - 1)
+	# NetworkTime.tick restarts every session, so reset the "last_synced" data
+	NetworkTime.after_sync.connect(func():
+		_rb_last_synced_tick = NetworkTime.tick - 1
+		_rb_last_synced_snapshot = null
+	)
+
 
 	# Ensure dependencies
 	if not _command_server: _command_server = NetworkCommandServer
