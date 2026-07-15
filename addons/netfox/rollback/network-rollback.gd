@@ -191,8 +191,8 @@ func notify_resimulation_start(p_tick: int) -> void:
 ## This is used mostly internally by [RollbackSynchronizer]. The idea is to
 ## submit each affected node while preparing the tick, and then run only the
 ## nodes that need to be resimulated.
-func notify_simulated(node: Node) -> void:
-	_simulated_nodes.add(node)
+func notify_simulated(subject: Object) -> void:
+	_simulated_nodes.add(subject)
 
 
 ## Check if node was submitted for simulation.
@@ -200,8 +200,8 @@ func notify_simulated(node: Node) -> void:
 ## This is used mostly internally by [RollbackSynchronizer]. The idea is to
 ## submit each affected node while preparing the tick, and then use
 ## [member is_simulated] to run only the nodes that need to be resimulated.
-func is_simulated(node: Node) -> bool:
-	return _simulated_nodes.has(node)
+func is_simulated(subject: Object) -> bool:
+	return _simulated_nodes.has(subject)
 
 ## Return true if a network rollback is currently active.
 func is_rollback() -> bool:
@@ -292,28 +292,28 @@ func is_just_mutated(target: Object, p_tick: int = tick) -> bool:
 
 ## Register that a node has submitted its input for a specific tick
 ## @deprecated
-func register_rollback_input_submission(_node: Node, _tick: int) -> void:
+func register_rollback_input_submission(_subject: Object, _tick: int) -> void:
 	pass
 
 ## Get the latest input tick submitted for a specific node
 ## [br][br]
 ## Returns [code]-1[/code] if no input was submitted for the node, ever.
-func get_latest_input_tick(node: Node) -> int:
-	var input_nodes := RollbackSimulationServer._get_inputs_of(node)
+func get_latest_input_tick(subject: Object) -> int:
+	var inputs := RollbackSimulationServer._get_inputs_of(subject)
 	var reference_tick := NetworkTime.tick
 
-	return NetworkHistoryServer.get_latest_input_for(input_nodes, reference_tick)
+	return NetworkHistoryServer.get_latest_input_for(inputs, reference_tick)
 
 ## Check if a node has submitted input for a specific tick (or later)
-func has_input_for_tick(node: Node, tick: int) -> bool:
-	var latest_input := get_latest_input_tick(node)
+func has_input_for_tick(subject: Object, tick: int) -> bool:
+	var latest_input := get_latest_input_tick(subject)
 	return latest_input != -1 and latest_input >= tick
 
 ## Free all input submission data for a node
 ## [br][br]
 ## Use this once the node is freed.
 ## @deprecated
-func free_input_submission_data_for(_node: Node) -> void:
+func free_input_submission_data_for(_subject: Object) -> void:
 	pass
 
 func _get_rollback_method(object: Object) -> Callable:

@@ -34,47 +34,47 @@ var _sync_state_snapshots := _HistoryBuffer.new(_sync_history_size)
 static var _logger := NetfoxLogger._for_netfox("NetworkHistoryServer")
 
 ## Register a rollback state property
-func register_rollback_state(node: Node, property: NodePath) -> void:
-	_rb_state_properties.add(node, property)
+func register_rollback_state(subject: Object, property: NodePath) -> void:
+	_rb_state_properties.add(subject, property)
 
 ## Deregister a rollback state property
-func deregister_rollback_state(node: Node, property: NodePath) -> void:
-	_rb_state_properties.erase(node, property)
+func deregister_rollback_state(subject: Object, property: NodePath) -> void:
+	_rb_state_properties.erase(subject, property)
 
 ## Register a rollback input property
-func register_rollback_input(node: Node, property: NodePath) -> void:
-	_rb_input_properties.add(node, property)
+func register_rollback_input(subject: Object, property: NodePath) -> void:
+	_rb_input_properties.add(subject, property)
 
 ## Deregister a rollback input property
-func deregister_rollback_input(node: Node, property: NodePath) -> void:
-	_rb_input_properties.erase(node, property)
+func deregister_rollback_input(subject: Object, property: NodePath) -> void:
+	_rb_input_properties.erase(subject, property)
 
 ## Register a synchronized state property
-func register_sync_state(node: Node, property: NodePath) -> void:
-	_sync_state_properties.add(node, property)
+func register_sync_state(subject: Object, property: NodePath) -> void:
+	_sync_state_properties.add(subject, property)
 
 ## Deregister a synchronized state property
-func deregister_sync_state(node: Node, property: NodePath) -> void:
-	_sync_state_properties.erase(node, property)
+func deregister_sync_state(subject: Object, property: NodePath) -> void:
+	_sync_state_properties.erase(subject, property)
 
 ## Deregister a node, no longer tracking any property it had registered using
 ## any of the [code]register_*()[/code] methods
-func deregister(node: Node) -> void:
+func deregister(subject: Object) -> void:
 	# Deregister properties
-	_rb_state_properties.erase_subject(node)
-	_rb_input_properties.erase_subject(node)
-	_sync_state_properties.erase_subject(node)
+	_rb_state_properties.erase_subject(subject)
+	_rb_input_properties.erase_subject(subject)
+	_sync_state_properties.erase_subject(subject)
 
 	# Erase from per-object history
-	_rb_state_history.erase_subject(node)
-	_rb_input_history.erase_subject(node)
-	_sync_history.erase_subject(node)
+	_rb_state_history.erase_subject(subject)
+	_rb_input_history.erase_subject(subject)
+	_sync_history.erase_subject(subject)
 
 	# Erase from per-tick history
 	for history in [_rb_state_snapshots, _rb_input_snapshots, _sync_state_snapshots]:
 		for value in history.values():
 			var snapshot := value as _Snapshot
-			snapshot.erase_subject(node)
+			snapshot.erase_subject(subject)
 
 ## Do not record [param subject]
 ## [br][br]
@@ -83,7 +83,7 @@ func deregister(node: Node) -> void:
 ## [br][br]
 ## Subjects stay ignored until [method flush_ignores] is called. This is done
 ## by default after every rollback tick.
-func ignore(subject: Node) -> void:
+func ignore(subject: Object) -> void:
 	_ignored_subjects.add(subject)
 
 ## Clear the list of ignored subjects
@@ -122,7 +122,7 @@ func get_input_age_for(subjects: Array, tick: int) -> int:
 
 ## Record currently registered rollback state properties for [param subject] at
 ## [param tick].
-func push_rollback_state(subject: Node, tick: int) -> void:
+func push_rollback_state(subject: Object, tick: int) -> void:
 	var subject_snapshot := _rb_state_history.ensure_snapshot(tick, subject, false)
 	if subject_snapshot == null:
 		_logger.warning("Dropping seeded state @%d for subject %s as out-of-bounds", [tick, subject])
@@ -132,7 +132,7 @@ func push_rollback_state(subject: Node, tick: int) -> void:
 	if not _rb_state_snapshots.has_at(tick):
 		_rb_state_snapshots.set_at(tick, snapshot)
 
-	var is_auth := subject.is_multiplayer_authority()
+	var is_auth := NetworkObjectServer.is_authority_of(subject)
 	for property in _rb_state_properties.get_properties_of(subject):
 		subject_snapshot.record_property(property)
 		snapshot.record_property(subject, property)
@@ -197,8 +197,6 @@ func _record(tick: int, history: _PerObjectHistory, snapshots: _HistoryBuffer, p
 		snapshots.set_at(tick, snapshot)
 
 	for subject in property_pool.get_subjects():
-		assert(subject is Node, "Only nodes supported for now!")
-
 		# Don't record history when subject is not alive to prevent state corruption.
 		if history == _rb_state_history and not RollbackLivenessServer.is_alive(subject, tick - 1):
 			continue

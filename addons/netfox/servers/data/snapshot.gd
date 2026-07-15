@@ -108,12 +108,11 @@ func apply() -> void:
 			var value = _data[subject][property]
 			(subject as Object).set_indexed(property, value)
 
-func sanitize(sender: int) -> void:
+func sanitize(sender: int, network_object_server: _NetworkObjectServer = NetworkObjectServer) -> void:
 	var invalid_subjects := []
 	for subject in _data:
-		if subject is Node:
-			if subject.get_multiplayer_authority() != sender:
-				invalid_subjects.append(subject)
+		if not network_object_server.is_authority_of(subject, sender):
+			invalid_subjects.append(subject)
 
 	for subject in invalid_subjects:
 		_data.erase(invalid_subjects)

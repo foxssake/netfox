@@ -14,7 +14,7 @@ class_name _InterpolationServer
 ##
 
 var _properties := _PropertyPool.new()
-var _interpolators: Dictionary = {}    # {subject Node: {property_path String: Interpolator}}
+var _interpolators: Dictionary = {}    # {subject Object: {property_path String: Interpolator}}
 
 var _state_from := _Snapshot.new(0)
 var _state_to := _Snapshot.new(0)
@@ -31,7 +31,7 @@ static var _logger := NetfoxLogger._for_netfox("InterpolationServer")
 ## for interpolation and recording. Call [method set_enabled] and
 ## [method set_recording] to configure the subject after registration. If the
 ## property is already registered for this subject, nothing happens.
-func register(subject: Node, property: NodePath, interpolator: Interpolators.Interpolator = null) -> void:
+func register(subject: Object, property: NodePath, interpolator: Interpolators.Interpolator = null) -> void:
 	if not _properties.has_subject(subject):
 		# Subject wasn't registered before, setup defaults
 		_interpolators[subject] = {}
@@ -50,7 +50,7 @@ func register(subject: Node, property: NodePath, interpolator: Interpolators.Int
 		_interpolators[subject][property] = interpolator
 
 ## Deregister all properties for a [param subject].
-func deregister(subject: Node) -> void:
+func deregister(subject: Object) -> void:
 	_state_from.erase_subject(subject)
 	_state_to.erase_subject(subject)
 
@@ -62,13 +62,13 @@ func deregister(subject: Node) -> void:
 	_teleporting.erase(subject)
 
 ## Return true if the [param subject] is registered.
-func has_subject(subject: Node) -> bool:
+func has_subject(subject: Object) -> bool:
 	return _properties.has_subject(subject)
 
 ## Enable or disable interpolation for a [param subject].
 ## [br][br]
 ## See [method is_enabled].
-func set_enabled(subject: Node, enabled: bool) -> void:
+func set_enabled(subject: Object, enabled: bool) -> void:
 	if enabled:
 		_enabled.add(subject)
 	else:
@@ -79,13 +79,13 @@ func set_enabled(subject: Node, enabled: bool) -> void:
 ## If the subject is enabled, it will be interpolated between ticks.
 ## [br][br]
 ## See [method set_enabled].
-func is_enabled(subject: Node) -> bool:
+func is_enabled(subject: Object) -> bool:
 	return _enabled.has(subject)
 
 ## Enable or disable automatic state recording for a [param subject].
 ## [br][br]
 ## See [method is_recording].
-func set_recording(subject: Node, enabled: bool) -> void:
+func set_recording(subject: Object, enabled: bool) -> void:
 	if enabled:
 		_recording_enabled.add(subject)
 	else:
@@ -97,14 +97,14 @@ func set_recording(subject: Node, enabled: bool) -> void:
 ## automatically. Use [method push_state] to update manually.
 ## [br][br]
 ## See [method set_recording].
-func is_recording(subject: Node) -> bool:
+func is_recording(subject: Object) -> bool:
 	return _recording_enabled.has(subject)
 
 ## Return true if interpolation can be done for a [param subject].
 ## [br][br]
 ## May return false for multiple reasons - subject is unknown, not enabled for
 ## interpolation, or is currently teleporting.
-func can_interpolate(subject: Node) -> bool:
+func can_interpolate(subject: Object) -> bool:
 	if not has_subject(subject):
 		# Unknown subject, can't interpolate
 		return false
@@ -120,7 +120,7 @@ func can_interpolate(subject: Node) -> bool:
 ## Record current state for interpolation.
 ## [br][br]
 ## Called automatically, unless disabled with [method set_recording].
-func push_state(subject: Node) -> void:
+func push_state(subject: Object) -> void:
 	if not has_subject(subject):
 		_logger.warning("Trying to push state for unregistered subject %s", [subject])
 		return
@@ -139,7 +139,7 @@ func push_state(subject: Node) -> void:
 			_state_to.set_property(subject, property, value)
 
 ## Skip interpolation for this tick.
-func teleport(subject: Node) -> void:
+func teleport(subject: Object) -> void:
 	if is_teleporting(subject):
 		return
 	if not has_subject(subject):
@@ -151,13 +151,13 @@ func teleport(subject: Node) -> void:
 ## Return true if the [param subject] is currently teleporting.
 ## [br][br]
 ## See [method teleport].
-func is_teleporting(subject: Node) -> bool:
+func is_teleporting(subject: Object) -> bool:
 	return _teleporting.has(subject)
 
 ## Interpolate properties for a [param subject].
 ## [br][br]
 ## Called automatically by default.
-func interpolate_subject(subject: Node, factor: float) -> void:
+func interpolate_subject(subject: Object, factor: float) -> void:
 	if not can_interpolate(subject):
 		return
 

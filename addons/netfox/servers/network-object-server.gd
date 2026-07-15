@@ -1,6 +1,8 @@
 extends Node
 class_name _NetworkObjectServer
 
+# @public class
+
 var resource_load_mode := ResourceLoadMode.ALLOW_LIST
 
 var _registered_objects := {} # string to object
@@ -30,12 +32,14 @@ func register(path: String, object: Object) -> void:
 	_registered_objects[path] = object
 	_object_paths[object] = path
 
-func deregister(path: String) -> void:
-	if _registered_objects.has(path):
-		var object := _registered_objects.get(path)
-		
+func deregister(object: Object) -> void:
+	if has(object):
+		var path := get_path_of(object)
 		_registered_objects.erase(path)
 		_object_paths.erase(object)
+
+func has(object: Object) -> bool:
+	return _registered_objects.has(object)
 
 func get_path_of(object: Object) -> String:
 	if object is Node:
@@ -83,6 +87,20 @@ func set_authority_of(object: Object, authority: int, recursive: bool = true) ->
 		object.set_multiplayer_authority(authority, recursive)
 	else:
 		_authorities[object] = authority
+
+func is_authority_of(object: Object, peer: int = multiplayer.get_unique_id()) -> bool:
+	return get_authority_of(object) == peer
+
+func queue_free_object(object: Object) -> void:
+	deregister(object)
+	
+	if object is Node:
+		object.queue_free()
+	elif object is Resource:
+		# TODO: Does it make sense to free a Resource?
+		object.free()
+	else:
+		object.free()
 
 func _try_fetch_resource(path: String) -> Resource:
 	match resource_load_mode:

@@ -68,79 +68,79 @@ signal _on_state(snapshot: _Snapshot)
 
 ## Register a [param property] of [param node] to be synchronized
 ## as rollback state
-func register_rollback_state(node: Node, property: NodePath) -> void:
-	_rb_state_properties.add(node, property)
-	if node.is_multiplayer_authority():
-		_rb_owned_state_properties.add(node, property)
+func register_rollback_state(subject: Object, property: NodePath) -> void:
+	_rb_state_properties.add(subject, property)
+	if NetworkObjectServer.is_authority_of(subject):
+		_rb_owned_state_properties.add(subject, property)
 
 ## Deregister a [param property] of [param node] from being
 ## synchronized as rollback state
-func deregister_rollback_state(node: Node, property: NodePath) -> void:
-	_rb_state_properties.erase(node, property)
-	_rb_owned_state_properties.erase(node, property)
+func deregister_rollback_state(subject: Object, property: NodePath) -> void:
+	_rb_state_properties.erase(subject, property)
+	_rb_owned_state_properties.erase(subject, property)
 
 ## Register a [param property] of [param node] to be synchronized
 ## as rollback input
-func register_rollback_input(node: Node, property: NodePath) -> void:
-	_rb_input_properties.add(node, property)
-	if node.is_multiplayer_authority():
-		_rb_owned_input_properties.add(node, property)
+func register_rollback_input(subject: Object, property: NodePath) -> void:
+	_rb_input_properties.add(subject, property)
+	if NetworkObjectServer.is_authority_of(subject):
+		_rb_owned_input_properties.add(subject, property)
 
 ## Deregister a [param property] of [param node] from being
 ## synchronized as rollback input
-func deregister_rollback_input(node: Node, property: NodePath) -> void:
-	_rb_input_properties.erase(node, property)
-	_rb_owned_input_properties.erase(node, property)
+func deregister_rollback_input(subject: Object, property: NodePath) -> void:
+	_rb_input_properties.erase(subject, property)
+	_rb_owned_input_properties.erase(subject, property)
 
 ## Register a [param property] of [param node] to be synchronized
 ## as synchronized state
-func register_sync_state(node: Node, property: NodePath) -> void:
-	_sync_state_properties.add(node, property)
-	if node.is_multiplayer_authority():
-		_sync_owned_state_properties.add(node, property)
+func register_sync_state(subject: Object, property: NodePath) -> void:
+	_sync_state_properties.add(subject, property)
+	if NetworkObjectServer.is_authority_of(subject):
+		_sync_owned_state_properties.add(subject, property)
 
 ## Deregister a [param property] of [param node] from being
 ## synchronized as synchronized state
-func deregister_sync_state(node: Node, property: NodePath) -> void:
-	_sync_state_properties.erase(node, property)
-	_sync_owned_state_properties.erase(node, property)
+func deregister_sync_state(subject: Object, property: NodePath) -> void:
+	_sync_state_properties.erase(subject, property)
+	_sync_owned_state_properties.erase(subject, property)
 
 ## Register a [param serializer] to use when transmitting
 ## [param property param] of [param node] over the network
-func register_schema(node: Node, property: NodePath, serializer: NetworkSchemaSerializer) -> void:
-	_schemas.add(node, property, serializer)
+func register_schema(subject: Object, property: NodePath, serializer: NetworkSchemaSerializer) -> void:
+	_schemas.add(subject, property, serializer)
 
 ## Deregister any serializers used for [param property] on
 ## [param node] when transmitting over the network
-func deregister_schema(node: Node, property: NodePath) -> void:
-	_schemas.erase(node, property)
+func deregister_schema(subject: Object, property: NodePath) -> void:
+	_schemas.erase(subject, property)
 
 ## Deregister all serializers registered for any properties of
 ## [param node]
-func deregister_schema_for(node: Node) -> void:
-	_schemas.erase_subject(node)
+func deregister_schema_for(subject: Object) -> void:
+	_schemas.erase_subject(subject)
 
 ## Register a visibility [param filter] for use with [param node]
-func register_visibility_filter(node: Node, filter: PeerVisibilityFilter) -> void:
-	_visibility_filters[node] = filter
+func register_visibility_filter(subject: Object, filter: PeerVisibilityFilter) -> void:
+	_visibility_filters[subject] = filter
 
 ## Deregister the visibility filter used for [param node]
-func deregister_visibility_filter(node: Node) -> void:
-	_visibility_filters.erase(node)
+func deregister_visibility_filter(subject: Object) -> void:
+	_visibility_filters.erase(subject)
 
 ## Deregister any and all settings associated with [param node]
-func deregister(node: Node) -> void:
-	_rb_state_properties.erase_subject(node)
-	_rb_input_properties.erase_subject(node)
-	_rb_owned_state_properties.erase_subject(node)
-	_rb_owned_input_properties.erase_subject(node)
-	_sync_state_properties.erase_subject(node)
-	_sync_owned_state_properties.erase_subject(node)
-	_visibility_filters.erase(node)
-	_schemas.erase_subject(node)
+func deregister(subject: Object) -> void:
+	_rb_state_properties.erase_subject(subject)
+	_rb_input_properties.erase_subject(subject)
+	_rb_owned_state_properties.erase_subject(subject)
+	_rb_owned_input_properties.erase_subject(subject)
+	_sync_state_properties.erase_subject(subject)
+	_sync_owned_state_properties.erase_subject(subject)
+	_visibility_filters.erase(subject)
+	_schemas.erase_subject(subject)
 
-func _is_node_visible_to(peer: int, node: Node) -> bool:
-	var filter := _visibility_filters.get(node) as PeerVisibilityFilter
+func _is_subject_visible_to(peer: int, subject: Object) -> bool:
+	var filter := _visibility_filters.get(subject) as PeerVisibilityFilter
 	if not filter:
 		return true
 	else:
@@ -161,11 +161,11 @@ func _synchronize_input(tick: int) -> void:
 		# Grab owned input objects
 		for input_subject in _rb_owned_input_properties.get_subjects():
 			# Grab state objects controlled by input
-			var controlled_nodes := RollbackSimulationServer._get_controlled_by(input_subject)
+			var controlled_subjects := RollbackSimulationServer._get_controlled_by(input_subject)
 
 			# Notify peers owning nodes about the input
-			for node in controlled_nodes:
-				notified_peers.add(node.get_multiplayer_authority())
+			for subject in controlled_subjects:
+				notified_peers.add(NetworkObjectServer.get_authority_of(subject))
 	else:
 		# If input broadcast is on, send inputs to everyone
 		for peer in multiplayer.get_peers():
@@ -217,7 +217,7 @@ func _synchronize_state(tick: int) -> void:
 	if is_full:
 		# Send full states
 		for peer in multiplayer.get_peers():
-			var filter := func(subject): return _is_node_visible_to(peer, subject)
+			var filter := func(subject): return _is_subject_visible_to(peer, subject)
 
 			var packets := _dense_serializer.write_for(peer, snapshot, _rb_owned_state_properties, filter)
 			for packet in packets:
@@ -233,7 +233,7 @@ func _synchronize_state(tick: int) -> void:
 
 		# Send diff states
 		for peer in multiplayer.get_peers():
-			var filter := func(subject): return _is_node_visible_to(peer, subject)
+			var filter := func(subject): return _is_subject_visible_to(peer, subject)
 
 			var packets := _sparse_serializer.write_for(peer, diff, _rb_owned_state_properties, filter)
 			for packet in packets:
@@ -260,7 +260,7 @@ func _synchronize_sync_state(tick: int) -> void:
 	if is_full:
 		# Send full states
 		for peer in multiplayer.get_peers():
-			var filter := func(subject): return _is_node_visible_to(peer, subject)
+			var filter := func(subject): return _is_subject_visible_to(peer, subject)
 
 			var packets := _dense_serializer.write_for(peer, snapshot, _sync_owned_state_properties, filter)
 			for packet in packets:
@@ -273,7 +273,7 @@ func _synchronize_sync_state(tick: int) -> void:
 
 		# Send diffs
 		for peer in multiplayer.get_peers():
-			var filter := func(subject): return _is_node_visible_to(peer, subject)
+			var filter := func(subject): return _is_subject_visible_to(peer, subject)
 
 			var packets := _sparse_serializer.write_for(peer, diff, _sync_owned_state_properties, filter)
 			for packet in packets:

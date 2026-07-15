@@ -20,6 +20,9 @@ class_name _NetworkIdentityServer
 ## nodes ( like RollbackSynchronizer ), and usually doesn't need to be done
 ## manually.
 
+# TODO: Refactor so identities only track paths, which are then resolved by 
+# NetworkObjectServer?
+
 var _command_server: _NetworkCommandServer
 
 var _next_id := 0
@@ -73,9 +76,15 @@ func register_node(node: Node) -> void:
 		return
 	_register(node, node.get_path())
 
+func register(subject: Object) -> void:
+	_register(subject, NetworkObjectServer.get_path_of(subject))
+
 ## Deregister a node, freeing all identity data associated with it
 func deregister_node(node: Node) -> void:
 	_deregister(node)
+
+func deregister(subject: Object) -> void:
+	_deregister(subject)
 
 ## Free all identity data associated with [param peer]
 ## [br][br]

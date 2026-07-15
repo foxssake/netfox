@@ -33,7 +33,7 @@ static var _logger := NetfoxLogger._for_netfox("RollbackLivenessServer")
 ## [br][br]
 ## Note that any [Callable] can be used. This could be a method on the subject
 ## itself, or on any other object, e.g. a central orchestrator.
-func register(subject: Node, respawn_callback: Callable, despawn_callback: Callable, destroy_callback: Callable = _free_subject.bind(subject), spawn_tick: int = NetworkRollback.tick) -> void:
+func register(subject: Object, respawn_callback: Callable, despawn_callback: Callable, destroy_callback: Callable = _free_subject.bind(subject), spawn_tick: int = NetworkRollback.tick) -> void:
 	if is_registered(subject):
 		_logger.warning("Re-registering subject: %s", [subject])
 		return
@@ -46,14 +46,14 @@ func register(subject: Node, respawn_callback: Callable, despawn_callback: Calla
 	spawn(subject, spawn_tick)
 
 ## Return true if [param subject] is registered for liveness tracking.
-func is_registered(subject: Node) -> bool:
+func is_registered(subject: Object) -> bool:
 	return _has_subject(subject)
 
 ## Deregister [param subject] from liveness tracking.
 ## [br][br]
 ## Note that its liveness will not be updated - if the subject was despawned
 ## before being deregistered, it will not be respawned.
-func deregister(subject: Node) -> void:
+func deregister(subject: Object) -> void:
 	_respawn_callback.erase(subject)
 	_despawn_callback.erase(subject)
 	_destroy_callback.erase(subject)
@@ -65,7 +65,7 @@ func deregister(subject: Node) -> void:
 ## Unknown subjects will always be considered alive. [br]
 ## If a subject is despawned, it will only become dead on the next tick. This
 ## allows the despawn logic to run in rollback.
-func is_alive(subject: Node, tick: int) -> bool:
+func is_alive(subject: Object, tick: int) -> bool:
 	# Unknown subjects are always alive, don't despawn
 	if not is_registered(subject): return true
 
@@ -77,11 +77,11 @@ func is_alive(subject: Node, tick: int) -> bool:
 	return tick >= spawn_at and tick <= despawn_at
 
 ## Mark the [param subject]'s spawn at [param tick].
-func spawn(subject: Node, tick: int = NetworkRollback.tick) -> void:
+func spawn(subject: Object, tick: int = NetworkRollback.tick) -> void:
 	_spawn_tick[subject] = tick
 
 ## Mark the [param subject]'s despawn at [param tick].
-func despawn(subject: Node, tick: int = NetworkRollback.tick) -> void:
+func despawn(subject: Object, tick: int = NetworkRollback.tick) -> void:
 	if not is_registered(subject):
 		_logger.warning(
 			"Trying to despawn unknown subject: %s; " +
@@ -92,7 +92,7 @@ func despawn(subject: Node, tick: int = NetworkRollback.tick) -> void:
 	_despawn_tick[subject] = tick
 
 ## Clear any previously set despawn tick for [param subject].
-func clear_despawn(subject: Node) -> void:
+func clear_despawn(subject: Object) -> void:
 	_despawn_tick.erase(subject)
 
 ## Restore the liveness of all subjects as it was on [param tick].
@@ -128,5 +128,5 @@ func _subjects() -> Array:
 func _has_subject(subject: Object) -> bool:
 	return _respawn_callback.has(subject)
 
-func _free_subject(subject: Node) -> void:
-	subject.queue_free()
+func _free_subject(subject: Object) -> void:
+	NetworkObjectServer.queue_free_object(subject)
