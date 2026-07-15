@@ -38,7 +38,7 @@ func _ready() -> void:
 # Emitted before a tick is run.
 func before_tick(_delta: float, tick: int) -> void:
 	_snapshot_space(tick)
-	step_physics(_delta)
+	step_physics(_delta, tick)
 
 func on_prepare_tick(tick: int) -> void:
 	if NetworkRollback._rollback_from == tick:
@@ -48,8 +48,8 @@ func on_prepare_tick(tick: int) -> void:
 		# Subsequent ticks are re-writing history.
 		_snapshot_space(tick)
 
-func on_process_tick(_tick: int) -> void:
-	step_physics(NetworkTime.ticktime)
+func on_process_tick(tick: int) -> void:
+	step_physics(NetworkTime.ticktime, tick)
 
 func after_tick_loop() -> void:
 	# Remove old snapshots
@@ -57,13 +57,14 @@ func after_tick_loop() -> void:
 		if i < NetworkRollback.history_start:
 			snapshots.erase(i)
 
-func step_physics(_delta: float) -> void:
+# tick is either the current tick, or the tick being resimulated (if rollback is active)
+func step_physics(_delta: float, tick: int) -> void:
 	# Break up physics into smaller steps if needed
 	var frac_delta = _delta / physics_factor
 	var rollback_participants = get_tree().get_nodes_in_group("network_rigid_body")
 	for i in range(physics_factor):
 		for net_rigid_body in rollback_participants:
-			net_rigid_body._physics_rollback_tick(frac_delta, NetworkTime.tick)
+			net_rigid_body._physics_rollback_tick(frac_delta, tick)
 
 		_physics_step(frac_delta)
 

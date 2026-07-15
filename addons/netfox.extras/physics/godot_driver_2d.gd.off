@@ -33,8 +33,17 @@ func _snapshot_space(tick: int) -> void:
 func _rollback_space(tick) -> void:
 	if snapshots.has(tick):
 		var rid_states = snapshots[tick]
+
+		# Collect valid RIDs to avoid restoring state for freed bodies
+		var valid_rids := {}
+		for body in scene_collision_objects:
+			if is_instance_valid(body):
+				valid_rids[body.get_rid()] = true
+		
 		for rid in rid_states.keys():
-			set_body_states(rid, rid_states[rid])
+			# Skip bodies freed (eg: despawned) since the snapshot was taken
+			if valid_rids.has(rid):
+				set_body_states(rid, rid_states[rid])
 			
 		for body in scene_collision_objects:
 			if body is CharacterBody2D or body is AnimatableBody2D:
