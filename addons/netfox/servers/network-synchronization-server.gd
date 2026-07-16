@@ -395,6 +395,7 @@ func _synchronize_simulator(tick: int) -> void:
 			var data := _dense_serializer.write_for(peer, snapshot, _simulator_owned_properties, filter)
 			if data.is_empty():
 				# Peer can't see anything, send nothing
+				_logger.trace("Peer cant see anything, not sending.")
 				continue
 			
 			_logger.trace("Submitting simulator full state:%s to peer:%s", [snapshot, peer])

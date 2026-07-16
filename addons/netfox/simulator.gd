@@ -77,9 +77,14 @@ func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
 	
-	if not NetworkTime.is_initial_sync_done():
-		# Wait for time sync to complete
-		await NetworkTime.after_sync
+	process_settings.call_deferred()
+	
+	# Reprocess authority on connect
+	if NetworkEvents.enabled:
+		# User might change `multiplayer` - `NetworkEvents` handles that
+		NetworkEvents.on_client_start.connect(func(__): process_settings())
+	else:
+		multiplayer.connected_to_server.connect(process_settings)
 
 func _enter_tree() -> void:
 	if Engine.is_editor_hint():
@@ -89,27 +94,28 @@ func _enter_tree() -> void:
 	
 	if not visibility_filter:
 		visibility_filter = PeerVisibilityFilter.new()
-	
+
 	if not visibility_filter.get_parent():
 		add_child(visibility_filter)
-	
-	if not NetworkTime.is_initial_sync_done():
-		# Wait for time sync to complete
-		await NetworkTime.after_sync
-	
-	process_settings.call_deferred()
 
 func _exit_tree() -> void:
+	if Engine.is_editor_hint():
+		return
+	
 	_managed_roots.erase(root)
+	
+	
+	for node in _sim_nodes + _state_properties.get_subjects():
+		NetworkSynchronizationServer.deregister(node)
+		NetworkIdentityServer.deregister_node(node)
+		NetworkHistoryServer.deregister(node)
+	
+	SimulatorServer.deregister_simulator(self)
+
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_EDITOR_PRE_SAVE:
 		update_configuration_warnings()
-	elif what == NOTIFICATION_PREDELETE:
-		for node in _sim_nodes + _state_properties.get_subjects():
-			NetworkSynchronizationServer.deregister(node)
-			NetworkIdentityServer.deregister_node(node)
-			NetworkHistoryServer.deregister(node)
 
 func _get_configuration_warnings() -> PackedStringArray:
 	if not root:
@@ -157,7 +163,7 @@ func process_settings() -> void:
 ## Make sure to do this at the same time on all peers.
 func process_authority():
 	# First de-register.
-	SimulatorServer._deregister_simulator(self)
+	SimulatorServer.deregister_simulator(self)
 	
 	for node in _state_properties.get_subjects():
 		for property in _state_properties.get_properties_of(node):
@@ -177,7 +183,7 @@ func process_authority():
 			NetworkHistoryServer.register_simulator(node, property)
 			NetworkSynchronizationServer.register_simulator(node, property)
 	
-	SimulatorServer._register_simulator(self)
+	SimulatorServer.register_simulator(self)
 
 ## Add a state property.
 ## [br][br]

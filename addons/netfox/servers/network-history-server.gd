@@ -214,6 +214,38 @@ func _record_simulator(tick: int) -> void:
 		return subject.is_multiplayer_authority()
 	)
 
+# Records given simulator for given tick.
+func _record_individual_simulator(simulator : Simulator, tick: int) -> void:
+	var snapshot := _simulator_snapshots.get_at(tick, _Snapshot.new(tick)) as _Snapshot
+	
+	if not _simulator_snapshots.has_at(tick):
+		_simulator_snapshots.set_at(tick, snapshot)
+	
+	var property_pool := _PropertyPool.new()
+	property_pool.set_from_paths(simulator, simulator.state_properties)
+	
+	for subject in property_pool.get_subjects():
+		assert(subject is Node, "Only nodes supported forn now!")
+		
+		var is_auth := subject.is_multiplayer_authority() as bool
+		
+		if not is_auth:
+			continue
+		if not is_auth and _simulator_history.is_auth(tick, subject):
+			continue
+		
+		var subject_snapshot := _simulator_history.ensure_snapshot(tick, subject, false)
+		if subject_snapshot == null:
+			_logger.warning("Dropping recorded tick @%d for subject %s as out-of-bounds", [tick, subject])
+			continue
+		
+		assert(not property_pool.get_properties_of(subject).is_empty(), "Subject present in property pool without properties! Please report a bug!")
+		for property in property_pool.get_properties_of(subject):
+			subject_snapshot.record_property(property)
+			snapshot.record_property(subject, property)
+		snapshot.set_auth(subject, is_auth)
+		subject_snapshot.set_auth(is_auth)
+
 func _restore_rollback_input(tick: int) -> bool:
 	return _restore_latest(tick, _rb_input_history)
 
@@ -321,6 +353,7 @@ func _restore_latest(tick: int, history: _PerObjectHistory) -> bool:
 			any_applied = true
 
 			match history:
+				_simulator_history: _logger.trace("Restored simulation state @%d: %s", [tick, snapshot])
 				_rb_input_history: _logger.trace("Restored input @%d: %s", [tick, snapshot])
 				_rb_state_history: _logger.trace("Restored state @%d: %s", [tick, snapshot])
 
