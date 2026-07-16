@@ -77,6 +77,23 @@ var _saved_inputs_snapshot : _PropertySnapshot
 var _property_cache: PropertyCache
 var _property_entries: Array[PropertyEntry] = []
 
+func _ready() -> void:
+	if Engine.is_editor_hint():
+		return
+	
+	# DANGER we dont do deferred call here, because Simulator node depends on
+	# has_authority_over_input to determine its register logic.
+	# Therefore it is needed that input-sender is registered and ready to
+	# return the result of that helper function.
+	process_settings()
+	
+	# Reprocess authority on connect
+	if NetworkEvents.enabled:
+		# User might change `multiplayer` - `NetworkEvents` handles that
+		NetworkEvents.on_client_start.connect(func(__): process_settings())
+	else:
+		multiplayer.connected_to_server.connect(process_settings)
+
 func _enter_tree() -> void:
 	if Engine.is_editor_hint():
 		return
@@ -86,12 +103,6 @@ func _enter_tree() -> void:
 	
 	if not visibility_filter.get_parent():
 		add_child(visibility_filter)
-	
-	if not NetworkTime.is_initial_sync_done():
-		# Wait for time sync to complete
-		await NetworkTime.after_sync
-	
-	process_settings.call_deferred()
 
 func _exit_tree():
 	if Engine.is_editor_hint():

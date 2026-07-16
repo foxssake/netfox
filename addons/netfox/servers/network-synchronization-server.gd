@@ -379,7 +379,13 @@ func _synchronize_simulator(tick: int) -> void:
 		return
 	
 	var snapshot := NetworkHistoryServer._get_simulator_snapshot(tick)
+	
 	if not snapshot:
+		# No data for tick
+		return
+
+	if snapshot.is_empty():
+		# Nothing to send
 		return
 	
 	# Figure out whether to send full- or diff state
@@ -391,38 +397,11 @@ func _synchronize_simulator(tick: int) -> void:
 		# Send full states
 		for peer in multiplayer.get_peers():
 			var filter := func(subject): return _is_node_visible_to(peer, subject)
-			
-			var data := _dense_serializer.write_for(peer, snapshot, _simulator_owned_properties, filter)
-			if data.is_empty():
-				# Peer can't see anything, send nothing
-				_logger.trace("Peer cant see anything, not sending.")
-				continue
-			
-			_logger.trace("Submitting simulator full state:%s to peer:%s", [snapshot, peer])
-			_cmd_full_simulator.send(data, peer)
-			
-			NetworkPerformance.push_full_state_props(snapshot.size())
-			NetworkPerformance.push_sent_state_props(snapshot.size())
-	else:
-		var diff := _Snapshot.make_patch(_last_simulator_state_sent, snapshot)
-		
-		# Send diffs
-		for peer in multiplayer.get_peers():
-			var filter := func(subject): return _is_node_visible_to(peer, subject)
-			
-			var data := _sparse_serializer.write_for(peer, diff, _simulator_owned_properties, filter)
-			if data.is_empty():
-				# Peer can't see anything, send nothing
-				continue
-			
-			_cmd_diff_simulator.send(data, peer)
-			
-			NetworkPerformance.push_full_state_props(snapshot.size())
-			NetworkPerformance.push_sent_state_props(diff.size())
-	
-	# Remember last sent state for diffing
-	# NOTE: This is a shared instance, theoretically shouldn't screw things up
-	_last_simulator_state_sent = snapshot
+
+			var packets := _dense_serializer.write_for(peer, snapshot, _simulator_owned_properties, filter)
+			for packet in packets:
+				_logger.trace("Submitting simulator full state:%s to peer:%s", [snapshot, peer])
+				_cmd_full_simulator.send(packet, peer)
 
 func _init(
 		p_command_server: _NetworkCommandServer = null,

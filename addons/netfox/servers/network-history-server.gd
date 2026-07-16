@@ -214,7 +214,12 @@ func _record_simulator(tick: int) -> void:
 		return subject.is_multiplayer_authority()
 	)
 
-# Records given simulator for given tick.
+# Records given simulator for given tick even though it doesnt have authority.
+# This function is used by SimulatorServer to record simulators that we own 
+# input but not state.
+# As a design perspective, a game should have max 1-2 simulators like this.
+# So this is not really expensive and not usually used on servers.
+# No auth snapshot is overriden.
 func _record_individual_simulator(simulator : Simulator, tick: int) -> void:
 	var snapshot := _simulator_snapshots.get_at(tick, _Snapshot.new(tick)) as _Snapshot
 	
@@ -225,13 +230,11 @@ func _record_individual_simulator(simulator : Simulator, tick: int) -> void:
 	property_pool.set_from_paths(simulator, simulator.state_properties)
 	
 	for subject in property_pool.get_subjects():
-		assert(subject is Node, "Only nodes supported forn now!")
+		assert(subject is Node, "Only nodes supported for now!")
 		
 		var is_auth := subject.is_multiplayer_authority() as bool
 		
-		if not is_auth:
-			continue
-		if not is_auth and _simulator_history.is_auth(tick, subject):
+		if _simulator_history.is_auth(tick, subject):
 			continue
 		
 		var subject_snapshot := _simulator_history.ensure_snapshot(tick, subject, false)

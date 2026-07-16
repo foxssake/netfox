@@ -67,27 +67,6 @@ func _ready():
 	if not _history_server: _history_server = NetworkHistoryServer
 	if not _synchronization_server: _synchronization_server = NetworkSynchronizationServer
 	
-	# Just like rollback, record and synchronize after tick.
-	# We only need to record _host_puppet_simulators and _host_simulators.
-	# _host_simulators are saved individually.
-#	NetworkTime.after_tick.connect(func(_dt, tick):
-#
-#		for simulator in _host_simulators:
-#			_history_server.ignore(simulator)
-#
-#		for simulator in _local_authoritative_simulators:
-#			_history_server.ignore(simulator)
-#
-#		for simulator in _client_puppet_simulators:
-#			_history_server.ignore(simulator)
-#
-#		if tick - _simulation_host_delay_ticks >= 0:
-#			_history_server._record_simulator(tick - _simulation_host_delay_ticks)
-#			_synchronization_server._synchronize_simulator(tick - _simulation_host_delay_ticks)
-#
-#		_history_server.flush_ignores()
-#	)
-	
 	# We do our simulating logic after tick loop, similiar to rollback in general.
 	# TODO if we find out that physics dont work like this, find better timing.
 	NetworkTime.after_tick_loop.connect(_after_tick_loop)
@@ -97,18 +76,11 @@ func _after_tick_loop() -> void:
 	_handle_host_puppet_simulators()
 	_handle_local_authoritative_simulators()
 	
-	# We only need to save host_simulators and _host_puppet_simulators.
-	for simulator in _local_authoritative_simulators:
-		_history_server.ignore(simulator)
-	
-	for simulator in _client_puppet_simulators:
-		_history_server.ignore(simulator)
-	
 	if  NetworkTime.tick - _simulation_host_delay_ticks >= 0:
+		# History server only records owned simulator state properties.
 		_history_server._record_simulator(NetworkTime.tick - _simulation_host_delay_ticks)
 		_synchronization_server._synchronize_simulator(NetworkTime.tick - _simulation_host_delay_ticks)
 	
-	_history_server.flush_ignores()
 	_history_server._restore_simulator(NetworkTime.tick)
 
 ## 1- host simulator:
@@ -121,19 +93,16 @@ func _handle_host_simulators() -> void:
 	
 	for simulator in _host_simulators:
 		
-		var input_snapshot := _history_server._get_input_sender_snapshot(current_tick - 1)
-		
-		if not input_snapshot:
-			_logger.error("Host simulator: %s should have had inputs available for tick %s\
-			skipping simulation.", [simulator, current_tick])
-			
-			continue
-		
 		# Save input properties before messing them up.
 		simulator.listened_input_sender._save_properties()
 		
-		simulator.listened_input_sender._apply_snapshot_for_self(input_snapshot)
+		# Retrieve the input history and apply manually.
+		var input_history := _history_server._input_sender_history
+		for subject in simulator.listened_input_sender._input_properties.get_subjects():
+			input_history.ensure_snapshot(current_tick - 1, subject, true).apply()
+		
 		simulator._run_simulation(NetworkTime.ticktime, current_tick)
+		_history_server._record_individual_simulator(simulator, current_tick)
 		
 		# Restore messed up properties.
 		simulator.listened_input_sender._restore_properties()
@@ -143,9 +112,6 @@ func _handle_host_simulators() -> void:
 ## (input-sender inputs are recorded on after tick).
 ## - Apply the latest authoritative state received from host. (the truth)
 ## - Iterate over inputs and reach the current tick - 1.
-##
-## Latest authoritatiev state is already applied for us before calling this function.
-## Iteratre over inputs and reach the current tick - 1.
 func _handle_local_authoritative_simulators() -> void:
 	var current_tick := NetworkTime.tick
 	
@@ -154,21 +120,28 @@ func _handle_local_authoritative_simulators() -> void:
 		# Save input properties before messing them up.
 		simulator.listened_input_sender._save_properties()
 		
-		var latest_truth_tick := _history_server.get_latest_simulator_for(simulator.state_properties, current_tick)
+		var latest_truth_tick := _history_server.get_latest_simulator_for(
+			simulator._state_properties.get_subjects(),
+			current_tick)
 		
+		var latest_truth_snapshot := _history_server._get_simulator_snapshot(latest_truth_tick)
+		if latest_truth_snapshot:
+			simulator._apply_snapshot_for_self(latest_truth_snapshot)
+		
+		# Save inputs before messing input properties.
+		simulator.listened_input_sender._save_properties()
+		
+		# Retrieve the input history to apply it manually.
+		var input_history := _history_server._input_sender_history
 		for i in range(latest_truth_tick, current_tick):
 			
-			var input_snapshot := _history_server._get_simulator_snapshot(i)
+			for subject in simulator.listened_input_sender._input_properties.get_subjects():
+				var snapshot : _ObjectSnapshot = input_history.ensure_snapshot(i, subject, false)
+				if snapshot:
+					snapshot.apply()
 			
-			if not input_snapshot:
-				_logger.error("Host simulator: %s should have had inputs available for tick %s\
-				skipping simulation.", [simulator, current_tick])
-				
-				continue
-			
-			simulator.listened_input_sender._apply_snapshot_for_self(input_snapshot)
-			simulator._run_simulation(NetworkTime.ticktime, current_tick)
-			_history_server._record_individual_simulator(simulator, current_tick)
+			simulator._run_simulation(NetworkTime.ticktime, i)
+			_history_server._record_individual_simulator(simulator, i + 1)
 		
 		# Restore messed up properties.
 		simulator.listened_input_sender._restore_properties()
