@@ -7,6 +7,10 @@ class_name PhysicsDriver3D
 # Maps ticks ( int ) to global snapshots ( Dictionary<RID, Array> )
 var scene_collision_objects: Array = []
 
+# RIDs of tracked bodies currently in the tree. Snapshot entries whose
+# body has been freed are skipped for state updates in rollback
+var live_rids: Dictionary = {}
+
 func _init_physics_space() -> void:
 	physics_space = get_viewport().world_3d.space
 	PhysicsServer3D.space_set_active(physics_space, false)
@@ -29,18 +33,11 @@ func _snapshot_space(tick: int) -> void:
 	snapshots[tick] = rid_states
 
 func _rollback_space(tick) -> void:
-	if snapshots.has(tick):
-		var rid_states = snapshots[tick]
-
-		# Collect valid RIDs to avoid restoring state for freed bodies
-		var valid_rids := {}
-		for body in scene_collision_objects:
-			if is_instance_valid(body):
-				valid_rids[body.get_rid()] = true
-		
-		for rid in rid_states.keys():
-			# Skip bodies freed (eg: despawned) since the snapshot was taken
-			if valid_rids.has(rid):
+ 	if snapshots.has(tick):
+ 		var rid_states = snapshots[tick]
+ 		for rid in rid_states.keys():
+			# Skip bodies freed or removed since the snapshot was taken
+			if live_rids.has(rid):
 				set_body_states(rid, rid_states[rid])
 		
 		for body in scene_collision_objects:
@@ -65,6 +62,9 @@ func set_body_states(rid: RID, body_state: Array) -> void:
 func scan_tree():
 	scene_collision_objects.clear()
 	scene_collision_objects = get_all_children(get_node('/root'))
+	live_rids.clear()
+	for body in scene_collision_objects:
+		live_rids[body.get_rid()] = true
 
 func get_all_children(in_node: Node) -> Array:
 	var nodes = []
@@ -74,7 +74,9 @@ func get_all_children(in_node: Node) -> Array:
 func node_added(node: Node) -> void:
 	if node is PhysicsBody3D:
 		scene_collision_objects.append(node)
+		live_rids[node.get_rid()] = true
 
 func node_removed(node: Node) -> void:
 	if node is PhysicsBody3D:
 		scene_collision_objects.erase(node)
+		live_rids.erase(node.get_rid())
