@@ -36,9 +36,9 @@ func _ready() -> void:
 	_init_physics_space()
 
 # Emitted before a tick is run.
-func before_tick(_delta: float, tick: int) -> void:
+func before_tick(delta: float, tick: int) -> void:
 	_snapshot_space(tick)
-	step_physics(_delta, tick)
+	step_physics(delta, tick)
 
 func on_prepare_tick(tick: int) -> void:
 	if NetworkRollback._rollback_from == tick:
@@ -58,7 +58,7 @@ func after_tick_loop() -> void:
 			snapshots.erase(i)
 
 # tick is either the current tick, or the tick being resimulated (if rollback is active)
-func step_physics(_delta: float, tick: int) -> void:
+func step_physics(delta: float, tick: int) -> void:
 	# Break up physics into smaller steps if needed
 	var frac_delta = _delta / physics_factor
 	var rollback_participants = get_tree().get_nodes_in_group("network_rigid_body")
