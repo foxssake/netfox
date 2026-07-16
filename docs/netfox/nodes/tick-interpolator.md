@@ -5,6 +5,10 @@ Interpolates between network ticks to smooth out motion.
 Uses [Interpolators] under the hood to support various data types. To read more
 on best practices, see [Interpolation caveats].
 
+!!! note
+    When running in headless mode, interpolation is disabled by default, since
+    no rendering is taking place.
+
 ## Configuring interpolation
 
 To use *TickInterpolator*, add it as a child to the target node, specify the
