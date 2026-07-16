@@ -209,6 +209,11 @@ var SETTINGS: Array[Dictionary] = [
 		"value": 64,
 		"type" : TYPE_INT
 	},
+	{
+		"name": "netfox/simulator/host_delay_ticks",
+		"value": 8,
+		"type" : TYPE_INT
+	},
 ]
 
 const AUTOLOADS: Array[Dictionary] = [

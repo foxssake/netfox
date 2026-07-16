@@ -375,6 +375,7 @@ func _synchronize_input_sender(tick: int) -> void:
 func _synchronize_simulator(tick: int) -> void:
 	# We don't own state, nothing to synchronize
 	if _simulator_owned_properties.is_empty():
+		_logger.trace("No owned simulator property to synchronize, returning.")
 		return
 	
 	var snapshot := NetworkHistoryServer._get_simulator_snapshot(tick)
@@ -396,6 +397,7 @@ func _synchronize_simulator(tick: int) -> void:
 				# Peer can't see anything, send nothing
 				continue
 			
+			_logger.trace("Submitting simulator full state:%s to peer:%s", [snapshot, peer])
 			_cmd_full_simulator.send(data, peer)
 			
 			NetworkPerformance.push_full_state_props(snapshot.size())

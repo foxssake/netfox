@@ -1,6 +1,6 @@
 extends CharacterBody3D
 
-const SPEED = 30
+const SPEED = 5
 const JUMP_VELOCITY = 6.0
 
 # Get the gravity from the project settings to be synced with RigidBody nodes.
@@ -9,7 +9,7 @@ var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 @onready var input = $Input
 
 func _simulated_tick(delta : float, _tick : int):
-	print("Running simulated tick.")
+#	print("Running simulated tick.")
 	# Add the gravity.
 	if not is_on_floor():
 		velocity.y -= gravity * delta
@@ -29,11 +29,11 @@ func _simulated_tick(delta : float, _tick : int):
 		velocity.x = move_toward(velocity.x, 0, SPEED)
 		velocity.z = move_toward(velocity.z, 0, SPEED)
 	
-	print("input_jump is :%s" %input.jump)
-	print("input_movement is :%s" %input.movement)
-	print("velocity is :%s" %velocity)
-	print("position is before move and slide: %s" %position)
-#	velocity *= NetworkTime.physics_factor
+#	print("input_jump is :%s" %input.jump)
+#	print("input_movement is :%s" %input.movement)
+#	print("velocity is :%s" %velocity)
+#	print("position is before move and slide: %s" %position)
+	velocity *= NetworkTime.physics_factor
 	move_and_slide()
-#	velocity /= NetworkTime.physics_factor
-	print("position is after move and slide: %s" %position)
+	velocity /= NetworkTime.physics_factor
+#	print("position is after move and slide: %s" %position)

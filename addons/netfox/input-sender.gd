@@ -236,6 +236,10 @@ func _apply_snapshot_for_self(snapshot : _Snapshot) -> void:
 				# TODO is this should be node.set_indexed ??
 				subject.set_indexed(property, value)
 
+## Predicts inputs for given tick.
+func predict_inputs() -> void:
+	pass
+
 # Helper function to save current input_properties.
 # Used internally by InputSenderServer/SimulatorServer to record state before
 # overwriting properties and emitting signals.
