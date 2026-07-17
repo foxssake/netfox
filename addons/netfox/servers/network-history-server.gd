@@ -153,6 +153,38 @@ func get_latest_input_sender_for(subjects: Array, tick: int) -> int:
 func get_latest_simulator_for(subjects: Array, tick: int) -> int:
 	return _get_latest_for(subjects, tick, _simulator_history)
 
+## Get the latest tick where any of the [param subjects] had simulator snapshot available.
+## Ignores tick where we dont have full snapshot. (missing properties)
+func get_latest_simulator_for_snapshot(subjects: Array, tick: int) -> int:
+	
+	var full_subject_ticks : Array[int] = []
+	
+	for index in range(_simulator_snapshots.get_earliest_index(), _simulator_snapshots.get_latest_index() + 1):
+		var snapshot := _simulator_snapshots.get_at(index) as _Snapshot
+		
+		if not snapshot:
+			continue
+		
+		var not_has_any_subject : bool = false
+		
+		for subject in subjects:
+			if not snapshot.has_subject(subject):
+				not_has_any_subject = true
+				break
+		
+		if not not_has_any_subject:
+			# We have all subjects in this snapshot.
+			full_subject_ticks.push_back(snapshot.tick)
+	
+	
+	var latest_tick : int = -1
+	if full_subject_ticks.size() > 0:
+		var latest_in_arr = full_subject_ticks.max()
+		if latest_in_arr:
+			latest_tick = latest_in_arr
+	
+	return latest_tick
+
 ## Return how old is the latest rollback input data for any of the
 ## [param subjects], in ticks
 func get_input_age_for(subjects: Array, tick: int) -> int:
@@ -219,15 +251,11 @@ func _record_simulator(tick: int) -> void:
 # input but not state.
 # As a design perspective, a game should have max 1-2 simulators like this.
 # So this is not really expensive and not usually used on servers.
-# No auth snapshot is overriden.
+# No auth history is overriden.
+# No snapshot is written.
 func _record_individual_simulator(simulator : Simulator, tick: int) -> void:
-	var snapshot := _simulator_snapshots.get_at(tick, _Snapshot.new(tick)) as _Snapshot
-	
-	if not _simulator_snapshots.has_at(tick):
-		_simulator_snapshots.set_at(tick, snapshot)
-	
 	var property_pool := _PropertyPool.new()
-	property_pool.set_from_paths(simulator, simulator.state_properties)
+	property_pool.set_from_paths(simulator.root, simulator.state_properties)
 	
 	for subject in property_pool.get_subjects():
 		assert(subject is Node, "Only nodes supported for now!")
@@ -237,7 +265,7 @@ func _record_individual_simulator(simulator : Simulator, tick: int) -> void:
 		if _simulator_history.is_auth(tick, subject):
 			continue
 		
-		var subject_snapshot := _simulator_history.ensure_snapshot(tick, subject, false)
+		var subject_snapshot := _simulator_history.ensure_snapshot(tick, subject, true)
 		if subject_snapshot == null:
 			_logger.warning("Dropping recorded tick @%d for subject %s as out-of-bounds", [tick, subject])
 			continue
@@ -245,9 +273,9 @@ func _record_individual_simulator(simulator : Simulator, tick: int) -> void:
 		assert(not property_pool.get_properties_of(subject).is_empty(), "Subject present in property pool without properties! Please report a bug!")
 		for property in property_pool.get_properties_of(subject):
 			subject_snapshot.record_property(property)
-			snapshot.record_property(subject, property)
-		snapshot.set_auth(subject, is_auth)
 		subject_snapshot.set_auth(is_auth)
+		
+		_logger.trace("Recorded simulator state @%d: %s", [tick, subject_snapshot])
 
 func _restore_rollback_input(tick: int) -> bool:
 	return _restore_latest(tick, _rb_input_history)

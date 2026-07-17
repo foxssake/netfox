@@ -1,6 +1,6 @@
 extends CharacterBody3D
 
-const SPEED = 5
+const SPEED = 150
 const JUMP_VELOCITY = 6.0
 
 # Get the gravity from the project settings to be synced with RigidBody nodes.
@@ -23,11 +23,11 @@ func _simulated_tick(delta : float, _tick : int):
 	var input_dir = Vector2(input.movement.x, input.movement.z)
 	var direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	if direction:
-		velocity.x = direction.x * SPEED
-		velocity.z = direction.z * SPEED
+		velocity.x = direction.x * SPEED * delta
+		velocity.z = direction.z * SPEED * delta
 	else:
-		velocity.x = move_toward(velocity.x, 0, SPEED)
-		velocity.z = move_toward(velocity.z, 0, SPEED)
+		velocity.x = move_toward(velocity.x, 0, SPEED * delta)
+		velocity.z = move_toward(velocity.z, 0, SPEED * delta)
 	
 #	print("input_jump is :%s" %input.jump)
 #	print("input_movement is :%s" %input.movement)

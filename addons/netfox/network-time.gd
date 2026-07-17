@@ -573,6 +573,9 @@ func _loop() -> void:
 			# Record data for rollback
 			NetworkRollback._after_tick(tick)
 
+			# Simulate, record, synchronize.
+			SimulatorServer._after_tick(tick)
+
 			# Record data for StateSynchronizer
 			NetworkHistoryServer._record_sync_state(tick + 1)
 			NetworkSynchronizationServer._synchronize_sync_state(tick + 1)
@@ -614,6 +617,7 @@ func _after_tick_loop() -> void:
 
 	# Restore state for StateSynchronizer
 	NetworkHistoryServer._restore_synchronizer_state(tick)
+	NetworkHistoryServer._restore_simulator(tick)
 	InterpolationServer._record_next_state()
 
 func _process(delta: float) -> void:
