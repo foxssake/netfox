@@ -166,10 +166,10 @@ func _handle_host_puppet_simulators() -> void:
 		
 		var latest_input_tick := _history_server.get_latest_input_sender_for(
 				simulator.listened_input_sender._input_properties.get_subjects(),
-				simulated_tick
+				simulated_tick - 1
 			)
 		
-		if latest_input_tick == simulated_tick:
+		if latest_input_tick == simulated_tick - 1:
 			# We have inputs for this tick, run the simulation.
 			var input_snapshot := _history_server._get_input_sender_snapshot(latest_input_tick)
 			if not input_snapshot:
