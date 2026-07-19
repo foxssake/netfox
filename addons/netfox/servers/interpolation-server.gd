@@ -11,7 +11,11 @@ class_name _InterpolationServer
 ## This server can interpolate properties of any arbitrary type.
 ## See [Interpolators] for specifics on how interpolation is implemented.
 ## [br][br]
-##
+## Interpolation can be toggled globally, using [method set_server_enabled].
+## Interpolation is disabled by default when running headless, since no
+## rendering is taking place.
+
+var _enabled := true
 
 var _properties := _PropertyPool.new()
 var _interpolators: Dictionary = {}    # {subject Node: {property_path String: Interpolator}}
@@ -19,7 +23,7 @@ var _interpolators: Dictionary = {}    # {subject Node: {property_path String: I
 var _state_from := _Snapshot.new(0)
 var _state_to := _Snapshot.new(0)
 
-var _enabled := _Set.new()
+var _enabled_subjects := _Set.new()
 var _recording_enabled := _Set.new()
 var _teleporting := _Set.new()
 
@@ -32,10 +36,13 @@ static var _logger := NetfoxLogger._for_netfox("InterpolationServer")
 ## [method set_recording] to configure the subject after registration. If the
 ## property is already registered for this subject, nothing happens.
 func register(subject: Node, property: NodePath, interpolator: Interpolators.Interpolator = null) -> void:
+	if not is_server_enabled():
+		return
+
 	if not _properties.has_subject(subject):
 		# Subject wasn't registered before, setup defaults
 		_interpolators[subject] = {}
-		_enabled.add(subject)
+		_enabled_subjects.add(subject)
 		_recording_enabled.add(subject)
 
 	if _properties.has(subject, property):
@@ -51,13 +58,16 @@ func register(subject: Node, property: NodePath, interpolator: Interpolators.Int
 
 ## Deregister all properties for a [param subject].
 func deregister(subject: Node) -> void:
+	if not is_server_enabled():
+		return
+
 	_state_from.erase_subject(subject)
 	_state_to.erase_subject(subject)
 
 	_properties.erase_subject(subject)
 	_interpolators.erase(subject)
 
-	_enabled.erase(subject)
+	_enabled_subjects.erase(subject)
 	_recording_enabled.erase(subject)
 	_teleporting.erase(subject)
 
@@ -69,10 +79,13 @@ func has_subject(subject: Node) -> bool:
 ## [br][br]
 ## See [method is_enabled].
 func set_enabled(subject: Node, enabled: bool) -> void:
+	if not is_server_enabled():
+		return
+
 	if enabled:
-		_enabled.add(subject)
+		_enabled_subjects.add(subject)
 	else:
-		_enabled.erase(subject)
+		_enabled_subjects.erase(subject)
 
 ## Return true if the [param subject] is enabled for interpolation.
 ## [br][br]
@@ -80,12 +93,15 @@ func set_enabled(subject: Node, enabled: bool) -> void:
 ## [br][br]
 ## See [method set_enabled].
 func is_enabled(subject: Node) -> bool:
-	return _enabled.has(subject)
+	return _enabled_subjects.has(subject)
 
 ## Enable or disable automatic state recording for a [param subject].
 ## [br][br]
 ## See [method is_recording].
 func set_recording(subject: Node, enabled: bool) -> void:
+	if not is_server_enabled():
+		return
+
 	if enabled:
 		_recording_enabled.add(subject)
 	else:
@@ -105,6 +121,9 @@ func is_recording(subject: Node) -> bool:
 ## May return false for multiple reasons - subject is unknown, not enabled for
 ## interpolation, or is currently teleporting.
 func can_interpolate(subject: Node) -> bool:
+	if not is_server_enabled():
+		# Interpolation is disabled globally
+		return false
 	if not has_subject(subject):
 		# Unknown subject, can't interpolate
 		return false
@@ -117,10 +136,28 @@ func can_interpolate(subject: Node) -> bool:
 
 	return true
 
+## Toggle interpolation globally.
+## [br][br]
+## If turned off, no interpolation will be done. Additionally, all other methods
+## will become inert - for example, [member register] will do nothing.
+## [br][br]
+## See [method is_server_enabled].
+func set_server_enabled(enabled: bool) -> void:
+	_enabled = enabled
+
+## Return true if interpolation is enabled.
+## [br][br]
+## See [method set_server_enabled].
+func is_server_enabled() -> bool:
+	return _enabled
+
 ## Record current state for interpolation.
 ## [br][br]
 ## Called automatically, unless disabled with [method set_recording].
 func push_state(subject: Node) -> void:
+	if not is_server_enabled():
+		return
+
 	if not has_subject(subject):
 		_logger.warning("Trying to push state for unregistered subject %s", [subject])
 		return
@@ -140,6 +177,9 @@ func push_state(subject: Node) -> void:
 
 ## Skip interpolation for this tick.
 func teleport(subject: Node) -> void:
+	if not is_server_enabled():
+		return
+
 	if is_teleporting(subject):
 		return
 	if not has_subject(subject):
@@ -158,6 +198,9 @@ func is_teleporting(subject: Node) -> bool:
 ## [br][br]
 ## Called automatically by default.
 func interpolate_subject(subject: Node, factor: float) -> void:
+	if not is_server_enabled():
+		return
+
 	if not can_interpolate(subject):
 		return
 
@@ -192,3 +235,10 @@ func _apply_target_state() -> void:
 func _record_next_state() -> void:
 	for subject in _recording_enabled.values():
 		push_state(subject)
+
+func _is_headless() -> bool:
+	return DisplayServer.get_name() == "headless"
+
+func _ready() -> void:
+	# Disable by default if headless
+	_enabled = not _is_headless()

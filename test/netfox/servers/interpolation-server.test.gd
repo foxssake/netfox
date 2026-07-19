@@ -20,6 +20,9 @@ func before_case(__):
 	await interpolation_server.ready
 	await test_node.ready
 
+	# Make sure to enable server, even when running headless
+	interpolation_server.set_server_enabled(true)
+
 func after_case(__):
 	interpolation_server.queue_free()
 	test_node.queue_free()
