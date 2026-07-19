@@ -321,6 +321,11 @@
 <p>Interpolates between network ticks to smooth out motion.</p>
 <p>Uses <a href="../../guides/interpolators/">Interpolators</a> under the hood to support various data types. To read more
 on best practices, see <a href="../../tutorials/interpolation-caveats/">Interpolation caveats</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When running in headless mode, interpolation is disabled by default, since
+no rendering is taking place.</p>
+</div>
 <h2 id="configuring-interpolation">Configuring interpolation</h2>
 <p>To use <em>TickInterpolator</em>, add it as a child to the target node, specify the
 root node, and configure which properties to interpolate:</p>

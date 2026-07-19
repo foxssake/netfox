@@ -273,6 +273,10 @@
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#bool-can_interpolate-node-subject">bool can_interpolate ( Node subject )</a>
     </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-set_server_enabled-bool-enabled">void set_server_enabled ( bool enabled )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#bool-is_server_enabled">bool is_server_enabled ( )</a>
+    </li>
     <li class="toctree-l4"><a class="reference internal" href="#void-push_state-node-subject">void push_state ( Node subject )</a>
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#void-teleport-node-subject">void teleport ( Node subject )</a>
@@ -351,6 +355,7 @@
 <h2 id="description">Description</h2>
 <p>Handles interpolation for multiple TickInterpolator nodes, storing snapshots and applying interpolation based on the network tick factor.   </p>
 <p>This server can interpolate properties of any arbitrary type. See <a href="../Interpolators/">Interpolators</a> for specifics on how interpolation is implemented.   </p>
+<p>Interpolation can be toggled globally, using <a href="#set_server_enabled">set_server_enabled()</a>. Interpolation is disabled by default when running headless, since no rendering is taking place.</p>
 <h2 id="methods">Methods</h2>
 <table>
 <thead>
@@ -391,6 +396,14 @@
 <tr>
 <td><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a></td>
 <td><a href="#can_interpolate">can_interpolate</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#set_server_enabled">set_server_enabled</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> enabled)</td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a></td>
+<td><a href="#is_server_enabled">is_server_enabled</a>()</td>
 </tr>
 <tr>
 <td>void</td>
@@ -446,6 +459,15 @@
 <h4 id="bool-can_interpolate-node-subject"><span id="can_interpolate"><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> can_interpolate ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject ) </span></h4>
 <p>Return true if interpolation can be done for a <code>subject</code>.   </p>
 <p>May return false for multiple reasons - subject is unknown, not enabled for interpolation, or is currently teleporting.</p>
+<hr />
+<h4 id="void-set_server_enabled-bool-enabled"><span id="set_server_enabled">void set_server_enabled ( <a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> enabled ) </span></h4>
+<p>Toggle interpolation globally.   </p>
+<p>If turned off, no interpolation will be done. Additionally, all other methods will become inert - for example, <a href="#register">register</a> will do nothing.   </p>
+<p>See <a href="#is_server_enabled">is_server_enabled()</a>.</p>
+<hr />
+<h4 id="bool-is_server_enabled"><span id="is_server_enabled"><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> is_server_enabled (  ) </span></h4>
+<p>Return true if interpolation is enabled.   </p>
+<p>See <a href="#set_server_enabled">set_server_enabled()</a>.</p>
 <hr />
 <h4 id="void-push_state-node-subject"><span id="push_state">void push_state ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject ) </span></h4>
 <p>Record current state for interpolation.   </p>

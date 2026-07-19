@@ -327,6 +327,11 @@ simulation - e.g. most objects look the same regardless of their velocity, even
 though it's important for simulating their behavior.</p>
 <p>Since interpolation matters only for the game's visuals, it's enough to
 interpolate only the properties that affect the game's visuals.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When running in headless mode, interpolation is disabled by default, since
+no rendering is taking place.</p>
+</div>
 <h3 id="rotation-vs-quaternion-vs-transform">Rotation vs. Quaternion vs. Transform</h3>
 <p>Interpolating <code>rotation</code> may lead to glitchy results when an object makes a
 full turn. This stems from the way <code>rotation</code> works - it represents the amount
