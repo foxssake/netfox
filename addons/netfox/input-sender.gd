@@ -108,6 +108,11 @@ func _exit_tree():
 	if Engine.is_editor_hint():
 		return
 	
+	for node in _input_properties.get_subjects():
+		NetworkSynchronizationServer.deregister(node)
+		NetworkIdentityServer.deregister_node(node)
+		NetworkHistoryServer.deregister(node)
+	
 	InputSenderServer._deregister_input_sender(self)
 
 ## Process settings.
