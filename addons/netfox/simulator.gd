@@ -231,10 +231,10 @@ func _apply_snapshot_for_self(snapshot : _Snapshot) -> void:
 
 # Helper function to run simulation with given parameters.
 # This function is used by SimulatorServer internally. 
-func _run_simulation(delta : float, tick : int) -> void:
+func _run_simulation(delta : float, tick : int, is_fresh : bool) -> void:
 	for node in _sim_nodes:
 		if node:
-			node.call("_simulated_tick", delta, tick)
+			node.call("_simulated_tick", delta, tick, is_fresh)
 
 # Find managed nodes recursively from given root, ignoring branches managed by
 # a different [Simulator].

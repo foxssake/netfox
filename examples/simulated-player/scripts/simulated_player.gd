@@ -8,8 +8,7 @@ var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 @onready var input = $Input
 
-func _simulated_tick(delta : float, _tick : int):
-#	print("Running simulated tick.")
+func _simulated_tick(delta : float, _tick : int, _is_fresh : bool):
 	# Add the gravity.
 	if not is_on_floor():
 		velocity.y -= gravity * delta
