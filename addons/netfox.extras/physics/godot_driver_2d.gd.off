@@ -6,11 +6,6 @@ class_name PhysicsDriver2D
 # Requires a custom build of Godot with https://github.com/godotengine/godot/pull/76462
 
 var scene_collision_objects: Array = []
-
-# RIDs of tracked bodies currently in the tree. Snapshot entries whose
-# body has been freed are skipped for state updates in rollback
-var live_rids: _Set = _Set.new()
-
 var collision_objects_snapshots: Dictionary[int, Dictionary] = {}
 
 func _init_physics_space() -> void:
@@ -37,10 +32,8 @@ func _snapshot_space(tick: int) -> void:
 func _rollback_space(tick) -> void:
 	if snapshots.has(tick):
 		var rid_states = snapshots[tick]
- 		for rid in rid_states.keys():
-			# Skip bodies freed or removed since the snapshot was taken
-			if live_rids.has(rid):
-				set_body_states(rid, rid_states[rid])
+		for rid in rid_states.keys():
+			set_body_states(rid, rid_states[rid])
 			
 		for body in scene_collision_objects:
 			if body is CharacterBody2D or body is AnimatableBody2D:
@@ -62,7 +55,6 @@ func set_body_states(rid: RID, body_state: Array) -> void:
 
 func scan_tree():
 	scene_collision_objects.clear()
-	live_rids.clear()
 	for body in get_physics_body_2d_children(get_node('/root')):
 		node_added(body)
 
@@ -74,11 +66,14 @@ func get_physics_body_2d_children(in_node: Node) -> Array:
 func node_added(node: Node) -> void:
 	if node is PhysicsBody2D:
 		scene_collision_objects.append(node)
-		live_rids.add(node.get_rid())
 		if not node.tree_exiting.is_connected(node_removed.bind(node)):
 			node.tree_exiting.connect(node_removed.bind(node))
 
 func node_removed(node: Node) -> void:
 	if node is PhysicsBody2D:
 		scene_collision_objects.erase(node)
-		live_rids.erase(node.get_rid())
+
+		# Remove body from snapshots so rollback doesn't restore/access an invalid object
+		var rid: RID = node.get_rid()
+		for tick in snapshots:
+			snapshots[tick].erase(rid)
