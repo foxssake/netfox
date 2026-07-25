@@ -2,10 +2,10 @@
 
 Tracks interpolators for various data types. Provided as a static class.
 
-To smooth out motion between network ticks, [TickInterpolator] interpolates
-nodes' state properties between the current and the previous tick. The type of
-data to be interpolated is not known in advance, and can be any built-in or
-even custom type configured by the developer.
+To smooth motion between network ticks, [TickInterpolator] interpolates nodes'
+state properties between the current and the previous tick. The type of data to
+be interpolated is not known in advance, and can be any built-in or even custom
+type configured by the developer.
 
 *Interpolators* provides methods to register interpolators for any data type,
 and even provides some for built-in data types.
