@@ -68,51 +68,6 @@ static var _logger := NetfoxLogger._for_netfox("NetworkSynchronizationServer")
 signal _on_input(snapshot: _Snapshot)
 signal _on_state(snapshot: _Snapshot)
 
-func _get_peer_rb_sent_history(peer: int) -> _HistoryBuffer:
-	if not _rb_sent_state_history.has(peer):
-		_rb_sent_state_history[peer] = _HistoryBuffer.new(NetworkRollback.history_limit)
-	return _rb_sent_state_history[peer]
-
-func _get_last_sent_rollback_state(peer: int, tick: int) -> _Snapshot:
-	var history: _HistoryBuffer = _rb_sent_state_history.get(peer, null)
-	if history == null or not history.has_latest_at(tick):
-		return null
-	return history.get_latest_at(tick)
-
-func _remember_sent_rollback_state(peer: int, snapshot: _Snapshot) -> void:
-	var reference := _get_last_sent_rollback_state(peer, snapshot.tick)
-	var remembered := reference.duplicate() if reference else _Snapshot.new(snapshot.tick)
-
-	# `snapshot` might be a diff state, hence the merging
-	for subject in snapshot.get_subjects():
-		for property in snapshot.get_subject_properties(subject):
-			remembered.set_property(subject, property, snapshot.get_property(subject, property))
-		remembered.set_auth(subject, snapshot.is_auth(subject))
-	remembered.tick = snapshot.tick
-
-	_get_peer_rb_sent_history(peer).set_at(snapshot.tick, remembered)
-
-# Prepare snapshot to be sent to `peer`
-# Only contains visible subjects' auth properties
-func _make_peer_snapshot(snapshot: _Snapshot, peer: int, properties: _PropertyPool) -> _Snapshot:
-	var result := _Snapshot.new(snapshot.tick)
-	for subject in properties.get_subjects():
-		if not _is_node_visible_to(peer, subject):
-			continue
-		if not snapshot.is_auth(subject):
-			continue
-
-		var has_property := false
-		for property in properties.get_properties_of(subject):
-			if not snapshot.has_property(subject, property):
-				continue
-			result.set_property(subject, property, snapshot.get_property(subject, property))
-			has_property = true
-
-		if has_property:
-			result.set_auth(subject, true)
-	return result
-
 ## Register a [param property] of [param node] to be synchronized
 ## as rollback state
 func register_rollback_state(node: Node, property: NodePath) -> void:
@@ -185,6 +140,60 @@ func deregister(node: Node) -> void:
 	_sync_owned_state_properties.erase_subject(node)
 	_visibility_filters.erase(node)
 	_schemas.erase_subject(node)
+
+	# NOTE: _rb_sent_state_history may contain snapshots with invalid subjects
+	# NOTE: Iterating all sent snapshots for `node` may be slow and useless
+
+## Erase all data kept about [param peer].
+## [br][br]
+## Called by default when a peer leaves
+func erase_peer(peer: int) -> void:
+	_rb_sent_state_history.erase(peer)
+
+func _get_peer_rb_sent_history(peer: int) -> _HistoryBuffer:
+	if not _rb_sent_state_history.has(peer):
+		_rb_sent_state_history[peer] = _HistoryBuffer.new(NetworkRollback.history_limit)
+	return _rb_sent_state_history[peer]
+
+func _get_last_sent_rollback_state(peer: int, tick: int) -> _Snapshot:
+	var history: _HistoryBuffer = _rb_sent_state_history.get(peer, null)
+	if history == null or not history.has_latest_at(tick):
+		return null
+	return history.get_latest_at(tick)
+
+func _remember_sent_rollback_state(peer: int, snapshot: _Snapshot) -> void:
+	var reference := _get_last_sent_rollback_state(peer, snapshot.tick)
+	var remembered := reference.duplicate() if reference else _Snapshot.new(snapshot.tick)
+
+	# `snapshot` might be a diff state, hence the merging
+	for subject in snapshot.get_subjects():
+		for property in snapshot.get_subject_properties(subject):
+			remembered.set_property(subject, property, snapshot.get_property(subject, property))
+		remembered.set_auth(subject, snapshot.is_auth(subject))
+	remembered.tick = snapshot.tick
+
+	_get_peer_rb_sent_history(peer).set_at(snapshot.tick, remembered)
+
+# Prepare snapshot to be sent to `peer`
+# Only contains visible subjects' auth properties
+func _make_peer_snapshot(snapshot: _Snapshot, peer: int, properties: _PropertyPool) -> _Snapshot:
+	var result := _Snapshot.new(snapshot.tick)
+	for subject in properties.get_subjects():
+		if not _is_node_visible_to(peer, subject):
+			continue
+		if not snapshot.is_auth(subject):
+			continue
+
+		var has_property := false
+		for property in properties.get_properties_of(subject):
+			if not snapshot.has_property(subject, property):
+				continue
+			result.set_property(subject, property, snapshot.get_property(subject, property))
+			has_property = true
+
+		if has_property:
+			result.set_auth(subject, true)
+	return result
 
 func _is_node_visible_to(peer: int, node: Node) -> bool:
 	var filter := _visibility_filters.get(node) as PeerVisibilityFilter
@@ -366,6 +375,12 @@ func _ready():
 
 	_cmd_full_sync = _command_server.register_command(_handle_full_sync, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
 	_cmd_diff_sync = _command_server.register_command(_handle_diff_sync, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE_ORDERED)
+
+	# Cleanup
+	if NetworkEvents.enabled:
+		NetworkEvents.on_peer_leave.connect(erase_peer)
+	elif is_instance_valid(multiplayer):
+		multiplayer.peer_disconnected.connect(erase_peer)
 
 func _handle_input(sender: int, data: PackedByteArray):
 	var buffer := StreamPeerBuffer.new()
