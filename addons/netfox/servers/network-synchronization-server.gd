@@ -82,13 +82,18 @@ func _get_last_sent_rollback_state(peer: int, tick: int) -> _Snapshot:
 func _remember_sent_rollback_state(peer: int, snapshot: _Snapshot) -> void:
 	var reference := _get_last_sent_rollback_state(peer, snapshot.tick)
 	var remembered := reference.duplicate() if reference else _Snapshot.new(snapshot.tick)
+
+	# `snapshot` might be a diff state, hence the merging
 	for subject in snapshot.get_subjects():
 		for property in snapshot.get_subject_properties(subject):
 			remembered.set_property(subject, property, snapshot.get_property(subject, property))
 		remembered.set_auth(subject, snapshot.is_auth(subject))
 	remembered.tick = snapshot.tick
+
 	_get_peer_rb_sent_history(peer).set_at(snapshot.tick, remembered)
 
+# Prepare snapshot to be sent to `peer`
+# Only contains visible subjects' auth properties
 func _make_peer_snapshot(snapshot: _Snapshot, peer: int, properties: _PropertyPool) -> _Snapshot:
 	var result := _Snapshot.new(snapshot.tick)
 	for subject in properties.get_subjects():
@@ -265,17 +270,20 @@ func _synchronize_state(tick: int) -> void:
 			var packets := _dense_serializer.write_for(peer, peer_snapshot, _rb_owned_state_properties)
 			for packet in packets:
 				_cmd_full_state.send(packet, peer)
+
 			_remember_sent_rollback_state(peer, peer_snapshot)
 			NetworkPerformance.push_full_state_props(peer_snapshot.size())
 			NetworkPerformance.push_sent_state_props(peer_snapshot.size())
 		else:
 			var diff := _Snapshot.make_patch(reference_snapshot, peer_snapshot)
 			if diff.is_empty():
+				# Nothing changed, don't send anything
 				continue
 
 			var packets := _sparse_serializer.write_for(peer, diff, _rb_owned_state_properties)
 			for packet in packets:
 				_cmd_diff_state.send(packet, peer)
+
 			_remember_sent_rollback_state(peer, diff)
 			NetworkPerformance.push_full_state_props(peer_snapshot.size())
 			NetworkPerformance.push_sent_state_props(diff.size())
