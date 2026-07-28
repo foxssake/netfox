@@ -74,8 +74,14 @@ func process_settings() -> void:
 ## When rewinding to a tick earlier than the spawn tick, every managed node will
 ## be deactivated.
 func spawn(p_tick: int = NetworkRollback.tick) -> void:
+	spawn_tick = p_tick
+
 	for node in _liveness_nodes:
+		RollbackLivenessServer.clear_despawn(node)
 		RollbackLivenessServer.spawn(node, p_tick)
+
+	for subject in _state_properties.get_subjects():
+		NetworkHistoryServer.push_rollback_state(subject, p_tick)
 
 ## Mark the despawn tick for all nodes managed by this synchronizer.
 ## [br][br]
@@ -119,7 +125,7 @@ func _enter_tree() -> void:
 	_managed_roots[root] = self
 
 	if spawn_tick < 0:
-		spawn_tick = NetworkRollback.tick
+		spawn_tick = NetworkRollback.tick + 1
 
 	# Resimulate from spawn tick *only on the next loop*
 	NetworkRollback.before_loop.connect(func():

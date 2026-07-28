@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://cwh2p0qb5872o"]
+[gd_scene load_steps=16 format=3 uid="uid://cwh2p0qb5872o"]
 
 [ext_resource type="PackedScene" uid="uid://d1544gxqaoptc" path="res://examples/forest-brawl/maps/three-peaks.tscn" id="1_xksrt"]
 [ext_resource type="Script" path="res://examples/forest-brawl/forest-brawl-connector.gd" id="2_wafqi"]
@@ -13,6 +13,7 @@
 [ext_resource type="PackedScene" uid="uid://ojh5xofoserg" path="res://examples/forest-brawl/scenes/score_screen.tscn" id="14_85lvt"]
 [ext_resource type="PackedScene" uid="uid://dbnx63lgo7288" path="res://examples/forest-brawl/ui/menu.tscn" id="16_3ljtn"]
 [ext_resource type="LabelSettings" uid="uid://b4u1aluftkajy" path="res://examples/forest-brawl/ui/assets/player-stat-label.tres" id="17_48up8"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/dedicated-server-bootstrap.gd" id="18_dsboot"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_l686d"]
 font_size = 64
@@ -33,6 +34,9 @@ player_scene = ExtResource("7_tcy3g")
 spawn_root = NodePath("../../Players")
 camera = NodePath("../../Camera3D")
 joining_screen = NodePath("../../UI/Joining Screen")
+
+[node name="DedicatedServerBootstrap" type="Node" parent="Network"]
+script = ExtResource("18_dsboot")
 
 [node name="Players" type="Node" parent="."]
 

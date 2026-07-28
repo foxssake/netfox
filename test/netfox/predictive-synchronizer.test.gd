@@ -51,6 +51,20 @@ func suite() -> void:
 			expect_not(RollbackLivenessServer.is_alive(root, 5))
 		)
 
+		test("should reseed state and clear despawn when spawned", func():
+			synchronizer.process_settings()
+
+			synchronizer.despawn(5)
+			root.tracked_value = 42
+			synchronizer.spawn(7)
+
+			var snapshot := NetworkHistoryServer._get_rollback_state_snapshot(7)
+			expect_equal(synchronizer.spawn_tick, 7)
+			expect(RollbackLivenessServer.is_alive(root, 8))
+			expect_not_null(snapshot)
+			expect_equal(snapshot.get_property(root, ^"tracked_value"), 42)
+		)
+
 		test("should request resimulation from spawn tick", func():
 			synchronizer.spawn_tick = 3
 			NetworkRollback._resim_from = 12
