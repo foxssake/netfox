@@ -37,7 +37,6 @@ var _rb_enable_diffs := NetworkRollback.enable_diff_states
 var _rb_full_interval := ProjectSettings.get_setting("netfox/rollback/full_state_interval", 24) as int
 var _rb_full_scheduler := _IntervalScheduler.new(_rb_full_interval)
 var _rb_last_synced_tick := -1
-var _rb_last_synced_snapshot: _Snapshot = null
 
 var _input_redundancy := NetworkRollback.input_redundancy
 
@@ -142,9 +141,6 @@ func deregister(node: Node) -> void:
 	_sync_owned_state_properties.erase_subject(node)
 	_visibility_filters.erase(node)
 	_schemas.erase_subject(node)
-	
-	if _rb_last_synced_snapshot:
-		_rb_last_synced_snapshot.erase_subject(node)
 
 	# NOTE: _rb_sent_state_history may contain snapshots with invalid subjects
 	# NOTE: Iterating all sent snapshots for `node` may be slow and useless
@@ -265,8 +261,8 @@ func _synchronize_state(tick: int) -> void:
 		# Nothing to send
 		return
 	
-	# Resimulated ticks at or below _rb_last_synced_tick were already sent
-	# Peers resimulate from the newest received state so don't send them again
+	# Ticks at or below _rb_last_synced_tick were already sent
+	# Don't resend them, so peers won't resimulate them
 	if tick <= _rb_last_synced_tick:
 		return
 	_rb_last_synced_tick = tick
@@ -307,9 +303,6 @@ func _synchronize_state(tick: int) -> void:
 			_remember_sent_rollback_state(peer, diff)
 			NetworkPerformance.push_full_state_props(peer_snapshot.size())
 			NetworkPerformance.push_sent_state_props(diff.size())
-	
-	# Update the cached snapshot for future rollbacks
-	_rb_last_synced_snapshot = snapshot.duplicate()
 
 func _synchronize_sync_state(tick: int) -> void:
 	# We don't own sync state, nothing to synchronize
@@ -367,12 +360,10 @@ func _init(
 	_simulation_server = p_simulation_server
 
 func _ready():
-	# NetworkTime.tick restarts every session, so reset the "last_synced" data
+	# NetworkTime.tick restarts every session, so reset _rb_last_synced_tick
 	NetworkTime.after_sync.connect(func():
 		_rb_last_synced_tick = NetworkTime.tick - 1
-		_rb_last_synced_snapshot = null
 	)
-
 
 	# Ensure dependencies
 	if not _command_server: _command_server = NetworkCommandServer
