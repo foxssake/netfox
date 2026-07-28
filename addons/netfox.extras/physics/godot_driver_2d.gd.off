@@ -13,7 +13,6 @@ func _init_physics_space() -> void:
 	PhysicsServer2D.space_set_active(physics_space, false)
 
 	get_tree().node_added.connect(node_added)
-	get_tree().node_removed.connect(node_removed)
 	scan_tree()
 
 func _physics_step(delta) -> void:
@@ -56,9 +55,10 @@ func set_body_states(rid: RID, body_state: Array) -> void:
 
 func scan_tree():
 	scene_collision_objects.clear()
-	scene_collision_objects = get_all_children(get_node('/root'))
+	for body in get_physics_body_2d_children(get_node('/root')):
+		node_added(body)
 
-func get_all_children(in_node: Node) -> Array:
+func get_physics_body_2d_children(in_node: Node) -> Array:
 	var nodes = []
 	nodes = in_node.find_children("*", "PhysicsBody2D", true, false)
 	return nodes
@@ -66,7 +66,14 @@ func get_all_children(in_node: Node) -> Array:
 func node_added(node: Node) -> void:
 	if node is PhysicsBody2D:
 		scene_collision_objects.append(node)
+		if not node.tree_exiting.is_connected(node_removed.bind(node)):
+			node.tree_exiting.connect(node_removed.bind(node))
 
 func node_removed(node: Node) -> void:
 	if node is PhysicsBody2D:
 		scene_collision_objects.erase(node)
+
+		# Remove body from snapshots so rollback doesn't restore/access an invalid object
+		var rid: RID = node.get_rid()
+		for tick in snapshots:
+			snapshots[tick].erase(rid)
