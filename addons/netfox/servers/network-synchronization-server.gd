@@ -260,7 +260,7 @@ func _synchronize_state(tick: int) -> void:
 	if snapshot.is_empty():
 		# Nothing to send
 		return
-	
+
 	# Ticks at or below _rb_last_synced_tick were already sent
 	# Don't resend them, so peers won't resimulate them
 	if tick <= _rb_last_synced_tick:
