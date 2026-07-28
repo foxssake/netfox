@@ -1,33 +1,33 @@
-[gd_scene format=3 uid="uid://cwh2p0qb5872o"]
+[gd_scene load_steps=16 format=3 uid="uid://cwh2p0qb5872o"]
 
 [ext_resource type="PackedScene" uid="uid://d1544gxqaoptc" path="res://examples/forest-brawl/maps/three-peaks.tscn" id="1_xksrt"]
-[ext_resource type="Script" uid="uid://clnp3t5017c1h" path="res://examples/forest-brawl/forest-brawl-connector.gd" id="2_wafqi"]
-[ext_resource type="Script" uid="uid://uqw0ew8y4tqf" path="res://examples/forest-brawl/scripts/brawler-spawner.gd" id="5_qv1fx"]
-[ext_resource type="Script" uid="uid://bqrt0ucoqar5v" path="res://examples/forest-brawl/scripts/following-camera.gd" id="5_yxhn7"]
+[ext_resource type="Script" path="res://examples/forest-brawl/forest-brawl-connector.gd" id="2_wafqi"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/brawler-spawner.gd" id="5_qv1fx"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/following-camera.gd" id="5_yxhn7"]
 [ext_resource type="PackedScene" uid="uid://wi4owat0bml3" path="res://examples/forest-brawl/scenes/brawler.tscn" id="7_tcy3g"]
 [ext_resource type="PackedScene" uid="uid://bpf1jdr255nr0" path="res://examples/shared/ui/time-display.tscn" id="9_d2tot"]
-[ext_resource type="Script" uid="uid://cfe08o3gvubst" path="res://examples/forest-brawl/scripts/score-manager.gd" id="9_vxjwh"]
-[ext_resource type="Script" uid="uid://dour8fehaaugp" path="res://addons/netfox/tick-interpolator.gd" id="10_ld676"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/score-manager.gd" id="9_vxjwh"]
+[ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="10_ld676"]
 [ext_resource type="PackedScene" uid="uid://b1vadi3ma8uiq" path="res://examples/forest-brawl/scenes/brawler-crown.tscn" id="11_eeeag"]
-[ext_resource type="Script" uid="uid://iyihxxg5xrrr" path="res://examples/forest-brawl/scripts/player-stats-display.gd" id="12_5kocp"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/player-stats-display.gd" id="12_5kocp"]
 [ext_resource type="PackedScene" uid="uid://ojh5xofoserg" path="res://examples/forest-brawl/scenes/score_screen.tscn" id="14_85lvt"]
 [ext_resource type="PackedScene" uid="uid://dbnx63lgo7288" path="res://examples/forest-brawl/ui/menu.tscn" id="16_3ljtn"]
 [ext_resource type="LabelSettings" uid="uid://b4u1aluftkajy" path="res://examples/forest-brawl/ui/assets/player-stat-label.tres" id="17_48up8"]
-[ext_resource type="Script" uid="uid://ddwud0a61ekqi" path="res://examples/forest-brawl/scripts/dedicated-server-bootstrap.gd" id="18_dsboot"]
+[ext_resource type="Script" path="res://examples/forest-brawl/scripts/dedicated-server-bootstrap.gd" id="18_dsboot"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_l686d"]
 font_size = 64
 
-[node name="Forest Brawl" type="Node3D" unique_id=1211875410]
+[node name="Forest Brawl" type="Node3D"]
 
-[node name="Three Peaks Map" parent="." unique_id=1066697295 instance=ExtResource("1_xksrt")]
+[node name="Three Peaks Map" parent="." instance=ExtResource("1_xksrt")]
 
-[node name="Network" type="Node" parent="." unique_id=2084347562]
+[node name="Network" type="Node" parent="."]
 
-[node name="ForestBrawlConnector" type="Node" parent="Network" unique_id=413285105]
+[node name="ForestBrawlConnector" type="Node" parent="Network"]
 script = ExtResource("2_wafqi")
 
-[node name="Brawler Spawner" type="Node" parent="Network" unique_id=236739444 node_paths=PackedStringArray("spawn_root", "camera", "joining_screen")]
+[node name="Brawler Spawner" type="Node" parent="Network" node_paths=PackedStringArray("spawn_root", "camera", "joining_screen")]
 unique_name_in_owner = true
 script = ExtResource("5_qv1fx")
 player_scene = ExtResource("7_tcy3g")
@@ -35,31 +35,31 @@ spawn_root = NodePath("../../Players")
 camera = NodePath("../../Camera3D")
 joining_screen = NodePath("../../UI/Joining Screen")
 
-[node name="DedicatedServerBootstrap" type="Node" parent="Network" unique_id=272125633]
+[node name="DedicatedServerBootstrap" type="Node" parent="Network"]
 script = ExtResource("18_dsboot")
 
-[node name="Players" type="Node" parent="." unique_id=354880254]
+[node name="Players" type="Node" parent="."]
 
-[node name="ScoreManager" type="Node" parent="." unique_id=498330811 node_paths=PackedStringArray("scorescreen")]
+[node name="ScoreManager" type="Node" parent="." node_paths=PackedStringArray("scorescreen")]
 script = ExtResource("9_vxjwh")
 scorescreen = NodePath("../UI/Score Screen")
 
-[node name="Camera3D" type="Camera3D" parent="." unique_id=1159371917]
+[node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.5, 0.866025, 0, -0.866025, 0.5, 0, 73.7461, 42)
 fov = 35.0
 script = ExtResource("5_yxhn7")
 distance = 16.0
 approach_time = 0.25
 
-[node name="TickInterpolator" type="Node" parent="Camera3D" unique_id=110698602 node_paths=PackedStringArray("root")]
+[node name="TickInterpolator" type="Node" parent="Camera3D" node_paths=PackedStringArray("root")]
 script = ExtResource("10_ld676")
 root = NodePath("..")
 properties = Array[String]([":global_position"])
 
-[node name="Brawler Crown" parent="." unique_id=242144275 instance=ExtResource("11_eeeag")]
+[node name="Brawler Crown" parent="." instance=ExtResource("11_eeeag")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
 
-[node name="UI" type="Control" parent="." unique_id=1345541688]
+[node name="UI" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -67,7 +67,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Time Display" parent="UI" unique_id=787633030 instance=ExtResource("9_d2tot")]
+[node name="Time Display" parent="UI" instance=ExtResource("9_d2tot")]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -78,10 +78,10 @@ grow_horizontal = 0
 grow_vertical = 1
 horizontal_alignment = 2
 
-[node name="Menu" parent="UI" unique_id=564979429 instance=ExtResource("16_3ljtn")]
+[node name="Menu" parent="UI" instance=ExtResource("16_3ljtn")]
 layout_mode = 1
 
-[node name="Player stats" type="Control" parent="UI" unique_id=1862797395 node_paths=PackedStringArray("score_label", "score_manager")]
+[node name="Player stats" type="Control" parent="UI" node_paths=PackedStringArray("score_label", "score_manager")]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -94,26 +94,26 @@ script = ExtResource("12_5kocp")
 score_label = NodePath("VBoxContainer/Score HBox/Score Value")
 score_manager = NodePath("../../ScoreManager")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UI/Player stats" unique_id=112141849]
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/Player stats"]
 layout_mode = 1
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="Score HBox" type="HBoxContainer" parent="UI/Player stats/VBoxContainer" unique_id=1452262198]
+[node name="Score HBox" type="HBoxContainer" parent="UI/Player stats/VBoxContainer"]
 layout_mode = 2
 
-[node name="Score Label" type="Label" parent="UI/Player stats/VBoxContainer/Score HBox" unique_id=2049034428]
+[node name="Score Label" type="Label" parent="UI/Player stats/VBoxContainer/Score HBox"]
 layout_mode = 2
 text = "Score:"
 label_settings = ExtResource("17_48up8")
 
-[node name="Score Value" type="Label" parent="UI/Player stats/VBoxContainer/Score HBox" unique_id=1886069715]
+[node name="Score Value" type="Label" parent="UI/Player stats/VBoxContainer/Score HBox"]
 layout_mode = 2
 text = "8
 "
 label_settings = ExtResource("17_48up8")
 
-[node name="Joining Screen" type="Control" parent="UI" unique_id=1170122974]
+[node name="Joining Screen" type="Control" parent="UI"]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -122,7 +122,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="ColorRect" type="ColorRect" parent="UI/Joining Screen" unique_id=1314938478]
+[node name="ColorRect" type="ColorRect" parent="UI/Joining Screen"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -131,7 +131,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 1)
 
-[node name="Label" type="Label" parent="UI/Joining Screen" unique_id=1370340434]
+[node name="Label" type="Label" parent="UI/Joining Screen"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -143,6 +143,6 @@ label_settings = SubResource("LabelSettings_l686d")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Score Screen" parent="UI" unique_id=903199565 instance=ExtResource("14_85lvt")]
+[node name="Score Screen" parent="UI" instance=ExtResource("14_85lvt")]
 visible = false
 layout_mode = 1

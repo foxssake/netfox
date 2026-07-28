@@ -28,7 +28,7 @@ func _ready() -> void:
 func _should_auto_host() -> bool:
 	if OS.has_feature("dedicated_server"):
 		return true
-	if DisplayServer.get_name() == "headless" and "--server" in OS.get_cmdline_user_args():
+	if "--server" in OS.get_cmdline_user_args():
 		return true
 	return false
 
