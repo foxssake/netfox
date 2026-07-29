@@ -28,7 +28,9 @@ func _init():
 	_weapon.c_can_fire = _can_fire
 	_weapon.c_can_peer_use = _can_peer_use
 	_weapon.c_after_fire = _after_fire
+	_weapon.c_after_fire_multiple = _after_fire_multiple
 	_weapon.c_spawn = _spawn
+	_weapon.c_configure_multi_projectile = _configure_multi_projectile
 	_weapon.c_get_data = _get_data
 	_weapon.c_apply_data = _apply_data
 	_weapon.c_is_reconcilable = _is_reconcilable
@@ -49,9 +51,10 @@ func _after_fire(projectile: Node3D):
 
 # @public method
 ## See [NetworkWeapon]
-func _after_fire_multiple(projectiles: Array[Node3D], total_count: int):
+func _after_fire_multiple(projectiles: Array, total_count: int):
 	for projectile in projectiles:
-		_after_fire(projectile)
+		if projectile is Node3D:
+			_after_fire(projectile)
 
 # @public method
 ## See [NetworkWeapon]
