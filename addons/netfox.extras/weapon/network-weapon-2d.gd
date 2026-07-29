@@ -14,6 +14,9 @@ func can_fire() -> bool:
 func fire() -> Node2D:
 	return _weapon.fire()
 
+func fire_multiple(projectile_count: int) -> Array[Node2D]:
+	return _weapon.fire_multiple(projectile_count)
+
 func get_fired_tick() -> int:
 	return _weapon.get_fired_tick()
 
@@ -49,8 +52,19 @@ func _after_fire(projectile: Node2D):
 
 # @public method
 ## See [NetworkWeapon]
+func _after_fire_multiple(projectiles: Array[Node2D], total_count: int):
+	for projectile in projectiles:
+		_after_fire(projectile)
+
+# @public method
+## See [NetworkWeapon]
 func _spawn() -> Node2D:
 	return null
+
+# @public method
+## See [NetworkWeapon]
+func _configure_multi_projectile(projectile: Node2D, index: int, count: int) -> Node2D:
+	return projectile
 
 func _get_data(projectile: Node2D) -> Dictionary:
 	return {

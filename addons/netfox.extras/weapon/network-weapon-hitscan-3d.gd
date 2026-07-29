@@ -65,8 +65,15 @@ func _can_peer_use(peer_id: int) -> bool:
 func _after_fire():
 	pass
 
+func _after_fire_multiple():
+	pass
+
 func _spawn():
 	# No projectile is spawned for a hitscan weapon.
+	pass
+
+func _configure_multi_projectile():
+	# No projectile can be configured for a hitscan weapon.
 	pass
 
 func _get_data() -> Dictionary:
