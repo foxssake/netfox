@@ -612,12 +612,15 @@ func _after_tick_loop() -> void:
 	# Run rollback loop
 	NetworkRollback._rollback()
 
+	# Restore state for Simulator before emitting after_tick_loop so that
+	# listeners can run logic after state is set.
+	NetworkHistoryServer._restore_simulator(tick)
+
 	# Emit signal
 	after_tick_loop.emit()
 
 	# Restore state for StateSynchronizer
 	NetworkHistoryServer._restore_synchronizer_state(tick)
-	NetworkHistoryServer._restore_simulator(tick)
 	InterpolationServer._record_next_state()
 
 func _process(delta: float) -> void:
