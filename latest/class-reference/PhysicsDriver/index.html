@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://foxssake.github.io/netfox/latest/class-reference/_PacketHandshake/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://foxssake.github.io/netfox/latest/class-reference/PhysicsDriver/" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>_PacketHandshake - netfox</title>
+    <title>PhysicsDriver - netfox</title>
     <link rel="stylesheet" href="../../css/theme.css" />
     <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
@@ -16,9 +16,9 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "_PacketHandshake";
-        var mkdocs_page_input_path = "class-reference/_PacketHandshake.md";
-        var mkdocs_page_url = "/netfox/latest/class-reference/_PacketHandshake/";
+        var mkdocs_page_name = "PhysicsDriver";
+        var mkdocs_page_input_path = "class-reference/PhysicsDriver.md";
+        var mkdocs_page_url = "/netfox/latest/class-reference/PhysicsDriver/";
       </script>
     
     <!--[if lt IE 9]>
@@ -231,7 +231,39 @@
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../PeerVisibilityFilter/">PeerVisibilityFilter</a>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../PhysicsDriver/">PhysicsDriver</a>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">PhysicsDriver</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#methods">Methods</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#property-descriptions">Property Descriptions</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#rid-physics_space">RID physics_space</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#dictionary-snapshots">Dictionary snapshots = {}</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#int-physics_factor-2">int physics_factor = 2</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#bool-rollback_physics_space-true">bool rollback_physics_space = true</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#method-descriptions">Method Descriptions</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#void-before_tick-float-delta-int-tick">void before_tick ( float delta, int tick )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-on_prepare_tick-int-tick">void on_prepare_tick ( int tick )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-on_process_tick-int-tick">void on_process_tick ( int tick )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-after_tick_loop">void after_tick_loop ( )</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-step_physics-float-delta-int-tick">void step_physics ( float delta, int tick )</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../PredictiveSynchronizer/">PredictiveSynchronizer</a>
                 </li>
@@ -275,21 +307,7 @@
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../_Noray/">_Noray</a>
                 </li>
-                <li class="toctree-l2 current"><a class="reference internal current" href="#">_PacketHandshake</a>
-    <ul class="current">
-    <li class="toctree-l3"><a class="reference internal" href="#methods">Methods</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#method-descriptions">Method Descriptions</a>
-        <ul>
-    <li class="toctree-l4"><a class="reference internal" href="#int-over_packet_peer-packetpeer-peer-float-timeout-float-frequency">int over_packet_peer ( PacketPeer peer, float timeout, float frequency )</a>
-    </li>
-    <li class="toctree-l4"><a class="reference internal" href="#int-over_enet-enetconnection-connection-string-address-int-port-float-timeout-float-frequency">int over_enet ( ENetConnection connection, String address, int port, float timeout, float frequency )</a>
-    </li>
-    <li class="toctree-l4"><a class="reference internal" href="#int-over_enet_peer-enetmultiplayerpeer-peer-string-address-int-port-float-timeout-float-frequency">int over_enet_peer ( ENetMultiplayerPeer peer, String address, int port, float timeout, float frequency )</a>
-    </li>
-        </ul>
-    </li>
-    </ul>
+                <li class="toctree-l2"><a class="reference internal" href="../_PacketHandshake/">_PacketHandshake</a>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../_RollbackLivenessServer/">_RollbackLivenessServer</a>
                 </li>
@@ -314,7 +332,7 @@
     <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
           <li class="breadcrumb-item">Reference</li>
           <li class="breadcrumb-item">Classes</li>
-      <li class="breadcrumb-item active">_PacketHandshake</li>
+      <li class="breadcrumb-item active">PhysicsDriver</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -323,9 +341,40 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="_packethandshake">_PacketHandshake</h1>
+                <h1 id="physicsdriver">PhysicsDriver</h1>
 <p><strong>Inherits:</strong> <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a></p>
-<p>This class implements a handshake protocol over UDP for multiple classes.</p>
+<h2 id="properties">Properties</h2>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Name</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_rid.html">RID</a></td>
+<td><a href="#physics_space">physics_space</a></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_dictionary.html">Dictionary</a></td>
+<td><a href="#snapshots">snapshots</a></td>
+<td><code>{}</code></td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a></td>
+<td><a href="#physics_factor">physics_factor</a></td>
+<td><code>2</code></td>
+</tr>
+<tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a></td>
+<td><a href="#rollback_physics_space">rollback_physics_space</a></td>
+<td><code>true</code></td>
+</tr>
+</tbody>
+</table>
 <h2 id="methods">Methods</h2>
 <table>
 <thead>
@@ -336,32 +385,55 @@
 </thead>
 <tbody>
 <tr>
-<td><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a></td>
-<td><a href="#over_packet_peer">over_packet_peer</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_packetpeer.html">PacketPeer</a> peer, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> timeout, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> frequency)</td>
+<td>void</td>
+<td><a href="#before_tick">before_tick</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> delta, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> tick)</td>
 </tr>
 <tr>
-<td><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a></td>
-<td><a href="#over_enet">over_enet</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_enetconnection.html">ENetConnection</a> connection, <a href="https://docs.godotengine.org/en/4.1/classes/class_string.html">String</a> address, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> port, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> timeout, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> frequency)</td>
+<td>void</td>
+<td><a href="#on_prepare_tick">on_prepare_tick</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> tick)</td>
 </tr>
 <tr>
-<td><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a></td>
-<td><a href="#over_enet_peer">over_enet_peer</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_enetmultiplayerpeer.html">ENetMultiplayerPeer</a> peer, <a href="https://docs.godotengine.org/en/4.1/classes/class_string.html">String</a> address, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> port, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> timeout, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> frequency)</td>
+<td>void</td>
+<td><a href="#on_process_tick">on_process_tick</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> tick)</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#after_tick_loop">after_tick_loop</a>()</td>
+</tr>
+<tr>
+<td>void</td>
+<td><a href="#step_physics">step_physics</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> delta, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> tick)</td>
 </tr>
 </tbody>
 </table>
+<h2 id="property-descriptions">Property Descriptions</h2>
+<h4 id="rid-physics_space"><span id="physics_space"><a href="https://docs.godotengine.org/en/4.1/classes/class_rid.html">RID</a> physics_space</span></h4>
+<p>No description provided.</p>
+<hr />
+<h4 id="dictionary-snapshots"><span id="snapshots"><a href="https://docs.godotengine.org/en/4.1/classes/class_dictionary.html">Dictionary</a> snapshots</span> = <code>{}</code></h4>
+<p>No description provided.</p>
+<hr />
+<h4 id="int-physics_factor-2"><span id="physics_factor"><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> physics_factor</span> = <code>2</code></h4>
+<p>No description provided.</p>
+<hr />
+<h4 id="bool-rollback_physics_space-true"><span id="rollback_physics_space"><a href="https://docs.godotengine.org/en/4.1/classes/class_bool.html">bool</a> rollback_physics_space</span> = <code>true</code></h4>
+<p>No description provided.</p>
+<hr />
 <h2 id="method-descriptions">Method Descriptions</h2>
-<h4 id="int-over_packet_peer-packetpeer-peer-float-timeout-float-frequency"><span id="over_packet_peer"><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> over_packet_peer ( <a href="https://docs.godotengine.org/en/4.1/classes/class_packetpeer.html">PacketPeer</a> peer, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> timeout, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> frequency ) </span></h4>
-<p>Conduct handshake over a <a href="https://docs.godotengine.org/en/4.1/classes/class_packetpeer.html">PacketPeer</a> instance.</p>
+<h4 id="void-before_tick-float-delta-int-tick"><span id="before_tick">void before_tick ( <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> delta, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> tick ) </span></h4>
+<p>No description provided.</p>
 <hr />
-<h4 id="int-over_enet-enetconnection-connection-string-address-int-port-float-timeout-float-frequency"><span id="over_enet"><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> over_enet ( <a href="https://docs.godotengine.org/en/4.1/classes/class_enetconnection.html">ENetConnection</a> connection, <a href="https://docs.godotengine.org/en/4.1/classes/class_string.html">String</a> address, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> port, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> timeout, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> frequency ) </span></h4>
-<p>Conduct handshake over an <a href="https://docs.godotengine.org/en/4.1/classes/class_enetconnection.html">ENetConnection</a>.   </p>
-<p>If the connection is closed during the handshake, errors will be printed until the end of the timeout. To avoid errors, use <a href="#over_enet_peer">over_enet_peer()</a> when possible.   </p>
-<p><em>Note</em> that this is not a full-fledged handshake, since we can't receive data over the connection. Instead, we just pretend that the handshake is successful on our end and blast that status for a given time.</p>
+<h4 id="void-on_prepare_tick-int-tick"><span id="on_prepare_tick">void on_prepare_tick ( <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> tick ) </span></h4>
+<p>No description provided.</p>
 <hr />
-<h4 id="int-over_enet_peer-enetmultiplayerpeer-peer-string-address-int-port-float-timeout-float-frequency"><span id="over_enet_peer"><a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> over_enet_peer ( <a href="https://docs.godotengine.org/en/4.1/classes/class_enetmultiplayerpeer.html">ENetMultiplayerPeer</a> peer, <a href="https://docs.godotengine.org/en/4.1/classes/class_string.html">String</a> address, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> port, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> timeout, <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> frequency ) </span></h4>
-<p>Conduct handshake over an <a href="https://docs.godotengine.org/en/4.1/classes/class_enetmultiplayerpeer.html">ENetMultiplayerPeer</a>.   </p>
-<p>Compared to <a href="#over_enet">over_enet()</a>, using an <a href="https://docs.godotengine.org/en/4.1/classes/class_enetmultiplayerpeer.html">ENetMultiplayerPeer</a> allows checking for closed connections. If the peer is closed during the handshake, this method will gracefully fail.   </p>
-<p><em>Note</em> that this is not a full-fledged handshake, since we can't receive data over the connection. Instead, we just pretend that the handshake is successful on our end and blast that status for a given time.</p>
+<h4 id="void-on_process_tick-int-tick"><span id="on_process_tick">void on_process_tick ( <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> tick ) </span></h4>
+<p>No description provided.</p>
+<hr />
+<h4 id="void-after_tick_loop"><span id="after_tick_loop">void after_tick_loop (  ) </span></h4>
+<p>No description provided.</p>
+<hr />
+<h4 id="void-step_physics-float-delta-int-tick"><span id="step_physics">void step_physics ( <a href="https://docs.godotengine.org/en/4.1/classes/class_float.html">float</a> delta, <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> tick ) </span></h4>
+<p>No description provided.</p>
 <hr />
               
             </div>
@@ -382,10 +454,10 @@
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../_Noray/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../PeerVisibilityFilter/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../_RollbackLivenessServer/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../PredictiveSynchronizer/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
