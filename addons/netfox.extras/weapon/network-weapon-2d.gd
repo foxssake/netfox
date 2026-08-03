@@ -26,6 +26,7 @@ func _init():
 	_weapon.c_can_peer_use = _can_peer_use
 	_weapon.c_after_fire = _after_fire
 	_weapon.c_spawn = _spawn
+	_weapon.c_after_declined = _after_declined
 	_weapon.c_get_data = _get_data
 	_weapon.c_apply_data = _apply_data
 	_weapon.c_is_reconcilable = _is_reconcilable
@@ -51,6 +52,11 @@ func _after_fire(projectile: Node2D):
 ## See [NetworkWeapon]
 func _spawn() -> Node2D:
 	return null
+
+# @public method
+## See [NetworkWeapon]
+func _after_declined(projectile: Node2D):
+	projectile.queue_free()
 
 func _get_data(projectile: Node2D) -> Dictionary:
 	return {

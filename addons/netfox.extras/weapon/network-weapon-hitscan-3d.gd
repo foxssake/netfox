@@ -69,6 +69,10 @@ func _spawn():
 	# No projectile is spawned for a hitscan weapon.
 	pass
 
+func _after_declined():
+	# No projectile is declined for a hitscan weapon.
+	pass
+
 func _get_data() -> Dictionary:
 	# Collect data needed to synchronize the firing event.
 	return {
