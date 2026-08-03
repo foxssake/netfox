@@ -60,7 +60,7 @@ func after_tick_loop() -> void:
 # tick is either the current tick, or the tick being resimulated (if rollback is active)
 func step_physics(delta: float, tick: int) -> void:
 	# Break up physics into smaller steps if needed
-	var frac_delta = _delta / physics_factor
+	var frac_delta = delta / physics_factor
 	var rollback_participants = get_tree().get_nodes_in_group("network_rigid_body")
 	for i in range(physics_factor):
 		for net_rigid_body in rollback_participants:
