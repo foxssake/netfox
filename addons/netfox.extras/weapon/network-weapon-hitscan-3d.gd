@@ -37,7 +37,9 @@ func _init():
 	_weapon.c_can_fire = _can_fire
 	_weapon.c_can_peer_use = _can_peer_use
 	_weapon.c_after_fire = _after_fire
+	_weapon.c_after_fire_multiple = _after_fire_multiple
 	_weapon.c_spawn = _spawn
+	_weapon.c_configure_multi_projectile = _configure_multi_projectile
 	_weapon.c_get_data = _get_data
 	_weapon.c_apply_data = _apply_data
 	_weapon.c_is_reconcilable = _is_reconcilable
@@ -65,8 +67,15 @@ func _can_peer_use(peer_id: int) -> bool:
 func _after_fire():
 	pass
 
+func _after_fire_multiple():
+	pass
+
 func _spawn():
 	# No projectile is spawned for a hitscan weapon.
+	pass
+
+func _configure_multi_projectile():
+	# No projectile can be configured for a hitscan weapon.
 	pass
 
 func _get_data() -> Dictionary:

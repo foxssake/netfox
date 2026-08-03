@@ -14,6 +14,9 @@ func can_fire() -> bool:
 func fire() -> Node3D:
 	return _weapon.fire()
 
+func fire_multiple(projectile_count: int) -> Array[Node3D]:
+	return _weapon.fire_multiple(projectile_count)
+
 func get_fired_tick() -> int:
 	return _weapon.get_fired_tick()
 
@@ -25,7 +28,9 @@ func _init():
 	_weapon.c_can_fire = _can_fire
 	_weapon.c_can_peer_use = _can_peer_use
 	_weapon.c_after_fire = _after_fire
+	_weapon.c_after_fire_multiple = _after_fire_multiple
 	_weapon.c_spawn = _spawn
+	_weapon.c_configure_multi_projectile = _configure_multi_projectile
 	_weapon.c_get_data = _get_data
 	_weapon.c_apply_data = _apply_data
 	_weapon.c_is_reconcilable = _is_reconcilable
@@ -46,8 +51,20 @@ func _after_fire(projectile: Node3D):
 
 # @public method
 ## See [NetworkWeapon]
+func _after_fire_multiple(projectiles: Array, total_count: int):
+	for projectile in projectiles:
+		if projectile is Node3D:
+			_after_fire(projectile)
+
+# @public method
+## See [NetworkWeapon]
 func _spawn() -> Node3D:
 	return null
+
+# @public method
+## See [NetworkWeapon]
+func _configure_multi_projectile(projectile: Node3D, index: int, count: int) -> Node3D:
+	return projectile
 
 func _get_data(projectile: Node3D) -> Dictionary:
 	return {
