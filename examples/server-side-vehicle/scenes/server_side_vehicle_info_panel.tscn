@@ -1,0 +1,71 @@
+[gd_scene load_steps=2 format=3 uid="uid://bsavthtpx4joi"]
+
+[ext_resource type="Script" path="res://examples/server-side-vehicle/scripts/server_side_vehicle_info_panel.gd" id="1_1v7fb"]
+
+[node name="ServerSideVehicleInfoPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_1v7fb")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = -192.0
+offset_right = 156.0
+offset_bottom = -32.0
+grow_vertical = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="PeerLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Server Side Vehicle Example
+Peer#"
+
+[node name="InfoLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Controls:
+Mouse (use alt+tab) -> Move Turret
+F / Mouse Wheel -> Zoom
+WASD : Move
+Space : Brake
+Left Click: Shoot"
+
+[node name="MarginContainer2" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -161.0
+offset_top = -161.0
+offset_right = 161.0
+offset_bottom = -104.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer2"]
+layout_mode = 2
+
+[node name="ReloadLabel" type="Label" parent="MarginContainer2/VBoxContainer"]
+layout_mode = 2
+text = "Reloading"
+horizontal_alignment = 1
+
+[node name="ReloadProgressBar" type="ProgressBar" parent="MarginContainer2/VBoxContainer"]
+layout_mode = 2
+
+[node name="ScoreLabel" type="Label" parent="MarginContainer2/VBoxContainer"]
+layout_mode = 2
+text = "Score: 0"
+horizontal_alignment = 1
