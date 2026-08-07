@@ -17,6 +17,7 @@ var death_tick: int = -1
 var respawn_position: Vector3
 var did_respawn := false
 var deaths := 0
+var _was_alive: bool = true
 
 func _ready():
 	display_name.text = name
@@ -26,10 +27,14 @@ func _ready():
 	NetworkTime.after_tick_loop.connect(_after_tick_loop)
 
 func _tick(dt: float, tick: int):
-	if health <= 0:
+	# Fire on the alive -> dead transition only, so the sound and counter don't
+	# multi-trigger while health stays <= 0 between damage and respawn.
+	var alive := health > 0
+	if _was_alive and not alive:
 		$DieSFX.play()
 		deaths += 1
 		die()
+	_was_alive = alive
 
 func _after_tick_loop():
 	if did_respawn:
