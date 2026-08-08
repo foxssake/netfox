@@ -62,7 +62,13 @@ func step_physics(delta: float, tick: int) -> void:
 	# Break up physics into smaller steps if needed
 	var frac_delta = delta / physics_factor
 	var rollback_participants = get_tree().get_nodes_in_group("network_rigid_body")
+
+	# Run once per network tick, before any sub-step, with the full tick delta
+	for net_rigid_body in rollback_participants:
+		net_rigid_body._before_physics_rollback_tick(delta, tick)
+
 	for i in range(physics_factor):
+		# Run once per sub-step, with the sub-step's delta
 		for net_rigid_body in rollback_participants:
 			net_rigid_body._physics_rollback_tick(frac_delta, tick)
 
