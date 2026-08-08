@@ -326,18 +326,3 @@ func _get_latest_for(subjects: Array, tick: int, history: _PerObjectHistory) -> 
 		latest = maxi(latest, subject_latest)
 
 	return latest
-
-func _get_earliest_for(subjects: Array, tick: int, history: _PerObjectHistory) -> int:
-	var earliest := -1
-
-	for subject in subjects:
-		var subject_latest := history.get_latest_tick(tick, subject)
-		if subject_latest < 0:
-			return -1
-
-		if earliest < 0:
-			earliest = earliest
-		else:
-			earliest = mini(earliest, subject_latest)
-
-	return earliest
