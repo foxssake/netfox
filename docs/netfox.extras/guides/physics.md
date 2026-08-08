@@ -73,9 +73,43 @@ To make use of NetworkRigidBody you need to:
 1. Configure your RollbackSynchronizer to include the NetworkRigidBody's
    `physics_state` as a state property.
 2. Move physics-related logic from `_physics_process` to
-   `_physics_rollback_tick`.
+   `_physics_rollback_tick` or `_before_physics_rollback_tick`.
 
 ![State configuration for NetworkRigidBody](../assets/network-rigid-body.png)
+
+### Choosing a callback
+
+NetworkRigidBody offers two callbacks, which differ in how often they run:
+
+| Callback | Runs | `delta` |
+| --- | --- | --- |
+| `_before_physics_rollback_tick(delta, tick)` | Once per network tick | Full tick duration |
+| `_physics_rollback_tick(delta, tick)` | Once per physics sub-step, i.e. *Physics Factor* times per network tick | Sub-step duration |
+
+Use `_physics_rollback_tick` for **continuous forces**. The physics engine
+clears accumulated forces after every step, so they must be re-applied for each
+sub-step:
+
+```gdscript
+func _physics_rollback_tick(delta, tick):
+    apply_central_force(Vector3.FORWARD * thrust)
+```
+
+Use `_before_physics_rollback_tick` for anything that must happen **exactly
+once per tick** - one-off impulses, consuming input, or state machine
+transitions. Running these per sub-step would apply them multiple times for the
+same tick:
+
+```gdscript
+func _before_physics_rollback_tick(delta, tick):
+    var input := _input.get_input_for(tick)
+    if input.is_jumping:
+        apply_central_impulse(Vector3.UP * jump_force)
+```
+
+!!!note
+    With a *Physics Factor* of 1 the two callbacks run equally often, so the
+    difference only becomes visible once you increase it.
 
 
 [Godot Rocket League]: https://github.com/albertok/godot-rocket-league

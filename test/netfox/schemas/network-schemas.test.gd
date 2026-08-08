@@ -3,6 +3,10 @@ extends VestTest
 func get_suite_name() -> String:
 	return "NetworkSchemas"
 
+## Half-precision floats carry ~11 bits of mantissa, so values around 1.0 can
+## be off by up to ~5e-4 after a round trip.
+const HALF_EPSILON := 1e-3
+
 func suite() -> void:
 	var has_half := (Engine.get_version_info().hex >= 0x040400) as bool
 
@@ -50,11 +54,11 @@ func suite() -> void:
 		["radians16", NetworkSchemas.radians16(), 127. / 255. * TAU, 2],
 		["radians32", NetworkSchemas.radians32(), 127. / 255. * TAU, 4],
 
-		["float16", NetworkSchemas.float16(), 2.0, 2 if has_half else 4],
+		["float16", NetworkSchemas.float16(), 2.0, 2 if has_half else 4, HALF_EPSILON],
 		["float32", NetworkSchemas.float32(), 2.0, 4],
 		["float64", NetworkSchemas.float64(), 2.0, 8],
 
-		["vec2f16", NetworkSchemas.vec2f32(), Vector2(+1, -1), 4 if has_half else 8],
+		["vec2f16", NetworkSchemas.vec2f16(), Vector2(+1, -1), 4 if has_half else 8, HALF_EPSILON],
 		["vec2f32", NetworkSchemas.vec2f32(), Vector2(+1, -1), 8],
 		["vec2f64", NetworkSchemas.vec2f64(), Vector2(+1, -1), 16],
 		["vec3f32", NetworkSchemas.vec3f32(), Vector3(+1, -1, .5), 12],
@@ -62,23 +66,23 @@ func suite() -> void:
 		["vec4f32", NetworkSchemas.vec4f32(), Vector4(+1, -1, .5, -5), 16],
 		["vec4f64", NetworkSchemas.vec4f64(), Vector4(+1, -1, .5, -5), 32],
 
-		["normal2f16", NetworkSchemas.normal2f16(), Vector2.RIGHT.rotated(PI / 6.), 2 if has_half else 4],
+		["normal2f16", NetworkSchemas.normal2f16(), Vector2.RIGHT.rotated(PI / 6.), 2 if has_half else 4, HALF_EPSILON],
 		["normal2f32", NetworkSchemas.normal2f32(), Vector2.RIGHT.rotated(PI / 6.), 4],
 		["normal2f64", NetworkSchemas.normal2f64(), Vector2.RIGHT.rotated(PI / 6.), 8],
-		["normal3f16", NetworkSchemas.normal3f16(), Vector3.UP, 4 if has_half else 8],
+		["normal3f16", NetworkSchemas.normal3f16(), Vector3.UP, 4 if has_half else 8, HALF_EPSILON],
 		["normal3f32", NetworkSchemas.normal3f32(), Vector3.UP, 8],
 		["normal3f64", NetworkSchemas.normal3f64(), Vector3.UP, 16],
 
-		["quat16f", NetworkSchemas.quatf16(), Quaternion.from_euler(Vector3.ONE), 8 if has_half else 16],
+		["quat16f", NetworkSchemas.quatf16(), Quaternion.from_euler(Vector3.ONE), 8 if has_half else 16, HALF_EPSILON],
 		["quat32f", NetworkSchemas.quatf32(), Quaternion.from_euler(Vector3.ONE), 16],
 		["quat64f", NetworkSchemas.quatf64(), Quaternion.from_euler(Vector3.ONE), 32],
 
-		["transform2f16", NetworkSchemas.transform2f16(), Transform2D.IDENTITY.rotated(37.), 12 if has_half else 24],
+		["transform2f16", NetworkSchemas.transform2f16(), Transform2D.IDENTITY.rotated(37.), 12 if has_half else 24, HALF_EPSILON],
 		["transform2f32", NetworkSchemas.transform2f32(), Transform2D.IDENTITY.rotated(37.), 24],
 		["transform2f64", NetworkSchemas.transform2f64(), Transform2D.IDENTITY.rotated(37.), 48],
-		["transform3f16", NetworkSchemas.transform3f16(), Transform3D.IDENTITY.rotated(Vector3.ONE, 37.), 24 if has_half else 48],
-		["transform3f32", NetworkSchemas.transform3f32(), Transform3D.IDENTITY.rotated(Vector3.ONE, 37.), 48],
-		["transform3f64", NetworkSchemas.transform3f64(), Transform3D.IDENTITY.rotated(Vector3.ONE, 37.), 96],
+		["transform3f16", NetworkSchemas.transform3f16(), Transform3D.IDENTITY.rotated(Vector3.ONE.normalized(), 37.), 24 if has_half else 48, HALF_EPSILON],
+		["transform3f32", NetworkSchemas.transform3f32(), Transform3D.IDENTITY.rotated(Vector3.ONE.normalized(), 37.), 48],
+		["transform3f64", NetworkSchemas.transform3f64(), Transform3D.IDENTITY.rotated(Vector3.ONE.normalized(), 37.), 96],
 
 		["array", NetworkSchemas.array_of(NetworkSchemas.uint16()), [1, 2, 3], 8],
 		["dictionary", NetworkSchemas.dictionary(NetworkSchemas.uint16(), NetworkSchemas.uint16()), { 1: 32, 2: 48 }, 10],
@@ -97,6 +101,7 @@ func suite() -> void:
 		var serializer := case[1] as NetworkSchemaSerializer
 		var value = case[2]
 		var expected_size := case[3] as int
+		var tolerance := (case[4] if case.size() > 4 else 0.) as float
 
 		test(name, func():
 			var buffer := StreamPeerBuffer.new()
@@ -104,8 +109,15 @@ func suite() -> void:
 			buffer.seek(0)
 			var decoded = serializer.decode(buffer)
 
-			expect_equal(decoded, value, "Value mismatch! Expected %s, got %s" % [value, decoded])
-			expect_equal(buffer.data_array.size(), expected_size, "Size mismatch! Expected %d, got %d" % [expected_size, buffer.data_array.size(), expected_size])
+			if tolerance > 0.:
+				var delta := _max_delta(value, decoded)
+				expect(delta <= tolerance,
+					"Value mismatch! Expected %s, got %s (delta %.6f, tolerance %.6f)"
+					% [value, decoded, delta, tolerance])
+			else:
+				expect_equal(decoded, value, "Value mismatch! Expected %s, got %s" % [value, decoded])
+
+			expect_equal(buffer.data_array.size(), expected_size, "Size mismatch! Expected %d, got %d" % [expected_size, buffer.data_array.size()])
 		)
 
 	test("should handle negative degrees", func():
@@ -139,3 +151,40 @@ func suite() -> void:
 		expect(abs(decoded - expected_value) < threshold, "Decoded %s while expected %s!" % [decoded, expected_value])
 		Vest.message("Difference: %s" % [abs(decoded - expected_value)])
 	)
+
+## Flatten a value into its float components, so lossy serializers can be
+## compared against a tolerance instead of exactly.
+func _components(value: Variant) -> PackedFloat64Array:
+	match typeof(value):
+		TYPE_FLOAT, TYPE_INT:
+			return PackedFloat64Array([value])
+		TYPE_VECTOR2:
+			return PackedFloat64Array([value.x, value.y])
+		TYPE_VECTOR3:
+			return PackedFloat64Array([value.x, value.y, value.z])
+		TYPE_VECTOR4, TYPE_QUATERNION:
+			return PackedFloat64Array([value.x, value.y, value.z, value.w])
+		TYPE_TRANSFORM2D:
+			var result := PackedFloat64Array()
+			for i in 3:
+				result.append_array(_components(value[i]))
+			return result
+		TYPE_TRANSFORM3D:
+			var result := PackedFloat64Array()
+			for i in 3:
+				result.append_array(_components(value.basis[i]))
+			result.append_array(_components(value.origin))
+			return result
+	return PackedFloat64Array()
+
+## Largest absolute difference between any two matching components.
+func _max_delta(expected: Variant, actual: Variant) -> float:
+	var lhs := _components(expected)
+	var rhs := _components(actual)
+	if lhs.is_empty() or lhs.size() != rhs.size():
+		return INF
+
+	var delta := 0.
+	for i in lhs.size():
+		delta = maxf(delta, absf(lhs[i] - rhs[i]))
+	return delta
