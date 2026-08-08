@@ -526,6 +526,18 @@ func _exit_tree() -> void:
 func _get_tick_tag() -> String:
 	return "@%d" % tick
 
+## Calculate the clock stretch factor for a given clock difference.
+## [br][br]
+## Clock stretch factors are speed multipliers, so they compose geometrically -
+## the neutral value is 1.0, and slowing down by some amount is the reciprocal
+## of speeding up by that same amount. Interpolating in log space keeps that
+## symmetry, so that a [param clock_diff] of zero yields exactly 1.0, and
+## [param stretch_max] and its reciprocal are reached at +/- one tick of
+## difference.
+static func _calculate_stretch_factor(clock_diff: float, p_ticktime: float, stretch_max: float) -> float:
+	var t := clampf(clock_diff / p_ticktime, -1., 1.)
+	return pow(stretch_max, t)
+
 func _loop() -> void:
 	# Adjust local clock
 	_clock.step(_clock_stretch_factor)
@@ -534,13 +546,8 @@ func _loop() -> void:
 	# Ignore diffs under 1ms
 	clock_diff = sign(clock_diff) * max(abs(clock_diff) - 0.001, 0.)
 
-	var clock_stretch_min := 1. / clock_stretch_max
-	# var clock_stretch_f = (1. + clock_diff / (1. * ticktime)) / 2.
-	var clock_stretch_f := inverse_lerp(-ticktime, +ticktime, clock_diff)
-	clock_stretch_f = clampf(clock_stretch_f, 0., 1.)
-
 	var previous_stretch_factor := _clock_stretch_factor
-	_clock_stretch_factor = lerpf(clock_stretch_min, clock_stretch_max, clock_stretch_f)
+	_clock_stretch_factor = _calculate_stretch_factor(clock_diff, ticktime, clock_stretch_max)
 
 	# Detect editor pause
 	var clock_step := _clock.get_time() - _last_process_time
