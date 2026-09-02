@@ -51,10 +51,10 @@ func shove(motion: Vector3):
 
 func set_color(color: Color) -> void:
 	if not is_instance_valid(mesh): return
-	
+
 	var material: StandardMaterial3D = mesh.get_active_material(0)
 	if not is_instance_valid(material): return
-	
+
 	material = material.duplicate()
 	material.albedo_color = color
 	mesh.set_surface_override_material(0, material)
