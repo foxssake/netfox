@@ -60,3 +60,8 @@ func set_state(remote_state: Array) -> void:
 ## The physics engine will run its simulation during rollback_tick with other nodes
 func _physics_rollback_tick(_delta, _tick):
 	pass
+
+## Override to run once per network tick, before any physics sub-step
+## Receives the full tick delta and the tick being simulated
+func _before_physics_rollback_tick(_delta, _tick):
+	pass
