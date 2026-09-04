@@ -435,7 +435,6 @@ func _handle_diff_sync(sender: int, data: PackedByteArray):
 func _ingest_state(sender: int, snapshot: _Snapshot) -> void:
 	snapshot.sanitize(sender)
 
-	NetworkHistoryServer._merge_rollback_state(snapshot)
+	if NetworkHistoryServer._merge_rollback_state(snapshot):
+		_on_state.emit(snapshot)
 	_logger.trace("Ingested state: %s", [snapshot])
-
-	_on_state.emit(snapshot)
