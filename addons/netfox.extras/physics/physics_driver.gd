@@ -8,6 +8,8 @@ class_name PhysicsDriver
 var physics_space: RID
 var snapshots: Dictionary = {}
 
+var _known_bodies: Dictionary = {}
+
 # Number of physics steps to take per network tick
 @export var physics_factor: int = 2
 # Snapshot and Rollback entire physics space.
@@ -21,6 +23,7 @@ func _enter_tree():
 	#rollback ticks
 	if rollback_physics_space:
 		NetworkRollback.on_prepare_tick.connect(on_prepare_tick)
+		NetworkRollback.before_loop.connect(_update_space_floor)
 	NetworkRollback.on_process_tick.connect(on_process_tick)
 
 func _exit_tree():
@@ -30,6 +33,7 @@ func _exit_tree():
 	#rollback ticks
 	if NetworkRollback.on_prepare_tick.is_connected(on_prepare_tick):
 		NetworkRollback.on_prepare_tick.disconnect(on_prepare_tick)
+		NetworkRollback.before_loop.disconnect(_update_space_floor)
 	NetworkRollback.on_process_tick.disconnect(on_process_tick)
 
 func _ready() -> void:
@@ -37,7 +41,9 @@ func _ready() -> void:
 
 # Emitted before a tick is run.
 func before_tick(delta: float, tick: int) -> void:
-	_snapshot_space(tick)
+	if rollback_physics_space:
+		_update_space_floor()
+		_snapshot_space(tick)
 	step_physics(delta, tick)
 
 func on_prepare_tick(tick: int) -> void:
@@ -71,6 +77,13 @@ func step_physics(delta: float, tick: int) -> void:
 ## Override this method to initialize the physics space.
 func _init_physics_space() -> void:
 	pass
+
+func _update_space_floor() -> void:
+	for body: Node in get_tree().get_nodes_in_group("network_rigid_body"):
+		if _known_bodies.has(body):
+			continue
+		_known_bodies[body] = true
+		NetworkRollback.notify_resim_floor(NetworkTime.tick)
 
 ## Override this method to take one step in the physics space.
 ## [br][br]
