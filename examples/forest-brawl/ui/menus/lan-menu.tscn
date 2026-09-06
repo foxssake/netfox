@@ -3,7 +3,6 @@
 [ext_resource type="Script" path="res://examples/forest-brawl/ui/menus/lan-menu.gd" id="1_kobvy"]
 
 [node name="LAN Menu" type="PanelContainer"]
-visible = false
 custom_minimum_size = Vector2(480, 320)
 anchors_preset = 8
 anchor_left = 0.5
@@ -67,9 +66,17 @@ text = "Back"
 [node name="Connect Button" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+tooltip_text = "Connect to an already running game"
 text = "Connect"
 
 [node name="Host Button" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+tooltip_text = "Start the game and let others join"
 text = "Host"
+
+[node name="Listen Button" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Start a server for others to play on, without playing yourself."
+text = "Listen"

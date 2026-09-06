@@ -1,10 +1,8 @@
-extends Node
+extends NetworkBootstrapper
 
 const DEFAULT_PORT := 7777
 
 static var _logger := NetfoxLogger.new("forest-brawl", "DedicatedServerBootstrap")
-
-@onready var _brawler_spawner: BrawlerSpawner = %"Brawler Spawner"
 
 func _ready() -> void:
 	if not _should_auto_host():
@@ -13,8 +11,8 @@ func _ready() -> void:
 	var port := _get_port_from_args(DEFAULT_PORT)
 	_logger.info("Auto-hosting dedicated server on port %d", [port])
 
-	if _brawler_spawner:
-		_brawler_spawner.spawn_host_avatar = false
+	# Let the rest of the game know that we're running as a dedicated host
+	set_dedicated_host(true)
 
 	var peer := ENetMultiplayerPeer.new()
 	var err := peer.create_server(port)

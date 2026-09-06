@@ -1,4 +1,4 @@
-extends Node
+extends NetworkBootstrapper
 
 @export_category("UI")
 @export var connect_ui: Control

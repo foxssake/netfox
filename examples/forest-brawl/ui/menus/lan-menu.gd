@@ -6,6 +6,7 @@ extends BaseMenu
 @onready var back_button := %"Back Button" as Button
 @onready var connect_button := %"Connect Button" as Button
 @onready var host_button := %"Host Button" as Button
+@onready var listen_button := %"Listen Button" as Button
 
 func _ready():
 	super()
@@ -13,6 +14,7 @@ func _ready():
 	back_button.pressed.connect(_back)
 	connect_button.pressed.connect(_connect)
 	host_button.pressed.connect(_host)
+	listen_button.pressed.connect(_listen)
 
 func _connect():
 	var host := host_input.text
@@ -47,6 +49,10 @@ func _host():
 
 	multiplayer.multiplayer_peer = peer
 	get_parent_control().hide() # Success
+
+func _listen():
+	NetworkBootstrapper.set_dedicated_host(true)
+	_host()
 
 func _get_port() -> int:
 	if not port_input.text.is_valid_int():

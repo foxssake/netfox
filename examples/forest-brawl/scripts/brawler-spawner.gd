@@ -1,16 +1,15 @@
-extends Node
+extends MultiplayerSpawner
 class_name BrawlerSpawner
 
 @export var player_scene: PackedScene
-@export var spawn_root: Node
 @export var camera: FollowingCamera
 @export var joining_screen: Control
-@export var name_input: LineEdit
 
-var spawn_host_avatar: bool = true
 var avatars: Dictionary = {}
 
 func _ready():
+	spawn_function = _spawn
+
 	NetworkEvents.on_client_start.connect(_handle_connected)
 	NetworkEvents.on_server_start.connect(_handle_host)
 	NetworkEvents.on_peer_join.connect(_handle_new_peer)
@@ -20,31 +19,29 @@ func _ready():
 
 func _handle_connected(id: int):
 	if joining_screen:
-		joining_screen.visible = true
-
-	# Spawn an avatar for us
-	_spawn(id)
-
-	if joining_screen:
+		joining_screen.show()
 		await NetworkTime.after_sync
-		joining_screen.visible = false
+		joining_screen.hide()
 
 func _handle_host():
-	if spawn_host_avatar:
+	if not NetworkBootstrapper.is_dedicated_host():
 		# Spawn own avatar on host machine
-		_spawn(1)
+		spawn(1)
 
 func _handle_new_peer(id: int):
-	# Spawn an avatar for new player
-	var avatar = _spawn(id)
+	if not is_multiplayer_authority():
+		# Only spawn on server
+		return
 
-	# Hide avatar until player syncs time
-	avatar.visible = false
+	# Wait for player to sync time
 	while not NetworkTime.is_client_synced(id):
 		await NetworkTime.after_client_sync
-	avatar.visible = true
+
+	# Spawn an avatar for new player
+	spawn(id)
 
 func _handle_leave(id: int):
+	# TODO: Does this need to run only on server?
 	if not avatars.has(id):
 		return
 
@@ -58,12 +55,11 @@ func _handle_stop():
 		avatar.queue_free()
 	avatars.clear()
 
-func _spawn(id: int) -> BrawlerController:
-	var avatar = player_scene.instantiate() as BrawlerController
-	avatars[id] = avatar
-	avatar.name += " #%d" % id
-	avatar.player_id = id
-	spawn_root.add_child(avatar)
+func _spawn(peer_id: int) -> BrawlerController:
+	var avatar := player_scene.instantiate() as BrawlerController
+	avatars[peer_id] = avatar
+	avatar.name += " #%d" % peer_id
+	avatar.player_id = peer_id
 
 	# Avatar is always owned by server
 	avatar.set_multiplayer_authority(1)
@@ -73,10 +69,10 @@ func _spawn(id: int) -> BrawlerController:
 	# Avatar's input object is owned by player
 	var input = avatar.find_child("Input")
 	if input != null:
-		input.set_multiplayer_authority(id)
-		print("Set input(%s) ownership to %s" % [input.name, id])
+		input.set_multiplayer_authority(peer_id)
+		print("Set input(%s) ownership to %s" % [input.name, peer_id])
 
-	if id == multiplayer.get_unique_id():
+	if peer_id == multiplayer.get_unique_id():
 		# If avatar is own, assign it as camera follow target and emit event
 		camera.target = avatar
 		GameEvents.on_own_brawler_spawn.emit(avatar)
@@ -89,6 +85,7 @@ func _spawn(id: int) -> BrawlerController:
 
 	return avatar
 
+# TODO: Is this needed?
 @rpc("any_peer", "reliable", "call_local")
 func _submit_name(player_name: String):
 	var pid = multiplayer.get_remote_sender_id()

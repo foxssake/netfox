@@ -1,4 +1,4 @@
-extends Node
+extends NetworkBootstrapper
 
 enum Role { NONE, HOST, CLIENT }
 
@@ -51,9 +51,10 @@ func disconnect_from_noray():
 	oid_input.clear()
 
 func host_only():
-	var brawler_spawner: BrawlerSpawner = %"Brawler Spawner"
-	if brawler_spawner != null:
-		brawler_spawner.spawn_host_avatar = false
+	# Let the rest of the game know that we're running as a dedicated host
+	set_dedicated_host(true)
+
+	# Host game
 	host()
 
 func host():

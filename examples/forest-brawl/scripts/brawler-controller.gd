@@ -26,7 +26,9 @@ var player_name: String = "":
 		if p_name.length() > 24:
 			p_name = p_name.substr(0, 21) + "..."
 		player_name = p_name
-		nametag.text = p_name
+
+		if nametag:
+			nametag.text = p_name
 
 var player_id: int = -1
 var last_hit_player: BrawlerController
@@ -73,6 +75,8 @@ func _ready():
 
 	if not player_name:
 		player_name = "Nameless Brawler #%s" % [player_id]
+
+	nametag.text = player_name
 
 	# Set player color
 	set_color(get_color_of(player_id))
