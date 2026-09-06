@@ -1,0 +1,33 @@
+[gd_scene load_steps=5 format=3 uid="uid://g5axutycr4rn"]
+
+[ext_resource type="PackedScene" uid="uid://badtpsxn5lago" path="res://examples/shared/ui/network-popup.tscn" id="1_h2lt4"]
+[ext_resource type="PackedScene" uid="uid://cf4xd6s672bo6" path="res://examples/server-side-vehicle/scenes/tank_arena.tscn" id="2_t7ktp"]
+[ext_resource type="Script" path="res://examples/server-side-vehicle/scripts/player_spawner.gd" id="3_55dug"]
+[ext_resource type="PackedScene" uid="uid://f1annxuory74" path="res://examples/server-side-vehicle/scenes/server_side_tank.tscn" id="4_rnbcl"]
+
+[node name="ServerSideVehicleExample" type="Node"]
+
+[node name="Network Popup" parent="." instance=ExtResource("1_h2lt4")]
+
+[node name="TankArena" parent="." instance=ExtResource("2_t7ktp")]
+
+[node name="Network" type="Node" parent="."]
+
+[node name="PlayerSpawner" type="Node" parent="Network" node_paths=PackedStringArray("spawn_points")]
+script = ExtResource("3_55dug")
+player_scene = ExtResource("4_rnbcl")
+spawn_points = [NodePath("../../SpawnPoints/Marker3D"), NodePath("../../SpawnPoints/Marker3D2"), NodePath("../../SpawnPoints/Marker3D3"), NodePath("../../SpawnPoints/Marker3D4")]
+
+[node name="SpawnPoints" type="Node3D" parent="."]
+
+[node name="Marker3D" type="Marker3D" parent="SpawnPoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.285, 1, 16.224)
+
+[node name="Marker3D2" type="Marker3D" parent="SpawnPoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26.6316, 1, -26.2491)
+
+[node name="Marker3D3" type="Marker3D" parent="SpawnPoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.381, 1, -30.0326)
+
+[node name="Marker3D4" type="Marker3D" parent="SpawnPoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.68788, 1, 12.6846)
