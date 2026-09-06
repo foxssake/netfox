@@ -7,6 +7,8 @@ class_name BrawlerSpawner
 
 var avatars: Dictionary = {}
 
+var _logger := NetfoxLogger.new("fb", "BrawlerSpawner")
+
 func _ready():
 	spawn_function = _spawn
 
@@ -41,7 +43,10 @@ func _handle_new_peer(id: int):
 	spawn(id)
 
 func _handle_leave(id: int):
-	# TODO: Does this need to run only on server?
+	if not is_multiplayer_authority():
+		# Only despawn on server
+		return
+
 	if not avatars.has(id):
 		return
 
@@ -64,13 +69,13 @@ func _spawn(peer_id: int) -> BrawlerController:
 	# Avatar is always owned by server
 	avatar.set_multiplayer_authority(1)
 
-	print("Spawned avatar %s at %s" % [avatar.name, multiplayer.get_unique_id()])
+	_logger.info("Spawned avatar %s at %s" % [avatar.name, multiplayer.get_unique_id()])
 
 	# Avatar's input object is owned by player
 	var input = avatar.find_child("Input")
 	if input != null:
 		input.set_multiplayer_authority(peer_id)
-		print("Set input(%s) ownership to %s" % [input.name, peer_id])
+		_logger.debug("Set input(%s) ownership to %s" % [input.name, peer_id])
 
 	if peer_id == multiplayer.get_unique_id():
 		# If avatar is own, assign it as camera follow target and emit event
@@ -80,15 +85,14 @@ func _spawn(peer_id: int) -> BrawlerController:
 		# Submit name
 		var settings := ForestBrawlSettings.get_active()
 		var player_name = NameProvider.name() if settings.randomize_name else settings.player_name
-		print("Submitting player name " + player_name)
+		_logger.debug("Submitting player name " + player_name)
 		_submit_name.rpc(player_name)
 
 	return avatar
 
-# TODO: Is this needed?
 @rpc("any_peer", "reliable", "call_local")
 func _submit_name(player_name: String):
 	var pid = multiplayer.get_remote_sender_id()
 	var avatar = avatars[pid]
 	avatar.player_name = player_name
-	print("Setting player name for #%s to %s" % [pid, player_name])
+	_logger.debug("Setting player name for #%s to %s" % [pid, player_name])
