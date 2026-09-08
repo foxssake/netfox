@@ -30,9 +30,8 @@ func record_property(property: NodePath) -> void:
 	set_value(property, _object.get_indexed(property))
 
 func apply() -> void:
-	for property in properties():
-		var value := get_value(property)
-		_object.set_indexed(property, value)
+	for property in _data:
+		_object.set_indexed(property, _data[property])
 
 func is_auth() -> bool:
 	return _is_auth

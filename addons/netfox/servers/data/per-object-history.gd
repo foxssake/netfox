@@ -15,6 +15,9 @@ func subjects() -> Array[Object]:
 	result.assign(_data.keys())
 	return result
 
+func subjects_raw() -> Array:
+	return _data.keys()
+
 func is_auth(tick: int, subject: Object) -> bool:
 	if not _data.has(subject):
 		return false
@@ -30,7 +33,6 @@ func erase_subject(subject: Object) -> void:
 	_data.erase(subject)
 
 func ensure_snapshot(tick: int, subject: Object, carry_forward: bool) -> _ObjectSnapshot:
-	var has_subject := _data.has(subject)
 	if not _data.has(subject):
 		_data[subject] = _HistoryBuffer.new(_history_size)
 	var history := _data[subject] as _HistoryBuffer

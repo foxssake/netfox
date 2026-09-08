@@ -102,9 +102,9 @@ func merge(snapshot: _Snapshot) -> bool:
 
 func apply() -> void:
 	for subject in _data:
-		for property in _data[subject]:
-			var value = _data[subject][property]
-			(subject as Object).set_indexed(property, value)
+		var props := _data[subject] as Dictionary
+		for property in props:
+			(subject as Object).set_indexed(property, props[property])
 
 func sanitize(sender: int) -> void:
 	var invalid_subjects := []
