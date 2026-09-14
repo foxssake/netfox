@@ -164,6 +164,8 @@ var _rollback_from: int = -1
 var _rollback_to: int = -1
 var _rollback_stage: String = ""
 
+var _resim_floor: int = -1
+
 # Resim + mutations
 var _is_rollback: bool = false
 var _simulated_nodes: _Set = _Set.new()
@@ -185,6 +187,9 @@ static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("NetworkRollback")
 ## This is used to determine the resimulation range during each loop.
 func notify_resimulation_start(p_tick: int) -> void:
 	_resim_from = min(_resim_from, p_tick)
+
+func notify_resim_floor(p_tick: int) -> void:
+	_resim_floor = maxi(_resim_floor, p_tick)
 
 ## Submit node for simulation.
 ##
@@ -354,7 +359,7 @@ func _get_rollback_tag() -> String:
 	else:
 		return "_"
 
-func _rollback() -> void:
+func _rollback(frame_from_tick: int = -1) -> void:
 	if not enabled:
 		return
 
@@ -364,6 +369,9 @@ func _rollback() -> void:
 
 	# Figure out where to start rollback from
 	var range_source = "notif"
+	if frame_from_tick >= 0 and frame_from_tick <= _resim_from:
+		range_source = "frame start"
+		_resim_from = frame_from_tick
 	if _earliest_input >= 0 and _earliest_input <= _resim_from:
 		range_source = "earliest input"
 		_resim_from = _earliest_input
@@ -371,6 +379,9 @@ func _rollback() -> void:
 		range_source = "latest state"
 		_resim_from = _earliest_state
 	_resim_from = mini(_resim_from, NetworkTime.tick - 1)
+	if _resim_floor >= 0 and _resim_from < _resim_floor:
+		_resim_from = _resim_floor
+		range_source = "resim floor"
 	_logger.trace("Simulating range @%d>@%d using %s", [_resim_from, NetworkTime.tick, range_source])
 
 	# Only set _is_rollback *after* emitting before_loop

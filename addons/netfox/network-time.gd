@@ -565,6 +565,7 @@ func _loop() -> void:
 	if ticks_in_loop > 0:
 		_before_tick_loop()
 
+		var first_tick := _tick
 		for i in ticks_in_loop:
 			before_tick.emit(ticktime, tick)
 			on_tick.emit(ticktime, tick)
@@ -580,7 +581,7 @@ func _loop() -> void:
 			_tick += 1
 			_next_tick_time += ticktime
 
-		_after_tick_loop()
+		_after_tick_loop(first_tick)
 
 	# Send queued network identities
 	NetworkIdentityServer.flush_queue()
@@ -605,9 +606,9 @@ func _before_tick_loop() -> void:
 	InterpolationServer._apply_target_state()
 	before_tick_loop.emit()
 
-func _after_tick_loop() -> void:
+func _after_tick_loop(first_tick: int = -1) -> void:
 	# Run rollback loop
-	NetworkRollback._rollback()
+	NetworkRollback._rollback(first_tick)
 
 	# Emit signal
 	after_tick_loop.emit()
