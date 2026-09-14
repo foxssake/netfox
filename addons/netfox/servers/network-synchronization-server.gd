@@ -36,6 +36,7 @@ var _rb_enable_input_broadcast := ProjectSettings.get_setting("netfox/rollback/e
 var _rb_enable_diffs := NetworkRollback.enable_diff_states
 var _rb_full_interval := ProjectSettings.get_setting("netfox/rollback/full_state_interval", 24) as int
 var _rb_full_scheduler := _IntervalScheduler.new(_rb_full_interval)
+var _rb_last_synced_tick := -1
 
 var _input_redundancy := NetworkRollback.input_redundancy
 
@@ -260,6 +261,12 @@ func _synchronize_state(tick: int) -> void:
 		# Nothing to send
 		return
 
+	# Ticks at or below _rb_last_synced_tick were already sent
+	# Don't resend them, so peers won't resimulate them
+	if tick <= _rb_last_synced_tick:
+		return
+	_rb_last_synced_tick = tick
+
 	# Figure out whether to send full- or diff state
 	var is_full := _rb_full_scheduler.is_now()
 	if not _rb_enable_diffs:
@@ -353,6 +360,11 @@ func _init(
 	_simulation_server = p_simulation_server
 
 func _ready():
+	# NetworkTime.tick restarts every session, so reset _rb_last_synced_tick
+	NetworkTime.after_sync.connect(func():
+		_rb_last_synced_tick = NetworkTime.tick - 1
+	)
+
 	# Ensure dependencies
 	if not _command_server: _command_server = NetworkCommandServer
 	if not _history_server: _history_server = NetworkHistoryServer
