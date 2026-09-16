@@ -1,0 +1,44 @@
+[gd_scene load_steps=6 format=3 uid="uid://c3j3mujpl8cgm"]
+
+[ext_resource type="Script" path="res://examples/multiplayer-job-queue/scripts/player.gd" id="1_ko3qb"]
+[ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="2_2emte"]
+[ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="3_55t3d"]
+[ext_resource type="Script" path="res://examples/multiplayer-job-queue/scripts/player-input.gd" id="4_lxb4l"]
+[ext_resource type="Texture2D" uid="uid://b66gbhylc33yy" path="res://examples/multiplayer-fps/textures/crosshair.png" id="5_3eo8n"]
+
+[node name="Player" type="Node3D"]
+script = ExtResource("1_ko3qb")
+
+[node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("2_2emte")
+root = NodePath("..")
+enable_prediction = true
+state_properties = Array[String](["Cursor:position"])
+input_properties = Array[String](["Input:cursor_position", "Input:clicked"])
+
+[node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("3_55t3d")
+root = NodePath("..")
+properties = Array[String](["Cursor:position"])
+
+[node name="Input" type="Node" parent="."]
+script = ExtResource("4_lxb4l")
+
+[node name="Cursor" type="Node2D" parent="."]
+position = Vector2(270, 270)
+
+[node name="Username" type="Label" parent="Cursor"]
+unique_name_in_owner = true
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_top = -45.0
+offset_right = 20.0
+offset_bottom = -22.0
+grow_horizontal = 2
+text = "Username"
+horizontal_alignment = 1
+
+[node name="Sprite2D" type="Sprite2D" parent="Cursor"]
+texture = ExtResource("5_3eo8n")
