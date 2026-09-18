@@ -148,6 +148,19 @@ Play soccer with cars, in Godot, with [Godot Rocket League](https://github.com/a
 Demonstrates *netfox*'s physics rollback capabilities, ensuring smooth and
 responsive physics-based gameplay.
 
+## Hosting
+
+[Edgegap] has partnered up with *netfox*, offering [game hosting],
+[matchmaking], and [more].
+
+Check out the official [netfox Forest Brawl guide] to get started!
+
+[Edgegap]: https://edgegap.com/
+[game hosting]: https://edgegap.com/platform/orchestration-hosting
+[matchmaking]: https://edgegap.com/platform/matchmaker
+[more]: https://edgegap.com/platform/technology-explainer-game-server-hosting-orchestration
+[netfox Forest Brawl guide]: https://docs.edgegap.com/docs/sample-projects/godot/netfox-forest-brawl
+
 ## Built with netfox
 
 Games built with netfox, coming to a Steam near you! See the more on the site's
