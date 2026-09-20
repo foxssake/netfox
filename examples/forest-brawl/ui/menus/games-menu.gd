@@ -56,7 +56,7 @@ func _process(dt: float) -> void:
 		_poll_wait = _poll_interval
 		var response := await ForestBrawlConnector.nohub().list_lobbies()
 		if not response.is_success():
-			_logger.warn("Failed listing lobbies: %s" % [response])
+			_logger.warning("Failed listing lobbies: %s" % [response])
 		else:
 			_logger.debug("Found lobbies: %s" % [response.value()])
 			lobbies_container.set_lobbies(response.value())
@@ -109,10 +109,10 @@ func _host() -> void:
 	var noray_address := ForestBrawlConnector.noray_address()
 
 	if not lobby_name:
-		_logger.warn("Lobby name can't be empty!")
+		_logger.warning("Lobby name can't be empty!")
 		return
 	if lobby_limit <= 0:
-		_logger.warn("Invalid player limit!")
+		_logger.warning("Invalid player limit!")
 		return
 
 	var player_limit := int(lobby_limit)
@@ -120,7 +120,7 @@ func _host() -> void:
 
 	var response := await ForestBrawlConnector.host_lobby(lobby_name, address, player_limit)
 	if not response.is_success():
-		_logger.warn("Failed to create lobby! %s", [response])
+		_logger.warning("Failed to create lobby! %s", [response])
 		return
 	else:
 		_logger.info("Created lobby! %s", [response.value()])
@@ -128,7 +128,7 @@ func _host() -> void:
 
 	var err := await ForestBrawlConnector.host_noray()
 	if err != OK:
-		_logger.warn("Failed to host game: " + error_string(err))
+		_logger.warning("Failed to host game: " + error_string(err))
 		return
 
 	# Success!
@@ -141,7 +141,7 @@ func _join(lobby_id: String) -> void:
 	_logger.debug("Attempting to join lobby #%s", [lobby_id])
 	var response := await ForestBrawlConnector.nohub().join_lobby(lobby_id)
 	if not response.is_success():
-		_logger.warn("Failed to join lobby %s: %s", [lobby_id, response])
+		_logger.warning("Failed to join lobby %s: %s", [lobby_id, response])
 		return
 
 	var address := response.value()
