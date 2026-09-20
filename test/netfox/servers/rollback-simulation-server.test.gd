@@ -107,6 +107,18 @@ func suite() -> void:
 		)
 	)
 
+	define("reset()", func():
+		test("should forget simulated ticks", func():
+			var node := await get_node()
+			simulation_server._set_tick_simulated_for(node, 8)
+			expect_not(simulation_server._is_tick_fresh_for(node, 8))
+
+			simulation_server.reset()
+
+			expect(simulation_server._is_tick_fresh_for(node, 8))
+		)
+	)
+
 class RewindableNode extends Node:
 	func _rollback_tick(_dt, _t, _if) -> void:
 		pass

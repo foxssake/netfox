@@ -150,6 +150,15 @@ func deregister(node: Node) -> void:
 func erase_peer(peer: int) -> void:
 	_rb_sent_state_history.erase(peer)
 
+## Forget what was sent to other peers, while keeping the registered properties
+## [br][br]
+## Sent states are the reference for diff states, and are indexed by tick, so
+## they must not carry over to the next session. Called by
+## [method _NetworkTime.stop].
+func reset() -> void:
+	_rb_sent_state_history.clear()
+	_last_sync_state_sent = _Snapshot.new(0)
+
 func _get_peer_rb_sent_history(peer: int) -> _HistoryBuffer:
 	if not _rb_sent_state_history.has(peer):
 		_rb_sent_state_history[peer] = _HistoryBuffer.new(NetworkRollback.history_limit)

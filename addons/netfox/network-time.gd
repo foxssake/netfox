@@ -476,6 +476,12 @@ func stop() -> void:
 	_tick = 0
 	_initial_sync_done = false
 
+	# Drop tick-indexed data, the next session's ticks are unrelated to this one's
+	NetworkRollback.reset()
+	NetworkHistoryServer.reset()
+	NetworkSynchronizationServer.reset()
+	RollbackSimulationServer.reset()
+
 	if multiplayer.peer_disconnected.is_connected(_handle_peer_disconnect):
 		multiplayer.peer_disconnected.disconnect(_handle_peer_disconnect)
 

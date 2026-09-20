@@ -123,6 +123,26 @@ func suite() -> void:
 			expect_equal(NetworkHistoryServer.get_latest_state_tick_for([subject], 6), 6)
 		)
 	)
+	define("reset()", func():
+		test("should record early ticks after reset", func():
+			var history_server := servers.history_server()
+			history_server.register_rollback_state(subject, ^"tracked_value")
+
+			# Previous session ends way past the history size
+			history_server._record_rollback_state(500)
+			history_server.reset()
+
+			# Next session starts from the beginning
+			subject.tracked_value = 7
+			history_server._record_rollback_state(5)
+
+			var snapshot := history_server._get_rollback_state_snapshot(5)
+			expect_not_null(snapshot)
+			expect_equal(snapshot.get_property(subject, ^"tracked_value"), 7)
+			expect_equal(history_server.get_latest_state_tick_for([subject], 5), 5)
+			expect_null(history_server._get_rollback_state_snapshot(500))
+		)
+	)
 
 func create_subject() -> StateNode:
 	var node := StateNode.new()
