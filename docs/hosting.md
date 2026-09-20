@@ -48,6 +48,9 @@ addon also comes with *netfox* for ease of use.
 and relaying, its resource costs are low, meaning it can run on cheap VPS
 instances too.
 
+A free instance is available at `foxssake.studio:8890` ( formerly
+`tomfol.io:8890 `).
+
 [noray]: https://github.com/foxssake/noray
 [NAT punchthrough]: https://en.wikipedia.org/wiki/Hole_punching_(networking)
 
@@ -59,6 +62,8 @@ Lobbies can also be locked and unlocked, made private or public.
 
 [nohub] is a self-hosted service with low resource usage, and a dedicated Godot
 addon.
+
+A free instance is available at `foxssake.studio:12980`.
 
 [nohub]: https://github.com/foxssake/nohub
 
