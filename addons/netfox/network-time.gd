@@ -532,9 +532,10 @@ func _loop() -> void:
 	var clock_diff := NetworkTimeSynchronizer.get_time() - _clock.get_time()
 
 	# Ignore diffs under 1ms
-	clock_diff = sign(clock_diff) * max(abs(clock_diff) - 0.001, 0.)
+	if abs(clock_diff) < 0.001:
+		clock_diff = 0.
 
-	var clock_stretch_t: float = clampf(clock_diff / ticktime, -1., 1.)
+	var clock_stretch_t := clampf(clock_diff / ticktime, -1., 1.)
 
 	var previous_stretch_factor := _clock_stretch_factor
 	_clock_stretch_factor = pow(clock_stretch_max, clock_stretch_t)
