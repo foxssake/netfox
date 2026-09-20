@@ -3,7 +3,7 @@
 Building a fun, multiplayer game is one part of the equation that *netfox*
 helps with. However, many multiplayer games run over the internet. This can
 necessitate both *hosting* your game, and possibly other online services like
-*lobby management* or *matchmaking*.
+*server browsers*, *lobby management* or *matchmaking*.
 
 ## Dedicated vs. player hosting
 
@@ -98,7 +98,7 @@ do automatic backfills, and more.
 
 [Matchmaking service]: https://edgegap.com/platform/matchmaker
 
-#### Lobbies
+#### Server Browser
 
 [Edgegap]'s [Server Browser] service offers automated session management
 without having to deploy your own infrastructure. Its solution is customizable,
