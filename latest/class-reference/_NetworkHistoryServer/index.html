@@ -283,6 +283,8 @@
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#void-deregister-node-node">void deregister ( Node node )</a>
     </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-reset">void reset ( )</a>
+    </li>
     <li class="toctree-l4"><a class="reference internal" href="#void-ignore-node-subject">void ignore ( Node subject )</a>
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#void-flush_ignores">void flush_ignores ( )</a>
@@ -396,6 +398,10 @@
 </tr>
 <tr>
 <td>void</td>
+<td><a href="#reset">reset</a>()</td>
+</tr>
+<tr>
+<td>void</td>
 <td><a href="#ignore">ignore</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject)</td>
 </tr>
 <tr>
@@ -445,6 +451,10 @@
 <hr />
 <h4 id="void-deregister-node-node"><span id="deregister">void deregister ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node ) </span></h4>
 <p>Deregister a node, no longer tracking any property it had registered using any of the <code>register_*()</code> methods</p>
+<hr />
+<h4 id="void-reset"><span id="reset">void reset (  ) </span></h4>
+<p>Forget all recorded history, while keeping the registered properties   </p>
+<p>History is indexed by tick, so data from a previous session must not carry over to the next one. Called by <a href="../_NetworkTime/#stop">_NetworkTime.stop()</a>.</p>
 <hr />
 <h4 id="void-ignore-node-subject"><span id="ignore">void ignore ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> subject ) </span></h4>
 <p>Do not record <code>subject</code>   </p>

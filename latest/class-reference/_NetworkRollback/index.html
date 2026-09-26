@@ -319,6 +319,8 @@
         <ul>
     <li class="toctree-l4"><a class="reference internal" href="#void-notify_resimulation_start-int-p_tick">void notify_resimulation_start ( int p_tick )</a>
     </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-reset">void reset ( )</a>
+    </li>
     <li class="toctree-l4"><a class="reference internal" href="#void-notify_simulated-node-node">void notify_simulated ( Node node )</a>
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#bool-is_simulated-node-node">bool is_simulated ( Node node )</a>
@@ -481,6 +483,10 @@
 </tr>
 <tr>
 <td>void</td>
+<td><a href="#reset">reset</a>()</td>
+</tr>
+<tr>
+<td>void</td>
 <td><a href="#notify_simulated">notify_simulated</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node)</td>
 </tr>
 <tr>
@@ -618,6 +624,10 @@
 <h2 id="method-descriptions">Method Descriptions</h2>
 <h4 id="void-notify_resimulation_start-int-p_tick"><span id="notify_resimulation_start">void notify_resimulation_start ( <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> p_tick ) </span></h4>
 <p>Submit the resimulation start tick for the current loop.  This is used to determine the resimulation range during each loop.</p>
+<hr />
+<h4 id="void-reset"><span id="reset">void reset (  ) </span></h4>
+<p>Reset the rollback loop's tick-related state   </p>
+<p>Called by <a href="../_NetworkTime/#stop">_NetworkTime.stop()</a>, so the next session doesn't pick up from the last tick of the previous one.</p>
 <hr />
 <h4 id="void-notify_simulated-node-node"><span id="notify_simulated">void notify_simulated ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node ) </span></h4>
 <p>Submit node for simulation.  This is used mostly internally by <a href="../RollbackSynchronizer/">RollbackSynchronizer</a>. The idea is to submit each affected node while preparing the tick, and then run only the nodes that need to be resimulated.</p>

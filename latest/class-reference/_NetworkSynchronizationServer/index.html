@@ -305,6 +305,8 @@
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#void-erase_peer-int-peer">void erase_peer ( int peer )</a>
     </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-reset">void reset ( )</a>
+    </li>
         </ul>
     </li>
     </ul>
@@ -417,6 +419,10 @@
 <td>void</td>
 <td><a href="#erase_peer">erase_peer</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> peer)</td>
 </tr>
+<tr>
+<td>void</td>
+<td><a href="#reset">reset</a>()</td>
+</tr>
 </tbody>
 </table>
 <h2 id="method-descriptions">Method Descriptions</h2>
@@ -459,6 +465,10 @@
 <h4 id="void-erase_peer-int-peer"><span id="erase_peer">void erase_peer ( <a href="https://docs.godotengine.org/en/4.1/classes/class_int.html">int</a> peer ) </span></h4>
 <p>Erase all data kept about <code>peer</code>.   </p>
 <p>Called by default when a peer leaves</p>
+<hr />
+<h4 id="void-reset"><span id="reset">void reset (  ) </span></h4>
+<p>Forget what was sent to other peers, while keeping the registered properties   </p>
+<p>Sent states are the reference for diff states, and are indexed by tick, so they must not carry over to the next session. Called by <a href="../_NetworkTime/#stop">_NetworkTime.stop()</a>.</p>
 <hr />
               
             </div>

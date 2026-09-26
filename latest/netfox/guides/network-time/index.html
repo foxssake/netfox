@@ -383,6 +383,8 @@ return. Use this when starting the game.</p>
 </blockquote>
 <p>To stop the tick loop, call <code>NetworkTime.stop()</code>. This will immediately stop
 the tick loop and return. Use this when the player leaves a game.</p>
+<p>Stopping also clears the recorded history and other tick-related data, so
+<code>NetworkTime.start()</code> can be called again later to start a new session.</p>
 <p>To get notified when a client successfully syncs their time and starts the tick
 loop, use the <code>NetworkTime.after_client_sync(peer_id)</code> signal. This is fired
 once per client, and only on the server.</p>

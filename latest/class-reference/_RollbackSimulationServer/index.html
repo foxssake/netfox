@@ -295,6 +295,8 @@
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#void-deregister-callable-callback">void deregister ( Callable callback )</a>
     </li>
+    <li class="toctree-l4"><a class="reference internal" href="#void-reset">void reset ( )</a>
+    </li>
     <li class="toctree-l4"><a class="reference internal" href="#void-deregister_node-node-node">void deregister_node ( Node node )</a>
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#void-register_rollback_input_for-node-node-node-input">void register_rollback_input_for ( Node node, Node input )</a>
@@ -369,6 +371,10 @@
 </tr>
 <tr>
 <td>void</td>
+<td><a href="#reset">reset</a>()</td>
+</tr>
+<tr>
+<td>void</td>
 <td><a href="#deregister_node">deregister_node</a>(<a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node)</td>
 </tr>
 <tr>
@@ -407,6 +413,10 @@
 <hr />
 <h4 id="void-deregister-callable-callback"><span id="deregister">void deregister ( <a href="https://docs.godotengine.org/en/4.1/classes/class_callable.html">Callable</a> callback ) </span></h4>
 <p>Deregister a <code>callback</code> from the rollback loop</p>
+<hr />
+<h4 id="void-reset"><span id="reset">void reset (  ) </span></h4>
+<p>Forget which ticks were simulated, while keeping the registered callbacks   </p>
+<p>Called by <a href="../_NetworkTime/#stop">_NetworkTime.stop()</a>, so ticks of the next session are not mistaken for already simulated ones.</p>
 <hr />
 <h4 id="void-deregister_node-node-node"><span id="deregister_node">void deregister_node ( <a href="https://docs.godotengine.org/en/4.1/classes/class_node.html">Node</a> node ) </span></h4>
 <p>Deregister a <code>node</code> from the rollback loop</p>
