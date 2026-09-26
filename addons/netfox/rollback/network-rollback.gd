@@ -186,6 +186,17 @@ static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("NetworkRollback")
 func notify_resimulation_start(p_tick: int) -> void:
 	_resim_from = min(_resim_from, p_tick)
 
+## Reset the rollback loop's tick-related state
+## [br][br]
+## Called by [method _NetworkTime.stop], so the next session doesn't pick up
+## from the last tick of the previous one.
+func reset() -> void:
+	_tick = 0
+	_earliest_input = -1
+	_earliest_state = -1
+	_simulated_nodes.clear()
+	_mutated_nodes.clear()
+
 ## Submit node for simulation.
 ##
 ## This is used mostly internally by [RollbackSynchronizer]. The idea is to

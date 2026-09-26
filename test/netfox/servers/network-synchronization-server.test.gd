@@ -156,6 +156,25 @@ func suite() -> void:
 		)
 	)
 
+	define("reset()", func():
+		test("should forget sent states", func():
+			var node := await get_node("subject")
+			var snapshot := _Snapshot.of(500, [
+				[node, ^"position", Vector3.ONE]
+			], [node])
+
+			servers.synchronization_server()._remember_sent_rollback_state(2, snapshot)
+			servers.synchronization_server()._last_sync_state_sent = snapshot
+
+			servers.synchronization_server().reset()
+
+			expect_null(servers.synchronization_server()._get_last_sent_rollback_state(2, 500))
+			expect(servers.synchronization_server()._last_sync_state_sent.is_empty())
+
+			node.queue_free()
+		)
+	)
+
 	define("synchronize_sync_state()", func():
 		test("should submit owned", func():
 			skip()

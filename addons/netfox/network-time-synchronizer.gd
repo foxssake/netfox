@@ -158,6 +158,12 @@ func start() -> void:
 func stop() -> void:
 	_active = false
 
+	# Don't carry measurements over to the next session
+	_awaiting_samples.clear()
+	_offset = 0.
+	_rtt = 0.
+	_rtt_jitter = 0.
+
 ## Get the current time from the reference clock.
 ##
 ## Returns a timestamp in seconds, with a fractional part for extra precision.

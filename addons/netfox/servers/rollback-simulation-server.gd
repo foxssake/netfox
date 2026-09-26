@@ -63,6 +63,13 @@ func deregister(callback: Callable) -> void:
 	_simulated_ticks.erase(subject)
 	(subject as Node).remove_from_group(_group)
 
+## Forget which ticks were simulated, while keeping the registered callbacks
+## [br][br]
+## Called by [method _NetworkTime.stop], so ticks of the next session are not
+## mistaken for already simulated ones.
+func reset() -> void:
+	_simulated_ticks.clear()
+
 ## Deregister a [param node] from the rollback loop
 func deregister_node(node: Node) -> void:
 	if _callbacks.has(node):

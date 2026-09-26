@@ -51,3 +51,22 @@ func suite() -> void:
 			expect_not(network_rollback.is_just_mutated(mutated_node, 8))
 		)
 	)
+
+	define("reset()", func():
+		test("should start over from tick 0", func():
+			# Given
+			network_rollback._tick = 500
+			network_rollback._earliest_input = 498
+			network_rollback._earliest_state = 499
+			network_rollback.mutate(mutated_node, 500)
+
+			# When
+			network_rollback.reset()
+
+			# Then
+			expect_equal(network_rollback.tick, 0)
+			expect_not(network_rollback.is_mutated(mutated_node, 500))
+			expect_equal(network_rollback._earliest_input, -1)
+			expect_equal(network_rollback._earliest_state, -1)
+		)
+	)
