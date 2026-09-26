@@ -114,7 +114,7 @@ func sanitize(sender: int) -> void:
 				invalid_subjects.append(subject)
 
 	for subject in invalid_subjects:
-		_data.erase(invalid_subjects)
+		_data.erase(subject)
 
 func has_subject(subject: Object, require_auth: bool = false) -> bool:
 	if not _data.has(subject):
