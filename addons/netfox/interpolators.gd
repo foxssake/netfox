@@ -27,6 +27,9 @@ class Interpolator:
 		result.apply = apply
 		return result
 
+## Default interpolation function
+static var default_apply: Callable = func(a, b, f): return a if f < 0.5 else b
+
 ## Fallback interpolator.
 ## [br][br]
 ## Returns the starting value in the first half of the tick, and the target
@@ -44,9 +47,6 @@ static var DEFAULT_INTERPOLATOR := Interpolator.make(
 ## [br][br]
 ## Do not modify - use [method register] instead.
 static var interpolators: Array[Interpolator]
-
-## Default interpolation function
-static var default_apply: Callable = func(a, b, f): a if f < 0.5 else b
 
 ## Register an interpolator.
 ## [br][br]
