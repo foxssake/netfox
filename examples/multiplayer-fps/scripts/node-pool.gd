@@ -33,6 +33,6 @@ func next() -> Node:
 
 func clear():
 	for node in pool:
-		if node.is_instance_valid():
+		if is_instance_valid(node):
 			node.queue_free()
 	pool = []

@@ -11,6 +11,8 @@ class_name BulletHole
 @export var hole_minimum_size: float = 0.15
 ## The maximum size of the hole
 @export var hole_maximum_size: float = 0.2
+## Node to parent spawned bullethole decals under. Falls back to the scene root.
+@export var spawn_root: Node
 
 @export_flags_3d_render var decal_mask := 1
 @export_flags_3d_render var decal_layer := 1
@@ -19,7 +21,7 @@ var pool := NodePool.new()
 
 func _ready():
 	pool.pool_limit = instance_limit
-	pool.spawn_root = get_tree().root.get_node("multiplayer-fps/Map/StaticBody3D")
+	pool.spawn_root = spawn_root if is_instance_valid(spawn_root) else get_tree().current_scene
 
 	var decal_node: Decal = Decal.new()
 	decal_node.cull_mask = decal_mask
