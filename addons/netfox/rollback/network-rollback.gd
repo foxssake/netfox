@@ -154,6 +154,7 @@ signal after_loop()
 var _history_limit: int = ProjectSettings.get_setting(&"netfox/rollback/history_limit", 64)
 var _display_offset: int = ProjectSettings.get_setting(&"netfox/rollback/display_offset", 0)
 var _input_delay: int = ProjectSettings.get_setting(&"netfox/rollback/input_delay", 0)
+var _last_input_label: int = -1
 var _input_redundancy: int = ProjectSettings.get_setting(&"netfox/rollback/input_redundancy", 3)
 
 # Timing
@@ -453,8 +454,25 @@ func _rollback() -> void:
 	_is_rollback = false
 
 func _after_tick(tick: int) -> void:
-	NetworkHistoryServer._record_rollback_input(tick + input_delay)
-	NetworkSynchronizationServer._synchronize_input(tick + input_delay)
+	var label: int = tick + input_delay
+	if label <= _last_input_label:
+		# Delay decreased: skip this label so the input stream stays
+		# collision-free (the intent is dropped, matching what receivers keep).
+		return
+
+	if label > _last_input_label + 1 and _last_input_label >= 0:
+		# Delay increased: fill the skipped labels with the current input so
+		# receivers never see a hole in the stream.
+		var fill_label: int = _last_input_label + 1
+		while fill_label <= label:
+			NetworkHistoryServer._record_rollback_input(fill_label)
+			NetworkSynchronizationServer._synchronize_input(fill_label)
+			fill_label += 1
+	else:
+		NetworkHistoryServer._record_rollback_input(label)
+		NetworkSynchronizationServer._synchronize_input(label)
+
+	_last_input_label = label
 
 func _handle_input(snapshot: _Snapshot):
 	if snapshot.is_empty():
