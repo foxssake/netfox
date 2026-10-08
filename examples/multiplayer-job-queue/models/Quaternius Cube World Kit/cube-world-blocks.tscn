@@ -1,0 +1,28 @@
+[gd_scene load_steps=9 format=3 uid="uid://bum0fvhlbq5e7"]
+
+[ext_resource type="PackedScene" uid="uid://cuv6otw6ngypp" path="res://examples/multiplayer-job-queue/models/Quaternius Cube World Kit/Block_Brick.gltf" id="1_b2t7f"]
+[ext_resource type="PackedScene" uid="uid://cflboecqww4q5" path="res://examples/multiplayer-job-queue/models/Quaternius Cube World Kit/Block_Grass.gltf" id="2_8wu18"]
+[ext_resource type="PackedScene" uid="uid://dox3nggklmbyv" path="res://examples/multiplayer-job-queue/models/Quaternius Cube World Kit/Button.gltf" id="3_eutp0"]
+[ext_resource type="PackedScene" uid="uid://rx0fioc73ab3" path="res://examples/multiplayer-job-queue/models/Quaternius Cube World Kit/Door_Closed.gltf" id="4_hmnhw"]
+[ext_resource type="PackedScene" uid="uid://dybsi4yu0ntjp" path="res://examples/multiplayer-job-queue/models/Quaternius Cube World Kit/Fence_Center.gltf" id="5_tnlbv"]
+[ext_resource type="PackedScene" uid="uid://ddb8tf8n0gh35" path="res://examples/multiplayer-job-queue/models/Quaternius Cube World Kit/Fence_End.gltf" id="6_tgobs"]
+[ext_resource type="PackedScene" uid="uid://dj2yvi3ha2naq" path="res://examples/multiplayer-job-queue/models/Quaternius Cube World Kit/Fence_Corner.gltf" id="7_ryf3a"]
+[ext_resource type="PackedScene" uid="uid://o67xys08pp6p" path="res://examples/multiplayer-job-queue/models/Quaternius Cube World Kit/Fence_T.gltf" id="8_514vj"]
+
+[node name="cube-world-blocks" type="Node3D"]
+
+[node name="Block_Brick" parent="." instance=ExtResource("1_b2t7f")]
+
+[node name="Block_Grass" parent="." instance=ExtResource("2_8wu18")]
+
+[node name="Button" parent="." instance=ExtResource("3_eutp0")]
+
+[node name="Door_Closed" parent="." instance=ExtResource("4_hmnhw")]
+
+[node name="Fence_Center" parent="." instance=ExtResource("5_tnlbv")]
+
+[node name="Fence_End" parent="." instance=ExtResource("6_tgobs")]
+
+[node name="Fence_Corner" parent="." instance=ExtResource("7_ryf3a")]
+
+[node name="Fence_T" parent="." instance=ExtResource("8_514vj")]

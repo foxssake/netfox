@@ -1,0 +1,70 @@
+[gd_scene load_steps=7 format=3 uid="uid://c04hv2mf8c7i5"]
+
+[sub_resource type="GDScript" id="GDScript_t62yi"]
+script/source = "extends Node3D
+
+@onready var player := $AnimationPlayer as AnimationPlayer
+
+func _ready():
+	await get_tree().create_timer(0.6).timeout
+	queue_free()
+"
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_j5ybv"]
+albedo_color = Color(1, 0, 0, 1)
+
+[sub_resource type="QuadMesh" id="QuadMesh_0n2dl"]
+material = SubResource("StandardMaterial3D_j5ybv")
+size = Vector2(0.5, 0.5)
+orientation = 1
+
+[sub_resource type="Animation" id="Animation_n1c47"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("MeshInstance3D:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 1, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_audye"]
+resource_name = "action"
+length = 0.6
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("MeshInstance3D:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3, 0.6),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 1, 0), Vector3(1, 1, 1), Vector3(0, 1, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_7mk5l"]
+_data = {
+"RESET": SubResource("Animation_n1c47"),
+"action": SubResource("Animation_audye")
+}
+
+[node name="click-indicator" type="Node3D"]
+script = SubResource("GDScript_t62yi")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0)
+mesh = SubResource("QuadMesh_0n2dl")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+autoplay = "action"
+libraries = {
+"": SubResource("AnimationLibrary_7mk5l")
+}
