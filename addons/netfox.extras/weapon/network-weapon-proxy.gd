@@ -9,6 +9,7 @@ var c_get_data: Callable
 var c_apply_data: Callable
 var c_is_reconcilable: Callable
 var c_reconcile: Callable
+var c_after_declined: Callable
 
 func _can_fire() -> bool:
 	return c_can_fire.call()
@@ -21,6 +22,9 @@ func _after_fire(projectile: Node):
 
 func _spawn() -> Node:
 	return c_spawn.call()
+
+func _after_declined(projectile: Node):
+	c_after_declined.call(projectile)
 
 func _get_data(projectile: Node) -> Dictionary:
 	return c_get_data.call(projectile)

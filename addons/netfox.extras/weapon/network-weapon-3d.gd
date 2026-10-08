@@ -49,6 +49,11 @@ func _after_fire(projectile: Node3D):
 func _spawn() -> Node3D:
 	return null
 
+# @public method
+## See [NetworkWeapon]
+func _after_declined(projectile: Node3D):
+	projectile.queue_free()
+
 func _get_data(projectile: Node3D) -> Dictionary:
 	return {
 		"global_transform": projectile.global_transform

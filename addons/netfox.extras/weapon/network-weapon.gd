@@ -95,6 +95,14 @@ func _spawn() -> Node:
 	return null
 
 # @public method
+## Override this method to handle the projectile after it was declined.
+## [br][br]
+## By default the projectile is freed but we could also just disable
+## and reuse the projectile later, rather then freeing and instancing a new one.
+func _after_declined(projectile: Node):
+	pass
+
+# @public method
 ## Override this method to extract projectile data that should be synchronized
 ## over the network.
 ## [br][br]
@@ -188,7 +196,7 @@ func _request_projectile(id: String, tick: int, request_data: Dictionary):
 	var local_data: Dictionary = _get_data(projectile)
 
 	if not _is_reconcilable(projectile, request_data, local_data):
-		projectile.queue_free()
+		_after_declined(projectile)
 		_decline_projectile.rpc_id(sender, id)
 		_logger.error("Projectile %s rejected! Can't reconcile states: [%s, %s]", [id, request_data, local_data])
 		return
@@ -224,7 +232,7 @@ func _decline_projectile(id: String):
 
 	var p = _projectiles[id]
 	if is_instance_valid(p):
-		p.queue_free()
+		_after_declined(p)
 
 	_projectiles.erase(id)
 	_projectile_data.erase(id)
