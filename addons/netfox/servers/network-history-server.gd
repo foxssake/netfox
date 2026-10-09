@@ -195,14 +195,20 @@ func _get_synchronizer_state_snapshot(tick: int) -> _Snapshot:
 	return _sync_state_snapshots.get_at(tick)
 
 func _merge_rollback_input(snapshot: _Snapshot) -> bool:
+	if not _can_merge_tick(snapshot.tick, _rb_input_history):
+		return false
 	_merge_snapshot(snapshot, _rb_input_snapshots, true)
 	return _merge_history(snapshot, _rb_input_history, true)
 
 func _merge_rollback_state(snapshot: _Snapshot) -> bool:
+	if not _can_merge_tick(snapshot.tick, _rb_state_history):
+		return false
 	_merge_snapshot(snapshot, _rb_state_snapshots)
 	return _merge_history(snapshot, _rb_state_history)
 
 func _merge_synchronizer_state(snapshot: _Snapshot) -> bool:
+	if not _can_merge_tick(snapshot.tick, _sync_history):
+		return false
 	_merge_snapshot(snapshot, _sync_state_snapshots, true)
 	return _merge_history(snapshot, _sync_history)
 
@@ -297,14 +303,6 @@ func _merge_history(snapshot: _Snapshot, history: _PerObjectHistory, reverse: bo
 	var tick := snapshot.tick
 	var has_updated := false
 
-	if tick < NetworkRollback.history_start:
-		match history:
-			_rb_input_history: _logger.warning("Input being merged is too old! (@%d)", [tick])
-			_rb_state_history: _logger.warning("State being merged is too old! (@%d)", [tick])
-			_sync_history: _logger.warning("Sync state being merged is too old! (@%d)", [tick])
-			_: _logger.warning("Snapshot being merged is too old! (@%d)", [tick])
-		return false
-
 	for subject in snapshot.get_subjects():
 		var object_snapshot := history.ensure_snapshot(tick, subject, not reverse)
 		if object_snapshot == null:
@@ -330,6 +328,24 @@ func _merge_history(snapshot: _Snapshot, history: _PerObjectHistory, reverse: bo
 		object_snapshot.set_auth(snapshot.is_auth(subject))
 
 	return has_updated
+
+func _can_merge_tick(tick: int, history: _PerObjectHistory) -> bool:
+	if tick >= NetworkRollback.history_start:
+		return true
+
+	# Packets queued while the main thread was stalled are expected to arrive
+	# after NetworkTime has skipped past them. They cannot be merged into the
+	# new contiguous history and are not an exceptional condition.
+	if tick < NetworkRollback._history_floor:
+		_logger.trace("Dropping snapshot @%d from before the current history floor", [tick])
+		return false
+
+	match history:
+		_rb_input_history: _logger.warning("Input being merged is too old! (@%d)", [tick])
+		_rb_state_history: _logger.warning("State being merged is too old! (@%d)", [tick])
+		_sync_history: _logger.warning("Sync state being merged is too old! (@%d)", [tick])
+		_: _logger.warning("Snapshot being merged is too old! (@%d)", [tick])
+	return false
 
 func _get_latest_for(subjects: Array, tick: int, history: _PerObjectHistory) -> int:
 	var latest := -1

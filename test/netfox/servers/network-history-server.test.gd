@@ -14,6 +14,8 @@ func before_case(__) -> void:
 	subject = await create_subject()
 
 func after_case(__) -> void:
+	NetworkRollback.reset()
+	NetworkMocks.set_tick(0, 0)
 	servers.queue_free()
 	NetworkHistoryServer.deregister(subject)
 	RollbackLivenessServer.deregister(subject)
@@ -46,6 +48,19 @@ func suite() -> void:
 			expect_equal(diff, _Snapshot.of(1, [
 				[node, "position", Vector3.ONE]
 			], [node]))
+		)
+
+		test("should drop snapshots from before a skipped tick range", func():
+			var history_server := servers.history_server()
+			var stale := _Snapshot.of(20, [
+				[subject, "position", Vector3.ONE]
+			], [subject])
+			NetworkMocks.set_network_tick(120)
+			NetworkRollback._handle_tick_jump(120)
+
+			expect_not(history_server._merge_rollback_state(stale))
+			expect_null(history_server._get_rollback_state_snapshot(20))
+			expect_equal(history_server.get_latest_state_tick_for([subject], 120), -1)
 		)
 	)
 	define("push_rollback_state()", func():
