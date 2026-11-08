@@ -4,8 +4,8 @@ class_name _HistoryBuffer
 # Maps ticks (int) to arbitrary data, stored in a sliding ring buffer
 
 var _capacity := 64
-var _buffer: Array = []
-var _previous: Array = []
+var _buffer := []
+var _previous := []
 
 var _tail := 0
 var _head := 0
@@ -56,12 +56,9 @@ func pop() -> Variant:
 
 func values() -> Array:
 	var result := []
-	var tail := _tail
-	var head := _head
-	var capacity := _capacity
-	for i in range(tail, head + 1):
-		if i == _previous[i % capacity]:
-			result.append(_buffer[i % capacity])
+	for i in range(_tail, _head + 1):
+		if i == _previous[i % _capacity]:
+			result.append(_buffer[i % _capacity])
 	return result
 
 func set_at(at: int, value: Variant) -> void:
