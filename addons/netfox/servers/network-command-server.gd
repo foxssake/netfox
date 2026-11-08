@@ -28,6 +28,11 @@ var _commands := {} # id to `Command`
 
 var _use_raw := ProjectSettings.get_setting("netfox/general/use_raw_commands", false) as bool
 
+# Number each unreliable command per peer, so each end can count what was lost
+var _count_loss := ProjectSettings.get_setting("netfox/general/count_packet_loss", false) as bool
+var _numbers_out := {} # peer to last number sent
+var _numbers_in := {} # peer to LossCount
+
 static var _logger := NetfoxLogger._for_netfox("NetworkCommandServer")
 
 func _ready():
@@ -58,10 +63,27 @@ func register_command_at(idx: int, handler: Callable, mode: MultiplayerPeer.Tran
 
 ## Send a command with index and data
 func send_command(idx: int, data: PackedByteArray, target_peer: int = 0, mode: MultiplayerPeer.TransferMode = MultiplayerPeer.TRANSFER_MODE_RELIABLE, channel: int = 0) -> void:
+	if _count_loss and mode == MultiplayerPeer.TRANSFER_MODE_UNRELIABLE:
+		var number: int = (_numbers_out.get(target_peer, -1) + 1) % 256
+		_numbers_out[target_peer] = number
+		data = PackedByteArray([number]) + data
 	if _use_raw:
 		_packet_transport.send(idx, data, target_peer, mode, channel)
 	else:
 		_rpc_transport.send(idx, data, target_peer, mode, channel)
+
+## Return how many unreliable commands arrived from [param peer] since the
+## last call, and how many were lost on the way, as [code][received, lost][/code]
+## [br][br]
+## Needs [code]netfox/general/count_packet_loss[/code] enabled on every peer.
+func take_loss(peer: int) -> Array[int]:
+	var count := _numbers_in.get(peer) as LossCount
+	return count.take() if count else ([0, 0] as Array[int])
+
+## Reset packet loss counters, e.g. when starting a new session
+func forget_numbers() -> void:
+	_numbers_out.clear()
+	_numbers_in.clear()
 
 ## Return true if [param packet] is a command packet
 ## [br][br]
@@ -82,7 +104,48 @@ func _handle_command(sender: int, idx: int, data: PackedByteArray) -> void:
 	if not command:
 		_logger.error("Received unknown command #%d!", [idx])
 		return
+	if _count_loss and command._mode == MultiplayerPeer.TRANSFER_MODE_UNRELIABLE:
+		if data.is_empty():
+			return
+		var count := _numbers_in.get(sender) as LossCount
+		if not count:
+			count = LossCount.new()
+			_numbers_in[sender] = count
+		count.note(data[0])
+		data = data.slice(1)
 	command._handle(sender, data)
+
+## Counts numbered commands from one peer
+## [br][br]
+## Numbers wrap at 256. A step forward of up to [constant AHEAD] means the
+## numbers in between were lost; anything else is a late packet, which was
+## counted as lost before and isn't.
+class LossCount:
+	const AHEAD := 200
+
+	var _newest := -1
+	var _came := 0
+	var _lost := 0
+
+	func note(number: int) -> void:
+		_came += 1
+		if _newest < 0:
+			_newest = number
+			return
+		var step := (number - _newest + 256) % 256
+		if step == 0:
+			return
+		if step <= AHEAD:
+			_lost += step - 1
+			_newest = number
+		else:
+			_lost = maxi(_lost - 1, 0)
+
+	func take() -> Array[int]:
+		var out: Array[int] = [_came, _lost]
+		_came = 0
+		_lost = 0
+		return out
 
 ## Networked command
 ##

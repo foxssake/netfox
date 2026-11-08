@@ -23,6 +23,13 @@ var SETTINGS: Array[Dictionary] = [
 		"type": TYPE_INT
 	},
 	{
+		# Add a sequence byte to unreliable commands to measure packet loss,
+		# see NetworkCommandServer.take_loss(). Must match on every peer.
+		"name": "netfox/general/count_packet_loss",
+		"value": false,
+		"type": TYPE_BOOL
+	},
+	{
 		"name": "netfox/general/supress_identity_peer_disconnected_warning",
 		"value": false,
 		"type": TYPE_BOOL
