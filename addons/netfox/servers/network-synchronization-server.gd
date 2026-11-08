@@ -42,6 +42,7 @@ var _input_redundancy := NetworkRollback.input_redundancy
 var _rb_sent_state_history := {} # peer to _HistoryBuffer of _Snapshot
 
 var _last_sync_state_sent := _Snapshot.new(0)
+var _sync_seen := {} # peer to Dictionary of subject to ticks visible
 var _sync_enable_diffs := ProjectSettings.get_setting("netfox/state_synchronizer/enable_diff_states", true) as bool
 var _sync_full_interval := ProjectSettings.get_setting("netfox/state_synchronizer/full_state_interval", 24) as int
 var _sync_full_scheduler := _IntervalScheduler.new(_sync_full_interval)
@@ -149,6 +150,7 @@ func deregister(node: Node) -> void:
 ## Called by default when a peer leaves
 func erase_peer(peer: int) -> void:
 	_rb_sent_state_history.erase(peer)
+	_sync_seen.erase(peer)
 
 ## Forget what was sent to other peers, while keeping the registered properties
 ## [br][br]
@@ -158,6 +160,7 @@ func erase_peer(peer: int) -> void:
 func reset() -> void:
 	_rb_sent_state_history.clear()
 	_last_sync_state_sent = _Snapshot.new(0)
+	_sync_seen.clear()
 
 func _get_peer_rb_sent_history(peer: int) -> _HistoryBuffer:
 	if not _rb_sent_state_history.has(peer):
@@ -337,14 +340,36 @@ func _synchronize_sync_state(tick: int) -> void:
 
 		# Send diffs
 		for peer in multiplayer.get_peers():
+			# Subjects that just became visible to this peer are sent whole: the
+			# diff only holds recent changes, the rest would stay stale until the
+			# next full state
+			var peer_diff := diff
+			var seen: Dictionary = _sync_seen.get(peer, {})
+			for subject in _sync_owned_state_properties.get_subjects():
+				if _is_node_visible_to(peer, subject) and not seen.has(subject) \
+						and snapshot.is_auth(subject):
+					if peer_diff == diff:
+						peer_diff = diff.duplicate()
+					for property in snapshot.get_subject_properties(subject):
+						peer_diff.set_property(subject, property, snapshot.get_property(subject, property))
+					peer_diff.set_auth(subject, true)
+
 			var filter := func(subject): return _is_node_visible_to(peer, subject)
 
-			var packets := _sparse_serializer.write_for(peer, diff, _sync_owned_state_properties, filter)
+			var packets := _sparse_serializer.write_for(peer, peer_diff, _sync_owned_state_properties, filter)
 			for packet in packets:
 				_cmd_diff_sync.send(packet, peer)
 
 			NetworkPerformance.push_full_state_props(snapshot.size())
 			NetworkPerformance.push_sent_state_props(diff.size())
+
+	# Remember who saw which subject
+	for peer in multiplayer.get_peers():
+		var now := {}
+		for subject in _sync_owned_state_properties.get_subjects():
+			if _is_node_visible_to(peer, subject):
+				now[subject] = true
+		_sync_seen[peer] = now
 
 	# Remember last sent state for diffing
 	# NOTE: This is a shared instance, theoretically shouldn't screw things up
