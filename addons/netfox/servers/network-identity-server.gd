@@ -39,6 +39,10 @@ static var _logger := NetfoxLogger._for_netfox("NetworkIdentityServer")
 
 const _WARN_QUEUE_SIZE := 128
 
+## Ids reserved for [method register_node_with_id], never handed out by default.
+const AGREED_IDS_FROM := 8192
+const AGREED_IDS_TO := 16384
+
 func _init(p_command_server: _NetworkCommandServer = null):
 	_command_server = p_command_server
 
@@ -72,6 +76,17 @@ func register_node(node: Node) -> void:
 		_logger.error("Can't register node %s that is not inside tree!", [node])
 		return
 	_register(node, node.get_path())
+
+## Register a node under an id every peer already agrees on
+## [br][br]
+## Use an id between [constant AGREED_IDS_FROM] and [constant AGREED_IDS_TO],
+## worked out the same way on every peer (e.g. from a spawn index). The node's
+## path never has to be sent to resolve it.
+func register_node_with_id(node: Node, id: int) -> void:
+	if not node.is_inside_tree():
+		_logger.error("Can't register node %s that is not inside tree!", [node])
+		return
+	_register(node, node.get_path(), id)
 
 ## Deregister a node, freeing all identity data associated with it
 func deregister_node(node: Node) -> void:
@@ -141,11 +156,11 @@ func _queue_for(identifier: _NetworkIdentifier, peer: int) -> void:
 		_has_warned_queue_length = true
 		_logger.warning("Queue size for peer #%d exceeded %d - is the queue being flushed?", [peer, _push_queue[peer].size()])
 
-func _register(what: Object, path: String) -> void:
+func _register(what: Object, path: String, id := -1) -> void:
 	if _identifiers.has(what):
 		return
 
-	var identifier := _NetworkIdentifier.new(what, path, _make_id())
+	var identifier := _NetworkIdentifier.new(what, path, id if id > 0 else _make_id())
 	_identifiers[what] = identifier
 	_identifier_by_name[identifier.get_full_name()] = identifier
 	_identifier_by_local_id[identifier.get_local_id()] = identifier
@@ -170,6 +185,8 @@ func _get_identifier_by_local_id(local_id: int) -> _NetworkIdentifier:
 
 func _make_id() -> int:
 	_next_id += 1
+	if _next_id >= AGREED_IDS_FROM and _next_id < AGREED_IDS_TO:
+		_next_id = AGREED_IDS_TO
 	return _next_id
 
 func _update_id_cache(identifier: _NetworkIdentifier, peer: int, id: int) -> void:
