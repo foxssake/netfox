@@ -195,6 +195,10 @@ func _handle_commands(command: String, data: String) -> void:
 		_logger.debug("Saved PID: %s", [pid])
 	elif command == "connect":
 		var parts = data.split(":")
+		# On failure, noray replies with the same command name and an error message
+		if parts.size() != 2 or not parts[1].is_valid_int():
+			_logger.error("Failed to connect over NAT: %s", [data])
+			return
 		var host = parts[0]
 		var port = parts[1].to_int()
 		_logger.debug("Received connect command to %s:%s", [host, port])
