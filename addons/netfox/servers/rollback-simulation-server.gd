@@ -228,11 +228,11 @@ func _get_inputs_of(node: Node) -> Array[Node]:
 	result.assign(_input_graph.get_linked_to(node))
 	return result
 
-func _init(p_history_server: _NetworkHistoryServer = null, p_liveness_server: _RollbackLivenessServer = null):
+func _init(p_history_server: _NetworkHistoryServer = null, p_liveness_server: _RollbackLivenessServer = null) -> void:
 	_history_server = p_history_server
 	_liveness_server = p_liveness_server
 
-func _ready():
+func _ready() -> void:
 	# Ensure dependencies
 	if not _history_server: _history_server = NetworkHistoryServer
 	if not _liveness_server: _liveness_server = RollbackLivenessServer

@@ -17,7 +17,7 @@ func fire() -> Node3D:
 func get_fired_tick() -> int:
 	return _weapon.get_fired_tick()
 
-func _init():
+func _init() -> void:
 	_weapon = _NetworkWeaponProxy.new()
 	add_child(_weapon, true, INTERNAL_MODE_BACK)
 	_weapon.owner = self
@@ -41,7 +41,7 @@ func _can_peer_use(peer_id: int) -> bool:
 	return true
 
 ## See [NetworkWeapon]
-func _after_fire(projectile: Node3D):
+func _after_fire(projectile: Node3D) -> void:
 	pass
 
 # @public method
@@ -54,7 +54,7 @@ func _get_data(projectile: Node3D) -> Dictionary:
 		"global_transform": projectile.global_transform
 	}
 
-func _apply_data(projectile: Node3D, data: Dictionary):
+func _apply_data(projectile: Node3D, data: Dictionary) -> void:
 	projectile.global_transform = data["global_transform"]
 
 func _is_reconcilable(projectile: Node3D, request_data: Dictionary, local_data: Dictionary) -> bool:
@@ -66,7 +66,7 @@ func _is_reconcilable(projectile: Node3D, request_data: Dictionary, local_data: 
 
 	return request_pos.distance_to(local_pos) < distance_threshold
 
-func _reconcile(projectile: Node3D, local_data: Dictionary, remote_data: Dictionary):
+func _reconcile(projectile: Node3D, local_data: Dictionary, remote_data: Dictionary) -> void:
 	var local_transform = local_data["global_transform"] as Transform3D
 	var remote_transform = remote_data["global_transform"] as Transform3D
 

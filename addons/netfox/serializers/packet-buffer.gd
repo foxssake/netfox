@@ -12,7 +12,7 @@ var _buffer: StreamPeerBuffer = null
 
 static var _logger := NetfoxLogger._for_netfox("PacketBuffer")
 
-func _init(p_max_packet_size: int = 1440):
+func _init(p_max_packet_size: int = 1440) -> void:
 	max_packet_size = p_max_packet_size
 
 func push(data: PackedByteArray) -> void:

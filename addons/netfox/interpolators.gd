@@ -77,7 +77,7 @@ static func find_interpolator_for(value: Variant) -> Interpolator:
 ## Note that this method looks up the appropriate interpolator using [method
 ## find_for] on every call. It is faster to call [method find_for] once, and
 ## call the resulting [Callable] repeatedly.
-static func interpolate(a, b, f: float):
+static func interpolate(a: Variant, b: Variant, f: float) -> Variant:
 	return find_for(a).call(a, b, f)
 
 static func _static_init() -> void:

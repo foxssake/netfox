@@ -125,7 +125,7 @@ func process_settings() -> void:
 ## Call this whenever the authority of any of the nodes managed by
 ## RollbackSynchronizer changes. Make sure to do this at the same time on all
 ## peers.
-func process_authority():
+func process_authority() -> void:
 	# Deregister all recorded properties
 	for node in _state_properties.get_subjects():
 		for property in _state_properties.get_properties_of(node):
@@ -158,7 +158,7 @@ func process_authority():
 ## Settings will be automatically updated. The [param node] may be a string or
 ## [NodePath] pointing to a node, or an actual [Node] instance. If the given
 ## property is already tracked, this method does nothing.
-func add_state(node: Variant, property: String):
+func add_state(node: Variant, property: String) -> void:
 	var property_path := PropertyEntry.make_path(root, node, property)
 	if not property_path or state_properties.has(property_path):
 		return

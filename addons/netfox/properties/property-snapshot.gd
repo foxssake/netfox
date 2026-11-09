@@ -28,7 +28,7 @@ func has(property_path: String) -> bool:
 func size() -> int:
 	return _snapshot.size()
 
-func equals(other: _PropertySnapshot):
+func equals(other: _PropertySnapshot) -> bool:
 	return _snapshot == other._snapshot
 
 func is_empty() -> bool:

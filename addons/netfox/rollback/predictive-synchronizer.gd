@@ -157,7 +157,7 @@ func _reprocess_settings() -> void:
 ## Settings will be automatically updated. The [param node] may be a string or
 ## [NodePath] pointing to a node, or an actual [Node] instance. If the given
 ## property is already tracked, this method does nothing.
-func add_state(node: Variant, property: String):
+func add_state(node: Variant, property: String) -> void:
 	var property_path := PropertyEntry.make_path(root, node, property)
 	if not property_path or state_properties.has(property_path):
 		return

@@ -23,7 +23,7 @@ var _last_reset_rollback_tick := -1
 
 static var _logger := NetfoxLogger._for_extras("RewindableRandomNumberGenerator")
 
-func _init(p_seed: int):
+func _init(p_seed: int) -> void:
 	_seed = p_seed
 	_rng = RandomNumberGenerator.new()
 	_rng.set_seed(_seed)

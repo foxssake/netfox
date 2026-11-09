@@ -350,13 +350,13 @@ func _get_rollback_destroy_method(object: Object) -> Callable:
 		# #556/Arbitrary object support
 		return RollbackLivenessServer._free_subject.bind(object)
 
-func _ready():
+func _ready() -> void:
 	NetfoxLogger.register_tag(_get_rollback_tag)
 
 	NetworkSynchronizationServer._on_input.connect(_handle_input)
 	NetworkSynchronizationServer._on_state.connect(_handle_state)
 
-func _exit_tree():
+func _exit_tree() -> void:
 	NetfoxLogger.free_tag(_get_rollback_tag)
 
 func _get_rollback_tag() -> String:
@@ -456,7 +456,7 @@ func _after_tick(tick: int) -> void:
 	NetworkHistoryServer._record_rollback_input(tick + input_delay)
 	NetworkSynchronizationServer._synchronize_input(tick + input_delay)
 
-func _handle_input(snapshot: _Snapshot):
+func _handle_input(snapshot: _Snapshot) -> void:
 	if snapshot.is_empty():
 		return
 	if _earliest_input < 0 or snapshot.tick < _earliest_input:
@@ -465,7 +465,7 @@ func _handle_input(snapshot: _Snapshot):
 	else:
 		_logger.trace("Ingested input @%d, earliest @%d->@%d", [snapshot.tick, _earliest_input, _earliest_input])
 
-func _handle_state(snapshot: _Snapshot):
+func _handle_state(snapshot: _Snapshot) -> void:
 	if snapshot.is_empty():
 		return
 	if _earliest_state < 0 or snapshot.tick < _earliest_state:

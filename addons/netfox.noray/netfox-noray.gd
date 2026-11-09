@@ -18,7 +18,7 @@ const AUTOLOADS = [
 	}
 ]
 
-func _enter_tree():
+func _enter_tree() -> void:
 	for setting in SETTINGS:
 		add_setting(setting)
 
@@ -26,7 +26,7 @@ func _enter_tree():
 		if not has_autoload(autoload.name):
 			add_autoload_singleton(autoload.name, autoload.path)
 
-func _exit_tree():
+func _exit_tree() -> void:
 	if ProjectSettings.get_setting("netfox/general/clear_settings", false):
 		for setting in SETTINGS:
 			remove_setting(setting)
@@ -35,7 +35,7 @@ func _exit_tree():
 		if has_autoload(autoload.name):
 			remove_autoload_singleton(autoload.name)
 
-func add_setting(setting: Dictionary):
+func add_setting(setting: Dictionary) -> void:
 	if ProjectSettings.has_setting(setting.name):
 		return
 
@@ -48,7 +48,7 @@ func add_setting(setting: Dictionary):
 		"hint_string": setting.get("hint_string", "")
 	})
 
-func remove_setting(setting: Dictionary):
+func remove_setting(setting: Dictionary) -> void:
 	if not ProjectSettings.has_setting(setting.name):
 		return
 

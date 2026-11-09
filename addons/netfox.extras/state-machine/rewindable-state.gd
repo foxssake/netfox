@@ -103,10 +103,10 @@ func display_enter(previous_state: RewindableState, tick: int) -> void:
 func display_exit(next_state: RewindableState, tick: int) -> void:
 	pass
 
-func _get_configuration_warnings():
+func _get_configuration_warnings() -> PackedStringArray:
 	return [] if get_parent() is RewindableStateMachine else ["This state should be a child of a RewindableStateMachine."]
 
-func _notification(what: int):
+func _notification(what: int) -> void:
 	# Use notification instead of _ready, so users can write their own _ready
 	# callback without having to call super()
 	if what == NOTIFICATION_READY:

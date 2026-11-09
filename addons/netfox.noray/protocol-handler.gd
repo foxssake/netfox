@@ -14,11 +14,11 @@ signal on_command(command: String, data: String)
 var _strbuf: String = ""
 
 ## Resets the parser.
-func reset():
+func reset() -> void:
 	_strbuf = ""
 
 ## Parse an incoming piece of data.
-func ingest(data: String):
+func ingest(data: String) -> void:
 	_strbuf += data
 	if not _strbuf.contains("\n"):
 		return

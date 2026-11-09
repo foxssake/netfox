@@ -31,7 +31,7 @@ var _properties := _PropertyPool.new()
 ## Process settings.
 ## [br][br]
 ## Call this after any change to configuration.
-func process_settings():
+func process_settings() -> void:
 	if not root:
 		root = get_parent()
 
@@ -53,7 +53,7 @@ func process_settings():
 ## Settings will be automatically updated. The [param node] may be a string or
 ## [NodePath] pointing to a node, or an actual [Node] instance. If the given
 ## property is already interpolated, this method does nothing.
-func add_property(node: Variant, property: String):
+func add_property(node: Variant, property: String) -> void:
 	var property_path := PropertyEntry.make_path(root, node, property)
 	if not property_path or properties.has(property_path):
 		return

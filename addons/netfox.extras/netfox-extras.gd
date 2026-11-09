@@ -104,7 +104,7 @@ const PhysicsDriverToggles := preload("res://addons/netfox.extras/physics/physic
 
 var _tool_menu_items := [] as Array[String]
 
-func _enter_tree():
+func _enter_tree() -> void:
 	for setting in SETTINGS:
 		add_setting(setting)
 
@@ -117,7 +117,7 @@ func _enter_tree():
 
 	_render_tool_menu()
 
-func _exit_tree():
+func _exit_tree() -> void:
 	if ProjectSettings.get_setting("netfox/general/clear_settings", false):
 		for setting in SETTINGS:
 			remove_setting(setting)
@@ -131,7 +131,7 @@ func _exit_tree():
 
 	_free_tool_menu()
 
-func add_setting(setting: Dictionary):
+func add_setting(setting: Dictionary) -> void:
 	if ProjectSettings.has_setting(setting.name):
 		return
 
@@ -144,7 +144,7 @@ func add_setting(setting: Dictionary):
 		"hint_string": setting.get("hint_string", "")
 	})
 
-func remove_setting(setting: Dictionary):
+func remove_setting(setting: Dictionary) -> void:
 	if not ProjectSettings.has_setting(setting.name):
 		return
 
@@ -153,7 +153,7 @@ func remove_setting(setting: Dictionary):
 func has_autoload(name: String) -> bool:
 	return ProjectSettings.has_setting("autoload/" + name)
 
-func _render_tool_menu():
+func _render_tool_menu() -> void:
 	_free_tool_menu()
 	for driver_toggle in PhysicsDriverToggles.all():
 		var prefix := "Enable" if not driver_toggle.is_enabled() else "Disable"
@@ -167,12 +167,12 @@ func _render_tool_menu():
 			_render_tool_menu()
 		)
 
-func _free_tool_menu():
+func _free_tool_menu() -> void:
 	for item in _tool_menu_items:
 		remove_tool_menu_item(item)
 	_tool_menu_items.clear()
 
-func _call_physics_driver_toggle(driver_toggle: PhysicsDriverToggles.PhysicsDriverToggle):
+func _call_physics_driver_toggle(driver_toggle: PhysicsDriverToggles.PhysicsDriverToggle) -> void:
 	var error_messages := driver_toggle.toggle()
 	if not error_messages.is_empty():
 		var error_text := "\n".join(error_messages)

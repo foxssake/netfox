@@ -12,7 +12,7 @@ static var _logger := NetfoxLogger._for_netfox("PropertyEntry")
 func get_value() -> Variant:
 	return node.get_indexed(property)
 
-func set_value(value):
+func set_value(value) -> void:
 	node.set_indexed(property, value)
 
 func is_valid() -> bool:

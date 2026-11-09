@@ -653,7 +653,7 @@ class _Float64Serializer extends NetworkSchemaSerializer:
 class _GenericVec2Serializer extends NetworkSchemaSerializer:
 	var component: NetworkSchemaSerializer
 
-	func _init(p_component: NetworkSchemaSerializer):
+	func _init(p_component: NetworkSchemaSerializer) -> void:
 		component = p_component
 
 	func encode(v: Variant, b: StreamPeerBuffer) -> void:
@@ -666,7 +666,7 @@ class _GenericVec2Serializer extends NetworkSchemaSerializer:
 class _GenericVec3Serializer extends NetworkSchemaSerializer:
 	var component: NetworkSchemaSerializer
 
-	func _init(p_component: NetworkSchemaSerializer):
+	func _init(p_component: NetworkSchemaSerializer) -> void:
 		component = p_component
 
 	func encode(v: Variant, b: StreamPeerBuffer) -> void:
@@ -682,7 +682,7 @@ class _GenericVec3Serializer extends NetworkSchemaSerializer:
 class _Normal2Serializer extends NetworkSchemaSerializer:
 	var component: NetworkSchemaSerializer
 
-	func _init(p_component: NetworkSchemaSerializer):
+	func _init(p_component: NetworkSchemaSerializer) -> void:
 		component = p_component
 
 	func encode(v: Variant, b: StreamPeerBuffer) -> void:
@@ -694,7 +694,7 @@ class _Normal2Serializer extends NetworkSchemaSerializer:
 class _Normal3Serializer extends NetworkSchemaSerializer:
 	var component: NetworkSchemaSerializer
 
-	func _init(p_component: NetworkSchemaSerializer):
+	func _init(p_component: NetworkSchemaSerializer) -> void:
 		component = p_component
 
 	func encode(v: Variant, b: StreamPeerBuffer) -> void:
@@ -710,7 +710,7 @@ class _Normal3Serializer extends NetworkSchemaSerializer:
 class _GenericVec4Serializer extends NetworkSchemaSerializer:
 	var component: NetworkSchemaSerializer
 
-	func _init(p_component: NetworkSchemaSerializer):
+	func _init(p_component: NetworkSchemaSerializer) -> void:
 		component = p_component
 
 	func encode(v: Variant, b: StreamPeerBuffer) -> void:
@@ -727,7 +727,7 @@ class _GenericVec4Serializer extends NetworkSchemaSerializer:
 class _GenericQuaternionSerializer extends NetworkSchemaSerializer:
 	var component: NetworkSchemaSerializer
 
-	func _init(p_component: NetworkSchemaSerializer):
+	func _init(p_component: NetworkSchemaSerializer) -> void:
 		component = p_component
 
 	func encode(v: Variant, b: StreamPeerBuffer) -> void:
@@ -744,7 +744,7 @@ class _GenericQuaternionSerializer extends NetworkSchemaSerializer:
 class _GenericTransform2DSerializer extends NetworkSchemaSerializer:
 	var component: NetworkSchemaSerializer
 
-	func _init(p_component: NetworkSchemaSerializer):
+	func _init(p_component: NetworkSchemaSerializer) -> void:
 		component = p_component
 
 	func encode(v: Variant, b: StreamPeerBuffer) -> void:
@@ -764,7 +764,7 @@ class _GenericTransform2DSerializer extends NetworkSchemaSerializer:
 class _GenericTransform3DSerializer extends NetworkSchemaSerializer:
 	var component: NetworkSchemaSerializer
 
-	func _init(p_component: NetworkSchemaSerializer):
+	func _init(p_component: NetworkSchemaSerializer) -> void:
 		component = p_component
 
 	func encode(v: Variant, b: StreamPeerBuffer) -> void:
@@ -795,7 +795,7 @@ class _QuantizingSerializer extends NetworkSchemaSerializer:
 	func _init(
 		p_component: NetworkSchemaSerializer, p_from_min: Variant,
 		p_from_max: Variant, p_to_min: Variant, p_to_max: Variant
-	):
+	) -> void:
 		component = p_component
 		from_min = p_from_min
 		from_max = p_from_max
@@ -817,7 +817,7 @@ class _ModuloSerializer extends NetworkSchemaSerializer:
 	var value_max: Variant
 	var component_max: Variant
 
-	func _init(p_component: NetworkSchemaSerializer, p_value_max: Variant, p_component_max: Variant):
+	func _init(p_component: NetworkSchemaSerializer, p_value_max: Variant, p_component_max: Variant) -> void:
 		component = p_component
 		value_max = p_value_max
 		component_max = p_component_max
@@ -835,7 +835,7 @@ class _ArraySerializer extends NetworkSchemaSerializer:
 	var component: NetworkSchemaSerializer
 	var size: NetworkSchemaSerializer
 
-	func _init(p_component: NetworkSchemaSerializer, p_size: NetworkSchemaSerializer):
+	func _init(p_component: NetworkSchemaSerializer, p_size: NetworkSchemaSerializer) -> void:
 		component = p_component
 		size = p_size
 
@@ -861,7 +861,7 @@ class _DictionarySerializer extends NetworkSchemaSerializer:
 	var value_serializer: NetworkSchemaSerializer
 	var size_serializer: NetworkSchemaSerializer
 
-	func _init(p_key_serializer: NetworkSchemaSerializer, p_value_serializer: NetworkSchemaSerializer, p_size_serializer: NetworkSchemaSerializer):
+	func _init(p_key_serializer: NetworkSchemaSerializer, p_value_serializer: NetworkSchemaSerializer, p_size_serializer: NetworkSchemaSerializer) -> void:
 		key_serializer = p_key_serializer
 		value_serializer = p_value_serializer
 		size_serializer = p_size_serializer
