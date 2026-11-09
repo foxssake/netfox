@@ -42,6 +42,10 @@ var _input_redundancy := NetworkRollback.input_redundancy
 var _rb_sent_state_history := {} # peer to _HistoryBuffer of _Snapshot
 
 var _last_sync_state_sent := _Snapshot.new(0)
+# Diffs are taken against the state sent this many ticks ago, so a change is
+# repeated in that many packets and survives losing all but one of them
+var _sync_diff_redundancy := maxi(1, ProjectSettings.get_setting("netfox/state_synchronizer/diff_redundancy", 1) as int)
+var _sync_sent_ring: Array[_Snapshot] = [] # last sent states, oldest first
 var _sync_enable_diffs := ProjectSettings.get_setting("netfox/state_synchronizer/enable_diff_states", true) as bool
 var _sync_full_interval := ProjectSettings.get_setting("netfox/state_synchronizer/full_state_interval", 24) as int
 var _sync_full_scheduler := _IntervalScheduler.new(_sync_full_interval)
@@ -158,6 +162,7 @@ func erase_peer(peer: int) -> void:
 func reset() -> void:
 	_rb_sent_state_history.clear()
 	_last_sync_state_sent = _Snapshot.new(0)
+	_sync_sent_ring.clear()
 
 func _get_peer_rb_sent_history(peer: int) -> _HistoryBuffer:
 	if not _rb_sent_state_history.has(peer):
@@ -333,7 +338,8 @@ func _synchronize_sync_state(tick: int) -> void:
 			NetworkPerformance.push_full_state_props(snapshot.size())
 			NetworkPerformance.push_sent_state_props(snapshot.size())
 	else:
-		var diff := _Snapshot.make_patch(_last_sync_state_sent, snapshot)
+		var reference := _sync_sent_ring[0] if not _sync_sent_ring.is_empty() else _last_sync_state_sent
+		var diff := _Snapshot.make_patch(reference, snapshot)
 
 		# Send diffs
 		for peer in multiplayer.get_peers():
@@ -349,6 +355,9 @@ func _synchronize_sync_state(tick: int) -> void:
 	# Remember last sent state for diffing
 	# NOTE: This is a shared instance, theoretically shouldn't screw things up
 	_last_sync_state_sent = snapshot
+	_sync_sent_ring.append(snapshot)
+	while _sync_sent_ring.size() > _sync_diff_redundancy:
+		_sync_sent_ring.pop_front()
 
 func _init(
 		p_command_server: _NetworkCommandServer = null,
