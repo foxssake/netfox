@@ -63,7 +63,7 @@ signal on_connect_nat(address: String, port: int)
 ## Emitted when a connect over relay command is received from noray.
 signal on_connect_relay(address: String, port: int)
 
-func _enter_tree():
+func _enter_tree() -> void:
 	_protocol.on_command.connect(func (cmd, data): on_command.emit(cmd, data))
 	on_command.connect(_handle_commands)
 
@@ -105,7 +105,7 @@ func is_connected_to_host() -> bool:
 ## Disconnect from noray.
 ## [br][br]
 ## Does nothing if already disconnected.
-func disconnect_from_host():
+func disconnect_from_host() -> void:
 	if is_connected_to_host():
 		on_disconnect_from_host.emit()
 	_peer.disconnect_from_host()
@@ -162,7 +162,7 @@ func connect_nat(host_oid: String) -> Error:
 func connect_relay(host_oid: String) -> Error:
 	return _put_command("connect-relay", host_oid)
 
-func _process(_delta):
+func _process(_delta) -> void:
 	if not is_connected_to_host():
 		return
 
@@ -184,7 +184,7 @@ func _put_command(command: String, data = null) -> Error:
 
 	return OK
 
-func _handle_commands(command: String, data: String):
+func _handle_commands(command: String, data: String) -> void:
 	if command == "set-oid":
 		_oid = data
 		on_oid.emit(oid)
