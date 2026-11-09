@@ -97,7 +97,7 @@ func _list_lock_ids() -> Array[String]:
 
 	return result
 
-func _cleanup():
+func _cleanup() -> void:
 	var dir := DirAccess.open(OS.get_cache_dir())
 
 	if dir:

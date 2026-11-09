@@ -12,7 +12,7 @@ var _fired_tick: int = -1
 
 static var _logger: NetfoxLogger = NetfoxLogger._for_extras("NetworkWeapon")
 
-func _ready():
+func _ready() -> void:
 	_rng.randomize()
 	NetworkTime.before_tick_loop.connect(_before_tick_loop)
 
@@ -52,7 +52,7 @@ func fire() -> Node:
 ## One way to use this is to manually simulate the projectile after it's
 ## created:
 ## [codeblock]
-## func _after_fire(projectile: Node3D):
+## func _after_fire(projectile: Node3D) -> void:
 ##     last_fire = get_fired_tick()
 ##     sound.play()
 ##
@@ -84,7 +84,7 @@ func _can_peer_use(peer_id: int) -> bool:
 ## weapon.
 ## [br][br]
 ## This can be used to e.g. reset the firing cooldown or deduct ammo.
-func _after_fire(projectile: Node):
+func _after_fire(projectile: Node) -> void:
 	pass
 
 # @public method
@@ -109,7 +109,7 @@ func _get_data(projectile: Node) -> Dictionary:
 ## [br][br]
 ## This is used in cases where some other client fires a weapon and the server
 ## instructs us to spawn a projectile for it.
-func _apply_data(projectile: Node, data: Dictionary):
+func _apply_data(projectile: Node, data: Dictionary) -> void:
 	pass
 
 # @public method
@@ -134,10 +134,10 @@ func _is_reconcilable(projectile: Node, request_data: Dictionary, local_data: Di
 ## [br][br]
 ## Unless the use case is niche, the best practice is to consider the server's
 ## state as authorative.
-func _reconcile(projectile: Node, local_data: Dictionary, remote_data: Dictionary):
+func _reconcile(projectile: Node, local_data: Dictionary, remote_data: Dictionary) -> void:
 	pass
 
-func _save_projectile(projectile: Node, id: String, data: Dictionary = {}):
+func _save_projectile(projectile: Node, id: String, data: Dictionary = {}) -> void:
 	_projectiles[id] = projectile
 	projectile.name += " " + id
 	projectile.set_multiplayer_authority(get_multiplayer_authority())
@@ -147,7 +147,7 @@ func _save_projectile(projectile: Node, id: String, data: Dictionary = {}):
 
 	_projectile_data[id] = data
 
-func _before_tick_loop():
+func _before_tick_loop() -> void:
 	# Reconcile projectiles
 	for recon in _reconcile_buffer:
 		var projectile = recon[0]
@@ -173,7 +173,7 @@ func _generate_id(length: int = 12, charset: String = "abcdefghijklmnopqrstuvwxy
 	return result
 
 @rpc("any_peer", "reliable", "call_remote")
-func _request_projectile(id: String, tick: int, request_data: Dictionary):
+func _request_projectile(id: String, tick: int, request_data: Dictionary) -> void:
 	var sender = multiplayer.get_remote_sender_id()
 
 	# Reject if sender can't use this input
@@ -198,7 +198,7 @@ func _request_projectile(id: String, tick: int, request_data: Dictionary):
 	_after_fire(projectile)
 
 @rpc("authority", "reliable", "call_local")
-func _accept_projectile(id: String, tick: int, response_data: Dictionary):
+func _accept_projectile(id: String, tick: int, response_data: Dictionary) -> void:
 	if multiplayer.get_unique_id() == multiplayer.get_remote_sender_id():
 		# Projectile is local, nothing to do
 		return
@@ -218,7 +218,7 @@ func _accept_projectile(id: String, tick: int, response_data: Dictionary):
 		_after_fire(projectile)
 
 @rpc("authority", "reliable", "call_remote")
-func _decline_projectile(id: String):
+func _decline_projectile(id: String) -> void:
 	if not _projectiles.has(id):
 		return
 
