@@ -171,6 +171,10 @@ var _mutated_nodes: Dictionary = {}
 
 var _earliest_input := -1
 var _earliest_state := -1
+# First tick of the current loop. When a loop runs several ticks (a slow frame,
+# or a server catching up), every one of them is simulated at least once, not
+# only the ones that received inputs or states.
+var _fresh_from := -1
 
 const _STAGE_BEFORE := "B"
 const _STAGE_PREPARE := "P"
@@ -194,6 +198,7 @@ func reset() -> void:
 	_tick = 0
 	_earliest_input = -1
 	_earliest_state = -1
+	_fresh_from = -1
 	_simulated_nodes.clear()
 	_mutated_nodes.clear()
 
@@ -381,6 +386,10 @@ func _rollback() -> void:
 	if _earliest_state >= 0 and _earliest_state <= _resim_from:
 		range_source = "latest state"
 		_resim_from = _earliest_state
+	if _fresh_from >= 0 and _fresh_from < _resim_from:
+		range_source = "fresh ticks"
+		_resim_from = _fresh_from
+	_fresh_from = -1
 	_resim_from = mini(_resim_from, NetworkTime.tick - 1)
 	_logger.trace("Simulating range @%d>@%d using %s", [_resim_from, NetworkTime.tick, range_source])
 
@@ -453,6 +462,8 @@ func _rollback() -> void:
 	_is_rollback = false
 
 func _after_tick(tick: int) -> void:
+	if _fresh_from < 0:
+		_fresh_from = tick
 	NetworkHistoryServer._record_rollback_input(tick + input_delay)
 	NetworkSynchronizationServer._synchronize_input(tick + input_delay)
 
