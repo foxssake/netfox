@@ -223,11 +223,11 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#property-descriptions">Property Descriptions</a>
         <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#callable-default_apply-unknown">Callable default_apply = &lt;unknown&gt;</a>
+    </li>
     <li class="toctree-l4"><a class="reference internal" href="#interpolatorsinterpolator-default_interpolator-make">Interpolators.Interpolator DEFAULT_INTERPOLATOR = make(...)</a>
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#interpolatorsinterpolator-interpolators">Interpolators.Interpolator[] interpolators</a>
-    </li>
-    <li class="toctree-l4"><a class="reference internal" href="#callable-default_apply-unknown">Callable default_apply = &lt;unknown&gt;</a>
     </li>
         </ul>
     </li>
@@ -367,6 +367,11 @@
 </thead>
 <tbody>
 <tr>
+<td><a href="https://docs.godotengine.org/en/4.1/classes/class_callable.html">Callable</a></td>
+<td><a href="#default_apply">default_apply</a></td>
+<td><code>&lt;unknown&gt;</code></td>
+</tr>
+<tr>
 <td><a href="../Interpolators.Interpolator/">Interpolators.Interpolator</a></td>
 <td><a href="#default_interpolator">DEFAULT_INTERPOLATOR</a></td>
 <td><code>make(...)</code></td>
@@ -375,11 +380,6 @@
 <td><a href="../Interpolators.Interpolator/">Interpolators.Interpolator[]</a></td>
 <td><a href="#interpolators">interpolators</a></td>
 <td></td>
-</tr>
-<tr>
-<td><a href="https://docs.godotengine.org/en/4.1/classes/class_callable.html">Callable</a></td>
-<td><a href="#default_apply">default_apply</a></td>
-<td><code>&lt;unknown&gt;</code></td>
 </tr>
 </tbody>
 </table>
@@ -411,6 +411,9 @@
 </tbody>
 </table>
 <h2 id="property-descriptions">Property Descriptions</h2>
+<h4 id="callable-default_apply-unknown"><span id="default_apply"><a href="https://docs.godotengine.org/en/4.1/classes/class_callable.html">Callable</a> default_apply</span> = <code>&lt;unknown&gt;</code></h4>
+<p>Default interpolation function</p>
+<hr />
 <h4 id="interpolatorsinterpolator-default_interpolator-make"><span id="default_interpolator"><a href="../Interpolators.Interpolator/">Interpolators.Interpolator</a> DEFAULT_INTERPOLATOR</span> = <code>make(...)</code></h4>
 <p>Fallback interpolator.   </p>
 <p>Returns the starting value in the first half of the tick, and the target value in the other half.</p>
@@ -419,9 +422,6 @@
 <p>List of known interpolators.   </p>
 <p>This list is used to look up interpolators in <a href="#find_for">find_for()</a> and <a href="#find_interpolator_for">find_interpolator_for()</a>. The list is ordered - the earlier an interpolator is in the list, the higher its precedence.   </p>
 <p>Do not modify - use <a href="#register">register()</a> instead.</p>
-<hr />
-<h4 id="callable-default_apply-unknown"><span id="default_apply"><a href="https://docs.godotengine.org/en/4.1/classes/class_callable.html">Callable</a> default_apply</span> = <code>&lt;unknown&gt;</code></h4>
-<p>Default interpolation function</p>
 <hr />
 <h2 id="method-descriptions">Method Descriptions</h2>
 <h4 id="void-register-callable-is_applicable-callable-apply-static"><span id="register">void register ( <a href="https://docs.godotengine.org/en/4.1/classes/class_callable.html">Callable</a> is_applicable, <a href="https://docs.godotengine.org/en/4.1/classes/class_callable.html">Callable</a> apply ) static</span></h4>
