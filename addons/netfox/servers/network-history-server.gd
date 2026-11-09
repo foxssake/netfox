@@ -148,12 +148,11 @@ func push_rollback_state(subject: Node, tick: int) -> void:
 		_rb_state_snapshots.set_at(tick, snapshot)
 
 	var is_auth := subject.is_multiplayer_authority()
-	for property in _rb_state_properties.get_properties_of(subject):
-		subject_snapshot.record_property(property)
-		snapshot.record_property(subject, property)
-
-	snapshot.set_auth(subject, is_auth)
-	subject_snapshot.set_auth(is_auth)
+	subject_snapshot.record_properties(
+		_rb_state_properties.get_properties_of_raw(subject),
+		snapshot,
+		is_auth
+	)
 
 func _record_rollback_input(tick: int) -> void:
 	_record(tick, _rb_input_history, _rb_input_snapshots, _rb_input_properties, true, func(subject: Node):
@@ -211,62 +210,29 @@ func _record(tick: int, history: _PerObjectHistory, snapshots: _HistoryBuffer, p
 	if not snapshots.has_at(tick):
 		snapshots.set_at(tick, snapshot)
 
-	for subject in property_pool.get_subjects_raw():
-		assert(subject is Node, "Only nodes supported for now!")
-
-		# Don't record history when subject is not alive to prevent state corruption.
-		if history == _rb_state_history and not RollbackLivenessServer.is_alive(subject, tick - 1):
-			continue
-
-		if _ignored_subjects.has(subject):
-			continue
-
-		var is_auth := auth_filter.call(subject)
-
-		if only_auth and not is_auth:
-			continue
-		if not is_auth and history.is_auth(tick, subject):
-			continue
-
-		var subject_snapshot := history.ensure_snapshot(tick, subject, false)
-		if subject_snapshot == null:
-			# Usually this happens when the tick is close to NetworkRollback.history_start, and the
-			# time sync is off by just enough to push it over the edge
-			# e.g. tick arrives slightly in the future, resim goes from the start of history, ring
-			# buffer suddenly has no room because its head is in the future
-			_logger.warning("Dropping recorded tick @%d for subject %s as out-of-bounds", [tick, subject])
-			continue
-
-		var properties := property_pool.get_properties_of_raw(subject)
-		assert(not properties.is_empty(), "Subject present in property pool without properties! Please report a bug!")
-		for property in properties:
-			var value: Variant = subject.get_indexed(property)
-			subject_snapshot.set_value(property, value)
-			snapshot.set_property(subject, property, value)
-		snapshot.set_auth(subject, is_auth)
-		subject_snapshot.set_auth(is_auth)
-
-		match history:
-			_rb_input_history:
-				_logger.trace("Recorded input @%d: %s", [tick, snapshot])
-			_rb_state_history:
-				_logger.trace("Recorded state @%d: %s", [tick, snapshot])
+	history.record_subjects(
+		tick,
+		property_pool.get_subjects_raw(),
+		property_pool,
+		snapshot,
+		only_auth,
+		auth_filter,
+		history == _rb_state_history,
+		_ignored_subjects
+	)
+	if history == _rb_input_history:
+		_logger.trace("Recorded input @%d: %s", [tick, snapshot])
+	elif history == _rb_state_history:
+		_logger.trace("Recorded state @%d: %s", [tick, snapshot])
 
 func _restore_latest(tick: int, history: _PerObjectHistory) -> bool:
-	var any_applied := false
+	var any_applied := history.restore_latest(tick)
 
-	for subject in history.subjects_raw():
-		# Grab latest snapshot up to tick
-		var snapshot := history.get_latest_snapshot(tick, subject)
-
-		# Apply if any
-		if snapshot:
-			snapshot.apply()
-			any_applied = true
-
-			match history:
-				_rb_input_history: _logger.trace("Restored input @%d: %s", [tick, snapshot])
-				_rb_state_history: _logger.trace("Restored state @%d: %s", [tick, snapshot])
+	if any_applied and _logger._check_log_level(NetfoxLogger.LOG_TRACE):
+		if history == _rb_input_history:
+			_logger.trace("Restored input @%d", [tick])
+		elif history == _rb_state_history:
+			_logger.trace("Restored state @%d", [tick])
 
 	return any_applied
 
