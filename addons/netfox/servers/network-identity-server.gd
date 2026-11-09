@@ -39,10 +39,10 @@ static var _logger := NetfoxLogger._for_netfox("NetworkIdentityServer")
 
 const _WARN_QUEUE_SIZE := 128
 
-func _init(p_command_server: _NetworkCommandServer = null):
+func _init(p_command_server: _NetworkCommandServer = null) -> void:
 	_command_server = p_command_server
 
-func _ready():
+func _ready() -> void:
 	if not _command_server:
 		_command_server = NetworkCommandServer
 

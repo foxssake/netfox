@@ -7,7 +7,7 @@ class_name _PerObjectHistory
 var _history_size: int
 var _data := {} # Object to _HistoryBuffer
 
-func _init(p_history_size: int):
+func _init(p_history_size: int) -> void:
 	_history_size = p_history_size
 
 func subjects() -> Array[Object]:

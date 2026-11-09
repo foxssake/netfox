@@ -355,13 +355,13 @@ func _init(
 		p_history_server: _NetworkHistoryServer = null,
 		p_identity_server: _NetworkIdentityServer = null,
 		p_simulation_server: _RollbackSimulationServer = null
-	):
+	) -> void:
 	_command_server = p_command_server
 	_history_server = p_history_server
 	_identity_server = p_identity_server
 	_simulation_server = p_simulation_server
 
-func _ready():
+func _ready() -> void:
 	# Ensure dependencies
 	if not _command_server: _command_server = NetworkCommandServer
 	if not _history_server: _history_server = NetworkHistoryServer
@@ -391,7 +391,7 @@ func _ready():
 	elif is_instance_valid(multiplayer):
 		multiplayer.peer_disconnected.connect(erase_peer)
 
-func _handle_input(sender: int, data: PackedByteArray):
+func _handle_input(sender: int, data: PackedByteArray) -> void:
 	var buffer := StreamPeerBuffer.new()
 	buffer.data_array = data
 
@@ -404,7 +404,7 @@ func _handle_input(sender: int, data: PackedByteArray):
 		if NetworkHistoryServer._merge_rollback_input(snapshot):
 			_on_input.emit(snapshot)
 
-func _handle_full_state(sender: int, data: PackedByteArray):
+func _handle_full_state(sender: int, data: PackedByteArray) -> void:
 	var buffer := StreamPeerBuffer.new()
 	buffer.data_array = data
 
@@ -412,7 +412,7 @@ func _handle_full_state(sender: int, data: PackedByteArray):
 
 	_ingest_state(sender, snapshot)
 
-func _handle_diff_state(sender: int, data: PackedByteArray):
+func _handle_diff_state(sender: int, data: PackedByteArray) -> void:
 	var buffer := StreamPeerBuffer.new()
 	buffer.data_array = data
 
@@ -421,7 +421,7 @@ func _handle_diff_state(sender: int, data: PackedByteArray):
 
 	_ingest_state(sender, diff)
 
-func _handle_full_sync(sender: int, data: PackedByteArray):
+func _handle_full_sync(sender: int, data: PackedByteArray) -> void:
 	var buffer := StreamPeerBuffer.new()
 	buffer.data_array = data
 
@@ -431,7 +431,7 @@ func _handle_full_sync(sender: int, data: PackedByteArray):
 	NetworkHistoryServer._merge_synchronizer_state(snapshot)
 	_logger.trace("Ingested sync state: %s", [snapshot])
 
-func _handle_diff_sync(sender: int, data: PackedByteArray):
+func _handle_diff_sync(sender: int, data: PackedByteArray) -> void:
 	var buffer := StreamPeerBuffer.new()
 	buffer.data_array = data
 

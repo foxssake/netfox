@@ -8,7 +8,7 @@ var _cache: Dictionary = {}
 
 static var _logger: NetfoxLogger = NetfoxLogger._for_netfox("PropertyCache")
 
-func _init(p_root: Node):
+func _init(p_root: Node) -> void:
 	root = p_root
 
 func get_entry(path: String) -> PropertyEntry:
@@ -19,7 +19,7 @@ func get_entry(path: String) -> PropertyEntry:
 		_cache[path] = parsed
 	return _cache[path]
 
-func properties() -> Array:
+func properties() -> Array[PropertyEntry]:
 	var result: Array[PropertyEntry]
 	# Can be slow, but no other way to do this with type-safety
 	# See: https://github.com/godotengine/godot/issues/72627

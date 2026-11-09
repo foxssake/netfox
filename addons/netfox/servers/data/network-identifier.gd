@@ -8,7 +8,7 @@ var _local_id: int
 
 signal on_id(peer: int, id: int)
 
-func _init(subject: Object, full_name: String, local_id: int):
+func _init(subject: Object, full_name: String, local_id: int) -> void:
 	_subject = subject
 	_full_name = full_name
 	_local_id = local_id

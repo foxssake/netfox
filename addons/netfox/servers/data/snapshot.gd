@@ -41,7 +41,7 @@ static func of(tick: int, entries: Array[Array], auth_subjects: Array[Object]) -
 
 	return snapshot
 
-func _init(p_tick: int):
+func _init(p_tick: int) -> void:
 	tick = p_tick
 
 func duplicate() -> _Snapshot:
@@ -176,7 +176,7 @@ func _to_string() -> String:
 	result += ")"
 	return result
 
-func _to_vest():
+func _to_vest() -> Variant:
 	return {
 		"tick": tick,
 		"data": _data,
