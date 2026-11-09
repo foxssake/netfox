@@ -54,7 +54,7 @@ func suite() -> void:
 		["float32", NetworkSchemas.float32(), 2.0, 4],
 		["float64", NetworkSchemas.float64(), 2.0, 8],
 
-		["vec2f16", NetworkSchemas.vec2f32(), Vector2(+1, -1), 4 if has_half else 8],
+		["vec2f16", NetworkSchemas.vec2f16(), Vector2(+1, -1), 4 if has_half else 8],
 		["vec2f32", NetworkSchemas.vec2f32(), Vector2(+1, -1), 8],
 		["vec2f64", NetworkSchemas.vec2f64(), Vector2(+1, -1), 16],
 		["vec3f32", NetworkSchemas.vec3f32(), Vector3(+1, -1, .5), 12],
@@ -62,23 +62,23 @@ func suite() -> void:
 		["vec4f32", NetworkSchemas.vec4f32(), Vector4(+1, -1, .5, -5), 16],
 		["vec4f64", NetworkSchemas.vec4f64(), Vector4(+1, -1, .5, -5), 32],
 
-		["normal2f16", NetworkSchemas.normal2f16(), Vector2.RIGHT.rotated(PI / 6.), 2 if has_half else 4],
+		["normal2f16", NetworkSchemas.normal2f16(), Vector2.RIGHT, 2 if has_half else 4],
 		["normal2f32", NetworkSchemas.normal2f32(), Vector2.RIGHT.rotated(PI / 6.), 4],
 		["normal2f64", NetworkSchemas.normal2f64(), Vector2.RIGHT.rotated(PI / 6.), 8],
 		["normal3f16", NetworkSchemas.normal3f16(), Vector3.UP, 4 if has_half else 8],
-		["normal3f32", NetworkSchemas.normal3f32(), Vector3.UP, 8],
-		["normal3f64", NetworkSchemas.normal3f64(), Vector3.UP, 16],
+		["normal3f32", NetworkSchemas.normal3f32(), Vector3.UP.rotated(Vector3.RIGHT, PI / 6.), 8],
+		["normal3f64", NetworkSchemas.normal3f64(), Vector3.UP.rotated(Vector3.RIGHT, PI / 6.), 16],
 
-		["quat16f", NetworkSchemas.quatf16(), Quaternion.from_euler(Vector3.ONE), 8 if has_half else 16],
+		["quat16f", NetworkSchemas.quatf16(), Quaternion.from_euler(Vector3.ZERO), 8 if has_half else 16],
 		["quat32f", NetworkSchemas.quatf32(), Quaternion.from_euler(Vector3.ONE), 16],
 		["quat64f", NetworkSchemas.quatf64(), Quaternion.from_euler(Vector3.ONE), 32],
 
-		["transform2f16", NetworkSchemas.transform2f16(), Transform2D.IDENTITY.rotated(37.), 12 if has_half else 24],
+		["transform2f16", NetworkSchemas.transform2f16(), Transform2D.IDENTITY.scaled(Vector2.ONE * .25), 12 if has_half else 24],
 		["transform2f32", NetworkSchemas.transform2f32(), Transform2D.IDENTITY.rotated(37.), 24],
 		["transform2f64", NetworkSchemas.transform2f64(), Transform2D.IDENTITY.rotated(37.), 48],
-		["transform3f16", NetworkSchemas.transform3f16(), Transform3D.IDENTITY.rotated(Vector3.ONE, 37.), 24 if has_half else 48],
-		["transform3f32", NetworkSchemas.transform3f32(), Transform3D.IDENTITY.rotated(Vector3.ONE, 37.), 48],
-		["transform3f64", NetworkSchemas.transform3f64(), Transform3D.IDENTITY.rotated(Vector3.ONE, 37.), 96],
+		["transform3f16", NetworkSchemas.transform3f16(), Transform3D.IDENTITY.scaled(Vector3.ONE * .25), 24 if has_half else 48],
+		["transform3f32", NetworkSchemas.transform3f32(), Transform3D.IDENTITY.rotated(Vector3.ONE.normalized(), 37.), 48],
+		["transform3f64", NetworkSchemas.transform3f64(), Transform3D.IDENTITY.rotated(Vector3.ONE.normalized(), 37.), 96],
 
 		["array", NetworkSchemas.array_of(NetworkSchemas.uint16()), [1, 2, 3], 8],
 		["dictionary", NetworkSchemas.dictionary(NetworkSchemas.uint16(), NetworkSchemas.uint16()), { 1: 32, 2: 48 }, 10],
@@ -104,8 +104,8 @@ func suite() -> void:
 			buffer.seek(0)
 			var decoded = serializer.decode(buffer)
 
-			expect_equal(decoded, value, "Value mismatch! Expected %s, got %s" % [value, decoded])
-			expect_equal(buffer.data_array.size(), expected_size, "Size mismatch! Expected %d, got %d" % [expected_size, buffer.data_array.size(), expected_size])
+			expect(is_rather_equal(decoded, value), "Value mismatch! Expected %s, got %s" % [value, decoded])
+			expect_equal(buffer.data_array.size(), expected_size, "Size mismatch! Expected %d bytes, got %d" % [expected_size, buffer.data_array.size()])
 		)
 
 	test("should handle negative degrees", func():
@@ -139,3 +139,16 @@ func suite() -> void:
 		expect(abs(decoded - expected_value) < threshold, "Decoded %s while expected %s!" % [decoded, expected_value])
 		Vest.message("Difference: %s" % [abs(decoded - expected_value)])
 	)
+
+func is_rather_equal(a: Variant, b: Variant) -> bool:
+	if typeof(a) == typeof(b):
+		match typeof(a):
+			TYPE_FLOAT: return is_equal_approx(a, b)
+			TYPE_VECTOR2, TYPE_VECTOR3, TYPE_VECTOR4, TYPE_QUATERNION, \
+			TYPE_TRANSFORM2D, TYPE_TRANSFORM3D:
+				return a.is_equal_approx(b)
+
+	if typeof(a) == TYPE_OBJECT and a.has_method("equals"):
+		return a.equals(b)
+
+	return a == b
