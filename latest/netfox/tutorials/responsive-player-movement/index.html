@@ -354,9 +354,9 @@ the player wants to move:</p>
 <span class="w">    </span><span class="k">return</span>
 
 <span class="w">  </span><span class="n">movement</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb nb-Type">Vector3</span><span class="p">(</span>
-<span class="w">    </span><span class="n">Input</span><span class="o">.</span><span class="n">get_axis</span><span class="p">(</span><span class="s2">&quot;move_west&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;move_east&quot;</span><span class="p">),</span>
-<span class="w">    </span><span class="n">Input</span><span class="o">.</span><span class="n">get_action_strength</span><span class="p">(</span><span class="s2">&quot;move_jump&quot;</span><span class="p">),</span>
-<span class="w">    </span><span class="n">Input</span><span class="o">.</span><span class="n">get_axis</span><span class="p">(</span><span class="s2">&quot;move_north&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;move_south&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">Input</span><span class="o">.</span><span class="n">get_axis</span><span class="p">(</span><span class="s2">"move_west"</span><span class="p">,</span><span class="w"> </span><span class="s2">"move_east"</span><span class="p">),</span>
+<span class="w">    </span><span class="n">Input</span><span class="o">.</span><span class="n">get_action_strength</span><span class="p">(</span><span class="s2">"move_jump"</span><span class="p">),</span>
+<span class="w">    </span><span class="n">Input</span><span class="o">.</span><span class="n">get_axis</span><span class="p">(</span><span class="s2">"move_north"</span><span class="p">,</span><span class="w"> </span><span class="s2">"move_south"</span><span class="p">)</span>
 <span class="w">  </span><span class="p">)</span>
 </code></pre></div>
 <p>It is important to only update input properties if we have authority over the
@@ -371,9 +371,9 @@ actions.</p>
 
 <span class="k">func</span><span class="w"> </span><span class="n">_gather</span><span class="p">():</span>
 <span class="w">  </span><span class="n">movement</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb nb-Type">Vector3</span><span class="p">(</span>
-<span class="w">    </span><span class="n">Input</span><span class="o">.</span><span class="n">get_axis</span><span class="p">(</span><span class="s2">&quot;move_west&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;move_east&quot;</span><span class="p">),</span>
-<span class="w">    </span><span class="n">Input</span><span class="o">.</span><span class="n">get_action_strength</span><span class="p">(</span><span class="s2">&quot;move_jump&quot;</span><span class="p">),</span>
-<span class="w">    </span><span class="n">Input</span><span class="o">.</span><span class="n">get_axis</span><span class="p">(</span><span class="s2">&quot;move_north&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;move_south&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">Input</span><span class="o">.</span><span class="n">get_axis</span><span class="p">(</span><span class="s2">"move_west"</span><span class="p">,</span><span class="w"> </span><span class="s2">"move_east"</span><span class="p">),</span>
+<span class="w">    </span><span class="n">Input</span><span class="o">.</span><span class="n">get_action_strength</span><span class="p">(</span><span class="s2">"move_jump"</span><span class="p">),</span>
+<span class="w">    </span><span class="n">Input</span><span class="o">.</span><span class="n">get_axis</span><span class="p">(</span><span class="s2">"move_north"</span><span class="p">,</span><span class="w"> </span><span class="s2">"move_south"</span><span class="p">)</span>
 <span class="w">  </span><span class="p">)</span>
 </code></pre></div>
 <h2 id="applying-movement">Applying movement</h2>

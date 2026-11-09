@@ -358,9 +358,9 @@ considered a <em>continuous</em> input.</p>
 
 <span class="k">func</span><span class="w"> </span><span class="n">_gather</span><span class="p">():</span>
 <span class="w">  </span><span class="n">movement</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb nb-Type">Vector3</span><span class="p">(</span>
-<span class="w">    </span><span class="n">Input</span><span class="o">.</span><span class="n">get_axis</span><span class="p">(</span><span class="s2">&quot;move_west&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;move_east&quot;</span><span class="p">),</span>
-<span class="w">    </span><span class="n">Input</span><span class="o">.</span><span class="n">get_action_strength</span><span class="p">(</span><span class="s2">&quot;move_jump&quot;</span><span class="p">),</span>
-<span class="w">    </span><span class="n">Input</span><span class="o">.</span><span class="n">get_axis</span><span class="p">(</span><span class="s2">&quot;move_north&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;move_south&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">Input</span><span class="o">.</span><span class="n">get_axis</span><span class="p">(</span><span class="s2">"move_west"</span><span class="p">,</span><span class="w"> </span><span class="s2">"move_east"</span><span class="p">),</span>
+<span class="w">    </span><span class="n">Input</span><span class="o">.</span><span class="n">get_action_strength</span><span class="p">(</span><span class="s2">"move_jump"</span><span class="p">),</span>
+<span class="w">    </span><span class="n">Input</span><span class="o">.</span><span class="n">get_axis</span><span class="p">(</span><span class="s2">"move_north"</span><span class="p">,</span><span class="w"> </span><span class="s2">"move_south"</span><span class="p">)</span>
 <span class="w">  </span><span class="p">)</span>
 </code></pre></div>
 <p>However, consider what happens if inputs change between two ticks. Let's
@@ -381,9 +381,9 @@ the samples collected before each tick loop.</p>
 
 <span class="k">func</span><span class="w"> </span><span class="n">_process</span><span class="p">(</span><span class="n">_dt</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">void</span><span class="p">:</span>
 <span class="w">    </span><span class="n">_movement_buffer</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="nb nb-Type">Vector3</span><span class="p">(</span>
-<span class="w">        </span><span class="n">Input</span><span class="o">.</span><span class="n">get_axis</span><span class="p">(</span><span class="s2">&quot;move_west&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;move_east&quot;</span><span class="p">),</span>
-<span class="w">        </span><span class="n">Input</span><span class="o">.</span><span class="n">get_action_strength</span><span class="p">(</span><span class="s2">&quot;move_jump&quot;</span><span class="p">),</span>
-<span class="w">        </span><span class="n">Input</span><span class="o">.</span><span class="n">get_axis</span><span class="p">(</span><span class="s2">&quot;move_north&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;move_south&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="n">Input</span><span class="o">.</span><span class="n">get_axis</span><span class="p">(</span><span class="s2">"move_west"</span><span class="p">,</span><span class="w"> </span><span class="s2">"move_east"</span><span class="p">),</span>
+<span class="w">        </span><span class="n">Input</span><span class="o">.</span><span class="n">get_action_strength</span><span class="p">(</span><span class="s2">"move_jump"</span><span class="p">),</span>
+<span class="w">        </span><span class="n">Input</span><span class="o">.</span><span class="n">get_axis</span><span class="p">(</span><span class="s2">"move_north"</span><span class="p">,</span><span class="w"> </span><span class="s2">"move_south"</span><span class="p">)</span>
 <span class="w">    </span><span class="p">)</span>
 <span class="w">    </span><span class="n">_movement_samples</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span>
 
@@ -445,7 +445,7 @@ gathered - this way, the input will be true for <em>at most</em> a single tick:<
 <span class="w">    </span><span class="n">NetworkTime</span><span class="o">.</span><span class="n">after_tick</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">func</span><span class="p">(</span><span class="n">_dt</span><span class="p">,</span><span class="w"> </span><span class="n">_t</span><span class="p">):</span><span class="w"> </span><span class="n">_gather_always</span><span class="p">())</span>
 
 <span class="k">func</span><span class="w"> </span><span class="n">_process</span><span class="p">(</span><span class="n">_dt</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">void</span><span class="p">:</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">Input</span><span class="o">.</span><span class="n">is_action_just_pressed</span><span class="p">(</span><span class="s2">&quot;move_jump&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">Input</span><span class="o">.</span><span class="n">is_action_just_pressed</span><span class="p">(</span><span class="s2">"move_jump"</span><span class="p">):</span>
 <span class="w">        </span><span class="n">_is_jumping_buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">true</span>
 
 <span class="k">func</span><span class="w"> </span><span class="n">_gather_always</span><span class="p">():</span>

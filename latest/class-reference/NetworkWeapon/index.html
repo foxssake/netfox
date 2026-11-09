@@ -407,7 +407,7 @@
 <p>Get the tick when the weapon was fired.   </p>
 <p>Whenever a weapon gets fired, it takes time for that event to be transmitted to the server. To account for this latency, the exact tick is sent along with other data, so weapon implementations can compensate for the latency.   </p>
 <p>One way to use this is to manually simulate the projectile after it's created:</p>
-<div class="highlight"><pre><span></span><code><span class="k">func</span><span class="w"> </span><span class="n">_after_fire</span><span class="p">(</span><span class="n">projectile</span><span class="p">:</span><span class="w"> </span><span class="n">Node3D</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="k">func</span><span class="w"> </span><span class="n">_after_fire</span><span class="p">(</span><span class="n">projectile</span><span class="p">:</span><span class="w"> </span><span class="n">Node3D</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">void</span><span class="p">:</span>
 <span class="w">    </span><span class="n">last_fire</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_fired_tick</span><span class="p">()</span>
 <span class="w">    </span><span class="n">sound</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
 

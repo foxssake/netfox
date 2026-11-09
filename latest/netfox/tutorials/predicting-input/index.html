@@ -367,7 +367,7 @@ the applied input's age in ticks.</p>
 var movement: Vector3
 var confidence: float = 1.
 
-@onready var _rollback_synchronizer := $&quot;../RollbackSynchronizer&quot; as RollbackSynchronizer
+@onready var _rollback_synchronizer := $"../RollbackSynchronizer" as RollbackSynchronizer
 
 func _ready():
     super()
@@ -378,9 +378,9 @@ func _ready():
 func _gather():
     # Gather input
     movement = Vector3(
-        Input.get_axis(&quot;move_east&quot;, &quot;move_west&quot;),
-        Input.get_action_strength(&quot;move_jump&quot;),
-        Input.get_axis(&quot;move_south&quot;, &quot;move_north&quot;)
+        Input.get_axis("move_east", "move_west"),
+        Input.get_action_strength("move_jump"),
+        Input.get_axis("move_south", "move_north")
     )
 
 func _predict(_t):
@@ -390,7 +390,7 @@ func _predict(_t):
         return
 
     if not _rollback_synchronizer.has_input():
-    # Can&#39;t predict without input
+    # Can't predict without input
         confidence = 0.
         return
 
@@ -422,7 +422,7 @@ simulated state will not be recorded for the current tick.</p>
 <p>To see this in practice:</p>
 <div class="highlight"><pre><span></span><code><span class="k">func</span><span class="w"> </span><span class="n">_rollback_tick</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span><span class="w"> </span><span class="n">_t</span><span class="p">,</span><span class="w"> </span><span class="n">_if</span><span class="p">):</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">is_zero_approx</span><span class="p">(</span><span class="n">input</span><span class="o">.</span><span class="n">confidence</span><span class="p">):</span>
-<span class="w">        </span><span class="c1"># Can&#39;t predict, not enough confidence in input</span>
+<span class="w">        </span><span class="c1"># Can't predict, not enough confidence in input</span>
 <span class="w">        </span><span class="n">_rollback_synchronizer</span><span class="o">.</span><span class="n">ignore_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 <span class="w">        </span><span class="k">return</span>
 

@@ -332,7 +332,7 @@ there's log files players can attach with their bug reports.</p>
 <div class="highlight"><pre><span></span><code>[DBG][@0][#1][_][netfox::NetworkPerformance] Network performance enabled, registering performance monitors
 [DBG][@0][#1][_][netfox.extras::WindowTiler] Tiling with sid: f2682d1, uid: 17627261006193110
 [DBG][@0][#1][_][netfox.extras::NetworkSimulator] Feature disabled
-[DBG][@0][#1][_][netfox.extras::WindowTiler] Tiling as idx 0 / 1 - 17627261006193110 in [&quot;17627261006193110&quot;]
+[DBG][@0][#1][_][netfox.extras::WindowTiler] Tiling as idx 0 / 1 - 17627261006193110 in ["17627261006193110"]
 [DBG][@22][#1][_][netfox.extras::NetworkWeapon] Calling after fire hook for Bomb Projectile 5sswh7lcsgbq
 [DBG][@27][#1][_][fb::Displacer] Created explosion at (2.027323, 1.500942, -14.99592)@26
 [DBG][@34][#1][_][netfox.extras::NetworkWeapon] Calling after fire hook for Bomb Projectile u4h8opz52lin
@@ -347,17 +347,17 @@ means.</p>
 Every logger has a name, and belongs to a module. Both of these can be
 arbitrary strings, and are included in the logged messages.</p>
 <p>Messages can be logged as different <em>logging levels</em>:</p>
-<div class="highlight"><pre><span></span><code><span class="k">var</span><span class="w"> </span><span class="n">logger</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">NetfoxLogger</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;my-game&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Player&quot;</span><span class="p">)</span>
-<span class="n">logger</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="s2">&quot;Detailed message&quot;</span><span class="p">)</span>
-<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Something happened&quot;</span><span class="p">)</span>
-<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Hi!&quot;</span><span class="p">)</span>
-<span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t connect&quot;</span><span class="p">)</span>
-<span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Game missing?&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="k">var</span><span class="w"> </span><span class="n">logger</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">NetfoxLogger</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">"my-game"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Player"</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="s2">"Detailed message"</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Something happened"</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Hi!"</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"Couldn't connect"</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Game missing?"</span><span class="p">)</span>
 </code></pre></div>
 <p>To use string interpolation, you can also pass the template string and values
 separately. This can be useful to avoid substituting the values in case the
 message never gets printed because of filtering:</p>
-<div class="highlight"><pre><span></span><code><span class="n">logger</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="s2">&quot;Adjusted clock by </span><span class="si">%.2f</span><span class="s2">ms, offset: </span><span class="si">%.2f</span><span class="s2">ms, new time: </span><span class="si">%.4f</span><span class="s2">ss&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">nudge</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000.</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000.</span><span class="p">,</span><span class="w"> </span><span class="n">_clock</span><span class="o">.</span><span class="n">get_time</span><span class="p">()])</span>
+<div class="highlight"><pre><span></span><code><span class="n">logger</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="s2">"Adjusted clock by </span><span class="si">%.2f</span><span class="s2">ms, offset: </span><span class="si">%.2f</span><span class="s2">ms, new time: </span><span class="si">%.4f</span><span class="s2">ss"</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">nudge</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000.</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000.</span><span class="p">,</span><span class="w"> </span><span class="n">_clock</span><span class="o">.</span><span class="n">get_time</span><span class="p">()])</span>
 </code></pre></div>
 <p>In the above example, there's a lot of data to be included in the message.
 However, if trace logs are disabled, that data will never be substituted,

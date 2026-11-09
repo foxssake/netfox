@@ -387,13 +387,13 @@ method, that can be used to register the schema used for transmitting
 properties over the network. This method takes a dictionary, with the keys
 being property path strings, and the values being serializers:</p>
 <div class="highlight"><pre><span></span><code><span class="w">    </span><span class="n">rollback_synchronizer</span><span class="o">.</span><span class="n">set_schema</span><span class="p">({</span>
-<span class="w">        </span><span class="s2">&quot;:transform&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">NetworkSchemas</span><span class="o">.</span><span class="n">transform3f32</span><span class="p">(),</span>
-<span class="w">        </span><span class="s2">&quot;:velocity&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">NetworkSchemas</span><span class="o">.</span><span class="n">vec3f32</span><span class="p">(),</span>
-<span class="w">        </span><span class="s2">&quot;:speed&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">NetworkSchemas</span><span class="o">.</span><span class="n">float32</span><span class="p">(),</span>
-<span class="w">        </span><span class="s2">&quot;:mass&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">NetworkSchemas</span><span class="o">.</span><span class="n">float32</span><span class="p">(),</span>
+<span class="w">        </span><span class="s2">":transform"</span><span class="p">:</span><span class="w"> </span><span class="n">NetworkSchemas</span><span class="o">.</span><span class="n">transform3f32</span><span class="p">(),</span>
+<span class="w">        </span><span class="s2">":velocity"</span><span class="p">:</span><span class="w"> </span><span class="n">NetworkSchemas</span><span class="o">.</span><span class="n">vec3f32</span><span class="p">(),</span>
+<span class="w">        </span><span class="s2">":speed"</span><span class="p">:</span><span class="w"> </span><span class="n">NetworkSchemas</span><span class="o">.</span><span class="n">float32</span><span class="p">(),</span>
+<span class="w">        </span><span class="s2">":mass"</span><span class="p">:</span><span class="w"> </span><span class="n">NetworkSchemas</span><span class="o">.</span><span class="n">float32</span><span class="p">(),</span>
 
-<span class="w">        </span><span class="s2">&quot;Input:movement&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">NetworkSchemas</span><span class="o">.</span><span class="n">vec3f32</span><span class="p">(),</span>
-<span class="w">        </span><span class="s2">&quot;Input:aim&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">NetworkSchemas</span><span class="o">.</span><span class="n">vec3f32</span><span class="p">()</span>
+<span class="w">        </span><span class="s2">"Input:movement"</span><span class="p">:</span><span class="w"> </span><span class="n">NetworkSchemas</span><span class="o">.</span><span class="n">vec3f32</span><span class="p">(),</span>
+<span class="w">        </span><span class="s2">"Input:aim"</span><span class="p">:</span><span class="w"> </span><span class="n">NetworkSchemas</span><span class="o">.</span><span class="n">vec3f32</span><span class="p">()</span>
 <span class="w">    </span><span class="p">})</span>
 </code></pre></div>
 <h2 id="built-in-serializers">Built-in serializers</h2>
@@ -627,7 +627,7 @@ methods.</p>
 </code></pre></div>
 <p>This custom serializer can now be used in schemas:</p>
 <div class="highlight"><pre><span></span><code><span class="n">rollback_synchronizer</span><span class="o">.</span><span class="n">set_schema</span><span class="p">({</span>
-<span class="w">  </span><span class="s2">&quot;Input:target&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">ExampleNodeSerializer</span><span class="o">.</span><span class="n">new</span><span class="p">()</span>
+<span class="w">  </span><span class="s2">"Input:target"</span><span class="p">:</span><span class="w"> </span><span class="n">ExampleNodeSerializer</span><span class="o">.</span><span class="n">new</span><span class="p">()</span>
 <span class="p">})</span>
 </code></pre></div>
               

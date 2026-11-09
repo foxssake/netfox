@@ -378,9 +378,9 @@ other states based on movement inputs:</p>
 
 <span class="k">func</span><span class="w"> </span><span class="n">tick</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span><span class="w"> </span><span class="n">tick</span><span class="p">,</span><span class="w"> </span><span class="n">is_fresh</span><span class="p">):</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">input</span><span class="o">.</span><span class="n">movement</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb nb-Type">Vector3</span><span class="o">.</span><span class="n">ZERO</span><span class="p">:</span>
-<span class="w">        </span><span class="n">state_machine</span><span class="o">.</span><span class="n">transition</span><span class="p">(</span><span class="o">&amp;</span><span class="s2">&quot;Move&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="n">state_machine</span><span class="o">.</span><span class="n">transition</span><span class="p">(</span><span class="o">&amp;</span><span class="s2">"Move"</span><span class="p">)</span>
 <span class="w">    </span><span class="k">elif</span><span class="w"> </span><span class="n">input</span><span class="o">.</span><span class="n">jump</span><span class="p">:</span>
-<span class="w">        </span><span class="n">state_machine</span><span class="o">.</span><span class="n">transition</span><span class="p">(</span><span class="o">&amp;</span><span class="s2">&quot;Jump&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="n">state_machine</span><span class="o">.</span><span class="n">transition</span><span class="p">(</span><span class="o">&amp;</span><span class="s2">"Jump"</span><span class="p">)</span>
 </code></pre></div>
 <p>Transitions are based on <em>node names</em>, i.e. calling <code>transition(&amp;"Move")</code> will
 transition to a state node called <em>Move</em>. </p>

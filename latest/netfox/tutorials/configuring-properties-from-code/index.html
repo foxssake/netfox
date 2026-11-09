@@ -387,25 +387,25 @@ exploration is ran before every scene save.</p>
 <p>An example implementation for the above methods:</p>
 <div class="highlight"><pre><span></span><code><span class="k">func</span><span class="w"> </span><span class="n">_get_interpolated_properties</span><span class="p">():</span>
 <span class="w">    </span><span class="c1"># Specify a list of properties</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;quaternion&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">[</span><span class="s2">"position"</span><span class="p">,</span><span class="w"> </span><span class="s2">"quaternion"</span><span class="p">]</span>
 
 <span class="k">func</span><span class="w"> </span><span class="n">_get_synchronized_state_properties</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">Array</span><span class="p">:</span>
 <span class="w">    </span><span class="c1"># Specify inherited properties and more</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">super</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">[</span>
-<span class="w">        </span><span class="s2">&quot;health&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;name&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="p">[</span><span class="n">weapon</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;ammo&quot;</span><span class="p">],</span><span class="w">       </span><span class="c1"># Specify a property on another node</span>
-<span class="w">        </span><span class="p">[</span><span class="s2">&quot;Hand/Weapon&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;ammo&quot;</span><span class="p">]</span><span class="w"> </span><span class="c1"># Specify node by path</span>
+<span class="w">        </span><span class="s2">"health"</span><span class="p">,</span><span class="w"> </span><span class="s2">"name"</span><span class="p">,</span>
+<span class="w">        </span><span class="p">[</span><span class="n">weapon</span><span class="p">,</span><span class="w"> </span><span class="s2">"ammo"</span><span class="p">],</span><span class="w">       </span><span class="c1"># Specify a property on another node</span>
+<span class="w">        </span><span class="p">[</span><span class="s2">"Hand/Weapon"</span><span class="p">,</span><span class="w"> </span><span class="s2">"ammo"</span><span class="p">]</span><span class="w"> </span><span class="c1"># Specify node by path</span>
 <span class="w">    </span><span class="p">]</span>
 
 <span class="k">func</span><span class="w"> </span><span class="n">_get_rollback_state_properties</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">Array</span><span class="p">:</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">[</span>
-<span class="w">        </span><span class="s2">&quot;transform&quot;</span><span class="p">,</span><span class="w">            </span><span class="c1"># Specify a property on self</span>
-<span class="w">        </span><span class="p">[</span><span class="n">weapon</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;ammo&quot;</span><span class="p">]</span><span class="w">        </span><span class="c1"># Specify a property on another node</span>
+<span class="w">        </span><span class="s2">"transform"</span><span class="p">,</span><span class="w">            </span><span class="c1"># Specify a property on self</span>
+<span class="w">        </span><span class="p">[</span><span class="n">weapon</span><span class="p">,</span><span class="w"> </span><span class="s2">"ammo"</span><span class="p">]</span><span class="w">        </span><span class="c1"># Specify a property on another node</span>
 <span class="w">    </span><span class="p">]</span>
 
 <span class="k">func</span><span class="w"> </span><span class="n">_get_rollback_input_propertes</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">Array</span><span class="p">:</span>
 <span class="w">    </span><span class="c1"># Specify a list of properties</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;movement&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;is_jumping&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">[</span><span class="s2">"movement"</span><span class="p">,</span><span class="w"> </span><span class="s2">"is_jumping"</span><span class="p">]</span>
 </code></pre></div>
 <p>See the <a href="https://github.com/foxssake/netfox/tree/main/examples/property-configuration">Property configuration example</a>.</p>
 <div class="admonition note">
