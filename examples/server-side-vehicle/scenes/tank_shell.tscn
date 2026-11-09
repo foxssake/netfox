@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3 uid="uid://uqytq0drkxtf"]
+
+[ext_resource type="Script" path="res://examples/server-side-vehicle/scripts/tank_shell.gd" id="1_8exh1"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_qktr7"]
+size = Vector3(0.2, 0.2, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_rtbd2"]
+size = Vector3(0.2, 0.2, 1)
+
+[node name="TankShell" type="Node3D"]
+script = ExtResource("1_8exh1")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_qktr7")
+
+[node name="Area3D" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+shape = SubResource("BoxShape3D_rtbd2")
+
+[connection signal="body_entered" from="Area3D" to="." method="_on_area_3d_body_entered"]

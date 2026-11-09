@@ -46,6 +46,30 @@ func ensure_snapshot(tick: int, subject: Object, carry_forward: bool) -> _Object
 	# NOTE: May return null if tick too old
 	return history.get_at(tick) as _ObjectSnapshot
 
+# Resets the subject's snapshot at the given tick to its latest auth state
+# The snapshot is replaced with a copy of the latest auth snapshot before the
+# tick, discarding any non-auth (e.g. predicted) data recorded for the tick. If
+# there's no earlier auth snapshot, it's replaced with an empty one.
+# Does nothing if the snapshot at the tick is already auth.
+func reset_to_auth(tick: int, subject: Object) -> void:
+	if not _data.has(subject):
+		_data[subject] = _HistoryBuffer.new(_history_size)
+	var history := _data[subject] as _HistoryBuffer
+
+	var existing := history.get_at(tick) as _ObjectSnapshot
+	if existing and existing.is_auth():
+		return
+
+	# Walk backwards from the previous tick to find the latest auth snapshot
+	var latest_index := mini(tick - 1, history.get_latest_index())
+	for index in range(latest_index, history.get_earliest_index() - 1, -1):
+		var snapshot := history.get_at(index) as _ObjectSnapshot
+		if snapshot and snapshot.is_auth():
+			history.set_at(tick, snapshot.duplicate())
+			return
+
+	history.set_at(tick, _ObjectSnapshot.new(subject))
+
 func get_latest_snapshot(tick: int, subject: Object) -> _ObjectSnapshot:
 	if not _data.has(subject):
 		return null

@@ -62,6 +62,7 @@ nav:
       - 'netfox/guides/network-performance.md'
       - 'netfox/guides/network-command-server.md'
       - 'netfox/guides/network-schemas.md'
+      - 'netfox/guides/simulation.md'
       - 'netfox/guides/visibility-management.md'
       - 'netfox/guides/netfox-sharp.md'
     - Nodes:
@@ -70,6 +71,8 @@ nav:
       - 'netfox/nodes/predictive-synchronizer.md'
       - 'netfox/nodes/state-synchronizer.md'
       - 'netfox/nodes/rewindable-action.md'
+      - 'netfox/nodes/simulator.md'
+      - 'netfox/nodes/input-sender.md'
   - netfox.noray:
     - Guides:
       - 'netfox.noray/guides/noray.md'
