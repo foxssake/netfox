@@ -43,6 +43,7 @@ class Rapier2DPhysicsDriverToggle extends PhysicsDriverToggle:
 
 	func get_files() -> Array[String]:
 		return [
+			"res://addons/netfox.extras/physics/rapier_driver.gd",
 			"res://addons/netfox.extras/physics/rapier_driver_2d.gd",
 		]
 
@@ -57,6 +58,7 @@ class Rapier3DPhysicsDriverToggle extends PhysicsDriverToggle:
 
 	func get_files() -> Array[String]:
 		return [
+			"res://addons/netfox.extras/physics/rapier_driver.gd",
 			"res://addons/netfox.extras/physics/rapier_driver_3d.gd",
 		]
 
