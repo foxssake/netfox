@@ -56,7 +56,7 @@ func _is_tracked_body(_body: Node) -> bool:
 func invalidate_space_cache_through(tick: int) -> int:
 	var tags: Array = _state.ordered_cache_tags()
 	var dropped: int = 0
-	for i: int in range(tags.size() - 1, -1, -1):
+	for i in range(tags.size() - 1, -1, -1):
 		if int(tags[i]) <= tick:
 			_state.remove_cached_by_index(i)
 			dropped += 1
@@ -73,7 +73,7 @@ static func _invalidate_for_spawn(tree: SceneTree, group: StringName) -> void:
 ## Returns true if any bodies appeared since the last check.
 func _check_for_spawned_bodies() -> bool:
 	var has_new_bodies := false
-	for body: Node in get_tree().get_nodes_in_group("network_rigid_body"):
+	for body in get_tree().get_nodes_in_group("network_rigid_body"):
 		if not _is_tracked_body(body) or _known_bodies.has(body):
 			continue
 		_known_bodies[body] = true
@@ -116,7 +116,7 @@ func _rollback_space(tick: int) -> void:
 ## After a rewind, rapier may consider awake bodies at rest and stop syncing
 ## them with their nodes. Toggling sleeping nudges them awake again.
 func _nudge_bodies_awake() -> void:
-	for body: Node in get_tree().get_nodes_in_group("network_rigid_body"):
+	for body in get_tree().get_nodes_in_group("network_rigid_body"):
 		if not _is_tracked_body(body):
 			continue
 		if body is RigidBody3D:
