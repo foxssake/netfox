@@ -37,7 +37,8 @@ func _ready() -> void:
 
 # Emitted before a tick is run.
 func before_tick(delta: float, tick: int) -> void:
-	_snapshot_space(tick)
+	if rollback_physics_space:
+		_snapshot_space(tick)
 	step_physics(delta, tick)
 
 func on_prepare_tick(tick: int) -> void:
