@@ -33,12 +33,12 @@ var history_limit: int:
 
 ## The earliest tick that history is retained for.
 ## [br][br]
-## Determined by [member history_limit].
+## Determined by [member history_limit] and any tick gaps caused by a stall.
 ## [br][br]
 ## [i]read-only[/i]
 var history_start: int:
 	get:
-		return maxi(0, NetworkTime.tick - history_limit)
+		return maxi(maxi(0, NetworkTime.tick - history_limit), _history_floor)
 	set(v):
 		push_error("Trying to set read-only variable history_start")
 
@@ -159,6 +159,7 @@ var _input_redundancy: int = ProjectSettings.get_setting(&"netfox/rollback/input
 # Timing
 var _tick: int = 0
 var _resim_from: int
+var _history_floor: int = 0
 
 var _rollback_from: int = -1
 var _rollback_to: int = -1
@@ -192,10 +193,18 @@ func notify_resimulation_start(p_tick: int) -> void:
 ## from the last tick of the previous one.
 func reset() -> void:
 	_tick = 0
+	_history_floor = 0
 	_earliest_input = -1
 	_earliest_state = -1
 	_simulated_nodes.clear()
 	_mutated_nodes.clear()
+
+## Mark the first valid rollback tick after NetworkTime skips a stalled period.
+##
+## No simulation or history exists for skipped ticks, so future rollback ranges
+## must not cross the discontinuity.
+func _handle_tick_jump(p_tick: int) -> void:
+	_history_floor = maxi(_history_floor, p_tick)
 
 ## Submit node for simulation.
 ##
@@ -393,6 +402,11 @@ func _rollback() -> void:
 
 	# to = Current tick
 	var to := NetworkTime.tick
+
+	# A stall can advance NetworkTime without simulating the skipped ticks.
+	# Clamp to the first real tick after that gap before applying the regular
+	# history limit, since there is no contiguous history to restore in the gap.
+	from = maxi(from, _history_floor)
 
 	# Limit number of rollback ticks
 	if to - from > history_limit:
