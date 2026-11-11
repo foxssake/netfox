@@ -11,7 +11,7 @@ class_name RapierDriver
 # Ticks before this are frozen during a rollback loop, -1 for none
 var _space_hold_until: int = -1
 
-var _known_bodies: Dictionary = {}
+var _known_bodies := _Set.new()
 
 # StateManager2D / StateManager3D, created by subclasses
 var _state
@@ -76,7 +76,7 @@ func _check_for_spawned_bodies() -> bool:
 	for body in get_tree().get_nodes_in_group("network_rigid_body"):
 		if not _is_tracked_body(body) or _known_bodies.has(body):
 			continue
-		_known_bodies[body] = true
+		_known_bodies.add(body)
 		# Forget on exit, so a re-added body (e.g. pooled) counts as spawning again
 		body.tree_exiting.connect(_on_tracked_body_exiting.bind(body), CONNECT_ONE_SHOT)
 		has_new_bodies = true
