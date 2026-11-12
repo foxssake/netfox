@@ -50,7 +50,7 @@ environment = SubResource("Environment_xhc6u")
 [node name="Player Spawner" type="Node" parent="Network" unique_id=712704635 node_paths=PackedStringArray("spawn_points")]
 script = ExtResource("3_c7rxg")
 player_scene = ExtResource("2_p13fk")
-spawn_points = [NodePath("../../Spawn Points/Marker3D"), NodePath("../../Spawn Points/Marker3D2"), NodePath("../../Spawn Points/Marker3D3"), NodePath("../../Spawn Points/Marker3D4"), NodePath("../../Spawn Points/Marker3D5")]
+spawn_points = [NodePath("../../Spawn Points/Marker3D"), NodePath("../../Spawn Points/Marker3D2")]
 
 [node name="Players" type="Node" parent="." unique_id=1856026766]
 
@@ -88,14 +88,5 @@ shape = SubResource("ConcavePolygonShape3D_vsbjj")
 [node name="Marker3D" type="Marker3D" parent="Spawn Points" unique_id=1398581896]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.1705, 1, 0)
 
-[node name="Marker3D2" type="Marker3D" parent="Spawn Points" unique_id=2051658867]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.8295, 1, 0)
-
-[node name="Marker3D3" type="Marker3D" parent="Spawn Points" unique_id=978403234]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.82951, 1, 16)
-
-[node name="Marker3D4" type="Marker3D" parent="Spawn Points" unique_id=596404109]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.17049, 1, -17)
-
-[node name="Marker3D5" type="Marker3D" parent="Spawn Points" unique_id=558923809]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.17049, 1, 0)
+[node name="Marker3D2" type="Marker3D" parent="Spawn Points" unique_id=1903761206]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.1705, 1, -0.99036026)
