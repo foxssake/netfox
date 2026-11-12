@@ -433,3 +433,9 @@ func _is_foreign_rollback_root(node: Node) -> bool:
 
 	# Node is foreign root
 	return true
+
+func request_action(actionID : int, sender : Node, tick : int):
+	pass
+
+func get_actions(actionID : int, tick : int = NetworkRollback.tick) -> Array[Action]:
+	return []
