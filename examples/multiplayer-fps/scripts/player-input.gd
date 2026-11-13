@@ -18,6 +18,9 @@ var movement: Vector3 = Vector3.ZERO
 var fire: bool = false
 var jump: bool = false
 
+var altFireBuffer : bool = false
+var altFire : bool = false
+
 func _notification(what):
 	if what == NOTIFICATION_WM_WINDOW_FOCUS_IN:
 		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
@@ -34,6 +37,11 @@ func _input(event: InputEvent) -> void:
 		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 		override_mouse = true
 
+func _process(delta: float) -> void:
+	if !is_multiplayer_authority(): return
+	
+	altFireBuffer = Input.is_action_just_pressed("weapon_explode")
+
 func _gather():
 	if !is_setup:
 		setup()
@@ -46,6 +54,8 @@ func _gather():
 
 	jump = Input.is_action_pressed("move_jump")
 	fire = Input.is_action_pressed("mouse_weapon_fire")
+	altFire = altFireBuffer
+	altFireBuffer = false
 
 	if override_mouse:
 		look_angle = Vector2.ZERO
