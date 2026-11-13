@@ -433,3 +433,20 @@ func _is_foreign_rollback_root(node: Node) -> bool:
 
 	# Node is foreign root
 	return true
+
+func request_action(actionID : int, sender : Node, tick : int, data : Dictionary):
+	if !NetworkHistoryServer._action_history.has_property(tick, self, "actions"):
+		NetworkHistoryServer._action_history.set_property(tick, self, "actions", [])
+	
+	var array : Array = NetworkHistoryServer._action_history.get_property(tick, self, "actions")
+	
+	array.push_back(
+		Action.new(
+			actionID,
+			tick,
+			sender
+		)
+	)
+
+func get_actions(actionID : int, tick : int) -> Array[Action]:
+	return []
