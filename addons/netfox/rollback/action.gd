@@ -9,6 +9,13 @@ var sender : NodePath
 
 var data : Dictionary
 
+func _init(_action : int = -1, _tick : int = -1, _sender : Node = null, _data : Dictionary = {}) -> void:
+	action = _action
+	tick = _tick
+	if _sender != null:
+		sender = _sender.get_path()
+	data = _data
+
 static func _decode(buffer : StreamPeerBuffer) -> Action:
 	var a : Action = Action.new()
 	

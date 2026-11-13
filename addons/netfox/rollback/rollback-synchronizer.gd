@@ -441,10 +441,12 @@ func request_action(actionID : int, sender : Node, tick : int):
 	var array : Array = NetworkHistoryServer._action_history.get_property(tick, self, "actions")
 	
 	array.push_back(
-		Action.new()
+		Action.new(
+			actionID,
+			tick,
+			sender
+		)
 	)
-	
-	NetworkHistoryServer._action_history.set_property(tick, self, "actions", array)
 
 func get_actions(actionID : int, tick : int = NetworkRollback.tick) -> Array[Action]:
 	return []
