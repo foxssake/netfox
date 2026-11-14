@@ -203,7 +203,7 @@ func _after_loop() -> void:
 
 	# Submit
 	if is_multiplayer_authority() and _last_set_tick >= 0:
-		var serialize_from := NetworkRollback.history_start
+		var serialize_from: int = NetworkRollback.history_start
 		var serialize_to := _last_set_tick
 		if not _active_ticks.is_empty():
 			serialize_to = maxi(_active_ticks.max(), serialize_to)

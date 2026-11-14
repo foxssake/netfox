@@ -55,9 +55,9 @@ func process_settings() -> void:
 			RollbackSimulationServer.register(NetworkRollback._get_rollback_method(node))
 
 		if NetworkRollback.is_rollback_liveness_aware(node) and not RollbackLivenessServer.is_registered(node):
-			var spawn_callback := NetworkRollback._get_rollback_spawn_method(node)
-			var despawn_callback := NetworkRollback._get_rollback_despawn_method(node)
-			var free_callback := NetworkRollback._get_rollback_destroy_method(node)
+			var spawn_callback: Callable = NetworkRollback._get_rollback_spawn_method(node)
+			var despawn_callback: Callable = NetworkRollback._get_rollback_despawn_method(node)
+			var free_callback: Callable = NetworkRollback._get_rollback_destroy_method(node)
 
 			RollbackLivenessServer.register(node, spawn_callback, despawn_callback, free_callback, spawn_tick)
 			_liveness_nodes.append(node)

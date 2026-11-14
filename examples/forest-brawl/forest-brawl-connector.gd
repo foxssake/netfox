@@ -97,7 +97,7 @@ func _connect_to_services(p_noray_address: String, p_nohub_address: String) -> E
 
 	# Connect to noray
 	_logger.info("Connecting to noray at %s:%d...", [noray_address[0], noray_address[1]])
-	var err := await Noray.connect_to_host(noray_address[0], noray_address[1])
+	var err: Error = await Noray.connect_to_host(noray_address[0], noray_address[1])
 	if err != OK:
 		_logger.info("Failed to connect to noray: %s" % [error_string(err)])
 		_disconnect_from_services()

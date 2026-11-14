@@ -117,10 +117,10 @@ var _offset: float = 0.
 var _rtt: float = 0.
 var _rtt_jitter: float = 0.
 
-@onready var _cmd_ping := NetworkCommandServer.register_command(_handle_ping, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
-@onready var _cmd_pong := NetworkCommandServer.register_command(_handle_pong, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
-@onready var _cmd_req_time := NetworkCommandServer.register_command(_handle_request_timestamp, MultiplayerPeer.TRANSFER_MODE_RELIABLE)
-@onready var _cmd_set_time := NetworkCommandServer.register_command(_handle_set_timestamp, MultiplayerPeer.TRANSFER_MODE_RELIABLE)
+@onready var _cmd_ping: _NetworkCommandServer.Command = NetworkCommandServer.register_command(_handle_ping, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
+@onready var _cmd_pong: _NetworkCommandServer.Command = NetworkCommandServer.register_command(_handle_pong, MultiplayerPeer.TRANSFER_MODE_UNRELIABLE)
+@onready var _cmd_req_time: _NetworkCommandServer.Command = NetworkCommandServer.register_command(_handle_request_timestamp, MultiplayerPeer.TRANSFER_MODE_RELIABLE)
+@onready var _cmd_set_time: _NetworkCommandServer.Command = NetworkCommandServer.register_command(_handle_set_timestamp, MultiplayerPeer.TRANSFER_MODE_RELIABLE)
 
 ## Emitted after the initial time sync.
 ##

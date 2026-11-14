@@ -28,7 +28,7 @@ func _ready():
 	# Push inital movement to TickInterpolator
 	# This is to avoid the projectile appearing in place for a moment before
 	# starting to move
-	var offset := basis.z * speed * NetworkTime.ticktime
+	var offset: Vector3 = basis.z * speed * NetworkTime.ticktime
 
 	position -= offset
 	tick_interpolator.push_state()

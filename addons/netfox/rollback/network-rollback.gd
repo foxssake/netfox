@@ -310,8 +310,8 @@ func register_rollback_input_submission(_node: Node, _tick: int) -> void:
 ## [br][br]
 ## Returns [code]-1[/code] if no input was submitted for the node, ever.
 func get_latest_input_tick(node: Node) -> int:
-	var input_nodes := RollbackSimulationServer._get_inputs_of(node)
-	var reference_tick := NetworkTime.tick
+	var input_nodes: Array[Node] = RollbackSimulationServer._get_inputs_of(node)
+	var reference_tick: int = NetworkTime.tick
 
 	return NetworkHistoryServer.get_latest_input_for(input_nodes, reference_tick)
 
@@ -392,7 +392,7 @@ func _rollback() -> void:
 	var from := _resim_from
 
 	# to = Current tick
-	var to := NetworkTime.tick
+	var to: int = NetworkTime.tick
 
 	# Limit number of rollback ticks
 	if to - from > history_limit:

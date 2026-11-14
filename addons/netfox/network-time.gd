@@ -535,7 +535,7 @@ func _get_tick_tag() -> String:
 func _loop() -> void:
 	# Adjust local clock
 	_clock.step(_clock_stretch_factor)
-	var clock_diff := NetworkTimeSynchronizer.get_time() - _clock.get_time()
+	var clock_diff: float = NetworkTimeSynchronizer.get_time() - _clock.get_time()
 
 	# Ignore diffs under 1ms
 	if abs(clock_diff) < 0.001:
