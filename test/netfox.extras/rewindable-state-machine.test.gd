@@ -87,7 +87,7 @@ func test_can_enter_should_prevent_transition():
 	# Register a more specific answer so the mock will use that
 	when(other_state.can_enter)\
 		.with_args([first_state])\
-		.then_return(func(__): return false)
+		.then_return(false)
 
 	# Try to enter second state
 	expect_false(state_machine.transition("Other State"), "Transition should have failed!")
