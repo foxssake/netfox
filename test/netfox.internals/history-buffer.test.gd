@@ -68,6 +68,52 @@ func suite() -> void:
 		)
 	)
 
+	define("gaps", func():
+		test("should not have latest in gap after skipping past capacity", func():
+			var buffer := _HistoryBuffer.new(64)
+			buffer.set_at(54, "foo")
+			buffer.set_at(118, "bar")
+
+			expect_not(buffer.has_latest_at(55))
+			expect_equal(buffer.get_earliest_index(), 118)
+			expect_equal(buffer.get_latest_at(118), "bar")
+		)
+
+		test("should not have latest in gap after pushing past capacity", func():
+			var buffer := _HistoryBuffer.of(4, { 0: "foo", 3: "bar" })
+			buffer.push("baz")
+
+			expect_not(buffer.has_latest_at(1))
+			expect_equal(buffer.get_earliest_index(), 3)
+			expect_equal(buffer.values(), ["bar", "baz"])
+		)
+
+		test("should not have latest in gap after pop", func():
+			var buffer := _HistoryBuffer.of(16, { 2: "foo", 4: "bar" })
+			buffer.pop()
+
+			expect_not(buffer.has_latest_at(3))
+			expect_equal(buffer.get_earliest_index(), 4)
+		)
+
+		test("should always return latest where it has one", func():
+			var buffer := _HistoryBuffer.new(8)
+			var rng := RandomNumberGenerator.new()
+			rng.seed = 1
+
+			var at := 0
+			for i in 512:
+				at += rng.randi_range(-4, 8)
+				buffer.set_at(at, i)
+
+				for idx in range(buffer.get_earliest_index() - 2, buffer.get_latest_index() + 3):
+					if buffer.has_latest_at(idx) and buffer.get_latest_at(idx) == null:
+						fail("Tick %d has latest, but returned null!" % idx)
+						return
+			ok()
+		)
+	)
+
 	define("values()", func():
 		test("should return empty", func():
 			var buffer := empty_buffer.duplicate()

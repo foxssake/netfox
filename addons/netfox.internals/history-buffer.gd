@@ -36,12 +36,14 @@ func push(value: Variant) -> void:
 	_previous[_head % _capacity] = _head
 	_head += 1
 	_tail += maxi(0, size() - capacity())
+	_settle_tail()
 
 func pop() -> Variant:
 	assert(is_not_empty(), "History buffer is empty!")
 
 	var value = _buffer[_tail % _capacity]
 	_tail += 1
+	_settle_tail()
 	return value
 
 func values() -> Array:
@@ -136,6 +138,12 @@ func clear():
 
 func is_empty() -> bool:
 	return size() == 0
+
+# Gaps point back to the last item before them. Once that item is gone, the
+# gap has nothing to return, so the tail moves on to the next item.
+func _settle_tail() -> void:
+	while _tail < _head and _previous[_tail % _capacity] != _tail:
+		_tail += 1
 
 func is_not_empty() -> bool:
 	return not is_empty()
