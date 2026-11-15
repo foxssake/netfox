@@ -23,6 +23,7 @@ config/icon="res://icon.png"
 
 [autoload]
 
+NetworkCommandServer="*res://addons/netfox/servers/network-command-server.gd"
 Async="*res://examples/shared/scripts/async.gd"
 GameEvents="*res://examples/forest-brawl/scripts/game-events.gd"
 Noray="*res://addons/netfox.noray/noray.gd"
@@ -38,7 +39,6 @@ RollbackSimulationServer="*res://addons/netfox/servers/rollback-simulation-serve
 NetworkHistoryServer="*res://addons/netfox/servers/network-history-server.gd"
 NetworkSynchronizationServer="*res://addons/netfox/servers/network-synchronization-server.gd"
 NetworkIdentityServer="*res://addons/netfox/servers/network-identity-server.gd"
-NetworkCommandServer="*res://addons/netfox/servers/network-command-server.gd"
 RollbackLivenessServer="*res://addons/netfox/servers/rollback-liveness-server.gd"
 InterpolationServer="*res://addons/netfox/servers/interpolation-server.gd"
 
@@ -154,6 +154,7 @@ extras/auto_tile_windows=true
 rollback/enable_diff_states=true
 events/enabled=true
 autoconnect/enabled=true
+autoconnect/simulated_latency_ms=195
 
 [rendering]
 

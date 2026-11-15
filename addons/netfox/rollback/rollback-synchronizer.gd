@@ -444,9 +444,10 @@ func request_action(actionID : int, sender : Node, tick : int, data : Dictionary
 		Action.new(
 			actionID,
 			tick,
-			sender
+			sender,
+			data
 		)
 	)
 
 func get_actions(actionID : int, tick : int) -> Array[Action]:
-	return []
+	return NetworkHistoryServer._action_history.get_property(tick, self, "actions", []) as Array[Action]

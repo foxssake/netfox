@@ -25,7 +25,6 @@ var _ignored_subjects := _Set.new()
 var _rb_input_history := _PerObjectHistory.new(_rb_history_size)
 var _rb_state_history := _PerObjectHistory.new(_rb_history_size)
 var _sync_history := _PerObjectHistory.new(_sync_history_size)
-var _action_history := _PerObjectHistory.new(NetworkRollback.history_limit)
 
 # Cached snapshots for syncing
 var _rb_input_snapshots := _HistoryBuffer.new(_rb_history_size)
@@ -33,6 +32,9 @@ var _rb_state_snapshots := _HistoryBuffer.new(_rb_history_size)
 var _sync_state_snapshots := _HistoryBuffer.new(_sync_history_size)
 
 static var _logger := NetfoxLogger._for_netfox("NetworkHistoryServer")
+
+# Actions
+var _action_history := _PerObjectHistory.new(NetworkRollback.history_limit)
 
 ## Register a rollback state property
 func register_rollback_state(node: Node, property: NodePath) -> void:

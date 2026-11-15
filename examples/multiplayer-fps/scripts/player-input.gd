@@ -40,7 +40,8 @@ func _input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
 	if !is_multiplayer_authority(): return
 	
-	altFireBuffer = Input.is_action_just_pressed("weapon_explode")
+	if !altFireBuffer:
+		altFireBuffer = Input.is_action_just_pressed("weapon_explode")
 
 func _gather():
 	if !is_setup:
