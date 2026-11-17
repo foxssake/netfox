@@ -33,6 +33,9 @@ var _sync_state_snapshots := _HistoryBuffer.new(_sync_history_size)
 
 static var _logger := NetfoxLogger._for_netfox("NetworkHistoryServer")
 
+# Actions
+var _action_history := _PerObjectHistory.new(NetworkRollback.history_limit)
+
 ## Register a rollback state property
 func register_rollback_state(node: Node, property: NodePath) -> void:
 	_rb_state_properties.add(node, property)
