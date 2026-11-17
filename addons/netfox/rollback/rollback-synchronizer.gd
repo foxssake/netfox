@@ -448,6 +448,8 @@ func request_action(actionID : int, sender : Node, tick : int, data : Dictionary
 			data
 		)
 	)
+	
+	RollbackSimulationServer.simulate(NetworkTime.ticktime, tick)
 
 func get_actions(actionID : int, tick : int) -> Array[Action]:
 	return NetworkHistoryServer._action_history.get_property(tick, self, "actions", []) as Array[Action]
