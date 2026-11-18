@@ -19,6 +19,7 @@ var fire: bool = false
 var jump: bool = false
 
 func _notification(what):
+	if not is_multiplayer_authority(): return
 	if what == NOTIFICATION_WM_WINDOW_FOCUS_IN:
 		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 		override_mouse = false
