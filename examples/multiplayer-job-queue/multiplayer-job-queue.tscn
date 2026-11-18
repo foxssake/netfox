@@ -1,0 +1,125 @@
+[gd_scene load_steps=17 format=3 uid="uid://c1mtdn4ctuinl"]
+
+[ext_resource type="PackedScene" uid="uid://badtpsxn5lago" path="res://examples/shared/ui/network-popup.tscn" id="1_82grf"]
+[ext_resource type="Script" path="res://examples/multiplayer-job-queue/scripts/player-spawner.gd" id="1_lbpot"]
+[ext_resource type="MeshLibrary" uid="uid://1h5837ui6t8q" path="res://examples/multiplayer-job-queue/models/Quaternius Cube World Kit/cube-world-kit.tres" id="1_xoe2e"]
+[ext_resource type="Script" path="res://examples/shared/scripts/simple-time-display.gd" id="2_1lg63"]
+[ext_resource type="PackedScene" uid="uid://rx0fioc73ab3" path="res://examples/multiplayer-job-queue/models/Quaternius Cube World Kit/Door_Closed.gltf" id="2_kq8ip"]
+[ext_resource type="PackedScene" uid="uid://dox3nggklmbyv" path="res://examples/multiplayer-job-queue/models/Quaternius Cube World Kit/Button.gltf" id="3_28pr6"]
+[ext_resource type="Script" path="res://examples/multiplayer-job-queue/scripts/spawn-npc-button.gd" id="4_8d6et"]
+[ext_resource type="Script" path="res://examples/multiplayer-job-queue/scripts/process-npc-button.gd" id="4_oj1u5"]
+[ext_resource type="Script" path="res://examples/multiplayer-job-queue/scripts/npc-spawner.gd" id="5_bopr6"]
+[ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="5_rsolk"]
+[ext_resource type="Script" path="res://addons/netfox.extras/job-queue/network-job-queue.gd" id="6_0qxmk"]
+[ext_resource type="PackedScene" uid="uid://c3j3mujpl8cgm" path="res://examples/multiplayer-job-queue/scenes/player.tscn" id="6_jb2i5"]
+[ext_resource type="Script" path="res://examples/multiplayer-job-queue/scripts/npc-job-worker.gd" id="7_vyxp6"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_gcuc1"]
+
+[sub_resource type="Sky" id="Sky_g0uhm"]
+sky_material = SubResource("ProceduralSkyMaterial_gcuc1")
+
+[sub_resource type="Environment" id="Environment_agihn"]
+background_mode = 2
+sky = SubResource("Sky_g0uhm")
+
+[node name="Game Scene" type="Node3D"]
+
+[node name="Map" type="Node" parent="."]
+
+[node name="GridMap" type="GridMap" parent="Map"]
+mesh_library = ExtResource("1_xoe2e")
+data = {
+"cells": PackedInt32Array(65530, 65529, 1, 65531, 65529, 1, 65532, 65529, 1, 65533, 65529, 1, 65534, 65529, 1, 65535, 65529, 1, 65535, 65530, 1, 65535, 65531, 1, 65535, 65532, 1, 65535, 65533, 1, 65535, 65534, 1, 65535, 65535, 1, 65534, 65535, 1, 65533, 65535, 1, 65532, 65535, 1, 65531, 65535, 1, 65530, 65535, 1, 65530, 65534, 1, 65530, 65533, 1, 65530, 65532, 1, 65530, 65531, 1, 65530, 65530, 1, 65531, 65530, 1, 65532, 65530, 1, 65533, 65530, 1, 65534, 65530, 1, 65534, 65531, 1, 65534, 65532, 1, 65534, 65533, 1, 65534, 65534, 1, 65533, 65534, 1, 65533, 65533, 1, 65532, 65533, 1, 65532, 65532, 1, 65531, 65532, 1, 65531, 65531, 1, 65531, 65533, 1, 65531, 65534, 1, 65533, 65532, 1, 65533, 65531, 1, 65532, 65531, 1, 65532, 65534, 1, 65535, 65528, 1, 65534, 65528, 1, 65533, 65528, 1, 65532, 65528, 1, 65531, 65528, 1, 65530, 65528, 1, 65529, 65528, 1, 65528, 65528, 1, 65528, 65529, 1, 65528, 65530, 1, 65528, 65531, 1, 65528, 65532, 1, 65528, 65533, 1, 65528, 65534, 1, 65528, 65535, 1, 65529, 65535, 1, 65529, 65534, 1, 65529, 65533, 1, 65529, 65532, 1, 65529, 65531, 1, 65529, 65530, 1, 65529, 65529, 1, 0, 65528, 1, 0, 65529, 1, 0, 65530, 1, 0, 65531, 1, 0, 65532, 1, 0, 65533, 1, 0, 65534, 1, 0, 65535, 1, 1, 65528, 1, 1, 65529, 1, 1, 65530, 1, 1, 65531, 1, 1, 65532, 1, 1, 65533, 1, 1, 65534, 1, 1, 65535, 1, 2, 65528, 1, 2, 65529, 1, 2, 65530, 1, 2, 65531, 1, 2, 65532, 1, 2, 65533, 1, 2, 65534, 1, 2, 65535, 1, 3, 65528, 1, 3, 65529, 1, 3, 65530, 1, 3, 65531, 1, 3, 65532, 1, 3, 65533, 1, 3, 65534, 1, 3, 65535, 1, 4, 65528, 1, 4, 65529, 1, 4, 65530, 1, 4, 65531, 1, 4, 65532, 1, 4, 65533, 1, 4, 65534, 1, 4, 65535, 1, 5, 65528, 1, 5, 65529, 1, 5, 65530, 1, 5, 65531, 1, 5, 65532, 1, 5, 65533, 1, 5, 65534, 1, 5, 65535, 1, 6, 65528, 1, 6, 65529, 1, 6, 65530, 1, 6, 65531, 1, 6, 65532, 1, 6, 65533, 1, 6, 65534, 1, 6, 65535, 1, 7, 65528, 1, 7, 65529, 1, 7, 65530, 1, 7, 65531, 1, 7, 65532, 1, 7, 65533, 1, 7, 65534, 1, 7, 65535, 1, 65528, 0, 1, 65528, 1, 1, 65528, 2, 1, 65528, 3, 1, 65528, 4, 1, 65528, 5, 1, 65528, 6, 1, 65529, 0, 1, 65529, 1, 1, 65529, 2, 1, 65529, 3, 1, 65529, 4, 1, 65529, 5, 1, 65529, 6, 1, 65530, 0, 1, 65530, 1, 1, 65530, 2, 1, 65530, 3, 1, 65530, 4, 1, 65530, 5, 1, 65530, 6, 1, 65531, 0, 1, 65531, 1, 1, 65531, 2, 1, 65531, 3, 1, 65531, 4, 1, 65531, 5, 1, 65531, 6, 1, 65532, 0, 1, 65532, 1, 1, 65532, 2, 1, 65532, 3, 1, 65532, 4, 1, 65532, 5, 1, 65532, 6, 1, 65533, 0, 1, 65533, 1, 1, 65533, 2, 1, 65533, 3, 1, 65533, 4, 1, 65533, 5, 1, 65533, 6, 1, 65534, 0, 1, 65534, 1, 1, 65534, 2, 1, 65534, 3, 1, 65534, 4, 1, 65534, 5, 1, 65534, 6, 1, 65535, 0, 1, 65535, 1, 1, 65535, 2, 1, 65535, 3, 1, 65535, 4, 1, 65535, 5, 1, 65535, 6, 1, 0, 0, 1, 0, 1, 1, 0, 2, 1, 0, 3, 1, 0, 4, 1, 0, 5, 1, 0, 6, 1, 1, 0, 1, 1, 1, 1, 1, 2, 1, 1, 3, 1, 1, 4, 1, 1, 5, 1, 1, 6, 1, 2, 0, 1, 2, 1, 1, 2, 2, 1, 2, 3, 1, 2, 4, 1, 2, 5, 1, 2, 6, 1, 3, 0, 1, 3, 1, 1, 3, 2, 1, 3, 3, 1, 3, 4, 1, 3, 5, 1, 3, 6, 1, 4, 0, 1, 4, 1, 1, 4, 2, 1, 4, 3, 1, 4, 4, 1, 4, 5, 1, 4, 6, 1, 5, 0, 1, 5, 1, 1, 5, 2, 1, 5, 3, 1, 5, 4, 1, 5, 5, 1, 5, 6, 1, 6, 0, 1, 6, 1, 1, 6, 2, 1, 6, 3, 1, 6, 4, 1, 6, 5, 1, 6, 6, 1, 7, 0, 1, 7, 1, 1, 7, 2, 1, 7, 3, 1, 7, 4, 1, 7, 5, 1, 7, 6, 1, 131064, 65528, 0, 131065, 65528, 0, 131066, 65528, 0, 131067, 65528, 0, 131068, 65528, 0, 131069, 65528, 0, 131070, 65528, 0, 131071, 65528, 0, 65536, 65528, 0, 65538, 65528, 0, 65539, 65528, 0, 65540, 65528, 0, 65542, 65528, 0, 65543, 65528, 0, 65543, 6, 0, 65543, 5, 0, 65543, 4, 0, 65543, 3, 0, 65543, 2, 0, 65543, 1, 0, 65543, 0, 0, 65543, 65535, 0, 65543, 65534, 0, 65543, 65533, 0, 65543, 65532, 0, 65543, 65531, 0, 65543, 65530, 0, 65543, 65529, 0, 131064, 65529, 0, 131064, 65530, 0, 131064, 65531, 0, 131064, 65532, 0, 131064, 65533, 0, 131064, 65534, 0, 131064, 65535, 0, 131064, 0, 0, 131064, 4, 0, 131064, 5, 0, 131064, 1, 0, 131064, 2, 0, 131064, 3, 0, 131064, 6, 131072, 196600, 65528, 0, 196601, 65528, 0, 196602, 65528, 0, 196603, 65528, 0, 196604, 65528, 0, 196605, 65528, 0, 196606, 65528, 0, 196607, 65528, 0, 131072, 65528, 0, 131074, 65528, 0, 131075, 65528, 0, 131076, 65528, 0, 131078, 65528, 0, 131079, 65528, 0, 131079, 65529, 0, 131079, 65530, 0, 131079, 65531, 0, 131079, 65532, 0, 131079, 65533, 0, 131079, 65534, 0, 131079, 65535, 0, 131079, 0, 0, 131079, 1, 0, 131079, 2, 0, 131079, 3, 0, 131079, 4, 0, 131079, 5, 0, 131079, 6, 0, 196600, 6, 0, 196600, 5, 0, 196600, 4, 0, 196600, 3, 0, 196600, 2, 0, 196600, 1, 0, 196600, 0, 0, 196600, 65535, 0, 196600, 65534, 0, 196600, 65533, 0, 196600, 65532, 0, 196600, 65531, 0, 196600, 65530, 0, 196600, 65529, 0, 65539, 65529, 1441796, 65539, 65530, 1179655, 65539, 65531, 1441796, 65539, 65532, 1441796, 65539, 65533, 1441796, 65539, 65534, 1179655, 65539, 65535, 1441796, 65539, 0, 1441796, 65539, 1, 1441796, 65539, 2, 1179655, 65539, 3, 1441796, 65537, 65530, 131076, 65536, 65530, 131076, 131071, 65530, 131076, 131070, 65530, 131076, 131069, 65530, 131076, 131068, 65530, 131076, 131067, 65530, 131076, 131065, 65532, 131076, 131066, 65532, 131076, 131067, 65532, 131076, 131068, 65532, 131076, 131069, 65532, 131076, 131070, 65532, 131076, 131071, 65532, 131076, 65536, 65532, 131076, 65537, 65532, 524293, 65537, 65534, 131076, 65536, 65534, 131076, 131071, 65534, 131076, 131070, 65534, 131076, 131069, 65534, 131076, 131068, 65534, 131076, 131067, 65534, 131076, 131065, 0, 131076, 131066, 0, 131076, 131067, 0, 131076, 131068, 0, 131076, 131069, 0, 131076, 131070, 0, 131076, 131071, 0, 131076, 65536, 0, 131076, 65537, 0, 524293, 65537, 2, 131076, 65536, 2, 131076, 131071, 2, 131076, 131070, 2, 131076, 131069, 2, 131076, 131068, 2, 131076, 131067, 2, 131076, 131065, 4, 131076, 131066, 4, 131076, 131067, 4, 131076, 131068, 4, 131076, 131069, 4, 131076, 131070, 4, 131076, 131071, 4, 131076, 65536, 4, 131076, 131065, 6, 131072, 131066, 6, 131072, 131067, 6, 131072, 131068, 6, 131072, 131069, 6, 131072, 131070, 6, 131072, 131071, 6, 131072, 65536, 6, 131072, 65537, 6, 131072, 65538, 6, 131072, 65539, 6, 131072, 65540, 6, 131072, 65541, 6, 131072, 65542, 6, 131072, 131078, 6, 131072, 131077, 6, 131072, 131076, 6, 131072, 131075, 6, 131072, 131074, 6, 131072, 131073, 6, 131072, 131072, 6, 131072, 196607, 6, 131072, 196606, 6, 131072, 196605, 6, 131072, 196604, 6, 131072, 196603, 6, 131072, 196602, 6, 131072, 196601, 6, 131072, 65539, 4, 1310725, 65537, 4, 524293, 65538, 2, 524292, 65538, 65534, 524292, 65538, 65530, 524292, 131066, 65530, 131077, 131066, 65534, 131077, 131066, 2, 131077)
+}
+metadata/_editor_floor_ = Vector3(0, 1, 0)
+
+[node name="Door_Closed" parent="Map" instance=ExtResource("2_kq8ip")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 2, -15.2644)
+
+[node name="Door_Closed2" parent="Map" instance=ExtResource("2_kq8ip")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.9742, 2, -15.2644)
+
+[node name="Button" parent="Map" instance=ExtResource("3_28pr6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 6, 13)
+
+[node name="StaticBody3D" parent="Map/Button/Button2" index="0" node_paths=PackedStringArray("queue", "worker")]
+script = ExtResource("4_oj1u5")
+queue = NodePath("../../../NetworkJobQueue")
+worker = NodePath("../../../NetworkJobQueue/NetworkJobWorker")
+
+[node name="Button2" parent="Map" instance=ExtResource("3_28pr6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 6, 13)
+
+[node name="StaticBody3D" parent="Map/Button2/Button2" index="0" node_paths=PackedStringArray("queue", "worker")]
+script = ExtResource("4_8d6et")
+queue = NodePath("../../../NetworkJobQueue")
+worker = NodePath("../../../NetworkJobQueue/NetworkJobWorker")
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Map"]
+_spawnable_scenes = PackedStringArray("res://examples/multiplayer-job-queue/scenes/npc.tscn")
+spawn_path = NodePath("../NPC Spawner")
+
+[node name="RollbackSynchronizer" type="Node" parent="Map" node_paths=PackedStringArray("root")]
+script = ExtResource("5_rsolk")
+root = NodePath("../NetworkJobQueue")
+enable_prediction = true
+state_properties = Array[String]([":queue"])
+input_properties = Array[String]([":null"])
+
+[node name="NetworkJobQueue" type="Node" parent="Map"]
+script = ExtResource("6_0qxmk")
+paused = true
+
+[node name="NetworkJobWorker" type="Node" parent="Map/NetworkJobQueue" node_paths=PackedStringArray("spawner", "spawn_root")]
+script = ExtResource("7_vyxp6")
+spawner = NodePath("../../MultiplayerSpawner")
+spawn_root = NodePath("../../NPC Spawner")
+
+[node name="NPC Spawner" type="Node3D" parent="Map" node_paths=PackedStringArray("queue")]
+script = ExtResource("5_bopr6")
+queue = NodePath("../NetworkJobQueue")
+
+[node name="Environment" type="Node" parent="."]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
+transform = Transform3D(0.5, 0.612372, -0.612372, 0, 0.707107, 0.707107, 0.866025, -0.353553, 0.353553, -6.7361, 8.77817, 3.88909)
+shadow_enabled = true
+
+[node name="Camera3D" type="Camera3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 0.5, 0.866025, 0, -0.866025, 0.5, -0.000694752, 21.3564, 13.8783)
+current = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
+environment = SubResource("Environment_agihn")
+
+[node name="Network" type="Node" parent="."]
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Network"]
+spawn_path = NodePath("../Player Spawner")
+
+[node name="Player Spawner" type="Node" parent="Network" node_paths=PackedStringArray("spawn_root", "camera")]
+script = ExtResource("1_lbpot")
+player_scene = ExtResource("6_jb2i5")
+spawn_root = NodePath(".")
+camera = NodePath("../../Environment/Camera3D")
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Network Popup" parent="UI" instance=ExtResource("1_82grf")]
+layout_mode = 1
+
+[node name="Time Display" type="Label" parent="UI"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+script = ExtResource("2_1lg63")
+
+[editable path="Map/Button"]
+[editable path="Map/Button2"]
