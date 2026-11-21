@@ -341,6 +341,8 @@ func _ready() -> void:
 		NetworkEvents.on_client_start.connect(func(__): process_settings())
 	else:
 		multiplayer.connected_to_server.connect(process_settings)
+	
+	NetworkRollback.after_loop.connect(_after_loop)
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_EDITOR_PRE_SAVE:
@@ -434,6 +436,9 @@ func _is_foreign_rollback_root(node: Node) -> bool:
 	# Node is foreign root
 	return true
 
+# Action API Updates
+var _queued_changes: Dictionary[int, bool] = {}
+
 func request_action(actionID : int, sender : Node, tick : int, data : Dictionary):
 	if !NetworkHistoryServer._action_history.has_property(tick, self, "actions"):
 		NetworkHistoryServer._action_history.set_property(tick, self, "actions", [])
@@ -448,6 +453,20 @@ func request_action(actionID : int, sender : Node, tick : int, data : Dictionary
 			data
 		)
 	)
+	
+	_queued_changes[tick] = true
+	
+	var earliest : int = _queued_changes.keys().min()
+	
+	NetworkRollback.notify_resimulation_start(earliest)
+	
+	NetworkRollback.mutate(sender, earliest)
+	NetworkRollback.mutate(root, earliest)
+	
+	#NetworkHistoryServer._action_sync_command.send(Serializer) # TODO: Sync
 
 func get_actions(actionID : int, tick : int) -> Array[Action]:
 	return NetworkHistoryServer._action_history.get_property(tick, self, "actions", []) as Array[Action]
+
+func _after_loop():
+	_queued_changes.clear()
