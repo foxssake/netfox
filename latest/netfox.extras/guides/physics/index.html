@@ -194,6 +194,8 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#physics-driver-configuration">Physics Driver Configuration</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#spawning-physics-bodies">Spawning physics bodies</a>
+    </li>
     <li class="toctree-l3"><a class="reference internal" href="#networkrigidbody">NetworkRigidBody</a>
     </li>
     </ul>
@@ -377,6 +379,19 @@ two physics steps per tick. </p>
 the scene tree. Depending on how complex your scene tree is you may wish to
 only rollback specific nodes for performance rather than the entire simulation
 space.</p>
+<h2 id="spawning-physics-bodies">Spawning physics bodies</h2>
+<p>The Rapier drivers prune cached space states up to the spawn tick when bodies
+in the <code>network_rigid_body</code> group appear, so rollback never rewinds earlier
+than a body's first tick. For untracked bodies (e.g. raw <code>RigidBody3D</code>), call
+<code>RapierDriver3D.invalidate_for_spawn(get_tree())</code> (or the <code>RapierDriver2D</code>
+equivalent) after spawning.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Despawned bodies are treated as freshly spawned when re-added to the
+scene tree, e.g. pooled projectiles. Each pool cycle prunes cached space
+states up to the current tick, reducing how far back physics can be
+resimulated. Avoid rapid spawn/despawn cycles of rollback physics bodies.</p>
+</div>
 <h2 id="networkrigidbody">NetworkRigidBody</h2>
 <p>NetworkRigidBody2D and NetworkRigidBody3D nodes enable RigidBody
 synchronization with RollbackSynchronizer, keeping clients in sync with the
