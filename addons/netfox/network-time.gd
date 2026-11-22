@@ -559,9 +559,8 @@ func _loop() -> void:
 	if _was_paused:
 		_was_paused = false
 
-		# Put the whole clock back on the reference clock, same as on start.
-		# Re-anchoring the tick alone leaves whatever separates the two clocks
-		# in the tick for good, as stretching closes the gap afterwards.
+		# Reset both clock and tick to the reference, to keep clock sync going
+		# as if nothing happened
 		_clock.set_time(NetworkTimeSynchronizer.get_time())
 		_clock_stretch_factor = 1.
 		_next_tick_time = _clock.get_time()
