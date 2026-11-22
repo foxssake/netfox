@@ -57,10 +57,10 @@ experience.
 
 ## Registering a schema
 
-Both [RollbackSynchronizer] and [StateSynchronizer] expose a `set_schema()`
-method, that can be used to register the schema used for transmitting
-properties over the network. This method takes a dictionary, with the keys
-being property path strings, and the values being serializers:
+[RollbackSynchronizer], [StateSynchronizer], InputSender and Simulator all
+expose a `set_schema()` method, that can be used to register the schema used for
+transmitting properties over the network. This method takes a dictionary, with
+the keys being property path strings, and the values being serializers:
 
 ```gdscript
 	rollback_synchronizer.set_schema({

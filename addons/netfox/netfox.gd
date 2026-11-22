@@ -169,7 +169,94 @@ var SETTINGS: Array[Dictionary] = [
 		"name": "netfox/events/enabled",
 		"value": true,
 		"type": TYPE_BOOL
-	}
+	},
+	# Input Sender
+	{
+		# Each input packet also carries this many previous inputs, in case
+		# some packets are lost
+		"name": "netfox/input_sender/input_redundancy",
+		"value": 3,
+		"type" : TYPE_INT
+	},
+	{
+		# Ticks of past inputs kept. The buffers also get room for inputs
+		# stamped ahead, see netfox/simulator/max_input_lead
+		"name": "netfox/input_sender/history_limit",
+		"value": 64,
+		"type" : TYPE_INT
+	},
+	{
+		# Send inputs to every peer, not only the host
+		"name": "netfox/input_sender/enable_input_broadcast",
+		"value": false,
+		"type" : TYPE_BOOL
+	},
+	# Simulator
+	{
+		# Ticks between full states, diff states are sent in between.
+		# 0 sends a full state every tick
+		"name": "netfox/simulator/full_state_interval",
+		"value": 24,
+		"type": TYPE_INT,
+		"hint": PROPERTY_HINT_RANGE,
+		"hint_string": "0,60,or_greater"
+	},
+	{
+		# Send only what changed since the previous tick between full states
+		"name": "netfox/simulator/enable_diff_states",
+		"value": true,
+		"type": TYPE_BOOL
+	},
+	{
+		# Ticks of past simulator state kept, also how far back projectiles
+		# can be caught up. The buffers also get room for states predicted
+		# ahead, see netfox/simulator/max_input_lead
+		"name": "netfox/simulator/history_limit",
+		"value": 64,
+		"type" : TYPE_INT
+	},
+	{
+		# Most ticks the host rewinds when catching up a client's projectile
+		"name": "netfox/simulator/max_view_delay_ticks",
+		"value": 30,
+		"type" : TYPE_INT
+	},
+	{
+		# Clients stamp their inputs ahead by rtt / 2 + jitter + this margin,
+		# in seconds, so inputs arrive at the host before they're needed
+		"name": "netfox/simulator/input_lead_margin",
+		"value": 0.1,
+		"type": TYPE_FLOAT,
+		"hint": PROPERTY_HINT_RANGE,
+		"hint_string": "0,1,or_greater"
+	},
+	{
+		# Clients never stamp their inputs further ahead than this, in seconds.
+		# The host drops inputs stamped further ahead. InputSender and
+		# Simulator history buffers get this much room for the future, on top
+		# of their history_limit
+		"name": "netfox/simulator/max_input_lead",
+		"value": 1.0,
+		"type": TYPE_FLOAT,
+		"hint": PROPERTY_HINT_RANGE,
+		"hint_string": "0,2,or_greater"
+	},
+	{
+		# Seconds between periodic view delay samples sent by clients
+		"name": "netfox/simulator/view_delay_send_interval",
+		"value": 0.25,
+		"type": TYPE_FLOAT,
+		"hint": PROPERTY_HINT_RANGE,
+		"hint_string": "0,2,or_greater"
+	},
+	{
+		# View delay changes of at least this many seconds are sent immediately
+		"name": "netfox/simulator/view_delay_change_threshold",
+		"value": 0.06,
+		"type": TYPE_FLOAT,
+		"hint": PROPERTY_HINT_RANGE,
+		"hint_string": "0,1,or_greater"
+	},
 ]
 
 const AUTOLOADS: Array[Dictionary] = [
@@ -220,7 +307,15 @@ const AUTOLOADS: Array[Dictionary] = [
 	{
 		"name": "InterpolationServer",
 		"path": ROOT + "/servers/interpolation-server.gd"
-	}
+	},
+	{
+		"name": "InputSenderServer",
+		"path": ROOT + "/servers/input-sender-server.gd"
+	},
+	{
+		"name": "SimulatorServer",
+		"path": ROOT + "/servers/simulator-server.gd"
+	},
 ]
 
 const TYPES: Array[Dictionary] = [
@@ -253,6 +348,18 @@ const TYPES: Array[Dictionary] = [
 		"base": "Node",
 		"script": ROOT + "/rollback/predictive-synchronizer.gd",
 		"icon": ROOT + "/icons/predictive-synchronizer.svg"
+	},
+	{
+		"name": "InputSender",
+		"base": "Node",
+		"script": ROOT + "/input-sender.gd",
+		"icon": ROOT + "/icons/input-sender.svg"
+	},
+	{
+		"name": "Simulator",
+		"base": "Node",
+		"script": ROOT + "/simulator.gd",
+		"icon": ROOT + "/icons/simulator.svg"
 	},
 ]
 

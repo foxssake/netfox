@@ -1,0 +1,35 @@
+[gd_scene load_steps=7 format=3 uid="uid://co2srxfbf8dac"]
+
+[ext_resource type="Script" path="res://examples/simulated-player/scripts/simulated_player.gd" id="1_4n6wb"]
+[ext_resource type="Script" path="res://examples/simulated-player/scripts/simulated_player_input.gd" id="2_8xdxw"]
+[ext_resource type="Script" path="res://addons/netfox/input-sender.gd" id="3_1fmuj"]
+[ext_resource type="Script" path="res://addons/netfox/simulator.gd" id="4_mmxoi"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_icq3d"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_05200"]
+
+[node name="SimulatedPlayer" type="CharacterBody3D"]
+collision_layer = 3
+collision_mask = 3
+script = ExtResource("1_4n6wb")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_icq3d")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_05200")
+
+[node name="Input" type="Node" parent="."]
+script = ExtResource("2_8xdxw")
+
+[node name="InputSender" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("3_1fmuj")
+root = NodePath("..")
+input_properties = Array[String](["Input:movement", "Input:jump"])
+
+[node name="Simulator" type="Node" parent="." node_paths=PackedStringArray("root", "listened_input_sender")]
+script = ExtResource("4_mmxoi")
+root = NodePath("..")
+listened_input_sender = NodePath("../InputSender")
+state_properties = Array[String]([":global_transform", ":velocity"])
