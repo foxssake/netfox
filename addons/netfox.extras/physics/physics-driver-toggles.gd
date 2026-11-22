@@ -13,7 +13,7 @@ class PhysicsDriverToggle:
 		return []
 
 	func is_enabled() -> bool:
-		return get_files().any(func(it): return FileAccess.file_exists(it))
+		return get_files().all(func(it): return FileAccess.file_exists(it))
 
 	func toggle() -> Array[String]:
 		var errors := get_error_messages()
@@ -43,13 +43,20 @@ class Rapier2DPhysicsDriverToggle extends PhysicsDriverToggle:
 
 	func get_files() -> Array[String]:
 		return [
+			"res://addons/netfox.extras/physics/rapier_driver.gd",
 			"res://addons/netfox.extras/physics/rapier_driver_2d.gd",
 		]
 
 	func get_error_messages() -> Array[String]:
+		var messages := [] as Array[String]
+
+		if Rapier3DPhysicsDriverToggle.new().is_enabled():
+			messages.append("Disable the Rapier3D driver before enabling 2D!")
+
 		if not ClassDB.class_exists("RapierPhysicsServer2D"):
-			return ["Rapier physics is not available! Is the extension installed?"]
-		return []
+			messages.append("RapierPhysicsServer2D is not available! Is the extension installed?")
+
+		return messages
 
 class Rapier3DPhysicsDriverToggle extends PhysicsDriverToggle:
 	func get_name() -> String:
@@ -57,13 +64,20 @@ class Rapier3DPhysicsDriverToggle extends PhysicsDriverToggle:
 
 	func get_files() -> Array[String]:
 		return [
+			"res://addons/netfox.extras/physics/rapier_driver.gd",
 			"res://addons/netfox.extras/physics/rapier_driver_3d.gd",
 		]
 
 	func get_error_messages() -> Array[String]:
+		var messages := [] as Array[String]
+
+		if Rapier2DPhysicsDriverToggle.new().is_enabled():
+			messages.append("Disable the Rapier2D driver before enabling 3D!")
+
 		if not ClassDB.class_exists("RapierPhysicsServer3D"):
-			return ["Rapier physics is not available! Is the extension installed?"]
-		return []
+			messages.append("RapierPhysicsServer3D is not available! Is the extension installed?")
+
+		return messages
 
 class GodotPhysicsDriverToggle extends PhysicsDriverToggle:
 	func get_name() -> String:
