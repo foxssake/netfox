@@ -271,15 +271,25 @@ func _handle_pong(sender: int, data: PackedByteArray) -> void:
 	sample.ping_received = ping_received
 	sample.pong_sent = pong_sent
 	sample.pong_received = pong_received
+	_awaiting_samples.erase(idx)
+
+	# A response processed after a main-thread stall includes the whole stall in
+	# its apparent RTT. Feeding that sample into the clock discipline shifts the
+	# reference clock even though the network itself was not delayed.
+	if not _is_sample_usable(sample):
+		_logger.debug("Dropping time sample with %.4fs RTT after a likely stall", [sample.get_rtt()])
+		return
 
 	_logger.trace("Received sample: %s", [sample])
 
 	# Once a sample is done, remove from in-flight samples and move to sample buffer
-	_awaiting_samples.erase(idx)
 	_sample_buffer.push(sample)
 
 	# Discipline clock based on new sample
 	_discipline_clock()
+
+func _is_sample_usable(sample: NetworkClockSample) -> bool:
+	return sample.get_rtt() <= NetworkTime.stall_threshold
 
 func _handle_request_timestamp(sender: int, data: PackedByteArray) -> void:
 	_logger.debug("Requested initial timestamp @ %.4fs raw time", [_clock.get_raw_time()])

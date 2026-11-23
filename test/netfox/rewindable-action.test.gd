@@ -7,9 +7,9 @@ var rewindable_action: RewindableAction
 
 func before_case(__) -> void:
 	rewindable_action = RewindableAction.new()
-	# TODO(vest): Some good way to add nodes to the tree
-	await NetworkTime.get_tree().process_frame
+	await Vest.sleep()
 	NetworkTime.get_tree().root.add_child(rewindable_action)
+	NetworkRollback.reset()
 
 func after_case(__) -> void:
 	rewindable_action.free()
