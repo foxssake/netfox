@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://foxssake.github.io/netfox/v1.49.12/faq/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Frequently Asked Questions - netfox</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/version-selector.css" rel="stylesheet" />
+        <link href="../css/twemoji.css" rel="stylesheet" />
+        <link href="../assets/mkdocs_puml/puml.css" rel="stylesheet" />
+        <link href="../css/version-select.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Frequently Asked Questions";
+        var mkdocs_page_input_path = "faq.md";
+        var mkdocs_page_url = "/netfox/v1.49.12/faq/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script>
+  <script src="https://giscus.app/client.js"
+          data-repo="foxssake/netfox"
+          data-repo-id="R_kgDOKBON2A"
+          data-category="Docs"
+          data-category-id="DIC_kwDOKBON2M4Clib_"
+          data-mapping="title"
+          data-strict="0"
+          data-reactions-enabled="1"
+          data-emit-metadata="0"
+          data-input-position="top"
+          data-theme="light"
+          data-lang="en"
+          data-loading="lazy"
+          crossorigin="anonymous"
+          async>
+  </script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> netfox
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../upgrading/">Upgrading netfox</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../changelog/">Changelog</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../made-with-netfox/">Made with netfox</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Frequently Asked Questions</a>
+    <ul class="current">
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../hosting/">Hosting</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../external-tutorials/">External tutorials</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../press-kit/">Press kit</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../contributors/">Contributors</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Tutorials</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/tutorials/responsive-player-movement/">Responsive player movement</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/tutorials/input-gathering-tips-and-tricks/">Input gathering tips and tricks</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/tutorials/predicting-input/">Predicting input</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/tutorials/using-rollbacksynchronizer-without-inputs/">Using RollbackSynchronizer without inputs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/tutorials/spawning-and-despawning-in-rollback/">Spawning and despawning in rollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/tutorials/modifying-objects-during-rollback/">Modifying objects during rollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/tutorials/configuring-properties-from-code/">Configuring properties from code</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/tutorials/rollback-caveats/">Rollback caveats</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/tutorials/interpolation-caveats/">Interpolation caveats</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Concepts</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/concepts/servers-clients-ownership/">Servers, clients, and ownership</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/concepts/authoritative-servers/">Authoritative servers</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/guides/logging/">Logging</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/guides/network-time/">NetworkTime</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/guides/network-time-synchronizer/">NetworkTimeSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/guides/network-events/">NetworkEvents</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/guides/interpolators/">Interpolators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/guides/property-paths/">Property paths</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/guides/network-rollback/">NetworkRollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/guides/network-performance/">NetworkPerformance</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/guides/network-command-server/">NetworkCommandServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/guides/network-schemas/">Network Schemas</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/guides/visibility-management/">Visibility Management</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/guides/netfox-sharp/">Netfox Sharp</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Nodes</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/nodes/tick-interpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/nodes/rollback-synchronizer/">RollbackSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/nodes/predictive-synchronizer/">PredictiveSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/nodes/state-synchronizer/">StateSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox/nodes/rewindable-action/">RewindableAction</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.noray</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox.noray/guides/noray/">Noray</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox.noray/guides/packet-handshake/">PacketHandshake</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">netfox.extras</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Guides</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox.extras/guides/physics/">Physics</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox.extras/guides/network-simulator/">NetworkSimulator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox.extras/guides/base-net-input/">BaseNetInput</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox.extras/guides/network-weapon/">NetworkWeapon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox.extras/guides/rewindable-state-machine/">RewindableStateMachine</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox.extras/guides/rewindable-random-number-generator/">RewindableRandomNumberGenerator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../netfox.extras/guides/window-tiler/">WindowTiler</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Reference</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Classes</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/BaseNetInput/">BaseNetInput</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/Interpolators.Interpolator/">Interpolators.Interpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/Interpolators/">Interpolators</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/NetfoxLogger/">NetfoxLogger</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/NetworkRigidBody2D/">NetworkRigidBody2D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/NetworkRigidBody3D/">NetworkRigidBody3D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/NetworkSchemaSerializer/">NetworkSchemaSerializer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/NetworkSchemas/">NetworkSchemas</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/NetworkTickrateHandshake/">NetworkTickrateHandshake</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/NetworkWeapon/">NetworkWeapon</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/NetworkWeapon2D/">NetworkWeapon2D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/NetworkWeapon3D/">NetworkWeapon3D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/NetworkWeaponHitscan3D/">NetworkWeaponHitscan3D</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/PeerVisibilityFilter/">PeerVisibilityFilter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/PhysicsDriver/">PhysicsDriver</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/PredictiveSynchronizer/">PredictiveSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/RewindableAction/">RewindableAction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/RewindableRandomNumberGenerator/">RewindableRandomNumberGenerator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/RewindableState/">RewindableState</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/RewindableStateMachine/">RewindableStateMachine</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/RollbackSynchronizer/">RollbackSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/StateSynchronizer/">StateSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/TickInterpolator/">TickInterpolator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_InterpolationServer/">_InterpolationServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_NetworkCommandServer.Command/">_NetworkCommandServer.Command</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_NetworkCommandServer/">_NetworkCommandServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_NetworkEvents/">_NetworkEvents</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_NetworkHistoryServer/">_NetworkHistoryServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_NetworkIdentityServer/">_NetworkIdentityServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_NetworkPerformance/">_NetworkPerformance</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_NetworkRollback/">_NetworkRollback</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_NetworkSimulator/">_NetworkSimulator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_NetworkSynchronizationServer/">_NetworkSynchronizationServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_NetworkTime/">_NetworkTime</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_NetworkTimeSynchronizer/">_NetworkTimeSynchronizer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_Noray/">_Noray</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_PacketHandshake/">_PacketHandshake</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_RollbackLivenessServer/">_RollbackLivenessServer</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../class-reference/_RollbackSimulationServer/">_RollbackSimulationServer</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">netfox</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Frequently Asked Questions</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="frequently-asked-questions">Frequently Asked Questions</h1>
+<p>This page covers some questions that many users may run into.</p>
+<p>If you are not yet familiar with <em>netfox</em>, it is recommended to explore the
+rest of the docs first. Doing so will provide the context for the answers
+below.</p>
+<p>Note that some questions may overlap, and their answers may refer to eachother.
+This is intentional, to make it easier to find answers to your specific issue.</p>
+<div class="admonition question">
+<p class="admonition-title">Movement is glitchy, what do I do?</p>
+<p>Make sure you're synchronizing every property used by <code>_rollback_tick()</code>,
+and that the same logic runs on the server and each client. Branching logic
+taking different paths may also be a cause.</p>
+<p>Glitchy movement happens when the client and server disagree on game state.
+The client in this case predicts the wrong position for an object, which then
+gets corrected by the server. This is seen as the object snapping into place.</p>
+<p>By applying the above suggestions, you're ensuring that your game code
+produces the same state, both as ground truth on the server, and as predicted
+by the clients.</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">I've read about a feature in the docs, but it's not there in the addon!</p>
+<p>Compare the docs version with the addon's version.</p>
+<p>You can select which version to read about in the docs, on the top left
+corner of the page. Using <em>"latest"</em> means you're reading about the latest
+features present in the repository. Some of these features may not yet be
+released.</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">Help, something is not working!</p>
+<p>Check if the issue is still present in the latest release, or in the latest
+main. If so, please let us know!</p>
+<p>The <em>latest release</em> refers to the version available on the <a href="https://godotengine.org/asset-library/asset?filter=netfox&amp;category=&amp;godot_version=&amp;cost=&amp;sort=updated">asset
+library</a>, and in the <a href="https://github.com/foxssake/netfox/releases">releases</a>. The <em>latest main</em> refers to the latest version
+available in the <a href="https://github.com/foxssake/netfox">repository</a>. The <em>latest release</em> is stable, but may contain
+some bugs that are already fixed on <em>latest main</em>. The <em>latest main</em> is the
+bleeding edge, meaning that it can be unstable.</p>
+<p>If the issue is still present, please let us know on <a href="https://discord.gg/xWGh4GskG5">Discord</a>, or by
+filing an <a href="https://github.com/foxssake/netfox/issues">issue</a>!</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">What properties should I synchronize with RollbackSynchronizer?</p>
+<p>Synchronize every property representing player input as Input properties.</p>
+<p>Synchronize every property read by, or written to in <code>_rollback_tick()</code> as
+State properties.</p>
+<p>The key concept to keep in mind, is that both server and client need to
+produce the same resulting game state as part of <code>_rollback_tick()</code>. Also keep
+in mind, that the game may rewind to an earlier state and resimulate from
+there.</p>
+<p>This means that any data used by your game logic needs to be synchronized,
+otherwise it might differ between peers, leading to differing outcomes,
+ultimately result in glitches. The most surefire way is to synchronize each
+piece of data used by the simulation.</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">Can I remove and then re-add nodes to the scene tree?</p>
+<p>When possible, avoid doing so.</p>
+<p>At the time of writing, it is not possible to reliably detect an other node
+being freed. This would be necessary for <em>RollbackSynchronizer</em>,
+<em>PredictiveSynchronizer</em> and <em>StateSynchronizer</em> to deregister nodes they
+manage.</p>
+<p>To this end, these nodes assumes that when they leave the scene tree, it is
+because they're being freed. So, when <em>RollbackSynchronizer</em> or any of the
+other <em>netfox</em> nodes exit the scene tree, they will deregister the nodes they
+manage.</p>
+<p>When these nodes re-enter the scene tree, <em>netfox</em> will consider them as a
+brand new node, not an already known node being reactivated.</p>
+<p>Note that this does not affect most use cases - just spawning a node, and
+then optionally freeing it sometime later is completely fine.</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">What kind of data can netfox synchronize?</p>
+<p>Data that is safe to use as RPC parameters is also safe with netfox. Other
+data types may work with <a href="../netfox/guides/network-schemas/#implementing-a-custom-serializer">custom schemas</a>. Values passed by reference are best
+avoided.</p>
+<p>Types passed by value are safe to synchronize - e.g. <code>int</code>, <code>float</code>,
+<code>String</code>, <code>Transform3D</code>, etc.</p>
+<p>Values passed by reference are not recommended. Since <em>netfox</em> needs to
+keep a history, the value of the property is stored for every tick. For
+reference types, the history can only store a <em>reference</em> to the value, not the
+value itself. This means that the same reference may be stored for multiple
+ticks. This leads to values "leaking" between ticks, i.e. a modification set in
+a tick may show up in an earlier tick where it shouldn't have.</p>
+<p>These may be worked around either by duplicating the value for every tick
+in <code>_rollback_tick()</code>, or by writing a custom wrapper type that keeps a history
+for the value for every tick. These are only recommended for advanced users.</p>
+<p>The best approach, when available, is flattening the complex value into
+multiple, value-based properties. This approach also benefits more from
+diff states.</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">When should I use RollbackSynchronizer vs. StateSynchronizer vs. MultiplayerSynchronizer?</p>
+<p>Use <code>RollbackSynchronizer</code> for responsive behavior, e.g. player movement.
+Also use for objects that need to interact with other objects in rollback.</p>
+<p>Use <code>PredictiveSynchronizer</code> for objects that need to participate in
+rollback, but their state can be predicted by every peer on their own. For
+example, projectiles.</p>
+<p>Use <code>StateSynchronizer</code> for objects that don't need to respond instantly,
+but may still benefit from interpolation, diff states, schemas, or other netfox
+features. For example, NPCs with their positions interpolated. Often used
+for objects completely owned by the server.</p>
+<p>Use <code>MultiplayerSynchronizer</code> as a fallback, e.g. for data that doesn't
+need to be interpolated.</p>
+<p>Keep in mind that <code>MultiplayerSynchronizer</code> without a <em>Replication
+interval</em> or <em>Delta interval</em> will transmit data on every <code>_process()</code>,
+potentially increasing bandwidth. In contrast, <em>netfox</em> only transmits updates
+per network tick.</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">Can I use MultiplayerSpawner with netfox and rollback?</p>
+<p>Yes.</p>
+<p>In general, <em>netfox</em> tries to build on top of Godot's multiplayer tooling,
+instead of replacing them.</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">Is netfox only usable for rollback?</p>
+<p><a id="is-netfox-only-usable-for-rollback"></a>
+No, rollback is one approach that <em>netfox</em> supports.</p>
+<p>For prototypes and certain game types, a client-authoritative approach
+works well. Many tools provided by <em>netfox</em> are useful here - time
+synchronization, interpolation, schemas, diff states, etc.</p>
+<p>The tools mentioned above are also useful regardless of networking
+approach, and can be reused for custom solutions. This includes
+productivity features, like auto-tiling windows, automatically setting up
+server and client connections on game start, and built-in latency simulation.</p>
+<p>In addition, support for other approaches are also planned for <em>netfox</em>.</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">I need deterministic physics for rollback / netfox to work, right?</p>
+<p>No, this is a common misconception.</p>
+<p>Determinism in this context means that your physics simulation produces the
+exact same output for the exact same input. This means the outcome is the same,
+regardless of the game's version, the engine's version, the user's OS, the
+CPU's endianness, hardware, etc. And the results must match down to the
+individual bits.</p>
+<p>This is difficult to achieve, as the requirement is strict, and there's
+many small things that can break determinism.</p>
+<p>However, <strong>rollback doesn't need deterministic physics</strong>. The reason is
+that even if the client's simulation arrives at a different outcome, the server
+can always correct it by sending the actual results. When this happens, the
+client adjusts its own simulation, and continues.</p>
+<p>This means that the requirement for rollback is for the physics engine to
+be <strong>reasonably consistent</strong> - as long the differences are not too large, the
+client correcting its simulation also won't be noticeable.</p>
+<p>It is rare to find a physics engine that is not consistent enough for
+rollback to work.</p>
+<p>One case where determinism <em>is</em> needed is lockstep - in that case, only
+inputs are synchronized, state is not. So it's up to the game / physics
+simulation to produce the exact same output on all the participating devices.</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">What kind of games can I build with netfox?</p>
+<p>In general, most games can be expressed with rollback netcode, with a few
+notable exceptions. Rollback is also <a href="#is-netfox-only-usable-for-rollback">not the only approach
+available</a> with <em>netfox</em>.</p>
+<p>Rollback is most often used for fighting games, where it's important that
+every input is processed and applied in the correct chronological order.</p>
+<p>Racing games that need collisions are good candidates for use with netfox's
+<a href="../netfox.extras/guides/physics/">physics support</a>.</p>
+<p>FPS games are also doable with rollback, but favoring the shooter is not
+trivial to implement.</p>
+<p>RTS games specifically are not recommended with rollback. These games
+usually involve from dozens to possibly thousands of entities present in the
+game. Resimulating these entities requires lots of CPU time. Additionally,
+synchronizing all their properties through the network requires lots of
+bandwidth capacity. This makes rollback not a good fit for RTS games.</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">I don't care about cheating, is netfox useful to me?</p>
+<p>Yes, <em>netfox</em> has features that can be useful for most multiplayer game
+projects.</p>
+<p>The main feature of <em>netfox</em> is that it implements rollback, and part of
+that is <em>the server being the source of truth</em>. This eliminates a whole class
+of cheats, because malicious clients can't directly affect the game state.
+For example, a client can't simply send packets saying their HP is always full
+and they have infinite ammo - that's the server's job to determine.</p>
+<p>However, that's not the only benefit of the server being the authority -
+interactions are also simpler to reason about. Consider a door that requires a
+player to have a key. In a client-authoritative setup, the player would check
+if they have a key. If they do, they remove the key, and ask the door to
+open. The request is necessary, since the door is not owned by the player. </p>
+<p>This setup works as long as there's no mismatch or disagreement - e.g. the
+player already removed their key, but the door decides it needs a passcode
+instead. Now the player is missing a key, and the door is still closed.</p>
+<p>While this can be worked around in a client-authoritative setup, it would
+take extra code and complexity to covera all cases. In contrast, with a
+server-authoritative setup, the whole flow is handled by the server. This
+eliminates all the request-accept-deny messages needed, simplifying the flow.
+It also makes such disagreements impossible by design.</p>
+<p>Regardless of your approach ( server-authoritative or not ), <em>netfox</em>
+offers features that can be useful for most projects, for example:</p>
+<ul>
+<li><a href="../netfox/guides/network-time/">Synchronized time</a></li>
+<li><a href="../netfox.extras/guides/window-tiler/">Window tiling</a></li>
+<li><a href="../netfox.extras/guides/network-simulator/">Autoconnect and simulated latency</a></li>
+<li><a href="../netfox/guides/network-schemas/">Schemas for bandwidth</a></li>
+<li><a href="../netfox/nodes/rollback-synchronizer/#diff-states">Diff states</a></li>
+</ul>
+</div>
+<div class="admonition question">
+<p class="admonition-title">Can I use netfox with C#?</p>
+<p>Yes, with <a href="https://github.com/CyFurStudios/NetfoxSharp/">NetfoxSharp</a>.</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">Is NetfoxSharp up to date?</p>
+<p>NetfoxSharp keeps up to date with the latest netfox release. Unreleased
+features e.g. on latest <code>main</code> might not be available.</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">Does netfox support android / iOS / web / ENet / etc.?</p>
+<p>Yes.</p>
+<p>In general, <em>netfox</em> builds on top of Godot's multiplayer API, instead of
+replacing it. This means that it does not rely on any platform-specific functionality.</p>
+<p>It also uses Godot's built-in functions to transmit data. As long as Godot
+can transmit data on the desired platform or networking protocol, netfox should
+work fine.</p>
+</div>
+<div class="admonition question">
+<p class="admonition-title">Can I use Resources in my game logic?</p>
+<p>Yes.</p>
+<p>However, make sure to <strong>not rely on shared resources</strong> in your game logic
+implemented in <code>_rollback_tick()</code> or elsewhere if it doesn't make sense.</p>
+<p>For example, when implementing a crouching logic that modifies the player's
+<code>CollisionShape</code>, make sure that the <code>CollisionShape</code> <strong>is not shared</strong>,
+otherwise one player crouching will make every player crouch.</p>
+</div>
+              
+            </div>
+          </div>
+  <hr>
+  <h2>User discussion</h2>
+  <div class="giscus" ></div>
+  <hr>
+  <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../made-with-netfox/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../hosting/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+      <script src="../assets/mkdocs_puml/puml.js"></script>
+      <script src="../js/version-select.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

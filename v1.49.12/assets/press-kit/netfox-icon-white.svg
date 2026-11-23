@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="128"
+   height="128"
+   viewBox="0 0 33.866666 33.866666"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4 (e7c3feb100, 2024-10-09)"
+   sodipodi:docname="netfox-icon-white.svg"
+   inkscape:export-filename="netfox.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#404040"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="px"
+     inkscape:zoom="4"
+     inkscape:cx="72.75"
+     inkscape:cy="77"
+     inkscape:window-width="2560"
+     inkscape:window-height="1048"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       id="rect1"
+       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.80983;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
+       d="M 0.3180025,0.21523374 V 16.933327 l 14.0952875,14.095287 2.524119,-2.524627 2.524118,2.524627 14.144631,-14.144631 h -8.285032 l 2.524119,2.52412 -2.524119,2.524627 -2.524118,-2.524627 2.524118,-2.52412 H 16.986751 L 25.321127,0.21523374 H 16.986752 L 8.6523775,16.883984 11.176497,19.408103 8.6523776,21.932731 6.1282584,19.408103 8.6523775,16.883984 Z m 25.0031245,0 8.318096,16.63568426 0.01628,-0.01628 z" />
+    <path
+       style="fill:none;stroke:#ffffff;stroke-width:0.521026;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:6;stroke-opacity:1"
+       d="M 16.88398,33.606161 0.2605135,16.982693 V 0.26051574 H 25.269743 L 33.606158,16.883983 Z"
+       id="path3" />
+  </g>
+</svg>
