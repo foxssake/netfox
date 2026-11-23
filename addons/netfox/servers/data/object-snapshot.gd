@@ -27,11 +27,24 @@ func has_value(property: NodePath) -> bool:
 	return _data.has(property)
 
 func record_property(property: NodePath) -> void:
-	set_value(property, _object.get_indexed(property))
+	_data[property] = _object.get_indexed(property)
+
+func record_properties(properties: Array, tick_snapshot: _Snapshot, is_auth: bool = false) -> void:
+	var object := _object
+	var data := _data
+	var tick_data: Dictionary = tick_snapshot._data_for(object)
+	for property in properties:
+		var value: Variant = object.get_indexed(property)
+		data[property] = value
+		tick_data[property] = value
+	_is_auth = is_auth
+	tick_snapshot.set_auth(object, is_auth)
 
 func apply() -> void:
-	for property in _data:
-		_object.set_indexed(property, _data[property])
+	var object := _object
+	var data := _data
+	for property in data:
+		object.set_indexed(property, data[property])
 
 func is_auth() -> bool:
 	return _is_auth

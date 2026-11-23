@@ -62,6 +62,13 @@ func set_property(subject: Object, property: NodePath, value: Variant) -> void:
 	else:
 		_data[subject][property] = value
 
+func _data_for(subject: Object) -> Dictionary:
+	if _data.has(subject):
+		return _data[subject]
+	var props := {}
+	_data[subject] = props
+	return props
+
 func record_property(subject: Object, property: NodePath) -> void:
 	var value := subject.get_indexed(property)
 	set_property(subject, property, value)
@@ -101,10 +108,12 @@ func merge(snapshot: _Snapshot) -> bool:
 	return has_changed
 
 func apply() -> void:
-	for subject in _data:
-		var props := _data[subject] as Dictionary
+	var data := _data
+	for subject in data:
+		var props: Dictionary = data[subject]
+		var object := subject as Object
 		for property in props:
-			(subject as Object).set_indexed(property, props[property])
+			object.set_indexed(property, props[property])
 
 func sanitize(sender: int) -> void:
 	var invalid_subjects := []
