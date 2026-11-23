@@ -1,5 +1,11 @@
 extends CharacterBody3D
+class_name FPSPlayer
 
+enum ACTIONS{
+	RECIEVE_KNOCKBACK
+}
+
+@export var rbs : RollbackSynchronizer
 @export var speed = 5.0
 @export var jump_strength = 5.0
 
@@ -42,7 +48,7 @@ func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 		did_respawn = true
 	else:
 		did_respawn = false
-
+	
 	# Gravity
 	_force_update_is_on_floor()
 	if is_on_floor():
@@ -60,17 +66,46 @@ func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 	head.rotation.x = clamp(head.rotation.x, -1.57, 1.57)
 	head.rotation.z = 0
 	head.rotation.y = 0
-
+	
+	var oldY = velocity.y
+	
 	# Apply movement
 	var input_dir = input.movement
 	var direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.z)).normalized()
 	if direction:
-		velocity.x = direction.x * speed
-		velocity.z = direction.z * speed
+		velocity = velocity.move_toward(direction * speed, delta * speed * 4)
 	else:
-		velocity.x = move_toward(velocity.x, 0, speed)
-		velocity.z = move_toward(velocity.z, 0, speed)
-
+		velocity = velocity.move_toward(Vector3.ZERO, delta * speed * 4)
+	
+	velocity.y = oldY
+	
+	if input.altFire:
+		if is_fresh:
+			$Head/Blast/GPUParticles3D.restart()
+		
+		$Head/Blast/ShapeCast3D.force_shapecast_update()
+		
+		for result in $Head/Blast/ShapeCast3D.collision_result:
+			if result.collider is FPSPlayer:
+				var player : FPSPlayer = result.collider
+				
+				if player != self:
+					player.rbs.request_action(
+						ACTIONS.RECIEVE_KNOCKBACK, 
+						self, 
+						tick + 1, 
+						{
+							"force" = -transform.basis.z * 50
+						}
+					)
+				
+				print("action sent")
+	
+	for a : Action in rbs.get_actions(ACTIONS.RECIEVE_KNOCKBACK, tick):
+		velocity += a.data.force
+		
+		print("action recieved")
+	
 	# move_and_slide assumes physics delta
 	# multiplying velocity by NetworkTime.physics_factor compensates for it
 	velocity *= NetworkTime.physics_factor
