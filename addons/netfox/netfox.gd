@@ -256,7 +256,7 @@ const TYPES: Array[Dictionary] = [
 	},
 ]
 
-func _enter_tree():
+func _enter_tree() -> void:
 	for setting in SETTINGS:
 		add_setting(setting)
 

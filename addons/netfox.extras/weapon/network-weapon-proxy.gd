@@ -16,7 +16,7 @@ func _can_fire() -> bool:
 func _can_peer_use(peer_id: int) -> bool:
 	return c_can_peer_use.call(peer_id)
 
-func _after_fire(projectile: Node):
+func _after_fire(projectile: Node) -> void:
 	c_after_fire.call(projectile)
 
 func _spawn() -> Node:
@@ -25,11 +25,11 @@ func _spawn() -> Node:
 func _get_data(projectile: Node) -> Dictionary:
 	return c_get_data.call(projectile)
 
-func _apply_data(projectile: Node, data: Dictionary):
+func _apply_data(projectile: Node, data: Dictionary) -> void:
 	c_apply_data.call(projectile, data)
 
 func _is_reconcilable(projectile: Node, request_data: Dictionary, local_data: Dictionary) -> bool:
 	return c_is_reconcilable.call(projectile, request_data, local_data)
 
-func _reconcile(projectile: Node, local_data: Dictionary, remote_data: Dictionary):
+func _reconcile(projectile: Node, local_data: Dictionary, remote_data: Dictionary) -> void:
 	c_reconcile.call(projectile, local_data, remote_data)

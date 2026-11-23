@@ -57,6 +57,20 @@ the scene tree. Depending on how complex your scene tree is you may wish to
 only rollback specific nodes for performance rather than the entire simulation
 space.
 
+## Spawning physics bodies
+
+The Rapier drivers prune cached space states up to the spawn tick when bodies
+in the `network_rigid_body` group appear, so rollback never rewinds earlier
+than a body's first tick. For untracked bodies (e.g. raw `RigidBody3D`), call
+`RapierDriver3D.invalidate_for_spawn(get_tree())` (or the `RapierDriver2D`
+equivalent) after spawning.
+
+!!!note
+    Despawned bodies are treated as freshly spawned when re-added to the
+    scene tree, e.g. pooled projectiles. Each pool cycle prunes cached space
+    states up to the current tick, reducing how far back physics can be
+    resimulated. Avoid rapid spawn/despawn cycles of rollback physics bodies.
+
 ## NetworkRigidBody
 
 NetworkRigidBody2D and NetworkRigidBody3D nodes enable RigidBody

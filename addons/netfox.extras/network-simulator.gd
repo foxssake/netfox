@@ -140,7 +140,7 @@ func _process_packets() -> void:
 		_read_server_to_client_packets(current_time)
 		_process_server_to_client_queue(send_threshold)
 
-func _process_loop():
+func _process_loop() -> void:
 	while _proxy_loop_enabled:
 		_process_packets()
 		OS.delay_msec(1)

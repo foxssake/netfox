@@ -30,13 +30,6 @@ var _use_raw := ProjectSettings.get_setting("netfox/general/use_raw_commands", f
 
 static var _logger := NetfoxLogger._for_netfox("NetworkCommandServer")
 
-func _ready():
-	add_child(_rpc_transport, true)
-	add_child(_packet_transport, true)
-
-	_rpc_transport.on_receive.connect(_handle_command)
-	_packet_transport.on_receive.connect(_handle_command)
-
 ## Register a command at the next available ID
 func register_command(handler: Callable, mode: MultiplayerPeer.TransferMode = MultiplayerPeer.TRANSFER_MODE_RELIABLE, channel: int = 0) -> Command:
 	var idx := _next_idx
@@ -84,6 +77,13 @@ func _handle_command(sender: int, idx: int, data: PackedByteArray) -> void:
 		return
 	command._handle(sender, data)
 
+func _ready() -> void:
+	add_child(_rpc_transport, true)
+	add_child(_packet_transport, true)
+
+	_rpc_transport.on_receive.connect(_handle_command)
+	_packet_transport.on_receive.connect(_handle_command)
+
 ## Networked command
 ##
 ## Provides a convenient interface for sending and managing networked commands.
@@ -97,7 +97,7 @@ class Command:
 	var _mode: MultiplayerPeer.TransferMode
 	var _channel: int
 
-	func _init(p_command_server: _NetworkCommandServer, p_idx: int, p_handler: Callable, p_mode: MultiplayerPeer.TransferMode, p_channel: int):
+	func _init(p_command_server: _NetworkCommandServer, p_idx: int, p_handler: Callable, p_mode: MultiplayerPeer.TransferMode, p_channel: int) -> void:
 		_command_server = p_command_server
 		_idx = p_idx
 		_handler = p_handler
@@ -120,10 +120,10 @@ class _Transport extends Node:
 class _PacketTransport extends _Transport:
 	var _packet_prefix: PackedByteArray
 
-	func _init(p_packet_prefix: PackedByteArray):
+	func _init(p_packet_prefix: PackedByteArray) -> void:
 		_packet_prefix = p_packet_prefix
 
-	func _ready():
+	func _ready() -> void:
 		(multiplayer as SceneMultiplayer).peer_packet.connect(_handle_packet)
 
 	func send(idx: int, data: PackedByteArray, target_peer: int, mode: MultiplayerPeer.TransferMode, channel: int) -> void:
@@ -166,16 +166,16 @@ class _RPCTransport extends _Transport:
 			MultiplayerPeer.TRANSFER_MODE_RELIABLE: _submit_reliable.rpc_id(target_peer, idx, data)
 
 	@rpc("any_peer", "call_remote", "unreliable")
-	func _submit_unreliable(idx: int, data: PackedByteArray):
+	func _submit_unreliable(idx: int, data: PackedByteArray) -> void:
 		var sender := multiplayer.get_remote_sender_id()
 		on_receive.emit(sender, idx, data)
 
 	@rpc("any_peer", "call_remote", "unreliable_ordered")
-	func _submit_unreliable_ordered(idx: int, data: PackedByteArray):
+	func _submit_unreliable_ordered(idx: int, data: PackedByteArray) -> void:
 		var sender := multiplayer.get_remote_sender_id()
 		on_receive.emit(sender, idx, data)
 
 	@rpc("any_peer", "call_remote", "reliable")
-	func _submit_reliable(idx: int, data: PackedByteArray):
+	func _submit_reliable(idx: int, data: PackedByteArray) -> void:
 		var sender := multiplayer.get_remote_sender_id()
 		on_receive.emit(sender, idx, data)

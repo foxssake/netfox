@@ -33,12 +33,12 @@ var history_limit: int:
 
 ## The earliest tick that history is retained for.
 ## [br][br]
-## Determined by [member history_limit].
+## Determined by [member history_limit] and any tick gaps caused by a stall.
 ## [br][br]
 ## [i]read-only[/i]
 var history_start: int:
 	get:
-		return maxi(0, NetworkTime.tick - history_limit)
+		return maxi(maxi(0, NetworkTime.tick - history_limit), _history_floor)
 	set(v):
 		push_error("Trying to set read-only variable history_start")
 
@@ -159,6 +159,7 @@ var _input_redundancy: int = ProjectSettings.get_setting(&"netfox/rollback/input
 # Timing
 var _tick: int = 0
 var _resim_from: int
+var _history_floor: int = 0
 
 var _rollback_from: int = -1
 var _rollback_to: int = -1
@@ -192,6 +193,7 @@ func notify_resimulation_start(p_tick: int) -> void:
 ## from the last tick of the previous one.
 func reset() -> void:
 	_tick = 0
+	_history_floor = 0
 	_earliest_input = -1
 	_earliest_state = -1
 	_simulated_nodes.clear()
@@ -350,13 +352,20 @@ func _get_rollback_destroy_method(object: Object) -> Callable:
 		# #556/Arbitrary object support
 		return RollbackLivenessServer._free_subject.bind(object)
 
-func _ready():
+# Mark the first valid rollback tick after NetworkTime skips a stalled period
+#
+# No simulation or history exists for skipped ticks, so future rollback ranges
+# must not cross the discontinuity.
+func _handle_tick_jump(p_tick: int) -> void:
+	_history_floor = maxi(_history_floor, p_tick)
+
+func _ready() -> void:
 	NetfoxLogger.register_tag(_get_rollback_tag)
 
 	NetworkSynchronizationServer._on_input.connect(_handle_input)
 	NetworkSynchronizationServer._on_state.connect(_handle_state)
 
-func _exit_tree():
+func _exit_tree() -> void:
 	NetfoxLogger.free_tag(_get_rollback_tag)
 
 func _get_rollback_tag() -> String:
@@ -389,7 +398,9 @@ func _rollback() -> void:
 	_rollback_stage = _STAGE_BEFORE
 
 	# from = Earliest input amongst all rewindables
-	var from := _resim_from
+	# If the game was stalled, resim from the point we've resumed
+	# ( _history_floor ). Otherwise we'd be running on empty history.
+	var from := maxi(_resim_from, _history_floor)
 
 	# to = Current tick
 	var to := NetworkTime.tick
@@ -456,7 +467,7 @@ func _after_tick(tick: int) -> void:
 	NetworkHistoryServer._record_rollback_input(tick + input_delay)
 	NetworkSynchronizationServer._synchronize_input(tick + input_delay)
 
-func _handle_input(snapshot: _Snapshot):
+func _handle_input(snapshot: _Snapshot) -> void:
 	if snapshot.is_empty():
 		return
 	if _earliest_input < 0 or snapshot.tick < _earliest_input:
@@ -465,7 +476,7 @@ func _handle_input(snapshot: _Snapshot):
 	else:
 		_logger.trace("Ingested input @%d, earliest @%d->@%d", [snapshot.tick, _earliest_input, _earliest_input])
 
-func _handle_state(snapshot: _Snapshot):
+func _handle_state(snapshot: _Snapshot) -> void:
 	if snapshot.is_empty():
 		return
 	if _earliest_state < 0 or snapshot.tick < _earliest_state:

@@ -9,7 +9,7 @@ var _schemas: _NetworkSchema
 static var _default_filter := func(subject: Object): return true
 static var _logger := NetfoxLogger._for_netfox("DenseSnapshotSerializer")
 
-func _init(p_schemas: _NetworkSchema, p_identity_server: _NetworkIdentityServer = null):
+func _init(p_schemas: _NetworkSchema, p_identity_server: _NetworkIdentityServer = null) -> void:
 	assert(p_schemas != null, "Missing schemas!")
 	# Intentionally storing reference, so it can be modified from the outside
 	# e.g. RollbackSynchronizerServer adds a property

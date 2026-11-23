@@ -163,7 +163,7 @@ func _exit_tree() -> void:
 		NetworkHistoryServer.deregister(node)
 		NetworkIdentityServer.deregister_node(node)
 
-func _ready():
+func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
 

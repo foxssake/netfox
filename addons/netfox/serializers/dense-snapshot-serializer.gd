@@ -1,7 +1,7 @@
 extends _BaseSnapshotSerializer
 class_name _DenseSnapshotSerializer
 
-static func _static_init():
+static func _static_init() -> void:
 	_logger = NetfoxLogger._for_netfox("DenseSnapshotSerializer")
 
 func write_for(peer: int, snapshot: _Snapshot, properties: _PropertyPool, filter: Callable = _default_filter) -> Array[PackedByteArray]:

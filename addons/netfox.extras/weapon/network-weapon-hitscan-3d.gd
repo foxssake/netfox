@@ -29,7 +29,7 @@ func fire() -> bool:
 func can_fire() -> bool:
 	return _weapon.can_fire()
 
-func _init():
+func _init() -> void:
 	_weapon = _NetworkWeaponProxy.new()
 	add_child(_weapon, true, INTERNAL_MODE_BACK)
 	_weapon.owner = self
@@ -62,10 +62,10 @@ func _can_peer_use(peer_id: int) -> bool:
 ## weapon.
 ## [br][br]
 ## See [NetworkWeapon].
-func _after_fire():
+func _after_fire() -> void:
 	pass
 
-func _spawn():
+func _spawn() -> void:
 	# No projectile is spawned for a hitscan weapon.
 	pass
 
@@ -76,7 +76,7 @@ func _get_data() -> Dictionary:
 		"direction": -global_transform.basis.z  # Assuming forward direction.
 	}
 
-func _apply_data(data: Dictionary):
+func _apply_data(data: Dictionary) -> void:
 	# Reproduces the firing event on all peers.
 	var origin = data["origin"] as Vector3
 	var direction = data["direction"] as Vector3
@@ -106,7 +106,7 @@ func _is_reconcilable(request_data: Dictionary, local_data: Dictionary) -> bool:
 	# Always reconcilable
 	return true
 
-func _reconcile(local_data: Dictionary, remote_data: Dictionary):
+func _reconcile(local_data: Dictionary, remote_data: Dictionary) -> void:
 	# Nothing to do on reconcile
 	pass
 
@@ -114,7 +114,7 @@ func _reconcile(local_data: Dictionary, remote_data: Dictionary):
 ## [br][br]
 ## The parameter is the result of a
 ## [method PhysicsDirectSpaceState3D.intersect_ray] call.
-func _on_hit(result: Dictionary):
+func _on_hit(result: Dictionary) -> void:
 	# Implement hit effect logic here.
 	# var hit_position = result.position
 	# var hit_normal = result.normal
@@ -125,6 +125,6 @@ func _on_hit(result: Dictionary):
 	pass
 
 ## Override to implement firing effects, like muzzle flash or sound.
-func _on_fire():
+func _on_fire() -> void:
 	# Implement firing effect logic here.
 	pass

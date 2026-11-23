@@ -24,7 +24,7 @@ enum {
 	SLEEPING
 }
 
-func _notification(notification: int):
+func _notification(notification: int) -> void:
 	if notification == NOTIFICATION_READY:
 		add_to_group("network_rigid_body")
 
@@ -57,10 +57,10 @@ func set_state(remote_state: Array) -> void:
 
 ## Override and apply any logic, forces or impulses to the rigid body as you would in physics_process
 ## The physics engine will run its simulation during rollback_tick with other nodes
-func _physics_rollback_tick(_delta, _tick):
+func _physics_rollback_tick(_delta, _tick) -> void:
 	pass
 
 ## Override to run once per network tick, before any physics sub-step
 ## Receives the full tick delta and the tick being simulated
-func _before_physics_rollback_tick(_delta, _tick):
+func _before_physics_rollback_tick(_delta, _tick) -> void:
 	pass

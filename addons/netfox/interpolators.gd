@@ -27,6 +27,9 @@ class Interpolator:
 		result.apply = apply
 		return result
 
+## Default interpolation function
+static var default_apply: Callable = func(a, b, f): return a if f < 0.5 else b
+
 ## Fallback interpolator.
 ## [br][br]
 ## Returns the starting value in the first half of the tick, and the target
@@ -44,9 +47,6 @@ static var DEFAULT_INTERPOLATOR := Interpolator.make(
 ## [br][br]
 ## Do not modify - use [method register] instead.
 static var interpolators: Array[Interpolator]
-
-## Default interpolation function
-static var default_apply: Callable = func(a, b, f): a if f < 0.5 else b
 
 ## Register an interpolator.
 ## [br][br]
@@ -77,7 +77,7 @@ static func find_interpolator_for(value: Variant) -> Interpolator:
 ## Note that this method looks up the appropriate interpolator using [method
 ## find_for] on every call. It is faster to call [method find_for] once, and
 ## call the resulting [Callable] repeatedly.
-static func interpolate(a, b, f: float):
+static func interpolate(a: Variant, b: Variant, f: float) -> Variant:
 	return find_for(a).call(a, b, f)
 
 static func _static_init() -> void:

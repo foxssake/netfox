@@ -13,7 +13,7 @@ var snapshots: Dictionary = {}
 # Snapshot and Rollback entire physics space.
 @export var rollback_physics_space: bool = true
 
-func _enter_tree():
+func _enter_tree() -> void:
 	#regular ticks
 	NetworkTime.before_tick.connect(before_tick)
 	NetworkTime.after_tick_loop.connect(after_tick_loop)
@@ -23,7 +23,7 @@ func _enter_tree():
 		NetworkRollback.on_prepare_tick.connect(on_prepare_tick)
 	NetworkRollback.on_process_tick.connect(on_process_tick)
 
-func _exit_tree():
+func _exit_tree() -> void:
 	NetworkTime.before_tick.disconnect(before_tick)
 	NetworkTime.after_tick_loop.disconnect(after_tick_loop)
 
@@ -37,7 +37,8 @@ func _ready() -> void:
 
 # Emitted before a tick is run.
 func before_tick(delta: float, tick: int) -> void:
-	_snapshot_space(tick)
+	if rollback_physics_space:
+		_snapshot_space(tick)
 	step_physics(delta, tick)
 
 func on_prepare_tick(tick: int) -> void:

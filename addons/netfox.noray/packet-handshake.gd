@@ -10,7 +10,7 @@ class HandshakeStatus:
 	var did_write: bool = false
 	var did_handshake: bool = false
 
-	func _to_string():
+	func _to_string() -> String:
 		return "$" + \
 			("r" if did_read else "-") + \
 			("w" if did_write else "-") + \

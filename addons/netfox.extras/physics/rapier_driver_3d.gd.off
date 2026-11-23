@@ -1,13 +1,11 @@
-extends PhysicsDriver
+extends RapierDriver
 
 class_name RapierDriver3D
-
-var _state: StateManager3D
-
 
 func _init_physics_space() -> void:
 	physics_space = get_viewport().world_3d.space
 	PhysicsServer3D.space_set_active(physics_space, false)
+	add_to_group(&"rapier_driver_3d")
 
 	_state = StateManager3D.new()
 	_state.root_node = self
@@ -15,26 +13,16 @@ func _init_physics_space() -> void:
 	_state.set_rolling_cache(true)
 	add_child(_state)
 
-
 func _physics_step(delta) -> void:
 	RapierPhysicsServer3D.space_step(physics_space, delta)
 	RapierPhysicsServer3D.space_flush_queries(physics_space)
 
-
 func _snapshot_space(tick: int) -> void:
 	_state.cache_state(physics_space, tick)
 
+func _is_tracked_body(body: Node) -> bool:
+	return body is RigidBody3D
 
-func _rollback_space(tick: int) -> void:
-	# States are cached in the order they were taken, oldest first, each one
-	# tagged with the tick it belongs to. Find the state by its tag rather
-	# than deriving an index from the tick: the cache drops old entries once
-	# it fills up, and a tick may even be cached more than once while history
-	# is being rewritten.
-	var cache_tags: Array = _state.ordered_cache_tags()
-	var index: int = cache_tags.rfind(tick)
-	if index < 0:
-		# That tick is no longer cached, so there is nothing to restore
-		return
-
-	_state.load_cached_state(physics_space, index)
+## Drop cached space states up to the current tick, e.g. after spawning raw physics bodies.
+static func invalidate_for_spawn(tree: SceneTree) -> void:
+	_invalidate_for_spawn(tree, &"rapier_driver_3d")

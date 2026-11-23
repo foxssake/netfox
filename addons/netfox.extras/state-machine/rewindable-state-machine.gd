@@ -111,7 +111,7 @@ func update_states() -> void:
 	for child in find_children("*", "RewindableState", false):
 		_available_states[child.name] = child
 
-func _notification(what: int):
+func _notification(what: int) -> void:
 	# Use notification instead of _ready, so users can write their own _ready
 	# callback without having to call super()
 	if Engine.is_editor_hint(): return
@@ -127,7 +127,7 @@ func _notification(what: int):
 			# Disconnect handlers
 			NetworkTime.after_tick_loop.disconnect(_after_tick_loop)
 
-func _get_configuration_warnings():
+func _get_configuration_warnings() -> PackedStringArray:
 	const MISSING_SYNCHRONIZER_ERROR := \
 		"RewindableStateMachine is not managed by a RollbackSynchronizer! Add it as a sibling node to fix this."
 	const INVALID_SYNCHRONIZER_CONFIG_ERROR := \
@@ -162,7 +162,7 @@ func _rollback_tick(delta: float, tick: int, is_fresh: bool) -> void:
 		_state_object.tick(delta, tick, is_fresh)
 		_state_object.on_tick.emit(delta, tick, is_fresh)
 
-func _after_tick_loop():
+func _after_tick_loop() -> void:
 	if _state_object != _previous_state_object:
 		on_display_state_changed.emit(_previous_state_object, _state_object)
 

@@ -52,7 +52,7 @@ func set_body_states(rid: RID, body_state: Array) -> void:
 	PhysicsServer3D.body_set_state(rid, PhysicsServer3D.BODY_STATE_ANGULAR_VELOCITY, body_state[2])
 	PhysicsServer3D.body_set_state(rid, PhysicsServer3D.BODY_STATE_SLEEPING, body_state[3])
 
-func scan_tree():
+func scan_tree() -> void:
 	scene_collision_objects.clear()
 	for body in get_physics_body_3d_children(get_node('/root')):
 		node_added(body)

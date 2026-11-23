@@ -12,6 +12,8 @@ declare -a OFF_FILES=(
   "addons/netfox.extras/physics/godot_driver_2d.gd.uid"
   "addons/netfox.extras/physics/godot_driver_3d.gd"
   "addons/netfox.extras/physics/godot_driver_3d.gd.uid"
+  "addons/netfox.extras/physics/rapier_driver.gd"
+  "addons/netfox.extras/physics/rapier_driver.gd.uid"
   "addons/netfox.extras/physics/rapier_driver_2d.gd"
   "addons/netfox.extras/physics/rapier_driver_2d.gd.uid"
   "addons/netfox.extras/physics/rapier_driver_3d.gd"

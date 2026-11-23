@@ -440,6 +440,7 @@ func start() -> int:
 		await NetworkTimeSynchronizer.on_initial_sync
 
 		_tick = seconds_to_ticks(NetworkTimeSynchronizer.get_time())
+		NetworkRollback._handle_tick_jump(_tick)
 		_initial_sync_done = true
 		_state = _STATE_ACTIVE
 
@@ -558,8 +559,17 @@ func _loop() -> void:
 	# Handle pause
 	if _was_paused:
 		_was_paused = false
-		_next_tick_time += clock_step
-		_tick = seconds_to_ticks(NetworkTimeSynchronizer.get_time())
+		var previous_tick := _tick
+
+		# Reset both clock and tick to the reference, to keep clock sync going
+		# as if nothing happened
+		_clock.set_time(NetworkTimeSynchronizer.get_time())
+		_clock_stretch_factor = 1.
+		_next_tick_time = _clock.get_time()
+		_tick = seconds_to_ticks(_clock.get_time())
+
+		if _tick > previous_tick:
+			NetworkRollback._handle_tick_jump(_tick)
 
 	# Run tick loop if needed
 	_last_process_time = _clock.get_time()

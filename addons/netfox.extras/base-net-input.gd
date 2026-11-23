@@ -3,7 +3,7 @@ class_name BaseNetInput
 
 ## Base class for Input nodes used with rollback.
 
-func _ready():
+func _ready() -> void:
 	NetworkTime.before_tick_loop.connect(func():
 		if is_multiplayer_authority():
 			_gather()
@@ -18,5 +18,5 @@ func _ready():
 ## must be set.
 ## [br][br]
 ## [i]Note:[/i] This is only called for the local player's input nodes.
-func _gather():
+func _gather() -> void:
 	pass

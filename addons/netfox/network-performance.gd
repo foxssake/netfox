@@ -86,7 +86,7 @@ func get_rollback_nodes_simulated() -> int:
 func get_rollback_nodes_simulated_per_tick() -> float:
 	return _rollback_nodes_simulated / maxf(1., _rollback_ticks)
 
-func push_rollback_nodes_simulated(count: int):
+func push_rollback_nodes_simulated(count: int) -> void:
 	_rollback_nodes_simulated_accum += count
 
 ## Get the number of properties in the full state recorded during the last tick

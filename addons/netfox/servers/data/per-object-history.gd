@@ -10,7 +10,7 @@ var _subjects: Array[Object] = []
 
 static var _logger := NetfoxLogger._for_netfox("PerObjectHistory")
 
-func _init(p_history_size: int):
+func _init(p_history_size: int) -> void:
 	_history_size = p_history_size
 
 func subjects() -> Array[Object]:

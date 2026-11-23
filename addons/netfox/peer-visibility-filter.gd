@@ -138,12 +138,12 @@ func set_update_mode(mode: UpdateMode) -> void:
 func get_update_mode() -> UpdateMode:
 	return _update_mode
 
-func _enter_tree():
+func _enter_tree() -> void:
 	_connect_update_handlers(update_mode)
 	if multiplayer:
 		update_visibility()
 
-func _exit_tree():
+func _exit_tree() -> void:
 	_disconnect_update_handlers(update_mode)
 
 func _disconnect_update_handlers(mode: UpdateMode) -> void:
