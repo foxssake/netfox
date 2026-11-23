@@ -9,6 +9,8 @@ var subject: StateNode
 func before_case(__) -> void:
 	# Makes sure local peer is 1, otherwise identifiers get random local IDs
 	Vest.get_tree().root.multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
+
+	NetworkRollback.reset()
 	NetworkMocks.set_tick(0, 0)
 	servers = await TestingServers.create()
 	subject = await create_subject()
