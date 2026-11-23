@@ -1,12 +1,5 @@
 # RewindableAction
 
-!!!warning
-    RewindableActions are *experimental*, meaning the API may change in
-    breaking ways, and may be less stable than other features.
-
-    Once the class matures and finds its final form, the *experimental* mark
-    will be removed. Feedback is welcome in the meanwhile!
-
 Synchronizes events that happen over the network, by letting peers predict the
 event happening, and then adjusting the game based on the host's response.
 
