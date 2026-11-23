@@ -10,6 +10,8 @@ We'd like to highlight some of our contributors, in no particular order:
 * [albertok](https://github.com/albertok)
     * For being one of the first active members of the community
     * For contributing multiple features to netfox, including window tiling
+    * For being the community's physics stepping expert
+    * For all the performance-oriented GDScript acrobatics
 * [DustieDog](https://github.com/DustieDog)
     * For creating [NetfoxSharp](https://github.com/CyFurStudios/NetfoxSharp)
     * For contributing to netfox's code quality both with PRs and design
@@ -19,6 +21,13 @@ We'd like to highlight some of our contributors, in no particular order:
 * [TheYellowArchitect](https://github.com/TheYellowArchitect)
     * For suggesting and contributing to multiple important features such as
       diff states and input delay
+* [Andrey Romancev](https://github.com/aromancev)
+    * For all the time spent in the rollback dungeons improving netfox
+    * For all the technical discussions
+* [TuysuzTavsan](https://github.com/TuysuzTavsan)
+    * For the tremendous work in kickstarting FPS netcode in netfox
+* [RealPoke](https://github.com/realpoke/)
+    * For all the contributions to better physics in rollback
 
 ## All contributors
 
