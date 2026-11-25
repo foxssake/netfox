@@ -16,7 +16,7 @@ var _rb_input_properties := _PropertyPool.new()
 var _rb_state_properties := _PropertyPool.new()
 var _sync_state_properties := _PropertyPool.new()
 
-var _rb_history_size := NetworkRollback.history_limit
+var _rb_history_size: int = NetworkRollback.history_limit
 var _sync_history_size := ProjectSettings.get_setting("netfox/state_synchronizer/history_limit", 64) as int
 
 var _ignored_subjects := _Set.new()

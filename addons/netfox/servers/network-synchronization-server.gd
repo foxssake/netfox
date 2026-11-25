@@ -33,11 +33,11 @@ var _sync_owned_state_properties := _PropertyPool.new()
 var _visibility_filters := {} # Node to PeerVisibilityFilter
 
 var _rb_enable_input_broadcast := ProjectSettings.get_setting("netfox/rollback/enable_input_broadcast", false) as bool
-var _rb_enable_diffs := NetworkRollback.enable_diff_states
+var _rb_enable_diffs: bool = NetworkRollback.enable_diff_states
 var _rb_full_interval := ProjectSettings.get_setting("netfox/rollback/full_state_interval", 24) as int
 var _rb_full_scheduler := _IntervalScheduler.new(_rb_full_interval)
 
-var _input_redundancy := NetworkRollback.input_redundancy
+var _input_redundancy: int = NetworkRollback.input_redundancy
 
 var _rb_sent_state_history := {} # peer to _HistoryBuffer of _Snapshot
 
@@ -226,7 +226,7 @@ func _synchronize_input(tick: int) -> void:
 		# Grab owned input objects
 		for input_subject in _rb_owned_input_properties.get_subjects():
 			# Grab state objects controlled by input
-			var controlled_nodes := RollbackSimulationServer._get_controlled_by(input_subject)
+			var controlled_nodes: Array[Node] = RollbackSimulationServer._get_controlled_by(input_subject)
 
 			# Notify peers owning nodes about the input
 			for node in controlled_nodes:
@@ -242,7 +242,7 @@ func _synchronize_input(tick: int) -> void:
 	# Prepare snapshot package
 	for offset in _input_redundancy:
 		# Grab snapshot from NetworkHistoryServer
-		var snapshot := NetworkHistoryServer._get_rollback_input_snapshot(tick - offset)
+		var snapshot: _Snapshot = NetworkHistoryServer._get_rollback_input_snapshot(tick - offset)
 		if not snapshot:
 			break
 
@@ -260,7 +260,7 @@ func _synchronize_state(tick: int) -> void:
 		return
 
 	# Grab snapshot from NetworkHistoryServer
-	var snapshot := NetworkHistoryServer._get_rollback_state_snapshot(tick)
+	var snapshot: _Snapshot = NetworkHistoryServer._get_rollback_state_snapshot(tick)
 	if not snapshot:
 		# No data for tick
 		return
@@ -312,7 +312,7 @@ func _synchronize_sync_state(tick: int) -> void:
 		return
 
 	# Grab snapshot from NetworkHistoryServer
-	var snapshot := NetworkHistoryServer._get_synchronizer_state_snapshot(tick)
+	var snapshot: _Snapshot = NetworkHistoryServer._get_synchronizer_state_snapshot(tick)
 	if not snapshot:
 		return
 
