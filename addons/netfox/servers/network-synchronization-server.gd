@@ -337,7 +337,11 @@ func _synchronize_sync_state(tick: int) -> void:
 
 		# Send diffs
 		for peer in multiplayer.get_peers():
-			var filter := func(subject): return _is_node_visible_to(peer, subject)
+			# Skip subjects with no changes, and peers with nothing to receive
+			var filter := func(subject): return _is_node_visible_to(peer, subject) \
+					and not diff.get_subject_properties(subject).is_empty()
+			if not _sync_owned_state_properties.get_subjects().any(filter):
+				continue
 
 			var packets := _sparse_serializer.write_for(peer, diff, _sync_owned_state_properties, filter)
 			for packet in packets:
