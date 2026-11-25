@@ -158,6 +158,15 @@ var SETTINGS: Array[Dictionary] = [
 		"type": TYPE_INT
 	},
 	{
+		# Diff against the state sent this many ticks ago, so each change is
+		# repeated in that many packets. 1 diffs against the last state sent.
+		"name": "netfox/state_synchronizer/diff_redundancy",
+		"value": 1,
+		"type": TYPE_INT,
+		"hint": PROPERTY_HINT_RANGE,
+		"hint_string": "1,8,or_greater"
+	},
+	{
 		"name": "netfox/state_synchronizer/full_state_interval",
 		"value": 24,
 		"type": TYPE_INT,
