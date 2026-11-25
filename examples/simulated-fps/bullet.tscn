@@ -1,0 +1,26 @@
+[gd_scene format=3 uid="uid://d4f2lj3te772h"]
+
+[ext_resource type="Script" uid="uid://dour8fehaaugp" path="res://addons/netfox/tick-interpolator.gd" id="1_lmpfi"]
+[ext_resource type="Script" uid="uid://cdi1djlms0jxs" path="res://examples/simulated-fps/bullet.gd" id="1_x1km6"]
+[ext_resource type="PackedScene" uid="uid://41abltq21qid" path="res://examples/simulated-fps/bullet_decal.tscn" id="2_l1o5j"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_evsbd"]
+albedo_color = Color(0.6756311, 1.53608, 2.636654, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_h1saq"]
+material = SubResource("StandardMaterial3D_evsbd")
+size = Vector3(0.05, 0.05, 0.2)
+
+[node name="Bullet" type="Node3D" unique_id=173741221]
+script = ExtResource("1_x1km6")
+bullet_decal_scene = ExtResource("2_l1o5j")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=147826067]
+mesh = SubResource("BoxMesh_h1saq")
+
+[node name="TickInterpolator" type="Node" parent="." unique_id=764982081 node_paths=PackedStringArray("root")]
+script = ExtResource("1_lmpfi")
+root = NodePath("..")
+properties = Array[String]([":transform"])
+record_first_state = false
+metadata/_custom_type_script = "uid://dour8fehaaugp"

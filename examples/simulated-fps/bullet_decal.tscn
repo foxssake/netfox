@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://41abltq21qid"]
+
+[ext_resource type="Script" uid="uid://04lg5sfp0e3g" path="res://examples/simulated-fps/bullet_decal.gd" id="1_yvpfs"]
+[ext_resource type="Texture2D" uid="uid://b8r41bt6ft8jt" path="res://examples/multiplayer-fps/textures/bullet_hole.png" id="2_mw4yy"]
+
+[node name="BulletDecal" type="Node3D" unique_id=337437942]
+script = ExtResource("1_yvpfs")
+
+[node name="Decal" type="Decal" parent="." unique_id=49902736]
+size = Vector3(0.2, 0.2, 0.2)
+texture_albedo = ExtResource("2_mw4yy")
+
+[node name="Timer" type="Timer" parent="." unique_id=212424123]
+wait_time = 15.0
+one_shot = true
+autostart = true
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
