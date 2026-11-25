@@ -36,7 +36,7 @@ func _fire(fired_tick : int) -> void:
 	last_fire = fired_tick
 	
 	var origin := camera.global_position
-	var direction := -camera.global_basis.z
+	var direction : Vector3 = -camera.global_basis.z
 	
 	var bullet := bullet_scene.instantiate() as SimulatedBullet
 	bullet.fire(origin, direction)
