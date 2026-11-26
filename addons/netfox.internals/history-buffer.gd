@@ -46,12 +46,16 @@ func push(value: Variant) -> void:
 	var overflow: int = _head - _tail - _capacity
 	if overflow > 0:
 		_tail += overflow
+		# The tail is in the head's slot now, a gap there points to an evicted item
+		if _previous[slot] != _tail:
+			_settle_tail()
 
 func pop() -> Variant:
 	assert(is_not_empty(), "History buffer is empty!")
 
 	var value = _buffer[_tail % _capacity]
 	_tail += 1
+	_settle_tail()
 	return value
 
 func values() -> Array:
@@ -176,3 +180,9 @@ func is_empty() -> bool:
 
 func is_not_empty() -> bool:
 	return _tail != _head
+
+# A gap points back to the last item before it, so a gap at the tail has
+# nothing to return. Move the tail on to the next item.
+func _settle_tail() -> void:
+	while _tail < _head and _previous[_tail % _capacity] != _tail:
+		_tail += 1
